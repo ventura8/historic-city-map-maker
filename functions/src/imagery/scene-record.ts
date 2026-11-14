@@ -5,6 +5,7 @@
  * the first real search over Bucharest proves them, §14).
  */
 import {
+    ARGON_FRAME_ID,
     SENSOR_SPECS,
     footprintCoverage,
     footprintOf,
@@ -52,7 +53,7 @@ const CAMERAS: Readonly<
         ],
         // Mission numbers: Argon 9xxxA (MC, its mapping camera), KH-4B 11xx, KH-4A 10xx, KH-4 9xxx.
         ids: [
-            [/^DS0*9\d{3}A\d+MC\d+$/i, 'KH-5'],
+            [ARGON_FRAME_ID, 'KH-5'],
             [/^DS0*11\d{2}/i, 'KH-4B'],
             [/^DS0*10\d{2}/i, 'KH-4A'],
             [/^DS0*9\d{3}/i, 'KH-4'],
@@ -95,6 +96,10 @@ const CORNERS = ['nw', 'ne', 'se', 'sw'] as const;
 function sensorOf(dataset: UsgsDataset, record: Pick<SceneRecord, 'entityId' | 'metadata'>): Sensor {
     const camera = record.metadata[CAMERA_FIELD] ?? '';
     const cameras = CAMERAS[dataset];
+    // Admin sweep 2026-11-14 (bug 5): an Argon frame's id wins over metadata that names another camera of `corona2`.
+    if (ARGON_FRAME_ID.test(record.entityId)) {
+        return 'KH-5';
+    }
     const named =
         cameras.patterns.find(([pattern]) => pattern.test(camera)) ?? cameras.ids.find(([pattern]) => pattern.test(record.entityId));
     return named?.[1] ?? cameras.fallback;
@@ -107,6 +112,9 @@ function sensorOf(dataset: UsgsDataset, record: Pick<SceneRecord, 'entityId' | '
  */
 export function trueSensor(scene: Pick<UsgsSceneDoc, 'dataset' | 'entityId' | 'sensor'>): Sensor {
     const cameras = CAMERAS[scene.dataset];
+    if (ARGON_FRAME_ID.test(scene.entityId)) {
+        return 'KH-5';
+    }
     if (scene.sensor !== cameras.fallback) {
         return scene.sensor;
     }

@@ -160,12 +160,19 @@ describe('<hcm-jobs-page>: waiting, finished and failing jobs', () => {
         expect(deepText(element)).toContain('Runs after Oct 24, 2026');
         expect(deep(element, 'h2').textContent).toBe("Deleting a layer's tiles");
 
-        const failed = jobItem({ status: 'failed', finished: true, error: { code: 'usgs.down', message: 'USGS did not answer' } });
+        // Admin sweep 2026-11-14 (bug 2): never the stored message or a raw key, always the code's plain sentence.
+        const failed = jobItem({ status: 'failed', finished: true, error: { code: 'usgs.down', message: 'ZeroDivisionError: division by zero' } });
         jobs.set({ detail: detail(failed) });
         await route(app, element, ['b']);
 
         expect(deepAll(element, '.pane .actions hcm-button')).toHaveLength(0);
-        expect(deep(element, '.alert').textContent).toContain('Error: USGS did not answer');
+        expect(deep(element, '.alert').textContent).toContain('a fault on our side');
+        expect(deep(element, '.alert').textContent).not.toContain('ZeroDivisionError');
+        const stale = { code: 'apiError.imagery.joinPartGone', message: 'apiError.imagery.joinPartGone', params: { frame: 'DS1103-1058DF027' } };
+        jobs.set({ detail: detail({ ...failed, error: stale }) });
+        await updated(element);
+        expect(deep(element, '.alert').textContent).toContain('DS1103-1058DF027');
+        expect(deep(element, '.alert').textContent).not.toContain('apiError');
         jobs.set({ detail: { ...detail(failed), logs: ready([]) } });
         await updated(element);
         expect(deepText(element)).toContain('No log lines yet.');

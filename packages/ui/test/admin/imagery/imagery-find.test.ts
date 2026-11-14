@@ -210,6 +210,17 @@ describe('<hcm-imagery-page>: Work', () => {
         expect(await axeViolations(element)).toEqual([]);
     });
 
+    it('badPath_anArgonFrameIsSetAsideTooCoarseWithItsReasonNeverAskedOfTheOwner', async () => {
+        const argon = versionItem({ id: 'job-argon', state: 'needs_gcps', needsYou: false, tooCoarse: true });
+        const { element } = await imageryPage(imageryState({ tab: 'work', versions: ready([versionItem(), argon]) }));
+
+        expect(deep(element, '#imagery-too-coarse').textContent).toBe('Too coarse for streets (kept)');
+        expect(deepText(element)).toContain('about 140 m a pixel; streets need 15 m');
+        expect(deepAll(element, '#imagery-in-progress')).toHaveLength(0);
+        expect(deep(element, '[data-version="job-argon"]').closest('section')?.getAttribute('aria-labelledby')).toBe('imagery-too-coarse');
+        expect(await axeViolations(element)).toEqual([]);
+    });
+
     it('happyPath_aWaitingJobSaysWhyInWords', async () => {
         const jobs = {
             'job-1980': {

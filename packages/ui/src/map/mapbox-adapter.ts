@@ -30,7 +30,7 @@ import {
     type VectorOverlaySpec,
 } from './map-port.js';
 import { guardContextRestore } from './context-restore.js';
-import { classifyError, mapboxLanguage, mapboxOptions, relabelMapbox, whenLoaded } from './lifecycle.js';
+import { classifyError, mapboxLanguage, mapboxOptions, relabelMapbox, removeWhenSettled, whenLoaded } from './lifecycle.js';
 import type { MapboxEvent, MapboxGl, MapboxMap } from './mapbox-types.js';
 import { OverlayRegistry } from './overlay-registry.js';
 import {
@@ -415,6 +415,7 @@ class MapboxPort implements MapPort {
             return;
         }
         this.getView();
+        const loaded = this.#loaded;
         this.#session = null;
         this.#loaded = false;
         session.abortLoad(new Error('unknown'));
@@ -422,7 +423,7 @@ class MapboxPort implements MapPort {
             cleanup();
         }
         session.registry.destroy();
-        session.map.remove();
+        removeWhenSettled(session.map, loaded);
     }
 }
 

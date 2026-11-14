@@ -110,6 +110,8 @@ export interface VersionItemPort {
     readonly basedOn: string | null;
     /** M12: the small picture of a waiting row. */
     readonly thumbPath: string | null;
+    /** Admin sweep 2026-11-14: a KH-5 Argon frame, too coarse for streets, set aside (kept) under its own heading. */
+    readonly tooCoarse: boolean;
 }
 
 export interface JobProgressPort {

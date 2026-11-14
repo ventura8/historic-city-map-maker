@@ -6,6 +6,8 @@
  */
 import {
     SENSOR_SPECS,
+    frameLabel,
+    tooCoarseForStreets,
     type ApiErrorCode,
     type JobDoc,
     type JobStatus,
@@ -181,6 +183,8 @@ export interface VersionItem {
     readonly basedOn: string | null;
     /** M12: the small picture Work's waiting row shows (null: none yet). */
     readonly thumbPath: string | null;
+    /** Admin sweep 2026-11-14 (bug 5): a KH-5 Argon frame, too coarse for streets: set aside in Work, kept, never asked of the admin. */
+    readonly tooCoarse: boolean;
 }
 
 /** The USGS frames a version's source names. */
@@ -204,15 +208,19 @@ function stoppedForChoice(version: LayerVersionDoc): boolean {
 
 export function versionItemOf(doc: Stored<LayerVersionDoc>): VersionItem {
     const version = doc.data;
+    const entityIds = entityIdsOf(version.source);
+    const tooCoarse = version.origin !== 'join' && tooCoarseForStreets(entityIds, version.sensor);
+    const label = frameLabel(version.label, version.origin === 'join' ? undefined : entityIds[0]);
     return {
-        ...{ id: doc.id, layerId: version.layerId, label: version.label, year: version.year, origin: version.origin, state: version.state },
+        ...{ id: doc.id, layerId: version.layerId, label, year: version.year, origin: version.origin, state: version.state },
         updatedAt: isoOf(version.updatedAt),
-        needsYou: WAITING_FOR_ADMIN.includes(version.state) || stoppedForChoice(version),
+        needsYou: !tooCoarse && (WAITING_FOR_ADMIN.includes(version.state) || stoppedForChoice(version)),
         checkpointRmseM: orNull(version.georef?.checkpointRmseM),
         partOf: orNull(version.partOf),
-        entityIds: entityIdsOf(version.source),
+        entityIds,
         basedOn: orNull(version.basedOn),
         thumbPath: orNull(version.output?.tiles?.thumbPath),
+        tooCoarse,
     };
 }
 

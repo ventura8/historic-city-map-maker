@@ -43,12 +43,14 @@ from hcm_pipeline.georef.corners import (
     Frame,
     around,
     bounded_crop,
+    crop_box,
     first_guesses,
     frame_corners,
     inside_world,
     on_exposure,
     reaching,
 )
+from hcm_pipeline.georef.film_edge import exposed_area, trimmed
 from hcm_pipeline.georef.panoramic import PanoramicCamera
 from hcm_pipeline.georef.transforms import Gcp
 from hcm_pipeline.images import UInt8Array, as_uint8, resize, seeded
@@ -68,6 +70,8 @@ USGS_RAW_PREFIX: Final = "usgs-raw/"
 # A film this share of the sensor's full aspect or longer swept the whole angle (four real KH-9 frames: 19.6 to 20.5 for 20.2).
 FULL_SWEEP_SHARE: Final = 0.9
 PERCENT: Final = 100.0
+# The frame cameras whose delivery holds the film's black border inside the city crop (`inside_film`).
+FILM_EDGE_SENSORS: Final = frozenset({"KH-9-mapping"})
 # Rows of a crop copied at a time: at a Corona strip's 35,000 columns, about 36 MB.
 CROP_BLOCK_ROWS: Final = 1024
 
@@ -295,16 +299,22 @@ class LocateStep:
         """A guess cuts the frame only when it was searched whole, in time, and is no larger than a scan shown whole."""
         limits = film_limits(camera_of(search.sensor, layout), layout)
         if offered_whole(search.limits, limits, timed_out):
-            return self._whole(ctx, found, layout, limits)
+            return self._whole(ctx, found, layout, (limits, expected_boxes(search, found)))
         return self._not_proved(ctx, search, found, layout)
 
-    def _whole(self, ctx: JobContext, found: Found, layout: FrameLayout, limits: Limits) -> StepResult:
-        """The whole exposure, shrunk to what the georeferencer shows, with no corner pairs: the owner's rough points are next."""
+    def _whole(self, ctx: JobContext, found: Found, layout: FrameLayout, framed: tuple[Limits, list[Box]]) -> StepResult:
+        """The whole exposure, shrunk to what the georeferencer shows, with no corner pairs: the owner's rough points are next. Where the
+        scene's corners put the city, most voted first, goes with it (`calibration.expected`, the scan's pixels): the georeferencer opens
+        there instead of on the whole strip (admin sweep 2026-11-14, bug 6)."""
+        limits, boxes = framed
         whole = WholeFrame(shrink(limits), limits[2], 0)
         box = (limits[2], 0, limits[0], limits[1])
         pixels = gdal_step(ctx, lambda: SegmentReader(ctx, layout).read(box, whole.factor), "read the whole frame")
         scan = publish_scan(ctx, mark(write_geotiff(ctx.local("scan.tif"), GeoTiff([pixels])), whole), pixels)
-        ctx.update_version({"scan": scan.as_record(), "georef": DELETE, "calibration": _refusal_record(found, 0)})
+        record = _refusal_record(found, 0)
+        expected = on_scan(boxes, whole, (scan.width, scan.height))
+        calibration = {**record, "expected": expected} if expected else record
+        ctx.update_version({"scan": scan.as_record(), "georef": DELETE, "calibration": calibration})
         ctx.log.warn(f"{_why_not(found)} in any part of the frame: {_whole_line(whole, scan.width, scan.height)}", self.name)
         return Done(ctx.services.objects.stat(scan.path), scan.sha256)
 
@@ -345,6 +355,7 @@ class LocateStep:
         box = proved_box(reach_of(mapping, window, limits), limits)
         if box is None:
             raise CityNotFoundError
+        box = inside_film(ctx, search.sensor, box, layout)
         located = Crop(box[0], box[1], box[2] - box[0], box[3] - box[1], proved_gcps(mapping, box))
         local = gdal_step(ctx, lambda: write_crop(ctx, layout, within_limits(located), ctx.local("scan.tif")), "crop the frame")
         camera = rad_per_px(search.sensor, layout)
@@ -448,6 +459,48 @@ def _not_proved_line(found: Found, located: Crop) -> str:
 
 def _whole_line(whole: WholeFrame, width: int, height: int) -> str:
     return f"the whole frame is the scan, shrunk {whole.factor} times ({width} x {height} px), delivery kept; {POINTS_NEXT}"
+
+
+def inside_film(ctx: JobContext, sensor: str, box: Box, layout: FrameLayout) -> Box:
+    """A frame camera's crop kept off the film's border (`georef/film_edge.py`; admin sweep 2026-11-14, bug 3)."""
+    if sensor not in FILM_EDGE_SENSORS:
+        return box
+    pixels = to_uint8(read_band(ctx.stage(ctx.work_file(FRAME_PREVIEW), FRAME_PREVIEW), 1))
+    area = exposed_area(pixels)
+    kept = trimmed(box, area, layout.width / pixels.shape[1])
+    if kept != box:
+        ctx.log.info(f"the film's border is left out of the crop: {box} becomes {kept} (frame pixels)", LocateStep.name)
+    return kept
+
+
+# At most this many places the city may lie, most voted first (`calibration.expected`).
+MAX_EXPECTED: Final = 4
+
+
+def expected_boxes(search: FrameSearch, found: Found) -> list[Box]:
+    """The frame pixels (left, top, right, bottom) the city window maps onto under each orientation that reaches it, most voted
+    first, without repeats."""
+    boxes: list[Box] = []
+    right, bottom, start = search.limits
+    for orientation in _by_votes(search.orientations, found):
+        try:
+            box = crop_box(orientation, search.window, right, bottom, start)
+        except CityNotFoundError:
+            continue
+        if box not in boxes:
+            boxes.append(box)
+    return boxes[:MAX_EXPECTED]
+
+
+def on_scan(boxes: Sequence[Box], whole: WholeFrame, size: tuple[int, int]) -> list[dict[str, int]]:
+    """`boxes` (frame pixels) in a whole frame's scan pixels, clipped to it: `{x, y, width, height}`, empty ones left out."""
+    found: list[dict[str, int]] = []
+    for left, top, right, bottom in boxes:
+        x0, y0 = max(0, (left - whole.left) // whole.factor), max(0, (top - whole.top) // whole.factor)
+        x1, y1 = min(size[0], -(-(right - whole.left) // whole.factor)), min(size[1], -(-(bottom - whole.top) // whole.factor))
+        if x1 > x0 and y1 > y0:
+            found.append({"x": x0, "y": y0, "width": x1 - x0, "height": y1 - y0})
+    return found
 
 
 def within_limits(located: Crop) -> Crop:

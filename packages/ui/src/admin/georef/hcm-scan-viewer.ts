@@ -33,6 +33,7 @@ import {
     type ScanDetailFile,
 } from './scan-input.js';
 import {
+    boxView,
     centredView,
     fitView,
     hitPair,
@@ -43,6 +44,7 @@ import {
     zoomView,
     type Point,
     type ScanView,
+    type Size,
 } from './scan-view.js';
 
 const HCM_SCAN_VIEWER_TAG = 'hcm-scan-viewer';
@@ -66,6 +68,7 @@ export class HcmScanViewer extends LitElement {
         ghost: { attribute: false },
         detail: { attribute: false },
         follow: { attribute: false },
+        opening: { attribute: false },
         adding: { type: Boolean },
         label: { type: String },
         zoomInLabel: { attribute: false },
@@ -91,6 +94,8 @@ export class HcmScanViewer extends LitElement {
     declare detail: ScanDetailFile | null;
     /** The linked map's place for this pane: the full-resolution pixel to centre and CSS px per scan pixel (null: none). */
     declare follow: { readonly centre: Point; readonly scale: number; readonly angle?: number } | null;
+    /** Where the city likely lies (full-resolution scan pixels): the first view shows it, not the whole scan (null: the whole scan). */
+    declare opening: ({ readonly x: number; readonly y: number } & Size) | null;
     declare adding: boolean;
     declare label: string;
     /** The on-screen zoom buttons' names (the page's locale); the wheel, a pinch and + / - zoom too. */
@@ -121,6 +126,7 @@ export class HcmScanViewer extends LitElement {
         this.ghost = null;
         this.detail = null;
         this.follow = null;
+        this.opening = null;
         this.adding = false;
         this.label = '';
         this.zoomInLabel = '';
@@ -271,13 +277,19 @@ export class HcmScanViewer extends LitElement {
         return fitView(this.#pane, this.#previewSize());
     }
 
+    /** The first view: on `opening` when the pane is shown and one is known, else the whole scan. */
+    #opened(): ScanView {
+        const fit = this.#fitted();
+        return this.opening === null || this.#pane.width === 0 ? fit : boxView(this.#pane, this.opening, this.previewScale, fit);
+    }
+
     /** The view, kept over a change of the shown pane's size (zoom and centre, `resizedView`; a hidden pane keeps it as it is). */
     #currentView(): ScanView {
         const before = this.#pane;
         if (this.#measure() && this.#view !== null) {
             this.#view = resizedView(this.#view, before, this.#pane, this.#previewSize());
         }
-        this.#view ??= this.#fitted();
+        this.#view ??= this.#opened();
         return this.#view;
     }
 

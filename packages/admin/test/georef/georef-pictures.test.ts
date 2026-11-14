@@ -43,6 +43,7 @@ function version(overrides: Partial<GeorefVersion> = {}): GeorefVersion {
         reference: REFERENCE,
         crop: null,
         editable: true,
+        opening: null,
         ...overrides,
     };
 }

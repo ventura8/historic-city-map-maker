@@ -44,17 +44,29 @@ function versionRow(context: ImageryContext, version: VersionItemPort): Template
     </li>`;
 }
 
-function group(
-    context: ImageryContext,
-    heading: 'adminContent.imagery.needsYou' | 'adminContent.imagery.inProgress',
-    versions: readonly VersionItemPort[],
-): TemplateResult {
+type Heading = 'adminContent.imagery.needsYou' | 'adminContent.imagery.inProgress' | 'adminContent.imagery.tooCoarse';
+
+const HEADING_IDS: Readonly<Record<Heading, string>> = {
+    'adminContent.imagery.needsYou': 'imagery-needs-you',
+    'adminContent.imagery.inProgress': 'imagery-in-progress',
+    'adminContent.imagery.tooCoarse': 'imagery-too-coarse',
+};
+
+/** Admin sweep 2026-11-14 (bug 5): why the Argon frames are set aside, and that nothing is asked of the owner. */
+function coarseNote(context: ImageryContext, heading: Heading): TemplateResult {
+    return heading === 'adminContent.imagery.tooCoarse'
+        ? html`<p class="note">${contentText(context.locale, 'adminContent.imagery.tooCoarseNote')}</p>`
+        : EMPTY;
+}
+
+function group(context: ImageryContext, heading: Heading, versions: readonly VersionItemPort[]): TemplateResult {
     if (versions.length === 0) {
         return EMPTY;
     }
-    const id = heading === 'adminContent.imagery.needsYou' ? 'imagery-needs-you' : 'imagery-in-progress';
+    const id = HEADING_IDS[heading];
     return html`<section class="section" aria-labelledby=${id}>
         <h3 id=${id}>${contentText(context.locale, heading)}</h3>
+        ${coarseNote(context, heading)}
         <ul class="rows">
             ${versions.map((version) => versionRow(context, version))}
         </ul>
@@ -81,6 +93,11 @@ export function workView(context: ImageryContext): TemplateResult {
     ${group(
         context,
         'adminContent.imagery.inProgress',
-        list.items.filter((version) => !waitsForYou(version, list.items)),
+        list.items.filter((version) => !version.tooCoarse && !waitsForYou(version, list.items)),
+    )}
+    ${group(
+        context,
+        'adminContent.imagery.tooCoarse',
+        list.items.filter((version) => version.tooCoarse),
     )}`;
 }

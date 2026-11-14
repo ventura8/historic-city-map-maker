@@ -336,6 +336,12 @@ describe('callableOptions', () => {
         expect(callableOptions('imagery.import', {})).not.toHaveProperty('timeoutSeconds');
     });
 
+    it('happyPath_theBrowseCopyTakesTwoRequestsAtATimeOthersCloudRunsDefault @S-A11-BAD-BROWSE-MEMORY', () => {
+        // Admin sweep 2026-11-14: `imagery.browse` ran out of its 256 MiB 14 times at Cloud Run's 80 requests an instance.
+        expect(callableOptions('imagery.browse', {})).toMatchObject({ concurrency: 2 });
+        expect(callableOptions('imagery.search', {})).not.toHaveProperty('concurrency');
+    });
+
     it('badPath_theLocalWorkersCallablesNeverEnforceAppCheck', () => {
         // M7 (docs/research/M7-local-worker.md §2.4): a process on the owner's computer cannot be attested.
         expect(callableOptions('worker.step', { HCM_APP_CHECK: 'enforce' })).toEqual({

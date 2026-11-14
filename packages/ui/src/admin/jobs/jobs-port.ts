@@ -36,7 +36,7 @@ export interface JobItemPort {
     readonly cancelRequested: boolean;
     /** Pause (2026-11-13): the owner paused it. */
     readonly paused: boolean;
-    readonly error: { readonly code: string; readonly message: string } | null;
+    readonly error: { readonly code: string; readonly message: string; readonly params?: Readonly<Record<string, string>> } | null;
     // M3 (CR-M3-5): why it waits and until when, its layer version, and whether Retry is offered.
     readonly waitReason: JobWaitReason | null;
     readonly retryAt: string | null;

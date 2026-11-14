@@ -19,7 +19,7 @@ import { current, errorTemplate, formatWhen, listBody, loadingTemplate, reconnec
 import { guardBanner } from '../imagery/guard-banner.js';
 import { EMPTY } from '../shell/empty.js';
 import { contentText } from '../shell/text.js';
-import { FILTERS, jobStatusText, jobTypeText, levelText, percentOf, statusTone, stepNameText } from './job-text.js';
+import { FILTERS, jobErrorText, jobStatusText, jobTypeText, levelText, percentOf, statusTone, stepNameText } from './job-text.js';
 import type { JobFilterPort, JobItemPort, JobLogLinePort, JobsIntentsPort, JobsViewState } from './jobs-port.js';
 import { pauseAllActions, rasterActions, stepsList, waitLine } from './raster-parts.js';
 import { loadWorkerElements } from '../worker/load.js';
@@ -329,7 +329,7 @@ export class HcmJobsPage extends AreaPage<JobsViewState, JobsIntentsPort> {
             ? EMPTY
             : html`<p class="alert">
                   <hcm-icon name="error"></hcm-icon
-                  ><span>${contentText(locale, 'adminContent.jobs.error', { message: job.error.message })}</span>
+                  ><span>${contentText(locale, 'adminContent.jobs.error', { message: jobErrorText(locale, job.error) })}</span>
               </p>`;
     }
 

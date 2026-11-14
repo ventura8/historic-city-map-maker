@@ -48,7 +48,12 @@ let sharpLoading: Promise<typeof sharp> | undefined;
  * codebase, so every instance loads `index.js`, and only `photos.onUpload` ever needs an image library.
  */
 async function loadSharp(): Promise<typeof sharp> {
-    sharpLoading ??= import('sharp').then((module) => module.default);
+    // Admin sweep 2026-11-14: libvips keeps a cache of up to 50 MB of decoded images by default, a fifth of a 256 MiB function
+    // (`imagery.browse` ran out of memory 14 times); every image here is decoded once, so nothing is cached.
+    sharpLoading ??= import('sharp').then((module) => {
+        module.default.cache(false);
+        return module.default;
+    });
     return sharpLoading;
 }
 

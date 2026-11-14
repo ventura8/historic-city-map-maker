@@ -65,3 +65,24 @@ function validYear(value: string | undefined): number | undefined {
 export function uploadYearOf(metadataYear: string | undefined, originalName: string | undefined): number | undefined {
     return validYear(metadataYear) ?? (originalName === undefined ? undefined : yearIn(originalName));
 }
+
+/**
+ * A KH-5 Argon frame by its id (admin sweep 2026-11-14, bug 5): missions 9xxxA with `MC`, the mapping camera (DS09065A089MC039). USGS
+ * files them under `corona2`, and frames harvested before the id rule were imported as KH-4A Corona.
+ */
+export const ARGON_FRAME_ID = /^DS0*9\d{3}A\d+MC\d+$/i;
+
+/** The label a version shows: an Argon frame imported under another camera's name is named after Argon, its date kept. */
+export function frameLabel<Label extends { readonly ro: string; readonly en?: string | undefined }>(label: Label, entityId: string | undefined): Label {
+    if (entityId === undefined || !ARGON_FRAME_ID.test(entityId)) {
+        return label;
+    }
+    const argon = SENSOR_SPECS['KH-5'].name;
+    const rename = (text: string): string => text.replace(/^KH-4[AB]? Corona/, argon);
+    return label.en === undefined ? { ...label, ro: rename(label.ro) } : { ...label, ro: rename(label.ro), en: rename(label.en) };
+}
+
+/** A frame too coarse for a city's streets (about 140 m a pixel where the city needs 15 m): an Argon frame, by its camera or its id. */
+export function tooCoarseForStreets(entityIds: readonly string[], sensor: Sensor | undefined): boolean {
+    return sensor === 'KH-5' || entityIds.some((id) => ARGON_FRAME_ID.test(id));
+}

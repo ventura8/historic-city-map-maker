@@ -103,6 +103,7 @@ function scanViewer(context: GeorefContext, scan: NonNullable<NonNullable<Georef
             .ghost=${halfPixel(view.ghost)}
             .detail=${view.scanDetail}
             .follow=${view.scanFollow}
+            .opening=${view.version?.opening ?? null}
             ?adding=${view.adding || view.moving !== null}
             .label=${contentText(locale, 'adminContent.georef.scanLabel')}
             .zoomInLabel=${contentText(locale, 'adminContent.map.zoomIn')}

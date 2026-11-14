@@ -143,3 +143,22 @@ export function whenLoaded(map: MapboxMap, setAbort: (abort: (error: Error) => v
         map.on('error', onError);
     });
 }
+
+/**
+ * Removes `map`, after its style has loaded when it has not yet (admin sweep 2026-11-14: Mapbox GL threw "Cannot convert undefined or
+ * null to object" in `reloadModels` once, a map removed while its style was still loading, as a visitor leaving swipe compare at
+ * once). A map whose style fails is removed on that error.
+ */
+export function removeWhenSettled(map: MapboxMap, loaded: boolean): void {
+    if (loaded) {
+        map.remove();
+        return;
+    }
+    const settle = (): void => {
+        map.off('load', settle);
+        map.off('error', settle);
+        map.remove();
+    };
+    map.on('load', settle);
+    map.on('error', settle);
+}

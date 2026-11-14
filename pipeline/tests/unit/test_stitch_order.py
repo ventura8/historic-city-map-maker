@@ -10,7 +10,7 @@ import cv2
 import numpy
 import pytest
 from hcm_pipeline.contract import Errors
-from hcm_pipeline.frames import FrameLayout
+from hcm_pipeline.frames import FrameLayout, Segment
 from hcm_pipeline.rasters import GeoTiff, read_band, write_geotiff
 from hcm_pipeline.runner import RunOutcome
 from hcm_pipeline.steps import stitch
@@ -121,3 +121,38 @@ def test_bad_path_the_reach_never_passes_the_overlap_share_of_a_wide_segment() -
     dx, _dy, _score = stitch.coarse_match(left, right, 1)
 
     assert dx != left.shape[1] - 1700
+
+
+def grainy_pair(grain: float) -> tuple[numpy.ndarray, numpy.ndarray]:
+    """Two overlapping segments of a fine camera's film: a smooth scene under strong per-pixel grain (the 1966 KH-7 Gambit, 1.2 m)."""
+    rng = numpy.random.default_rng(3)
+    height, width, segment, overlap = 2000, 9000, 5000, 1237
+    scene = cv2.GaussianBlur(rng.normal(0, 1, (height, width)).astype(numpy.float32), (0, 0), 12)
+    scene = (scene - scene.mean()) / scene.std() * 30
+    frame = numpy.clip(128 + scene + rng.normal(0, grain, (height, width)).astype(numpy.float32), 0, 255).astype(numpy.uint8)
+    return frame[:, :segment], frame[:, segment - overlap : 2 * segment - overlap]
+
+
+def test_bad_path_picked_pixels_alias_the_grain_and_a_true_pair_scores_under_the_limit() -> None:
+    """Scenarios: S-P01-BAD-PICKED-PIXELS-ALIAS"""
+    # Admin sweep 2026-11-14 (bug 4): the live Gambit pair matched at 0.34 shrunk by picking pixels; so does this one.
+    left, right = grainy_pair(40)
+    factor = 10
+
+    _dx, _dy, score = stitch.coarse_match(
+        numpy.ascontiguousarray(left[::factor, ::factor]), numpy.ascontiguousarray(right[::factor, ::factor]), factor
+    )
+
+    assert score < stitch.MIN_PAIR_SCORE
+
+
+def test_happy_path_averaged_segments_match_a_grainy_true_pair_well_over_the_limit(tmp_path: Path) -> None:
+    """Scenarios: S-P01-HAPPY-GRAINY-PAIR"""
+    left, right = grainy_pair(40)
+    factor = 10
+    segments = [Segment(write_geotiff(tmp_path / f"{name}.tif", GeoTiff([part]))) for name, part in (("a", left), ("b", right))]
+
+    dx, dy, score = stitch.coarse_match(stitch._shrunk(segments[0], factor), stitch._shrunk(segments[1], factor), factor)
+
+    assert (dx, dy) == ((left.shape[1] - 1237) // factor, 0)
+    assert score > 0.9

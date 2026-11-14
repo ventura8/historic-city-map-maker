@@ -3,10 +3,19 @@
  * level. A type the admin does not know yet (the raster pipeline's next ones, M3) reads as "Job"; an unknown step keeps
  * its stored name.
  */
-import type { AdminContentKey, UiLocale } from '@hcm/shared';
+import { isApiErrorCode, translateApiError, type AdminContentKey, type UiLocale } from '@hcm/shared';
 
 import { contentText } from '../shell/text.js';
 import type { JobFilterPort, JobItemPort, JobLogLinePort, JobStatusPort } from './jobs-port.js';
+
+/**
+ * A failed job's sentence (admin sweep 2026-11-14, bug 2): its code translated with its parameters, never the stored message (a Python
+ * exception, `ZeroDivisionError: division by zero`) nor a raw key; a code the admin does not know reads as the fault on our side. The
+ * stored message stays in the job's record and its log.
+ */
+export function jobErrorText(locale: UiLocale, error: NonNullable<JobItemPort['error']>): string {
+    return isApiErrorCode(error.code) ? translateApiError(locale, error.code, error.params) : translateApiError(locale, 'apiError.internal');
+}
 
 const TYPES: Readonly<Record<string, AdminContentKey>> = {
     'usgs-import': 'adminContent.jobs.type.usgsImport',

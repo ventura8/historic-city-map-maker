@@ -87,6 +87,35 @@ describe('the scan pane keeps its zoom', () => {
     });
 });
 
+describe('the scan pane opens where the city likely lies (admin sweep 2026-11-14, bug 6)', () => {
+    afterEach(cleanup);
+
+    it('happyPath_aWholeStripOpensZoomedOnTheExpectedCityNotFitted', async () => {
+        const element = await mount<HcmScanViewer>(
+            html`<hcm-scan-viewer
+                style="display: block; inline-size: 400px; block-size: 240px"
+                .src=${blankImage()}
+                .scanWidth=${2000}
+                .scanHeight=${1200}
+                .previewScale=${0.5}
+                .opening=${{ x: 1400, y: 800, width: 200, height: 120 }}
+                .label=${'The scan'}
+            ></hcm-scan-viewer>`,
+        );
+        await frames(element);
+
+        expect(element.view.scale).toBeGreaterThan(fitView({ width: 400, height: 240 }, IMAGE).scale * 5);
+        expect(element.centre.x).toBeCloseTo(1500, 0);
+        expect(element.centre.y).toBeCloseTo(860, 0);
+    });
+
+    it('badPath_noExpectedPlaceOpensTheWholeScan', async () => {
+        const element = await viewer();
+
+        expect(element.view).toEqual(fitView({ width: 400, height: 240 }, IMAGE));
+    });
+});
+
 /** A `scan-tiles.bin` of a `width` × `height` picture in tiles of `tile` px, each a JPEG of its own size. */
 async function tilesFile(width: number, height: number, tile: number): Promise<Blob> {
     const pieces: Blob[] = [];

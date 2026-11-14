@@ -93,6 +93,7 @@ export function versionItem(overrides: Partial<VersionItemPort> = {}): VersionIt
             entityIds: [],
             basedOn: null,
             thumbPath: null,
+            tooCoarse: false,
         },
         ...overrides,
     };

@@ -43,7 +43,10 @@ describe('the camera of a stored scene', () => {
     });
 
     it('badPath_aNamedCameraOrAnIdOfNoKnownFormIsKept @S-A12-BAD-STALE-CAMERA-KEPT', () => {
-        expect(trueSensor({ dataset: 'corona2', entityId: 'DS09065A073MC043', sensor: 'KH-4B' })).toBe('KH-4B');
+        expect(trueSensor({ dataset: 'corona2', entityId: 'DS1035-1057DA023', sensor: 'KH-4B' })).toBe('KH-4B');
         expect(trueSensor({ dataset: 'corona2', entityId: 'XYZ001', sensor: 'KH-4A' })).toBe('KH-4A');
+        // Admin sweep 2026-11-14: an Argon frame's id (mission 9xxxA, `MC`) is Argon whatever the record or the metadata says.
+        expect(trueSensor({ dataset: 'corona2', entityId: 'DS09065A073MC043', sensor: 'KH-4B' })).toBe('KH-5');
+        expect(sensorOf('corona2', 'DS09059A041MC015', { 'Camera Type': 'KH-4A' })).toBe('KH-5');
     });
 });

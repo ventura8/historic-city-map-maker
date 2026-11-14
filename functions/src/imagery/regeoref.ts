@@ -30,7 +30,7 @@ import { omit } from '../api/objects.js';
 import type { DocumentTransaction } from '../ports/documents.js';
 import type { Ports } from '../ports/index.js';
 import { refuseHeldPart } from './join-parts.js';
-import { refuseBusyLayer, refuseWhileGuardRed } from './limits.js';
+import { refuseBusyLayer, refuseWhileGuardRed, WAITING_FOR_A_PERSON } from './limits.js';
 import { pickDefined, stampOf, type Stamp } from './records.js';
 import { createWork, jobIdFor, type NewWork } from './versions.js';
 
@@ -182,7 +182,10 @@ export async function startRegeoref(deps: RegeorefDeps, regeoref: Regeoref): Pro
     await refuseHeldPart(deps.documents, cityId, base);
     // M18 item 3: a re-run of a scan already here is not an import, so the day's limit is not asked.
     await refuseWhileGuardRed(deps.documents);
-    await refuseBusyLayer(deps.documents, cityId, base.layerId, base.state === 'awaiting_approval' ? base.jobId : undefined);
+    const waiting = base.state === 'awaiting_approval';
+    // Admin sweep 2026-11-14 (bug 1): a refine of a frame waiting for approval is not raced by another frame of the date that waits too.
+    const idle = regeoref.recalibration?.replaces === undefined ? undefined : WAITING_FOR_A_PERSON;
+    await refuseBusyLayer(deps.documents, cityId, base.layerId, waiting ? base.jobId : undefined, idle);
     const jobId = jobIdFor(regeoref.origin === 'crop' ? 'cr' : 'rg', now, base.layerId);
     const work: NewWork = {
         cityId,

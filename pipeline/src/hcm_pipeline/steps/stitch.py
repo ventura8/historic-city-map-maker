@@ -84,8 +84,11 @@ def _shrunk_size(segment: Segment, factor: int) -> tuple[int, int]:
 
 
 def _shrunk(segment: Segment, factor: int) -> UInt8Array:
-    """The segment shrunk `factor` times by picking pixels: fast, and enough to match two segments."""
-    return segment.read(0, 0, segment.width, segment.height, _shrunk_size(segment, factor))
+    """The segment shrunk `factor` times by averaging. Admin sweep 2026-11-14 (bug 4): picked pixels alias the film's grain, and
+    the finer the camera the worse: the 1966 KH-7 Gambit delivery (1.2 m, segments shrunk about 10 times) matched its true
+    neighbour at 0.34 and failed as "a delivery that mixes frames"; averaged, the grain is the scene again (`frames.averaged_window`
+    reads a proof's windows so for the same reason)."""
+    return segment.averaged(_shrunk_size(segment, factor))
 
 
 def _factor(segment: Segment) -> int:

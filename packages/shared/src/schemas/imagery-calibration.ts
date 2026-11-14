@@ -138,6 +138,11 @@ export const calibrationSchema = z.strictObject({
     cutOrientations: count.optional(),
     refusal: z.enum(CALIBRATION_REFUSALS).optional(),
     alignment: calibrationAlignmentSchema.optional(),
+    /**
+     * A whole frame shown shrunk (nothing proved): where the scene's corners put the city in the scan's pixels, most voted first; the
+     * georeferencer opens on the first (admin sweep 2026-11-14, bug 6: a 15,034-pixel Corona strip opened whole, the city a few pixels).
+     */
+    expected: z.array(z.strictObject({ x: count, y: count, width: count, height: count })).max(4).optional(),
 });
 
 export type Calibration = z.infer<typeof calibrationSchema>;

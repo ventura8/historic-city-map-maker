@@ -49,6 +49,8 @@ export interface GeorefVersion {
     } | null;
     readonly crop: CropRing | null;
     readonly editable: boolean;
+    /** Where the city likely lies in the scan (its pixels), for the scan pane to open on; null: the whole scan (admin sweep 2026-11-14). */
+    readonly opening: { readonly x: number; readonly y: number; readonly width: number; readonly height: number } | null;
 }
 
 function referenceOf(reference: LayerVersionDoc['reference']): GeorefVersion['reference'] {
@@ -72,6 +74,7 @@ export function georefVersionOf(id: string, version: LayerVersionDoc): GeorefVer
     return {
         ...{ id, layerId: version.layerId, label: version.label, state: version.state, scan: scanOf(version.scan) },
         ...{ reference: referenceOf(version.reference), crop: version.crop ?? null, editable: EDITABLE_STATES.includes(version.state) },
+        opening: version.calibration?.expected?.[0] ?? null,
     };
 }
 

@@ -2,7 +2,7 @@ import '../global-options.js';
 
 import { randomBytes } from 'node:crypto';
 
-import { redactText, type CallableRequest, type CallableResponse } from '@hcm/shared';
+import { crashNoiseOf, redactText, type CallableRequest, type CallableResponse } from '@hcm/shared';
 
 import type { VerifiedCaller } from '../api/access.js';
 import { ApiError } from '../api/api-error.js';
@@ -60,7 +60,20 @@ async function telemetryListGroups(
         throw new ApiError('apiError.rateLimited');
     }
     const page = await deps.errors.listGroups(data).catch((error: unknown) => toApiError(error, deps));
-    return { ...page, groups: page.groups.map(redactGroup) };
+    const groups = page.groups.filter((group) => !noiseGroup(group, deps));
+    return { ...page, groups: groups.map(redactGroup) };
+}
+
+/**
+ * A group of errors the page did not cause (`crashNoiseOf`: Firefox for iOS's `__firefox__` reader script and the like, admin sweep
+ * 2026-11-14), reported before the reporters dropped them: left out of the list, logged with its reason.
+ */
+function noiseGroup(group: Group, deps: ListGroupsDeps): boolean {
+    const noise = crashNoiseOf({ message: group.message, stack: (group.frames ?? []).join('\n') });
+    if (noise !== null) {
+        deps.log.info('crash group left out as noise', { reason: noise, count: group.count });
+    }
+    return noise !== null;
 }
 
 /** Every free text of a group redacted again: the message, the top frames and the page. */

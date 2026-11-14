@@ -1282,6 +1282,34 @@
             "name": "The admin is an installable app at its own folder: its manifest and icons, the push worker as its service worker keeping nothing, and Install app in the account menu (also offered by Device accent on a computer) while the browser offers it",
             "milestone": "post-M8",
             "source": "the owner's request of 2026-11-14 (make Follow my device's accent work: Chrome and Edge give the device's accent only to an installed web app, docs/LESSONS.md 711); docs/ENGINE_API.md → Installable app"
+        },
+        {
+            "id": "P33",
+            "area": "pipeline",
+            "name": "A frame camera's crop leaves the film's black border out",
+            "milestone": "post-M8",
+            "source": "admin sweep 2026-11-14, bug 3: 8 Oct 1977 L004 to L006 (KH-9 mapping camera) kept the border across the city centre"
+        },
+        {
+            "id": "A186",
+            "area": "admin",
+            "name": "A failed job says what happened in plain words, never a Python exception or a raw message key",
+            "milestone": "post-M8",
+            "source": "admin sweep 2026-11-14, bug 2; AGENTS.md: say what happened, why, and the fix"
+        },
+        {
+            "id": "A187",
+            "area": "admin",
+            "name": "KH-5 Argon frames are named Argon and set aside in Work as too coarse for streets, kept",
+            "milestone": "post-M8",
+            "source": "admin sweep 2026-11-14, bug 5"
+        },
+        {
+            "id": "A188",
+            "area": "admin",
+            "name": "The georeferencer opens a whole strip on where the city likely lies",
+            "milestone": "post-M8",
+            "source": "admin sweep 2026-11-14, bug 6"
         }
     ],
     "scenarios": [
@@ -5576,6 +5604,17 @@
             "notes": "Milestone M2c (docs/research/M2c-interfaces.md §6.5; owner: photos)."
         },
         {
+            "id": "S-A10-BAD-BURST-JOINS-QUEUED",
+            "behaviour": "A10",
+            "area": "admin",
+            "path": "bad",
+            "title": "A burst of content writes joins the queued build",
+            "asserts": "two POI writes while a build is queued -> both answer the queued version, no new count, one task",
+            "tier": "functions",
+            "status": "exists",
+            "notes": "Admin sweep 2026-11-14 (reports/admin-sweep/bugs.md), lesson 730. Test: functions/test/publish/request.test.ts."
+        },
+        {
             "id": "S-A11-HAPPY",
             "behaviour": "A11",
             "area": "admin",
@@ -7873,6 +7912,17 @@
             "tier": "e2e-admin",
             "status": "exists",
             "notes": "Finding 49 of docs/research/manual-test-2026-10-25.md (live test 2026-11-01; DECISIONS-for-review.md §81c). Finding 48 of docs/research/manual-test-2026-10-25.md. Test: e2e/admin/steps/analytics.spec.ts."
+        },
+        {
+            "id": "S-A22-BAD-NOISE-GROUP",
+            "behaviour": "A22",
+            "area": "admin",
+            "path": "bad",
+            "title": "A crash group of the browser's own reader script is left out",
+            "asserts": "telemetry.listGroups with a group of Firefox for iOS's __firefox__ script -> only our own groups listed, the noise logged with its reason",
+            "tier": "functions",
+            "status": "exists",
+            "notes": "Admin sweep 2026-11-14 (reports/admin-sweep/bugs.md), lesson 730. Test: functions/test/telemetry/list-groups.test.ts."
         },
         {
             "id": "S-A23-HAPPY",
@@ -17929,6 +17979,28 @@
             "notes": "The merge of track/recal with track/improve, 2026-11-08. Test: functions/test/imagery/recalibrate-guards.test.ts."
         },
         {
+            "id": "S-A89-HAPPY-OTHER-FRAME-WAITING",
+            "behaviour": "A89",
+            "area": "admin",
+            "path": "happy",
+            "title": "A refine starts while another frame of the date waits for approval",
+            "asserts": "imagery.recalibrate on a frame awaiting approval while another frame of the same layer awaits approval too -> started, the base marked refining",
+            "tier": "functions",
+            "status": "exists",
+            "notes": "Admin sweep 2026-11-14 (reports/admin-sweep/bugs.md), lesson 730. Test: functions/test/imagery/recalibrate-guards.test.ts."
+        },
+        {
+            "id": "S-A89-BAD-OTHER-FRAME-PROCESSING",
+            "behaviour": "A89",
+            "area": "admin",
+            "path": "bad",
+            "title": "A frame of the layer still processing refuses the refine",
+            "asserts": "imagery.recalibrate while another job of the layer runs -> apiError.layers.busy",
+            "tier": "functions",
+            "status": "exists",
+            "notes": "Admin sweep 2026-11-14 (reports/admin-sweep/bugs.md), lesson 730. Test: functions/test/imagery/recalibrate-guards.test.ts."
+        },
+        {
             "id": "S-P19-HAPPY-REFINE",
             "behaviour": "P19",
             "area": "pipeline",
@@ -20116,6 +20188,50 @@
             "tier": "e2e-pipeline",
             "status": "exists",
             "notes": "Live 2026-11-12 (harti.zip and the local worker, track/workerfix). Tests: pipeline/tests/unit/test_step_limits.py."
+        },
+        {
+            "id": "S-P01-HAPPY-GRAINY-PAIR",
+            "behaviour": "P01",
+            "area": "pipeline",
+            "path": "happy",
+            "title": "A fine camera's grainy segments match their true neighbour",
+            "asserts": "two overlapping segments under strong film grain, shrunk 10 times by averaging -> matched at the true offset, score over 0.9",
+            "tier": "e2e-pipeline",
+            "status": "exists",
+            "notes": "Admin sweep 2026-11-14 (reports/admin-sweep/bugs.md), lesson 730. Test: pipeline/tests/unit/test_stitch_order.py."
+        },
+        {
+            "id": "S-P01-BAD-PICKED-PIXELS-ALIAS",
+            "behaviour": "P01",
+            "area": "pipeline",
+            "path": "bad",
+            "title": "Picked pixels alias the grain of a true pair",
+            "asserts": "the same pair shrunk by picking pixels -> scores under MIN_PAIR_SCORE, as the live 1966 Gambit pair did at 0.34",
+            "tier": "e2e-pipeline",
+            "status": "exists",
+            "notes": "Admin sweep 2026-11-14 (reports/admin-sweep/bugs.md), lesson 730. Test: pipeline/tests/unit/test_stitch_order.py."
+        },
+        {
+            "id": "S-P01-HAPPY-WHOLE-EXPECTED",
+            "behaviour": "P01",
+            "area": "pipeline",
+            "path": "happy",
+            "title": "A whole frame records where the city likely lies on its scan",
+            "asserts": "the city boxes under the orientations, most voted first -> calibration.expected in the shrunk scan pixels",
+            "tier": "e2e-pipeline",
+            "status": "exists",
+            "notes": "Admin sweep 2026-11-14 (reports/admin-sweep/bugs.md), lesson 730. Test: pipeline/tests/unit/test_whole_expected.py."
+        },
+        {
+            "id": "S-P01-BAD-WHOLE-EXPECTED-OFF",
+            "behaviour": "P01",
+            "area": "pipeline",
+            "path": "bad",
+            "title": "A box off the scan is left out, one over its edge clipped",
+            "asserts": "a box past the scan -> left out; one over its edge -> clipped to it",
+            "tier": "e2e-pipeline",
+            "status": "exists",
+            "notes": "Admin sweep 2026-11-14 (reports/admin-sweep/bugs.md), lesson 730. Test: pipeline/tests/unit/test_whole_expected.py."
         },
         {
             "id": "S-P06-HAPPY-SEARCH-BUDGET",
@@ -22701,6 +22817,105 @@
             "tier": "e2e-admin",
             "status": "planned",
             "notes": "Lesson 728 (2026-11-14: Bucharest's cancelled 1991 and 2008 Landsat 5 imports could not be imported again; Find showed only 1984 and 1985; Search read Searching… on every source for five minutes). Covered today by Vitest only (a Playwright spec is planned): packages/ui/test/admin/imagery/run-again.test.ts."
+        },
+        {
+            "id": "S-A11-BAD-BROWSE-MEMORY",
+            "behaviour": "A11",
+            "area": "admin",
+            "path": "bad",
+            "title": "The browse copy takes two requests at a time",
+            "asserts": "imagery.browse deploy options -> concurrency 2 (it ran out of 256 MiB at 80); other callables keep the default",
+            "tier": "functions",
+            "status": "exists",
+            "notes": "Admin sweep 2026-11-14 (reports/admin-sweep/bugs.md), lesson 730. Test: functions/test/api/callable.test.ts."
+        },
+        {
+            "id": "S-P33-HAPPY",
+            "behaviour": "P33",
+            "area": "pipeline",
+            "path": "happy",
+            "title": "A black band with white marks is left out of the crop",
+            "asserts": "a preview with a black border band, marks in white, on one or every side -> the exposed area starts past it, the crop box trimmed",
+            "tier": "e2e-pipeline",
+            "status": "exists",
+            "notes": "Admin sweep 2026-11-14 (reports/admin-sweep/bugs.md), lesson 730. Test: pipeline/tests/unit/test_film_edge.py."
+        },
+        {
+            "id": "S-P33-BAD-NO-BORDER",
+            "behaviour": "P33",
+            "area": "pipeline",
+            "path": "bad",
+            "title": "A picture with no band keeps everything, even a dark field",
+            "asserts": "a dark field inside the picture, no band at the edge -> nothing trimmed; a box wholly on the border kept as it was",
+            "tier": "e2e-pipeline",
+            "status": "exists",
+            "notes": "Admin sweep 2026-11-14 (reports/admin-sweep/bugs.md), lesson 730. Test: pipeline/tests/unit/test_film_edge.py."
+        },
+        {
+            "id": "S-A186-HAPPY",
+            "behaviour": "A186",
+            "area": "admin",
+            "path": "happy",
+            "title": "A failed join's sentence names the frame and the next step",
+            "asserts": "a job failed with apiError.imagery.joinPartGone -> the frame named, Join frames again, no apiError key on screen",
+            "tier": "e2e-admin",
+            "status": "planned",
+            "notes": "Admin sweep 2026-11-14 (reports/admin-sweep/bugs.md), lesson 730. Covered today by Vitest: packages/ui/test/admin/ops/jobs-page.test.ts."
+        },
+        {
+            "id": "S-A186-BAD-RAW-MESSAGE",
+            "behaviour": "A186",
+            "area": "admin",
+            "path": "bad",
+            "title": "A crash message never reaches the screen",
+            "asserts": "a job failed with ZeroDivisionError: division by zero as its message -> the fault-on-our-side sentence, no exception text",
+            "tier": "e2e-admin",
+            "status": "planned",
+            "notes": "Admin sweep 2026-11-14 (reports/admin-sweep/bugs.md), lesson 730. Covered today by Vitest: packages/ui/test/admin/ops/jobs-page.test.ts."
+        },
+        {
+            "id": "S-A187-HAPPY-NAMED-ARGON",
+            "behaviour": "A187",
+            "area": "admin",
+            "path": "happy",
+            "title": "An Argon frame imported as Corona is named Argon",
+            "asserts": "a version of DS09059A041MC015 labelled KH-4A Corona -> KH-5 Argon with its date, set aside, not waiting for the owner",
+            "tier": "e2e-admin",
+            "status": "planned",
+            "notes": "Admin sweep 2026-11-14 (reports/admin-sweep/bugs.md), lesson 730. Covered today by Vitest: packages/admin/test/imagery/model.test.ts."
+        },
+        {
+            "id": "S-A187-BAD-TOO-COARSE",
+            "behaviour": "A187",
+            "area": "admin",
+            "path": "bad",
+            "title": "Work sets an Argon frame aside with its reason",
+            "asserts": "Work with an Argon frame -> under Too coarse for streets (kept), the 140 m reason, not under In progress",
+            "tier": "e2e-admin",
+            "status": "planned",
+            "notes": "Admin sweep 2026-11-14 (reports/admin-sweep/bugs.md), lesson 730. Covered today by Vitest: packages/ui/test/admin/imagery/imagery-find.test.ts."
+        },
+        {
+            "id": "S-A188-HAPPY-OPENS-ON-CITY",
+            "behaviour": "A188",
+            "area": "admin",
+            "path": "happy",
+            "title": "A whole strip opens zoomed on the expected city",
+            "asserts": "a version with calibration.expected -> the scan pane centred on its first box, zoomed in",
+            "tier": "e2e-admin",
+            "status": "planned",
+            "notes": "Admin sweep 2026-11-14 (reports/admin-sweep/bugs.md), lesson 730. Covered today by Vitest: packages/ui/test/admin/georef/scan-viewer-keep.test.ts, packages/admin/test/georef/opening.test.ts."
+        },
+        {
+            "id": "S-A188-BAD-NO-EXPECTED",
+            "behaviour": "A188",
+            "area": "admin",
+            "path": "bad",
+            "title": "No expected place opens the whole scan",
+            "asserts": "a version without calibration.expected -> the scan fitted whole",
+            "tier": "e2e-admin",
+            "status": "planned",
+            "notes": "Admin sweep 2026-11-14 (reports/admin-sweep/bugs.md), lesson 730. Covered today by Vitest: packages/ui/test/admin/georef/scan-viewer-keep.test.ts."
         }
     ]
 }

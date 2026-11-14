@@ -57,6 +57,8 @@ export interface GeorefVersionPort {
         readonly s2Date: string | null;
     } | null;
     readonly editable: boolean;
+    /** Where the city likely lies in the scan (its pixels): the scan pane opens there (null: on the whole scan). */
+    readonly opening?: { readonly x: number; readonly y: number; readonly width: number; readonly height: number } | null;
 }
 
 interface FitViewPort {

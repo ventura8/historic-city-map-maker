@@ -41,6 +41,16 @@ export function fitView(pane: Size, image: Size): ScanView {
     return { scale, offset: { x: (pane.width - image.width * scale) / 2, y: (pane.height - image.height * scale) / 2 } };
 }
 
+/**
+ * The view that shows `box` (full-resolution scan pixels) as large as the pane holds, centred (admin sweep 2026-11-14, bug 6: a whole
+ * Corona strip opened fitted, the city a few pixels); within fit … fit × `MAX_ZOOM`.
+ */
+export function boxView(pane: Size, box: { readonly x: number; readonly y: number } & Size, previewScale: number, fit: ScanView): ScanView {
+    const across = Math.min(pane.width / Math.max(box.width, 1), pane.height / Math.max(box.height, 1));
+    const centre = { x: box.x + box.width / 2, y: box.y + box.height / 2 };
+    return centredView(pane, { centre, scale: across }, previewScale, fit);
+}
+
 /** The view zoomed by `factor` about the pane point `at`, within fit … fit × `MAX_ZOOM`. */
 export function zoomView(view: ScanView, factor: number, at: Point, fit: ScanView): ScanView {
     const scale = clamp(view.scale * factor, fit.scale, fit.scale * MAX_ZOOM);

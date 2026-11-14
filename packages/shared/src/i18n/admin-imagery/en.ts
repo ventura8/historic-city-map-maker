@@ -178,6 +178,8 @@ export const en: Readonly<Record<AdminImageryKey, string>> = {
     'adminContent.imagery.backToList': 'Back to historical imagery',
     'adminContent.imagery.needsYou': 'Waiting for you',
     'adminContent.imagery.inProgress': 'In progress',
+    'adminContent.imagery.tooCoarse': 'Too coarse for streets (kept)',
+    'adminContent.imagery.tooCoarseNote': 'KH-5 Argon shows about 140 m a pixel; streets need 15 m. Kept, unpublished, nothing to do.',
     'adminContent.imagery.noWork': 'Nothing in progress. Import a scene from Find or upload a GeoTIFF.',
     'adminContent.imagery.progress': '{state}, {percent}%',
     'adminContent.imagery.frame': 'frame {frame}',

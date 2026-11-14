@@ -137,6 +137,10 @@ describe('Mapbox adapter', () => {
 
         await expect(first).rejects.toThrow('unknown');
         await expect(second).rejects.toThrow('unknown');
+        // Admin sweep 2026-11-14: a map whose style is still loading is removed once it settles (Mapbox's `reloadModels` threw).
+        expect(gl.maps.some((map) => map.removed)).toBe(false);
+        gl.maps[0]?.fire('load');
+        gl.maps[1]?.fire('error', { error: new Error('Style 401') });
         expect(gl.maps.every((map) => map.removed)).toBe(true);
     });
 

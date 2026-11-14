@@ -151,6 +151,24 @@ describe('two starts on one version waiting for approval', () => {
     });
 });
 
+describe('another frame of the same date waiting on the layer (admin sweep 2026-11-14, bug 1)', () => {
+    it('happyPath_aRefineStartsWhileAnotherFrameWaitsForApproval @S-A89-HAPPY-OTHER-FRAME-WAITING', async () => {
+        const found = await world('awaiting_approval');
+        await seedJob(found, 'im-other-frame', job({ layerId: LAYER, versionId: 'im-other-frame', ...WAITING }));
+
+        const { jobId } = await recalibrate(found, {});
+
+        expect((await readVersion(found, CURRENT))?.refining).toBe(jobId);
+    });
+
+    it('badPath_aFrameStillProcessingOnTheLayerRefusesTheRefine @S-A89-BAD-OTHER-FRAME-PROCESSING', async () => {
+        const found = await world('awaiting_approval');
+        await seedJob(found, 'im-other-frame', job({ layerId: LAYER, versionId: 'im-other-frame', status: 'running' }));
+
+        expect(await codeOf(recalibrate(found, {}))).toBe('apiError.layers.busy');
+    });
+});
+
 describe('a joined layer', () => {
     it.each(['en', 'ro'] as const)('badPath_itsRefusalPromisesNoRouteThatIsNotBuilt_%s @S-A89-BAD-JOIN', async (locale) => {
         const found = await world('published', { origin: 'join' });

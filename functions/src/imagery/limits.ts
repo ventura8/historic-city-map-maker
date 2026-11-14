@@ -200,10 +200,22 @@ function refuseAtLimit(count: number, limit: number | undefined): void {
     }
 }
 
-/** `apiError.layers.busy` when a job of the layer is not finished (`except`: a job the caller replaces itself). */
-export async function refuseBusyLayer(documents: DocumentStore, cityId: string, layerId: string, except?: string): Promise<void> {
+/** The statuses of a job that waits for a person, not for a machine: a refine of another waiting frame does not race it. */
+export const WAITING_FOR_A_PERSON: ReadonlySet<JobStatus> = new Set<JobStatus>(['awaiting_approval', 'awaiting_gcps']);
+
+/**
+ * `apiError.layers.busy` when a job of the layer is not finished (`except`: a job the caller replaces itself; `idle`: statuses that do not
+ * count as processing, as a frame of the same date waiting for approval when another one is refined: admin sweep 2026-11-14, bug 1).
+ */
+export async function refuseBusyLayer(
+    documents: DocumentStore,
+    cityId: string,
+    layerId: string,
+    except?: string,
+    idle: ReadonlySet<JobStatus> = new Set(),
+): Promise<void> {
     const jobs = await documents.query(FIRESTORE_PATHS.jobs(cityId), jobDocSchema, { where: [['layerId', '==', layerId]] });
-    if (jobs.documents.some((job) => job.id !== except && !FINISHED.has(job.data.status))) {
+    if (jobs.documents.some((job) => job.id !== except && !FINISHED.has(job.data.status) && !idle.has(job.data.status))) {
         throw new ApiError('apiError.layers.busy');
     }
 }

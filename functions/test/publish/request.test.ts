@@ -61,4 +61,21 @@ describe('requestManifestBuild', () => {
         });
         expect(deps.tasks.queued).toHaveLength(1);
     });
+
+    it('badPath_aBurstOfContentWritesJoinsTheQueuedBuildWithoutATransactionEach @S-A10-BAD-BURST-JOINS-QUEUED', async () => {
+        // Admin sweep 2026-11-14: 9 `publish-onpoiwrite` runs of one burst failed on the counter's cross-transaction contention.
+        const deps = contentDeps(NOW);
+        const request = { cityId: CITY_ID, full: false, updatedBy: 'system:publish' };
+        await requestManifestBuild(deps, request);
+        const before = await deps.documents.get(FIRESTORE_PATHS.manifestState(CITY_ID), manifestStateDocSchema);
+
+        const joined = await Promise.all([requestManifestBuild(deps, request), requestManifestBuild(deps, request)]);
+
+        expect(joined).toEqual([
+            { requestedVersion: 1, queued: false },
+            { requestedVersion: 1, queued: false },
+        ]);
+        expect(await deps.documents.get(FIRESTORE_PATHS.manifestState(CITY_ID), manifestStateDocSchema)).toEqual(before);
+        expect(deps.tasks.queued).toHaveLength(1);
+    });
 });

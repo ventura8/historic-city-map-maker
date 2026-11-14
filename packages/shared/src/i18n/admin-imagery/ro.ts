@@ -180,6 +180,8 @@ export const ro = {
     'adminContent.imagery.backToList': 'Înapoi la imaginile istorice',
     'adminContent.imagery.needsYou': 'Așteaptă după tine',
     'adminContent.imagery.inProgress': 'În lucru',
+    'adminContent.imagery.tooCoarse': 'Prea grosiere pentru străzi (păstrate)',
+    'adminContent.imagery.tooCoarseNote': 'KH-5 Argon arată cam 140 m pe pixel; străzile cer 15 m. Păstrate, nepublicate, nimic de făcut.',
     'adminContent.imagery.noWork': 'Nimic în lucru. Importă o scenă din Caută sau încarcă un GeoTIFF.',
     'adminContent.imagery.progress': '{state}, {percent} %',
     'adminContent.imagery.frame': 'cadrul {frame}',

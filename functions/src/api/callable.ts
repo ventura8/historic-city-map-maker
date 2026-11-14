@@ -29,6 +29,13 @@ type Env = Readonly<Record<string, string | undefined>>;
 const CALLABLE_TIMEOUT_SECONDS: Readonly<Partial<Record<CallableName, number>>> = { 'imagery.search': 540 };
 
 /**
+ * Callables that take fewer requests at once than Cloud Run's 80 per instance: `imagery.browse` holds a USGS browse image (up to 30 MB)
+ * and decodes it, and ran out of its 256 MiB 14 times in a week (admin sweep 2026-11-14, crash group "Memory limit of 256 MiB
+ * exceeded"). Two at a time stay within it; the admin asks four at a time, so a second instance takes the rest (still in the free tier).
+ */
+const CALLABLE_CONCURRENCY: Readonly<Partial<Record<CallableName, number>>> = { 'imagery.browse': 2 };
+
+/**
  * The deploy options of a callable: its `maxInstances`, a longer timeout where `CALLABLE_TIMEOUT_SECONDS` names one,
  * its runtime service account (`runAs`: `fn-admin@` for every callable), and App Check from `HCM_APP_CHECK` (security review §1.6: one week of `monitor`, which leaves enforcement
  * off, then `enforce`); `consume` callables then also consume the token (replay protection for ownership and secret
@@ -39,9 +46,11 @@ export function callableOptions(name: CallableName, env: Env): CallableOptions {
     const spec = CALLABLES[name];
     const enforce = env['HCM_APP_CHECK'] === 'enforce' && spec.appCheck !== 'off';
     const timeoutSeconds = CALLABLE_TIMEOUT_SECONDS[name];
+    const concurrency = CALLABLE_CONCURRENCY[name];
     return {
         maxInstances: spec.maxInstances,
         ...(timeoutSeconds === undefined ? {} : { timeoutSeconds }),
+        ...(concurrency === undefined ? {} : { concurrency }),
         ...runAs(name),
         enforceAppCheck: enforce,
         consumeAppCheckToken: enforce && spec.appCheck === 'consume',

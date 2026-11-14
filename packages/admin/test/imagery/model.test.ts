@@ -124,6 +124,19 @@ describe('versions and jobs', () => {
         });
     });
 
+    it('badPath_anArgonFrameImportedAsCoronaIsNamedArgonAndSetAsideTooCoarse', () => {
+        const doc = layerVersionDocSchema.parse(versionDoc());
+        const source = { ...(versionDoc()['source'] as Record<string, unknown>), entityId: 'DS09059A041MC015' };
+        const label = { ro: 'KH-4A Corona, 21 august 1963', en: 'KH-4A Corona, 21 August 1963' };
+        const argon = layerVersionDocSchema.parse(versionDoc({ label, source }));
+
+        const item = versionItemOf(stored('argon', argon));
+
+        expect(item).toMatchObject({ tooCoarse: true, needsYou: false });
+        expect(item.label).toEqual({ ro: 'KH-5 Argon, 21 august 1963', en: 'KH-5 Argon, 21 August 1963' });
+        expect(versionItemOf(stored('corona', doc))).toMatchObject({ tooCoarse: false });
+    });
+
     it('happyPath_aVersionTheGuardStoppedWaitsForTheAdminUnlessDeferred', () => {
         const doc = layerVersionDocSchema.parse(versionDoc());
         const approved = { ...doc, state: 'approved' as const, approval: { auto: true, by: 'system:imagery', at: doc.updatedAt } };

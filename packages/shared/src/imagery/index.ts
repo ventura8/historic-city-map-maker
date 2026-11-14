@@ -3,7 +3,7 @@ export { MAX_FOOTPRINT_VERTICES, footprintCoverage, footprintOf } from './covera
 export type { FootprintVertex, FrameCamera } from './coverage.js';
 export { planDate, planDates } from './join.js';
 export type { DatePlanFrame } from './join.js';
-export { layerLabelFor, uploadLabelFor, uploadYearOf, yearOfDate } from './labels.js';
+export { ARGON_FRAME_ID, frameLabel, layerLabelFor, tooCoarseForStreets, uploadLabelFor, uploadYearOf, yearOfDate } from './labels.js';
 export type { LayerLabel } from './labels.js';
 export { rankScene } from './ranking.js';
 export type { RankContext, RankedScene } from './ranking.js';

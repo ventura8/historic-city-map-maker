@@ -75,6 +75,20 @@ describe('telemetry.listGroups', () => {
         expect(page.groups[0]).not.toHaveProperty('page');
     });
 
+    it('badPath_aGroupOfFirefoxForIosReaderScriptIsNoiseAndLeftOut @S-A22-BAD-NOISE-GROUP', async () => {
+        // Admin sweep 2026-11-14: "Can't find variable: __firefox__" came from the browser's own reader script, not our code.
+        const injected = {
+            ...{ groupId: 'e2e-group-3', message: "ReferenceError: Can't find variable: __firefox__", service: 'viewer', count: 1 },
+            ...{ firstSeen: '2026-11-11T08:00:00.000Z', lastSeen: '2026-11-11T08:00:00.000Z', resolution: 'OPEN' as const },
+        };
+        const { call, recording } = listGroups(fakeErrors({ groups: [injected, ...PAGE.groups] }));
+
+        const page = await call;
+
+        expect(page.groups.map((group) => group.groupId)).toEqual(['e2e-group-1']);
+        expect(JSON.stringify(recording.records)).toContain('injected');
+    });
+
     it('badPath_aMissingRoleNamesTheRole', async () => {
         const { call, recording } = listGroups(fakeErrors(new UpstreamError('error-reporting', 'forbidden', { status: 403 })));
 

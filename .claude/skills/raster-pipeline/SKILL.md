@@ -75,6 +75,13 @@ The Python + GDAL pipeline that turns declassified USGS film scans (Corona KH-4,
 - The work folder's sweep deletes by the server's `jobStates` (`worker/sweep.py`, `worker/housekeeping.py`); never delete a job's
   scratch by age alone when the server lists it as unfinished. Crash tests cut at the `fsync`, not at the rename.
 
+## Matching and cropping film (admin sweep 2026-11-14, `docs/LESSONS.md` 730)
+
+- Shrink film by averaging (`Segment.averaged`, `averaged_window`), never by picking pixels: picked pixels alias the grain, and a
+  true pair of a fine camera scores under `MIN_PAIR_SCORE`. Test a threshold's misses against the matcher before moving the number.
+- A frame camera's crop stays off the film's black border (`georef/film_edge.py`, `FILM_EDGE_SENSORS`); a whole frame records where
+  the city likely lies on its scan (`calibration.expected`), which the georeferencer opens on.
+
 ## Job state machine (`cities/{c}/jobs/{id}`)
 
 - Leases and heartbeat; `waiting_usgs` with backoff for maintenance (503 HTML); re-login at 100 minutes; a cancel flag; SIGTERM → `cancelled` with temp files removed.
