@@ -320,6 +320,10 @@ export const fr: Readonly<Partial<Record<AdminImageryKey, string>>> = {
     'adminContent.imagery.settings.landsatTo': "Jusqu'à l'année",
     'adminContent.imagery.landsat.offset': 'Décalage par rapport à Sentinel-2 : {pixels} px ({metres} m)',
     'adminContent.imagery.landsat.unchecked': 'Son décalage par rapport à Sentinel-2 n’a pas pu être mesuré.',
+    'adminContent.imagery.landsat.moved': 'Déplacée de {metres} m sur Sentinel-2 : l’USGS n’a placé cette scène que par son orbite.',
+    'adminContent.imagery.landsat.implausible': 'Non déplacée : {metres} m, c’est plus que l’écart possible de cette scène.',
+    'adminContent.imagery.landsat.unconfirmed': 'Non déplacée : une seconde mesure n’a pas confirmé l’écart de {metres} m.',
+    'adminContent.imagery.landsat.rejectHint': 'Si elle ne correspond pas à la carte, rejetez-la : une autre scène de cette année suivra.',
     'adminContent.imagery.landsat.cloud': 'Nuages sur la ville : {percent}%',
     'adminContent.imagery.landsat.held':
         'En attente de votre validation : décalage supérieur à un pixel ou présence de nuages sur la ville.',

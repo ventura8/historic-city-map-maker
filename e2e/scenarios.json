@@ -19425,6 +19425,39 @@
             "notes": "Lesson 706. Test: pipeline/tests/unit/test_runner.py (pipeline-pytest)."
         },
         {
+            "id": "S-P30-HAPPY-SYSTEMATIC-MOVED",
+            "behaviour": "P30",
+            "area": "pipeline",
+            "path": "happy",
+            "title": "A systematic Landsat scene off Sentinel-2 is moved onto it and waits for approval",
+            "asserts": "an L1GS or L1GT product (level from the delivery's name or its first member) over a pixel off and within 5 km -> moved by the measured shift, measured again within a pixel, report correction applied with metres east and north; the approval card says how far it was moved and that it waits; an L1TP scene is never moved",
+            "tier": "e2e-pipeline",
+            "status": "exists",
+            "notes": "Lesson 727 (Bucharest, LT51820292008228MTI00, L1GS, 3,744 m off). Tests: pipeline/tests/integration/test_landsat_job.py, pipeline/tests/unit/test_landsat_correct.py (pipeline-pytest), packages/ui/test/admin/imagery/landsat.test.ts, packages/shared/test/imagery/landsat.test.ts."
+        },
+        {
+            "id": "S-P30-BAD-SYSTEMATIC-IMPLAUSIBLE",
+            "behaviour": "P30",
+            "area": "pipeline",
+            "path": "bad",
+            "title": "A Landsat shift too large or not confirmed is not applied, and the card says why",
+            "asserts": "a systematic scene over 5 km off -> correction refused implausible, the scene left where it lies; a shift a second measure does not confirm -> refused unconfirmed; a level that cannot be read counts as L1TP; the card names the shift and what to do (check the fit, or reject and import another scene of that year)",
+            "tier": "e2e-pipeline",
+            "status": "exists",
+            "notes": "Lesson 727. Tests: pipeline/tests/unit/test_landsat_correct.py (pipeline-pytest), packages/ui/test/admin/imagery/landsat.test.ts."
+        },
+        {
+            "id": "S-P30-BAD-SATURATED",
+            "behaviour": "P30",
+            "area": "pipeline",
+            "path": "bad",
+            "title": "A saturated Landsat cloud deck counts as cloud and comes out white, never solid yellow",
+            "asserts": "colour bands at their type's largest value -> those pixels are cloud (the city's cloud share near 100 %, so the version waits); a band with no range left stretches from 0 to its largest value (white), not to 1",
+            "tier": "e2e-pipeline",
+            "status": "exists",
+            "notes": "Lesson 726 (Bucharest, LT51820291991181XXX03, L1GS, one cloud deck its quality band called 0 % cloud). Test: pipeline/tests/unit/test_landsat_correct.py (pipeline-pytest)."
+        },
+        {
             "id": "S-P22-HAPPY-STITCHED-PREVIEW",
             "behaviour": "P22",
             "area": "pipeline",

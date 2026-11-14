@@ -77,4 +77,31 @@ describe('<hcm-imagery-page>: Landsat', () => {
         expect(deep(element, '[data-landsat="held"]').textContent).toContain(words);
         expect(deep(element, '#approval-title').closest('section')?.textContent).toContain('Waits for your approval');
     });
+
+    it('happyPath_aSystematicSceneMovedOntoSentinel2SaysHowFarAndWaits @S-P30-HAPPY-SYSTEMATIC-MOVED', async () => {
+        const moved: LandsatReport = { ...CLEAR, correction: { state: 'applied', eastM: -2434.4, northM: -2844.7 } };
+        const { element } = await card(moved);
+        const section = deep(element, '#approval-title').closest('section');
+
+        expect(deep(element, '[data-correction="applied"]').textContent).toContain('Moved 3,744 m onto Sentinel-2');
+        expect(deepAll(element, '[data-landsat="held"]')).toHaveLength(1);
+        expect(section?.textContent).toContain('Waits for your approval');
+        expect(await axeViolations(section ?? element)).toEqual([]);
+    });
+
+    it.each([
+        ['implausible', 'Not moved: 7,000 m is farther than this scene can be off.'],
+        ['unconfirmed', 'Not moved: a second measure did not confirm the 7,000 m shift.'],
+    ] as const)('badPath_aShiftThatIsNotAppliedSaysWhyAndWhatToDo_%s @S-P30-BAD-SYSTEMATIC-IMPLAUSIBLE', async (reason, words) => {
+        const report: LandsatReport = {
+            ...CLEAR,
+            offsetPx: 233.3,
+            offsetM: 7000,
+            correction: { state: 'refused', eastM: 0, northM: 7000, reason },
+        };
+        const { element } = await card(report);
+
+        expect(deep(element, `[data-correction="${reason}"]`).textContent).toContain(words);
+        expect(deep(element, `[data-correction="${reason}"]`).textContent).toContain('reject it: another scene of that year comes next');
+    });
 });

@@ -64,6 +64,22 @@ function namesReport(context: ImageryContext, version: VersionViewPort): Templat
     </p>`;
 }
 
+const CORRECTION_KEYS = {
+    applied: 'adminContent.imagery.landsat.moved',
+    implausible: 'adminContent.imagery.landsat.implausible',
+    unconfirmed: 'adminContent.imagery.landsat.unconfirmed',
+} as const;
+
+/** Lesson 727: what was done about a systematic scene's shift (moved onto Sentinel-2, or why not); nothing for any other scene. */
+function correctionText(locale: UiLocale, report: LandsatReport): TemplateResult {
+    return withValue(report.correction, (correction) => {
+        const kind = correction.state === 'applied' ? 'applied' : (correction.reason ?? 'unconfirmed');
+        const metres = numberText(locale, Math.round(Math.hypot(correction.eastM, correction.northM)));
+        const hint = kind === 'applied' ? '' : ` ${contentText(locale, 'adminContent.imagery.landsat.rejectHint')}`;
+        return html`<p class="note" data-correction=${kind}>${contentText(locale, CORRECTION_KEYS[kind], { metres })}${hint}</p>`;
+    });
+}
+
 /** M25: a Landsat scene's shift from Sentinel-2 and the city's cloud, and why it waits when it is not clear. */
 function landsatText(locale: UiLocale, report: LandsatReport): TemplateResult {
     const offset =
@@ -77,6 +93,7 @@ function landsatText(locale: UiLocale, report: LandsatReport): TemplateResult {
     const cloud = contentText(locale, 'adminContent.imagery.landsat.cloud', { percent: numberText(locale, report.cityCloudPct) });
     const held = clear ? '' : html`<p class="alert">${contentText(locale, 'adminContent.imagery.landsat.held')}</p>`;
     return html`<p data-landsat=${clear ? 'clear' : 'held'}>${offset}</p>
+        ${correctionText(locale, report)}
         <p class="note">${cloud}</p>
         ${held}`;
 }

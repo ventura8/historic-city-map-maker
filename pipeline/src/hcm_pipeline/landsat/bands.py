@@ -17,6 +17,7 @@ from typing import IO, Final
 
 from hcm_pipeline.contract import Errors
 from hcm_pipeline.jobs import Done, JobContext, StepFailedError, StepResult
+from hcm_pipeline.landsat.correct import PRECISE, level_of
 from hcm_pipeline.model import UsgsImportParams
 from hcm_pipeline.objects import READ_BYTES, ObjectInfo
 
@@ -101,6 +102,25 @@ def _refuse_missing(needed: tuple[str, ...], kept: Mapping[str, ObjectInfo]) -> 
     missing = next((band for band in needed if band not in kept), None)
     if missing is not None:
         raise StepFailedError(Errors.MISSING_BAND, f"the Landsat bundle has no {missing}", {"band": missing})
+
+
+def _first_member(ctx: JobContext, delivery: str) -> str | None:
+    try:
+        with ctx.services.objects.open_read(delivery) as stream, tarfile.open(fileobj=stream, mode="r|*") as archive:
+            first = next(iter(archive), None)
+    except _CORRUPT:
+        return None
+    return None if first is None else first.name
+
+
+def delivery_level(ctx: JobContext) -> str:
+    """The product's processing level (lesson 727): from the delivery's name (`LT05_L1GS_….tar`), else from its first member's;
+    `L1TP` when neither says (the delivery gone or unreadable), so a scene is never moved on a guess."""
+    delivery = ctx.job.step("fetch").gcs_path
+    named = level_of(delivery)
+    if named is not None or delivery is None or ctx.services.objects.stat(delivery) is None:
+        return named or PRECISE
+    return level_of(_first_member(ctx, delivery)) or PRECISE
 
 
 class LandsatBandsStep:

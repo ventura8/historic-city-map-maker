@@ -99,6 +99,9 @@ describe('the Landsat report', () => {
         expect(landsatClear({ ...CLEAR, cityCloudPct: 25 })).toBe(false);
         expect(landsatClear({ checked: false, cityCloudPct: 0, resolutionM: 30, pansharpened: false })).toBe(false);
         expect(landsatClear({ ...CLEAR, offsetPx: undefined })).toBe(false);
+        // Lesson 727: a systematic scene moved onto Sentinel-2 always waits, however close it lies now.
+        expect(landsatClear({ ...CLEAR, correction: { state: 'applied', eastM: -2434.4, northM: -2844.7 } })).toBe(false);
+        expect(landsatReportSchema.safeParse({ ...CLEAR, correction: { state: 'moved', eastM: 0, northM: 0 } }).success).toBe(false);
         expect(landsatReportSchema.safeParse({ ...CLEAR, cityCloudPct: 120 }).success).toBe(false);
     });
 });

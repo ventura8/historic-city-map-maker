@@ -46,8 +46,19 @@ export function isLandsatDataset(dataset: Dataset): dataset is LandsatDataset {
 /**
  * `layerVersions/{version}.landsat`: what the pipeline's `warp` measured of a Landsat scene. `offsetPx` and `offsetM` are the shift
  * against the Sentinel-2 reference (absent when it could not be measured: `checked` false), `cityCloudPct` the share of the city's
- * pixels the scene's own quality band calls cloud, `pansharpened` an ETM+ scene brought to 15 m with its panchromatic band.
+ * pixels the scene's own quality band calls cloud (and, lesson 726, where a colour band saturated), `pansharpened` an ETM+ scene brought
+ * to 15 m with its panchromatic band. `correction` (lesson 727): a systematic scene (USGS's L1GS or L1GT, placed only by the
+ * satellite's orbit) found over a pixel off was `applied` (moved by `eastM` and `northM`, the shift then measured again within a pixel:
+ * the offset fields are what is left) or `refused` (`implausible`: farther than such a scene can be off; `unconfirmed`: the second
+ * measure did not agree); a scene with a correction always waits for an admin.
  */
+const landsatCorrectionSchema = z.strictObject({
+    state: z.enum(['applied', 'refused']),
+    eastM: z.number().min(-1_000_000).max(1_000_000),
+    northM: z.number().min(-1_000_000).max(1_000_000),
+    reason: z.enum(['implausible', 'unconfirmed']).optional(),
+});
+
 export const landsatReportSchema = z.strictObject({
     checked: z.boolean(),
     offsetPx: z.number().min(0).max(10_000).optional(),
@@ -57,6 +68,7 @@ export const landsatReportSchema = z.strictObject({
     cityCloudPct: z.number().min(0).max(100),
     resolutionM: z.number().positive().max(100),
     pansharpened: z.boolean(),
+    correction: landsatCorrectionSchema.optional(),
 });
 
 export type LandsatReport = z.infer<typeof landsatReportSchema>;

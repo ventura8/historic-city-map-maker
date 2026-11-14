@@ -9,11 +9,12 @@ import type { LandsatReport } from './landsat.js';
 export const LANDSAT_MAX_OFFSET_PX = 1;
 export const LANDSAT_MAX_CITY_CLOUD_PCT = 10;
 
-/** The report's verdict: measured, within a pixel, and a clear city; anything else waits for Approve. */
+/** The report's verdict: measured, within a pixel, a clear city and never moved (lesson 727); anything else waits for Approve. */
 export function landsatClear(report: LandsatReport): boolean {
     return (
         report.checked &&
         (report.offsetPx ?? Number.POSITIVE_INFINITY) <= LANDSAT_MAX_OFFSET_PX &&
-        report.cityCloudPct <= LANDSAT_MAX_CITY_CLOUD_PCT
+        report.cityCloudPct <= LANDSAT_MAX_CITY_CLOUD_PCT &&
+        report.correction === undefined
     );
 }

@@ -7,6 +7,12 @@ pan-sharpened by the Brovey ratio: each colour band scaled by the panchromatic b
 its detail and the colour stays the 30 m bands'. The stretch is per band, between robust percentiles of the clear pixels only (haze and
 clouds do not set the white point; a scene with no clear pixel falls back to every valid one), to
 1..255, so the alpha band alone says where the image is.
+
+Lesson 726 (2026-11-14): a systematic (L1GS) scene's quality band may call nothing cloud: USGS's 30 June 1991 scene over Bucharest
+was one cloud deck, saturated (each colour band at its largest value) over the whole city, and its quality band and its metadata said
+0 % cloud. The stretch then had no range (blue p2 = p98 = 255: every pixel 1) and the preview came out solid yellow. A pixel saturated
+in any colour band (`Bands.saturated`) now counts as cloud, and a band with no range left stretches from 0 to its largest value, so a
+cloud deck is white and the city's cloud share says why the version waits.
 """
 
 from dataclasses import dataclass
@@ -23,6 +29,7 @@ CLOUD_BITS: Final = (1 << 1) | (1 << 3) | (1 << 4)
 LOW_PCT: Final = 2.0
 HIGH_PCT: Final = 98.0
 OPAQUE: Final = 255
+MIN_RANGE: Final = 1.0
 
 QualityArray = NDArray[numpy.uint16]
 BoolArray = NDArray[numpy.bool_]
@@ -37,6 +44,7 @@ class Bands:
     blue: FloatArray
     quality: QualityArray
     pan: FloatArray | None = None
+    saturated: BoolArray | None = None
 
 
 @dataclass(frozen=True)
@@ -54,7 +62,10 @@ def masks(bands: Bands) -> tuple[BoolArray, BoolArray]:
     quality = bands.quality.astype(numpy.uint16)
     filled = (bands.red > 0) & (bands.green > 0) & (bands.blue > 0)
     valid = numpy.asarray(((quality & FILL_BIT) == 0) & filled, numpy.bool_)
-    cloudy = numpy.asarray(((quality & CLOUD_BITS) != 0) & valid, numpy.bool_)
+    flagged = (quality & CLOUD_BITS) != 0
+    if bands.saturated is not None:
+        flagged = flagged | bands.saturated
+    cloudy = numpy.asarray(flagged & valid, numpy.bool_)
     return valid, cloudy
 
 
@@ -68,11 +79,14 @@ def brovey(bands: Bands) -> tuple[FloatArray, FloatArray, FloatArray]:
 
 
 def stretch(band: FloatArray, clear: BoolArray, valid: BoolArray) -> UInt8Array:
-    """1..255 between the 2nd and 98th percentiles of the clear pixels (every valid one when none is clear); 0 outside `valid`."""
+    """1..255 between the 2nd and 98th percentiles of the clear pixels (every valid one when none is clear); 0 outside `valid`.
+    Percentiles closer than `MIN_RANGE` (a saturated band) stretch from 0 to the band's largest value instead (lesson 726)."""
     sample = band[clear] if clear.any() else band[valid]
     if sample.size == 0:
         return numpy.zeros(band.shape, numpy.uint8)
     low, high = numpy.percentile(sample, [LOW_PCT, HIGH_PCT])
+    if high - low < MIN_RANGE:
+        low, high = 0.0, max(float(sample.max()), MIN_RANGE)
     scaled = 1.0 + (band - low) / max(float(high - low), 1e-9) * (OPAQUE - 1)
     return numpy.asarray(numpy.where(valid, numpy.clip(scaled, 1, OPAQUE), 0), numpy.uint8)
 
