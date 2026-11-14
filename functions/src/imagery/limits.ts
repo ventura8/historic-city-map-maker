@@ -201,7 +201,7 @@ function refuseAtLimit(count: number, limit: number | undefined): void {
 }
 
 /** The statuses of a job that waits for a person, not for a machine: a refine of another waiting frame does not race it. */
-export const WAITING_FOR_A_PERSON: ReadonlySet<JobStatus> = new Set<JobStatus>(['awaiting_approval', 'awaiting_gcps']);
+const WAITING_FOR_A_PERSON: ReadonlySet<JobStatus> = new Set<JobStatus>(['awaiting_approval', 'awaiting_gcps']);
 
 /** The jobs of the layer that are not finished (`except`: a job the caller replaces itself). */
 async function unfinishedJobs(documents: DocumentStore, cityId: string, layerId: string, except?: string): Promise<JobStatus[]> {
