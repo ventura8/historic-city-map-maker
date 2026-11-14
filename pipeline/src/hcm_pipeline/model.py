@@ -281,18 +281,44 @@ class JoinPart:
         return cls(id_of(record, "versionId"), id_of(record, "layerId"))
 
 
+def _archive_zoom(value: object) -> int:
+    """An archive maps' join's `maxzoom`, within `ARCHIVE_JOIN_ZOOMS`."""
+    if isinstance(value, bool) or not isinstance(value, int) or not ARCHIVE_JOIN_ZOOMS[0] <= value <= ARCHIVE_JOIN_ZOOMS[1]:
+        raise DocumentError("a join needs its sensor, or an archive join its maxzoom (10 to 22)")
+    return value
+
+
+# The `maxzoom` an archive maps' join may ask (`layerJoinParamsSchema` of @hcm/shared).
+ARCHIVE_JOIN_ZOOMS: Final = (10, 22)
+
+
 @dataclass(frozen=True)
 class JoinParams:
+    """A join's parts and their camera; an archive maps' join (finding of 2026-11-14) has no camera, only its `maxzoom`, and each
+    of its parts keeps its own fit (`keeps_fits`)."""
+
     parts: tuple[JoinPart, ...]
-    sensor: str
+    sensor: str | None
+    archive_maxzoom: int | None = None
+
+    @property
+    def maxzoom(self) -> int:
+        return SENSOR_SPECS[self.sensor].maxzoom if self.sensor is not None else int(self.archive_maxzoom or 0)
+
+    @property
+    def keeps_fits(self) -> bool:
+        return self.sensor is None
 
     @classmethod
     def of(cls, params: Mapping[str, object]) -> JoinParams:
-        _strict(params, frozenset({"parts", "sensor"}))
+        _strict(params, frozenset({"parts", "sensor", "maxzoom"}))
         parts = params.get("parts")
         if not isinstance(parts, list) or not JOIN_MIN_PARTS <= len(parts) <= JOIN_MAX_PARTS:
             raise DocumentError(f"parts must be a list of {JOIN_MIN_PARTS} to {JOIN_MAX_PARTS} frames")
-        return cls(tuple(JoinPart.of(part) for part in parts), member_of(params, "sensor", tuple(SENSOR_SPECS)))
+        joined = tuple(JoinPart.of(part) for part in parts)
+        if "sensor" in params:
+            return cls(joined, member_of(params, "sensor", tuple(SENSOR_SPECS)))
+        return cls(joined, None, _archive_zoom(params.get("maxzoom")))
 
 
 def _bounded_text(record: Mapping[str, object], key: str, limit: int) -> str:

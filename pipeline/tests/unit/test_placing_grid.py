@@ -154,12 +154,19 @@ def test_bad_path_sheets_without_frames_or_a_scheme_wait_for_a_person(world: Pip
     help_item = world.version()["help"]
     assert isinstance(help_item, dict)
     assert help_item["reason"] == "frame-not-found"
+    # Finding of 2026-11-14 (the 1:500 sets of 1960-71): the series waits with its sheets as a picture, so the georeferencer shows a scan.
+    assert help_item["stitched"]["method"] == "atlas"
+    assert "scan" in world.version()
 
     other = series_context(world, tmp_path / "b", ["Plan/12-07.tif"], {"class": "grid", "encoding": "grey"})
+    (originals(other) / "Plan").mkdir(parents=True, exist_ok=True)
+    write_map(originals(other) / "Plan/12-07.tif", numpy.full((60, 60, 3), 250, numpy.uint8), grey=True)
     assert isinstance(PlaceStep().run(other), Waiting)
     help_item = world.version()["help"]
     assert isinstance(help_item, dict)
     assert help_item["note"] == grid.NO_SCHEME
+    assert help_item["stitched"]["method"] == "single"
+    assert "scan" in world.version()
 
 
 def test_happy_path_the_city_grid_places_quarters_blocks_and_cells() -> None:
@@ -318,3 +325,21 @@ def test_bad_path_a_grey_grid_series_on_its_overview_stays_one_band(
 
     assert picture is not None
     assert picture.canvas.ndim == 2
+
+
+def test_bad_path_a_grid_with_most_sheets_unframed_goes_to_the_tile_wizard(world: PipelineWorld, tmp_path: Path) -> None:
+    """Scenarios: S-P20-BAD-GRID-FEW-FRAMED
+
+    Finding of 2026-11-14 (plan cadastral 1911-1914, 20 of 100 sheets framed): the series is laid out as an atlas for the tile
+    wizard (`layout-check`) instead of a grid of the few framed sheets that asks for points and leaves the rest out for good."""
+    ctx = grid_series(world, tmp_path)
+    names = [sheet_name(cell) for cell in CELLS]
+    for name in names[: int(len(names) * 0.7)]:
+        write_map(originals(ctx) / name, numpy.full((SHEET_PX, SHEET_PX, 3), 250, numpy.uint8), grey=True)
+
+    result = PlaceStep().run(ctx)
+
+    assert isinstance(result, Waiting)
+    help_item = world.version()["help"]
+    assert isinstance(help_item, dict)
+    assert help_item["reason"] == "layout-check"

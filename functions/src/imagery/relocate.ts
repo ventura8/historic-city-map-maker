@@ -10,15 +10,17 @@
  * Review of M18 item 3: only the image the Cloud Run job runs counts (`InstalledImage.from === 'job'`): the record
  * `setup/status.install.pipeline` can lag behind it, and each switch between the two would send every parked frame searching
  * again, uncounted. While the job cannot be read nothing moves and nothing is remembered. A frame an editor is placing points on
- * (`JobDoc.placingPoints`, within `PLACING_POINTS_HOLD_MS` of its stamp) keeps waiting: a search would refuse their Save.
+ * (`JobDoc.placingPoints`, whatever its age) keeps waiting: a search would refuse their Save and reload the page under them.
+ * Finding of 2026-11-14 (1864 and 1871 Pappasoglu, `docs/LESSONS.md`): a version that holds the owner's saved pairs is never
+ * searched again by an update either; the update re-ran those series and their points were gone. Only **Locate again** asks it.
  */
-import { FIRESTORE_PATHS, jobDocSchema, PLACING_POINTS_HOLD_MS, timestampToDate, type JobDoc } from '@hcm/shared';
+import { FIRESTORE_PATHS, jobDocSchema, layerVersionDocSchema, type JobDoc } from '@hcm/shared';
 
 import { ApiError } from '../api/api-error.js';
 import type { StoredDocument } from '../ports/documents.js';
 import type { Ports } from '../ports/index.js';
 import { installedImage } from '../worker/installed-image.js';
-import { locateAgain } from './locate-again.js';
+import { holdsOwnerPairs, locateAgain } from './locate-again.js';
 import { IMAGERY_WRITER, stampOf } from './records.js';
 
 export type RelocateDeps = Pick<Ports, 'documents' | 'clock' | 'log' | 'blobs' | 'jobs'>;
@@ -52,7 +54,12 @@ async function relocateOne(deps: RelocateDeps, cityId: string, frame: StoredDocu
     // A parked frame's version has its job's id (`locate-again.ts`).
     const versionId = frame.id;
     try {
-        await locateAgain(deps, { cityId, versionId, uid: IMAGERY_WRITER, message: MESSAGE });
+        const version = await deps.documents.get(FIRESTORE_PATHS.layerVersion(cityId, versionId), layerVersionDocSchema);
+        if (holdsOwnerPairs(version)) {
+            deps.log.info("a parked version keeps the owner's pairs: not searched again", { cityId, versionId });
+        } else {
+            await locateAgain(deps, { cityId, versionId, uid: IMAGERY_WRITER, message: MESSAGE });
+        }
     } catch (error) {
         deps.log.warn('a parked frame was not searched again', { cityId, jobId: frame.id, versionId, ...whyNot(error) });
     }
@@ -68,10 +75,9 @@ async function digestFor(deps: RelocateDeps, parked: readonly StoredDocument<Job
     return image?.from === 'job' ? image.digest : undefined;
 }
 
-/** An editor marked the frame while placing points on it, recently enough. */
-function placingPoints(frame: StoredDocument<JobDoc>, now: Date): boolean {
-    const markedAt = timestampToDate(frame.data.updatedAt).getTime();
-    return frame.data.placingPoints === true && now.getTime() - markedAt < PLACING_POINTS_HOLD_MS;
+/** An editor marked the frame while placing points on it: the mark stays until their Save or a Locate again by hand. */
+function placingPoints(frame: StoredDocument<JobDoc>): boolean {
+    return frame.data.placingPoints === true;
 }
 
 /** The parked frames of `cityId` searched with another image than the installed one start again; new ones are remembered. */
@@ -82,8 +88,7 @@ export async function relocateParked(deps: RelocateDeps, cityId: string): Promis
         return;
     }
     const unseen = parked.documents.filter((frame) => frame.data.searchedWith === undefined);
-    const now = deps.clock.now();
-    const older = parked.documents.filter((frame) => ![undefined, digest].includes(frame.data.searchedWith) && !placingPoints(frame, now));
+    const older = parked.documents.filter((frame) => ![undefined, digest].includes(frame.data.searchedWith) && !placingPoints(frame));
     for (const frame of unseen) {
         await remember(deps, cityId, frame.id, digest);
     }

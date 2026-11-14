@@ -19,6 +19,7 @@ import { defineCallable, type CallableDeps } from '../api/callable.js';
 import type { StoredDocument } from '../ports/documents.js';
 import type { Ports } from '../ports/index.js';
 import { alreadyImported, confirmScanned, refuseWithoutDownloads, type ImportDeps } from './import.js';
+import { joinArchive } from './join-archive.js';
 import { ON_ITS_LAYER, usablePartIn, versionsOfLayer } from './join-parts.js';
 import { writeJoin, type JoinFrame, type JoinPlan } from './join-write.js';
 import { refuseBusyLayer, refuseRasterJobs } from './limits.js';
@@ -39,6 +40,8 @@ import { deleteWorkFiles } from './work-files.js';
 export type JoinDeps = ImportDeps & Pick<Ports, 'blobs'>;
 
 type Request = CallableRequest<'imagery.join'>;
+/** One date's USGS frames (the archive maps' join is `join-archive.ts`). */
+type FramesRequest = Extract<Request, { readonly entityIds: readonly string[] }>;
 
 /** A scene with the version a join would take from its import, if it has one. */
 interface Frame {
@@ -63,7 +66,7 @@ interface Scenes {
 }
 
 /** The request's scenes, each once, of one date and one camera (`apiError.imagery.joinMixedFrames`). */
-async function requireScenes(deps: JoinDeps, request: Request): Promise<Scenes> {
+async function requireScenes(deps: JoinDeps, request: FramesRequest): Promise<Scenes> {
     const [first, ...rest] = new Set(request.entityIds);
     if (first === undefined || rest.length === 0) {
         throw new ApiError('apiError.invalidRequest', undefined, [{ path: 'entityIds', code: 'validation.value' }]);
@@ -133,7 +136,7 @@ async function requireFreeLayer(deps: JoinDeps, cityId: string, published: Store
 
 /** What the plan is made of. */
 interface JoinSet {
-    readonly request: Request;
+    readonly request: FramesRequest;
     readonly by: string;
     readonly head: UsgsSceneDoc;
     readonly frames: readonly Frame[];
@@ -170,6 +173,10 @@ function paramsOf(plan: JoinPlan): LayerJoinParams {
 }
 
 async function imageryJoin(deps: JoinDeps, caller: VerifiedCaller, request: Request): Promise<CallableResponse<'imagery.join'>> {
+    return 'versionIds' in request ? joinArchive(deps, caller, request) : joinFrames(deps, caller, request);
+}
+
+async function joinFrames(deps: JoinDeps, caller: VerifiedCaller, request: FramesRequest): Promise<CallableResponse<'imagery.join'>> {
     await requireCity(deps.documents, request.cityId);
     const { head, all } = await requireScenes(deps, request);
     const frames = await Promise.all(all.map((scene) => frameOf(deps, request.cityId, scene)));

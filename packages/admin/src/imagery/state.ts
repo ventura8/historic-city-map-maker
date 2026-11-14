@@ -18,6 +18,7 @@ import type { ArchiveFeed } from '../archive/feed.js';
 import { LOADING_LIST, type ListState } from '../content/list.js';
 import type { MapStatus } from '../layers/map-session.js';
 import type { NoticeInput } from '../state/state.js';
+import type { ArchiveJoinBase, ArchiveJoinCandidate } from './archive-join.js';
 import type { BrowseImage } from './browse.js';
 import type { GuardView } from './guard.js';
 import { IDLE_JOIN, type JoinActionsState } from './join.js';
@@ -162,6 +163,9 @@ export interface ImageryIntents {
     markUnusable(id: string, reason: UnusableReason | null): Promise<boolean>;
     /** M8: `imagery.join` of one date's frames: the join version's id (the page opens it), or null when refused. */
     joinFrames(entityIds: readonly string[]): Promise<string | null>;
+    /** Finding of 2026-11-14: the year's archive maps the open one may be joined with (`archive-join.ts`), and their join. */
+    archiveJoinCandidates(version: ArchiveJoinBase): Promise<readonly ArchiveJoinCandidate[]>;
+    joinArchive(versionIds: readonly string[]): Promise<string | null>;
     /** M8: Add {year} to target years, then search again; true once it is saved. */
     addTargetYear(year: number): Promise<boolean>;
     /** M20 (`docs/research/M20-import-local.md` §8): Import local files' feed, from the lazy `archive` chunk. */

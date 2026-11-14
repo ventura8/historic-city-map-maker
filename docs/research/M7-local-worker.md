@@ -1071,6 +1071,8 @@ held 113 GB, `work/` 81 GB of 100 jobs mostly published, `usgs-raw/` 24 GB, and 
    (`functions/src/imagery/lost-run.ts`), and the job's log says the computer stopped and the try was not counted
    (`apiError.imagery.workerLostRefunded`). `lostRuns` counts these refunds; past `LOST_RUN_REFUNDS` (5) the attempt counts again
    (`apiError.imagery.workerLost`), so a job that brings its computer down every time still ends.
+   Finding of 2026-11-14 (1923 plan-ghid): the job records the computer that lost it (`lostOn`); that computer's claim leaves it to the
+   owner's other computers for `LOST_HAND_OVER_MS` (15 minutes), and a second loss on it logs `apiError.imagery.workerLostAgain`.
 2. **The same computer frees its own job at once (P1-3).** A worker claims only when it runs nothing (`loop.py` `run_once`), so a
    claim from a worker whose document still says `busy` with a job that is `starting` or `running` under its id means that run died
    with the computer: the job is queued again in the claim's transaction, with the same refund, before the claim looks for work.

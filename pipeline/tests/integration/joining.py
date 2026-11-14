@@ -13,6 +13,7 @@ from typing import Final
 import cv2
 import numpy
 import numpy.typing
+from hcm_pipeline.contract import SENSOR_SPECS
 from hcm_pipeline.documents import GeorefInfo
 from hcm_pipeline.geo import FloatArray, MercatorBox, to_lnglat, to_mercator
 from hcm_pipeline.model import Timestamp
@@ -139,10 +140,12 @@ def seed_city(world: PipelineWorld, half_m: tuple[float, float]) -> None:
     world.store.seed(f"cities/{CITY}", city)
 
 
-def seed_join(world: PipelineWorld, frames: list[Frame], status: str = "starting") -> None:
-    """The join's job and version, as `imagery.join` leaves them once its parts are ready."""
+def seed_join(world: PipelineWorld, frames: list[Frame], status: str = "starting", archive: bool = False) -> None:
+    """The join's job and version, as `imagery.join` leaves them once its parts are ready (`archive`: an archive maps' join, which
+    names no camera, only its `maxzoom`)."""
     parts = [{"versionId": frame.version_id, "layerId": frame.layer_id} for frame in frames]
-    world.seed_job(JOB, "layer-join", {"parts": parts, "sensor": SENSOR}, status, JOIN_LAYER)
+    camera: dict[str, object] = {"maxzoom": SENSOR_SPECS[SENSOR].maxzoom} if archive else {"sensor": SENSOR}
+    world.seed_job(JOB, "layer-join", {"parts": parts, **camera}, status, JOIN_LAYER)
     source_parts = [
         {
             "versionId": frame.version_id,
@@ -173,11 +176,16 @@ def seed_join(world: PipelineWorld, frames: list[Frame], status: str = "starting
 
 def seed_frames(world: PipelineWorld, tmp: Path, ground: World, frames: list[Frame], half_m: tuple[float, float]) -> None:
     """The city, every frame and the join."""
+    seed_parts(world, tmp, ground, frames, half_m)
+    seed_join(world, frames)
+
+
+def seed_parts(world: PipelineWorld, tmp: Path, ground: World, frames: list[Frame], half_m: tuple[float, float]) -> None:
+    """The city and every frame, no join yet."""
     seed_city(world, half_m)
     for frame in frames:
         scan = frame.scan(ground)
         seed_part(world, tmp, frame, scan.pixels, scan)
-    seed_join(world, frames)
 
 
 def run_join(world: PipelineWorld) -> RunOutcome:

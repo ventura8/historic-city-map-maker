@@ -5,7 +5,7 @@
  * and, below the worker's floor, no job is taken (`lowDisk`); "Free space now" (`worker.manage` `freeSpace`) is answered
  * `freeSpace` until the worker says what it freed.
  */
-import { FIRESTORE_PATHS, jobLogDocSchema } from '@hcm/shared';
+import { FIRESTORE_PATHS, LOST_HAND_OVER_MS, jobLogDocSchema } from '@hcm/shared';
 import { describe, expect, it } from 'vitest';
 
 import { claimFunction } from '../../src/worker/claim.js';
@@ -49,11 +49,31 @@ describe('worker.claim: its own orphan', () => {
         const world = await workerWorld();
         await seedHeld(world, { attempt: 2 });
 
-        // The same job is the oldest queued one again: the worker takes it back at once, its attempt counted once more.
-        await expect(claim(world)).resolves.toEqual({ job: { jobId: JOB } });
+        // Finding of 2026-11-14 (1923 plan-ghid): the computer that lost it leaves it to the owner's other computers first.
+        await expect(claim(world)).resolves.toEqual({ job: null });
 
-        await expect(readJob(world, JOB)).resolves.toMatchObject({ status: 'starting', attempt: 2, lostRuns: 1, worker: { id: WORKER } });
+        await expect(readJob(world, JOB)).resolves.toMatchObject({ status: 'queued', attempt: 1, lostRuns: 1, lostOn: [WORKER] });
         await expect(logMessages(world)).resolves.toEqual(['apiError.imagery.workerLostRefunded']);
+        await seedWorker(world, OTHER_WORKER);
+        await expect(callAs(world, claimFunction, { workerId: OTHER_WORKER })).resolves.toEqual({ job: { jobId: JOB } });
+    });
+
+    it('happyPath_theComputerThatLostItTakesItAgainOnceTheOthersHadTheirTurn @S-A62-HAPPY-LOST-HAND-OVER', async () => {
+        const world = await workerWorld();
+        await seedWorker(world);
+        await seedJob(world, JOB, { ...localJob(), status: 'queued', lostOn: [WORKER], updatedAt: minutes(-LOST_HAND_OVER_MS / 60_000) });
+
+        await expect(claim(world)).resolves.toEqual({ job: { jobId: JOB } });
+    });
+
+    it('badPath_aComputerThatLosesTheSameJobAgainIsSaidSoInPlainWords @S-A62-BAD-LOST-AGAIN', async () => {
+        const world = await workerWorld();
+        await seedHeld(world, { attempt: 2, lostRuns: 1, lostOn: [WORKER] });
+
+        await expect(claim(world)).resolves.toEqual({ job: null });
+
+        await expect(readJob(world, JOB)).resolves.toMatchObject({ status: 'queued', lostRuns: 2, lostOn: [WORKER, WORKER] });
+        await expect(logMessages(world)).resolves.toEqual(['apiError.imagery.workerLostAgain']);
     });
 
     it('happyPath_aStartingOrphanIsReleasedToo_andNothingElseIsTaken @S-A62-HAPPY-OWN-ORPHAN', async () => {

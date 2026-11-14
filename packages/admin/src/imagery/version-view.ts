@@ -117,6 +117,8 @@ export interface VersionView {
         readonly confirmedBy: string | null;
         readonly allowPublish: boolean;
     } | null;
+    /** Finding of 2026-11-14: an archive map, offered **Join with…**. */
+    readonly archiveMap: boolean;
 }
 
 /** M16: the public archive a published version is drawn from (none once its grace ended and it was removed). */
@@ -226,6 +228,7 @@ export function versionViewOf(doc: Stored<LayerVersionDoc>): VersionView {
         ...{ ...sourceOf(version.source), partOf: orNull(version.partOf), join: orNull(version.join) },
         ...{ basedOn: orNull(version.basedOn), recalibration: orNull(version.recalibration), publicUrl: publicUrlOf(version.own) },
         archive: orNull(version.archive),
+        archiveMap: version.source?.kind === 'archive',
         ...helpFlagsOf(version),
         rights: rightsOf(version.rights),
     };

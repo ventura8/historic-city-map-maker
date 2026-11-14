@@ -142,7 +142,15 @@ function fromStitch(job: JobDoc): JobDoc['steps'] {
     return Object.fromEntries(steps) as JobDoc['steps'];
 }
 
-/** Everything `locate` and `georef` left is theirs to write again; the scan stays until the new one replaces it. */
+/** What a search writes again: its error, its fit, its calibration, its suggestions and its help. */
+const DROPPED_ON_SEARCH = ['error', 'georef', 'calibration', 'suggestions', 'help'] as const;
+
+/** The version holds pairs a person placed and saved (`imagery.saveGcps`: `georef.method` `gcps`). */
+export function holdsOwnerPairs(version: Pick<LayerVersionDoc, 'georef'> | undefined): boolean {
+    return version?.georef?.method === 'gcps' && version.georef.gcps.length > 0;
+}
+
+/** Everything `locate` and `georef` left is theirs to write again (the owner's saved pairs excepted); the scan stays until the new one replaces it. */
 async function requeueIn(transaction: DocumentTransaction, request: Pick<Request, 'cityId' | 'versionId'>, stamp: Stamp): Promise<JobDoc> {
     const versionPath = FIRESTORE_PATHS.layerVersion(request.cityId, request.versionId);
     const jobPath = FIRESTORE_PATHS.job(request.cityId, request.versionId);
@@ -150,7 +158,9 @@ async function requeueIn(transaction: DocumentTransaction, request: Pick<Request
         await transaction.get(versionPath, layerVersionDocSchema),
         await transaction.get(jobPath, jobDocSchema),
     );
-    const left = omit(version, ['error', 'georef', 'calibration', 'suggestions', 'help']);
+    // Finding of 2026-11-14 (1864, 1871 Pappasoglu): the owner's pairs are never dropped by a search; `place` and `georef` fit them.
+    const dropped = holdsOwnerPairs(version) ? (['error', 'calibration', 'help'] as const) : DROPPED_ON_SEARCH;
+    const left = omit(version, [...dropped]);
     await transaction.set(versionPath, layerVersionDocSchema, { ...left, state: 'processing', ...stamp });
     const kept = omit(job, ['waitReason', 'error', 'finishedAt', 'lease', 'retryAt', 'executionName', 'searchedWith', 'placingPoints']);
     const queued: JobDoc = { ...kept, status: 'queued', ...attemptForSearch(version, job), steps: fromStitch(job), ...stamp };

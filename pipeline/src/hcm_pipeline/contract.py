@@ -285,6 +285,8 @@ class Errors:
     JOIN_SEAM_TOO_FAR: Final = "apiError.imagery.joinSeamTooFar"
     JOIN_NO_FRAMES: Final = "apiError.imagery.joinNoFrames"
     JOIN_NO_ROOM: Final = "apiError.imagery.joinNoRoom"
+    # An archive maps' join whose parts share no seam on the ground (finding of 2026-11-14).
+    JOIN_MAPS_APART: Final = "apiError.imagery.joinMapsApart"
     STEP_TIME_LIMIT: Final = "apiError.imagery.stepTimeLimit"
     # M16: a refine that renders nothing ends declined with one of these (`jobs.DeclinedError`).
     NOT_IMPROVED: Final = "apiError.imagery.notImproved"

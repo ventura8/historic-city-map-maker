@@ -665,3 +665,20 @@ Import, so nothing could be done. `join-parts.ts` now counts `joined` with `publ
 (`ENDED_YET_USABLE`): `isUsablePart` takes it for a new join (unless it is itself a join), `partsReady` counts it ready (it has its
 output), and only rejected, superseded, failed and cancelled frames are gone. Tests: `functions/test/imagery/{join,join-parts}.test.ts`;
 scenarios `S-A65-HAPPY-JOINED-FRAME`, `S-A65-BAD-PART-GONE`.
+
+## 20. Archive maps joined (2026-11-14)
+
+The owner's harti.zip maps include maps in parts: the n and S halves of 1978, 1974-01 and 1974-02, the 1:500 sets per year, sheet series.
+`imagery.join` also takes `{ cityId, versionIds }` (2 to `JOIN_MAX_PARTS` archive versions, `functions/src/imagery/join-archive.ts`):
+
+- each part is an archive map (`source.kind: 'archive'`, a regeoref of one included), usable (published, approved or awaiting approval),
+  with a scan and points of its own (`georef`, not `embedded`; else `apiError.imagery.joinNeedsPoints {map}`), one version per map
+  (`joinSameLayer`), and held by no live join;
+- the join is a new version of the first published part's layer (else a new layer), labelled with the parts' labels (`N + S`); the other
+  parts' layers retire when it publishes, as in §18; approval is the usual one;
+- its `layer-join` parameters carry `maxzoom` (the parts' largest) instead of a camera; the parts in its `source` have no dataset, camera
+  or date, and their `entityId` is their version id;
+- `align` keeps every part on its own fit: the seams are measured and reported (`applied: false`, `maxShiftM: 0`), a seam too far apart
+  fails as before (`joinSeamTooFar`), and a part that shares no seam with another fails with `apiError.imagery.joinMapsApart {a, b}`;
+- the version page of an archive map offers **Join with…** (`<hcm-archive-join>`): one button per other map of its year that the join can
+  take, then a link to the join. Scenarios: S-A65-HAPPY-ARCHIVE, S-A65-BAD-ARCHIVE-NO-POINTS, S-A65-*-ARCHIVE-OFFER, S-P05-*-ARCHIVE*.

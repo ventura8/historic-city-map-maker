@@ -117,7 +117,7 @@ def test_bad_path_the_older_joins_never_mosaic_unless_something_vouches_for_them
     """Scenarios: S-P20-BAD-STITCH-LEGACY-LOOSE"""
     ctx, _staging = staged_series(world, tmp_path, SheetsSpec(rows=2, cols=2, overlap=0.0, names="rc"))
     monkeypatch.setattr(autoplace, "proposed", _doubtful(verdict))
-    monkeypatch.setattr(maps, "_atlas_parts", lambda sheets: _loose(len(sheets), rms_px))
+    monkeypatch.setattr(maps, "atlas_parts", lambda sheets: _loose(len(sheets), rms_px))
 
     assert isinstance(PlaceStep().run(ctx), Waiting)
 

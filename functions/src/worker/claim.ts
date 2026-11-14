@@ -4,6 +4,7 @@ import {
     FIRESTORE_PATHS,
     JOB_MAX_ATTEMPTS,
     LEASE_SECONDS,
+    LOST_HAND_OVER_MS,
     jobDocSchema,
     runsOnPipeline,
     timestampToDate,
@@ -75,10 +76,28 @@ function runsHere(runs: Runs, type: string): boolean {
     return runs === undefined || runs.includes(type);
 }
 
-function claimable(job: JobDoc | undefined, now: Date, call: Pick<Claim, 'runs' | 'films' | 'archives'>, jobId: string): job is JobDoc {
+/**
+ * Finding of 2026-11-14 (1923 plan-ghid): a computer that lost a run of the job takes it again only once the owner's other computers
+ * had `LOST_HAND_OVER_MS` to take it (since it was queued again), so the one that keeps stopping on it is not the only one tried.
+ */
+function handedOver(job: JobDoc, now: Date, workerId: string): boolean {
+    const lostHere = (job.lostOn ?? []).includes(workerId);
+    return !lostHere || now.getTime() - timestampToDate(job.updatedAt).getTime() >= LOST_HAND_OVER_MS;
+}
+
+function claimable(
+    job: JobDoc | undefined,
+    now: Date,
+    call: Pick<Claim, 'runs' | 'films' | 'archives' | 'workerId'>,
+    jobId: string,
+): job is JobDoc {
+    return job !== undefined && CLAIM_RULES.every((rule) => rule(job, now)) && takesHere(job, now, call, jobId);
+}
+
+/** What the claiming worker itself decides: the computers that lost it, the types it runs, the films and archives it holds. */
+function takesHere(job: JobDoc, now: Date, call: Pick<Claim, 'runs' | 'films' | 'archives' | 'workerId'>, jobId: string): boolean {
     return (
-        job !== undefined &&
-        CLAIM_RULES.every((rule) => rule(job, now)) &&
+        handedOver(job, now, call.workerId) &&
         runsHere(call.runs, job.type) &&
         filmHere(job, jobId, call.films) &&
         archiveHere(job, call.archives)

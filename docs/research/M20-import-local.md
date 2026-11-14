@@ -140,6 +140,9 @@ Per-file rows stay local. A skipped list of up to 500 sample relative paths goes
    - a morphological close, then the largest near-rectangular contour, then corner refinement at full resolution by line intersection (sub-pixel);
    - where the printed grid crosses the sheet (IGA 1895 and 1911 quadrants), the grid lines' crossings are detected by Hough on the long thin lines. Each crossing is a control point with known grid coordinates: tens per sheet.
    - A sheet whose frame is not found is reported (`frame-not-found`) and left out of the mosaic. One bad sheet never blocks the series.
+   - No sheet framed (or no grid scheme): the series waits with its sheets as they are for its picture and scan (one sheet whole, several
+     as an atlas), so the georeferencer shows them. Fewer than half framed: the series is laid out as an atlas and waits for the tile
+     wizard (`layout-check`) instead of a grid of the few (2026-11-14, lessons 732-733).
 3. **Solve the grid once per city.** The unknown is a 4-parameter similarity from grid metres to EPSG:3857, or an affine if the residual warrants it.
    - Scale is known (500 m cells), so the search is translation plus a small rotation.
    - The series is rendered in grid space at 2 m from the sheets' frames: the whole city's 1970s street pattern.

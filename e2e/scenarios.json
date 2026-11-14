@@ -12561,10 +12561,32 @@
             "area": "admin",
             "path": "happy",
             "title": "A computer back from a power cut releases the job it was running at its first claim",
-            "asserts": "the worker's document says busy with a job still starting or running and claimed by that same worker -> its next worker.claim (a worker claims only when it runs nothing) queues the job again at once with its attempt given back and the log line, then claims as usual (it may take the same job back), without waiting for the lease or imagery.tick",
+            "asserts": "the worker's document says busy with a job still starting or running and claimed by that same worker -> its next worker.claim queues the job again at once with its attempt given back, the log line and the computer in lostOn; another computer of the owner's takes it at once, the one that lost it only after LOST_HAND_OVER_MS",
             "tier": "functions",
             "status": "exists",
             "notes": "Resilience audit P0-1 and P1-3 (2026-11-14; docs/research/M7-local-worker.md §3). Test: functions/test/worker/cleanup.test.ts."
+        },
+        {
+            "id": "S-A62-HAPPY-LOST-HAND-OVER",
+            "behaviour": "A62",
+            "area": "admin",
+            "path": "happy",
+            "title": "A computer that lost a job takes it again once the others had their turn",
+            "asserts": "a queued job with the computer in lostOn -> its claim skips it for LOST_HAND_OVER_MS, then takes it",
+            "tier": "functions",
+            "status": "exists",
+            "notes": "Finding of 2026-11-14 (1923 plan-ghid). Test: functions/test/worker/cleanup.test.ts."
+        },
+        {
+            "id": "S-A62-BAD-LOST-AGAIN",
+            "behaviour": "A62",
+            "area": "admin",
+            "path": "bad",
+            "title": "A computer that loses the same job again is named in plain words",
+            "asserts": "a lost run on a computer already in lostOn -> the log says apiError.imagery.workerLostAgain (short of memory, another computer first, this one again in 15 minutes)",
+            "tier": "functions",
+            "status": "exists",
+            "notes": "Finding of 2026-11-14 (1923 plan-ghid). Test: functions/test/worker/cleanup.test.ts."
         },
         {
             "id": "S-A62-BAD-OWN-ORPHAN",
@@ -13546,6 +13568,50 @@
             "notes": "M8 (docs/research/M8-join-interfaces.md §8). Test: e2e/admin/specs/imagery/join.spec.ts, functions/test/imagery/join*.test.ts."
         },
         {
+            "id": "S-A65-HAPPY-ARCHIVE",
+            "behaviour": "A65",
+            "area": "admin",
+            "path": "happy",
+            "title": "Two archive maps join as a new version of the published one's layer",
+            "asserts": "imagery.join {versionIds} of two archive maps with points -> a layer-join waiting for its parts with maxzoom, a join version labelled N + S, the parts stamped partOf, the published layer's pendingVersion; no part published -> a new layer",
+            "tier": "functions",
+            "status": "exists",
+            "notes": "Finding of 2026-11-14. Test: functions/test/imagery/join-archive.test.ts."
+        },
+        {
+            "id": "S-A65-BAD-ARCHIVE-NO-POINTS",
+            "behaviour": "A65",
+            "area": "admin",
+            "path": "bad",
+            "title": "An archive map with no points of its own is not joined",
+            "asserts": "a part without georef -> apiError.imagery.joinNeedsPoints naming the map, nothing written; two versions of one map -> joinSameLayer; a rejected map -> joinPartGone; a busy layer -> joinLayerBusy",
+            "tier": "functions",
+            "status": "exists",
+            "notes": "Finding of 2026-11-14. Test: functions/test/imagery/join-archive.test.ts."
+        },
+        {
+            "id": "S-A65-HAPPY-ARCHIVE-OFFER",
+            "behaviour": "A65",
+            "area": "admin",
+            "path": "happy",
+            "title": "Join with… offers the year's other maps and starts the join",
+            "asserts": "an archive map's page -> Join with {map} for each other map of its year (one version per map, the published else the newest); a click -> imagery.join {versionIds}, the join linked",
+            "tier": "e2e-admin",
+            "status": "planned",
+            "notes": "Finding of 2026-11-14. Unit tests today (Vitest, not scanned): packages/ui/test/admin/imagery/archive-join.test.ts, packages/admin/test/imagery/archive-join.test.ts. Planned: e2e/admin/specs/imagery/join.spec.ts."
+        },
+        {
+            "id": "S-A65-BAD-ARCHIVE-OFFER",
+            "behaviour": "A65",
+            "area": "admin",
+            "path": "bad",
+            "title": "Join with… offers nothing the join cannot take",
+            "asserts": "a USGS frame, a map with no points or an embedded georeference, one a join holds, one waiting for points, another year's map or a rejected one -> not offered; a refused join -> its plain words in the snackbar, the buttons stay",
+            "tier": "e2e-admin",
+            "status": "planned",
+            "notes": "Finding of 2026-11-14. Unit tests today (Vitest, not scanned): packages/ui/test/admin/imagery/archive-join.test.ts, packages/admin/test/imagery/archive-join.test.ts. Planned: e2e/admin/specs/imagery/join.spec.ts."
+        },
+        {
             "id": "S-A65-HAPPY-ADD-FRAME",
             "behaviour": "A65",
             "area": "admin",
@@ -14017,6 +14083,28 @@
             "tier": "e2e-pipeline",
             "status": "exists",
             "notes": "M8 (docs/research/M8-join-interfaces.md §8). Test: pipeline/tests/integration/test_join_job.py."
+        },
+        {
+            "id": "S-P05-HAPPY-ARCHIVE",
+            "behaviour": "P05",
+            "area": "pipeline",
+            "path": "happy",
+            "title": "Archive maps join into one layer, each on its own fit",
+            "asserts": "a layer-join with maxzoom (no camera) -> the seam measured and reported, applied false, no part has nodes, maxShiftM 0, awaiting_approval",
+            "tier": "e2e-pipeline",
+            "status": "exists",
+            "notes": "Finding of 2026-11-14 (docs/research/M8-join-interfaces.md §11). Test: pipeline/tests/integration/test_join_archive.py."
+        },
+        {
+            "id": "S-P05-BAD-ARCHIVE-APART",
+            "behaviour": "P05",
+            "area": "pipeline",
+            "path": "bad",
+            "title": "Archive maps that never meet are refused in plain words",
+            "asserts": "an archive join whose part shares no seam -> failed, apiError.imagery.joinMapsApart naming both maps",
+            "tier": "e2e-pipeline",
+            "status": "exists",
+            "notes": "Finding of 2026-11-14 (docs/research/M8-join-interfaces.md §11). Test: pipeline/tests/integration/test_join_archive.py."
         },
         {
             "id": "S-P05-BAD-UNMEASURED",
@@ -17368,10 +17456,21 @@
             "area": "admin",
             "path": "bad",
             "title": "A frame an editor is placing points on is not sent searching again",
-            "asserts": "the georeferencer's mark on the parked frame's job (placingPoints, at the first edit and every half hour) within PLACING_POINTS_HOLD_MS -> imagery.tick leaves it waiting, so Save still takes the points; an older mark -> searched again, the mark cleared; Save clears it too; only a parked frame's job takes the mark (rules)",
+            "asserts": "the georeferencer's mark on the parked frame's job (placingPoints, at the first edit and every half hour), however old -> imagery.tick leaves it waiting, so Save still takes the points (finding of 2026-11-14: an older mark used to send the frame searching and the unsaved points were lost); Save or Locate again by hand clears it; only a parked frame's job takes the mark (rules)",
             "tier": "functions",
             "status": "exists",
             "notes": "Review of M18 item 3 (2026-11-08). Tests: functions/test/imagery/relocate.test.ts, save-gcps.test.ts, firebase/rules-tests/test/jobs.test.ts, packages/admin/test/georef/georef.test.ts."
+        },
+        {
+            "id": "S-A69-BAD-AUTO-RELOCATE-OWNER-PAIRS",
+            "behaviour": "A69",
+            "area": "admin",
+            "path": "bad",
+            "title": "An update never sends a version holding the owner's saved pairs searching",
+            "asserts": "a parked version whose georef holds the owner's pairs (method gcps) and a newer pipeline image -> imagery.tick leaves it waiting with its pairs and remembers the image; Locate again by hand keeps the pairs too (place fits them)",
+            "tier": "functions",
+            "status": "exists",
+            "notes": "Finding of 2026-11-14 (1864 and 1871 Pappasoglu lost their points to the 22:11 update). Tests: functions/test/imagery/relocate.test.ts, functions/test/imagery/locate-again-archive.test.ts."
         },
         {
             "id": "S-A69-BAD-AUTO-RELOCATE-RECORD",
@@ -18864,10 +18963,21 @@
             "area": "pipeline",
             "path": "bad",
             "title": "A sheet with no frame is left out and the series waits when none has one",
-            "asserts": "no outline -> no frame; a series of frameless sheets -> awaiting_gcps, help frame-not-found",
+            "asserts": "no outline -> no frame; a series of frameless sheets (or with no grid scheme) -> awaiting_gcps, help frame-not-found, with its sheets as the stitched picture and the version's scan (one sheet whole, several as an atlas), so the georeferencer shows them (finding of 2026-11-14: the 1:500 sets of 1960-71 said The scan cannot be shown)",
             "tier": "e2e-pipeline",
             "status": "exists",
             "notes": "M20 paths (docs/research/M20-import-local.md §3, §15). Tests: pipeline/tests/unit/test_placing_parts.py, pipeline/tests/unit/test_placing_grid.py."
+        },
+        {
+            "id": "S-P20-BAD-GRID-FEW-FRAMED",
+            "behaviour": "P20",
+            "area": "pipeline",
+            "path": "bad",
+            "title": "A grid series with most sheets unframed goes to the tile wizard",
+            "asserts": "fewer than half of a grid series' sheets framed -> laid out as an atlas, help layout-check (the tile wizard opens), never a grid of the few framed that asks for points and leaves the rest out",
+            "tier": "e2e-pipeline",
+            "status": "exists",
+            "notes": "Finding of 2026-11-14 (plan cadastral 1911-1914, 20 of 100 sheets framed). Test: pipeline/tests/unit/test_placing_grid.py."
         },
         {
             "id": "S-P20-HAPPY-CHECKS",
@@ -19616,6 +19726,17 @@
             "tier": "e2e-admin",
             "status": "exists",
             "notes": "M22 §13.2. Tests: functions/test/imagery/locate-again-archive.test.ts, packages/ui/test/admin/imagery/imagery-detail.test.ts."
+        },
+        {
+            "id": "S-A122-HAPPY-PLACE-AGAIN-KEEPS-PAIRS",
+            "behaviour": "A122",
+            "area": "admin",
+            "path": "happy",
+            "title": "Locate again on an archive series keeps the owner's saved pairs",
+            "asserts": "a parked archive series with the owner's pairs -> Locate again queues place, the version's georef stays as saved",
+            "tier": "functions",
+            "status": "exists",
+            "notes": "Finding of 2026-11-14 (docs/LESSONS.md). Test: functions/test/imagery/locate-again-archive.test.ts."
         },
         {
             "id": "S-A122-BAD-PLACE-AGAIN-CANCELLED",

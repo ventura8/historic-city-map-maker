@@ -10,14 +10,17 @@ import { JOIN_MAX_PARTS } from './imagery-settings.js';
 import { idSchema, isoDateSchema } from './primitives.js';
 import { SENSORS } from './usgs-scene.js';
 
-/** One frame of a join: its own version and layer (its files live under them) and the scene it came from. */
+/**
+ * One frame of a join: its own version and layer (its files live under them) and the scene it came from. An archive map's part
+ * (finding of 2026-11-14) has no scene: its `entityId` is its version's id, and it has no dataset, camera or date.
+ */
 export const joinPartSchema = z.strictObject({
     versionId: idSchema,
     layerId: idSchema,
     entityId: idSchema,
-    dataset: z.enum(USGS_DATASETS),
-    sensor: z.enum(SENSORS),
-    acquisitionDate: isoDateSchema,
+    dataset: z.enum(USGS_DATASETS).optional(),
+    sensor: z.enum(SENSORS).optional(),
+    acquisitionDate: isoDateSchema.optional(),
 });
 
 /** A join version's `source`: its frames in the order the job takes them; the first is the layer's `usgsEntityId`. */
@@ -26,14 +29,26 @@ export const joinSourceSchema = z.strictObject({
     parts: z.array(joinPartSchema).min(2).max(JOIN_MAX_PARTS),
 });
 
-/** `layer-join`: the frames to read, and the camera (`sensorMachine` picks `xl` for KH-9). */
-export const layerJoinParamsSchema = z.strictObject({
-    parts: z
-        .array(z.strictObject({ versionId: idSchema, layerId: idSchema }))
-        .min(2)
-        .max(JOIN_MAX_PARTS),
-    sensor: z.enum(SENSORS),
-});
+/**
+ * `layer-join`: the frames to read, and the camera (`sensorMachine` picks `xl` for KH-9). An archive maps' join has no camera: its
+ * `maxzoom` is the parts' own, and each part keeps its own points: the seams are measured, never closed by moving a part.
+ */
+export const layerJoinParamsSchema = z.union([
+    z.strictObject({
+        parts: z
+            .array(z.strictObject({ versionId: idSchema, layerId: idSchema }))
+            .min(2)
+            .max(JOIN_MAX_PARTS),
+        sensor: z.enum(SENSORS),
+    }),
+    z.strictObject({
+        parts: z
+            .array(z.strictObject({ versionId: idSchema, layerId: idSchema }))
+            .min(2)
+            .max(JOIN_MAX_PARTS),
+        maxzoom: z.number().int().min(10).max(22),
+    }),
+]);
 
 /**
  * One owner boundary between two frames (`a`, `b`: entity ids). `measured`: enough samples matched to fit a correction;

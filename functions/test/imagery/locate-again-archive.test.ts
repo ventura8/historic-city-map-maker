@@ -9,7 +9,19 @@ import { omit } from '../../src/api/objects.js';
 import { locateAgainFunction } from '../../src/imagery/locate-again.js';
 import { failureOf } from '../admin/world.js';
 import { adminCall } from '../publish/fakes.js';
-import { CITY, NOW, at, needsGcpsVersion, readJob, readVersion, readyWorld, seedJob, seedVersion, type ImageryWorld } from './world.js';
+import {
+    CITY,
+    NOW,
+    at,
+    goldenGeoref,
+    needsGcpsVersion,
+    readJob,
+    readVersion,
+    readyWorld,
+    seedJob,
+    seedVersion,
+    type ImageryWorld,
+} from './world.js';
 
 const JOB = 'ar-mw993zri-s-4054e55659a3';
 const DONE = 'done' as const;
@@ -74,6 +86,17 @@ describe('imagery.locateAgain: an archive series parked for points', () => {
         const version = await readVersion(ready, JOB);
         expect(version?.state).toBe('processing');
         expect(version?.help).toBeUndefined();
+    });
+
+    // Finding of 2026-11-14 (1864 and 1871 Pappasoglu): a search never drops the pairs the owner saved; `place` fits them.
+    it('happyPath_theOwnersSavedPairsStayForPlaceToFit @S-A122-HAPPY-PLACE-AGAIN-KEEPS-PAIRS', async () => {
+        const ready = await world();
+        const georef = { ...goldenGeoref(), method: 'gcps' as const };
+        await seedVersion(ready, JOB, { ...parkedVersion(), georef });
+
+        await locateAgain(ready);
+
+        expect((await readVersion(ready, JOB))?.georef).toEqual(georef);
     });
 
     it('badPath_aSeriesAskedToStopIsNotPlacedAgain @S-A122-BAD-PLACE-AGAIN-CANCELLED', async () => {

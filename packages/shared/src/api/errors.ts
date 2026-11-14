@@ -185,6 +185,10 @@ export const API_ERRORS: Readonly<Record<ApiErrorCode, ApiErrorSpec>> = {
     'apiError.imagery.joinPartMissing': spec('failed-precondition'),
     'apiError.imagery.joinSeamTooFar': spec('failed-precondition'),
     'apiError.imagery.joinNoFrames': spec('failed-precondition'),
+    'apiError.imagery.joinMapsApart': spec('failed-precondition'),
+    'apiError.imagery.workerLostAgain': spec('failed-precondition'),
+    'apiError.imagery.joinNeedsPoints': spec('failed-precondition'),
+    'apiError.imagery.joinSameLayer': spec('failed-precondition'),
     'apiError.imagery.joinNoRoom': spec('failed-precondition'),
     // A step that ran past its wall-time limit (`STEP_LIMITS_SECONDS` of the pipeline; live 2026-11-12: an hour in `locate`).
     'apiError.imagery.stepTimeLimit': spec('failed-precondition'),

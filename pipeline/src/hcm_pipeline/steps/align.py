@@ -22,6 +22,7 @@ from hcm_pipeline.join.plan import OWNER_FILE, PLAN_FILE, JoinPlan, Part, Planne
 from hcm_pipeline.join.room import needed_to_align, require_room, scan_sizes, window_px
 from hcm_pipeline.join.seams import Ownership, Sample, Seam, assign, find_seams
 from hcm_pipeline.join.warping import Warper, node_reverse, part_size, part_transform
+from hcm_pipeline.model import JoinParams
 from hcm_pipeline.rasters import GeoTiff, write_geotiff
 from hcm_pipeline.steps.common import city_window, gdal_step
 
@@ -268,10 +269,32 @@ def _part_move(part: Part, nodes: tuple[Node, ...], ground: float, box: Mercator
 
 
 def _aligned(run: Aligning, box: MercatorBox, seams: Sequence[Seam], omitted: tuple[str, ...]) -> JoinPlan:
-    """The seams measured and settled, as a plan."""
+    """The seams measured and settled, as a plan. An archive maps' join keeps every part on its own fit: its seams are measured (one
+    too far apart ends the job) and reported, and no part moves (finding of 2026-11-14)."""
+    keeps_fits = JoinParams.of(run.ctx.job.params).keeps_fits
+    if keeps_fits:
+        require_meeting(run.parts, seams)
     measured = run.measure(seams)
-    settled = settle(run, [_base_of(part, box) for part in run.parts], measured)
+    if keeps_fits:
+        settled = Settled(set(), {}, [() for _part in run.parts])
+    else:
+        settled = settle(run, [_base_of(part, box) for part in run.parts], measured)
     return _plan_of(run, box, measured, settled, omitted)
+
+
+def require_meeting(parts: Sequence[Part], seams: Sequence[Seam]) -> None:
+    """Every part of an archive maps' join shares a seam with another: one that meets none lies apart (`joinMapsApart`), and a
+    layer of pieces that never touch would show gaps the owner did not ask for."""
+    alone = _alone(len(parts), seams)
+    if alone is not None:
+        apart, other = parts[alone].version.id, parts[1 if alone == 0 else 0].version.id
+        raise StepFailedError(Errors.JOIN_MAPS_APART, f"{apart} shares no edge with any other part of the join", {"a": apart, "b": other})
+
+
+def _alone(count: int, seams: Sequence[Seam]) -> int | None:
+    """The first part no seam touches, or None."""
+    met = {index for seam in seams for index in (seam.a, seam.b)}
+    return next((index for index in range(count) if index not in met), None)
 
 
 def _log(ctx: JobContext, step: str, plan: JoinPlan) -> None:

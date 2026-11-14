@@ -14,7 +14,6 @@ from typing import Final
 import cv2
 import numpy
 
-from hcm_pipeline.contract import SENSOR_SPECS
 from hcm_pipeline.documents import JoinReport, city_bounds
 from hcm_pipeline.geo import Grid, MercatorBox, ground_scale, zoom_resolution
 from hcm_pipeline.images import UInt8Array, as_uint8
@@ -101,7 +100,7 @@ class MergeStep:
         plan, owner = _read_plan(ctx)
         parts = used_parts(read_parts(ctx), plan)
         require_room(ctx, needed_to_merge(scan_sizes(ctx, parts), window_px(ctx, plan.box)))
-        grid = level_grid(plan.box, SENSOR_SPECS[JoinParams.of(ctx.job.params).sensor].maxzoom)
+        grid = level_grid(plan.box, JoinParams.of(ctx.job.params).maxzoom)
         warper = Warper(ctx, plan.box)
         files = [warper.rendered(part, planned.nodes, grid) for part, planned in zip(parts, plan.parts, strict=True)]
         ground = ground_scale(plan.box.bounds().middle_lat)

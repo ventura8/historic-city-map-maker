@@ -9,7 +9,7 @@ import errno
 import shutil
 from collections.abc import Sequence
 
-from hcm_pipeline.contract import SENSOR_SPECS, Errors
+from hcm_pipeline.contract import Errors
 from hcm_pipeline.geo import MercatorBox, zoom_resolution
 from hcm_pipeline.jobs import JobContext, StepFailedError
 from hcm_pipeline.join.plan import Part
@@ -31,7 +31,7 @@ def scan_sizes(ctx: JobContext, parts: Sequence[Part]) -> list[int]:
 
 def window_px(ctx: JobContext, box: MercatorBox) -> int:
     """The window's pixels at the camera's zoom."""
-    maxzoom = SENSOR_SPECS[JoinParams.of(ctx.job.params).sensor].maxzoom
+    maxzoom = JoinParams.of(ctx.job.params).maxzoom
     return round(box.width * box.height / zoom_resolution(maxzoom) ** 2)
 
 

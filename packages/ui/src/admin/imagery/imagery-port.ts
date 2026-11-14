@@ -156,6 +156,15 @@ export interface UploadStatePort {
     readonly layerId: string | null;
 }
 
+/** An archive map the open one may be joined with (**Join with…**). */
+export interface ArchiveJoinCandidatePort {
+    readonly id: string;
+    readonly layerId: string;
+    readonly label: { readonly ro: string; readonly en?: string | undefined };
+    readonly year: number;
+    readonly state: LayerVersionState;
+}
+
 export interface VersionViewPort {
     readonly id: string;
     readonly layerId: string;
@@ -220,6 +229,8 @@ export interface VersionViewPort {
     readonly layoutCheck?: boolean;
     /** M20 (§216): published with pieces left out of its overview mosaic: offered Locate again (a new version). */
     readonly restitchable?: boolean;
+    /** Finding of 2026-11-14: an archive map (its source is an archive), offered **Join with…** (`join/hcm-archive-join.ts`). */
+    readonly archiveMap?: boolean;
     /**
      * M20 (§7): rights summary for the approval card (null: none). Approve stays off until `allowPublish`; Confirm when
      * `state` is `needs-confirmation`.
@@ -409,6 +420,13 @@ export interface ImageryIntentsPort {
     markUnusable(id: string, reason: UnusableReasonPort | null): Promise<boolean>;
     /** M8: Join frames (the new join's version id, or null when refused) and Add {year} to target years. */
     joinFrames(entityIds: readonly string[]): Promise<string | null>;
+    /** Finding of 2026-11-14: the year's archive maps the open one may be joined with, and their join (its version id, or null). */
+    archiveJoinCandidates(version: {
+        readonly id: string;
+        readonly layerId: string;
+        readonly year: number;
+    }): Promise<readonly ArchiveJoinCandidatePort[]>;
+    joinArchive(versionIds: readonly string[]): Promise<string | null>;
     addTargetYear(year: number): Promise<boolean>;
     /** M20 (`docs/research/M20-import-local.md` §8): Import local files' feed and elements, from the lazy `archive` chunk. */
     archive(): Promise<ArchiveFeedPort>;

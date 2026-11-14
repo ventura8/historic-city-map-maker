@@ -25,6 +25,8 @@ import type { ImageryContext } from '../context.js';
 import type { ImageryViewState, JobViewPort, SceneItemPort, VersionViewPort } from '../imagery-port.js';
 import { dayText, numberText, versionStateText } from '../imagery-text.js';
 import { when, withValue } from '../when.js';
+import { defineOnce } from '../../../components/internal.js';
+import { HCM_ARCHIVE_JOIN_TAG, HcmArchiveJoin } from './hcm-archive-join.js';
 import { frameName, liveJoin, liveJoinOver } from './live-join.js';
 
 async function joinFrames(context: ImageryContext, entityIds: readonly string[]): Promise<void> {
@@ -314,7 +316,14 @@ function joinOfVersion(context: ImageryContext, version: VersionViewPort, job: J
 
 /** The version's page: how the frame was found (M9), then what it has to do with a join. */
 export function versionJoin(context: ImageryContext, version: VersionViewPort, job: JobViewPort | null): TemplateResult {
-    return html`${calibrationCard(context.locale, version)} ${joinOfVersion(context, version, job)}`;
+    defineOnce(customElements, HCM_ARCHIVE_JOIN_TAG, HcmArchiveJoin);
+    return html`${calibrationCard(context.locale, version)} ${joinOfVersion(context, version, job)}
+        <hcm-archive-join
+            .locale=${context.locale}
+            .intents=${context.intents ?? null}
+            .version=${version}
+            .hrefOf=${context.href}
+        ></hcm-archive-join>`;
 }
 
 /** A seam in words: what it measured before and after; a seam whose correction did not help moved nothing, and says so. */

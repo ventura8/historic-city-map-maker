@@ -291,6 +291,7 @@
         "apiError.imagery.degenerateGcps",
         "apiError.imagery.downloadIncomplete",
         "apiError.imagery.gcpOutside",
+        "apiError.imagery.joinMapsApart",
         "apiError.imagery.joinNoFrames",
         "apiError.imagery.joinNoRoom",
         "apiError.imagery.joinPartMissing",

@@ -229,6 +229,11 @@ export const jobDocSchema = z.strictObject({
      */
     lostRuns: z.number().int().min(0).max(10).optional(),
     /**
+     * Finding of 2026-11-14 (1923 plan-ghid): the computers whose runs of this job were lost, oldest first. A computer that lost it
+     * waits `LOST_HAND_OVER_MS` before it takes it again, so another computer of the owner's takes it first.
+     */
+    lostOn: z.array(z.string().regex(WORKER_ID_PATTERN)).max(10).optional(),
+    /**
      * M3: how many times the publisher started this job's publish (`PUBLISH_MAX_ATTEMPTS`; every delivery of a start task
      * counts, so a publish that keeps failing ends instead of streaming its COG to Mapbox again and again).
      */

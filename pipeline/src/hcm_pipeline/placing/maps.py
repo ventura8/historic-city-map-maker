@@ -124,7 +124,7 @@ class AtlasPlacer:
     edges or overlaps when those place nearly all of it, or kept for its owner (`layout-check`)."""
 
     def place(self, ctx: JobContext) -> StepResult:
-        return _series_placed(ctx, "atlas", _atlas_parts)
+        return _series_placed(ctx, "atlas", atlas_parts)
 
 
 # The older joins (edges, overlaps) are used when the automatic layout is not good, they place at least this share of the parts, and
@@ -190,7 +190,7 @@ def legacy_good(parts: Parts, count: int, verdict: str) -> bool:
     return tight and len(parts.layout.placed) >= LEGACY_SHARE * count
 
 
-def _atlas_parts(sheets: Sequence[Sheet]) -> Parts:
+def atlas_parts(sheets: Sequence[Sheet]) -> Parts:
     """The pages cropped to their frames and laid out on their median size by their edges, or by their overlaps when those join
     more pages."""
     pages, cell = _pages(sheets)

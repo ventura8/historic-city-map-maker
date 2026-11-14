@@ -7,7 +7,20 @@ import { describe, expect, it } from 'vitest';
 
 import { relocateParked, RELOCATE_PER_TICK } from '../../src/imagery/relocate.js';
 import { runImageryTick } from '../../src/imagery/tick.js';
-import { CITY, NOW, at, needsGcpsVersion, readJob, readyWorld, seedJob, seedSetup, seedVersion, type ImageryWorld } from './world.js';
+import {
+    CITY,
+    NOW,
+    at,
+    goldenGeoref,
+    needsGcpsVersion,
+    readVersion,
+    readJob,
+    readyWorld,
+    seedJob,
+    seedSetup,
+    seedVersion,
+    type ImageryWorld,
+} from './world.js';
 
 const OLD = `sha256:${'ae'.repeat(32)}`;
 const NEW = `sha256:${'eb'.repeat(32)}`;
@@ -128,20 +141,36 @@ describe('relocateParked', () => {
         expect(await readJob(w, 'f1')).toMatchObject({ status: 'awaiting_gcps', searchedWith: OLD });
     });
 
-    // Review of M18 item 3: an editor placing points on the frame keeps it waiting, or their Save would be refused.
-    it('badPath_aFrameAnEditorIsPlacingPointsOnKeepsWaitingUntilTheMarkIsOld @S-A69-BAD-AUTO-RELOCATE-PLACING', async () => {
-        const old = new Date(Date.parse(NOW) - PLACING_POINTS_HOLD_MS).toISOString();
+    // Review of M18 item 3: an editor placing points on the frame keeps it waiting, or their Save would be refused; finding of
+    // 2026-11-14: an old mark keeps it waiting too (an update re-ran 1871 Pappasoglu under an agent's unsaved points).
+    it('badPath_aFrameAnEditorIsPlacingPointsOnKeepsWaitingHoweverOldTheMark @S-A69-BAD-AUTO-RELOCATE-PLACING', async () => {
+        const old = new Date(Date.parse(NOW) - 2 * PLACING_POINTS_HOLD_MS).toISOString();
         const w = await world([
             ['f1', OLD, { placingPoints: true, updatedBy: 'u-admin', updatedAt: at(NOW) }],
             ['f2', OLD, { placingPoints: true, updatedBy: 'u-admin', updatedAt: at(old) }],
+            ['f3', OLD],
         ]);
 
         await relocateParked(w.deps, CITY);
 
         expect(await readJob(w, 'f1')).toMatchObject({ status: 'awaiting_gcps', searchedWith: OLD, placingPoints: true });
-        const searched = await readJob(w, 'f2');
-        expect(searched).toMatchObject({ status: 'queued' });
-        expect(searched?.placingPoints).toBeUndefined();
+        expect(await readJob(w, 'f2')).toMatchObject({ status: 'awaiting_gcps', searchedWith: OLD, placingPoints: true });
+        expect(await readJob(w, 'f3')).toMatchObject({ status: 'queued' });
+    });
+
+    // Finding of 2026-11-14 (1864 and 1871 Pappasoglu): an update never sends a version holding the owner's saved pairs searching.
+    it('badPath_aVersionHoldingTheOwnersSavedPairsIsNotSearchedAgainAndKeepsThem @S-A69-BAD-AUTO-RELOCATE-OWNER-PAIRS', async () => {
+        const w = await world([['f1', OLD]]);
+        const georef = { ...goldenGeoref(), method: 'gcps' as const };
+        await seedVersion(w, 'f1', needsGcpsVersion({ origin: 'usgs', layerId: 'layer-f1', georef }));
+
+        await relocateParked(w.deps, CITY);
+
+        expect(await readJob(w, 'f1')).toMatchObject({ status: 'awaiting_gcps', searchedWith: NEW });
+        expect((await readVersion(w, 'f1'))?.georef).toEqual(georef);
+        expect(w.deps.recording.records.map((record) => record.message)).toContain(
+            "a parked version keeps the owner's pairs: not searched again",
+        );
     });
 
     // Review of M18 item 3: the record setup/status can lag behind the job; only the job's image sends a frame searching.

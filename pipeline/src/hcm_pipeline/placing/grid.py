@@ -38,13 +38,14 @@ from hcm_pipeline.placing.checks import Checked
 from hcm_pipeline.placing.frame import content_frame, find_frame
 from hcm_pipeline.placing.geometry import FloatArray, compose
 from hcm_pipeline.placing.gridscheme import QUARTER_ORDERS, Box, CityGrid, scheme_for
+from hcm_pipeline.placing.maps import AtlasPlacer, atlas_parts
 from hcm_pipeline.placing.output import Placement, finish, resolution_of, wait_for_help
 from hcm_pipeline.placing.overview_find import CanvasOpts, find_overview, overview_canvas
 from hcm_pipeline.placing.raster_io import read_working
 from hcm_pipeline.placing.reference import city_window
 from hcm_pipeline.placing.render import SheetWarp, render_sheets
 from hcm_pipeline.placing.series import SeriesJob, Sheet, series_of
-from hcm_pipeline.placing.single import Attempt, Drawn, Search, attempt, drawn_of, fit_from
+from hcm_pipeline.placing.single import LARGEST_WORKING_PX, Attempt, Drawn, Search, attempt, drawn_of, fit_from
 from hcm_pipeline.placing.stitched import NO_FRAME, NO_JOIN, JoinQuality, Stitched, wait_stitched
 from hcm_pipeline.placing.streets import UInt8Array, grey_of
 from hcm_pipeline.steps.gather import store_of, text_param
@@ -57,6 +58,8 @@ MOSAIC_M: Final = SEAM_M
 MOSAIC_MAX_PX: Final = 6000
 FRAME_PX: Final = 1000
 NO_SCHEME: Final = "These sheets' names are read, but no grid scheme places them yet: add about four points on a few sheets."
+# Under this share of framed sheets the series is laid out as an atlas (the tile wizard's path) instead of a grid of the few framed.
+FRAMED_SHARE_MIN: Final = 0.5
 NO_FRAMES: Final = "No sheet's frame was found: add about four points on a few sheets."
 NOT_PROVED: Final = "The grid could not be placed on its own: place three sheets on the map, and the rest follow."
 OWNER_METHOD: Final = "grid-names"
@@ -238,11 +241,29 @@ class GridPlacer:
         series = series_of(ctx)
         read = parsed(series)
         if read.scheme is None:
-            return wait_for_help(ctx, "low-confidence", NO_SCHEME)
+            return _wait_unplaced(ctx, series, "low-confidence", NO_SCHEME)
         rectified = framed(read.cells, read.scheme)
         if not rectified:
-            return wait_for_help(ctx, "frame-not-found", NO_FRAMES)
+            return _wait_unplaced(ctx, series, "frame-not-found", NO_FRAMES)
+        if len(rectified) < FRAMED_SHARE_MIN * len(read.cells):
+            # Finding of 2026-11-14 (plan cadastral 1911-1914: 20 of 100 sheets framed): a grid of a few framed sheets left the rest
+            # out for good and asked for points, while the tile wizard, the one place to lay out the others, said it no longer waited.
+            ctx.log.info(f"only {len(rectified)} of {len(read.cells)} sheets framed: laid out as an atlas for the tile wizard", ctx.step)
+            return AtlasPlacer().place(ctx)
         return _solved(ctx, series, rectified, read.scheme, _unframed(ctx, read.cells, rectified))
+
+
+def _wait_unplaced(ctx: JobContext, series: SeriesJob, reason: str, note: str) -> StepResult:
+    """The series waits for points with its sheets as they are, so the georeferencer has a scan to show (finding of 2026-11-14:
+    the six 1:500 sets of 1960-71 parked with no picture and the page said "The scan cannot be shown"). One sheet is shown whole;
+    several are laid out as an atlas by their edges."""
+    if not series.sheets:
+        return wait_for_help(ctx, reason, note)
+    if len(series.sheets) == 1:
+        working = read_working(series.sheets[0].path, LARGEST_WORKING_PX)
+        return wait_stitched(ctx, Stitched(working.image, "single", 1, pairs_scale=1 / working.scale), reason, note)
+    parts = atlas_parts(series.sheets)
+    return wait_stitched(ctx, Stitched(parts.canvas(), "atlas", len(series.sheets)), reason, note)
 
 
 def _unframed(ctx: JobContext, cells: list[tuple[Sheet, Cell]], rectified: list[Rectified]) -> tuple[tuple[str, str], ...]:

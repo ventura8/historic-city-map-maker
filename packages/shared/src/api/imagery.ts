@@ -49,6 +49,8 @@ export const JOB_MAX_ATTEMPTS = 3;
  * stopping its computer then counts its attempts again, so it cannot loop for ever.
  */
 export const LOST_RUN_REFUNDS = 5;
+/** Finding of 2026-11-14: how long a computer that lost a job's run leaves it to the owner's other computers before it takes it again. */
+export const LOST_HAND_OVER_MS = 15 * 60 * 1000;
 /**
  * A publish is started at most this many times in all (every delivery of a start task, Cloud Tasks' own retries and the
  * admin's Retry included): each start may stream the COG to Mapbox again, so a publish that keeps failing ends
@@ -224,12 +226,14 @@ export const imageryCropResponseSchema = z.strictObject({ jobId: idSchema, versi
 
 /**
  * `imagery.join` (M8, `docs/research/M8-join-interfaces.md` §2, §5): join frames of one date and one camera into one layer.
- * It imports the frames not imported yet and queues a `layer-join` job that waits for them; only this callable queues one.
+ * It imports the frames not imported yet and queues a `layer-join` job that waits for them; only this callable queues one. Finding of
+ * 2026-11-14 (the owner's harti.zip maps): `versionIds` joins archive maps that are parts of one map (two halves, two sheets of a set),
+ * each part keeping its own points; `docs/research/M8-join-interfaces.md` §20.
  */
-export const imageryJoinRequestSchema = z.strictObject({
-    cityId: cityIdSchema,
-    entityIds: z.array(idSchema).min(2).max(JOIN_MAX_PARTS),
-});
+export const imageryJoinRequestSchema = z.union([
+    z.strictObject({ cityId: cityIdSchema, entityIds: z.array(idSchema).min(2).max(JOIN_MAX_PARTS) }),
+    z.strictObject({ cityId: cityIdSchema, versionIds: z.array(idSchema).min(2).max(JOIN_MAX_PARTS) }),
+]);
 export const imageryJoinResponseSchema = z.strictObject({ jobId: idSchema, versionId: idSchema, layerId: idSchema });
 
 /**
@@ -247,6 +251,7 @@ export const NOT_RETRYABLE_CODES = [
     'apiError.imagery.attemptsExhausted',
     'apiError.imagery.joinSeamTooFar',
     'apiError.imagery.joinNoFrames',
+    'apiError.imagery.joinMapsApart',
     'apiError.imagery.joinPartMissing',
     'apiError.imagery.joinPartTaken',
 ] as const;

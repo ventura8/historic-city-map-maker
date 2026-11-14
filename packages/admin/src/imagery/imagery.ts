@@ -11,6 +11,7 @@ import type { AreaModule, AreaStore } from '../content/areas.js';
 import type { ContentServices } from '../content/services.js';
 import { Store } from '../state/store.js';
 import { callImagery, refusalOf } from './api.js';
+import { archiveJoinCandidates, joinArchiveMaps } from './archive-join.js';
 import { BrowseImages } from './browse.js';
 import { ImageryFeeds, type FeedsPatch } from './feeds.js';
 import { resumeGuard } from './guard.js';
@@ -173,6 +174,8 @@ class ImageryStore implements AreaStore<ImageryState, ImageryIntents> {
         return {
             ...{ ...this.#findIntents(), ...this.#versionIntents(), ...this.#uploadIntents(), ...this.#orderIntents(), resumeGuard },
             joinFrames: (entityIds) => this.#join.join(entityIds),
+            archiveJoinCandidates: (version) => archiveJoinCandidates(this.#services, version),
+            joinArchive: (versionIds) => joinArchiveMaps(this.#services, versionIds),
             addTargetYear: (year) => this.#addYear(year),
             archive: async () => (await import('../archive/archive.js')).createArchiveFeed(this.#services),
             archiveElements: async () => {
