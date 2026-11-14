@@ -88,7 +88,8 @@ def test_happy_path_a_systematic_scene_is_moved_onto_sentinel_2_and_measured_aga
 
     state, reason, east, north = correction(placement, 30.0)
     assert (state, reason) == ("applied", None)
-    assert (east, north) == (pytest.approx(SHIFT[0], abs=0.1), pytest.approx(-SHIFT[1], abs=0.1))
+    assert east == pytest.approx(SHIFT[0], abs=0.1)
+    assert north == pytest.approx(-SHIFT[1], abs=0.1)
     report = placement.report()
     assert report["checked"] is True
     assert isinstance(report["offsetPx"], float)

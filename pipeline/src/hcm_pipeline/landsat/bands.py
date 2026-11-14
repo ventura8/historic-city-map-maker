@@ -113,14 +113,21 @@ def _first_member(ctx: JobContext, delivery: str) -> str | None:
     return None if first is None else first.name
 
 
+def _held_member(ctx: JobContext, delivery: str | None) -> str | None:
+    """The delivery's first member's name, when the delivery is still here."""
+    if delivery is None or ctx.services.objects.stat(delivery) is None:
+        return None
+    return _first_member(ctx, delivery)
+
+
 def delivery_level(ctx: JobContext) -> str:
     """The product's processing level (lesson 727): from the delivery's name (`LT05_L1GS_….tar`), else from its first member's;
     `L1TP` when neither says (the delivery gone or unreadable), so a scene is never moved on a guess."""
     delivery = ctx.job.step("fetch").gcs_path
     named = level_of(delivery)
-    if named is not None or delivery is None or ctx.services.objects.stat(delivery) is None:
-        return named or PRECISE
-    return level_of(_first_member(ctx, delivery)) or PRECISE
+    if named is not None:
+        return named
+    return level_of(_held_member(ctx, delivery)) or PRECISE
 
 
 class LandsatBandsStep:

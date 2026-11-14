@@ -165,7 +165,8 @@ def test_happy_path_the_warped_layer_is_rgba_on_the_tile_grid(world: PipelineWor
 
 
 def test_happy_path_a_systematic_scene_off_sentinel_2_is_moved_onto_it_and_says_so(world: PipelineWorld, tmp_path: Path) -> None:
-    """Scenarios: S-P30-HAPPY-SYSTEMATIC-MOVED (lesson 727: Bucharest's L1GS scene of 15 August 2008, 3,744 m off)"""
+    """Scenarios: S-P30-HAPPY-SYSTEMATIC-MOVED"""
+    # Lesson 727: Bucharest's L1GS scene of 15 August 2008 lay 3,744 m off.
     world.stac_href = world.serve_sentinel2_moved("north-90", 90.0)
     seed_landsat(world)
     deliver(world, tmp_path / "bundle", Bundle(product=SYSTEMATIC_PRODUCT))

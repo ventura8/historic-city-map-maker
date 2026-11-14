@@ -83,7 +83,7 @@ def saturated(*bands: NDArray[numpy.generic]) -> BoolArray | None:
     """Where any integer band holds its type's largest value (the sensor saturated: lesson 726); None for float bands."""
     if not all(numpy.issubdtype(band.dtype, numpy.integer) for band in bands):
         return None
-    hits = [band == numpy.iinfo(band.dtype).max for band in bands]
+    hits = [band == numpy.iinfo(band.dtype.name).max for band in bands]
     return numpy.asarray(numpy.logical_or.reduce(hits), numpy.bool_)
 
 
