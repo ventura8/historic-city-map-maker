@@ -94,3 +94,29 @@ describe('<hcm-jobs-page>: raster jobs', () => {
         expect(deepAll(element, '.pane .actions a')).toHaveLength(0);
     });
 });
+
+describe('<hcm-jobs-page>: Run again with the latest pipeline (lesson 728)', () => {
+    beforeAll(defineAll);
+    afterEach(cleanup);
+
+    it('happyPath_aCancelledSceneImportRunsAgainOnTheLatestPipeline @S-A130-HAPPY-RUN-AGAIN-JOB', async () => {
+        const cancelled = jobItem({ status: 'cancelled', finished: true, rerunScene: 'LT51820291991181XXX03' });
+        const jobs = new FakeArea<JobsViewState, JobsIntentsPort>(opened(cancelled), { runAgain: Promise.resolve(true) });
+        const { element } = await page('jobs', jobs, { params: ['b'] });
+
+        deep(deep(element, '[data-run-again]'), 'button').click();
+        jobs.set({ rerunning: true });
+        await updated(element);
+
+        expect(jobs.calls).toContain('runAgain');
+        expect(deep(element, '[data-run-again]').textContent).toContain('Importing');
+        expect(deepText(element)).toContain('Free new download');
+        expect(await axeViolations(element)).toEqual([]);
+    });
+
+    it('badPath_aJobWithNoSceneToRunAgainOffersNoButton @S-A130-BAD-RUN-AGAIN-JOB', async () => {
+        const { element } = await page('jobs', area(opened(FAILED)), { params: ['b'] });
+
+        expect(deepAll(element, '[data-run-again]')).toHaveLength(0);
+    });
+});

@@ -12,6 +12,9 @@ import { datasetText } from './imagery-text.js';
 
 function partText(locale: UiLocale, part: SearchPartPort): string {
     const dataset = datasetText(locale, part.dataset);
+    if (part.state === 'queued') {
+        return contentText(locale, 'adminContent.imagery.partQueued', { dataset });
+    }
     if (part.state === 'searching') {
         return `${dataset}: ${contentText(locale, 'adminContent.imagery.searchingButton')}`;
     }

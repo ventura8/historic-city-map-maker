@@ -7,7 +7,8 @@
  * to publish, its processing cannot be stopped). M8: a join's frames, and a frame's offer to join its date's others. M9: how the
  * frame was found, or that it was not (`calibration-card.ts`). **Delete this version** for a version that never reached the map
  * (failed, cancelled or rejected) or an archive series waiting for points (`imagery.deleteVersion`, asked first; the page then returns to the list). M12: what the map shows of it, its share of the city, Actual pixels and See
- * the image (`image-view.ts`). M16: Calibrate again, and a recalibration's figures (`recalibrate/`).
+ * the image (`image-view.ts`). M16: Calibrate again, and a recalibration's figures (`recalibrate/`). Lesson 728: Run again with the
+ * latest pipeline (`run-again.ts`).
  */
 import { JOB_MAX_ATTEMPTS, type AdminContentKey, type UiLocale } from '@hcm/shared';
 import { html, type TemplateResult } from 'lit';
@@ -25,6 +26,7 @@ import { liveJoin, versionMark } from './join/live-join.js';
 import { lazyJoin } from './join/lazy-card.js';
 import { notFoundPane } from './not-found.js';
 import { lazyRecalibrate } from './recalibrate/lazy-recalibrate.js';
+import { versionRunAgain } from './run-again.js';
 import { when, withValue } from './when.js';
 import { loadWorkerElements } from '../worker/load.js';
 
@@ -461,7 +463,7 @@ function body(shown: Shown): TemplateResult {
             ${retryButton(shown)} ${locateButton(shown)} ${uploadAnother(shown)} ${mapboxSetupLink(shown)} ${tilesLink(shown)}
             ${georefLink(shown)} ${deleteVersionButton(shown)}
         </div>
-        ${runPlace(shown)} ${refusal(shown)}
+        ${versionRunAgain(context, version)} ${runPlace(shown)} ${refusal(shown)}
         ${withValue(version, (known) => lazyJoin(context, known, (chunk) => chunk.versionJoin(context, known, job)))} ${imageView(shown)}
         ${withValue(version, (known) => lazyRecalibrate(context, page, known))} ${outcome(shown)} ${opacity(shown)} ${steps(locale, job)}
         <h3>${contentText(locale, 'adminContent.jobs.log')}</h3>

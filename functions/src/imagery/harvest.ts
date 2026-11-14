@@ -141,15 +141,47 @@ interface Session {
 /** One dataset searched and stored at once, its part recorded; returns its part. */
 async function harvestDataset(deps: HarvestDeps, session: Session, planned: Planned, run: Run): Promise<HarvestDataset> {
     const [dataset, from] = planned;
+    // Not awaited: the search starts at once; the record's writes stay in order (`HarvestProgress`).
+    void recordPart(deps, run, dataset, partOf('searching', from));
     const search = await searchDataset(deps, session.apiKey, run, { dataset, from });
     const world: RankWorld = { ...run.world, eeIds: await session.eeIds };
     const stored = await storeDataset(deps, { cityId: run.cityId, world, tally: run.tally }, search);
     const part: HarvestDataset = { ...search.part, found: stored };
     deps.log.info('usgs dataset stored', { cityId: run.cityId, dataset, ...part, reasonCode: `harvest.${part.reason ?? 'done'}` });
+    await recordPart(deps, run, dataset, part);
+    return part;
+}
+
+/** A dataset's part from where it starts: `queued` until its turn (lesson 728), then `searching`. */
+function partOf(state: 'queued' | 'searching', from: number): HarvestDataset {
+    return { state, found: 0, ...(from > 1 ? { next: from } : {}) };
+}
+
+/** Writes one dataset's part (`running`); a failed write only leaves the record behind. */
+async function recordPart(deps: HarvestDeps, run: Run, dataset: UsgsDataset, part: HarvestDataset): Promise<void> {
     await run.progress.running({ [dataset]: part }).catch((error: unknown) => {
         deps.log.warn('harvest progress not recorded', { cityId: run.cityId, dataset, error: String(error) });
     });
-    return part;
+}
+
+/**
+ * Lesson 728: a tail step that started in time may still run past the callable's 540 s (the browse copies, one at a time), and the
+ * server then stopped the run before its outcome was written: the admin's Search read "Searching…" to its own timeout. The run
+ * waits for a step only until `runEnd`; what is left the next run does.
+ */
+async function withinRun(work: Promise<void>, deps: HarvestDeps, run: Run): Promise<'done' | 'outOfTime'> {
+    const left = run.budget.runEnd - deps.clock.now().getTime();
+    let timer: ReturnType<typeof setTimeout> | undefined;
+    const late = new Promise<'outOfTime'>((resolve) => {
+        timer = setTimeout(() => {
+            resolve('outOfTime');
+        }, left);
+    });
+    try {
+        return await Promise.race([work.then(() => 'done' as const), late]);
+    } finally {
+        clearTimeout(timer);
+    }
 }
 
 /** Re-ranking, browse copies and the date plan, each only while the run has time (else the next run does them). */
@@ -164,9 +196,12 @@ async function tail(deps: HarvestDeps, run: Run, world: RankWorld): Promise<void
             deps.log.warn('harvest step skipped, out of time', { cityId: run.cityId, step, reasonCode: 'harvest.tailSkipped' });
             continue;
         }
-        await work().catch((error: unknown) => {
+        const ran = work().catch((error: unknown) => {
             deps.log.warn('harvest step failed, the scenes are stored', { cityId: run.cityId, step, error: String(error) });
         });
+        if ((await withinRun(ran, deps, run)) === 'outOfTime') {
+            deps.log.warn('harvest step cut short, out of time', { cityId: run.cityId, step, reasonCode: 'harvest.tailCut' });
+        }
     }
 }
 
@@ -242,13 +277,10 @@ async function previousOf(deps: HarvestDeps, cityId: string, now: Date) {
     return { previous: { ...previous, failures: previous.failures + 1 }, killed };
 }
 
-/** Every planned dataset `searching` (from where it resumes), beside the parts an earlier run finished. */
+/** Every planned dataset `queued` (from where it resumes), beside the parts an earlier run finished. */
 function startingParts(plan: Plan): HarvestDatasets {
-    const searching = plan.datasets.map(([dataset, from]) => [
-        dataset,
-        { state: 'searching', found: 0, ...(from > 1 ? { next: from } : {}) },
-    ]);
-    return { ...plan.carried, ...(Object.fromEntries(searching) as HarvestDatasets) };
+    const queued = plan.datasets.map(([dataset, from]) => [dataset, partOf('queued', from)]);
+    return { ...plan.carried, ...(Object.fromEntries(queued) as HarvestDatasets) };
 }
 
 /** Harvests the city (`imagery.search`, and `imagery.tick` once a month), the attempt recorded whatever happened. */

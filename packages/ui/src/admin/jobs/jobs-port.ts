@@ -42,6 +42,8 @@ export interface JobItemPort {
     readonly retryAt: string | null;
     readonly versionId: string | null;
     readonly retryable: boolean;
+    /** Lesson 728: the USGS scene Run again with the latest pipeline imports again, or null. */
+    readonly rerunScene: string | null;
 }
 
 export interface JobLogLinePort {
@@ -58,6 +60,8 @@ export interface JobsViewState {
     readonly detail: { readonly id: string; readonly job: DocStatePort<JobItemPort>; readonly logs: ListStatePort<JobLogLinePort> } | null;
     readonly cancelling: boolean;
     readonly retrying: boolean;
+    /** Lesson 728: Run again with the latest pipeline is on its way. */
+    readonly rerunning: boolean;
     /** The budget guard (null while reading; CR-M3-47). */
     readonly guard: GuardPort | null;
     readonly resuming: boolean;
@@ -71,6 +75,8 @@ export interface JobsIntentsPort {
     retry(): void;
     cancel(): Promise<unknown>;
     retryJob(): Promise<unknown>;
+    /** Lesson 728: the open job's scene imported again on the latest pipeline. */
+    runAgain(): Promise<unknown>;
     resumeGuard(): Promise<unknown>;
     /** Pause all or Resume all (2026-11-13). */
     pauseAll(action: 'pause' | 'resume'): Promise<unknown>;

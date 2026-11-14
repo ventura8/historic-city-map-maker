@@ -16,6 +16,7 @@ import { datasetText, dayText, reasonText } from './imagery-text.js';
 import { lazyJoin } from './join/lazy-card.js';
 import { orderTag } from './orders/order-list.js';
 import { searchParts } from './search-parts.js';
+import { cardRunAgain, importedTag } from './run-again.js';
 import { importable, importButton, importRefusal } from './scene-detail.js';
 import { usgsSetupLink } from './scene-refusal.js';
 import { usefulnessTags } from './scene-tags.js';
@@ -98,9 +99,22 @@ function filters(context: ImageryContext): TemplateResult {
 }
 
 /** The search's state in words: searching, or what it found. */
+/** Lesson 728: the usual length of a search, in minutes (the server's run ends by 7 minutes, `RUN_BUDGET_MS`). */
+const SEARCH_USUAL_MINUTES = 7;
+
+/** Searching, with the minutes it has taken against the usual length once the first minute is over. */
+function searchingLine(locale: UiLocale, elapsedS: number | undefined): string {
+    const searching = contentText(locale, 'adminContent.imagery.searching');
+    if (elapsedS === undefined || elapsedS < 60) {
+        return `${searching} ${contentText(locale, 'adminContent.imagery.searchEstimate', { total: String(SEARCH_USUAL_MINUTES) })}`;
+    }
+    const params = { minutes: String(Math.floor(elapsedS / 60)), total: String(SEARCH_USUAL_MINUTES) };
+    return `${searching} ${contentText(locale, 'adminContent.imagery.searchElapsed', params)}`;
+}
+
 function searchLine(locale: UiLocale, search: ImageryContext['view']['search']): string {
     if (search.phase === 'searching') {
-        return contentText(locale, 'adminContent.imagery.searching');
+        return searchingLine(locale, search.elapsedS);
     }
     return search.phase === 'done'
         ? contentText(locale, 'adminContent.imagery.searched', { found: String(search.found), added: String(search.added) })
@@ -161,12 +175,13 @@ function searchStatus(context: ImageryContext): TemplateResult {
         ${searchParts(locale, search.datasets)} ${failedDatasets(locale, search)}`;
 }
 
-function sceneTags(locale: UiLocale, scene: SceneItemPort): TemplateResult {
+function sceneTags(context: ImageryContext, scene: SceneItemPort): TemplateResult {
+    const { locale } = context;
     const free = scene.free ? 'adminContent.imagery.tag.free' : 'adminContent.imagery.tag.needsOrder';
     return html`<span class="chips">
         <span class="tag" data-tone=${scene.free ? 'good' : 'wait'}>${contentText(locale, free)}</span>
-        ${when(scene.status === 'imported', () => html`<span class="tag">${contentText(locale, 'adminContent.imagery.tag.imported')}</span>`)}
-        ${orderTag(locale, scene)} ${usefulnessTags(locale, scene)}
+        ${when(scene.status === 'imported', () => importedTag(context, locale, scene))} ${orderTag(locale, scene)}
+        ${usefulnessTags(locale, scene)}
     </span>`;
 }
 
@@ -208,6 +223,9 @@ function identity(locale: UiLocale, scene: SceneItemPort): string {
 
 /** A card's **Import** (§10.2: the one click of `importScene`), named after its scene, and why it was refused. */
 function cardImport(context: ImageryContext, scene: SceneItemPort, title: string): TemplateResult {
+    if (scene.status === 'imported') {
+        return cardRunAgain(context, scene, title);
+    }
     return when(
         importable(context, scene),
         () => html`<div class="card-import">${importButton(context, scene, title)} ${importRefusal(context, scene)}</div>`,
@@ -227,7 +245,7 @@ function sceneRow(context: ImageryContext, scene: SceneItemPort): TemplateResult
                 <span class="row-title">${title}</span>
                 <span class="row-detail" data-identity>${identity(locale, scene)}</span>
                 <span class="row-detail">${[score, ...reasons].join(' · ')}</span>
-                ${sceneTags(locale, scene)}
+                ${sceneTags(context, scene)}
             </span>
         </a>
         ${cardImport(context, scene, title)}

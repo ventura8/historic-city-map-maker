@@ -281,7 +281,10 @@ export class HcmJobsPage extends AreaPage<JobsViewState, JobsIntentsPort> {
         const retry = (): void => {
             void this.intents?.retryJob();
         };
-        return rasterActions(locale, job, { retrying: view.retrying, readOnly: this.readOnly, retry });
+        const runAgain = (): void => {
+            void this.intents?.runAgain();
+        };
+        return rasterActions(locale, job, { retrying: view.retrying, readOnly: this.readOnly, retry, rerunning: view.rerunning, runAgain });
     }
 
     /**

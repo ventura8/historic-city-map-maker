@@ -22558,6 +22558,116 @@
             "tier": "e2e-admin",
             "status": "exists",
             "notes": "docs/ENGINE_API.md → Installable app; DECISIONS-for-review.md §226. Unit: scripts/site/test/app.test.ts, packages/ui/test/admin/shell/nav-and-menu.test.ts, packages/admin/test/firebase/messaging.test.ts. Test: e2e/admin/specs/shell/app.spec.ts."
+        },
+        {
+            "id": "S-A130-HAPPY-RUN-AGAIN",
+            "behaviour": "A130",
+            "area": "admin",
+            "path": "happy",
+            "title": "A USGS version that waits, was cancelled or failed runs again on the latest pipeline",
+            "asserts": "a Landsat version awaiting approval, cancelled or failed -> Run again with the latest pipeline calls imagery.import with again for its scene and opens the new version's page",
+            "tier": "functions",
+            "status": "exists",
+            "notes": "Lesson 728 (2026-11-14: Bucharest's cancelled 1991 and 2008 Landsat 5 imports could not be imported again; Find showed only 1984 and 1985; Search read Searching… on every source for five minutes). Tests: functions/test/imagery/run-again.test.ts, packages/ui/test/admin/imagery/run-again.test.ts."
+        },
+        {
+            "id": "S-A130-BAD-RUN-AGAIN",
+            "behaviour": "A130",
+            "area": "admin",
+            "path": "bad",
+            "title": "A running, uploaded or not-yet-approved version offers no Run again; a refusal says why",
+            "asserts": "a processing version, an upload, USGS downloads pending -> no Run again; a refused import -> its reason beside the button; while it runs the button says Importing",
+            "tier": "functions",
+            "status": "exists",
+            "notes": "Lesson 728 (2026-11-14: Bucharest's cancelled 1991 and 2008 Landsat 5 imports could not be imported again; Find showed only 1984 and 1985; Search read Searching… on every source for five minutes). Tests: functions/test/imagery/run-again.test.ts, packages/ui/test/admin/imagery/run-again.test.ts."
+        },
+        {
+            "id": "S-A130-HAPPY-RUN-AGAIN-JOB",
+            "behaviour": "A130",
+            "area": "admin",
+            "path": "happy",
+            "title": "A scene's import runs again from its job's page",
+            "asserts": "a cancelled usgs-import job -> Run again with the latest pipeline imports the job's scene with again, says so and opens the new version; waiting and failed imports offer it too",
+            "tier": "functions",
+            "status": "exists",
+            "notes": "Lesson 728 (2026-11-14: Bucharest's cancelled 1991 and 2008 Landsat 5 imports could not be imported again; Find showed only 1984 and 1985; Search read Searching… on every source for five minutes). Tests: functions/test/imagery/run-again.test.ts, packages/admin/test/jobs/rerun.test.ts, packages/ui/test/admin/ops/jobs-raster.test.ts."
+        },
+        {
+            "id": "S-A130-BAD-RUN-AGAIN-JOB",
+            "behaviour": "A130",
+            "area": "admin",
+            "path": "bad",
+            "title": "A job with no scene to run again offers nothing; a refused run again says why",
+            "asserts": "a running import, an upload, an import without a scene -> no Run again; USGS refusing -> its reason in a notice, the job stays",
+            "tier": "functions",
+            "status": "exists",
+            "notes": "Lesson 728 (2026-11-14: Bucharest's cancelled 1991 and 2008 Landsat 5 imports could not be imported again; Find showed only 1984 and 1985; Search read Searching… on every source for five minutes). Tests: functions/test/imagery/run-again.test.ts, packages/admin/test/jobs/rerun.test.ts, packages/ui/test/admin/ops/jobs-raster.test.ts."
+        },
+        {
+            "id": "S-A130-HAPPY-FIND-IMPORTED",
+            "behaviour": "A130",
+            "area": "admin",
+            "path": "happy",
+            "title": "Find lists imported scenes past the first page, each with its version's state and Imported: run again",
+            "asserts": "120 frames ranked above three imported Landsat 5 scenes -> the Landsat filter reads the next page by itself and lists 1984, 1991 and 2008; an imported scene's tag says its version's state and its card runs it again",
+            "tier": "e2e-admin",
+            "status": "planned",
+            "notes": "Lesson 728 (2026-11-14: Bucharest's cancelled 1991 and 2008 Landsat 5 imports could not be imported again; Find showed only 1984 and 1985; Search read Searching… on every source for five minutes). Covered today by Vitest only (a Playwright spec is planned): packages/admin/test/imagery/rerun.test.ts, packages/ui/test/admin/imagery/run-again.test.ts."
+        },
+        {
+            "id": "S-A130-BAD-FIND-IMPORTED",
+            "behaviour": "A130",
+            "area": "admin",
+            "path": "bad",
+            "title": "No filter, enough kept or no more pages reads nothing more; a still-running version offers no run again",
+            "asserts": "no source or year filter, 50 kept, no further page or that page already asked -> no read; an imported scene whose version is processing -> no Imported: run again",
+            "tier": "e2e-admin",
+            "status": "planned",
+            "notes": "Lesson 728 (2026-11-14: Bucharest's cancelled 1991 and 2008 Landsat 5 imports could not be imported again; Find showed only 1984 and 1985; Search read Searching… on every source for five minutes). Covered today by Vitest only (a Playwright spec is planned): packages/admin/test/imagery/rerun.test.ts, packages/ui/test/admin/imagery/run-again.test.ts."
+        },
+        {
+            "id": "S-A11-HAPPY-HARVEST-QUEUED",
+            "behaviour": "A11",
+            "area": "admin",
+            "path": "happy",
+            "title": "A source waiting its turn says so instead of Searching",
+            "asserts": "six sources, two searched at a time -> the record says corona2 searching and the Landsat sources queued; the page says waiting its turn",
+            "tier": "functions",
+            "status": "exists",
+            "notes": "Lesson 728 (2026-11-14: Bucharest's cancelled 1991 and 2008 Landsat 5 imports could not be imported again; Find showed only 1984 and 1985; Search read Searching… on every source for five minutes). Tests: functions/test/imagery/harvest-progress.test.ts, packages/ui/test/admin/imagery/run-again.test.ts."
+        },
+        {
+            "id": "S-A11-BAD-HARVEST-TAIL-CUT",
+            "behaviour": "A11",
+            "area": "admin",
+            "path": "bad",
+            "title": "A browse copy still running at the run's end no longer leaves the search unanswered",
+            "asserts": "a browse copy that never answers -> the run waits only to its 7-minute end, logs harvest.tailCut, writes its outcome and answers the search",
+            "tier": "functions",
+            "status": "exists",
+            "notes": "Lesson 728 (2026-11-14: Bucharest's cancelled 1991 and 2008 Landsat 5 imports could not be imported again; Find showed only 1984 and 1985; Search read Searching… on every source for five minutes). Tests: functions/test/imagery/harvest-progress.test.ts."
+        },
+        {
+            "id": "S-A11-HAPPY-SEARCH-ELAPSED",
+            "behaviour": "A11",
+            "area": "admin",
+            "path": "happy",
+            "title": "A running search says the usual length and the minutes so far",
+            "asserts": "a search running 2 min -> the elapsed time is said again every 15 s; the line says usually up to 7 minutes, then 3 min so far",
+            "tier": "e2e-admin",
+            "status": "planned",
+            "notes": "Lesson 728 (2026-11-14: Bucharest's cancelled 1991 and 2008 Landsat 5 imports could not be imported again; Find showed only 1984 and 1985; Search read Searching… on every source for five minutes). Covered today by Vitest only (a Playwright spec is planned): packages/admin/test/imagery/rerun.test.ts, packages/ui/test/admin/imagery/run-again.test.ts."
+        },
+        {
+            "id": "S-A11-BAD-SEARCH-ELAPSED",
+            "behaviour": "A11",
+            "area": "admin",
+            "path": "bad",
+            "title": "Under a minute the line says only the usual length",
+            "asserts": "elapsed 30 s -> no minutes so far, only the usual length",
+            "tier": "e2e-admin",
+            "status": "planned",
+            "notes": "Lesson 728 (2026-11-14: Bucharest's cancelled 1991 and 2008 Landsat 5 imports could not be imported again; Find showed only 1984 and 1985; Search read Searching… on every source for five minutes). Covered today by Vitest only (a Playwright spec is planned): packages/ui/test/admin/imagery/run-again.test.ts."
         }
     ]
 }

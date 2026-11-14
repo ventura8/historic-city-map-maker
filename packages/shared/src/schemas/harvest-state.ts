@@ -14,8 +14,11 @@ import { USGS_DATASETS } from './firestore.js';
  * after the callable's timeout was stopped by the server, lesson 676).
  */
 export const HARVEST_OUTCOMES = ['ok', 'empty', 'failed', 'partial', 'running'] as const;
-/** How far one dataset's part of a harvest got: still searching, searched to its end, in part, or not at all. */
-export const HARVEST_DATASET_STATES = ['searching', 'done', 'partial', 'failed'] as const;
+/**
+ * How far one dataset's part of a harvest got: waiting its turn (two datasets are searched at a time; lesson 728), still
+ * searching, searched to its end, in part, or not at all.
+ */
+export const HARVEST_DATASET_STATES = ['queued', 'searching', 'done', 'partial', 'failed'] as const;
 /** Why a dataset's search stopped before its end: the run's time was up, one USGS request took too long, or USGS refused it. */
 export const HARVEST_STOP_REASONS = ['outOfTime', 'requestTimedOut', 'usgsFailed'] as const;
 

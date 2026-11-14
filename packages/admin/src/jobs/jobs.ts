@@ -25,7 +25,7 @@ import { isoOf, LiveList, LOADING_LIST, type ListState } from '../content/list.j
 import type { ContentQuery, ContentServices, Stored, WriteOutcome } from '../content/services.js';
 import { GuardFeed, resumeGuard, type GuardView } from '../imagery/guard.js';
 import { Store } from '../state/store.js';
-import { pauseAllJobs, rasterFieldsOf, retryRasterJob, type RasterJobFields } from './raster.js';
+import { pauseAllJobs, rasterFieldsOf, retryRasterJob, runSceneAgain, type RasterJobFields } from './raster.js';
 import type { WorkerFeed } from '../worker/feed.js';
 
 /** The list's status chips: every job, the unfinished ones, the failed ones, the others that ended. */
@@ -94,6 +94,8 @@ export interface JobsState {
     readonly cancelling: boolean;
     /** Retry is on its way (`imagery.retry`). */
     readonly retrying: boolean;
+    /** Lesson 728: Run again with the latest pipeline is on its way (`imagery.import` with `again`). */
+    readonly rerunning: boolean;
     /** The budget guard (null while reading). */
     readonly guard: GuardView | null;
     /** Resume processing is on its way (`imagery.resumeGuard`). */
@@ -112,6 +114,8 @@ export interface JobsIntents {
     cancel(): Promise<WriteOutcome | null>;
     /** Runs the open failed raster job again; true once it is queued again. */
     retryJob(): Promise<boolean>;
+    /** Lesson 728: the open job's scene imported again on the latest pipeline; true once the new job exists. */
+    runAgain(): Promise<boolean>;
     /** Turns the budget guard green again; true once it is. */
     resumeGuard(): Promise<boolean>;
     /** Pause all or Resume all (2026-11-13): every queued or running job of the city; true once the server answered. */
@@ -126,7 +130,7 @@ export interface JobsIntents {
 }
 
 const INITIAL: JobsState = {
-    ...{ filter: 'all', list: LOADING_LIST, detail: null, cancelling: false, retrying: false },
+    ...{ filter: 'all', list: LOADING_LIST, detail: null, cancelling: false, retrying: false, rerunning: false },
     ...{ guard: null, resuming: false, pausingAll: false },
 };
 
@@ -240,6 +244,7 @@ class JobsStore implements AreaStore<JobsState, JobsIntents> {
             },
             cancel: () => this.#cancel(),
             retryJob: () => this.#retryJob(),
+            runAgain: () => this.#runAgain(),
             resumeGuard: () => this.#resumeGuard(),
             pauseAll: (action) => this.#pauseAll(action),
             worker: async () => (await import('../worker/worker.js')).createWorkerFeed(services),
@@ -368,6 +373,17 @@ class JobsStore implements AreaStore<JobsState, JobsIntents> {
         const queued = await retryRasterJob(this.#services, job.id);
         this.#cell.update({ retrying: false });
         return queued;
+    }
+
+    async #runAgain(): Promise<boolean> {
+        const entityId = openJob(this.#cell.state.detail)?.rerunScene ?? null;
+        if (entityId === null || this.#cell.state.rerunning) {
+            return false;
+        }
+        this.#cell.update({ rerunning: true });
+        const started = await runSceneAgain(this.#services, entityId);
+        this.#cell.update({ rerunning: false });
+        return started;
     }
 
     #report(outcome: WriteOutcome): void {

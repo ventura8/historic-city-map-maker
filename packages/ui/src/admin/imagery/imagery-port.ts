@@ -125,7 +125,7 @@ export interface JobProgressPort {
 /** Lesson 676: one dataset's part of the USGS search, live while it runs and in its answer. */
 export interface SearchPartPort {
     readonly dataset: UsgsDataset;
-    readonly state: 'searching' | 'done' | 'partial' | 'failed';
+    readonly state: 'queued' | 'searching' | 'done' | 'partial' | 'failed';
     readonly found: number;
     readonly reason?: 'outOfTime' | 'requestTimedOut' | 'usgsFailed';
 }
@@ -138,6 +138,8 @@ interface SearchStatePort {
     readonly error: AdminNoticeInputPort | null;
     /** Each dataset's part (absent before a search, and from a server before lesson 676). */
     readonly datasets?: readonly SearchPartPort[];
+    /** Lesson 728: the running search's seconds so far. */
+    readonly elapsedS?: number;
 }
 
 export interface UploadStatePort {

@@ -21,13 +21,40 @@ export interface RasterJobFields {
     readonly versionId: string | null;
     /** A failed pipeline or publish job a retry may cure, with attempts left: Retry is offered. */
     readonly retryable: boolean;
+    /** Lesson 728: the USGS scene a failed, cancelled or waiting import may run again on the latest pipeline, or null. */
+    readonly rerunScene: string | null;
+}
+
+/** The job statuses a scene's import may run again from: it failed, was cancelled, or waits for approval. */
+const RERUN_STATUSES: ReadonlySet<JobDoc['status']> = new Set(['failed', 'cancelled', 'awaiting_approval']);
+
+/** The scene a `usgs-import` job in one of `RERUN_STATUSES` imported, or null. */
+function rerunSceneOf(job: JobDoc): string | null {
+    const entityId = job.params['entityId'];
+    return job.type === 'usgs-import' && RERUN_STATUSES.has(job.status) && typeof entityId === 'string' ? entityId : null;
 }
 
 export function rasterFieldsOf(job: JobDoc): RasterJobFields {
     return {
         ...{ waitReason: job.waitReason ?? null, retryAt: job.retryAt === undefined ? null : isoOf(job.retryAt) },
-        ...{ versionId: job.versionId ?? null, retryable: jobRetryable(job) },
+        ...{ versionId: job.versionId ?? null, retryable: jobRetryable(job), rerunScene: rerunSceneOf(job) },
     };
+}
+
+/**
+ * Lesson 728: Run again with the latest pipeline (`imagery.import` with `again`): the scene downloaded again for free into a new
+ * version of its layer; the new version's page opens. Says why not otherwise. True once the new job exists.
+ */
+export async function runSceneAgain(services: ContentServices, entityId: string): Promise<boolean> {
+    try {
+        const { versionId } = await callImagery(services.callables, 'imagery.import', { cityId: services.cityId, entityId, again: true });
+        services.notify({ key: 'adminContent.imagery.notice.imported' });
+        globalThis.location.hash = `#/imagery/version/${encodeURIComponent(versionId)}`;
+        return true;
+    } catch (error) {
+        services.notify(refusalOf(error));
+        return false;
+    }
 }
 
 /** Runs a failed job again; says so, or why not. True once it is queued again. */

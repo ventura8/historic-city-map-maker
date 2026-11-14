@@ -131,6 +131,27 @@ export function visibleScenes(scenes: readonly SceneItem[], filters: SceneFilter
         .toSorted((a, b) => Number(b.free) - Number(a.free) || b.score - a.score || a.date.localeCompare(b.date));
 }
 
+/** Lesson 728: below this many kept scenes, a narrowing filter reads the next page by itself. */
+export const FILTERED_MIN = 50;
+
+const narrowing = (filters: SceneFilters): boolean => filters.datasets.length > 0 || filters.fromYear !== null || filters.toYear !== null;
+
+/**
+ * Lesson 728: the scenes are read best score first, a page at a time, and the source and year filters keep only what that page holds;
+ * Bucharest's 1991 and 2008 Landsat 5 scenes (score 68) lay past the first 100 and Find showed only 1984 and 1985. While a source or
+ * year filter keeps fewer than `FILTERED_MIN`, the next page is read by itself (once per page read: `askedAt` is the item count the
+ * last such read was asked at).
+ */
+export function wantsMore(
+    list: { status: string; hasMore: boolean; items: readonly unknown[] },
+    filters: SceneFilters,
+    kept: number,
+    askedAt: number,
+): boolean {
+    const more = list.status === 'ready' && list.hasMore && list.items.length !== askedAt;
+    return more && narrowing(filters) && kept < FILTERED_MIN;
+}
+
 /** A version's states before it is published or ended (the Imagery area's "In progress" and "Needs you"). */
 export const OPEN_VERSION_STATES: readonly LayerVersionState[] = [
     'processing',

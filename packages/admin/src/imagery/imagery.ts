@@ -17,7 +17,7 @@ import { resumeGuard } from './guard.js';
 import { JoinActions } from './join.js';
 import { NO_FILES } from './files.js';
 import { BROWSE_PICTURE, ImageryMap, sceneCorners } from './imagery-map.js';
-import { sceneNamed, visibleScenes, type SceneFilters, type SceneItem } from './model.js';
+import { sceneNamed, visibleScenes, wantsMore, type SceneFilters, type SceneItem } from './model.js';
 import { OrderActions } from './orders/actions.js';
 import { HarvestSearch } from './search.js';
 import { INITIAL_IMAGERY, type ImageryDetail, type ImageryIntents, type ImageryState } from './state.js';
@@ -71,6 +71,8 @@ class ImageryStore implements AreaStore<ImageryState, ImageryIntents> {
     readonly #image: VersionImage;
     readonly #thumbs: VersionThumbs;
     #newest: string | null | undefined = undefined;
+    /** Lesson 728: the scene count a filter's own next page was asked at (-1: none yet). */
+    #moreAskedAt = -1;
     /** The scene whose browse image is on its way: every feed's write asks again, and each asking read and decoded it whole. */
     #browsing: string | null = null;
     readonly intents: ImageryIntents;
@@ -335,6 +337,10 @@ class ImageryStore implements AreaStore<ImageryState, ImageryIntents> {
         const state = this.#cell.state;
         const visible = visibleScenes(state.scenes.items, state.filters);
         this.#cell.update({ visible });
+        if (wantsMore(state.scenes, state.filters, visible.length, this.#moreAskedAt)) {
+            this.#moreAskedAt = state.scenes.items.length;
+            this.#feeds.moreScenes();
+        }
         this.#browse.thumbnails(visible);
         this.#showFind();
     }

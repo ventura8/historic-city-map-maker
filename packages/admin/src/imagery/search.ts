@@ -32,7 +32,12 @@ export interface SearchState {
     readonly error: NoticeInput | null;
     /** Lesson 676: each dataset's part, live from `ops/harvest-{city}` while searching, then the answer's (absent before). */
     readonly datasets?: readonly SearchPart[];
+    /** Lesson 728: the seconds the running search has taken so far (the page says it beside the usual length); absent before. */
+    readonly elapsedS?: number;
 }
+
+/** Lesson 728: how often the running search's elapsed time is said again. */
+const ELAPSED_TICK_MS = 15_000;
 
 export interface SearchPart {
     readonly dataset: UsgsDataset;
@@ -127,6 +132,9 @@ export class HarvestSearch {
         this.#set({ ...IDLE_SEARCH, phase: 'searching' });
         const started = this.#services.clock.now();
         const stop = this.#watchParts();
+        const ticker = setInterval(() => {
+            this.#tick(started);
+        }, ELAPSED_TICK_MS);
         try {
             const answer = await callImagery(this.#services.callables, 'imagery.search', { cityId: this.#services.cityId }, SEARCH_OPTIONS);
             const datasets = partsOf(answer.datasets);
@@ -141,7 +149,15 @@ export class HarvestSearch {
         } catch (error) {
             this.#set({ ...IDLE_SEARCH, phase: 'failed', error: searchRefusalOf(error, this.#services.clock.now() - started) });
         } finally {
+            clearInterval(ticker);
             stop();
+        }
+    }
+
+    /** The running search's elapsed seconds, said again (`ELAPSED_TICK_MS`). */
+    #tick(started: number): void {
+        if (this.#state.phase === 'searching') {
+            this.#set({ ...this.#state, elapsedS: Math.round((this.#services.clock.now() - started) / 1000) });
         }
     }
 
