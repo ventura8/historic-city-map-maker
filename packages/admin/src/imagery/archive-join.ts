@@ -88,3 +88,14 @@ export async function joinArchiveMaps(services: ContentServices, versionIds: rea
         return null;
     }
 }
+
+/** The Imagery area's two intents for **Join with…**. */
+export function archiveJoinIntents(services: ContentServices): {
+    archiveJoinCandidates(version: ArchiveJoinBase): Promise<ArchiveJoinCandidate[]>;
+    joinArchive(versionIds: readonly string[]): Promise<string | null>;
+} {
+    return {
+        archiveJoinCandidates: (version) => archiveJoinCandidates(services, version),
+        joinArchive: (versionIds) => joinArchiveMaps(services, versionIds),
+    };
+}
