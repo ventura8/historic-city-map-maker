@@ -37,12 +37,12 @@ function pendingIds(georef: ReturnType<typeof setup>['georef']): readonly string
 }
 
 describe('the georeferencer’s suggestions (M4 §2.5)', () => {
-    it('happyPath_aVersionWaitingForPointsListsItsSuggestionsBestFirstWithTheirLevels', async () => {
+    it('happyPath_aVersionWaitingForPointsListsItsSuggestionsBestFirstWithTheirLevels @S-A44-HAPPY-CITY-GUARD', async () => {
         const { georef } = setup();
         await settle();
 
         const view = georef.state.suggestions;
-        expect([view.matched, view.total, view.confident, view.selected]).toEqual([true, 4, '4', null]);
+        expect([view.matched, view.total, view.confident, view.selected, view.outsideCity]).toEqual([true, 4, '4', null, false]);
         expect(pendingIds(georef)).toEqual(['a1:a001', 'a2:a002', 'a3:a003', 'a4:a004']);
         expect(view.pending.map((row) => row.level)).toEqual(['medium', 'medium', 'low', 'low']);
         expect(georef.state.pairs).toEqual([]);
@@ -157,6 +157,31 @@ describe('the georeferencer’s suggestions (M4 §2.5)', () => {
 
         expect(georef.state.pairs.map((gcp) => gcp.id)).toEqual(['a001']);
         expect(georef.state.suggestions.total).toBe(0);
+    });
+});
+
+/** The golden suggestions moved about 18 km north-west of the test city, as the 1974 archive maps' were (`docs/LESSONS.md`). */
+function lockedOutside(doc: Record<string, unknown>): Record<string, unknown> {
+    const suggestions = doc['suggestions'] as { pairs: Gcp[] };
+    const pairs = suggestions.pairs.map((gcp, index) => ({
+        ...gcp,
+        score: 0.98,
+        geo: { lat: 44.7 + index * 0.005, lng: 25.7 + index * 0.02 },
+    }));
+    return { ...doc, suggestions: { ...suggestions, pairs } };
+}
+
+describe('the city guard (docs/LESSONS.md, the 1974 archive maps)', () => {
+    it('badPath_suggestionsThatWouldPutTheMapOutsideTheCityAreDoubtfulAndAcceptAllTakesNone @S-A44-BAD-OUTSIDE-CITY', async () => {
+        const { georef } = setup({}, lockedOutside(SUGGESTED));
+        await settle();
+
+        const view = georef.state.suggestions;
+        expect([view.outsideCity, ...view.pending.map((row) => row.level)]).toEqual([true, 'doubtful', 'doubtful', 'doubtful', 'doubtful']);
+        georef.intents.acceptAllSuggestions();
+        expect(georef.state.pairs).toEqual([]);
+        georef.intents.acceptSuggestion('a003');
+        expect(georef.state.pairs.map((gcp) => gcp.id)).toEqual(['a003']);
     });
 });
 

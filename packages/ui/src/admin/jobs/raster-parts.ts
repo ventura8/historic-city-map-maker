@@ -1,7 +1,7 @@
 /**
  * The Jobs page's raster parts (`docs/research/M3-interfaces.md` §10.6; CR-M3-5): why an unfinished job waits, in
  * words (with the date it tries again), **Run it again** on a failed pipeline or publish job with attempts left, **Run again with
- * the latest pipeline** on a scene's import (lesson 728), and
+ * the latest pipeline** on a scene's import (lesson 729), and
  * the georeferencer on a job awaiting its points. Text only. Also the job's steps, and Pause all and Resume all (2026-11-13).
  */
 import type { UiLocale } from '@hcm/shared';

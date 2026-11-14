@@ -18,6 +18,7 @@ import {
     layerVersionReadSchema,
     setupStatusReadSchema,
     usgsSceneDocSchema,
+    type BBox,
     type CityDoc,
     type DatePlanDoc,
     type DatePlanRow,
@@ -60,6 +61,8 @@ export interface FeedsPatch {
     /** M28: the city's sources. */
     readonly sources?: SourceChoices;
     readonly frame?: CityFrame;
+    /** The city's bounds: the approval's city guard reads them. */
+    readonly city?: BBox;
     /** The footprints' colours, from the city's theme (finding 51). */
     readonly colors?: FootprintColors;
     /** The newest harvest (ISO), null for none. */
@@ -292,7 +295,7 @@ export class ImageryFeeds {
         if (city !== undefined) {
             this.#changed({
                 ...{ settings: imagerySettingsOf(city.imagery), sources: sourcesOf(city.sources) },
-                ...{ frame: frameOf(city), colors: footprintColorsOf(city.theme) },
+                ...{ frame: frameOf(city), city: frameOf(city).bounds, colors: footprintColorsOf(city.theme) },
             });
         }
     }

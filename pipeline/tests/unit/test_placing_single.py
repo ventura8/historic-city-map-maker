@@ -6,11 +6,12 @@ from pathlib import Path
 
 import numpy
 import pytest
-from hcm_pipeline.geo import to_mercator
+from hcm_pipeline.geo import MercatorBox, to_mercator
 from hcm_pipeline.jobs import Done, JobContext, Waiting
-from hcm_pipeline.placing import fine, single
+from hcm_pipeline.placing import coarse, fine, single
+from hcm_pipeline.placing.city_guard import lands_in_city
 from hcm_pipeline.placing.raster_io import Pair, WarpPlan, dpi_of, read_working, warp_by_pairs
-from hcm_pipeline.placing.series import series_of
+from hcm_pipeline.placing.series import SeriesJob, series_of
 from hcm_pipeline.raster import gdal
 from hcm_pipeline.rasters import GeoTiff, driver_of, write_geotiff
 from hcm_pipeline.steps.place import PlaceStep
@@ -98,6 +99,53 @@ def test_bad_path_a_map_with_no_scale_that_does_not_place_waits_with_suggested_p
     assert isinstance(suggestions, dict)
     assert suggestions["method"] == "junctions"
     assert 0 < len(suggestions["pairs"]) <= 100
+    # A placement that did not hold is never "high" (AUTO_GCP_MIN_CONFIDENCE 0.6), however close its pairs snap.
+    assert all(pair["score"] <= single.UNPROVEN_SHARE for pair in suggestions["pairs"])
+
+
+def test_bad_path_a_placement_outside_the_city_is_never_warped_or_suggested(
+    world: PipelineWorld, tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    """Scenarios: S-P20-BAD-OUTSIDE-CITY"""
+    # The 1974 archive maps: 100 suggested pairs at 98 %, all 18 km north-west of Bucharest (docs/LESSONS.md 729).
+    ctx = series_context(world, tmp_path, ["Harti/1974-01.tif"], {"class": "single", "encoding": "grey"})
+    drawn_map(ctx, "Harti/1974-01.tif", town_drawing())
+    # The search locked onto a street grid 18 km north-west of the city (13 km west, 13 km north), 5 m a working pixel.
+    cx, cy = to_mercator(*CENTRE)
+    locked = numpy.array([[5.0, 0.0, cx - 13_000.0], [0.0, -5.0, cy + 13_000.0]])
+    real = single.attempt
+
+    def wrong(job: JobContext, series: SeriesJob, drawn: single.Drawn, window: MercatorBox) -> single.Attempt | None:
+        found = real(job, series, drawn, window)
+        return None if found is None else single.Attempt(coarse.Coarse(locked, 1.0), found.fit, found.reference, True)
+
+    monkeypatch.setattr(single, "attempt", wrong)
+
+    result = PlaceStep().run(ctx)
+
+    assert isinstance(result, Waiting)
+    version = world.version()
+    help_item = version["help"]
+    assert isinstance(help_item, dict)
+    assert help_item["note"] == single.OUTSIDE_CITY
+    assert "suggestions" not in version
+    assert "archive" not in version
+
+
+def test_the_city_guard_refuses_the_18_km_lock_and_keeps_district_and_region_maps() -> None:
+    """Scenarios: S-P20-BAD-OUTSIDE-CITY"""
+    bucharest = box_of(25.93, 44.33, 26.25, 44.55)
+    assert not lands_in_city(box_of(25.89, 44.58, 25.95, 44.60), bucharest)
+    assert not lands_in_city(box_of(24.0, 44.0, 27.0, 45.0), box_of(26.9, 44.9, 27.2, 45.2))
+    assert lands_in_city(box_of(26.05, 44.40, 26.15, 44.47), bucharest)
+    assert lands_in_city(box_of(25.7, 44.2, 26.5, 44.7), bucharest)
+    assert lands_in_city(box_of(26.1, 44.4, 26.1, 44.4), bucharest)
+
+
+def box_of(west: float, south: float, east: float, north: float) -> MercatorBox:
+    left, bottom = to_mercator(west, south)
+    right, top = to_mercator(east, north)
+    return MercatorBox(left, bottom, right, top)
 
 
 def test_bad_path_with_no_city_bounds_or_no_reference_the_map_waits(world: PipelineWorld, tmp_path: Path) -> None:

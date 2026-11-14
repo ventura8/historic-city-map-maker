@@ -257,6 +257,11 @@ export const ro = {
     'adminContent.imagery.confirm.approveWorse': 'O înlocuiești cu o potrivire care nu s-a dovedit mai bună?',
     'adminContent.imagery.confirm.approveWorseBody': 'Nu e mai bună pe aceleași verificări sau nu a fost măsurată.',
     'adminContent.imagery.confirm.approveWorseConfirm': 'Înlocuiește totuși',
+    'adminContent.imagery.approval.outsideCity': 'Imaginea e mai ales în afara orașului: punctele ei s-au potrivit probabil greșit.',
+    'adminContent.imagery.approval.outsideCityFix': 'Verific-o pe hartă; dacă e greșită, adaugă vreo patru puncte în georeferențiator.',
+    'adminContent.imagery.confirm.approveOutside': 'Aprobi o imagine aflată în afara orașului?',
+    'adminContent.imagery.confirm.approveOutsideBody': 'Ar apărea în locul greșit pe hartă. Aprobă doar dacă ai verificat-o.',
+    'adminContent.imagery.confirm.approveOutsideConfirm': 'Aprobă totuși',
     // The merge of M16 and M18: Delete on a recalibration of a published version.
     'adminContent.imagery.confirm.rejectRecalibration': 'Ștergi această potrivire nouă?',
     'adminContent.imagery.confirm.rejectRecalibrationBody': 'Pleacă doar potrivirea nouă; versiunea publicată rămâne pe hartă.',

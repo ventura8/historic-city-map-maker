@@ -308,6 +308,8 @@ type VersionImagePort =
 export interface ImageryViewState {
     readonly tab: ImageryTabPort;
     readonly usgs: ServiceState | null;
+    /** The city's bounds (null until read): the approval's city guard. */
+    readonly city: BBox | null;
     readonly settings: {
         readonly autoPublish: boolean;
         readonly rmseThresholdM: number;

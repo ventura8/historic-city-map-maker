@@ -5,7 +5,7 @@
  */
 import type { Gcp } from '@hcm/shared';
 
-type ConfidenceLevelPort = 'high' | 'medium' | 'low';
+type ConfidenceLevelPort = 'high' | 'medium' | 'low' | 'doubtful';
 
 export interface SuggestionRowPort {
     readonly label: string;
@@ -26,4 +26,6 @@ export interface SuggestionsViewPort {
     readonly confident: string | null;
     /** Those pairs lie almost in a line (they are not too few). */
     readonly noSpread: boolean;
+    /** The suggestions would put the map outside the city: the panel warns and offers no Accept all. */
+    readonly outsideCity: boolean;
 }

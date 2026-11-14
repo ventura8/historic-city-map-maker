@@ -184,7 +184,7 @@ Calibrating a drawn map automatically is hard: it has drafting error, generalisa
    - 20 % of junctions in spatial blocks, held out before RANSAC.
    - `CHECK_GROSS_M` scaled to the map (5 mm on paper × the scale, at least 100 m). Any dropped check blocks auto-publish (M9 §11).
    - The coverage rule is relative to **the map's own extent**, not the city's (§5).
-7. **Low confidence.** `awaiting_gcps`. The surviving correspondences are saved as **suggested pairs** (`auto`, disabled), and the georeferencer opens with them (M4's suggestions). After about 4 points from the admin, the same chain runs seeded (M9's "admin's points seed the same step").
+7. **Low confidence.** `awaiting_gcps`. The surviving correspondences are saved as **suggested pairs** (`auto`, disabled), and the georeferencer opens with them (M4's suggestions). A placement that did not hold scores them at closeness × `UNPROVEN_SHARE` (never high); one whose footprint lands outside the city's own bounds (`placing/city_guard.py`) is neither warped nor suggested and waits with `OUTSIDE_CITY` (`docs/LESSONS.md` 729). After about 4 points from the admin, the same chain runs seeded (M9's "admin's points seed the same step").
 
 ### (d) Non-map pages and duplicates
 

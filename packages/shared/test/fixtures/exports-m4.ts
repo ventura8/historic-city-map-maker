@@ -29,6 +29,7 @@ export const M4_EXPORTS: readonly string[] = [
     'MAX_SUGGESTIONS',
     'acceptSuggestions',
     'gcpSuggestionsSchema',
+    'landsInCity',
     'pendingSuggestions',
     'AI_MONTHLY_CAP',
     'AI_PRICE_USD_PER_MILLION_TOKENS',

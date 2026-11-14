@@ -152,7 +152,7 @@ async function harvestDataset(deps: HarvestDeps, session: Session, planned: Plan
     return part;
 }
 
-/** A dataset's part from where it starts: `queued` until its turn (lesson 728), then `searching`. */
+/** A dataset's part from where it starts: `queued` until its turn (lesson 729), then `searching`. */
 function partOf(state: 'queued' | 'searching', from: number): HarvestDataset {
     return { state, found: 0, ...(from > 1 ? { next: from } : {}) };
 }

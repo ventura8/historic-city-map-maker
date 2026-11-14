@@ -11,7 +11,9 @@
 6. Warp: the original through the agreeing pairs, at the series' resolution (`raster_io`).
 
 A placement that does not hold never fails the job: the version waits for a person (`low-confidence`, or `no-scale` when the map's scale
-was unknown too) with the best pairs as suggestions.
+was unknown too) with the best pairs as suggestions. Those pairs are scored by closeness times `UNPROVEN_SHARE`, so a placement that did
+not hold is never "high". The city guard (`city_guard`): a placement whose footprint lands outside the city's own bounds, held or not,
+is never warped and never suggested; the version waits with `OUTSIDE_CITY` and no pairs (docs/LESSONS.md, the 1974 archive maps).
 """
 
 from dataclasses import dataclass, replace
@@ -24,6 +26,7 @@ from hcm_pipeline.geo import MercatorBox
 from hcm_pipeline.jobs import JobContext, StepResult
 from hcm_pipeline.placing import coarse, fine
 from hcm_pipeline.placing.checks import gross_m, in_quadrature
+from hcm_pipeline.placing.city_guard import lands_in_city
 from hcm_pipeline.placing.frame import find_frame
 from hcm_pipeline.placing.geometry import FloatArray, apply, scale_of
 from hcm_pipeline.placing.output import Placement, finish, resolution_of, suggestions, wait_for_help
@@ -50,6 +53,12 @@ RIVAL_MAX_SHARE: Final = 0.5
 LOW_CONFIDENCE: Final = "No placement stood out against the reference: add about four points; the closest pairs are offered."
 NO_SCALE: Final = "The map states no scale and no placement stood out: add about four points; the closest pairs are offered."
 NO_WINDOW: Final = "The city has no bounds to look for this map in: set them in Settings, then retry."
+OUTSIDE_CITY: Final = (
+    "The best placement found lies outside the city, so no pairs are offered: add about four points of your own, or check the city's"
+    " bounds in Settings."
+)
+# A placement that did not hold scores its pairs' closeness times this: at most medium, never "high" (AUTO_GCP_MIN_CONFIDENCE 0.6).
+UNPROVEN_SHARE: Final = 0.55
 NO_REFERENCE: Final = "No reference could be read for this city (OpenStreetMap did not answer): retry later, or add about four points."
 
 
@@ -226,8 +235,17 @@ def _help(ctx: JobContext, series: SeriesJob, drawn: Drawn, found: Attempt) -> S
     if found.coarse is None or found.reference is None:
         return wait_for_help(ctx, reason, note)
     reach = SUGGEST_REACH_PX * scale_of(found.coarse.matrix)
-    source, target, scores = fine.suggestion_pairs(drawn.junctions, found.reference.places, found.coarse.matrix, reach)
+    source, target, closeness = fine.suggestion_pairs(drawn.junctions, found.reference.places, found.coarse.matrix, reach)
+    scores = [round(score * UNPROVEN_SHARE, 3) for score in closeness]
     return wait_for_help(ctx, reason, note, suggestions(ctx, _pairs(source, target, drawn.scale), scores, len(drawn.junctions)))
+
+
+def in_city(ctx: JobContext, drawn: Drawn, found: Attempt) -> bool:
+    """The city guard: the attempt's placement puts the map inside the city's own bounds (true when there is nothing to judge)."""
+    city = city_window(ctx, 0.0)
+    if city is None or found.coarse is None:
+        return True
+    return lands_in_city(footprint(found.coarse.matrix, drawn, 0.0), city)
 
 
 def place_map(ctx: JobContext, series: SeriesJob, drawn: Drawn, method: str = "match", placed: int = 1) -> StepResult:
@@ -238,6 +256,9 @@ def place_map(ctx: JobContext, series: SeriesJob, drawn: Drawn, method: str = "m
     found = attempt(ctx, series, drawn, window)
     if found is None:
         return wait_for_help(ctx, "low-confidence", NO_REFERENCE)
+    if not in_city(ctx, drawn, found):
+        ctx.log.warn(f"{drawn.name}: the best placement lies outside the city's bounds; no pairs offered", ctx.step)
+        return wait_for_help(ctx, "low-confidence", OUTSIDE_CITY)
     held = found.held()
     if held is None:
         return _help(ctx, series, drawn, found)

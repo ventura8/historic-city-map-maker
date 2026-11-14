@@ -7,8 +7,10 @@
  * threshold still waits. Batch 4 (`docs/research/M20-import-local.md` §5.1): a grid series placed from its sheets' names without a proof
  * shows its seams and its checks against OpenStreetMap, and only the city's owner sees **Approve the sheet-name placement**.
  * M25: a Landsat scene has no checkpoint error; the card says its shift from Sentinel-2 and the city's cloud.
+ * The city guard (`docs/LESSONS.md`, the 1974 archive maps): a version whose footprint lies mostly outside the city's bounds says so
+ * plainly, and Approve asks first (`approveOutside`): a low checkpoint error only says the pairs agree, not that they are in the city.
  */
-import { landsatClear, recalibrationVerdict, type LandsatReport, type UiLocale } from '@hcm/shared';
+import { landsatClear, landsInCity, recalibrationVerdict, type LandsatReport, type UiLocale } from '@hcm/shared';
 import { html, type TemplateResult } from 'lit';
 
 import { EMPTY } from '../shell/empty.js';
@@ -139,9 +141,31 @@ function deleteButton(context: ImageryContext, page: VersionPagePort, version: V
     >`;
 }
 
-/** M16 (`docs/research/M16-recalibrate.md` §4): a recalibration not shown better replaces the current one only by the owner's choice. */
+/** The city guard: the version's footprint lies mostly outside the city's bounds, or its centre far from them. */
+function landsOutside(context: ImageryContext, version: VersionViewPort): boolean {
+    const { city } = context.view;
+    return city !== null && version.output !== null && !landsInCity(version.output.bounds, city);
+}
+
+function outsideText(context: ImageryContext, version: VersionViewPort): TemplateResult {
+    return landsOutside(context, version)
+        ? html`<p class="alert" data-city="outside">
+              ${contentText(context.locale, 'adminContent.imagery.approval.outsideCity')}
+              ${contentText(context.locale, 'adminContent.imagery.approval.outsideCityFix')}
+          </p>`
+        : EMPTY;
+}
+
+/**
+ * M16 (`docs/research/M16-recalibrate.md` §4): a recalibration not shown better replaces the current one only by the owner's choice;
+ * the city guard: a version that lands outside the city is approved only after the question.
+ */
 function approve(context: ImageryContext, version: VersionViewPort): void {
     const { recalibration } = version;
+    if (landsOutside(context, version)) {
+        context.ask('approveOutside');
+        return;
+    }
     if (recalibration !== null && recalibrationVerdict(recalibration) !== 'better') {
         context.ask('approveWorse');
         return;
@@ -245,7 +269,8 @@ export function approvalCard(context: ImageryContext, page: VersionPagePort, ver
     return html`<section class="card" aria-labelledby="approval-title" data-state=${guard === null ? 'approval' : 'guard'}>
         <h3 id="approval-title">${contentText(context.locale, 'adminContent.imagery.approval.title')}</h3>
         ${lazyJoin(context, version, (chunk) => chunk.joinReport(context, version))} ${namesReport(context, version)}
-        ${rmseText(context, version)} ${pairsText(context.locale, version)} ${costText(context, page, version)}
+        ${outsideText(context, version)} ${rmseText(context, version)} ${pairsText(context.locale, version)}
+        ${costText(context, page, version)}
         ${
             guard === null
                 ? decision(context, page, version)

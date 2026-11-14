@@ -74,6 +74,11 @@ export const fr: Readonly<Partial<Record<AdminGeorefKey, string>>> = {
     'adminContent.georef.suggestions.level.high': 'élevé',
     'adminContent.georef.suggestions.level.medium': 'moyen',
     'adminContent.georef.suggestions.level.low': 'faible',
+    'adminContent.georef.suggestions.level.doubtful': 'douteuse',
+    'adminContent.georef.suggestions.doubtful': 'Douteuse : la carte tomberait hors de la ville',
+    'adminContent.georef.suggestions.outsideCity': 'Ces paires placeraient la carte hors de la ville, donc Accepter tout est désactivé.',
+    'adminContent.georef.suggestions.outsideCityFix':
+        'Ajoutez environ quatre points vous-même, ou vérifiez les limites de la ville dans Paramètres.',
     'adminContent.georef.suggestions.residual': 'à {metres} m de l’ajustement actuel',
     'adminContent.georef.suggestions.noResidual': 'Pas de point de comparaison pour l’instant',
     'adminContent.georef.suggestions.noMatch': 'Paires fiables trouvées automatiquement : {pairs}, mais leur nombre est insuffisant.',

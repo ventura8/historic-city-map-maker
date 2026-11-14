@@ -9899,6 +9899,28 @@
             "notes": "Milestone M4 (docs/research/M4-interfaces.md §2.5; owner: autogcp). Test: e2e/admin/specs/imagery/suggestions.spec.ts against the emulators and the stand-in runner's `suggestions` outcome (e2e-admin)."
         },
         {
+            "id": "S-A44-HAPPY-CITY-GUARD",
+            "behaviour": "A44",
+            "area": "admin",
+            "path": "happy",
+            "title": "A map that lands in the city keeps its confidence and one-click approval",
+            "asserts": "suggestions whose places lie in the city keep their level (high, medium, low) and Accept all; a rendered version whose footprint lies in the city's bounds shows no outside-the-city warning and Approve calls imagery.approve with one click",
+            "tier": "e2e-admin",
+            "status": "exists",
+            "notes": "The city guard (docs/LESSONS.md, the 1974 archive maps). Tests: packages/admin/test/georef/suggestions.test.ts; packages/ui/test/admin/imagery/recalibrate.test.ts."
+        },
+        {
+            "id": "S-A44-BAD-OUTSIDE-CITY",
+            "behaviour": "A44",
+            "area": "admin",
+            "path": "bad",
+            "title": "Suggested pairs or a version that would put the map outside the city are never one click away",
+            "asserts": "suggestions at 98 % whose places lie 18 km outside the city's bounds -> every row reads 'Doubtful: the map would land outside the city' with no percentage, the panel says why, there is no Accept all and Accept all takes none, a single Accept still works; a version whose footprint lies mostly outside the city says so on its approval card and Approve asks first (approveOutside) before imagery.approve",
+            "tier": "e2e-admin",
+            "status": "exists",
+            "notes": "The city guard (docs/LESSONS.md, the 1974 archive maps). Tests: packages/admin/test/georef/suggestions.test.ts; packages/ui/test/admin/georef/suggestions-panel.test.ts; packages/ui/test/admin/imagery/recalibrate.test.ts."
+        },
+        {
             "id": "S-A45-HAPPY",
             "behaviour": "A45",
             "area": "admin",
@@ -18818,6 +18840,17 @@
             "tier": "e2e-pipeline",
             "status": "exists",
             "notes": "M20 paths (docs/research/M20-import-local.md §3, §15). Tests: pipeline/tests/unit/test_placing_single.py."
+        },
+        {
+            "id": "S-P20-BAD-OUTSIDE-CITY",
+            "behaviour": "P20",
+            "area": "pipeline",
+            "path": "bad",
+            "title": "A drawn map placed outside the city is never warped or suggested",
+            "asserts": "the best placement's footprint lies outside the city's own bounds (the search window is the city grown by half) -> the version waits with help OUTSIDE_CITY, no suggestions and no archive report; a placement that did not hold scores its pairs at most UNPROVEN_SHARE (never high)",
+            "tier": "e2e-pipeline",
+            "status": "exists",
+            "notes": "The city guard (docs/LESSONS.md, the 1974 archive maps). Tests: pipeline/tests/unit/test_placing_single.py."
         },
         {
             "id": "S-P20-HAPPY-OWNER-PAIRS",

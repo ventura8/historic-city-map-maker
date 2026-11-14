@@ -312,6 +312,11 @@ against Sentinel-2 (M3 §5.6, §5.9). M4 extends the same step; inputs and outpu
   table (`acceptSuggestions`, done: enabled, `origin: 'auto'`, a free id, the same scan pixel never twice, at most
   `MAX_GCPS`), rejecting hides it for the page (`pendingSuggestions`, done). The fit, both errors, the transforms each
   count allows and the warped preview update live, as for the admin's own pairs.
+- **The city guard** (`docs/LESSONS.md` 729): when the suggestions' places, taken together, would put the map outside the city
+  (`landsInCity` of `@hcm/shared`: the centre within the city's bounds grown by a quarter, at least half the smaller of the two
+  boxes shared), every row reads *doubtful* with no percentage, the panel says the map would land outside the city, and there is
+  no Accept all (a single Accept still works). The approval card of a version whose footprint lies mostly outside the city says so
+  and Approve asks first (`approveOutside`).
 - **Never saved without Save**: accepted suggestions are part of the page's unsaved pairs (M2c's unsaved guard);
   `imagery.saveGcps` is called only by Save, with exactly the table's pairs; nothing the admin did not accept reaches
   the version (`S-A44-BAD-REJECTED-NEVER-SAVED`).

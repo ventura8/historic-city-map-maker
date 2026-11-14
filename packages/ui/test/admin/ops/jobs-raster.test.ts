@@ -95,7 +95,7 @@ describe('<hcm-jobs-page>: raster jobs', () => {
     });
 });
 
-describe('<hcm-jobs-page>: Run again with the latest pipeline (lesson 728)', () => {
+describe('<hcm-jobs-page>: Run again with the latest pipeline (lesson 729)', () => {
     beforeAll(defineAll);
     afterEach(cleanup);
 

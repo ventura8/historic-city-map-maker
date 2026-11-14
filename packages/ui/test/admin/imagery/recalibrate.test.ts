@@ -3,6 +3,7 @@
  * `docs/research/M16-recalibrate.md` §4, §7): what is offered, the two fits on the same checks, the map between the new version and the
  * current one, and Approve of a fit not shown better asked first.
  */
+import type { BBox } from '@hcm/shared';
 import { axeViolations } from '@hcm/test-support/axe';
 import { afterEach, beforeAll, describe, expect, it } from 'vitest';
 
@@ -27,6 +28,16 @@ const VERSION = { kind: 'version' as const, id: 'job-1966' };
 const BETTER: VersionViewPort['recalibration'] = { route: 'auto', before: { rmseM: 17.6, checks: 21 }, after: { rmseM: 14.1, checks: 21 } };
 const WORSE: VersionViewPort['recalibration'] = { route: 'manual', before: { rmseM: 12, checks: 5 }, after: { rmseM: 12.4, checks: 5 } };
 
+const BUCHAREST: ImageryViewState['city'] = [
+    [25.93, 44.33],
+    [26.25, 44.55],
+];
+/** Where the 1974 archive maps' pairs put them: about 18 km north-west of the city (`docs/LESSONS.md`). */
+const OUTSIDE: BBox = [
+    [25.89, 44.58],
+    [25.95, 44.6],
+];
+
 const EMBEDDED: VersionViewPort['georef'] = {
     ...{ method: 'embedded', transform: 'affine', pairs: 0, fitRmseM: null },
     ...{ checkpointRmseM: null, checkpointCount: null, checkpointKind: null },
@@ -36,8 +47,8 @@ function calls(area: FakeArea<ImageryViewState, ImageryIntentsPort>): readonly s
     return area.calls.filter((call) => !call.startsWith('open [') && !call.startsWith('attachMap') && call !== 'close');
 }
 
-async function shown(version: VersionViewPort, current: VersionViewPort | null = null) {
-    const state = imageryState({ detail: VERSION, version: versionPage({ current }, version) });
+async function shown(version: VersionViewPort, current: VersionViewPort | null = null, city: ImageryViewState['city'] = null) {
+    const state = imageryState({ detail: VERSION, version: versionPage({ current }, version), city });
     const mounted = await imageryPage(state, { params: ['version', 'job-1966'] }, { recalibrate: Promise.resolve('rg-new') });
     await updated(mounted.element);
     return mounted;
@@ -105,6 +116,32 @@ describe('<hcm-imagery-page>: calibrate again', () => {
             expect(calls(area)).toEqual(['approve true']);
         },
     );
+
+    it('happyPath_aVersionInsideTheCityIsApprovedWithOneClick @S-A44-HAPPY-CITY-GUARD', async () => {
+        const { element, area } = await shown(versionView(), null, BUCHAREST);
+
+        expect(deepAll(element, '[data-city="outside"]')).toEqual([]);
+        click(button(element, 'Approve and publish'));
+
+        expect(calls(area)).toEqual(['approve']);
+    });
+
+    it('badPath_aVersionLandingOutsideTheCitySaysSoAndIsApprovedOnlyAfterTheQuestion @S-A44-BAD-OUTSIDE-CITY', async () => {
+        const off = versionView();
+        const output = off.output === null ? null : { ...off.output, bounds: OUTSIDE };
+        const { element, area } = await shown({ ...off, output }, null, BUCHAREST);
+
+        expect(deep(element, '[data-city="outside"]').textContent).toContain('lies mostly outside the city');
+        click(button(element, 'Approve and publish'));
+        await updated(element);
+        expect(calls(area)).toEqual([]);
+        expect(deepText(deep(element, 'hcm-confirm-dialog'))).toContain('Approve an image that lies outside the city?');
+        click(deep(deep(element, 'hcm-confirm-dialog'), '.confirm'));
+        await updated(element);
+
+        expect(calls(area)).toEqual(['approve']);
+        expect(await axeViolations(deep(element, 'section[aria-labelledby="approval-title"]'))).toEqual([]);
+    });
 
     it('badPath_aRefusedRefineStaysOnThePageAndTheMapShowsTheCurrentOneUntilSwappedBack @S-A89-BAD-BUSY', async () => {
         const current = versionView({ id: 'job-current', state: 'published' });

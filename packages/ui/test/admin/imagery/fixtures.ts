@@ -178,6 +178,7 @@ export function imageryState(overrides: Partial<ImageryViewState> = {}): Imagery
         ...{
             tab: 'find',
             usgs: 'ok',
+            city: null,
             settings: { autoPublish: true, rmseThresholdM: 15, targetYears: [1966], publishThroughMapbox: true },
             sources: { usgs: true, landsat: true, archives: true },
         },
@@ -302,7 +303,7 @@ export function georefState(overrides: Partial<GeorefViewState> = {}): GeorefVie
             previewOpacity: 0.7,
             map: 'none',
             pane: 'scan',
-            suggestions: { matched: false, total: 0, pending: [], selected: null, confident: null, noSpread: false },
+            suggestions: { matched: false, total: 0, pending: [], selected: null, confident: null, noSpread: false, outsideCity: false },
         },
         ...overrides,
     };

@@ -4,7 +4,8 @@
  * confidence in words and as a bar, how far the page's current fit puts it (computed again as pairs are accepted), and
  * Accept and Reject named after it; Accept all above (the keyboard then lands on the panel's heading). The keyboard reaches each row's name: focused, its markers are the selected ones; Enter accepts it, Delete
  * rejects it. A version the matching left waiting says how many reliable pairs it found. Accepting only edits the
- * page's pairs: Save writes them. Text only: labels and numbers are never markup.
+ * page's pairs: Save writes them. Text only: labels and numbers are never markup. Suggestions that would put the map outside
+ * the city (`outsideCity`) are each "doubtful" with no percentage, the panel says why, and there is no Accept all.
  */
 import { clamp, type UiLocale } from '@hcm/shared';
 import { css, html, type TemplateResult } from 'lit';
@@ -37,6 +38,9 @@ const KEYS_ID = 'suggestion-keys';
 const KEYS: Readonly<Record<string, SuggestionDecision | undefined>> = { Enter: 'accept', Delete: 'reject', Backspace: 'reject' };
 
 function confidence(locale: UiLocale, row: SuggestionRowPort): string {
+    if (row.level === 'doubtful') {
+        return contentText(locale, 'adminContent.georef.suggestions.doubtful');
+    }
     const level = contentText(locale, `adminContent.georef.suggestions.level.${row.level}`);
     const percent = String(Math.round((row.pair.score ?? 0) * 100));
     return contentText(locale, 'adminContent.georef.suggestions.confidence', { level, percent });
@@ -75,7 +79,7 @@ function decideButton(panel: SuggestionsPanel, row: SuggestionRowPort, index: nu
 function row(panel: SuggestionsPanel, item: SuggestionRowPort, index: number): TemplateResult {
     const { locale, view } = panel;
     const selected = item.pair.id === view.selected;
-    const fraction = String(clamp(item.pair.score ?? 0, 0, 1));
+    const fraction = item.level === 'doubtful' ? '0' : String(clamp(item.pair.score ?? 0, 0, 1));
     return html`<li ?data-selected=${selected} data-suggestion=${item.pair.id} data-level=${item.level}>
         <button
             class="suggestion"
@@ -101,15 +105,27 @@ function row(panel: SuggestionsPanel, item: SuggestionRowPort, index: number): T
     </li>`;
 }
 
+/** Accept all, or (the city guard) why there is none: the suggestions would put the map outside the city. */
+function acceptAll(panel: SuggestionsPanel): TemplateResult {
+    const { locale, view } = panel;
+    if (view.outsideCity) {
+        return html`<p class="alert" data-state="outside-city">
+            ${contentText(locale, 'adminContent.georef.suggestions.outsideCity')}
+            ${contentText(locale, 'adminContent.georef.suggestions.outsideCityFix')}
+        </p>`;
+    }
+    return html`<div class="actions">
+        <hcm-button variant="filled" icon="check" ?disabled=${panel.locked} @click=${panel.onAcceptAll}
+            >${contentText(locale, 'adminContent.georef.suggestions.acceptAll')}</hcm-button
+        >
+    </div>`;
+}
+
 function list(panel: SuggestionsPanel): TemplateResult {
     const { locale, view } = panel;
     return html`<p class="note">${contentText(locale, 'adminContent.georef.suggestions.intro')}</p>
         <p class="note" id=${KEYS_ID}>${contentText(locale, 'adminContent.georef.suggestions.keys')}</p>
-        <div class="actions">
-            <hcm-button variant="filled" icon="check" ?disabled=${panel.locked} @click=${panel.onAcceptAll}
-                >${contentText(locale, 'adminContent.georef.suggestions.acceptAll')}</hcm-button
-            >
-        </div>
+        ${acceptAll(panel)}
         <ul class="suggestion-list">
             ${repeat(
                 view.pending,

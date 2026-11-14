@@ -21,7 +21,7 @@ const ROWS: readonly SuggestionRowPort[] = [
 ];
 
 function view(overrides: Partial<SuggestionsViewPort> = {}): SuggestionsViewPort {
-    return { matched: true, total: 4, pending: ROWS, selected: null, confident: '2', noSpread: false, ...overrides };
+    return { matched: true, total: 4, pending: ROWS, selected: null, confident: '2', noSpread: false, outsideCity: false, ...overrides };
 }
 
 function withSuggestions(overrides: Partial<SuggestionsViewPort> = {}, state: Partial<GeorefViewState> = {}): GeorefViewState {
@@ -90,6 +90,21 @@ describe('the georeferencer’s suggestions', () => {
         expect(() => button(element, 'Accept a2')).not.toThrow();
         expect(() => button(element, 'Reject a4')).not.toThrow();
         expect(deep(element, '[data-suggestion="a001"] .fill').style.getPropertyValue('--confidence')).toBe('0.58');
+        expect(await axeViolations(element)).toEqual([]);
+    });
+
+    it('badPath_suggestionsThatWouldPutTheMapOutsideTheCityAreDoubtfulWithNoAcceptAll @S-A44-BAD-OUTSIDE-CITY', async () => {
+        const doubtful = ROWS.map((row) => ({ ...row, pair: { ...row.pair, score: 0.98 }, level: 'doubtful' as const }));
+        const { element, area } = await georefPage(withSuggestions({ outsideCity: true, pending: doubtful }));
+
+        const text = deepText(element);
+        expect(deep(element, '[data-state="outside-city"]').textContent).toContain('would put the map outside the city');
+        expect(text).toContain('Doubtful: the map would land outside the city');
+        expect(text).not.toContain('98 %');
+        expect(() => button(element, 'Accept all')).toThrow();
+        expect(deep(element, '[data-suggestion="a001"] .fill').style.getPropertyValue('--confidence')).toBe('0');
+        click(button(element, 'Accept a2'));
+        expect(suggestionCalls(area)).toEqual(['acceptSuggestion "a002"']);
         expect(await axeViolations(element)).toEqual([]);
     });
 

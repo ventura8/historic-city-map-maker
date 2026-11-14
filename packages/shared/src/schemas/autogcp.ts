@@ -9,6 +9,7 @@
  */
 import { z } from 'zod';
 
+import { bboxCenter, bboxContains, type BBox } from '../geo/bbox.js';
 import { timestampSchema } from './firestore-common.js';
 import { gcpSchema, MAX_GCPS, type Gcp } from './georef.js';
 import { coded } from './primitives.js';
@@ -94,4 +95,48 @@ export function pendingSuggestions(suggestions: readonly Gcp[], gcps: readonly G
     return suggestions.filter(
         (suggestion) => !rejected.has(suggestion.id) && !placed.has(`${String(suggestion.pixel.x)},${String(suggestion.pixel.y)}`),
     );
+}
+
+/** The least share of a footprint (or of the city, when the footprint is larger) that must lie inside the city's bounds. */
+const CITY_INSIDE_MIN_SHARE = 0.5;
+
+/** How far past the city's bounds (a share of their width and height, on every side) a footprint's centre may lie. */
+const CITY_CENTRE_MARGIN = 0.25;
+
+function areaOf(bbox: BBox): number {
+    const [[west, south], [east, north]] = bbox;
+    return Math.max(0, east - west) * Math.max(0, north - south);
+}
+
+function overlapOf(a: BBox, b: BBox): number {
+    const west = Math.max(a[0][0], b[0][0]);
+    const south = Math.max(a[0][1], b[0][1]);
+    const east = Math.min(a[1][0], b[1][0]);
+    const north = Math.min(a[1][1], b[1][1]);
+    return east > west && north > south ? (east - west) * (north - south) : 0;
+}
+
+/** `bbox` grown by `share` of its own width and height on every side. */
+function grownBy(bbox: BBox, share: number): BBox {
+    const [[west, south], [east, north]] = bbox;
+    const dx = (east - west) * share;
+    const dy = (north - south) * share;
+    return [
+        [west - dx, south - dy],
+        [east + dx, north + dy],
+    ];
+}
+
+/**
+ * True when a map placed on `footprint` lands in the city of `city`: its centre lies inside the city's bounds grown by
+ * `CITY_CENTRE_MARGIN`, and at least `CITY_INSIDE_MIN_SHARE` of the smaller of the two boxes is shared (a map of a
+ * district lies mostly inside the city; a map of the region holds most of the city). A footprint 18 km off, however sure
+ * the matching was of its pairs, does not (`docs/LESSONS.md`, the 1974 archive maps).
+ */
+export function landsInCity(footprint: BBox, city: BBox): boolean {
+    if (!bboxContains(grownBy(city, CITY_CENTRE_MARGIN), bboxCenter(footprint))) {
+        return false;
+    }
+    const smaller = Math.min(areaOf(footprint), areaOf(city));
+    return smaller === 0 || overlapOf(footprint, city) >= CITY_INSIDE_MIN_SHARE * smaller;
 }

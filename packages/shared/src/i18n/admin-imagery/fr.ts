@@ -225,6 +225,14 @@ export const fr: Readonly<Partial<Record<AdminImageryKey, string>>> = {
     'adminContent.imagery.confirm.approveWorseBody':
         'Pas d’amélioration lors des mêmes vérifications, ou non mesurée : ne remplacer que si vous le souhaitez.',
     'adminContent.imagery.confirm.approveWorseConfirm': 'Remplacer quand même.',
+    'adminContent.imagery.approval.outsideCity':
+        'Cette image se trouve surtout hors de la ville : ses points ont sans doute trouvé le mauvais endroit.',
+    'adminContent.imagery.approval.outsideCityFix':
+        'Vérifiez-la sur la carte ; si elle est fausse, ajoutez environ quatre points dans l’outil de géoréférencement.',
+    'adminContent.imagery.confirm.approveOutside': 'Approuver une image située hors de la ville ?',
+    'adminContent.imagery.confirm.approveOutsideBody':
+        'Elle apparaîtrait au mauvais endroit sur la carte. N’approuvez que si vous l’avez vérifiée.',
+    'adminContent.imagery.confirm.approveOutsideConfirm': 'Approuver quand même',
     'adminContent.imagery.confirm.rejectRecalibration': 'Supprimer cette nouvelle correspondance ?',
     'adminContent.imagery.confirm.rejectRecalibrationBody':
         'Se conserve uniquement le nouvel ajustement ; la version publiée reste sur la carte.',

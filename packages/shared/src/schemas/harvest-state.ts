@@ -15,7 +15,7 @@ import { USGS_DATASETS } from './firestore.js';
  */
 export const HARVEST_OUTCOMES = ['ok', 'empty', 'failed', 'partial', 'running'] as const;
 /**
- * How far one dataset's part of a harvest got: waiting its turn (two datasets are searched at a time; lesson 728), still
+ * How far one dataset's part of a harvest got: waiting its turn (two datasets are searched at a time; lesson 729), still
  * searching, searched to its end, in part, or not at all.
  */
 export const HARVEST_DATASET_STATES = ['queued', 'searching', 'done', 'partial', 'failed'] as const;

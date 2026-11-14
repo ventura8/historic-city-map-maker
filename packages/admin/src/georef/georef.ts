@@ -270,6 +270,7 @@ class GeorefStore implements AreaStore<GeorefState, GeorefIntents> {
         const city = state.doc?.data;
         if (city !== undefined) {
             this.#cityFrame = frameOf(city);
+            this.#suggestions.setCity(this.#cityFrame.bounds);
             this.#frame();
             this.#cell.update({ thresholdM: imagerySettingsOf(city.imagery).rmseThresholdM });
             this.#refit(this.#cell.state.pairs, this.#cell.state.transform);

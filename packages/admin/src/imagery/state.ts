@@ -5,6 +5,7 @@
  */
 import {
     imagerySettingsOf,
+    type BBox,
     type DatePlanRow,
     type ImagerySettings,
     type PublishChoice,
@@ -53,6 +54,8 @@ export interface ImageryState extends OrderActionsState, JoinActionsState {
     /** `setup/status.usgs.state` (null while reading): `missing` or `invalid` is the "set up USGS" state. */
     readonly usgs: ServiceState | null;
     readonly settings: ImagerySettings;
+    /** The city's bounds (null until the city was read): a version whose footprint lies mostly outside them asks before Approve. */
+    readonly city: BBox | null;
     /** M28: the city's sources (defaults until it chose): the USGS search and the local import follow them. */
     readonly sources: SourceChoices;
     readonly search: SearchState;
@@ -94,7 +97,7 @@ export interface ImageryState extends OrderActionsState, JoinActionsState {
 }
 
 export const INITIAL_IMAGERY: ImageryState = {
-    ...{ tab: 'find', usgs: null, settings: imagerySettingsOf(undefined), sources: sourcesOf(undefined) },
+    ...{ tab: 'find', usgs: null, settings: imagerySettingsOf(undefined), city: null, sources: sourcesOf(undefined) },
     ...{ search: IDLE_SEARCH, filters: DEFAULT_FILTERS },
     ...{ scenes: LOADING_LIST, visible: [], browse: {}, versions: LOADING_LIST, jobs: {}, detail: null, version: null },
     ...{ importing: null, importRefusal: null, upload: IDLE_UPLOAD, map: 'none', previewOpacity: 1 },

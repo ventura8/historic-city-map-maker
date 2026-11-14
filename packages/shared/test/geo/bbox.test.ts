@@ -11,6 +11,7 @@ import {
     clampToBBox,
     type BBox,
 } from '../../src/geo/bbox.js';
+import { landsInCity } from '../../src/schemas/autogcp.js';
 
 const BUCHAREST: BBox = [
     [25.93, 44.33],
@@ -123,5 +124,67 @@ describe('records', () => {
 
         expect(record).toEqual({ west: 25.93, south: 44.33, east: 26.25, north: 44.55 });
         expect(bboxFromRecord(record)).toEqual(BUCHAREST);
+    });
+});
+
+describe('landsInCity', () => {
+    it('keeps a district map and a map of the whole region', () => {
+        expect(
+            landsInCity(
+                [
+                    [26.05, 44.4],
+                    [26.15, 44.47],
+                ],
+                BUCHAREST,
+            ),
+        ).toBe(true);
+        expect(
+            landsInCity(
+                [
+                    [25.7, 44.2],
+                    [26.5, 44.7],
+                ],
+                BUCHAREST,
+            ),
+        ).toBe(true);
+    });
+
+    it('refuses the 1974 archive maps placed 18 km north-west of Bucharest', () => {
+        expect(
+            landsInCity(
+                [
+                    [25.89, 44.58],
+                    [25.95, 44.6],
+                ],
+                BUCHAREST,
+            ),
+        ).toBe(false);
+    });
+
+    it('refuses a footprint whose centre lies far from the city', () => {
+        expect(
+            landsInCity(
+                [
+                    [24.0, 44.0],
+                    [27.0, 45.0],
+                ],
+                [
+                    [26.9, 44.9],
+                    [27.2, 45.2],
+                ],
+            ),
+        ).toBe(false);
+    });
+
+    it('judges a footprint without area by its centre alone', () => {
+        expect(
+            landsInCity(
+                [
+                    [26.1, 44.4],
+                    [26.1, 44.4],
+                ],
+                BUCHAREST,
+            ),
+        ).toBe(true);
     });
 });
