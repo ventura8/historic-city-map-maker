@@ -35,6 +35,12 @@ test(
         const compareBox = await compare.boundingBox();
         const listBox = await list.boundingBox();
         expect((compareBox?.y ?? 0) < (listBox?.y ?? 0), 'Compare sits above the overlay list').toBe(true);
+        // Compare starts at the rows' inline inset and keeps the pane's 12 px section gap above Map labels (owner, 2026-11-14).
+        const labelsBox = await pane.locator('.labels').boundingBox();
+        const streetsRow = await pane.locator('.labels li').first().boundingBox();
+        expect(Math.abs((compareBox?.x ?? 0) - (streetsRow?.x ?? -9)), 'Compare and the rows share one inline inset').toBeLessThan(1);
+        const gap = (labelsBox?.y ?? 0) - ((compareBox?.y ?? 0) + (compareBox?.height ?? 0));
+        expect(Math.abs(gap - 12), 'Compare keeps the 12 px section gap below').toBeLessThan(1);
 
         await list.evaluate((element) => {
             const body = element.closest('.body');

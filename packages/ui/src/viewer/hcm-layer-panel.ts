@@ -159,8 +159,13 @@ export class HcmLayerPanel extends LitElement {
                 color: var(--md-sys-color-on-surface-variant);
             }
 
+            /*
+             * Compare starts at the list rows' inline inset (0, the pane's padding) and keeps the pane's 12 px section gap below:
+             * the strip's 4 px row gap plus 8 px, the same space as between the strip and the historical layers (owner, 2026-11-14).
+             */
             .compare {
                 align-self: flex-start;
+                margin-block-end: 8px;
             }
 
             /* The size, weight and margins are baseStyles' h3 (title small); a list and a paragraph have no margin there. */
