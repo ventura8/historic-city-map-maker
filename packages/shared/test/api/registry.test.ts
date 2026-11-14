@@ -113,9 +113,9 @@ describe('the function registry', () => {
     });
 });
 
-/** The shapes a request schema may take: an object, or a discriminated union of objects. */
+/** The shapes a request schema may take: an object, or a union of objects (`imagery.join`: frames or archive maps). */
 function requestShapes(schema: z.ZodType): readonly z.ZodObject[] {
-    if (schema instanceof z.ZodDiscriminatedUnion) {
+    if (schema instanceof z.ZodDiscriminatedUnion || schema instanceof z.ZodUnion) {
         return schema.options as readonly z.ZodObject[];
     }
     return [schema as z.ZodObject];
