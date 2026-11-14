@@ -1,7 +1,7 @@
 /** A new version's label and year (`docs/research/M3-interfaces.md` §4.1): from a scene's camera and date, or an upload's name. */
 import { describe, expect, it } from 'vitest';
 
-import { layerLabelFor, uploadLabelFor, uploadYearOf, yearOfDate } from '../../src/imagery/labels.js';
+import { frameLabel, layerLabelFor, tooCoarseForStreets, uploadLabelFor, uploadYearOf, yearOfDate } from '../../src/imagery/labels.js';
 
 describe('layerLabelFor', () => {
     it.each([
@@ -42,5 +42,21 @@ describe('uploads', () => {
         ['no name and no year', undefined, undefined, undefined],
     ])('uploadYearOf_%s', (_case, metadataYear, name, expected) => {
         expect(uploadYearOf(metadataYear, name)).toBe(expected);
+    });
+});
+
+describe('an Argon frame (admin sweep 2026-11-14)', () => {
+    it('happyPath_anArgonFrameImportedAsCoronaIsNamedArgonItsDateKept', () => {
+        expect(frameLabel({ ro: 'KH-4A Corona, 21 august 1963' }, 'DS09059A041MC015')).toEqual({ ro: 'KH-5 Argon, 21 august 1963' });
+        expect(tooCoarseForStreets(['DS09059A041MC015'], 'KH-4A')).toBe(true);
+        expect(tooCoarseForStreets([], 'KH-5')).toBe(true);
+    });
+
+    it('badPath_anyOtherFrameKeepsItsLabelAndIsNotTooCoarse', () => {
+        const label = { ro: 'KH-4B Corona, 5 mai 1968', en: 'KH-4B Corona, 5 May 1968' };
+        expect(frameLabel(label, 'DS1103-1058DF027')).toBe(label);
+        expect(frameLabel(label, undefined)).toBe(label);
+        expect(tooCoarseForStreets(['DS1103-1058DF027'], 'KH-4B')).toBe(false);
+        expect(tooCoarseForStreets([], undefined)).toBe(false);
     });
 });
