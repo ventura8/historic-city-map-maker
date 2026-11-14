@@ -63,7 +63,9 @@ describe('<hcm-jobs-page>: raster jobs', () => {
 
         expect(jobs.named('retryJob')).toEqual(['retryJob']);
         expect(deepText(element)).toContain('Starting again…');
-        expect(deepText(element)).toContain('gdalwarp ran out of memory');
+        // Admin sweep 2026-11-14: the code's sentence, never the stored message.
+        expect(deepText(element)).toContain('a fault on our side');
+        expect(deepText(element)).not.toContain('gdalwarp ran out of memory');
         expect(await axeViolations(element)).toEqual([]);
     });
 

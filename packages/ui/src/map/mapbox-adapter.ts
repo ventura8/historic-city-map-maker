@@ -69,6 +69,8 @@ interface Session {
     readonly cleanups: (() => void)[];
     basemap: Basemap3dObjects | null;
     abortLoad: (error: Error) => void;
+    /** Its style failed to load: nothing is in flight, so it is removed at once. */
+    failed: boolean;
 }
 
 class MapboxPort implements MapPort {
@@ -117,6 +119,9 @@ class MapboxPort implements MapPort {
         const session = this.#open(map, options, container);
         await whenLoaded(map, (abort) => {
             session.abortLoad = abort;
+        }).catch((error: unknown) => {
+            session.failed = true;
+            throw error;
         });
         if (this.#session !== session) {
             throw new Error('unknown');
@@ -143,6 +148,7 @@ class MapboxPort implements MapPort {
             cleanups: [],
             basemap: null,
             abortLoad: ignore,
+            failed: false,
         };
         this.#session = session;
         if (this.#padding !== null) {
@@ -415,7 +421,7 @@ class MapboxPort implements MapPort {
             return;
         }
         this.getView();
-        const loaded = this.#loaded;
+        const settled = this.#loaded || session.failed;
         this.#session = null;
         this.#loaded = false;
         session.abortLoad(new Error('unknown'));
@@ -423,7 +429,7 @@ class MapboxPort implements MapPort {
             cleanup();
         }
         session.registry.destroy();
-        removeWhenSettled(session.map, loaded);
+        removeWhenSettled(session.map, settled);
     }
 }
 
