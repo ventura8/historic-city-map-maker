@@ -73,7 +73,10 @@ export function uploadYearOf(metadataYear: string | undefined, originalName: str
 export const ARGON_FRAME_ID = /^DS0*9\d{3}A\d+MC\d+$/i;
 
 /** The label a version shows: an Argon frame imported under another camera's name is named after Argon, its date kept. */
-export function frameLabel<Label extends { readonly ro: string; readonly en?: string | undefined }>(label: Label, entityId: string | undefined): Label {
+export function frameLabel<Label extends { readonly ro: string; readonly en?: string | undefined }>(
+    label: Label,
+    entityId: string | undefined,
+): Label {
     if (entityId === undefined || !ARGON_FRAME_ID.test(entityId)) {
         return label;
     }

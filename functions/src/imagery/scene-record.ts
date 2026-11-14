@@ -93,16 +93,17 @@ const CAMERAS: Readonly<
 
 const CORNERS = ['nw', 'ne', 'se', 'sw'] as const;
 
-function sensorOf(dataset: UsgsDataset, record: Pick<SceneRecord, 'entityId' | 'metadata'>): Sensor {
+function namedCamera(dataset: UsgsDataset, record: Pick<SceneRecord, 'entityId' | 'metadata'>): Sensor {
     const camera = record.metadata[CAMERA_FIELD] ?? '';
     const cameras = CAMERAS[dataset];
-    // Admin sweep 2026-11-14 (bug 5): an Argon frame's id wins over metadata that names another camera of `corona2`.
-    if (ARGON_FRAME_ID.test(record.entityId)) {
-        return 'KH-5';
-    }
     const named =
         cameras.patterns.find(([pattern]) => pattern.test(camera)) ?? cameras.ids.find(([pattern]) => pattern.test(record.entityId));
     return named?.[1] ?? cameras.fallback;
+}
+
+/** Admin sweep 2026-11-14 (bug 5): an Argon frame's id wins over metadata that names another camera of `corona2`. */
+function sensorOf(dataset: UsgsDataset, record: Pick<SceneRecord, 'entityId' | 'metadata'>): Sensor {
+    return ARGON_FRAME_ID.test(record.entityId) ? 'KH-5' : namedCamera(dataset, record);
 }
 
 /**

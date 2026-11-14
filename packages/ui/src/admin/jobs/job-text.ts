@@ -14,7 +14,9 @@ import type { JobFilterPort, JobItemPort, JobLogLinePort, JobStatusPort } from '
  * stored message stays in the job's record and its log.
  */
 export function jobErrorText(locale: UiLocale, error: NonNullable<JobItemPort['error']>): string {
-    return isApiErrorCode(error.code) ? translateApiError(locale, error.code, error.params) : translateApiError(locale, 'apiError.internal');
+    return isApiErrorCode(error.code)
+        ? translateApiError(locale, error.code, error.params)
+        : translateApiError(locale, 'apiError.internal');
 }
 
 const TYPES: Readonly<Record<string, AdminContentKey>> = {

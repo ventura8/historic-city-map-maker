@@ -51,6 +51,24 @@ export function boxView(pane: Size, box: { readonly x: number; readonly y: numbe
     return centredView(pane, { centre, scale: across }, previewScale, fit);
 }
 
+/** The full-resolution scan pixel at the pane's centre; the scan's middle when the pane was never shown. */
+export function paneCentre(view: ScanView, pane: Size, scan: Size, previewScale: number): Point {
+    if (pane.width === 0 || pane.height === 0) {
+        return { x: scan.width / 2, y: scan.height / 2 };
+    }
+    return paneToScan(view, { x: pane.width / 2, y: pane.height / 2 }, previewScale);
+}
+
+/** The first view: on `opening` (where the city likely lies) once the pane is shown, else the whole scan (`fit`). */
+export function openedView(
+    pane: Size,
+    opening: ({ readonly x: number; readonly y: number } & Size) | null,
+    previewScale: number,
+    fit: ScanView,
+): ScanView {
+    return opening === null || pane.width === 0 ? fit : boxView(pane, opening, previewScale, fit);
+}
+
 /** The view zoomed by `factor` about the pane point `at`, within fit … fit × `MAX_ZOOM`. */
 export function zoomView(view: ScanView, factor: number, at: Point, fit: ScanView): ScanView {
     const scale = clamp(view.scale * factor, fit.scale, fit.scale * MAX_ZOOM);

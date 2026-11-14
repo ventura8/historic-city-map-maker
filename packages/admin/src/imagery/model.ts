@@ -206,15 +206,26 @@ function stoppedForChoice(version: LayerVersionDoc): boolean {
     return version.state === 'approved' && guard !== undefined && guard.verdict !== 'within' && guard.choice !== 'defer';
 }
 
+/** A frame's label (an Argon frame imported as Corona named Argon) and whether it is too coarse for streets (admin sweep 2026-11-14). */
+function frameOf(version: LayerVersionDoc, entityIds: readonly string[]): Pick<VersionItem, 'label' | 'tooCoarse'> {
+    if (version.origin === 'join') {
+        return { label: version.label, tooCoarse: false };
+    }
+    return { label: frameLabel(version.label, entityIds[0]), tooCoarse: tooCoarseForStreets(entityIds, version.sensor) };
+}
+
+function waitsForAdmin(version: LayerVersionDoc): boolean {
+    return WAITING_FOR_ADMIN.includes(version.state) || stoppedForChoice(version);
+}
+
 export function versionItemOf(doc: Stored<LayerVersionDoc>): VersionItem {
     const version = doc.data;
     const entityIds = entityIdsOf(version.source);
-    const tooCoarse = version.origin !== 'join' && tooCoarseForStreets(entityIds, version.sensor);
-    const label = frameLabel(version.label, version.origin === 'join' ? undefined : entityIds[0]);
+    const { label, tooCoarse } = frameOf(version, entityIds);
     return {
         ...{ id: doc.id, layerId: version.layerId, label, year: version.year, origin: version.origin, state: version.state },
         updatedAt: isoOf(version.updatedAt),
-        needsYou: !tooCoarse && (WAITING_FOR_ADMIN.includes(version.state) || stoppedForChoice(version)),
+        needsYou: !tooCoarse && waitsForAdmin(version),
         checkpointRmseM: orNull(version.georef?.checkpointRmseM),
         partOf: orNull(version.partOf),
         entityIds,

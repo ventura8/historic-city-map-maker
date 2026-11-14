@@ -30,7 +30,15 @@ function row(id: string, overrides: Partial<VersionItem> = {}): VersionItem {
             state: 'awaiting_approval',
             updatedAt: '2026-10-20T09:00:00Z',
         },
-        ...{ needsYou: true, checkpointRmseM: null, partOf: null, entityIds: [], basedOn: null, thumbPath: `rasters/${id}/thumb.webp`, tooCoarse: false },
+        ...{
+            needsYou: true,
+            checkpointRmseM: null,
+            partOf: null,
+            entityIds: [],
+            basedOn: null,
+            thumbPath: `rasters/${id}/thumb.webp`,
+            tooCoarse: false,
+        },
         ...overrides,
     };
 }
