@@ -419,6 +419,7 @@ const EXPORTS = {
         'JOBS_PER_DAY',
         'JOB_MAX_ATTEMPTS',
         'LOST_RUN_REFUNDS',
+        'LOST_HAND_OVER_MS',
         'LEASE_SECONDS',
         'NOT_RETRYABLE_CODES',
         'PIPELINE_OUTDATED',
