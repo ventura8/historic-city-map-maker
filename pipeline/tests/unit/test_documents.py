@@ -33,6 +33,20 @@ def test_happy_path_a_footprint_without_corners_gives_its_extreme_vertices() -> 
     assert scene.corner_quad() == ((44.6, 25.9), (44.62, 26.3), (44.3, 26.32), (44.28, 25.92))
 
 
+def test_bad_path_a_diagonal_strip_footprint_gives_four_different_corners() -> None:
+    """DS1111-1020AF035 (live 2026-11-14): one vertex is both farthest north-east and farthest south-east."""
+    footprint = [
+        {"lat": 45.751, "lng": 23.762},
+        {"lat": 43.748, "lng": 26.645},
+        {"lat": 43.882, "lng": 26.923},
+        {"lat": 45.963, "lng": 23.947},
+    ]
+    quad = Scene.of("DS1111-1020AF035", {"acquisitionDate": "1970-07-24", "footprint": footprint}).corner_quad()
+
+    assert quad == ((45.963, 23.947), (43.882, 26.923), (43.748, 26.645), (45.751, 23.762))
+    assert len(set(quad)) == len(quad)
+
+
 def test_bad_path_scenes_need_a_footprint_and_georefs_a_list_of_pairs() -> None:
     with pytest.raises(DocumentError, match="at least three places"):
         Scene.of("E1", {"acquisitionDate": "1966-07-12", "footprint": [{"lat": 1, "lng": 2}]})

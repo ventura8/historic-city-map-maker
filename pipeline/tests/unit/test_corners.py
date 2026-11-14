@@ -384,6 +384,10 @@ def test_bad_path_collinear_or_coincident_corners_are_skipped_without_crashing()
         homography(source, target)
     assert assignments(WIDTH, HEIGHT, collinear) == []
     assert assignments(WIDTH, HEIGHT, repeated) == []
+    # DS1111-1020AF035's corner given twice solved in floating point to a map of 1e15 that folded the strip to a point.
+    twice = numpy.array([to_mercator(lng, lat) for lat, lng in ((45.963, 23.947), (43.882, 26.923), (43.882, 26.923), (45.751, 23.762))])
+    with pytest.raises(DegenerateCornersError):
+        homography(frame_corners(118_290, 11_232), twice)
     assert first_guesses(strip(), collinear, window(), None) == []
     with pytest.raises(CityNotFoundError):
         reaching(strip(), first_guesses(strip(), collinear, window(), None), Grid.over(window(), 60.0), 0.0)

@@ -26,7 +26,7 @@ window under any assignment: a panoramic camera's dark gap and the next exposure
 import math
 from collections.abc import Callable, Sequence
 from dataclasses import dataclass, replace
-from itertools import product
+from itertools import combinations, product
 from typing import Final
 
 import cv2
@@ -75,6 +75,8 @@ class DegenerateCornersError(ValueError):
 
 def homography(source: FloatArray, target: FloatArray) -> FloatArray:
     """The 3x3 projective map taking the four `source` points onto the four `target` points."""
+    if _flat(source) or _flat(target):
+        raise DegenerateCornersError
     rows, values = [], []
     for (x, y), (u, v) in zip(source.tolist(), target.tolist(), strict=True):
         rows += [[x, y, 1.0, 0.0, 0.0, 0.0, -u * x, -u * y], [0.0, 0.0, 0.0, x, y, 1.0, -v * x, -v * y]]
@@ -86,6 +88,23 @@ def homography(source: FloatArray, target: FloatArray) -> FloatArray:
     except numpy.linalg.LinAlgError as error:
         raise DegenerateCornersError from error
     return matrix
+
+
+# Three of four corners closer to one line than this share of the quad's size squared: no projective map, only a rounding's.
+_FLAT_SHARE: Final = 1e-9
+
+
+def _flat(points: FloatArray) -> bool:
+    """Whether three of the four points lie on one line (two the same included). A corner given twice can still solve in floating point,
+    to a map of 1e15 that folds the strip to a point (live 2026-11-14, DS1111-1020AF035)."""
+    size = float(numpy.ptp(points, axis=0).max()) ** 2
+    triples = combinations(range(len(points)), 3)
+    return size == 0 or any(abs(_turn(points[a], points[b], points[c])) <= _FLAT_SHARE * size for a, b, c in triples)
+
+
+def _turn(a: FloatArray, b: FloatArray, c: FloatArray) -> float:
+    """Twice the signed area of the triangle a, b, c."""
+    return float((b[0] - a[0]) * (c[1] - a[1]) - (b[1] - a[1]) * (c[0] - a[0]))
 
 
 def apply(matrix: FloatArray, x: FloatArray, y: FloatArray) -> tuple[FloatArray, FloatArray]:

@@ -97,6 +97,8 @@ def city_columns(each: Assignment, size: tuple[int, int], window: MercatorBox, m
     """The film's columns that hold `window` with `margin` (EPSG:3857 metres) before and after along the strip; None: none do."""
     start, along = _axis(each, *size)
     length = float(numpy.hypot(*along))
+    if length == 0:
+        return None
     places = numpy.array(
         [[window.left, window.bottom], [window.right, window.bottom], [window.right, window.top], [window.left, window.top]]
     )

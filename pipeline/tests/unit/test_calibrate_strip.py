@@ -204,6 +204,14 @@ def test_happy_path_a_window_holds_the_city_and_its_margin_along_the_strip() -> 
     assert (span[1] - span[0]) / FILM[0] == pytest.approx(city + 2 * margin, abs=0.01)
 
 
+def test_bad_path_an_orientation_that_folds_the_strip_to_a_point_holds_no_columns() -> None:
+    """Scenarios: S-P01-BAD-CITY-NOT-FOUND"""
+    strip = strip_of()
+    folded = Assignment(0, False, numpy.array([[0.0, 0.0, 1.0], [0.0, 0.0, 1.0], [0.0, 0.0, 1.0]]))
+
+    assert city_columns(folded, FILM, strip.grid.box(), STRIP_MARGIN_GROUND_M / strip.ground) is None
+
+
 def test_bad_path_a_footprint_off_the_city_slides_windows_along_the_whole_strip() -> None:
     """Scenarios: S-P06-BAD-STRIP-NO-PLACE"""
     strip = strip_of()

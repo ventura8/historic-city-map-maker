@@ -14,7 +14,7 @@ import numpy
 
 from hcm_pipeline.calibrate.terrain import Heights
 from hcm_pipeline.contract import GCP_ORIGINS, LAYER_VERSION_STATES, MAX_JOB_LOGS
-from hcm_pipeline.geo import Bounds, near_lng, to_mercator_arrays
+from hcm_pipeline.geo import Bounds, FloatArray, near_lng, to_mercator_arrays
 from hcm_pipeline.georef.heights import heights_of_record, heights_record
 from hcm_pipeline.georef.lattice import LATTICE_MODELS, Lattice, LatticeNode
 from hcm_pipeline.georef.rpc import Rpc
@@ -420,8 +420,24 @@ def _extremes(footprint: Sequence[LatLng]) -> tuple[LatLng, LatLng, LatLng, LatL
     x, y = to_mercator_arrays(places[:, 1], places[:, 0])
     u = (x - x.min()) / max(float(numpy.ptp(x)), 1e-9)
     v = (y - y.min()) / max(float(numpy.ptp(y)), 1e-9)
-    nw, ne, se, sw = (ring[int(index)] for index in (numpy.argmin(u - v), numpy.argmax(u + v), numpy.argmax(u - v), numpy.argmin(u + v)))
+    nw, ne, se, sw = (ring[index] for index in _distinct_picks((v - u, u + v, u - v, -(u + v))))
     return nw, ne, se, sw
+
+
+def _distinct_picks(scores: Sequence[FloatArray]) -> list[int]:
+    """The best vertex of each score in turn, never one picked before while another is left: a strip running north-west to
+    south-east has one vertex both farthest north-east and farthest south-east, and a quad with a corner twice gives no
+    projective map (live 2026-11-14, DS1111-1020AF035: a zero-length strip and a raw ZeroDivisionError in `locate`)."""
+    picked: list[int] = []
+    for score in scores:
+        picked.append(_best_left(score, picked))
+    return picked
+
+
+def _best_left(score: FloatArray, picked: Sequence[int]) -> int:
+    """The highest-scoring vertex not in `picked`; the highest of all when every one is."""
+    order = [int(index) for index in numpy.argsort(-score, kind="stable")]
+    return next((index for index in order if index not in picked), order[0])
 
 
 @dataclass(frozen=True)
