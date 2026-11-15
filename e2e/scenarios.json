@@ -1680,6 +1680,28 @@
             "notes": "The owner, 2026-11-15. packages/engine/src/core/map-specs.ts (photoFeatures). Tests: e2e/specs/viewer/timeline.spec.ts; packages/engine/test/core/map-specs.test.ts (badPath_photosFarFromTheYearAreStillShownWithTheirYear)."
         },
         {
+            "id": "S-V04-HAPPY-IPHONE-PHOTOS-SWITCH",
+            "behaviour": "V04",
+            "area": "viewer",
+            "path": "happy",
+            "title": "On an iPhone the Photos switch shows or hides every photo and its popover keeps only the photos near the year",
+            "asserts": "WebKit as an iPhone 15: the Layers panel's Photos switch, under Map labels, is on; a tap turns it off and on; its chevron is a 44 px target with aria-haspopup and opens the popover (aria-expanded true); Only near the selected year writes near=10 and shows the calendar badge; ±25 writes near=25; Esc closes it; unit: the switch fires hcm-overlay-visibility for photos, a right-click, a long press and ArrowDown open it, the store redraws only the photos near the year and the pill gets its dot",
+            "tier": "e2e-viewer",
+            "status": "exists",
+            "notes": "The owner, 2026-11-15, design B. packages/ui/src/viewer/hcm-photos-control.ts, hcm-layer-panel.ts, timeline-extra-styles.ts (near-year); packages/engine/src/core/store.ts (setPhotosNear), map-specs.ts (photosScope); packages/shared/src/url/hash.ts (near=). Tests: e2e/specs/viewer/iphone-photos.spec.ts (project fn-webkit-iphone15); packages/ui/test/viewer/hcm-photos-control.test.ts; packages/engine/test/core/store-photos-near.test.ts."
+        },
+        {
+            "id": "S-V04-BAD-IPHONE-PHOTOS-ALL",
+            "behaviour": "V04",
+            "area": "viewer",
+            "path": "bad",
+            "title": "A window not offered in the link shows every photo, and All photos takes near= out of the address",
+            "asserts": "WebKit as an iPhone 15, a link with near=7: no calendar badge, All photos checked; ±5 writes near=5; All photos removes near=; unit: near=7 and near=abc decode to nothing, setPhotosNear(7) changes nothing",
+            "tier": "e2e-viewer",
+            "status": "exists",
+            "notes": "The owner, 2026-11-15, design B. Tests: e2e/specs/viewer/iphone-photos.spec.ts; packages/shared/test/url/hash.test.ts; packages/engine/test/core/store-photos-near.test.ts."
+        },
+        {
             "id": "S-V04-HAPPY-CHIP-ON-TIMELINE",
             "behaviour": "V04",
             "area": "viewer",

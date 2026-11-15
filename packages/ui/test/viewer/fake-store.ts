@@ -66,6 +66,7 @@ export function idleState(): ViewerState {
             defaults: { streets: true, pois: true },
             available: null,
         },
+        photosNear: null,
         myLocation: null,
     };
 }
@@ -290,6 +291,11 @@ export class FakeStore implements ViewerStorePort {
         if (compare !== null) {
             this.set({ compare: { ...compare, position } });
         }
+    }
+
+    setPhotosNear(window: number | null): void {
+        this.#record('setPhotosNear', window);
+        this.set({ photosNear: window });
     }
 
     setMapLabels(labels: Partial<ViewerState['mapLabels']['shown']>): void {

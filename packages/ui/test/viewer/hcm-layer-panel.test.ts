@@ -455,3 +455,24 @@ describe('<hcm-layer-panel> M27 pinned Disappeared streets', () => {
         expect(pinnedIds(manifest).size).toBe(0);
     });
 });
+
+describe('<hcm-layer-panel>: the Photos switch (design B)', () => {
+    it('happyPath_thePhotosSwitchSitsInTheTopStripWithTheScope', async () => {
+        defineKitDoubles();
+        defineHcmLayerPanel();
+        const element = await panel({
+            photosNear: 25,
+            overlays: withOverlayVisibility(overlaysFromManifest(testManifest()), 'photos', false),
+        });
+        const photos = shadowQuery(element, '.pinned hcm-photos-control') as HTMLElement & { visible: boolean; near: number | null };
+
+        expect(photos.visible).toBe(false);
+        expect(photos.near).toBe(25);
+    });
+
+    it('badPath_aCityWithoutPhotosHasNoPhotosSwitch', async () => {
+        const element = await panel({ manifest: { ...testManifest(), photos: [] } });
+
+        expect(element.shadowRoot?.querySelector('hcm-photos-control')).toBeNull();
+    });
+});

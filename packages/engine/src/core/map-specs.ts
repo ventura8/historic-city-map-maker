@@ -106,6 +106,11 @@ export type PhotosScope = { readonly kind: 'all' } | { readonly kind: 'near-year
 /** The default scope: every photo. */
 export const ALL_PHOTOS: PhotosScope = { kind: 'all' };
 
+/** The scope of `photosNear` (the viewer's state): every photo, or those within that many years. */
+export function photosScope(photosNear: number | null): PhotosScope {
+    return photosNear === null ? ALL_PHOTOS : { kind: 'near-year', window: photosNear };
+}
+
 /** The photos `scope` shows at `year`, as markers plus a cone for each photo with a bearing. */
 export function photoFeatures(
     photos: readonly Photo[],

@@ -8,6 +8,9 @@ import type { Photo } from '../schemas/manifest.js';
 /** Photos within this many years of the selected stop are "near this year". */
 export const PHOTO_YEAR_WINDOW = 10;
 
+/** The windows a visitor can pick for "Only near the selected year" (the owner, 2026-11-15: design B), in years. */
+export const PHOTOS_NEAR_WINDOWS = [5, 10, 25] as const;
+
 /**
  * True when the photo's `[year, yearEnd]` span meets `[year - window, year + window]`; an undated photo is near no
  * year.

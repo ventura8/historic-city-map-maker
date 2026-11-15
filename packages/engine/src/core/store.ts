@@ -6,6 +6,7 @@
  */
 import {
     clamp,
+    PHOTOS_NEAR_WINDOWS,
     encodeHash,
     findOverlay,
     withOverlayOpacity,
@@ -131,6 +132,8 @@ export interface ViewerActions {
     closeCompare(): void;
     /** The basemap's own labels, on every map, live: a kind this basemap does not have, or no map yet, is ignored (V31). */
     setMapLabels(labels: Partial<MapLabels>): void;
+    /** Design B: only the photos within `window` years of the year (one of `PHOTOS_NEAR_WINDOWS`), or every photo (null). */
+    setPhotosNear(window: number | null): void;
     /** Turns the single-key shortcuts on or off (V36), and remembers it for the city. */
     setShortcuts(enabled: boolean): void;
     /** "Show my location" (V10): the visitor's position for the maps' blue dot, kept in memory only (never in the hash). */
@@ -460,8 +463,14 @@ class Store implements ViewerStore, BootHost, CompareDriverHost {
     setComparePosition(position: number): void {
         const compare = this.#state.compare;
         const settled = clamp(position, 0, 1);
-        if (compare !== null && settled !== compare.position) {
-            this.set({ ...this.#state, compare: { ...compare, position: settled } });
+        const moved = compare !== null && settled !== compare.position;
+        this.#setHashed(moved ? { ...this.#state, compare: { ...compare, position: settled } } : this.#state);
+    }
+
+    /** `next`, and its hash written once the view settles; nothing when it is the current state. */
+    #setHashed(next: ViewerState): void {
+        if (next !== this.#state) {
+            this.set(next);
             this.hash.schedule();
         }
     }
@@ -472,18 +481,17 @@ class Store implements ViewerStore, BootHost, CompareDriverHost {
     }
 
     closeCompare(): void {
-        if (this.#state.compare !== null) {
-            this.set({ ...this.#state, compare: null });
-            this.hash.schedule();
-        }
+        this.#setHashed(this.#state.compare === null ? this.#state : { ...this.#state, compare: null });
     }
 
     setMapLabels(labels: Partial<MapLabels>): void {
         const mapLabels = withRequestedLabels(this.#state.mapLabels, labels);
-        if (mapLabels !== this.#state.mapLabels) {
-            this.set({ ...this.#state, mapLabels });
-            this.hash.schedule();
-        }
+        this.#setHashed(mapLabels === this.#state.mapLabels ? this.#state : { ...this.#state, mapLabels });
+    }
+
+    setPhotosNear(window: number | null): void {
+        const offered = window === null || PHOTOS_NEAR_WINDOWS.some((each) => each === window);
+        this.#setHashed(offered && window !== this.#state.photosNear ? { ...this.#state, photosNear: window } : this.#state);
     }
 
     setShortcuts(enabled: boolean): void {

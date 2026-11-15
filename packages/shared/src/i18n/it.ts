@@ -88,6 +88,12 @@ export const it: Messages = {
     'layers.opacity': 'Opacità: {name}',
     'layers.opacityValue': '{percent}%',
     'layers.photos': 'Foto',
+    'photosScope.options': 'Opzioni delle foto',
+    'photosScope.all': 'Tutte le foto',
+    'photosScope.near': 'Solo vicino all’anno scelto',
+    'photosScope.window': 'Quanti anni intorno',
+    'photosScope.years': '±{years} anni',
+    'photosScope.nearOn': 'Solo le foto entro {years} anni dall’anno scelto',
     'layers.attribution': 'Fonte: {attribution}',
     'layers.attribution.usgs': 'USGS EROS, immagini declassificate (pubblico dominio)',
     'layers.attribution.landsat':

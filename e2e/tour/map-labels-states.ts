@@ -1,4 +1,5 @@
 import type { Locale } from '@hcm/shared';
+import { translate } from '@hcm/shared';
 import { translateMapLabels } from '@hcm/shared/map-labels';
 import { expect, type Page } from '@playwright/test';
 
@@ -26,6 +27,18 @@ export const MAP_LABEL_STATES = {
             await streets.focus();
             await streets.press('Space');
             await expect(streets).toHaveAttribute('aria-checked', 'false');
+        },
+    },
+    'layers-photos-scope': {
+        title: "The Photos switch's popover under Map labels (design B), Only near the selected year chosen from the keyboard",
+        enter: async ({ page, lang }) => {
+            const options = page.getByRole('button', { name: translate(lang, 'photosScope.options'), exact: true });
+            await options.click();
+            const near = page.getByRole('radio', { name: translate(lang, 'photosScope.near'), exact: true });
+            await near.check();
+            await expect(
+                page.getByRole('img', { name: translate(lang, 'photosScope.nearOn', { years: '10' }), exact: true }),
+            ).toBeVisible();
         },
     },
     'layers-no-map-labels': {

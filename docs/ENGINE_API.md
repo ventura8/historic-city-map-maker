@@ -211,7 +211,7 @@ interface HistoricCityMapController {
 ## URL hash v1
 
 ```text
-#<zoom>/<lat>/<lng>[/<bearing>][&layers=<id>,<id>][&opacity=<0..1>][&op=<id>:<0..100>,...][&cmp=<id>][&sw=<0..100>][&labels=streets,pois][&photo=<id>][&pv=original|improved|colorized][&story=<id>][&lang=<code>]
+#<zoom>/<lat>/<lng>[/<bearing>][&layers=<id>,<id>][&opacity=<0..1>][&op=<id>:<0..100>,...][&cmp=<id>][&sw=<0..100>][&labels=streets,pois][&near=5|10|25][&photo=<id>][&pv=original|improved|colorized][&story=<id>][&lang=<code>]
 ```
 
 | Part | Rule when read |
@@ -223,6 +223,7 @@ interface HistoricCityMapController {
 | `cmp` | M4: swipe compare is open with this historical layer on the compared side; empty (`cmp=`) means today, no historical layer. An id that is not a layer of the manifest opens nothing and the viewer rewrites the hash without `cmp` and `sw` (scenario V06). |
 | `sw` | M4: the divider in percent of the map's width, clamped to `[0, 100]`; 50 when absent, ignored without `cmp`; on a compact window 0 shows the compared side and anything else the main one. Either of `cmp` and `sw` may come first. |
 | `labels` | The basemap's labels that are drawn: `streets`, `pois`, comma-separated, in any order; `labels=` (empty) means none. Absent is the city's default, and the encoder omits a default, so a link from before this parameter opens as it did. An unknown word is ignored (`labels=streets,transit` is `streets`), and a value with nothing but unknown words is ignored as a whole. A kind the city's basemap does not have is dropped and the next write omits it ([Map labels](#map-labels)). |
+| `near` | Only the photos within that many years of the selected year are drawn (design B, the owner 2026-11-15): `5`, `10` or `25`, chosen in the Layers panel's Photos popover. Absent shows every photo whatever the year (the default); any other value is ignored. Each photo's year stays in its details. |
 | `photo` | The open photo; an id that is not in the manifest shows a toast (scenario V09). |
 | `pv` | The version of the open photo the visitor picked ([Photo versions](#photo-versions), V61): `original`, `improved` or `colorized`; any other word reads as `original`. Written only with `photo=`, and only once the visitor picked one; absent, each photo shows its default. A version the photo does not have shows its default. |
 | `story` | M17: the open story, in its sheet, with the timeline at the stop nearest its first year; an id that is not in the manifest shows a toast (`error.unknownStory`, scenario V50) and opens nothing. The viewer writes it while a story is open, so Share copies a story's own link. With `layers=` in the same hash, the link's layers (and their year) win over the story's year. |

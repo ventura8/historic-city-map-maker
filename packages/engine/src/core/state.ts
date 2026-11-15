@@ -109,6 +109,8 @@ export interface ViewerState {
     readonly compare: CompareView | null;
     /** The basemap's own labels, as the visitor chose them (`map-labels.ts`); the compared side draws the same. */
     readonly mapLabels: MapLabelsState;
+    /** Design B (the owner, 2026-11-15): only the photos within this many years of the year are drawn; null: every photo. */
+    readonly photosNear: number | null;
     /** The single-key shortcuts are on (the visitor's `shortcuts` preference, docs/research/viewer-input.md §2). */
     readonly shortcuts: boolean;
     /** `prefers-color-scheme: dark`, which the basemap's light follows under the `system` theme (`map-light.ts`). */
@@ -147,6 +149,7 @@ export function initialState(locale: ViewerLocale, theme: ThemeMode, consent: Co
         toast: null,
         compare: null,
         mapLabels: NO_MAP_LABELS,
+        photosNear: null,
         shortcuts: true,
         systemDark: false,
         myLocation: null,

@@ -132,6 +132,20 @@ export const timelineExtraStyles = css`
         min-inline-size: 0;
     }
 
+    /* Design B: only the photos near the year show; a dot on the selected year's pill says so (the owner, 2026-11-15). */
+    :host([near-year]) .thumb::after {
+        position: absolute;
+        inset-block-start: -4px;
+        inset-inline-end: -4px;
+        box-sizing: border-box;
+        inline-size: 12px;
+        block-size: 12px;
+        border: 2px solid var(--md-sys-color-surface, Canvas);
+        border-radius: 50%;
+        background: var(--md-sys-color-primary, Highlight);
+        content: '';
+    }
+
     /* Forced colours (Windows contrast themes): a button's own pair, its edge in its text colour. */
     @media (forced-colors: active) {
         .edge,

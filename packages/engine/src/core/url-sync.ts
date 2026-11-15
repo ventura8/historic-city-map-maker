@@ -112,7 +112,8 @@ export function applyDecodedHash(state: ViewerState, hash: DecodedHash): Applied
     const withView = hash.view === undefined ? state : { ...state, view: hash.view, hashView: undefined };
     const withLayers = withHashMapLabels(withHashCompare(withHashLayers(withView, hash.layers), hash.compare), hash.labels);
     const overlays = withHashOpacity(withLayers.overlays, hash);
-    const withLang = hash.lang === undefined ? withLayers : { ...withLayers, locale: hash.lang };
+    const withNear = hash.photosNear === undefined ? withLayers : { ...withLayers, photosNear: hash.photosNear };
+    const withLang = hash.lang === undefined ? withNear : { ...withNear, locale: hash.lang };
     return withHashStory(withHashPhoto(overlays === withLang.overlays ? withLang : { ...withLang, overlays }, hash), hash);
 }
 
@@ -138,6 +139,7 @@ export function hashStateOf(state: ViewerState, defaultLocale: ViewerLocale): Ha
         ...(overlayOpacity === undefined ? {} : { overlayOpacity }),
         ...(state.compare === null ? {} : { compare: { layer: state.compare.layerId, position: state.compare.position } }),
         ...hashMapLabels(state.mapLabels),
+        ...(state.photosNear === null ? {} : { photosNear: state.photosNear }),
         ...photoOf(state),
         ...storyOf(state),
         ...(state.locale === defaultLocale ? {} : { lang: state.locale }),

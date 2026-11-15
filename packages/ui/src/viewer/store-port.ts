@@ -106,6 +106,8 @@ export interface ViewerState {
         readonly defaults: MapLabels;
         readonly available: readonly MapLabelKind[] | null;
     };
+    /** Design B (the owner, 2026-11-15): only the photos within this many years of the year are drawn; null: every photo. */
+    readonly photosNear: number | null;
     readonly myLocation: MyLocationState;
 }
 
@@ -159,6 +161,8 @@ export interface ViewerStorePort {
     closeCompare(): void;
     /** The basemap's own labels, live on every map; a kind the basemap does not have is ignored. */
     setMapLabels(labels: Partial<MapLabels>): void;
+    /** Only the photos within `window` years of the year (5, 10 or 25), or every photo (null); kept in the hash. */
+    setPhotosNear(window: number | null): void;
     /** Turns the single-key shortcuts on or off, and remembers it for the city. */
     setShortcuts(enabled: boolean): void;
     /** The visitor's position for the maps' blue dot (`my-location.ts` keeps it up to date). */

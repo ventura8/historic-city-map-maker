@@ -90,6 +90,12 @@ export const de: Messages = {
     'layers.opacity': 'Deckkraft: {name}',
     'layers.opacityValue': '{percent} %',
     'layers.photos': 'Fotos',
+    'photosScope.options': 'Fotooptionen',
+    'photosScope.all': 'Alle Fotos',
+    'photosScope.near': 'Nur rund um das gewählte Jahr',
+    'photosScope.window': 'Wie viele Jahre davor und danach',
+    'photosScope.years': '±{years} Jahre',
+    'photosScope.nearOn': 'Nur Fotos bis {years} Jahre um das gewählte Jahr',
     'layers.attribution': 'Quelle: {attribution}',
     'layers.attribution.usgs': 'USGS EROS, freigegebenes Bildmaterial (gemeinfrei)',
     'layers.attribution.landsat':

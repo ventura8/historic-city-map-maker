@@ -217,6 +217,18 @@ describe('compare in the hash', () => {
     });
 });
 
+describe('the photos near the year in the hash (design B)', () => {
+    it('happyPath_writesAndReadsAnOfferedWindow', () => {
+        expect(encodeHash({ photosNear: 10 })).toBe('#near=10');
+        expect(decodeHash('#14/44.4/26.1&near=25').photosNear).toBe(25);
+    });
+
+    it('badPath_aWindowNotOfferedIsIgnored', () => {
+        expect(decodeHash('#near=7').photosNear).toBeUndefined();
+        expect(decodeHash('#near=abc').photosNear).toBeUndefined();
+    });
+});
+
 describe('map labels in the hash (V31)', () => {
     it('happyPath_namesTheDrawnKindsInTheirOrderAndNoneIsEmpty', () => {
         expect(encodeHash({ labels: { streets: true, pois: false } })).toBe('#labels=streets');

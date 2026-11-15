@@ -377,7 +377,7 @@ export {
 export type { Overlay, OverlayKind, OverlayLabel } from './overlays/model.js';
 export { MAP_LAYER_TYPES, OPACITY_PROPERTIES, OVERLAY_LAYER_TYPES, overlayOpacityPaint, rasterAdjustmentPaint } from './overlays/paint.js';
 export type { MapLayerType, OpacityBase, OpacityProperty, PaintUpdate, RasterAdjustmentPaint } from './overlays/paint.js';
-export { isPhotoNearYear, PHOTO_YEAR_WINDOW } from './overlays/photos.js';
+export { isPhotoNearYear, PHOTO_YEAR_WINDOW, PHOTOS_NEAR_WINDOWS } from './overlays/photos.js';
 export { poiIcon, poiInYear } from './overlays/poi.js';
 export { missingStarterCategories, STARTER_POI_CATEGORIES, starterCategoryDocs } from './overlays/starter-categories.js';
 export type { StarterCategory, StarterCategoryDoc } from './overlays/starter-categories.js';

@@ -193,6 +193,17 @@ describe('<hcm-map-viewer>: overlays and timeline', () => {
         expect(events).toEqual([{ type: 'hcm-map-labels-change', detail: { streets: true, pois: false } }]);
     });
 
+    it('happyPath_thePhotosScopeReachesTheStoreAndThePillCarriesItsDot', async () => {
+        const mounted = await mountViewer(readyState(undefined, { year: 1980 }), EXTRA_LARGE);
+        const panel = part(mounted, 'hcm-layer-panel');
+
+        panel.dispatchEvent(new CustomEvent('hcm-photos-near', { bubbles: true, composed: true, detail: { near: 10 } }));
+        await mounted.element.updateComplete;
+
+        expect(mounted.store.callsOf('setPhotosNear')).toEqual([[10]]);
+        expect(part(mounted, 'hcm-timeline').hasAttribute('near-year')).toBe(true);
+    });
+
     it('badPath_aSliderReleaseWithoutAChangeAnnouncesNothing', async () => {
         const mounted = await mountViewer(readyState(), EXTRA_LARGE);
         const events = publicEvents(mounted.element);

@@ -13,7 +13,7 @@ import type { MyLocationFix, ViewerMapPort } from '@hcm/ui/map';
 
 import { drawMapLabels } from './map-labels.js';
 import { drawMapLight, mapLight } from './map-light.js';
-import { photoFeatures, poiSpecs, rasterSpec } from './map-specs.js';
+import { photoFeatures, photosScope, poiSpecs, rasterSpec } from './map-specs.js';
 import { stackOrder } from './stack.js';
 import { displayedOverlays, type MyLocationState, type ViewerState } from './state.js';
 
@@ -113,7 +113,7 @@ export class MapSync {
         if (next.locale !== previous.locale) {
             this.#map.setLocale(next.locale);
             this.#features(manifest, next);
-        } else if (next.year !== previous.year) {
+        } else if (next.year !== previous.year || next.photosNear !== previous.photosNear) {
             this.#features(manifest, next);
         }
     }
@@ -138,7 +138,7 @@ export class MapSync {
 
     /** The photo markers and the POIs of the current stop, titles in the current language. */
     #features(manifest: Manifest, state: ViewerState): void {
-        this.#map.setPhotosData(photoFeatures(manifest.photos, state.locale, state.year));
+        this.#map.setPhotosData(photoFeatures(manifest.photos, state.locale, state.year, photosScope(state.photosNear)));
         for (const spec of poiSpecs(manifest, state.overlays, state.locale, state.year)) {
             this.#map.addVectorOverlay(spec, 'top');
         }

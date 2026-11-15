@@ -2,7 +2,7 @@
  * URL-hash codec v1 of the public viewer (docs/ENGINE_API.md → URL hash).
  *
  *     #<zoom>/<lat>/<lng>[/<bearing>][&layers=<id>,<id>][&opacity=<0..1>][&op=<id>:<0..100>,...][&cmp=<id>][&sw=<0..100>]
- *         [&labels=streets,pois][&photo=<id>][&pv=original|improved|colorized][&story=<id>][&lang=<one of VIEWER_LOCALES>]
+ *         [&labels=streets,pois][&near=5|10|25][&photo=<id>][&pv=original|improved|colorized][&story=<id>][&lang=<one of VIEWER_LOCALES>]
  *
  * Decoding is defensive: the hash is visitor input. Numbers must be plain decimals, every range is
  * clamped, ids must match `ID_PATTERN` (anything else is dropped, never put into a selector), unknown
@@ -11,7 +11,8 @@
  * overlay ids, the decoder also drops the entries of unknown overlays. `cmp=` opens swipe compare (M4, scenario V06) with
  * the layer the second side shows (empty: today, no historical layer) and `sw=` places its divider in percent of the
  * map's width; `sw=` without `cmp=` is ignored, and either may come first. `labels=` names the basemap's labels that are
- * drawn (empty: none); `pv=` is the version of the open photo the visitor picked (only with `photo=`; any other word reads
+ * drawn (empty: none); `near=` shows only the photos within that many years of the selected year (5, 10 or 25; any other
+ * value is ignored); `pv=` is the version of the open photo the visitor picked (only with `photo=`; any other word reads
  * as `original`); `story=` opens a story (M17, `docs/research/M17-stories.md` §5); an unknown word is ignored, and a value with nothing but unknown words is ignored as a whole. The legacy
  * hash of the 2015–2022 site, `#zoom/lat/lng/rotation/!a3!p2`, decodes to its map view; its layer
  * codes (`!…`) are ignored and `legacy` tells the viewer to rewrite the hash in the v1 form.
@@ -20,6 +21,7 @@ import { clampToBBox, type BBox } from '../geo/bbox.js';
 import { clamp, MAX_MERCATOR_LAT, roundTo, wrapBearing, type LngLat } from '../geo/math.js';
 import { VIEWER_LOCALES, type ViewerLocale } from '../i18n/index.js';
 import { MAP_LABEL_KINDS, type MapLabels } from '../overlays/map-labels.js';
+import { PHOTOS_NEAR_WINDOWS } from '../overlays/photos.js';
 import { PHOTO_VIEWS, type PhotoView } from '../schemas/manifest.js';
 import { isId } from '../schemas/primitives.js';
 
@@ -62,6 +64,8 @@ export interface HashState {
     readonly compare?: CompareState;
     /** The basemap's labels that are drawn; absent means the city's default. */
     readonly labels?: MapLabels;
+    /** Only the photos within this many years of the selected year are drawn; absent: every photo. */
+    readonly photosNear?: number;
     readonly photo?: string;
     /** The version of the open photo the visitor picked; absent: the photo's default (improved, else the original). */
     readonly photoVersion?: PhotoView;
@@ -138,6 +142,7 @@ const ENCODERS: readonly Encoder[] = [
     (state) => (state.overlayOpacity === undefined ? null : encodeOverlays(state.overlayOpacity)),
     (state) => (state.compare === undefined ? null : encodeCompare(state.compare)),
     (state) => (state.labels === undefined ? null : encodeLabels(state.labels)),
+    (state) => (state.photosNear === undefined ? null : `near=${String(state.photosNear)}`),
     (state) => (state.photo !== undefined && isId(state.photo) ? `photo=${state.photo}` : null),
     (state) => (state.photo === undefined || state.photoVersion === undefined ? null : `pv=${state.photoVersion}`),
     (state) => (state.story !== undefined && isId(state.story) ? `story=${state.story}` : null),
@@ -244,6 +249,12 @@ function decodeLabels(value: string): Partial<HashState> {
     return { labels: { streets: words.includes('streets'), pois: words.includes('pois') } };
 }
 
+/** `near=`: one of `PHOTOS_NEAR_WINDOWS`; anything else is ignored. */
+function decodePhotosNear(value: string): Partial<HashState> {
+    const near = PHOTOS_NEAR_WINDOWS.find((window) => String(window) === value);
+    return near === undefined ? {} : { photosNear: near };
+}
+
 type ParamDecoder = (value: string, limits: HashLimits) => Partial<Decoding>;
 
 function decodeLang(value: string): Partial<HashState> {
@@ -259,6 +270,7 @@ const PARAM_DECODERS: ReadonlyMap<string, ParamDecoder> = new Map<string, ParamD
     ['cmp', decodeCompareLayer],
     ['sw', decodeComparePosition],
     ['labels', decodeLabels],
+    ['near', decodePhotosNear],
     ['photo', (value) => (isId(value) ? { photo: value } : {})],
     ['pv', (value) => ({ photoVersion: PHOTO_VIEWS.find((view) => view === value) ?? 'original' })],
     ['story', (value) => (isId(value) ? { story: value } : {})],

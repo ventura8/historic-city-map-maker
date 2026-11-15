@@ -65,6 +65,7 @@ export class HcmLayerPanel extends LitElement {
         comparing: { type: Boolean },
         labels: { attribute: false },
         year: { attribute: false },
+        photosNear: { attribute: false },
     };
 
     static override readonly styles = [
@@ -203,6 +204,8 @@ export class HcmLayerPanel extends LitElement {
     declare labels: LayerPanelLabels | null;
     /** The timeline's year: a new one scrolls to its layers and marks them, now or (`#pendingYear`) when the panel shows. */
     declare year: number | null;
+    /** Design B: the photos' scope (null: every photo), for the Photos switch's popover. */
+    declare photosNear: number | null;
     #pendingYear: number | null = null;
 
     constructor() {
@@ -218,6 +221,7 @@ export class HcmLayerPanel extends LitElement {
         this.comparing = false;
         this.labels = null;
         this.year = null;
+        this.photosNear = null;
     }
 
     override render(): TemplateResult {
@@ -287,7 +291,7 @@ export class HcmLayerPanel extends LitElement {
     }
 
     #hasPinned(manifest: Manifest): boolean {
-        return this.canCompare || this.#hasLabels() || pinnedIds(manifest).size > 0;
+        return this.canCompare || this.#hasLabels() || manifest.photos.length > 0 || pinnedIds(manifest).size > 0;
     }
 
     #hasLabels(): boolean {
@@ -304,7 +308,7 @@ export class HcmLayerPanel extends LitElement {
             ${
                 this.#hasPinned(manifest)
                     ? html`<div class="pinned">
-                          ${this.#compareButton(locale)}${this.#mapLabels(manifest, locale)}${this.#pinnedList(manifest, locale)}
+                          ${this.#compareButton(locale)}${this.#mapLabels(manifest, locale)}${this.#photos(manifest, locale)}${this.#pinnedList(manifest, locale)}
                       </div>`
                     : nothing
             }
@@ -344,6 +348,15 @@ export class HcmLayerPanel extends LitElement {
         return html`<div class="pinned-overlays" role="group" aria-label=${translate(locale, 'layers.group.pinned')}>
             ${this.#list(pinned, manifest, [])}
         </div>`;
+    }
+
+    /** Design B: the Photos switch, directly under the POIs switch; nothing for a city without photos. */
+    #photos(manifest: Manifest, locale: ViewerLocale): TemplateResult {
+        if (manifest.photos.length === 0) {
+            return EMPTY;
+        }
+        const visible = this.overlays.find((overlay) => overlay.kind === 'photos')?.visible ?? true;
+        return html`<hcm-photos-control .visible=${visible} .near=${this.photosNear} .locale=${locale}></hcm-photos-control>`;
     }
 
     #mapLabels(manifest: Manifest, locale: ViewerLocale): TemplateResult {
