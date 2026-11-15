@@ -4,7 +4,7 @@
  * sees only the public events of docs/ENGINE_API.md.
  */
 import type { MenuPoint } from './map-menu-trigger.js';
-import type { PhotoReturn } from './photo-return.js';
+import { PhotoReturn } from './photo-return.js';
 import type { ViewerServices } from './services.js';
 import type { ViewerStorePort } from './store-port.js';
 import { closeSheet, isMenuAction, menuAction, selectPhoto, shareViewer, toggleCompare } from './viewer-actions.js';
@@ -22,7 +22,7 @@ export interface HandlerHost {
     closeDates(): void;
     /** Opens the map's menu at a point, or closes it (null). */
     mapMenu(point: MenuPoint | null): void;
-    /** V75: a photo opened from the list goes back to it (absent: every close closes). */
+    /** V75: a photo opened from the list goes back to it (absent: the page's own history). */
     readonly photoReturn?: PhotoReturn;
 }
 
@@ -64,13 +64,24 @@ function inputHandlers(on: On): Pick<ViewerHandlers, 'onMapLabel' | 'onLayersMin
 /** A photo to open, to show on the map (V51) or full size, and its thumbnail on screen. */
 type PhotoHandlers = Pick<
     ViewerHandlers,
-    'onPhotoSelect' | 'onPhotoLocate' | 'onLightboxOpen' | 'onPhotoShown' | 'onPhotoVersion' | 'onLightboxClose'
+    'photoReturn' | 'onSheetClose' | 'onPhotoSelect' | 'onPhotoLocate' | 'onLightboxOpen' | 'onPhotoShown' | 'onPhotoVersion' | 'onLightboxClose'
 >;
 
 function photoHandlers(on: On, host: HandlerHost): PhotoHandlers {
+    const photoReturn =
+        host.photoReturn ??
+        new PhotoReturn(window, (action) => {
+            host.act(null, action);
+        });
     return {
+        photoReturn,
+        onSheetClose: on((store) => {
+            if (!photoReturn.back(store)) {
+                closeSheet(store);
+            }
+        }),
         onPhotoSelect: on((store, event) => {
-            host.photoReturn?.opened(store.getState().sheet, scrollOf(event.detail));
+            photoReturn.opened(store.getState().sheet, scrollOf(event.detail));
             selectPhoto(store, event.detail.photoId);
         }),
         onPhotoLocate: on((store, event) => {
@@ -159,11 +170,6 @@ export function createHandlers(host: HandlerHost): ViewerHandlers {
         }),
         onOverlayOpacity: on((store, event) => {
             host.setOpacity(store, event.detail);
-        }),
-        onSheetClose: on((store) => {
-            if (host.photoReturn?.back(store) !== true) {
-                closeSheet(store);
-            }
         }),
         ...photoHandlers(on, host),
         onMenuSelect: on((store, event) => {

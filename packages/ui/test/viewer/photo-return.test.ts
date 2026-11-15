@@ -49,7 +49,6 @@ function setup(sheet: 'photos' | 'none' = 'photos'): { win: FakeWindow; store: F
     const back = new PhotoReturn(win, (action) => {
         action(store);
     });
-    back.connect();
     return { win, store, back };
 }
 
@@ -125,7 +124,6 @@ describe('PhotoReturn', () => {
         win.fire('hashchange');
         expect(store.getState().sheet).toBe('photo');
 
-        back.disconnect();
         win.fire('popstate');
         expect(store.getState().sheet).toBe('photo');
         expect(back.back(store)).toBe(false);

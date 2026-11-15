@@ -42,19 +42,12 @@ export class PhotoReturn {
         return this.#scroll;
     }
 
-    connect(): void {
-        this.#win.addEventListener('popstate', this.#onPop);
-    }
-
-    disconnect(): void {
-        this.#win.removeEventListener('popstate', this.#onPop);
-        this.#win.removeEventListener('hashchange', this.#reopen);
-    }
-
     /** A photo opens while `sheet` shows: from the list it is marked (one history entry); another photo keeps the mark. */
     opened(sheet: SheetName, scroll: number): void {
         this.#win.removeEventListener('hashchange', this.#reopen);
         if (sheet === 'photos') {
+            // Listened from the first photo on (adding the same listener again is a no-op).
+            this.#win.addEventListener('popstate', this.#onPop);
             if (!marked(this.#win.history.state)) {
                 this.#win.history.pushState({ [MARK]: true }, '', this.#win.location.href);
             }
