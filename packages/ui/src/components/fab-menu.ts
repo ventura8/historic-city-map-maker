@@ -106,7 +106,20 @@ export class HcmFabMenu extends LitElement {
                 width: 56px;
                 border-radius: var(--md-sys-shape-corner-large);
                 box-shadow: var(--md-sys-elevation-level3);
-                transition: border-radius var(--md-sys-motion-spring-fast-spatial-duration) var(--md-sys-motion-spring-fast-spatial-easing);
+                /*
+                 * The morph between the square with rounded corners and the circle animates one length, 16 px to 28 px
+                 * (half the 56 px FAB), with an effects curve that never overshoots. The spatial spring overshot below
+                 * zero on the way back from 9999 px and Safari drew sharp corners for a few frames (the owner's iPhone,
+                 * 2026-11-15; lesson 741).
+                 */
+                transition: border-radius var(--md-sys-motion-spring-default-effects-duration)
+                    var(--md-sys-motion-spring-default-effects-easing);
+            }
+
+            @media (prefers-reduced-motion: reduce) {
+                .fab {
+                    transition: none;
+                }
             }
 
             /* A switch that is on wears a ring in its text colour (ButtonText under forced colours, as its edge). */
@@ -115,7 +128,7 @@ export class HcmFabMenu extends LitElement {
             }
 
             :host([open]) .fab {
-                border-radius: var(--md-sys-shape-corner-full);
+                border-radius: 28px;
                 background: var(--md-sys-color-primary);
                 color: var(--md-sys-color-on-primary);
 

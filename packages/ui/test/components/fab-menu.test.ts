@@ -249,4 +249,29 @@ describe('<hcm-fab-menu> on iOS Safari, which never focuses a tapped button', ()
 
         expect(element.open).toBe(false);
     });
+
+    it('happyPath_theFabMorphsBetweenTwoFiniteRadiiWithACurveThatNeverOvershoots', async () => {
+        const element = await menu();
+        const sheet = (element.constructor as typeof HcmFabMenu).styles;
+        const text = [sheet]
+            .flat(Infinity)
+            .map((style) => (style as { cssText: string }).cssText)
+            .join('\n');
+
+        expect(text).toContain('spring-default-effects-easing');
+        expect(text).toContain('prefers-reduced-motion');
+        element.open = true;
+        await element.updateComplete;
+        expect(getComputedStyle(shadowPart(element, '.fab')).borderTopLeftRadius).toBe('28px');
+    });
+
+    it('badPath_theFabNeverAnimatesFromTheUnboundedFullCorner', async () => {
+        const element = await menu();
+        const text = [(element.constructor as typeof HcmFabMenu).styles]
+            .flat(Infinity)
+            .map((style) => (style as { cssText: string }).cssText)
+            .join('\n');
+
+        expect(text).not.toContain('spring-fast-spatial-easing');
+    });
 });

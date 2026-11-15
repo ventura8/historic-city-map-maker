@@ -8,7 +8,7 @@ Every user-visible behaviour has at least one happy and one bad scenario. The re
 
 | Behaviours | Scenarios | Happy | Bad | Exists | Planned | Test files |
 | --- | --- | --- | --- | --- | --- | --- |
-| 188 | 1980 | 840 | 1140 | 1948 | 32 | 498 |
+| 188 | 1981 | 840 | 1141 | 1949 | 32 | 498 |
 
 ## Viewer
 
@@ -182,6 +182,7 @@ Every user-visible behaviour has at least one happy and one bad scenario. The re
 | `S-V15-HAPPY-TABLET-PORTRAIT-DOCKED` | V15 | happy | A tablet held upright docks the Layers panel beside the map, which keeps its timeline, Menu and zoom in view | at 800x1280 the Layers panel is a labelled region, no dialog; the timeline, the Menu button and the zoom buttons are shown, none overlaps the pane and each is on top where it is drawn; no horizontal overflow | e2e-viewer | exists | `e2e/specs/viewer/responsive.spec.ts` |
 | `S-V15-BAD-COMPACT-LANDSCAPE` | V15 | bad | Compact landscape collapses the controls into a menu | compact landscape -> controls collapse into a menu and the timeline lies at the foot of the map (aria-orientation horizontal); the open two-column menu keeps its button where it was tapped; closed, the timeline, the menu button, the chip, the zoom buttons and Mapbox's logo and attribution overlap nothing | e2e-viewer | exists | `e2e/specs/viewer/responsive.spec.ts` |
 | `S-V15-BAD-IPHONE-MENU-CLOSE` | V15 | bad | On an iPhone the menu's X closes the menu although Safari blurs the focused item to nothing | WebKit as an iPhone 15 with Safari's focus on a tap (a tapped button takes no focus, the focused item blurs): a tap on the open menu's X closes it and the FAB says collapsed | e2e-viewer | exists | `e2e/specs/viewer/iphone-sheet.spec.ts` |
+| `S-V15-BAD-IPHONE-MENU-MORPH` | V15 | bad | On an iPhone the menu's X morphs back to the rounded square without a sharp-cornered frame | WebKit as an iPhone 15: the open FAB is a 28 px-radius circle; every frame of the close morph keeps its corner radius between 16 and 28 px (never 0) and the FAB ends collapsed | e2e-viewer | exists | `e2e/specs/viewer/iphone-sheet.spec.ts` |
 | `S-V15-BAD-LONG-LABELS` | V15 | bad | Long Romanian labels in Settings wrap inside their choice instead of scrolling the dialog sideways | at 320 and 360 px the full-screen Settings dialog has no horizontal scroll and its theme choice shows no icon beside the labels (only the check mark); at 1440 px no language or theme label wraps | e2e-viewer | exists | `e2e/specs/viewer/responsive.spec.ts` |
 | `S-V15-BAD-NARROW-OR-SHORT-MODAL` | V15 | bad | A window under 760 px wide, or wide but short, still opens the Layers panel as a sheet over the map | at 759x1024 and at 915x412 the Layers panel opens as a labelled sheet (a standard one since 2026-11-15, no dialog) and Esc closes it | e2e-viewer | exists | `e2e/specs/viewer/responsive.spec.ts` |
 | `S-V15-BAD-NO-BLANK-SCROLL` | V15 | bad | A blank area under the map is found by the no-blank-scroll checker | 400 px of nothing added under the map -> the checker names the shell taller than the window and moved by the window's scroll | e2e-viewer | exists | `e2e/specs/viewer/responsive.spec.ts` |

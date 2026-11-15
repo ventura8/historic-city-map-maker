@@ -136,6 +136,40 @@ test(
     },
 );
 
+test(
+    "On an iPhone the menu's X morphs back to the rounded square without a sharp-cornered frame",
+    { tag: '@S-V15-BAD-IPHONE-MENU-MORPH' },
+    async ({ page, lang }) => {
+        await openViewer(page, { lang });
+        await menuButton(page, lang).tap();
+        // The same button by its place: its name changes to the close label while the menu is open.
+        const fab = page.locator('hcm-fab-menu .fab');
+        await expect(fab).toHaveAttribute('aria-expanded', 'true');
+        await expect.poll(() => fab.evaluate((button) => getComputedStyle(button).borderTopLeftRadius)).toBe('28px');
+
+        // Every frame of the closing morph, sampled until it settles: never below the square's 16 px corner (lesson 741).
+        const radii = await fab.evaluate(
+            (button) =>
+                new Promise<number[]>((resolve) => {
+                    const seen: number[] = [];
+                    const sample = (): void => {
+                        seen.push(Number.parseFloat(getComputedStyle(button).borderTopLeftRadius));
+                        if (seen.length < 40) {
+                            requestAnimationFrame(sample);
+                        } else {
+                            resolve(seen);
+                        }
+                    };
+                    (button as HTMLButtonElement).click();
+                    requestAnimationFrame(sample);
+                }),
+        );
+        expect(Math.min(...radii), radii.join(' ')).toBeGreaterThanOrEqual(16);
+        expect(Math.max(...radii)).toBeLessThanOrEqual(28);
+        await expect(fab).toHaveAttribute('aria-expanded', 'false');
+    },
+);
+
 test('The Layers panel lists its historical layers newest first', { tag: '@S-V03-HAPPY-LAYERS-NEWEST-FIRST' }, async ({ page, lang }) => {
     await openViewer(page, { lang });
     await menuButton(page, lang).tap();

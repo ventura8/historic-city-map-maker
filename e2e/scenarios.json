@@ -2938,6 +2938,17 @@
             "notes": "The owner's iPhone, 2026-11-15 (lesson 740): focusout closed the menu and the tap's click reopened it. packages/ui/src/components/fab-menu.ts (pressingFab); unit tests in packages/ui/test/components/fab-menu.test.ts."
         },
         {
+            "id": "S-V15-BAD-IPHONE-MENU-MORPH",
+            "behaviour": "V15",
+            "area": "viewer",
+            "path": "bad",
+            "title": "On an iPhone the menu's X morphs back to the rounded square without a sharp-cornered frame",
+            "asserts": "WebKit as an iPhone 15: the open FAB is a 28 px-radius circle; every frame of the close morph keeps its corner radius between 16 and 28 px (never 0) and the FAB ends collapsed",
+            "tier": "e2e-viewer",
+            "status": "exists",
+            "notes": "The owner's iPhone, 2026-11-15 (lesson 741): the spatial spring overshot from 9999 px below zero. packages/ui/src/components/fab-menu.ts; unit tests in packages/ui/test/components/fab-menu.test.ts."
+        },
+        {
             "id": "S-V15-BAD-COMPACT-LANDSCAPE",
             "behaviour": "V15",
             "area": "viewer",
