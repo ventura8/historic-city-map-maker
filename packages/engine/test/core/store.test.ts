@@ -45,7 +45,7 @@ describe('viewer store actions', () => {
         expect(named.storage.get('hcm:bucuresti:lang')).toBe('en');
     });
 
-    it('happyPath_aYearShowsItsLayerAndFiltersThePhotos', async () => {
+    it('happyPath_aYearShowsItsLayerAndEveryPhoto', async () => {
         const { store, map, telemetry } = await loaded();
 
         store.setYear(1975);
@@ -59,7 +59,7 @@ describe('viewer store actions', () => {
             (feature) => feature.geometry.type === 'Point',
         );
         expect(PHOTO_YEAR_WINDOW).toBe(10);
-        expect(shown.map((feature) => feature.properties.id)).toEqual(['mihai-voda-1978']);
+        expect(shown.map((feature) => feature.properties.id)).toEqual(['mihai-voda-1978', 'uranus-1936', 'undated']);
     });
 
     it('happyPath_theSameYearRestoresItsLayersWithoutANewEvent', async () => {
