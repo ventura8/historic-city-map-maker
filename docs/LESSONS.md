@@ -4337,3 +4337,8 @@ Append a numbered entry to *Lessons from this repository* in the task that finds
     - Cause: the FAB animated `border-radius` from the full corner (9999 px) to 16 px with the spatial spring, whose curve overshoots: the radius went below zero, was clamped to 0, and Safari drew a square for a few frames.
     - Fix and pin: the open FAB's radius is 28 px (half its size, the same circle) and the morph uses the default effects curve, which never overshoots; no transition under reduced motion. `fab-menu.test.ts`, S-V15-BAD-IPHONE-MENU-MORPH.
     - **Never animate a length from the 9999 px full corner, and never animate a radius with an overshooting curve.**
+742. **The year opacity card failed the tour: a native range at 1.3:1, a step back up the Tab order, a new element each time it showed.**
+    - Seen: 2026-11-16, the card added to the tour (state `timeline-opacity`, journey `timeline-chip`).
+    - Cause: a native `<input type="range">` paints its track with no 3:1 boundary; the card straight above the thumb made Tab from the thumb go back up its column; the card was created on each show, so the Tab round never came back to "the same" slider; the press that focused the thumb ran before the reveal knew it was a press, so the card covered the year chip under a finger.
+    - Fix and pin: the kit's `hcm-slider`; the card past the thumb's end side and in the DOM right after the track; the card kept and hidden between shows; presses marked in the capture phase. `hcm-timeline-opacity.test.ts`, the tour's `timeline-opacity` state.
+    - **A transient control in the Tab order must be one lasting element, placed so Tab never steps back up its column.**

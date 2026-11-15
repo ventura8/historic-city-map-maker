@@ -238,9 +238,14 @@ export class HcmTimeline extends LitElement {
      */
     #markTipping(): void {
         this.removeAttribute('tipping');
-        if (this.tip !== null && !this.collapsed) {
-            this.setAttribute('tipping', this.#keyboardTip() ? 'focus' : '');
+        if (this.#tipShows()) {
+            this.setAttribute('tipping', this.#keyboardTip() || (this.tip === null && this.#reveal.shown) ? 'focus' : '');
         }
+    }
+
+    /** The year chip or the opacity card shows above the thumb: the photos chip under them steps aside. */
+    #tipShows(): boolean {
+        return (this.tip !== null || this.renderRoot.querySelector('.opacity:not([hidden])') !== null) && !this.collapsed;
     }
 
     /** The chip is the keyboard's: the thumb has a visible focus and no finger is down. */
@@ -293,10 +298,11 @@ export class HcmTimeline extends LitElement {
         const index = stopIndex(this.stops, this.value);
         const position = { '--hcm-position': percentText(this.#percent(index)) };
         const fade = { '--hcm-fade-start': this.fade.start ? FADE_PX : '0px', '--hcm-fade-end': this.fade.end ? FADE_PX : '0px' };
+        const card = maybeOpacityCard(this, this.#reveal, this.collapsed || this.dragging);
         return html`<div class="scroller" ${cssProperties(fade)} @scroll=${this.#onScroll} @wheel=${this.#onWheel}>
                 ${this.#track(index, position)}
             </div>
-            ${edgeButtons({
+            ${card}${edgeButtons({
                 edges: this.fade,
                 stops: this.stops,
                 vertical: this.orientation === 'vertical',
@@ -304,13 +310,12 @@ export class HcmTimeline extends LitElement {
                 collapsed: this.collapsed,
                 onPage: this.#scroll.page,
             })}
-            ${this.#above()}<span class="visually-hidden" aria-live="polite">${this.said}</span>`;
+            ${this.#chip()}<span class="visually-hidden" aria-live="polite">${this.said}</span>`;
     }
 
-    /** Above the thumb: the opacity card when it shows (`timeline-opacity.ts`), else the year chip. */
-    #above(): TemplateResult | typeof nothing {
-        const card = maybeOpacityCard(this, this.#reveal, this.collapsed || this.dragging);
-        return card !== nothing || this.tip === null || this.collapsed ? card : this.#tipChip(this.tip);
+    /** The year chip, unless the opacity card (`timeline-opacity.ts`) holds the place above the thumb. */
+    #chip(): TemplateResult | typeof nothing {
+        return this.#reveal.shown || this.tip === null || this.collapsed ? nothing : this.#tipChip(this.tip);
     }
 
     /** The chip: decorative, the slider's `aria-valuetext` already names the year. */

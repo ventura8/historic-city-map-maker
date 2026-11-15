@@ -188,8 +188,8 @@ test(
     async ({ page, lang }) => {
         await openViewer(page, { lang });
         const thumb = await oldestYear(page);
-        const range = viewer(page).locator('hcm-timeline .opacity input[type="range"]');
-        await expect(range).toHaveCount(0);
+        const range = viewer(page).locator('hcm-timeline .opacity [role="slider"]');
+        await expect(range).toBeHidden();
 
         await thumb.tap();
         await expect(range).toBeVisible();
@@ -199,7 +199,11 @@ test(
         const box = await range.boundingBox();
         expect(box?.height ?? 0, 'the slider is a 48 px touch target').toBeGreaterThanOrEqual(44);
 
-        await range.fill('40');
+        await range.focus();
+        await range.press('Home');
+        for (let step = 0; step < 4; step += 1) {
+            await range.press('PageUp');
+        }
         await expect(range).toHaveAttribute('aria-valuetext', t(lang, 'layers.opacityValue', { percent: '40' }));
         await openLayers(page, lang);
         await expect(opacitySlider(page, lang, name)).toHaveAttribute('aria-valuenow', '40');
@@ -211,18 +215,18 @@ test(
     { tag: '@S-V12-BAD-IPHONE-YEAR-OPACITY' },
     async ({ page, lang }) => {
         await openViewer(page, { lang });
-        const range = viewer(page).locator('hcm-timeline .opacity input[type="range"]');
+        const range = viewer(page).locator('hcm-timeline .opacity [role="slider"]');
         await openTimelineCard(page);
         const thumb = viewer(page).locator('hcm-timeline .thumb');
         await thumb.tap();
-        await expect(range, 'today has no layer to fade').toHaveCount(0);
+        await expect(range, 'today has no layer to fade').toBeHidden();
 
         await oldestYear(page);
         await thumb.tap();
         await expect(range).toBeVisible();
         const box = await thumb.boundingBox();
         await page.touchscreen.tap(20, Math.max(20, (box?.y ?? 200) - 200));
-        await expect(range).toHaveCount(0);
+        await expect(range).toBeHidden();
     },
 );
 

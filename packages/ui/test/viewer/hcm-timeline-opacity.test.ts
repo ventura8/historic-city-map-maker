@@ -30,7 +30,7 @@ function thumb(element: HcmTimeline): HTMLElement {
 }
 
 function card(element: HcmTimeline): HTMLElement | null {
-    return element.shadowRoot?.querySelector<HTMLElement>('.opacity') ?? null;
+    return element.shadowRoot?.querySelector<HTMLElement>('.opacity:not([hidden])') ?? null;
 }
 
 function pointer(target: EventTarget, type: string, pointerType: string, x = 10, y = 10): void {
@@ -48,15 +48,15 @@ describe('the timeline opacity card', () => {
 
         pointer(thumb(element), 'pointerover', 'mouse');
         await element.updateComplete;
-        const input = shadowQuery(element, '.opacity input[type="range"]') as HTMLInputElement;
-        expect(input.getAttribute('aria-label')).toBe('Opacitate: Bucharest 1977');
-        expect(input.getAttribute('aria-valuetext')).toBe('80 %');
-        expect(input.value).toBe('80');
+        const slider = shadowQuery(element, '.opacity hcm-slider') as HTMLElement & { value: number; label: string; valueText: string };
+        await (slider as unknown as { updateComplete: Promise<unknown> }).updateComplete;
+        expect(slider.label).toBe('Opacitate: Bucharest 1977');
+        expect(slider.valueText).toBe('80 %');
+        expect(slider.value).toBe(80);
 
         const sent = recordEvents(element, 'hcm-overlay-opacity');
-        input.value = '35';
-        input.dispatchEvent(new Event('input', { bubbles: true }));
-        input.dispatchEvent(new Event('change', { bubbles: true }));
+        slider.dispatchEvent(new CustomEvent('hcm-input', { detail: { value: 35 }, bubbles: true, composed: true }));
+        slider.dispatchEvent(new CustomEvent('hcm-change', { detail: { value: 35 }, bubbles: true, composed: true }));
         expect(sent.map((event) => event.detail)).toEqual([
             { id: 'l1977', opacity: 0.35, final: false },
             { id: 'l1977', opacity: 0.35, final: true },
@@ -67,9 +67,9 @@ describe('the timeline opacity card', () => {
         const element = await timeline();
         thumb(element).focus();
         await element.updateComplete;
-        const input = shadowQuery(element, '.opacity input') as HTMLInputElement;
+        const input = shadowQuery(element, '.opacity hcm-slider');
 
-        input.focus();
+        shadowQuery(input, '[role="slider"]').focus();
         await element.updateComplete;
         expect(card(element)).not.toBeNull();
         input.dispatchEvent(new KeyboardEvent('keydown', { key: 'Escape', bubbles: true, composed: true }));
@@ -145,8 +145,8 @@ describe('the timeline opacity card', () => {
         box.dispatchEvent(new PointerEvent('pointerdown', { bubbles: true, composed: true }));
         pointer(box, 'pointerleave', 'mouse');
         pointer(box, 'pointerenter', 'mouse');
-        const input = shadowQuery(element, '.opacity input');
-        input.focus();
+        const input = shadowQuery(element, '.opacity hcm-slider');
+        shadowQuery(input, '[role="slider"]').focus();
         thumb(element).focus();
         await element.updateComplete;
         expect(card(element)).not.toBeNull();

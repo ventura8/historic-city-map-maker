@@ -50,6 +50,25 @@ export const TIMELINE_CHIP_STATES = {
             await mapIdle(page);
         },
     },
+    'timeline-opacity': {
+        title: "A mouse on the selected year's pill: its layer's opacity slider above it, named as in the Layers panel",
+        enter: async ({ page, lang }: TimelineChipTour) => {
+            await openTimelineCard(page);
+            // A year near the oldest (a layer of its own, clear of the edge's button) by the keyboard, then a mouse on its pill.
+            const thumb = viewer(page).locator('hcm-timeline .thumb');
+            await thumb.focus();
+            await thumb.press('Home');
+            for (let step = 0; step < 4; step += 1) {
+                await thumb.press('ArrowRight');
+            }
+            await thumb.hover();
+            const range = viewer(page).locator('hcm-timeline .opacity [role="slider"]');
+            await expect(range).toBeVisible();
+            const lead = t(lang, 'layers.opacity', { name: '\u0000' }).split('\u0000')[0] ?? '';
+            await expect(range).toHaveAttribute('aria-label', new RegExp(`^${lead.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')}.+`));
+            await mapIdle(page);
+        },
+    },
     'timeline-chip-hover': {
         title: 'A mouse over a year: the year chip beside a standing timeline when the year has no label, none over a labelled one',
         enter: async ({ page }: TimelineChipTour) => {
@@ -106,5 +125,5 @@ export const TIMELINE_CHIP_JOURNEY = {
         // On a phone the timeline rests as its pill (V67): a tap opens the card the chip's states need.
         await openTimelineCard(page);
     },
-    states: ['timeline-chip-hover', 'timeline-chip-finger'],
+    states: ['timeline-chip-hover', 'timeline-chip-finger', 'timeline-opacity'],
 } as const;

@@ -10,7 +10,10 @@
 import { overlayLabel, translate, type Overlay, type ViewerLocale } from '@hcm/shared';
 import { html, nothing, type TemplateResult } from 'lit';
 
+import { defineHcmSlider } from '../components/slider.js';
 import { placeTip } from './timeline-tip.js';
+
+defineHcmSlider();
 
 /** The layer the slider changes: the selected year's front layer, as the store holds it. */
 export interface YearOpacity {
@@ -40,7 +43,6 @@ export interface OpacityHost extends EventTarget {
 /** When the card shows: hover, focus, a tap; and when it hides. */
 export class OpacityReveal {
     shown = false;
-    #pointerInside = false;
     #down: { readonly x: number; readonly y: number } | null = null;
     #hiding: ReturnType<typeof setTimeout> | undefined;
     #root: EventTarget | null = null;
@@ -65,6 +67,19 @@ export class OpacityReveal {
         root.addEventListener('pointerover', onThumb(this.onEnter));
         root.addEventListener('pointerout', onThumb(this.onLeave));
         root.addEventListener('pointerdown', onThumb(this.onThumbDown));
+        // Any press on the track (a scrub from the pill, a tap on a year) focuses the thumb, in its own pointerdown: that
+        // focus is not the keyboard's, so the mark is set first (capture), before the track's handler runs.
+        root.addEventListener(
+            'pointerdown',
+            (event) => {
+                this.#pressing = true;
+                const onThumb = (event.target as Element).closest('.thumb') !== null;
+                if (!this.#within(event.target) || (onThumb && (event as PointerEvent).pointerType === 'touch')) {
+                    this.#set(false);
+                }
+            },
+            true,
+        );
         root.addEventListener('pointerup', onThumb(this.onThumbUp));
         root.addEventListener('focusin', onThumb(this.onFocusIn));
         root.addEventListener('focusout', onThumb(this.onFocusOut));
@@ -72,14 +87,12 @@ export class OpacityReveal {
 
     readonly onEnter = (event: PointerEvent): void => {
         if (event.pointerType !== 'touch') {
-            this.#pointerInside = true;
             this.show();
         }
     };
 
     readonly onLeave = (event: PointerEvent): void => {
         if (event.pointerType !== 'touch') {
-            this.#pointerInside = false;
             this.#hideLater();
         }
     };
@@ -111,7 +124,7 @@ export class OpacityReveal {
 
     readonly onFocusOut = (event: FocusEvent): void => {
         this.#pressing = false;
-        if (!this.#within(event.relatedTarget) && !this.#pointerInside) {
+        if (!this.#within(event.relatedTarget)) {
             this.#set(false);
         }
     };
@@ -169,14 +182,23 @@ export class OpacityReveal {
 }
 
 /** The card: one labelled range input, 0 to 100 % in steps of 5. */
-export function opacityCard(layer: YearOpacity, locale: ViewerLocale, reveal: OpacityReveal, host: EventTarget): TemplateResult {
+export function opacityCard(
+    layer: YearOpacity,
+    locale: ViewerLocale,
+    reveal: OpacityReveal,
+    { host, hidden }: { readonly host: EventTarget; readonly hidden: boolean },
+): TemplateResult {
     const percent = Math.round(layer.opacity * 100);
+    // The kit's slider, as in the Layers panel: its track and handle keep 3:1 against the card (WCAG 1.4.11), a native
+    // range did not (1.3:1, the tour's checkers). Its own events stop here; the timeline sends the panel's event.
     const send = (event: Event, final: boolean): void => {
-        const value = Number((event.target as HTMLInputElement).value) / 100;
+        event.stopPropagation();
+        const value = (event as CustomEvent<{ readonly value: number }>).detail.value / 100;
         host.dispatchEvent(new CustomEvent('hcm-overlay-opacity', { bubbles: true, detail: { id: layer.id, opacity: value, final } }));
     };
     return html`<div
         class="opacity"
+        ?hidden=${hidden}
         @pointerenter=${reveal.onEnter}
         @pointerleave=${reveal.onLeave}
         @pointerdown=${(event: Event) => {
@@ -185,21 +207,20 @@ export function opacityCard(layer: YearOpacity, locale: ViewerLocale, reveal: Op
         @focusout=${reveal.onFocusOut}
         @keydown=${reveal.onKeyDown}
     >
-        <input
-            type="range"
+        <hcm-slider
             min="0"
             max="100"
-            step="5"
-            .value=${String(percent)}
-            aria-label=${translate(locale, 'layers.opacity', { name: layer.name })}
-            aria-valuetext=${translate(locale, 'layers.opacityValue', { percent: String(percent) })}
-            @input=${(event: Event) => {
+            step="1"
+            .value=${percent}
+            label=${translate(locale, 'layers.opacity', { name: layer.name })}
+            value-text=${translate(locale, 'layers.opacityValue', { percent: String(percent) })}
+            @hcm-input=${(event: Event) => {
                 send(event, false);
             }}
-            @change=${(event: Event) => {
+            @hcm-change=${(event: Event) => {
                 send(event, true);
             }}
-        />
+        ></hcm-slider>
     </div>`;
 }
 
@@ -209,11 +230,26 @@ export function maybeOpacityCard(
     reveal: OpacityReveal,
     hidden: boolean,
 ): TemplateResult | typeof nothing {
+    // Rendered while there is a layer, hidden between shows: the same element each time it shows (the tour's Tab round
+    // comes back to the slider it left; a new element each time never came back).
     const layer = host.opacity;
-    return layer === null || hidden || !reveal.shown ? nothing : opacityCard(layer, host.locale, reveal, host);
+    return layer === null ? nothing : opacityCard(layer, host.locale, reveal, { host, hidden: hidden || !reveal.shown });
 }
 
-/** Puts the card above the thumb (beside it standing), clear of the card's ends and the viewport's edges (`placeTip`). */
+/** The card's centre (px from the timeline's left): past the thumb's end side, or its start side where the end has no room. */
+function besideX(centreX: number, card: { readonly reach: number; readonly width: number; readonly left: number }, rtl: boolean): number {
+    const { reach, width, left } = card;
+    const fits = (x: number): boolean => x - width / 2 + left >= 8 && x + width / 2 + left <= innerWidth - 8;
+    const [first, second] = rtl ? [centreX - reach, centreX + reach] : [centreX + reach, centreX - reach];
+    return [first, second].find(fits) ?? first;
+}
+
+/**
+ * Puts the card above the thumb and past its end (before it right to left; beside a standing timeline), clear of the
+ * card's ends and the viewport's edges (`placeTip`). Never straight above the thumb: Tab goes from the thumb to the card,
+ * and a stop straight above would be a step back up the column (the tour's focus order). Where the end side has no
+ * room it goes to the other side.
+ */
 export function placeOpacityCard(host: HTMLElement & OpacityHost, rtl: boolean, vertical: boolean): void {
     const card = host.renderRoot.querySelector<HTMLElement>('.opacity');
     const thumb = host.renderRoot.querySelector('.thumb');
@@ -222,13 +258,11 @@ export function placeOpacityCard(host: HTMLElement & OpacityHost, rtl: boolean, 
     }
     const box = host.getBoundingClientRect();
     const mark = thumb.getBoundingClientRect();
-    const anchor = { x: mark.left + mark.width / 2 - box.left, y: mark.top + mark.height / 2 - box.top };
-    const place = placeTip(anchor, { width: card.offsetWidth, height: card.offsetHeight }, box, {
-        width: innerWidth,
-        height: innerHeight,
-        rtl,
-        vertical,
-    });
+    const size = { width: card.offsetWidth, height: card.offsetHeight };
+    const centreX = mark.left + mark.width / 2 - box.left;
+    const x = vertical ? centreX : besideX(centreX, { reach: mark.width / 2 + size.width / 2 + 4, width: size.width, left: box.left }, rtl);
+    const anchor = { x, y: mark.top + mark.height / 2 - box.top };
+    const place = placeTip(anchor, size, box, { width: innerWidth, height: innerHeight, rtl, vertical });
     card.style.left = `${String(place.left)}px`;
     card.style.top = `${String(place.top - (vertical ? 0 : mark.height / 2))}px`;
 }
