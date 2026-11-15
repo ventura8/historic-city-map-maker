@@ -253,7 +253,11 @@ function besideX(centreX: number, card: { readonly reach: number; readonly width
  * and a stop straight above would be a step back up the column (the tour's focus order). Where the end side has no
  * room it goes to the other side.
  */
-export function placeOpacityCard(host: HTMLElement & OpacityHost & { readonly opacity: YearOpacity | null }, rtl: boolean, vertical: boolean): void {
+export function placeOpacityCard(
+    host: HTMLElement & OpacityHost & { readonly opacity: YearOpacity | null },
+    rtl: boolean,
+    vertical: boolean,
+): void {
     // `fadable`: the pill has a card to open (its touch mark, `timeline-extra-styles.ts`).
     host.toggleAttribute('fadable', host.opacity !== null);
     const card = host.renderRoot.querySelector<HTMLElement>('.opacity');
