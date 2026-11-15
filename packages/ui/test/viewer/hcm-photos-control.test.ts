@@ -1,6 +1,11 @@
 import { afterEach, beforeAll, describe, expect, it, vi } from 'vitest';
 
-import { defineHcmPhotosControl, HCM_PHOTOS_CONTROL_TAG, HcmPhotosControl, LONG_PRESS_MS } from '../../src/viewer/hcm-photos-control.js';
+import {
+    defineHcmPhotosControl,
+    HCM_PHOTOS_CONTROL_TAG,
+    LONG_PRESS_MS,
+    type HcmPhotosControl,
+} from '../../src/viewer/hcm-photos-control.js';
 import { defineKitDoubles, fireKitEvent, mountElement, recordEvents, shadowQuery, shadowQueryAll } from './doubles.js';
 
 async function control(properties: Partial<HcmPhotosControl> = {}): Promise<HcmPhotosControl> {

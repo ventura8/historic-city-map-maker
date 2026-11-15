@@ -231,7 +231,7 @@ export interface DockView {
     /** The selected year's front layer for the opacity card above the thumb (`timeline-opacity.ts`); null: none. */
     readonly opacity: YearOpacity | null;
     /** Design B: only the photos near the year are drawn, so the selected year's pill carries a dot. */
-    readonly nearYear?: boolean;
+    readonly near?: number | null;
 }
 
 /** The timeline in its dock: the whole card, or on an idle phone its pill (`collapsed`). */
@@ -252,7 +252,7 @@ export function timelineDock(
             .collapsed=${view.collapsed}
             .dateCounts=${dateCounts(view.layers)}
             .opacity=${view.opacity}
-            ?near-year=${view.nearYear === true}
+            ?near-year=${(view.near ?? null) !== null && view.year !== null}
             @hcm-year-change=${onYearChange}
             @hcm-overlay-opacity=${onOpacity}
             @hcm-dates-open=${dock.onDatesOpen}

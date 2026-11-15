@@ -15,7 +15,6 @@ import { cssProperties, type CssPropertyValues } from '../components/css-propert
 import type { CameraOffset } from '../map/mapbox-types.js';
 import { EMPTY } from './empty.js';
 import type { MapLabelDetail } from './hcm-layer-panel.js';
-import type { PhotosNearDetail } from './hcm-photos-control.js';
 import { dialogMode, isDialogSheet } from './input-commands.js';
 import { DOCKED_OPEN, type Placement, type SheetMode, type ViewerLayout } from './layout.js';
 import type { LegalLift } from './legal-lift.js';
@@ -105,7 +104,7 @@ export interface ViewerHandlers extends LightboxHandlers, MapMenuHandlers {
     /** The Layers panel's Map labels switches (V31). */
     readonly onMapLabel: (event: CustomEvent<MapLabelDetail>) => void;
     /** Design B: the Photos switch's popover chose every photo (null) or a window of years. */
-    readonly onPhotosNear: (event: CustomEvent<PhotosNearDetail>) => void;
+    readonly onPhotosNear: (event: CustomEvent<{ readonly near: number | null }>) => void;
     /** The extra-large Layers pane minimized to its rail, or restored (V03). */
     readonly onLayersMinimize: (event: CustomEvent<{ readonly minimized: boolean }>) => void;
     readonly onToastDismiss: (event: Event) => void;
@@ -342,10 +341,9 @@ function controls(view: ViewerView, ready: Ready, handlers: ViewerHandlers): Tem
 
 function timeline(view: ViewerView, ready: Ready, handlers: ViewerHandlers): TemplateResult {
     const { layers } = ready.manifest;
-    const { year, overlays, front } = ready.state;
+    const { year, overlays, front, photosNear: near } = ready.state;
     const opacity = year === null ? null : yearOpacity(overlays, frontOfYear(layers, year, front), view.locale);
-    const nearYear = ready.state.photosNear !== null && year !== null;
-    const dock = { ...view, year, orientation: view.layout.timeline, layers, collapsed: timelineCollapsed(view, ready), opacity, nearYear };
+    const dock = { ...view, year, orientation: view.layout.timeline, layers, collapsed: timelineCollapsed(view, ready), opacity, near };
     return timelineDock(dock, view.dock, handlers.onYearChange, handlers.onOverlayOpacity);
 }
 

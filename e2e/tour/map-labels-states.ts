@@ -62,5 +62,5 @@ export const MAP_LABEL_JOURNEY = {
         await serveManifest(page, manifest);
         await openViewer(page, { lang, hash: '15/44.42700/26.08530' });
     },
-    states: ['layers-no-map-labels'] as const,
+    states: ['layers-no-map-labels', 'layers-photos-scope'] as const,
 };

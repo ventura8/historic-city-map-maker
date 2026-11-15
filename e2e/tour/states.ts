@@ -423,7 +423,6 @@ const VIEWER_JOURNEYS: readonly Journey[] = [
             'timeline-step',
             'layers',
             'layers-map-labels',
-            'layers-photos-scope',
             'layers-peek',
             'layers-full',
             'layers-opacity',

@@ -368,7 +368,7 @@ describe('<hcm-layer-panel> pinned Compare and map labels', () => {
     });
 
     it('badPath_withoutCompareOrMapLabelsThereIsNoPinnedStrip', async () => {
-        const element = await panel({ mode: 'docked', canCompare: false, labels: null });
+        const element = await panel({ mode: 'docked', canCompare: false, labels: null, manifest: { ...testManifest(), photos: [] } });
 
         expect(element.shadowRoot?.querySelector('.pinned')).toBeNull();
     });
@@ -413,8 +413,8 @@ describe('<hcm-layer-panel> M27 pinned Disappeared streets', () => {
         const children = [...(strip?.children ?? [])].map((child) => child.className || child.tagName.toLowerCase());
         const lists = [...(element.shadowRoot?.querySelectorAll('hcm-overlay-list') ?? [])] as unknown as OverlayListProps[];
 
-        // Compare, then Map labels, then the pinned category: the existing pinned items keep their place.
-        expect(children).toEqual(['compare', 'labels', 'pinned-overlays']);
+        // Compare, then Map labels and the Photos switch under them, then the pinned category: the existing items keep their place.
+        expect(children).toEqual(['compare', 'labels', 'hcm-photos-control', 'pinned-overlays']);
         expect(lists[0]?.items.map((item) => item.id)).toEqual(['strazi-disparute']);
         expect(lists[0]?.groups).toEqual([]);
         // The list below starts with the historical layers and no longer holds it.
