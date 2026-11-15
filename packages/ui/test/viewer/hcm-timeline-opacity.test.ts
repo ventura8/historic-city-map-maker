@@ -1,0 +1,186 @@
+import type { Overlay } from '@hcm/shared';
+import { afterEach, describe, expect, it } from 'vitest';
+
+import { HCM_TIMELINE_TAG, type HcmTimeline, defineHcmTimeline } from '../../src/viewer/hcm-timeline.js';
+import { yearOpacity } from '../../src/viewer/timeline-opacity.js';
+import { mountElement, recordEvents, shadowQuery } from './doubles.js';
+
+/** The selected year's opacity card above the timeline's thumb (the owner, 2026-11-15). */
+const LAYER = { id: 'l1977', name: 'Bucharest 1977', opacity: 0.8 };
+
+function frame(): Promise<void> {
+    return new Promise((resolve) => {
+        requestAnimationFrame(() => {
+            resolve();
+        });
+    });
+}
+
+async function timeline(opacity: typeof LAYER | null = LAYER): Promise<HcmTimeline> {
+    defineHcmTimeline();
+    const element = await mountElement<HcmTimeline>(HCM_TIMELINE_TAG, { stops: [1966, 1977, null], value: 1977, opacity });
+    element.style.inlineSize = '400px';
+    await frame();
+    await element.updateComplete;
+    return element;
+}
+
+function thumb(element: HcmTimeline): HTMLElement {
+    return shadowQuery(element, '.thumb');
+}
+
+function card(element: HcmTimeline): HTMLElement | null {
+    return element.shadowRoot?.querySelector<HTMLElement>('.opacity') ?? null;
+}
+
+function pointer(target: EventTarget, type: string, pointerType: string, x = 10, y = 10): void {
+    target.dispatchEvent(new PointerEvent(type, { clientX: x, clientY: y, pointerType, bubbles: true, composed: true }));
+}
+
+describe('the timeline opacity card', () => {
+    afterEach(() => {
+        document.body.replaceChildren();
+    });
+
+    it('happyPath_aMouseOnTheSelectedYearShowsALabelledSliderThatSendsTheLayersOpacity', async () => {
+        const element = await timeline();
+        expect(card(element)).toBeNull();
+
+        pointer(thumb(element), 'pointerover', 'mouse');
+        await element.updateComplete;
+        const input = shadowQuery(element, '.opacity input[type="range"]') as HTMLInputElement;
+        expect(input.getAttribute('aria-label')).toBe('Opacitate: Bucharest 1977');
+        expect(input.getAttribute('aria-valuetext')).toBe('80 %');
+        expect(input.value).toBe('80');
+
+        const sent = recordEvents(element, 'hcm-overlay-opacity');
+        input.value = '35';
+        input.dispatchEvent(new Event('input', { bubbles: true }));
+        input.dispatchEvent(new Event('change', { bubbles: true }));
+        expect(sent.map((event) => event.detail)).toEqual([
+            { id: 'l1977', opacity: 0.35, final: false },
+            { id: 'l1977', opacity: 0.35, final: true },
+        ]);
+    });
+
+    it('happyPath_theKeyboardsFocusShowsItTabReachesItAndEscHidesItBackOnTheThumb', async () => {
+        const element = await timeline();
+        thumb(element).focus();
+        await element.updateComplete;
+        const input = shadowQuery(element, '.opacity input') as HTMLInputElement;
+
+        input.focus();
+        await element.updateComplete;
+        expect(card(element)).not.toBeNull();
+        input.dispatchEvent(new KeyboardEvent('keydown', { key: 'Escape', bubbles: true, composed: true }));
+        await element.updateComplete;
+        expect(card(element)).toBeNull();
+        expect(element.shadowRoot?.activeElement).toBe(thumb(element));
+    });
+
+    it('happyPath_aFingersTapOnTheThumbTogglesItAndAPressElsewhereClosesIt', async () => {
+        const element = await timeline();
+        pointer(thumb(element), 'pointerdown', 'touch');
+        pointer(thumb(element), 'pointerup', 'touch', 12, 11);
+        await element.updateComplete;
+        expect(card(element)).not.toBeNull();
+
+        pointer(document.body, 'pointerdown', 'touch');
+        await element.updateComplete;
+        expect(card(element)).toBeNull();
+    });
+
+    it('badPath_aScrubIsNotATapAndTheMouseLeavingHidesItAfterADelay', async () => {
+        const element = await timeline();
+        pointer(thumb(element), 'pointerdown', 'touch');
+        pointer(thumb(element), 'pointerup', 'touch', 80, 10);
+        await element.updateComplete;
+        expect(card(element)).toBeNull();
+
+        pointer(thumb(element), 'pointerover', 'mouse');
+        await element.updateComplete;
+        pointer(thumb(element), 'pointerout', 'mouse');
+        await new Promise((resolve) => {
+            setTimeout(resolve, 450);
+        });
+        await element.updateComplete;
+        expect(card(element)).toBeNull();
+    });
+
+    it('badPath_noLayerTodayOrWhileDraggingNoCard', async () => {
+        const element = await timeline(null);
+        pointer(thumb(element), 'pointerover', 'mouse');
+        await element.updateComplete;
+        expect(card(element)).toBeNull();
+
+        element.opacity = LAYER;
+        element.dragging = true;
+        await element.updateComplete;
+        expect(card(element)).toBeNull();
+        expect(yearOpacity([], 'l1977', 'en')).toBeNull();
+        expect(yearOpacity([], null, 'en')).toBeNull();
+    });
+
+    it('badPath_touchHoversAndEscWithNothingShownDoNothingAndTheCollapsedPillHasNoCard', async () => {
+        const element = await timeline();
+        pointer(thumb(element), 'pointerover', 'touch');
+        pointer(thumb(element), 'pointerout', 'touch');
+        pointer(thumb(element), 'pointerdown', 'mouse');
+        pointer(thumb(element), 'pointerup', 'mouse');
+        thumb(element).dispatchEvent(new KeyboardEvent('keydown', { key: 'Escape', bubbles: true, composed: true }));
+        await element.updateComplete;
+        expect(card(element)).toBeNull();
+
+        element.remove();
+        document.body.append(element);
+        thumb(element).dispatchEvent(new FocusEvent('focusout', { bubbles: true, composed: true }));
+        pointer(thumb(element), 'pointerover', 'mouse');
+        element.collapsed = true;
+        await element.updateComplete;
+        expect(card(element)).toBeNull();
+
+        element.collapsed = false;
+        await element.updateComplete;
+        const box = shadowQuery(element, '.opacity');
+        box.dispatchEvent(new PointerEvent('pointerdown', { bubbles: true, composed: true }));
+        pointer(box, 'pointerleave', 'mouse');
+        pointer(box, 'pointerenter', 'mouse');
+        const input = shadowQuery(element, '.opacity input');
+        input.focus();
+        thumb(element).focus();
+        await element.updateComplete;
+        expect(card(element)).not.toBeNull();
+        pointer(shadowQuery(element, '.opacity'), 'pointerdown', 'touch');
+        await element.updateComplete;
+        expect(card(element)).not.toBeNull();
+    });
+});
+
+describe('the timeline opacity card, standing', () => {
+    afterEach(() => {
+        document.body.replaceChildren();
+    });
+
+    it('happyPath_standingTheCardSitsBesideTheThumbAndTheLayerIsTheFrontOverlay', async () => {
+        const element = await timeline();
+        element.orientation = 'vertical';
+        thumb(element).dispatchEvent(new KeyboardEvent('keydown', { key: 'a', bubbles: true, composed: true }));
+        pointer(thumb(element), 'pointerover', 'mouse');
+        await element.updateComplete;
+        expect(shadowQuery(element, '.opacity').style.top).not.toBe('');
+        thumb(element).dispatchEvent(new KeyboardEvent('keydown', { key: 'Escape', bubbles: true, composed: true }));
+        await element.updateComplete;
+        expect(card(element)).toBeNull();
+
+        const overlay = {
+            id: 'l1977',
+            kind: 'layer',
+            label: { ro: 'Strat 1977', en: 'Layer 1977' },
+            visible: true,
+            opacity: 0.6,
+            defaultVisible: true,
+            defaultOpacity: 1,
+        } as unknown as Overlay;
+        expect(yearOpacity([overlay], 'l1977', 'en')).toEqual({ id: 'l1977', name: 'Layer 1977', opacity: 0.6 });
+    });
+});

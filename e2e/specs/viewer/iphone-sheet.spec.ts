@@ -1,7 +1,7 @@
-import type { Page } from '@playwright/test';
+import type { Locator, Page } from '@playwright/test';
 
 import { expect, test } from '../../support/test.js';
-import { menuButton, menuItemNamed, openViewer, t, viewer } from '../../support/viewer.js';
+import { menuButton, menuItemNamed, openLayers, openTimelineCard, openViewer, opacitySlider, t, viewer } from '../../support/viewer.js';
 
 /**
  * The owner's iPhone (2026-11-15; lesson 740): in Safari the X of the open menu did not close it, and the Layers panel
@@ -167,6 +167,62 @@ test(
         expect(Math.min(...radii), radii.join(' ')).toBeGreaterThanOrEqual(16);
         expect(Math.max(...radii)).toBeLessThanOrEqual(28);
         await expect(fab).toHaveAttribute('aria-expanded', 'false');
+    },
+);
+
+/** The timeline's thumb on the oldest year (Home), the card open on a phone. */
+async function oldestYear(page: Page): Promise<Locator> {
+    await openTimelineCard(page);
+    const thumb = viewer(page).locator('hcm-timeline .thumb');
+    await thumb.focus();
+    await thumb.press('Home');
+    await thumb.evaluate((element) => {
+        (element as HTMLElement).blur();
+    });
+    return thumb;
+}
+
+test(
+    "On an iPhone a tap on the selected year shows its layer's opacity slider, and the Layers panel follows it",
+    { tag: '@S-V12-HAPPY-IPHONE-YEAR-OPACITY' },
+    async ({ page, lang }) => {
+        await openViewer(page, { lang });
+        const thumb = await oldestYear(page);
+        const range = viewer(page).locator('hcm-timeline .opacity input[type="range"]');
+        await expect(range).toHaveCount(0);
+
+        await thumb.tap();
+        await expect(range).toBeVisible();
+        const label = (await range.getAttribute('aria-label')) ?? '';
+        const name = label.slice(label.indexOf(':') + 1).trim();
+        expect(label).toBe(t(lang, 'layers.opacity', { name }));
+        const box = await range.boundingBox();
+        expect(box?.height ?? 0, 'the slider is a 48 px touch target').toBeGreaterThanOrEqual(44);
+
+        await range.fill('40');
+        await expect(range).toHaveAttribute('aria-valuetext', t(lang, 'layers.opacityValue', { percent: '40' }));
+        await openLayers(page, lang);
+        await expect(opacitySlider(page, lang, name)).toHaveAttribute('aria-valuenow', '40');
+    },
+);
+
+test(
+    'On an iPhone the year opacity slider closes on a tap elsewhere and today has none',
+    { tag: '@S-V12-BAD-IPHONE-YEAR-OPACITY' },
+    async ({ page, lang }) => {
+        await openViewer(page, { lang });
+        const range = viewer(page).locator('hcm-timeline .opacity input[type="range"]');
+        await openTimelineCard(page);
+        const thumb = viewer(page).locator('hcm-timeline .thumb');
+        await thumb.tap();
+        await expect(range, 'today has no layer to fade').toHaveCount(0);
+
+        await oldestYear(page);
+        await thumb.tap();
+        await expect(range).toBeVisible();
+        const box = await thumb.boundingBox();
+        await page.touchscreen.tap(20, Math.max(20, (box?.y ?? 200) - 200));
+        await expect(range).toHaveCount(0);
     },
 );
 

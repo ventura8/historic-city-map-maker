@@ -20,6 +20,7 @@ import { html, type ReactiveController, type ReactiveControllerHost, type Templa
 
 import { EMPTY } from './empty.js';
 import type { HcmTimeline, TimelineOrientation } from './hcm-timeline.js';
+import type { YearOpacity } from './timeline-opacity.js';
 import { dateCounts, dateItems, datesOpenEvent, frontOfYear, type DatesOpenDetail } from './timeline-dates.js';
 import type { TimelineStop } from './timeline-model.js';
 import { PEEK_LEAVE_MS, type DatesPeekDetail } from './timeline-peek.js';
@@ -227,10 +228,17 @@ export interface DockView {
     readonly orientation: TimelineOrientation;
     readonly layers: readonly Layer[];
     readonly collapsed: boolean;
+    /** The selected year's front layer for the opacity card above the thumb (`timeline-opacity.ts`); null: none. */
+    readonly opacity: YearOpacity | null;
 }
 
 /** The timeline in its dock: the whole card, or on an idle phone its pill (`collapsed`). */
-export function timelineDock(view: DockView, dock: TimelineDock, onYearChange: (event: CustomEvent) => void): TemplateResult {
+export function timelineDock(
+    view: DockView,
+    dock: TimelineDock,
+    onYearChange: (event: CustomEvent) => void,
+    onOpacity: (event: CustomEvent) => void,
+): TemplateResult {
     return html`<div class="dock timeline" @pointerdown=${dock.pointerDown} @keydown=${dock.onKeyDown}>
         <hcm-timeline
             id="timeline"
@@ -241,7 +249,9 @@ export function timelineDock(view: DockView, dock: TimelineDock, onYearChange: (
             .orientation=${view.orientation}
             .collapsed=${view.collapsed}
             .dateCounts=${dateCounts(view.layers)}
+            .opacity=${view.opacity}
             @hcm-year-change=${onYearChange}
+            @hcm-overlay-opacity=${onOpacity}
             @hcm-dates-open=${dock.onDatesOpen}
             @hcm-dates-peek=${dock.onDatesPeek}
         ></hcm-timeline>

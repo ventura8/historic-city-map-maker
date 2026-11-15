@@ -34,6 +34,7 @@ import { TimelineScroll } from './timeline-scroll.js';
 import { DatesPeek, datesPeekEvent, peekDates, peekPlace } from './timeline-peek.js';
 import { YearSends } from './timeline-sends.js';
 import { timelineStyles } from './timeline-styles.js';
+import { maybeOpacityCard, OpacityReveal, placeOpacityCard, type YearOpacity } from './timeline-opacity.js';
 import { placeTip, tipText, tipWanted, type TimelineTip } from './timeline-tip.js';
 
 export const HCM_TIMELINE_TAG = 'hcm-timeline';
@@ -88,6 +89,7 @@ export class HcmTimeline extends LitElement {
         dateCounts: { attribute: false },
         tip: { state: true },
         said: { state: true },
+        opacity: { attribute: false },
     };
 
     static override readonly styles = timelineStyles;
@@ -111,6 +113,11 @@ export class HcmTimeline extends LitElement {
     declare tip: TimelineTip | null;
     /** What the polite live region says: the year a drag or a scrub ended on (the slider's own value text while it moves). */
     declare said: string;
+    /** The selected year's front layer, whose opacity the card above the thumb changes (`timeline-opacity.ts`); null: none. */
+    declare opacity: YearOpacity | null;
+
+    /** When the opacity card shows: a mouse on the thumb, the focus on it, a finger's tap (`timeline-opacity.ts`). */
+    readonly #reveal = new OpacityReveal(this);
 
     /** Sends `hcm-year-change`: at once for a key, at most once per frame during a press (`timeline-sends.ts`). */
     readonly #sends = new YearSends((year) => {
@@ -187,11 +194,13 @@ export class HcmTimeline extends LitElement {
         this.dateCounts = new Map();
         this.tip = null;
         this.said = '';
+        this.opacity = null;
     }
 
     override connectedCallback(): void {
         super.connectedCallback();
         this.#resize.observe(this);
+        this.#reveal.listen(this.renderRoot);
     }
 
     override disconnectedCallback(): void {
@@ -199,6 +208,7 @@ export class HcmTimeline extends LitElement {
         this.#sends.drop();
         this.#pointer.end();
         this.#peek.stop(false);
+        this.#reveal.disconnect();
         super.disconnectedCallback();
     }
 
@@ -218,6 +228,7 @@ export class HcmTimeline extends LitElement {
         this.#scroll.fadeEdges();
         this.#scroll.crowd();
         this.#placeTip();
+        placeOpacityCard(this, this.#rtl(), this.orientation === 'vertical');
         this.#markTipping();
     }
 
@@ -293,9 +304,13 @@ export class HcmTimeline extends LitElement {
                 collapsed: this.collapsed,
                 onPage: this.#scroll.page,
             })}
-            ${this.tip === null || this.collapsed ? nothing : this.#tipChip(this.tip)}<span class="visually-hidden" aria-live="polite"
-                >${this.said}</span
-            >`;
+            ${this.#above()}<span class="visually-hidden" aria-live="polite">${this.said}</span>`;
+    }
+
+    /** Above the thumb: the opacity card when it shows (`timeline-opacity.ts`), else the year chip. */
+    #above(): TemplateResult | typeof nothing {
+        const card = maybeOpacityCard(this, this.#reveal, this.collapsed || this.dragging);
+        return card !== nothing || this.tip === null || this.collapsed ? card : this.#tipChip(this.tip);
     }
 
     /** The chip: decorative, the slider's `aria-valuetext` already names the year. */
@@ -438,6 +453,7 @@ export class HcmTimeline extends LitElement {
     }
 
     readonly #onKeyDown = (event: KeyboardEvent): void => {
+        this.#reveal.onKeyDown(event);
         if (event.key === 'Enter') {
             this.#datesByKey(event);
             return;

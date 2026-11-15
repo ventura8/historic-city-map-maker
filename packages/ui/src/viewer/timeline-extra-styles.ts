@@ -106,9 +106,39 @@ export const timelineExtraStyles = css`
         inset-block-end: 0;
     }
 
+    /* The selected year's opacity card (timeline-opacity.ts): placed against the card above the thumb like the year chip. */
+    .opacity {
+        position: absolute;
+        z-index: 2;
+        display: flex;
+        align-items: center;
+        box-sizing: border-box;
+        inline-size: 208px;
+        padding: 0 16px;
+        border: 1px solid var(--md-sys-color-outline-variant, CanvasText);
+        border-radius: var(--md-sys-shape-corner-large, 16px);
+        background: var(--md-sys-color-surface-container-highest, Canvas);
+        color: var(--md-sys-color-on-surface, CanvasText);
+        box-shadow: var(--md-sys-elevation-level2, none);
+    }
+
+    .opacity input {
+        flex: 1;
+        min-inline-size: 0;
+        block-size: 48px;
+        margin: 0;
+        accent-color: var(--md-sys-color-primary, Highlight);
+    }
+
+    .opacity input:focus-visible {
+        outline: 3px solid var(--md-sys-color-secondary, Highlight);
+        outline-offset: 2px;
+    }
+
     /* Forced colours (Windows contrast themes): a button's own pair, its edge in its text colour. */
     @media (forced-colors: active) {
-        .edge {
+        .edge,
+        .opacity {
             border: 2px solid ButtonText;
             background: ButtonFace;
             color: ButtonText;

@@ -21,7 +21,9 @@ import type { LegalLift } from './legal-lift.js';
 import { renderSheetFrame } from './sheet-frame.js';
 import type { ThemeChoice, ViewerError, ViewerState } from './store-port.js';
 import { dateMenu, timelineDock, type TimelineDock } from './timeline-dock.js';
+import { frontOfYear } from './timeline-dates.js';
 import { photosNearYear, type TimelineStop } from './timeline-model.js';
+import { yearOpacity } from './timeline-opacity.js';
 import type { MenuPoint } from './map-menu-trigger.js';
 import { lightbox, mapMenu, type LightboxHandlers, type MapMenuHandlers } from './viewer-lightbox.js';
 import { menuActions, menuItem } from './viewer-menu.js';
@@ -335,8 +337,10 @@ function controls(view: ViewerView, ready: Ready, handlers: ViewerHandlers): Tem
 
 function timeline(view: ViewerView, ready: Ready, handlers: ViewerHandlers): TemplateResult {
     const { layers } = ready.manifest;
-    const dock = { ...view, year: ready.state.year, orientation: view.layout.timeline, layers, collapsed: timelineCollapsed(view, ready) };
-    return timelineDock(dock, view.dock, handlers.onYearChange);
+    const { year, overlays, front } = ready.state;
+    const opacity = year === null ? null : yearOpacity(overlays, frontOfYear(layers, year, front), view.locale);
+    const dock = { ...view, year, orientation: view.layout.timeline, layers, collapsed: timelineCollapsed(view, ready), opacity };
+    return timelineDock(dock, view.dock, handlers.onYearChange, handlers.onOverlayOpacity);
 }
 
 function layerPanel(view: ViewerView, ready: Ready, placement: Placement, handlers: ViewerHandlers): TemplateResult {

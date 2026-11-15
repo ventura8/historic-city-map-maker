@@ -2938,6 +2938,28 @@
             "notes": "The owner's iPhone, 2026-11-15 (lesson 740): focusout closed the menu and the tap's click reopened it. packages/ui/src/components/fab-menu.ts (pressingFab); unit tests in packages/ui/test/components/fab-menu.test.ts."
         },
         {
+            "id": "S-V12-HAPPY-IPHONE-YEAR-OPACITY",
+            "behaviour": "V12",
+            "area": "viewer",
+            "path": "happy",
+            "title": "On an iPhone a tap on the selected year shows its layer's opacity slider, and the Layers panel follows it",
+            "asserts": "WebKit as an iPhone 15: the oldest year selected, a tap on its pill shows a range input named as the Layers panel names the layer's opacity, at least 44 px tall; set to 40 % it says 40 % and the Layers panel's slider of that layer reads 40",
+            "tier": "e2e-viewer",
+            "status": "exists",
+            "notes": "The owner, 2026-11-15. packages/ui/src/viewer/timeline-opacity.ts; unit tests in packages/ui/test/viewer/hcm-timeline-opacity.test.ts (hover, keyboard focus, Tab, Esc)."
+        },
+        {
+            "id": "S-V12-BAD-IPHONE-YEAR-OPACITY",
+            "behaviour": "V12",
+            "area": "viewer",
+            "path": "bad",
+            "title": "On an iPhone the year opacity slider closes on a tap elsewhere and today has none",
+            "asserts": "WebKit as an iPhone 15: a tap on today's pill shows no slider; on the oldest year the slider shows on a tap and a tap on the map closes it",
+            "tier": "e2e-viewer",
+            "status": "exists",
+            "notes": "The owner, 2026-11-15. packages/ui/src/viewer/timeline-opacity.ts."
+        },
+        {
             "id": "S-V15-BAD-IPHONE-MENU-MORPH",
             "behaviour": "V15",
             "area": "viewer",
