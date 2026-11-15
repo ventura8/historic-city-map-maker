@@ -16,7 +16,7 @@ import { dateText } from './timeline-dates.js';
 export function overlayItems(overlays: readonly Overlay[], manifest: Manifest, locale: ViewerLocale): readonly OverlayListItem[] {
     const categories = new Map((manifest.poiCategories ?? []).map((category) => [category.id, category]));
     const layers = new Map(manifest.layers.map((layer) => [layer.id, layer]));
-    return overlays.map((overlay) => {
+    return newestFirst(overlays, layers).map((overlay) => {
         const layer = overlay.kind === 'raster' ? layers.get(overlay.id) : undefined;
         const item = {
             id: overlay.id,
@@ -29,6 +29,19 @@ export function overlayItems(overlays: readonly Overlay[], manifest: Manifest, l
         const category = overlay.kind === 'poi' ? categories.get(overlay.id) : undefined;
         return category === undefined ? item : { ...item, color: category.color, icon: poiIcon(category.icon) };
     });
+}
+
+/**
+ * The historical layers newest first (the owner, 2026-11-15), by date, a year alone as its first day; equal dates keep
+ * their order. The other rows (photos, places) keep their places. Only the rows: the drawing order is the overlays' own.
+ */
+function newestFirst(overlays: readonly Overlay[], layers: ReadonlyMap<string, Manifest['layers'][number]>): readonly Overlay[] {
+    const when = (overlay: Overlay): number => {
+        const layer = layers.get(overlay.id);
+        return layer === undefined ? 0 : Number((layer.date ?? `${String(layer.year)}-01-01`).replaceAll('-', ''));
+    };
+    const sorted = overlays.filter((overlay) => overlay.kind === 'raster').sort((a, b) => when(b) - when(a));
+    return overlays.map((overlay) => (overlay.kind === 'raster' ? (sorted.shift() ?? overlay) : overlay));
 }
 
 /** M27: the ids of the POI categories the manifest pins to the top strip. */

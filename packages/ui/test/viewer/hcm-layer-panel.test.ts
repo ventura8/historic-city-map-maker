@@ -46,8 +46,8 @@ describe('overlay list data', () => {
 
     it('happyPath_everyOverlayWithLocalizedLabelsAndCategorySwatches', () => {
         expect(overlayItems(overlays, manifest, 'en')).toEqual([
-            { id: 'kh4-1966', kind: 'raster', label: 'Corona 1966', visible: true, opacity: 0.9, detail: '1966' },
             { id: 'kh9-1977', kind: 'raster', label: 'KH-9 1977', visible: false, opacity: 1, detail: '1977' },
+            { id: 'kh4-1966', kind: 'raster', label: 'Corona 1966', visible: true, opacity: 0.9, detail: '1966' },
             { id: 'photos', kind: 'photos', label: 'Photos', visible: true, opacity: 1 },
             {
                 id: 'cladiri',
@@ -60,6 +60,17 @@ describe('overlay list data', () => {
             },
             { id: 'evenimente', kind: 'poi', label: 'Events', visible: true, opacity: 0.8, color: '#386A20', icon: 'location_on' },
         ]);
+    });
+
+    it('happyPath_rowsAreNewestFirstWithWhatHasNoDateOnTop', () => {
+        // The owner, 2026-11-15: the layers by date, newest first, a day within its year; the other rows keep their places.
+        const dated = testManifest((raw) => {
+            const layer = (raw['layers'] as Record<string, unknown>[]).find((candidate) => candidate['id'] === 'kh4-1966');
+            Object.assign(layer ?? {}, { year: 1977, date: '1977-08-02' });
+        });
+        const ids = overlayItems(overlaysFromManifest(dated), dated, 'en').map((item) => item.id);
+
+        expect(ids).toEqual(['kh4-1966', 'kh9-1977', 'photos', 'cladiri', 'evenimente']);
     });
 
     it('happyPath_groupsAndAttributionOfVisibleLayers', () => {
@@ -94,7 +105,7 @@ describe('overlay list data', () => {
         });
 
         expect(overlayGroups(plain, 'en')).toEqual([{ kind: 'raster', label: 'Historical layers' }]);
-        expect(overlayItems(overlaysFromManifest(plain), plain, 'en').map((item) => item.id)).toEqual(['kh4-1966', 'kh9-1977', 'photos']);
+        expect(overlayItems(overlaysFromManifest(plain), plain, 'en').map((item) => item.id)).toEqual(['kh9-1977', 'kh4-1966', 'photos']);
     });
 
     it('badPath_aRasterOverlayWithoutItsLayerHasNoAttribution', () => {
@@ -360,7 +371,7 @@ describe('<hcm-layer-panel> M27 pinned Disappeared streets', () => {
         expect(lists[0]?.items.map((item) => item.id)).toEqual(['strazi-disparute']);
         expect(lists[0]?.groups).toEqual([]);
         // The list below starts with the historical layers and no longer holds it.
-        expect(lists[1]?.items.map((item) => item.id)).toEqual(['kh4-1966', 'kh9-1977', 'photos', 'cladiri', 'evenimente']);
+        expect(lists[1]?.items.map((item) => item.id)).toEqual(['kh9-1977', 'kh4-1966', 'photos', 'cladiri', 'evenimente']);
         expect(overlaysFromManifest(manifest).find((overlay) => overlay.id === 'strazi-disparute')?.visible).toBe(false);
     });
 

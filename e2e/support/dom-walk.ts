@@ -308,8 +308,25 @@ export function reaches(element: Element, hit: Element | null): boolean {
     return getComputedStyle(element).pointerEvents === 'none' && flatContains(hit, element);
 }
 
+/**
+ * Whether `hit` covering `element` is by design: the map's canvas under a standard (non-modal) `<hcm-sheet>`, the Layers
+ * sheet beside a map that stays usable (the owner, 2026-11-15). A modal sheet's cover still counts.
+ */
+export function standardSheetOverMap(element: Element, hit: Element | null): boolean {
+    if (hit === null || !element.classList.contains('mapboxgl-canvas')) {
+        return false;
+    }
+    for (let node: Element | null = hit; node !== null; node = composedParent(node)) {
+        if (node.tagName === 'HCM-SHEET') {
+            return !node.hasAttribute('modal');
+        }
+    }
+    return false;
+}
+
 /** Every helper of this module, for `libraryScript` (e2e/support/page-script.ts). */
 export const DOM_WALK = [
+    standardSheetOverMap,
     flatParent,
     flatChain,
     flatContains,

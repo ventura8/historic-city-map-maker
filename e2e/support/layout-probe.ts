@@ -20,6 +20,7 @@ import {
     visibleBoxOf,
     withinShape,
     type Rect,
+    standardSheetOverMap,
 } from './dom-walk.js';
 
 /**
@@ -243,7 +244,13 @@ export function sampleElement(registry: Registry, element: Element, surface: boo
     const sampleAt = ({ x, y }: { readonly x: number; readonly y: number }): Sample => {
         const hit = deepHit(x, y);
         const pinned = hit !== null && !own && isPinned(hit);
-        return { x, y, hit: idOrNull(registry, hit), ok: reaches(element, hit) || ownMapControl(element, hit), pinned };
+        return {
+            x,
+            y,
+            hit: idOrNull(registry, hit),
+            ok: reaches(element, hit) || ownMapControl(element, hit) || standardSheetOverMap(element, hit),
+            pinned,
+        };
     };
     const samples = (shaped.length > 0 ? shaped : points.slice(0, 1)).map(sampleAt);
     const reached = samples.find((sample) => sample.ok);

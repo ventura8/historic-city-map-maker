@@ -14,6 +14,7 @@ import {
     selectorOf,
     visibleBoxOf,
     type Rect,
+    standardSheetOverMap,
 } from './dom-walk.js';
 import { cutterOf, interactiveElements, modalPlace, modalSurfaces, type ModalPlace } from './layout-probe.js';
 
@@ -128,7 +129,15 @@ export function ringCutterOf(element: Element): string | null {
 export function focusView(element: Element): { box: Rect | null; obscured: boolean } {
     const box = visibleBoxOf(element);
     const points = box === null ? [] : samplePoints(box, false);
-    return { box, obscured: points.length > 0 && points.every(({ x, y }) => !reaches(element, deepHit(x, y))) };
+    return {
+        box,
+        obscured:
+            points.length > 0 &&
+            points.every(({ x, y }) => {
+                const hit = deepHit(x, y);
+                return !reaches(element, hit) && !standardSheetOverMap(element, hit);
+            }),
+    };
 }
 
 /** The element's place in its scrolling content: its box moved by every scroll offset above it, the page's included. */

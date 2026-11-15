@@ -8,7 +8,7 @@ Every user-visible behaviour has at least one happy and one bad scenario. The re
 
 | Behaviours | Scenarios | Happy | Bad | Exists | Planned | Test files |
 | --- | --- | --- | --- | --- | --- | --- |
-| 188 | 1979 | 839 | 1140 | 1947 | 32 | 498 |
+| 188 | 1980 | 840 | 1140 | 1948 | 32 | 498 |
 
 ## Viewer
 
@@ -40,6 +40,7 @@ Every user-visible behaviour has at least one happy and one bad scenario. The re
 | `S-V03-HAPPY-COMPACT-CLOSE` | V03 | happy | On a phone the Layers sheet's close is its minimize: opened again it keeps its values | 412 px: a lowered opacity, the sheet closed and opened again from the menu -> the same opacity and switch | e2e-viewer | exists | `e2e/specs/viewer/layers-minimize.spec.ts` |
 | `S-V03-HAPPY-LAYER-DATE` | V03 | happy | Each historical layer's date shows below its name in Layers without a taller row | at 360 and 1440 px the e2e-1980 row shows its date in the visitor's language under the name; every dated row has the undated Photos row's height | e2e-viewer | exists | `e2e/specs/viewer/layers-date.spec.ts` |
 | `S-V03-HAPPY-LAYER-MOVES-TIMELINE` | V03 | happy | A historical layer switched on moves the timeline to its year | from today, switching the 1966 layer on puts the timeline at 1966, its tiles draw and the hash names it; unit: packages/engine/test/core/store-layer-year.test.ts | e2e-viewer | exists | `e2e/specs/viewer/layer-year.spec.ts` |
+| `S-V03-HAPPY-LAYERS-NEWEST-FIRST` | V03 | happy | The Layers panel lists its historical layers newest first | on an iPhone the 1980 layer's switch comes before the 1966 one; unit: overlayItems sorts the historical layers by date or year, newest first, a day within its year; photos and places keep their places | e2e-viewer | exists | `e2e/specs/viewer/iphone-sheet.spec.ts` |
 | `S-V03-HAPPY-LAYERS-PINNED` | V03 | happy | Compare, Street names and POIs stay pinned at the top of the docked Layers pane | Layers open in the docked pane with Compare and map-label switches -> they sit in .pinned above hcm-overlay-list; scrolling the list leaves them in place; in a modal sheet the strip scrolls with the list, so no focused switch hides under it | e2e-viewer | exists | `e2e/specs/viewer/layers-pinned.spec.ts` |
 | `S-V03-HAPPY-MINIMIZE` | V03 | happy | The always-docked Layers pane minimizes to one floating button and comes back | 1920 px: the pane's collapse button (Restrânge straturile / Collapse layers, aria-expanded true, no Close) minimizes it to one floating button at the map's leading gutter (Straturi, aria-expanded false, no rail: batch 4, the owner 2026-11-09) that takes the focus; the map and Mapbox's canvas take the whole width (+360 px); Enter on the button restores the pane with the focus on its collapse button | e2e-viewer | exists | `e2e/specs/viewer/layers-minimize.spec.ts` |
 | `S-V03-HAPPY-STACK-BY-DATE` | V03 | happy | Several historical layers stack by date, the newest on top, whatever the admin's order | a manifest ordering 1966 above 1980, both visible from the hash -> the probe reads the opaque 1980 tiles; unit: packages/engine/test/core/map-specs.test.ts | e2e-viewer | exists | `e2e/specs/viewer/layer-year.spec.ts` |

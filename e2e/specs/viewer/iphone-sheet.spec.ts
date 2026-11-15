@@ -135,3 +135,16 @@ test(
         await expect(menuButton(page, lang)).toHaveAttribute('aria-expanded', 'false');
     },
 );
+
+test('The Layers panel lists its historical layers newest first', { tag: '@S-V03-HAPPY-LAYERS-NEWEST-FIRST' }, async ({ page, lang }) => {
+    await openViewer(page, { lang });
+    await menuButton(page, lang).tap();
+    await menuItemNamed(page, t(lang, 'layers.title')).tap();
+    const panel = page.getByRole('region', { name: t(lang, 'layers.title'), exact: true });
+    // The rows in the order a screen reader reads them (the 1966 one may be scrolled out of view).
+    const rows = await panel.ariaSnapshot();
+    const newer = rows.indexOf('1980 (e2e)');
+
+    expect(newer, 'the 1980 layer is listed').toBeGreaterThanOrEqual(0);
+    expect(newer, 'the 1980 layer before the 1966 one').toBeLessThan(rows.indexOf('Corona 1966 (e2e)'));
+});

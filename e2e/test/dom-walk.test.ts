@@ -20,6 +20,7 @@ import {
     isScreenReaderOnly,
     reaches,
     samplePoints,
+    standardSheetOverMap,
     scrollsOn,
     selectorOf,
     selectorStep,
@@ -221,5 +222,25 @@ describe('hit tests', () => {
         expect(reaches(button, around)).toBe(false);
         expect(reaches(button, null)).toBe(false);
         expect(reaches(passThrough, around)).toBe(true);
+    });
+});
+
+describe('standardSheetOverMap', () => {
+    test('happyPath_aStandardSheetOverTheMapIsByDesign_butAModalOneOrAnotherElementIsNot', () => {
+        const canvas = document.createElement('canvas');
+        canvas.className = 'mapboxgl-canvas';
+        const sheet = document.createElement('hcm-sheet');
+        const part = document.createElement('div');
+        sheet.append(part);
+        document.body.append(canvas, sheet);
+
+        expect(standardSheetOverMap(canvas, part)).toBe(true);
+        sheet.setAttribute('modal', '');
+        expect(standardSheetOverMap(canvas, part)).toBe(false);
+        expect(standardSheetOverMap(canvas, canvas)).toBe(false);
+        expect(standardSheetOverMap(canvas, null)).toBe(false);
+        expect(standardSheetOverMap(part, part)).toBe(false);
+        canvas.remove();
+        sheet.remove();
     });
 });

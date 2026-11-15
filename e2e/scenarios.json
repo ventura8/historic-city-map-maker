@@ -2905,6 +2905,17 @@
             "notes": "The dock threshold of the Pixel Tablet fix (760 px wide, not compact height). packages/ui/src/viewer/layout.ts."
         },
         {
+            "id": "S-V03-HAPPY-LAYERS-NEWEST-FIRST",
+            "behaviour": "V03",
+            "area": "viewer",
+            "path": "happy",
+            "title": "The Layers panel lists its historical layers newest first",
+            "asserts": "on an iPhone the 1980 layer's switch comes before the 1966 one; unit: overlayItems sorts the historical layers by date or year, newest first, a day within its year; photos and places keep their places",
+            "tier": "e2e-viewer",
+            "status": "exists",
+            "notes": "The owner, 2026-11-15. packages/ui/src/viewer/layer-panel-model.ts (newestFirst); packages/ui/test/viewer/hcm-layer-panel.test.ts; e2e/specs/viewer/iphone-sheet.spec.ts."
+        },
+        {
             "id": "S-V15-HAPPY-IPHONE-LAYERS",
             "behaviour": "V15",
             "area": "viewer",
@@ -4079,7 +4090,7 @@
             "asserts": "Layers open in the docked pane with Compare and map-label switches -> they sit in .pinned above hcm-overlay-list; scrolling the list leaves them in place; in a modal sheet the strip scrolls with the list, so no focused switch hides under it",
             "tier": "e2e-viewer",
             "status": "exists",
-            "notes": "Owner 2026-11-10; docked pane only since 2026-11-12 (the tour's focus-obscured and target-size findings in the compact sheets). Tests: e2e/specs/viewer/layers-pinned.spec.ts, packages/ui/test/viewer/hcm-layer-panel.test.ts."
+            "notes": "Owner 2026-11-10; docked pane only since 2026-11-12 (the tour's focus-obscured and target-size findings in the compact sheets). Tests: e2e/specs/viewer/layers-pinned.spec.ts, packages/ui/test/viewer/hcm-layer-panel.test.ts; e2e/specs/viewer/iphone-sheet.spec.ts."
         },
         {
             "id": "S-V03-BAD-LAYERS-NO-PINNED",
@@ -4090,7 +4101,7 @@
             "asserts": "no historical layers and a custom basemap with no map-label kinds -> no Compare, no map-labels group, no .pinned; the overlay list still lists photos and places",
             "tier": "e2e-viewer",
             "status": "exists",
-            "notes": "Owner 2026-11-10. Tests: e2e/specs/viewer/layers-pinned.spec.ts, packages/ui/test/viewer/hcm-layer-panel.test.ts."
+            "notes": "Owner 2026-11-10. Tests: e2e/specs/viewer/layers-pinned.spec.ts, packages/ui/test/viewer/hcm-layer-panel.test.ts; e2e/specs/viewer/iphone-sheet.spec.ts."
         },
         {
             "id": "S-V03-BAD-LAYERS-PINNED-PHONE",
