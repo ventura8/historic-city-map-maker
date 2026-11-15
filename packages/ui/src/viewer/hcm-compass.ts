@@ -1,8 +1,8 @@
 /**
  * `<hcm-compass>`: the map's compass (the owner, 2026-11-13: "i want us to have a compass for the viewer. (and clicking on
  * it resets to north up)"; scenario V64, docs/ENGINE_API.md → *Compass*). An M3 icon button (40 px in a 48 px target) in
- * its own pill by the zoom group whose needle turns with the map's bearing on every frame the camera moves and leans with
- * its tilt; a press fires the native `click`, which the viewer turns into the store's `resetNorth`. It is always shown:
+ * its own pill by the zoom group whose needle turns with the map's bearing on every frame the camera moves (flat: it never
+ * leans with the map's tilt); a press fires the native `click`, which the viewer turns into the store's `resetNorth`. It is always shown:
  * north up and level it is quiet (the needle in the surface's text colour), turned or tilted its north point takes the
  * primary colour. Its name says what it does; the bearing and the tilt are its description (`aria-describedby`), never a
  * live region, so a turning map does not flood a screen reader. Its own element, so a frame of the camera repaints the
@@ -76,7 +76,6 @@ export class HcmCompass extends LitElement {
                 background: none;
                 color: var(--md-sys-color-primary);
                 overflow: visible;
-                perspective: 80px;
             }
 
             :host([north]) button {
@@ -88,9 +87,12 @@ export class HcmCompass extends LitElement {
                 height: 28px;
             }
 
-            /* The "N" over the north point turns with the needle, so it always marks the map's north (the iPhone QA, 2026-11-15). */
+            /*
+             * The "N" inside the north triangle turns with the needle, so it always marks the map's north (the owner,
+             * 2026-11-15). It takes the pill's own colour, so it is dark on a light triangle and light on a dark one.
+             */
             .letter {
-                fill: currentcolor;
+                fill: var(--md-sys-color-surface-container-high);
                 font: 700 7px/1 var(--md-ref-typeface-plain, system-ui, sans-serif);
                 text-anchor: middle;
                 dominant-baseline: central;
@@ -152,9 +154,8 @@ export class HcmCompass extends LitElement {
     }
 
     override render(): TemplateResult {
-        const { bearing, pitch } = this.camera;
-        // The needle turns against the map (north stays on the map's north) and leans back as the map tilts.
-        const needle = { transform: `rotateX(${String(Math.round(pitch))}deg) rotate(${String(-bearing)}deg)` };
+        // The needle turns against the map (north stays on the map's north), flat at any tilt (the owner, 2026-11-15)
+        const needle = { transform: `rotate(${String(-this.camera.bearing)}deg)` };
         return html`<button
                 class="interactive touch-target"
                 part="button"
@@ -162,9 +163,9 @@ export class HcmCompass extends LitElement {
                 aria-describedby="heading"
             >
                 <svg viewBox="0 0 24 24" aria-hidden="true" ${cssProperties(needle)}>
-                    <text class="letter" x="12" y="3.5">N</text>
-                    <path class="north" d="M12 7.5 L15.5 14 H8.5 Z"></path>
-                    <path class="south" d="M12 21.5 L15.5 14 H8.5 Z"></path>
+                    <path class="north" d="M12 1 L18.5 14 H5.5 Z"></path>
+                    <path class="south" d="M12 23 L18.5 14 H5.5 Z"></path>
+                    <text class="letter" x="12" y="9.8">N</text>
                 </svg>
             </button>
             <span id="heading" class="visually-hidden">${compassDescription(this.locale, this.camera)}</span>`;

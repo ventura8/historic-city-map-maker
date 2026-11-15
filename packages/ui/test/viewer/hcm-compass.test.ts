@@ -47,14 +47,14 @@ describe('<hcm-compass>', () => {
         await compass.updateComplete;
         expect(compass.hasAttribute('north')).toBe(false);
         expect(description(compass)).toBe('Harta este rotită cu 90° față de nord.');
-        expect(shadowQuery(compass, 'svg').style.transform).toBe('rotateX(0deg) rotate(-90deg)');
+        expect(shadowQuery(compass, 'svg').style.transform).toBe('rotate(-90deg)');
         // The "N" sits in the turning drawing, so it always points at the map's north.
         expect(shadowQuery(compass, 'svg text.letter').textContent).toBe('N');
 
         store.moveCamera({ bearing: 270.4, pitch: 35.2 });
         await compass.updateComplete;
         expect(description(compass)).toBe('Harta este rotită cu 270° față de nord și înclinată cu 35°.');
-        expect(shadowQuery(compass, 'svg').style.transform).toBe('rotateX(35deg) rotate(-270.4deg)');
+        expect(shadowQuery(compass, 'svg').style.transform).toBe('rotate(-270.4deg)');
     });
 
     it('happyPath_englishNameAndDescription', async () => {
