@@ -209,13 +209,13 @@ describe('the timeline opacity card of a year with several layers', () => {
         type Kit = HTMLElement & { value: number; label: string; updateComplete: Promise<unknown> };
         const sliders = [...(element.shadowRoot?.querySelectorAll<Kit>('.opacity hcm-slider') ?? [])];
         expect(sliders.map((slider) => slider.label)).toEqual([
-            'Opacitate: Tot anul 1977',
+            'Opacitate: Toate straturile din 1977',
             'Opacitate: Spring 1977',
             'Opacitate: Autumn 1977',
         ]);
         expect(sliders.map((slider) => slider.value)).toEqual([65, 40, 90]);
         expect([...(element.shadowRoot?.querySelectorAll('.opacity-name') ?? [])].map((name) => name.textContent)).toEqual([
-            'Tot anul 1977',
+            'Toate straturile din 1977',
             'April 1977',
             'October 1977',
         ]);
