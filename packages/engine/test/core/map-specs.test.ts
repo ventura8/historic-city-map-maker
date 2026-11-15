@@ -5,6 +5,7 @@ import { describe, expect, it } from 'vitest';
 import {
     CONE_LENGTH_M,
     mapOptions,
+    ALL_PHOTOS,
     photoFeatures,
     poiSpecs,
     rasterSpec,
@@ -150,6 +151,14 @@ describe('map specs: photos, POIs, options', () => {
     it('badPath_photosFarFromTheYearAreStillShownWithTheirYear', () => {
         const [point] = photoFeatures([photo({ year: 1900 })], 'ro').features;
         expect(point?.properties).toMatchObject({ year: 1900 });
+        expect(photoFeatures([photo({ year: 1900 })], 'ro', 1980, ALL_PHOTOS).features).toHaveLength(2);
+    });
+
+    it('happyPath_theNearYearScopeKeepsOnlyThePhotosWithinItsWindow', () => {
+        const scope = { kind: 'near-year', window: 10 } as const;
+        expect(photoFeatures([photo({ year: 1900 })], 'ro', 1980, scope).features).toEqual([]);
+        expect(photoFeatures([photo({ year: 1975 })], 'ro', 1980, scope).features).toHaveLength(2);
+        expect(photoFeatures([photo({ year: 1900 })], 'ro', null, scope).features).toHaveLength(2);
     });
 
     it('happyPath_oneVectorOverlayPerCategoryWithTheYearsPois', () => {

@@ -4,6 +4,7 @@
  * URLs to the manifest's address.
  */
 import {
+    isPhotoNearYear,
     conePolygon,
     DEFAULT_FOV,
     findOverlay,
@@ -33,7 +34,6 @@ import type {
     RasterLayerSpec,
     VectorOverlaySpec,
 } from '@hcm/ui/map';
-
 
 /** Standard's configuration property of the basemap's light. */
 export const LIGHT_PRESET = 'lightPreset';
@@ -98,11 +98,23 @@ function photoCone(photo: Photo): PhotoConeFeature[] {
 }
 
 /**
- * Every photo, as a marker plus a cone for each photo with a bearing. Photos are shown whatever the timeline year
- * (the owner, 2026-11-15); the photo's year stays in its details.
+ * Which photos the map draws (the owner, 2026-11-15): `all` (the default) whatever the timeline year, or `near-year`, the
+ * photos within `window` years of the selected stop (every photo at "today"). The photo's year stays in its details.
  */
-export function photoFeatures(photos: readonly Photo[], locale: ViewerLocale): PhotoFeatureCollection {
-    return { type: 'FeatureCollection', features: [...photos.map((photo) => photoPoint(photo, locale)), ...photos.flatMap(photoCone)] };
+export type PhotosScope = { readonly kind: 'all' } | { readonly kind: 'near-year'; readonly window: number };
+
+/** The default scope: every photo. */
+export const ALL_PHOTOS: PhotosScope = { kind: 'all' };
+
+/** The photos `scope` shows at `year`, as markers plus a cone for each photo with a bearing. */
+export function photoFeatures(
+    photos: readonly Photo[],
+    locale: ViewerLocale,
+    year: number | null = null,
+    scope: PhotosScope = ALL_PHOTOS,
+): PhotoFeatureCollection {
+    const shown = scope.kind === 'all' || year === null ? photos : photos.filter((photo) => isPhotoNearYear(photo, year, scope.window));
+    return { type: 'FeatureCollection', features: [...shown.map((photo) => photoPoint(photo, locale)), ...shown.flatMap(photoCone)] };
 }
 
 function poiFeature(poi: Poi, locale: ViewerLocale): PoiFeature {

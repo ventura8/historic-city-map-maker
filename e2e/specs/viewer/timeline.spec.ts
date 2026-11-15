@@ -40,31 +40,35 @@ function timelineSlider(page: Page, lang: 'ro' | 'en') {
     return page.getByRole('slider', { name: t(lang, 'timeline.label'), exact: true });
 }
 
-test('Choosing a stop shows its layer and every photo', { tag: ['@S-V04-HAPPY', '@S-V04-HAPPY-PHOTOS-EVERY-YEAR'] }, async ({ page, lang }) => {
-    await openViewer(page, { lang, hash: OBOR_VIEW });
-    const probe = await mapFraction(page, 0.5, 0.12);
-    const slider = timelineSlider(page, lang);
-    await expect.poll(() => renderedFeatureIds(page, 'hcm-photos-marker')).toEqual(expect.arrayContaining([NEAR_1966, NEAR_NO_STOP]));
-    await expectColourAt(page, probe, BASEMAP_BACKGROUND, 'today shows no historical layer');
+test(
+    'Choosing a stop shows its layer and every photo',
+    { tag: ['@S-V04-HAPPY', '@S-V04-HAPPY-PHOTOS-EVERY-YEAR'] },
+    async ({ page, lang }) => {
+        await openViewer(page, { lang, hash: OBOR_VIEW });
+        const probe = await mapFraction(page, 0.5, 0.12);
+        const slider = timelineSlider(page, lang);
+        await expect.poll(() => renderedFeatureIds(page, 'hcm-photos-marker')).toEqual(expect.arrayContaining([NEAR_1966, NEAR_NO_STOP]));
+        await expectColourAt(page, probe, BASEMAP_BACKGROUND, 'today shows no historical layer');
 
-    await slider.focus();
-    await slider.press('Home');
-    await expect(slider).toHaveAttribute('aria-valuetext', t(lang, 'timeline.year', { year: '1966' }));
-    await expectColourAt(page, probe, E2E_TILESET_LAYER.colour, 'the 1966 layer');
-    // Every photo stays on the map whatever the year (the owner, 2026-11-15, S-V04-HAPPY-PHOTOS-EVERY-YEAR).
-    await expect.poll(() => renderedFeatureIds(page, 'hcm-photos-marker')).toEqual(expect.arrayContaining([NEAR_1966, NEAR_NO_STOP]));
-    await expect.poll(() => hashParam(page, 'layers')).toBe(E2E_TILESET_LAYER.id);
+        await slider.focus();
+        await slider.press('Home');
+        await expect(slider).toHaveAttribute('aria-valuetext', t(lang, 'timeline.year', { year: '1966' }));
+        await expectColourAt(page, probe, E2E_TILESET_LAYER.colour, 'the 1966 layer');
+        // Every photo stays on the map whatever the year (the owner, 2026-11-15, S-V04-HAPPY-PHOTOS-EVERY-YEAR).
+        await expect.poll(() => renderedFeatureIds(page, 'hcm-photos-marker')).toEqual(expect.arrayContaining([NEAR_1966, NEAR_NO_STOP]));
+        await expect.poll(() => hashParam(page, 'layers')).toBe(E2E_TILESET_LAYER.id);
 
-    await slider.press('ArrowRight');
-    await expect(slider).toHaveAttribute('aria-valuetext', t(lang, 'timeline.year', { year: '1980' }));
-    await expectColourAt(page, probe, blend(E2E_XYZ_LAYER.colour, BASEMAP_BACKGROUND, 0.8), 'the 1980 layer at its default 80 %');
-    await expect.poll(() => renderedFeatureIds(page, 'hcm-photos-marker')).toEqual(expect.arrayContaining([NEAR_1966, NEAR_NO_STOP]));
+        await slider.press('ArrowRight');
+        await expect(slider).toHaveAttribute('aria-valuetext', t(lang, 'timeline.year', { year: '1980' }));
+        await expectColourAt(page, probe, blend(E2E_XYZ_LAYER.colour, BASEMAP_BACKGROUND, 0.8), 'the 1980 layer at its default 80 %');
+        await expect.poll(() => renderedFeatureIds(page, 'hcm-photos-marker')).toEqual(expect.arrayContaining([NEAR_1966, NEAR_NO_STOP]));
 
-    await slider.press('End');
-    await expect(slider).toHaveAttribute('aria-valuetext', t(lang, 'timeline.present'));
-    await expectColourAt(page, probe, BASEMAP_BACKGROUND, 'today again');
-    await expect.poll(() => renderedFeatureIds(page, 'hcm-photos-marker')).toEqual(expect.arrayContaining([NEAR_1966, NEAR_NO_STOP]));
-});
+        await slider.press('End');
+        await expect(slider).toHaveAttribute('aria-valuetext', t(lang, 'timeline.present'));
+        await expectColourAt(page, probe, BASEMAP_BACKGROUND, 'today again');
+        await expect.poll(() => renderedFeatureIds(page, 'hcm-photos-marker')).toEqual(expect.arrayContaining([NEAR_1966, NEAR_NO_STOP]));
+    },
+);
 
 test('A year without a layer snaps to the nearest stop', { tag: '@S-V04-BAD-YEAR-WITHOUT-LAYER' }, async ({ page, lang }) => {
     await openViewer(page, { lang, hash: OBOR_VIEW });
