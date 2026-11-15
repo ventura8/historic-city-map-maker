@@ -1669,6 +1669,17 @@
             "notes": "Milestone M1. engine-ui CR-20: packages/ui/src/viewer/viewer-render.ts; the window is PHOTO_YEAR_WINDOW of @hcm/shared."
         },
         {
+            "id": "S-V04-HAPPY-PHOTOS-EVERY-YEAR",
+            "behaviour": "V04",
+            "area": "viewer",
+            "path": "happy",
+            "title": "Every photo marker stays on the map whatever the timeline year",
+            "asserts": "at today, 1966 and 1980 both the 1960 photo and the 1930 photo are drawn as markers; unit: photoFeatures keeps a photo far from any year, with its year in the marker's properties",
+            "tier": "e2e-viewer",
+            "status": "exists",
+            "notes": "The owner, 2026-11-15. packages/engine/src/core/map-specs.ts (photoFeatures). Tests: e2e/specs/viewer/timeline.spec.ts; packages/engine/test/core/map-specs.test.ts (badPath_photosFarFromTheYearAreStillShownWithTheirYear)."
+        },
+        {
             "id": "S-V04-HAPPY-CHIP-ON-TIMELINE",
             "behaviour": "V04",
             "area": "viewer",

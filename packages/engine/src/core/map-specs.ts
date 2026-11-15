@@ -34,7 +34,6 @@ import type {
     VectorOverlaySpec,
 } from '@hcm/ui/map';
 
-import { photosNearYear } from './timeline.js';
 
 /** Standard's configuration property of the basemap's light. */
 export const LIGHT_PRESET = 'lightPreset';
@@ -98,10 +97,12 @@ function photoCone(photo: Photo): PhotoConeFeature[] {
     return [{ type: 'Feature', geometry: { type: 'Polygon', coordinates: [ring] }, properties: { id: photo.id } }];
 }
 
-/** The photos the timeline shows at `year`, as markers plus a cone for each photo with a bearing. */
-export function photoFeatures(photos: readonly Photo[], locale: ViewerLocale, year: number | null): PhotoFeatureCollection {
-    const shown = photosNearYear(photos, year);
-    return { type: 'FeatureCollection', features: [...shown.map((photo) => photoPoint(photo, locale)), ...shown.flatMap(photoCone)] };
+/**
+ * Every photo, as a marker plus a cone for each photo with a bearing. Photos are shown whatever the timeline year
+ * (the owner, 2026-11-15); the photo's year stays in its details.
+ */
+export function photoFeatures(photos: readonly Photo[], locale: ViewerLocale): PhotoFeatureCollection {
+    return { type: 'FeatureCollection', features: [...photos.map((photo) => photoPoint(photo, locale)), ...photos.flatMap(photoCone)] };
 }
 
 function poiFeature(poi: Poi, locale: ViewerLocale): PoiFeature {

@@ -138,7 +138,7 @@ export class MapSync {
 
     /** The photo markers and the POIs of the current stop, titles in the current language. */
     #features(manifest: Manifest, state: ViewerState): void {
-        this.#map.setPhotosData(photoFeatures(manifest.photos, state.locale, state.year));
+        this.#map.setPhotosData(photoFeatures(manifest.photos, state.locale));
         for (const spec of poiSpecs(manifest, state.overlays, state.locale, state.year)) {
             this.#map.addVectorOverlay(spec, 'top');
         }

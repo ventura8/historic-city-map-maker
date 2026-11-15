@@ -22,7 +22,7 @@ import {
 
 /**
  * The timeline (behaviour V04): its stops are the layer years plus "today"; choosing a stop shows that year's layer
- * and filters the photo markers to the photos taken within 10 years of it, and a year without a layer snaps to the
+ * and keeps every photo marker on the map (the year stays in each photo's details), and a year without a layer snaps to the
  * nearest stop. A city without layers (Bucharest until M3) shows a note instead.
  */
 
@@ -40,7 +40,7 @@ function timelineSlider(page: Page, lang: 'ro' | 'en') {
     return page.getByRole('slider', { name: t(lang, 'timeline.label'), exact: true });
 }
 
-test('Choosing a stop shows its layer and the photos of those years', { tag: '@S-V04-HAPPY' }, async ({ page, lang }) => {
+test('Choosing a stop shows its layer and every photo', { tag: ['@S-V04-HAPPY', '@S-V04-HAPPY-PHOTOS-EVERY-YEAR'] }, async ({ page, lang }) => {
     await openViewer(page, { lang, hash: OBOR_VIEW });
     const probe = await mapFraction(page, 0.5, 0.12);
     const slider = timelineSlider(page, lang);
@@ -51,23 +51,14 @@ test('Choosing a stop shows its layer and the photos of those years', { tag: '@S
     await slider.press('Home');
     await expect(slider).toHaveAttribute('aria-valuetext', t(lang, 'timeline.year', { year: '1966' }));
     await expectColourAt(page, probe, E2E_TILESET_LAYER.colour, 'the 1966 layer');
-    // One poll for the whole filtered set: today's markers already include NEAR_1966, so waiting for it alone could read
-    // the markers before the filter was drawn (docs/LESSONS.md).
-    await expect
-        .poll(
-            async () => {
-                const shown = await renderedFeatureIds(page, 'hcm-photos-marker');
-                return { near: shown.includes(NEAR_1966), others: shown.filter((id) => !PHOTOS_NEAR_1966.includes(id)) };
-            },
-            { message: 'only photos taken 1956-1976' },
-        )
-        .toEqual({ near: true, others: [] });
+    // Every photo stays on the map whatever the year (the owner, 2026-11-15, S-V04-HAPPY-PHOTOS-EVERY-YEAR).
+    await expect.poll(() => renderedFeatureIds(page, 'hcm-photos-marker')).toEqual(expect.arrayContaining([NEAR_1966, NEAR_NO_STOP]));
     await expect.poll(() => hashParam(page, 'layers')).toBe(E2E_TILESET_LAYER.id);
 
     await slider.press('ArrowRight');
     await expect(slider).toHaveAttribute('aria-valuetext', t(lang, 'timeline.year', { year: '1980' }));
     await expectColourAt(page, probe, blend(E2E_XYZ_LAYER.colour, BASEMAP_BACKGROUND, 0.8), 'the 1980 layer at its default 80 %');
-    await expect.poll(() => renderedFeatureIds(page, 'hcm-photos-marker')).toEqual([]);
+    await expect.poll(() => renderedFeatureIds(page, 'hcm-photos-marker')).toEqual(expect.arrayContaining([NEAR_1966, NEAR_NO_STOP]));
 
     await slider.press('End');
     await expect(slider).toHaveAttribute('aria-valuetext', t(lang, 'timeline.present'));

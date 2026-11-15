@@ -126,7 +126,7 @@ describe('map specs: photos, POIs, options', () => {
     it('happyPath_photoMarkersAndConesInTheVisitorsLanguage', () => {
         const photos = [photo(), { ...omit(photo(), 'bearing', 'fov', 'year'), id: 'plain' }];
 
-        const data = photoFeatures(photos, 'en', null);
+        const data = photoFeatures(photos, 'en');
 
         expect(data.features).toHaveLength(3);
         expect(data.features[0]).toEqual({
@@ -142,13 +142,14 @@ describe('map specs: photos, POIs, options', () => {
     });
 
     it('happyPath_aConeWithoutFieldOfViewUsesTheDefault', () => {
-        const data = photoFeatures([omit(photo(), 'fov')], 'ro', null);
+        const data = photoFeatures([omit(photo(), 'fov')], 'ro');
 
         expect(data.features[1]?.geometry.type).toBe('Polygon');
     });
 
-    it('badPath_photosFarFromTheYearAreLeftOut', () => {
-        expect(photoFeatures([photo({ year: 1900 })], 'ro', 1980).features).toEqual([]);
+    it('badPath_photosFarFromTheYearAreStillShownWithTheirYear', () => {
+        const [point] = photoFeatures([photo({ year: 1900 })], 'ro').features;
+        expect(point?.properties).toMatchObject({ year: 1900 });
     });
 
     it('happyPath_oneVectorOverlayPerCategoryWithTheYearsPois', () => {
