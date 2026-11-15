@@ -20862,7 +20862,7 @@
             "area": "viewer",
             "path": "happy",
             "title": "The needle follows the map's own rotate gesture, and Space levels a turned and tilted map",
-            "asserts": "a right-drag over the map turns it more than 1° and tilts it -> the compass leaves north; Space on the focused compass -> bearing 0 and pitch 0, the compass north, the focus kept",
+            "asserts": "a right-drag over the map turns it more than 1° and tilts it -> the compass leaves north and its N letter turns with the needle to mark the map's north; Space on the focused compass -> bearing 0 and pitch 0, the compass north, the focus kept",
             "tier": "e2e-viewer",
             "status": "exists",
             "notes": "The owner, 2026-11-13 (DECISIONS-for-review.md §190). Test: e2e/specs/viewer/compass.spec.ts, packages/ui/test/viewer/hcm-compass.test.ts."

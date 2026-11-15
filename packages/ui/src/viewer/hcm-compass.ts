@@ -84,8 +84,16 @@ export class HcmCompass extends LitElement {
             }
 
             svg {
-                width: 24px;
-                height: 24px;
+                width: 28px;
+                height: 28px;
+            }
+
+            /* The "N" over the north point turns with the needle, so it always marks the map's north (the iPhone QA, 2026-11-15). */
+            .letter {
+                fill: currentcolor;
+                font: 700 7px/1 var(--md-ref-typeface-plain, system-ui, sans-serif);
+                text-anchor: middle;
+                dominant-baseline: central;
             }
 
             .south {
@@ -154,8 +162,9 @@ export class HcmCompass extends LitElement {
                 aria-describedby="heading"
             >
                 <svg viewBox="0 0 24 24" aria-hidden="true" ${cssProperties(needle)}>
-                    <path class="north" d="M12 2 L16.5 12 H7.5 Z"></path>
-                    <path class="south" d="M12 22 L16.5 12 H7.5 Z"></path>
+                    <text class="letter" x="12" y="3.5">N</text>
+                    <path class="north" d="M12 7.5 L15.5 14 H8.5 Z"></path>
+                    <path class="south" d="M12 21.5 L15.5 14 H8.5 Z"></path>
                 </svg>
             </button>
             <span id="heading" class="visually-hidden">${compassDescription(this.locale, this.camera)}</span>`;

@@ -48,6 +48,8 @@ describe('<hcm-compass>', () => {
         expect(compass.hasAttribute('north')).toBe(false);
         expect(description(compass)).toBe('Harta este rotită cu 90° față de nord.');
         expect(shadowQuery(compass, 'svg').style.transform).toBe('rotateX(0deg) rotate(-90deg)');
+        // The "N" sits in the turning drawing, so it always points at the map's north.
+        expect(shadowQuery(compass, 'svg text.letter').textContent).toBe('N');
 
         store.moveCamera({ bearing: 270.4, pitch: 35.2 });
         await compass.updateComplete;
