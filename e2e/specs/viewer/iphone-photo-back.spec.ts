@@ -61,14 +61,18 @@ test(
     },
 );
 
-test('On an iPhone a photo opened from the map has no Back and its Esc closes it', { tag: '@S-V75-BAD-FROM-MAP' }, async ({ page, lang }) => {
-    await openViewer(page, { lang });
-    await callController(page, 'openPhoto', 'strandul-opereta-1976');
-    await expect(page.getByRole('button', { name: t(lang, 'photo.openLightbox') })).toBeVisible();
-    await expect(page.getByRole('button', { name: t(lang, 'photo.backToList') })).toHaveCount(0);
+test(
+    'On an iPhone a photo opened from the map has no Back and its Esc closes it',
+    { tag: '@S-V75-BAD-FROM-MAP' },
+    async ({ page, lang }) => {
+        await openViewer(page, { lang });
+        await callController(page, 'openPhoto', 'strandul-opereta-1976');
+        await expect(page.getByRole('button', { name: t(lang, 'photo.openLightbox') })).toBeVisible();
+        await expect(page.getByRole('button', { name: t(lang, 'photo.backToList') })).toHaveCount(0);
 
-    await page.keyboard.press('Escape');
+        await page.keyboard.press('Escape');
 
-    await expect(page.getByRole('button', { name: t(lang, 'photo.openLightbox') })).toHaveCount(0);
-    await expect(page.getByRole('list', { name: t(lang, 'photos.list') })).toHaveCount(0);
-});
+        await expect(page.getByRole('button', { name: t(lang, 'photo.openLightbox') })).toHaveCount(0);
+        await expect(page.getByRole('list', { name: t(lang, 'photos.list') })).toHaveCount(0);
+    },
+);

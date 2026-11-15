@@ -128,7 +128,9 @@ export class HcmPhotoList extends LitElement {
     #item(photo: Photo, index: number): TemplateResult {
         const select = (): void => {
             const scroll = scrollerOf(this)?.scrollTop ?? 0;
-            this.dispatchEvent(new CustomEvent('hcm-photo-select', { bubbles: true, composed: true, detail: { photoId: photo.id, scroll } }));
+            this.dispatchEvent(
+                new CustomEvent('hcm-photo-select', { bubbles: true, composed: true, detail: { photoId: photo.id, scroll } }),
+            );
         };
         const src = resolveAssetUrl(photo.image.thumb, this.manifestUrl, document.baseURI) ?? '';
         return html`<li>

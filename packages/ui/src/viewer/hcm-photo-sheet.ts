@@ -252,7 +252,9 @@ export class HcmPhotoSheet extends LitElement {
             this.dispatchEvent(new CustomEvent('hcm-photo-back', { bubbles: true, detail: null }));
         };
         return html`<p>
-            <hcm-button variant="tonal" icon="arrow_back" class="back" @click=${onBack}>${translate(this.locale, 'photo.backToList')}</hcm-button>
+            <hcm-button variant="tonal" icon="arrow_back" class="back" @click=${onBack}
+                >${translate(this.locale, 'photo.backToList')}</hcm-button
+            >
         </p>`;
     }
 
