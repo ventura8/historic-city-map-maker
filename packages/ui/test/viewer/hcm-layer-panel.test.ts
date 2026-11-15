@@ -169,7 +169,6 @@ describe('<hcm-layer-panel>', () => {
         await element.updateComplete;
         expect(element.shadowRoot?.querySelector('hcm-overlay-list')).toBeNull();
     });
-
 });
 
 describe('<hcm-layer-panel> more', () => {
