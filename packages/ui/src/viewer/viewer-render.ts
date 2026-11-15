@@ -32,7 +32,7 @@ import { storiesSheet } from './viewer-stories.js';
 import { unplacedSheet } from './viewer-unplaced.js';
 import { statusOrCard } from './viewer-wordless.js';
 import type { CameraSource } from './hcm-compass.js';
-import { zoomButtons, type MapSize } from './viewer-zoom.js';
+import { markMenuOpen, zoomButtons, type MapSize } from './viewer-zoom.js';
 import { modalOpen, renderConsentBanner } from './viewer-legal.js';
 import { toastDock, type UpdateOffer } from './viewer-update.js';
 
@@ -322,7 +322,7 @@ function controls(view: ViewerView, ready: Ready, handlers: ViewerHandlers): Tem
             manifest.photos,
             handlers.onNearYear,
         )}
-        <div class="dock menu">
+        <div class="dock menu" @hcm-toggle=${markMenuOpen}>
             <hcm-fab-menu
                 data-layout-check="menu"
                 icon="menu"

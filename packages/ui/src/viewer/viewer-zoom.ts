@@ -75,3 +75,12 @@ export function zoomButtons(
             })}
         </div>`;
 }
+
+/**
+ * The open menu marks its frame (`data-menu-open`): the zoom group and the compass fade out under it and back when it
+ * closes (dock-styles.ts). The `:has(> [open])` sibling rule did not apply in Safari on the owner's iPhone (2026-11-15).
+ */
+export function markMenuOpen(event: Event): void {
+    const open = (event as CustomEvent<{ readonly open: boolean }>).detail.open;
+    (event.currentTarget as Element).closest('.frame')?.toggleAttribute('data-menu-open', open);
+}

@@ -3000,6 +3000,17 @@
             "notes": "The owner, 2026-11-15. packages/ui/src/viewer/timeline-opacity.ts."
         },
         {
+            "id": "S-V15-HAPPY-IPHONE-MENU-HIDES-CONTROLS",
+            "behaviour": "V15",
+            "area": "viewer",
+            "path": "happy",
+            "title": "On an iPhone the open menu hides the zoom buttons and the compass, and closing it brings them back",
+            "asserts": "WebKit as an iPhone 15: Zoom in and the compass are visible; a tap on the menu hides both; closing the menu shows them again at the same place (no layout jump)",
+            "tier": "e2e-viewer",
+            "status": "exists",
+            "notes": "The owner, 2026-11-15: Safari did not apply the :has() sibling rule; the menu's hcm-toggle marks the frame (data-menu-open). packages/ui/src/viewer/viewer-render.ts, dock-styles.ts; unit test in packages/ui/test/viewer/viewer-zoom.test.ts."
+        },
+        {
             "id": "S-V15-BAD-IPHONE-MENU-MORPH",
             "behaviour": "V15",
             "area": "viewer",

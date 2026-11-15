@@ -226,6 +226,28 @@ test(
     },
 );
 
+test(
+    'On an iPhone the open menu hides the zoom buttons and the compass, and closing it brings them back',
+    { tag: '@S-V15-HAPPY-IPHONE-MENU-HIDES-CONTROLS' },
+    async ({ page, lang }) => {
+        await openViewer(page, { lang });
+        const zoomIn = page.getByRole('button', { name: t(lang, 'viewer.zoomIn'), exact: true });
+        const compass = page.getByRole('button', { name: t(lang, 'viewer.compass'), exact: true });
+        await expect(zoomIn).toBeVisible();
+        await expect(compass).toBeVisible();
+        const before = await compass.boundingBox();
+
+        await menuButton(page, lang).tap();
+        await expect(zoomIn).toBeHidden();
+        await expect(compass).toBeHidden();
+
+        await page.locator('hcm-fab-menu .fab').tap();
+        await expect(zoomIn).toBeVisible();
+        await expect(compass).toBeVisible();
+        expect(await compass.boundingBox(), 'no layout jump').toEqual(before);
+    },
+);
+
 test('The Layers panel lists its historical layers newest first', { tag: '@S-V03-HAPPY-LAYERS-NEWEST-FIRST' }, async ({ page, lang }) => {
     await openViewer(page, { lang });
     await menuButton(page, lang).tap();

@@ -113,6 +113,19 @@ describe('<hcm-map-viewer>: the zoom buttons under the open menu', () => {
         menu.removeAttribute('open');
         expect(getComputedStyle(part(mounted, '.dock.zoom')).visibility).toBe('visible');
     });
+
+    it('badPath_theMenusToggleMarksTheFrameSoSafariHidesTheZoomAndTheCompassToo', async () => {
+        const mounted = await atZoom(14.5);
+        const menu = part(mounted, 'hcm-fab-menu');
+        const frame = part(mounted, '.frame');
+
+        menu.dispatchEvent(new CustomEvent('hcm-toggle', { detail: { open: true }, bubbles: true, composed: true }));
+        expect(frame.hasAttribute('data-menu-open')).toBe(true);
+        expect(getComputedStyle(part(mounted, '.dock.compass')).visibility).toBe('hidden');
+        menu.dispatchEvent(new CustomEvent('hcm-toggle', { detail: { open: false }, bubbles: true, composed: true }));
+        expect(frame.hasAttribute('data-menu-open')).toBe(false);
+        expect(getComputedStyle(part(mounted, '.dock.zoom')).visibility).toBe('visible');
+    });
 });
 
 describe('coverZoom: where Mapbox stops zooming out inside the city bounds', () => {

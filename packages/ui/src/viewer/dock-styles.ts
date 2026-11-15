@@ -110,6 +110,9 @@ export const dockStyles = css`
         inset-block-end: var(--hcm-zoom-end);
         flex-direction: column;
         padding: 4px;
+
+        /* They fade back in when the menu closes (hidden at once when it opens: the menu grows over them). */
+        transition: opacity var(--md-sys-motion-spring-fast-effects-duration, 150ms) var(--md-sys-motion-spring-fast-effects-easing, ease);
     }
 
     /*
@@ -240,9 +243,21 @@ export const dockStyles = css`
         --hcm-fab-menu-gap: calc(40px + 2 * var(--hcm-dock-gap));
     }
 
-    /* The open menu grows over the group and the compass: they step aside until it closes (the tour's overlap check). */
+    /*
+     * The open menu grows over the group and the compass: they step aside until it closes (the tour's overlap check). The
+     * frame is marked by the menu's own toggle (viewer-render.ts): Safari did not apply the :has() sibling rule.
+     */
+    .frame[data-menu-open] :is(.dock.zoom, .dock.compass),
     .dock.menu:has(> [open]) ~ :is(.dock.zoom, .dock.compass) {
         visibility: hidden;
+        opacity: 0;
+        transition: none;
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+        .frame :is(.dock.zoom, .dock.compass) {
+            transition: none;
+        }
     }
 
     /* The year chip shows where the photos chip docks: that one steps aside meanwhile (last: it outranks every chip rule). */
