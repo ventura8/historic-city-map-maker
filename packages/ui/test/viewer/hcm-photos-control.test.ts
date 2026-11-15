@@ -12,8 +12,13 @@ async function control(properties: Partial<HcmPhotosControl> = {}): Promise<HcmP
     return mountElement<HcmPhotosControl>(HCM_PHOTOS_CONTROL_TAG, { locale: 'en', ...properties });
 }
 
-function radios(element: HcmPhotosControl, name: string): HTMLInputElement[] {
-    return shadowQueryAll(element, `input[name="${name}"]`) as HTMLInputElement[];
+/** The radios of the popover's segmented button `name` (`scope` or `window`). */
+function radios(element: HcmPhotosControl, name: string): HTMLElement[] {
+    return shadowQueryAll(shadowQuery(element, `hcm-segmented-button.${name}`), '[role="radio"]');
+}
+
+function checked(radio: HTMLElement | undefined): boolean {
+    return radio?.getAttribute('aria-checked') === 'true';
 }
 
 describe('<hcm-photos-control> (design B)', () => {
@@ -49,9 +54,9 @@ describe('<hcm-photos-control> (design B)', () => {
         await element.updateComplete;
 
         expect(chevron.getAttribute('aria-expanded')).toBe('true');
-        expect(shadowQueryAll(element, '[role="radiogroup"]')).toHaveLength(2);
-        expect(radios(element, 'scope')[0]?.checked).toBe(true);
-        expect(radios(element, 'window')[1]?.checked).toBe(true);
+        expect(shadowQueryAll(element, 'hcm-segmented-button')).toHaveLength(2);
+        expect(checked(radios(element, 'scope')[0])).toBe(true);
+        expect(checked(radios(element, 'window')[1])).toBe(true);
         radios(element, 'scope')[1]?.click();
         radios(element, 'window')[2]?.click();
         radios(element, 'scope')[0]?.click();
@@ -66,8 +71,8 @@ describe('<hcm-photos-control> (design B)', () => {
         const element = await control({ near: 5, open: true });
 
         expect(shadowQuery(element, '.badge').getAttribute('aria-label')).toBe('Only the photos within 5 years of the selected year');
-        expect(radios(element, 'scope')[1]?.checked).toBe(true);
-        expect(radios(element, 'window')[0]?.checked).toBe(true);
+        expect(checked(radios(element, 'scope')[1])).toBe(true);
+        expect(checked(radios(element, 'window')[0])).toBe(true);
     });
 
     it('badPath_everyPhotoShowsNoBadge', async () => {

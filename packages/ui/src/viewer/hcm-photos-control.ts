@@ -71,8 +71,7 @@ export class HcmPhotosControl extends LitElement {
                 font: inherit;
             }
 
-            .chevron:focus-visible,
-            input:focus-visible {
+            .chevron:focus-visible {
                 outline: 3px solid var(--md-sys-color-secondary);
                 outline-offset: 2px;
             }
@@ -88,29 +87,9 @@ export class HcmPhotosControl extends LitElement {
                 box-shadow: var(--md-sys-elevation-level2);
             }
 
-            .popover h4 {
+            .popover p {
                 color: var(--md-sys-color-on-surface-variant);
                 font-size: var(--md-sys-typescale-label-medium-size);
-            }
-
-            .choices {
-                display: flex;
-                flex-wrap: wrap;
-                gap: 0 12px;
-            }
-
-            label {
-                display: inline-flex;
-                gap: 8px;
-                align-items: center;
-                min-block-size: 44px;
-            }
-
-            input {
-                inline-size: 20px;
-                block-size: 20px;
-                margin: 0;
-                accent-color: var(--md-sys-color-primary);
             }
         `,
     ];
@@ -176,27 +155,42 @@ export class HcmPhotosControl extends LitElement {
         return html`<span class="badge" role="img" aria-label=${label} title=${label}><hcm-icon name="event"></hcm-icon></span>`;
     }
 
+    /** Two kit segmented buttons (radio groups with 48 px targets): the scope, then the window of years. */
     #popover(): TemplateResult {
         const window = this.near ?? PHOTO_YEAR_WINDOW;
-        return html`<div id="photos-scope" class="popover" @keydown=${this.#onPopoverKey}>
-            <div class="choices" role="radiogroup" aria-label=${translate(this.locale, 'photosScope.options')}>
-                ${this.#radio('scope', translate(this.locale, 'photosScope.all'), this.near === null, null)}
-                ${this.#radio('scope', translate(this.locale, 'photosScope.near'), this.near !== null, window)}
-            </div>
-            <h4 id="photos-window">${translate(this.locale, 'photosScope.window')}</h4>
-            <div class="choices" role="radiogroup" aria-labelledby="photos-window">
-                ${PHOTOS_NEAR_WINDOWS.map((years) =>
-                    this.#radio('window', translate(this.locale, 'photosScope.years', { years: String(years) }), years === window, years),
-                )}
-            </div>
-        </div>`;
-    }
-
-    #radio(group: string, text: string, checked: boolean, near: number | null): TemplateResult {
-        const onChange = (): void => {
-            this.#setNear(near);
+        const scopes = [
+            { value: 'all', label: translate(this.locale, 'photosScope.all') },
+            { value: 'near', label: translate(this.locale, 'photosScope.near') },
+        ];
+        const windows = PHOTOS_NEAR_WINDOWS.map((years) => ({
+            value: String(years),
+            label: translate(this.locale, 'photosScope.years', { years: String(years) }),
+        }));
+        const onScope = (event: CustomEvent<{ readonly value: string }>): void => {
+            event.stopPropagation();
+            this.#setNear(event.detail.value === 'all' ? null : window);
         };
-        return html`<label><input type="radio" name=${group} .checked=${checked} @change=${onChange} />${text}</label>`;
+        const onWindow = (event: CustomEvent<{ readonly value: string }>): void => {
+            event.stopPropagation();
+            this.#setNear(Number(event.detail.value));
+        };
+        return html`<div id="photos-scope" class="popover" @keydown=${this.#onPopoverKey}>
+            <hcm-segmented-button
+                class="scope"
+                .label=${translate(this.locale, 'photosScope.options')}
+                .options=${scopes}
+                .value=${this.near === null ? 'all' : 'near'}
+                @hcm-change=${onScope}
+            ></hcm-segmented-button>
+            <p id="photos-window">${translate(this.locale, 'photosScope.window')}</p>
+            <hcm-segmented-button
+                class="window"
+                .label=${translate(this.locale, 'photosScope.window')}
+                .options=${windows}
+                .value=${String(window)}
+                @hcm-change=${onWindow}
+            ></hcm-segmented-button>
+        </div>`;
     }
 
     #setNear(near: number | null): void {
@@ -263,7 +257,8 @@ export class HcmPhotosControl extends LitElement {
     #show(): void {
         this.open = true;
         void this.updateComplete.then(() => {
-            this.renderRoot.querySelector<HTMLInputElement>('input[name="scope"]:checked')?.focus();
+            const scope = this.renderRoot.querySelector('hcm-segmented-button.scope');
+            scope?.shadowRoot?.querySelector<HTMLElement>("[aria-checked='true']")?.focus();
         });
     }
 }

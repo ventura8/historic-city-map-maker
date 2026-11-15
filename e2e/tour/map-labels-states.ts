@@ -35,7 +35,7 @@ export const MAP_LABEL_STATES = {
             const options = page.getByRole('button', { name: translate(lang, 'photosScope.options'), exact: true });
             await options.click();
             const near = page.getByRole('radio', { name: translate(lang, 'photosScope.near'), exact: true });
-            await near.check();
+            await near.click();
             await expect(
                 page.getByRole('img', { name: translate(lang, 'photosScope.nearOn', { years: '10' }), exact: true }),
             ).toBeVisible();

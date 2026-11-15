@@ -10,6 +10,7 @@ import { INPUT_JOURNEYS, INPUT_STATES } from './input-states.js';
 import { CJK_JOURNEY, LANGUAGE_STATES, RTL_JOURNEY } from './language-states.js';
 import { LOST_STREETS_JOURNEY, LOST_STREETS_STATES } from './lost-streets-states.js';
 import { MAP_LABEL_JOURNEY, MAP_LABEL_STATES } from './map-labels-states.js';
+import { ERROR_STATES, expectErrorCard } from './error-states.js';
 import { MY_LOCATION_STATES } from './my-location-states.js';
 import { ZOOM_JOURNEY, ZOOM_STATES } from './zoom-states.js';
 import { COMPASS_JOURNEY, COMPASS_STATES } from './compass-states.js';
@@ -302,29 +303,14 @@ const VIEWER_STATES = {
             await expect(page.getByRole('status').filter({ hasText: t(lang, 'viewer.loading') })).toBeVisible();
         },
     },
-    'error-not-found': {
-        title: 'The error card: the manifest is not found (404)',
-        enter: ({ page, lang }) => expectErrorCard(page, t(lang, 'error.manifest.notFound')),
-        announcements: (lang) => [t(lang, 'error.manifest.notFound')],
-    },
-    'error-network': {
-        title: 'The error card: the network failed',
-        enter: ({ page, lang }) => expectErrorCard(page, t(lang, 'error.manifest.network')),
-        announcements: (lang) => [t(lang, 'error.manifest.network')],
-    },
     'error-invalid': {
         title: 'The error card: the manifest is invalid',
         enter: ({ page, lang }) => expectErrorCard(page, leadOf(lang, 'error.manifest.invalid', {}, 'count')),
     },
-    'no-webgl': {
-        title: 'No WebGL: the error card and the photo list instead of the map',
-        enter: async ({ page, lang }) => {
-            await expect(page.getByText(t(lang, 'error.webgl'))).toBeVisible();
-        },
-    },
     // Swipe compare (M4, V06): the second map behind its divider, the toggle of a compact window, the chooser.
     ...COMPARE_STATES,
     ...MAP_LABEL_STATES,
+    ...ERROR_STATES,
     ...LOST_STREETS_STATES,
     ...PHOTO_SOURCE_STATES,
     // The language list, Arabic right to left and Japanese (V11).
@@ -336,10 +322,6 @@ type ViewerStateId = keyof typeof VIEWER_STATES;
 /** A state of the inventory with its id. */
 function viewerState(id: ViewerStateId): ViewerState {
     return { id: `viewer.${id}`, ...(VIEWER_STATES[id] as Omit<ViewerState, 'id'>) };
-}
-
-async function expectErrorCard(page: Page, message: string): Promise<void> {
-    await expect(page.getByRole('alert').filter({ hasText: message })).toBeVisible();
 }
 
 /** What one tour test visits: how it boots, what it checks once booted, and its states in order. */
