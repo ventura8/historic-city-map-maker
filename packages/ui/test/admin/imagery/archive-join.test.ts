@@ -85,6 +85,11 @@ describe('<hcm-archive-join>', () => {
         expect(deepAll(element, '[data-join-with]')).toHaveLength(1);
     });
 
+    it('happyPath_aMapAFailedJoinStampedIsOfferedAgain @S-A65-HAPPY-ARCHIVE-OFFER', () => {
+        expect(archiveJoinOffered({ ...NORTH, partOf: 'jn-old' }, false)).toBe(true);
+        expect(archiveJoinOffered({ ...NORTH, partOf: 'jn-old' }, true)).toBe(false);
+    });
+
     it.each([
         ['a USGS frame', versionView({ archiveMap: false })],
         ['a map with no points', { ...NORTH, georef: null }],

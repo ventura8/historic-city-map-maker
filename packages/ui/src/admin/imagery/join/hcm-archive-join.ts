@@ -18,9 +18,14 @@ export const HCM_ARCHIVE_JOIN_TAG = 'hcm-archive-join';
 /** The states a part may be joined in (the server's `isUsablePart` for an archive map). */
 const JOINABLE: ReadonlySet<LayerVersionState> = new Set<LayerVersionState>(['published', 'approved', 'awaiting_approval']);
 
-/** The version is an archive map the join can take: usable, with its own points, held by no join. */
-export function archiveJoinOffered(version: VersionViewPort | null): version is VersionViewPort {
-    return version?.archiveMap === true && JOINABLE.has(version.state) && pointed(version) && version.partOf === null;
+/**
+ * The version is an archive map the join can take: usable, with its own points, held by no live join. `held` is the page's
+ * own reading (the join named in `partOf` is still on its way); without it any `partOf` holds. A join that failed leaves its
+ * stamp behind: its maps are offered again (live 2026-11-15, the 1974 and 1978 joins).
+ */
+export function archiveJoinOffered(version: VersionViewPort | null, held: boolean | null = null): version is VersionViewPort {
+    const holds = held ?? (version !== null && version.partOf !== null);
+    return version?.archiveMap === true && JOINABLE.has(version.state) && pointed(version) && !holds;
 }
 
 /** Points of its own, not a file's embedded georeference. */
@@ -34,6 +39,7 @@ export class HcmArchiveJoin extends LitElement {
         locale: { attribute: false },
         intents: { attribute: false },
         version: { attribute: false },
+        held: { attribute: false },
         hrefOf: { attribute: false },
         candidates: { state: true },
         busy: { state: true },
@@ -45,6 +51,8 @@ export class HcmArchiveJoin extends LitElement {
     declare locale: UiLocale;
     declare intents: ImageryIntentsPort | null;
     declare version: VersionViewPort | null;
+    /** A live join holds the version (null: read from its `partOf`). */
+    declare held: boolean | null;
     /** The page's link to a version (`#/imagery/version/<id>`). */
     declare hrefOf: (params: readonly string[]) => string;
     declare candidates: readonly ArchiveJoinCandidatePort[];
@@ -58,6 +66,7 @@ export class HcmArchiveJoin extends LitElement {
         this.locale = 'ro';
         this.intents = null;
         this.version = null;
+        this.held = null;
         this.hrefOf = (params) => `#/imagery/${params.join('/')}`;
         this.candidates = [];
         this.busy = false;
@@ -65,7 +74,7 @@ export class HcmArchiveJoin extends LitElement {
     }
 
     protected override willUpdate(changed: PropertyValues<this>): void {
-        if (changed.has('version') || changed.has('intents')) {
+        if (changed.has('version') || changed.has('intents') || changed.has('held')) {
             this.#ask();
         }
     }
@@ -73,7 +82,7 @@ export class HcmArchiveJoin extends LitElement {
     /** The candidates of the open version, asked once per version. */
     #ask(): void {
         const version = this.version;
-        const key = archiveJoinOffered(version) ? version.id : null;
+        const key = archiveJoinOffered(version, this.held) ? version.id : null;
         if (key === this.#askedFor) {
             return;
         }
@@ -109,7 +118,7 @@ export class HcmArchiveJoin extends LitElement {
 
     override render(): TemplateResult {
         const version = this.version;
-        if (!archiveJoinOffered(version) || this.candidates.length === 0) {
+        if (!archiveJoinOffered(version, this.held) || this.candidates.length === 0) {
             return html``;
         }
         return html`<section class="choices" data-archive-join>

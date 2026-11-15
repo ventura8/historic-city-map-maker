@@ -322,6 +322,7 @@ export function versionJoin(context: ImageryContext, version: VersionViewPort, j
             .locale=${context.locale}
             .intents=${context.intents ?? null}
             .version=${version}
+            .held=${joinOfFrame(context, version) !== null}
             .hrefOf=${context.href}
         ></hcm-archive-join>`;
 }

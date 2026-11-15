@@ -39,9 +39,18 @@ function pointed(version: LayerVersionDoc): boolean {
     return version.scan !== undefined && method !== undefined && method !== 'embedded';
 }
 
-/** An archive map with a scan and its own points, usable and held by no join: the join can take it. */
-function joinable(version: LayerVersionDoc): boolean {
-    return version.source?.kind === 'archive' && USABLE.has(version.state) && pointed(version) && version.partOf === undefined;
+/** The states of a join that ended: its stamp on a map no longer holds it (live 2026-11-15, the 1974 and 1978 joins failed). */
+const ENDED: ReadonlySet<LayerVersionDoc['state']> = new Set<LayerVersionDoc['state']>(['failed', 'rejected', 'cancelled', 'superseded']);
+
+/** The joins read beside the maps that ended; a join not read is taken as still holding its maps. */
+function endedJoins(docs: readonly Stored<LayerVersionDoc>[]): ReadonlySet<string> {
+    return new Set(docs.filter(({ data }) => data.source?.kind === 'join' && ENDED.has(data.state)).map(({ id }) => id));
+}
+
+/** An archive map with a scan and its own points, usable and held by no live join: the join can take it. */
+function joinable(version: LayerVersionDoc, ended: ReadonlySet<string>): boolean {
+    const free = version.partOf === undefined || ended.has(version.partOf);
+    return version.source?.kind === 'archive' && USABLE.has(version.state) && pointed(version) && free;
 }
 
 /** The published version of a map wins, else the newest. */
@@ -53,14 +62,15 @@ function better(one: Stored<LayerVersionDoc>, other: Stored<LayerVersionDoc>): b
 }
 
 /** Another map than the open one's, which the join can take. */
-function otherMap(base: ArchiveJoinBase, doc: Stored<LayerVersionDoc>): boolean {
-    return doc.id !== base.id && doc.data.layerId !== base.layerId && joinable(doc.data);
+function otherMap(base: ArchiveJoinBase, doc: Stored<LayerVersionDoc>, ended: ReadonlySet<string>): boolean {
+    return doc.id !== base.id && doc.data.layerId !== base.layerId && joinable(doc.data, ended);
 }
 
 /** One candidate per map of another layer than the open one's. */
 function candidatesOf(base: ArchiveJoinBase, docs: readonly Stored<LayerVersionDoc>[]): ArchiveJoinCandidate[] {
     const best = new Map<string, Stored<LayerVersionDoc>>();
-    for (const doc of docs.filter((one) => otherMap(base, one))) {
+    const ended = endedJoins(docs);
+    for (const doc of docs.filter((one) => otherMap(base, one, ended))) {
         const held = best.get(doc.data.layerId);
         if (held === undefined || better(doc, held)) {
             best.set(doc.data.layerId, doc);

@@ -68,6 +68,17 @@ describe('Join with… on an archive map', () => {
         await expect(found).resolves.toEqual([]);
     });
 
+    it('happyPath_aMapAFailedJoinStampedIsOfferedAgain @S-A65-HAPPY-ARCHIVE-OFFER', async () => {
+        const world = imageryWorld();
+        world.store.docs.set(VERSIONS('ar-other'), archiveMap('other', { partOf: 'jn-old' }));
+        world.store.docs.set(VERSIONS('jn-old'), archiveMap('old', { state: 'failed', source: { kind: 'join', parts: [] } }));
+
+        const found = archiveJoinCandidates(world.services, BASE);
+        await settle();
+
+        await expect(found).resolves.toMatchObject([{ id: 'ar-other' }]);
+    });
+
     it('happyPath_theJoinIsAskedWithBothVersions', async () => {
         const world = seeded();
         answer(world.callables, 'imagery.join', () => ({ jobId: 'jn-n', versionId: 'jn-n', layerId: 'n' }));

@@ -4316,3 +4316,8 @@ Append a numbered entry to *Lessons from this repository* in the task that finds
     - Cause: `assign` measured each part's share against the whole city window and dropped parts under 1 %; two overlapping centre sheets split their cells and each fell under 1 %, so both were left out. The rule was tuned for satellite frames that cover the window.
     - Fix and pin: the share is of the cells the parts cover, not of the window; `test_join_seams.py` keeps two small sheets in a large window.
     - **A threshold meant to drop redundant parts must be relative to what the parts cover, not to a fixed frame that a small source never fills.**
+738. **After the 1974 and 1978 archive joins failed, their maps no longer offered Join with... .**
+    - Seen: 2026-11-15, the version pages of 1974 02 and the 1978 sheets after lesson 737's fix: no way to retry the join.
+    - Cause: the failed join left `partOf` on its maps, and both the page (`archiveJoinOffered`) and the candidates (`joinable`) treated any `partOf` as holding, while the server only refuses a part a live join holds.
+    - Fix and pin: the page passes whether a live join holds the map (`held`), and the candidates free a map whose join ended (failed, rejected, cancelled, superseded); tests in `archive-join.test.ts` (ui and admin).
+    - **A stamp left by a job must be read with the job's state: an ended job holds nothing.**

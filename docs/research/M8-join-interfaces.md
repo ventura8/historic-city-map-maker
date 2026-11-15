@@ -681,4 +681,4 @@ The owner's harti.zip maps include maps in parts: the n and S halves of 1978, 19
 - `align` keeps every part on its own fit: the seams are measured and reported (`applied: false`, `maxShiftM: 0`), a seam too far apart
   fails as before (`joinSeamTooFar`), and a part that shares no seam with another fails with `apiError.imagery.joinMapsApart {a, b}`;
 - the version page of an archive map offers **Join with…** (`<hcm-archive-join>`): one button per other map of its year that the join can
-  take, then a link to the join. Scenarios: S-A65-HAPPY-ARCHIVE, S-A65-BAD-ARCHIVE-NO-POINTS, S-A65-*-ARCHIVE-OFFER, S-P05-*-ARCHIVE*.
+  take, then a link to the join. A map a failed (or otherwise ended) join stamped is offered again (lesson 738). Scenarios: S-A65-HAPPY-ARCHIVE, S-A65-BAD-ARCHIVE-NO-POINTS, S-A65-*-ARCHIVE-OFFER, S-P05-*-ARCHIVE*.
