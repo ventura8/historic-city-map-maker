@@ -207,6 +207,7 @@ const EXPORTS = {
         'rasterAdjustmentPaint',
         'isPhotoNearYear',
         'PHOTO_YEAR_WINDOW',
+        'PHOTOS_NEAR_WINDOWS',
         'poiIcon',
         'poiInYear',
         'STARTER_POI_CATEGORIES',
