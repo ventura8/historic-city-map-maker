@@ -21,7 +21,6 @@ import type { LegalLift } from './legal-lift.js';
 import { renderSheetFrame } from './sheet-frame.js';
 import type { ThemeChoice, ViewerError, ViewerState } from './store-port.js';
 import { dateMenu, timelineDock, type TimelineDock } from './timeline-dock.js';
-import { frontOfYear } from './timeline-dates.js';
 import { photosNearYear, type TimelineStop } from './timeline-model.js';
 import { yearOpacity } from './timeline-opacity.js';
 import type { MenuPoint } from './map-menu-trigger.js';
@@ -341,8 +340,8 @@ function controls(view: ViewerView, ready: Ready, handlers: ViewerHandlers): Tem
 
 function timeline(view: ViewerView, ready: Ready, handlers: ViewerHandlers): TemplateResult {
     const { layers } = ready.manifest;
-    const { year, overlays, front, photosNear: near } = ready.state;
-    const opacity = year === null ? null : yearOpacity(overlays, frontOfYear(layers, year, front), view.locale);
+    const { year, overlays, photosNear: near } = ready.state;
+    const opacity = year === null ? null : yearOpacity(overlays, layers, year, view.locale);
     const dock = { ...view, year, orientation: view.layout.timeline, layers, collapsed: timelineCollapsed(view, ready), opacity, near };
     return timelineDock(dock, view.dock, handlers.onYearChange, handlers.onOverlayOpacity);
 }

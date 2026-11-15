@@ -80,6 +80,7 @@ export const uk: Messages = {
     'timeline.later': 'Пізніші роки, до {year}',
     'timeline.empty': 'На цій мапі немає історичних шарів',
     'timeline.dates': 'Дати {year}',
+    'timeline.opacityAll': 'Весь {year}',
     'timeline.datesHint': 'кілька дат ({count}), натисніть Enter, щоб їх переглянути',
     'layers.title': 'Шари',
     'layers.minimize': 'Згорнути шари',

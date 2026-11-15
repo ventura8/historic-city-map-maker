@@ -80,6 +80,7 @@ export const tr: Messages = {
     'timeline.later': 'Sonraki yıllar, {year} yılına kadar',
     'timeline.empty': 'Bu haritada tarihî katman yok',
     'timeline.dates': 'Tarihler ({year})',
+    'timeline.opacityAll': '{year} tümü',
     'timeline.datesHint': 'çeşitli tarihler ({count}), Enter bunları listeler',
     'layers.title': 'Katmanlar',
     'layers.minimize': 'Katmanları daralt',

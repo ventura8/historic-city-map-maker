@@ -146,6 +146,54 @@ export const timelineExtraStyles = css`
         content: '';
     }
 
+    /* A year of several layers: "all" first, then a row per layer, each its date above its slider. */
+    .opacity.several {
+        flex-direction: column;
+        align-items: stretch;
+        inline-size: 240px;
+        padding-block: 8px;
+    }
+
+    .opacity-row {
+        display: flex;
+        flex-direction: column;
+    }
+
+    .opacity-name {
+        font: var(--md-sys-typescale-label-medium, 500 12px / 16px system-ui);
+    }
+
+    /* Narrow screens (timeline-opacity.ts SHEET_QUERY): a bottom sheet across the viewport; a press elsewhere (the Layers button
+       too) closes it, so it never lies over the Layers panel. */
+    @media (max-width: 599px) {
+        .opacity,
+        .opacity.several {
+            position: fixed;
+            z-index: 4;
+            inset: auto 0 0;
+            inline-size: auto;
+            padding: 8px 24px calc(8px + env(safe-area-inset-bottom, 0px));
+            border-radius: var(--md-sys-shape-corner-extra-large, 28px) var(--md-sys-shape-corner-extra-large, 28px) 0 0;
+        }
+    }
+
+    /* Touch screens: a small half-filled disc at the start corner of the selected pill (the end one is the near-year dot)
+       says it holds an opacity card (tap or long-press). */
+    @media (pointer: coarse) {
+        :host([fadable]) .thumb::before {
+            position: absolute;
+            inset-block-start: -4px;
+            inset-inline-start: -4px;
+            inline-size: 12px;
+            block-size: 12px;
+            border: 1px solid var(--md-sys-color-on-primary, Canvas);
+            border-radius: 50%;
+            background: linear-gradient(90deg, var(--md-sys-color-primary, Highlight) 50%, transparent 50%);
+            content: '';
+            pointer-events: none;
+        }
+    }
+
     /* Forced colours (Windows contrast themes): a button's own pair, its edge in its text colour. */
     @media (forced-colors: active) {
         .edge,

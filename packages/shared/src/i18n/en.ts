@@ -77,6 +77,7 @@ export const en: Messages = {
     'timeline.later': 'Later years, up to {year}',
     'timeline.empty': 'No historical layers on this map',
     'timeline.dates': 'Dates in {year}',
+    'timeline.opacityAll': 'All of {year}',
     'timeline.datesHint': 'several dates ({count}), Enter lists them',
     'layers.title': 'Layers',
     'layers.minimize': 'Collapse layers',

@@ -1,12 +1,21 @@
 import type { Overlay } from '@hcm/shared';
-import { afterEach, describe, expect, it } from 'vitest';
+import { afterEach, describe, expect, it, vi } from 'vitest';
 
 import { HCM_TIMELINE_TAG, type HcmTimeline, defineHcmTimeline } from '../../src/viewer/hcm-timeline.js';
-import { yearOpacity } from '../../src/viewer/timeline-opacity.js';
+import { SHEET_QUERY, yearOpacity } from '../../src/viewer/timeline-opacity.js';
+import { meanPercent } from '../../src/viewer/timeline-opacity-card.js';
 import { mountElement, recordEvents, shadowQuery } from './doubles.js';
 
 /** The selected year's opacity card above the timeline's thumb (the owner, 2026-11-15). */
-const LAYER = { id: 'l1977', name: 'Bucharest 1977', opacity: 0.8 };
+const LAYER = { year: 1977, layers: [{ id: 'l1977', name: 'Bucharest 1977', date: '1977', opacity: 0.8 }] };
+/** A year of two layers: "all" first, then a row per date. */
+const TWO = {
+    year: 1977,
+    layers: [
+        { id: 'a', name: 'Spring 1977', date: 'April 1977', opacity: 0.4 },
+        { id: 'b', name: 'Autumn 1977', date: 'October 1977', opacity: 0.9 },
+    ],
+};
 
 function frame(): Promise<void> {
     return new Promise((resolve) => {
@@ -117,8 +126,8 @@ describe('the timeline opacity card', () => {
         element.dragging = true;
         await element.updateComplete;
         expect(card(element)).toBeNull();
-        expect(yearOpacity([], 'l1977', 'en')).toBeNull();
-        expect(yearOpacity([], null, 'en')).toBeNull();
+        expect(yearOpacity([], [{ id: 'l1977', year: 1977, label: { ro: 'L', en: 'L' } }], 1977, 'en')).toBeNull();
+        expect(yearOpacity([], [], 1977, 'en')).toBeNull();
     });
 
     it('badPath_touchHoversAndEscWithNothingShownDoNothingAndTheCollapsedPillHasNoCard', async () => {
@@ -167,7 +176,7 @@ describe('the timeline opacity card, standing', () => {
         thumb(element).dispatchEvent(new KeyboardEvent('keydown', { key: 'a', bubbles: true, composed: true }));
         pointer(thumb(element), 'pointerover', 'mouse');
         await element.updateComplete;
-        expect(shadowQuery(element, '.opacity').style.top).not.toBe('');
+        expect(shadowQuery(element, '.opacity').style.top === '').toBe(matchMedia(SHEET_QUERY).matches);
         thumb(element).dispatchEvent(new KeyboardEvent('keydown', { key: 'Escape', bubbles: true, composed: true }));
         await element.updateComplete;
         expect(card(element)).toBeNull();
@@ -181,6 +190,90 @@ describe('the timeline opacity card, standing', () => {
             defaultVisible: true,
             defaultOpacity: 1,
         } as unknown as Overlay;
-        expect(yearOpacity([overlay], 'l1977', 'en')).toEqual({ id: 'l1977', name: 'Layer 1977', opacity: 0.6 });
+        expect(yearOpacity([overlay], [{ id: 'l1977', year: 1977, date: '1977-04', label: { ro: 'L', en: 'L' } }], 1977, 'en')).toEqual({
+            year: 1977,
+            layers: [{ id: 'l1977', name: 'Layer 1977', date: 'April 1977', opacity: 0.6 }],
+        });
+    });
+});
+
+describe('the timeline opacity card of a year with several layers', () => {
+    afterEach(() => {
+        document.body.replaceChildren();
+    });
+
+    it('happyPath_allFirstThenARowPerLayerAndAllSetsEveryLayer', async () => {
+        const element = await timeline(TWO);
+        pointer(thumb(element), 'pointerover', 'mouse');
+        await element.updateComplete;
+        type Kit = HTMLElement & { value: number; label: string; updateComplete: Promise<unknown> };
+        const sliders = [...(element.shadowRoot?.querySelectorAll<Kit>('.opacity hcm-slider') ?? [])];
+        expect(sliders.map((slider) => slider.label)).toEqual(['Opacitate: Tot anul 1977', 'Opacitate: Spring 1977', 'Opacitate: Autumn 1977']);
+        expect(sliders.map((slider) => slider.value)).toEqual([65, 40, 90]);
+        expect([...(element.shadowRoot?.querySelectorAll('.opacity-name') ?? [])].map((name) => name.textContent)).toEqual([
+            'Tot anul 1977',
+            'April 1977',
+            'October 1977',
+        ]);
+
+        const sent = recordEvents(element, 'hcm-overlay-opacity');
+        const send = (slider: Kit | undefined, type: string, value: number): void => {
+            slider?.dispatchEvent(new CustomEvent(type, { detail: { value }, bubbles: true, composed: true }));
+        };
+        send(sliders[0], 'hcm-change', 20);
+        send(sliders[2], 'hcm-input', 50);
+        expect(sent.map((event) => event.detail)).toEqual([
+            { id: 'a', opacity: 0.2, final: true },
+            { id: 'b', opacity: 0.2, final: true },
+            { id: 'b', opacity: 0.5, final: false },
+        ]);
+    });
+
+    it('badPath_theDateMenuOpeningHidesTheCardSoTheyNeverOverlap', async () => {
+        const element = await timeline(TWO);
+        element.dateCounts = new Map([[1977, 2]]);
+        pointer(thumb(element), 'pointerover', 'mouse');
+        await element.updateComplete;
+        expect(card(element)).not.toBeNull();
+        const opened = recordEvents(element, 'hcm-dates-open');
+        thumb(element).dispatchEvent(new MouseEvent('click', { detail: 0, bubbles: true, composed: true }));
+        await element.updateComplete;
+        await element.updateComplete;
+        expect(opened).toHaveLength(1);
+        expect(card(element)).toBeNull();
+        expect(meanPercent([])).toBe(0);
+    });
+});
+
+describe('the timeline opacity card on a long press', () => {
+    afterEach(() => {
+        vi.useRealTimers();
+        document.body.replaceChildren();
+    });
+
+    it('happyPath_aFingerHeldOnTheThumbShowsTheCardAndItsLiftDoesNotHideIt', async () => {
+        const element = await timeline();
+        vi.useFakeTimers({ toFake: ['setTimeout', 'clearTimeout'] });
+        pointer(thumb(element), 'pointerdown', 'touch');
+        vi.advanceTimersByTime(600);
+        pointer(thumb(element), 'pointerup', 'touch');
+        await element.updateComplete;
+        expect(card(element)).not.toBeNull();
+    });
+
+    it('badPath_aFingerThatMovesOrIsCancelledBeforeTheHoldShowsNothing', async () => {
+        const element = await timeline();
+        vi.useFakeTimers({ toFake: ['setTimeout', 'clearTimeout'] });
+        pointer(thumb(element), 'pointerdown', 'touch');
+        await element.updateComplete;
+        expect(card(element), 'down').toBeNull();
+        document.dispatchEvent(new PointerEvent('pointermove', { clientX: 60, clientY: 10 }));
+        await element.updateComplete;
+        expect(card(element), 'move').toBeNull();
+        document.dispatchEvent(new PointerEvent('pointercancel'));
+        vi.advanceTimersByTime(600);
+        await element.updateComplete;
+        expect(card(element)).toBeNull();
+        element.remove();
     });
 });

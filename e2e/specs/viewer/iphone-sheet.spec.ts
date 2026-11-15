@@ -1,7 +1,19 @@
 import type { Locator, Page } from '@playwright/test';
 
+import { twoDatesOf1980 } from '../../fixtures/manifest.js';
 import { expect, test } from '../../support/test.js';
-import { menuButton, menuItemNamed, openLayers, openTimelineCard, openViewer, opacitySlider, t, viewer } from '../../support/viewer.js';
+import {
+    callController,
+    menuButton,
+    menuItemNamed,
+    openLayers,
+    openTimelineCard,
+    openViewer,
+    opacitySlider,
+    serveManifest,
+    t,
+    viewer,
+} from '../../support/viewer.js';
 
 /**
  * The owner's iPhone (2026-11-15; lesson 740): in Safari the X of the open menu did not close it, and the Layers panel
@@ -264,3 +276,58 @@ test('The Layers panel lists its historical layers newest first', { tag: '@S-V03
     expect(newer, 'the 1980 layer is listed').toBeGreaterThanOrEqual(0);
     expect(newer, 'the 1980 layer before the 1966 one').toBeLessThan(rows.indexOf('Corona 1966 (e2e)'));
 });
+
+/** A finger held on `target`: a touch pointerdown with no lift (the long press, `long-press.ts`). */
+async function holdOn(target: Locator): Promise<void> {
+    const box = await target.boundingBox();
+    const x = (box?.x ?? 0) + 4;
+    const y = (box?.y ?? 0) + 4;
+    await target.dispatchEvent('pointerdown', { clientX: x, clientY: y, pointerType: 'touch', isPrimary: true, bubbles: true, composed: true });
+}
+
+test(
+    'On an iPhone a long press on the collapsed year pill opens its opacity card: "all" first, then a slider per layer',
+    { tag: '@S-V12-HAPPY-IPHONE-YEAR-OPACITY-HOLD' },
+    async ({ page, lang }) => {
+        await serveManifest(page, twoDatesOf1980());
+        await openViewer(page, { lang });
+        await callController(page, 'setYear', 1980);
+        const thumb = viewer(page).locator('hcm-timeline .thumb');
+        await expect(viewer(page).locator('hcm-timeline[collapsed]')).toHaveCount(1);
+        await expect(viewer(page).locator('hcm-timeline[fadable]')).toHaveCount(1);
+
+        await holdOn(thumb);
+        const ranges = viewer(page).locator('hcm-timeline .opacity [role="slider"]');
+        await expect(ranges).toHaveCount(3);
+        await expect(ranges.first()).toBeVisible();
+        const all = t(lang, 'layers.opacity', { name: t(lang, 'timeline.opacityAll', { year: '1980' }) });
+        await expect(ranges.first()).toHaveAttribute('aria-label', all);
+        await thumb.dispatchEvent('pointerup', { pointerType: 'touch', bubbles: true, composed: true });
+        await expect(ranges).toHaveCount(3);
+        const sheet = await viewer(page).locator('hcm-timeline .opacity').boundingBox();
+        const height = page.viewportSize()?.height ?? 0;
+        expect(Math.round((sheet?.y ?? 0) + (sheet?.height ?? 0)), 'a bottom sheet on a phone').toBe(height);
+
+        await ranges.first().focus();
+        await ranges.first().press('Home');
+        for (let step = 0; step < 3; step += 1) {
+            await ranges.first().press('PageUp');
+        }
+        const thirty = t(lang, 'layers.opacityValue', { percent: '30' });
+        await expect(ranges.nth(1)).toHaveAttribute('aria-valuetext', thirty);
+        await expect(ranges.nth(2)).toHaveAttribute('aria-valuetext', thirty);
+    },
+);
+
+test(
+    'On an iPhone a short press on the collapsed pill opens the timeline without the opacity card',
+    { tag: '@S-V12-BAD-IPHONE-YEAR-OPACITY-HOLD' },
+    async ({ page, lang }) => {
+        await serveManifest(page, twoDatesOf1980());
+        await openViewer(page, { lang });
+        await callController(page, 'setYear', 1980);
+        await viewer(page).locator('hcm-timeline .thumb').tap();
+        await expect(viewer(page).locator('hcm-timeline[collapsed]')).toHaveCount(0);
+        await expect(viewer(page).locator('hcm-timeline .opacity [role="slider"]').first()).toBeHidden();
+    },
+);

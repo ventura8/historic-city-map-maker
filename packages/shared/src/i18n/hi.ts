@@ -77,6 +77,7 @@ export const hi: Messages = {
     'timeline.later': 'बाद के वर्ष, {year} तक',
     'timeline.empty': 'इस मानचित्र में कोई ऐतिहासिक परत नहीं है',
     'timeline.dates': '{year} की तिथियाँ',
+    'timeline.opacityAll': '{year} की सभी परतें',
     'timeline.datesHint': 'कई तिथियाँ ({count}), एंटर उन्हें दिखाता है',
     'layers.title': 'परतें',
     'layers.minimize': 'परतें समेटें',

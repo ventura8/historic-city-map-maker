@@ -403,6 +403,7 @@ const VIEWER_JOURNEYS: readonly Journey[] = [
             'year',
             'near-year-photos',
             'timeline-step',
+            'timeline-opacity',
             'layers',
             'layers-map-labels',
             'layers-peek',

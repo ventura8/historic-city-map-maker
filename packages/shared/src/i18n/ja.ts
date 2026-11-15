@@ -82,6 +82,7 @@ export const ja: Messages = {
     'timeline.later': '以降の年（{year} まで）',
     'timeline.empty': 'この地図には歴史レイヤーがありません',
     'timeline.dates': '{year}年の日付',
+    'timeline.opacityAll': '{year} すべて',
     'timeline.datesHint': '複数の日付 ({count}) があります。Enterキーを押すと表示されます',
     'layers.title': 'レイヤー',
     'layers.minimize': 'レイヤーを折りたたむ',

@@ -80,6 +80,7 @@ export const pt: Messages = {
     'timeline.later': 'Anos seguintes, até {year}',
     'timeline.empty': 'Este mapa não tem camadas históricas',
     'timeline.dates': 'Datas de {year}',
+    'timeline.opacityAll': 'Todo o {year}',
     'timeline.datesHint': 'várias datas ({count}), Enter as exibe',
     'layers.title': 'Camadas',
     'layers.minimize': 'Recolher as camadas',

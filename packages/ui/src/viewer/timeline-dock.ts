@@ -23,6 +23,7 @@ import type { HcmTimeline, TimelineOrientation } from './hcm-timeline.js';
 import type { YearOpacity } from './timeline-opacity.js';
 import { dateCounts, dateItems, datesOpenEvent, frontOfYear, type DatesOpenDetail } from './timeline-dates.js';
 import type { TimelineStop } from './timeline-model.js';
+import { LongPress } from './long-press.js';
 import { PEEK_LEAVE_MS, type DatesPeekDetail } from './timeline-peek.js';
 
 /** The floating controls the date menu keeps clear of (`date-menu-clear.ts`). */
@@ -41,6 +42,10 @@ export class TimelineDock implements ReactiveController {
     peek = false;
 
     readonly #host: DockHost;
+    /** A finger held on the pill: the card opens with its opacity card (`long-press.ts`). */
+    readonly #hold = new LongPress(() => {
+        this.#timeline()?.holdOpacity();
+    });
     /** The gentle close of a mouse's peek, waiting. */
     #closing: ReturnType<typeof setTimeout> | undefined;
 
@@ -57,6 +62,7 @@ export class TimelineDock implements ReactiveController {
     hostDisconnected(): void {
         this.#host.removeEventListener('pointerdown', this.#outside, true);
         window.removeEventListener('keydown', this.#escPeek);
+        this.#hold.cancel();
         clearTimeout(this.#closing);
     }
 
@@ -129,6 +135,7 @@ export class TimelineDock implements ReactiveController {
             if (this.#timeline()?.collapsed === true) {
                 event.preventDefault();
                 event.stopPropagation();
+                this.#hold.start(event);
                 this.#set(true);
             }
         },

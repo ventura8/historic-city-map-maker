@@ -53,6 +53,56 @@ describe('<hcm-map-viewer>: the timeline as a pill on a phone (V12)', () => {
         expect(mounted.store.callsOf('setYear')).toEqual([]);
     });
 
+    it('happyPath_aFingerHeldOnThePillOpensTheCardWithItsOpacityCardAndAMovedFingerDoesNot', async () => {
+        vi.useFakeTimers({ toFake: ['setTimeout', 'clearTimeout'] });
+        try {
+            const mounted = await mountViewer(readyState(testManifest(), { year: 1966 }), COMPACT);
+            shadowQuery(timelineOf(mounted), '.thumb').dispatchEvent(
+                new PointerEvent('pointerdown', {
+                    pointerType: 'touch',
+                    clientX: 5,
+                    clientY: 5,
+                    bubbles: true,
+                    cancelable: true,
+                    composed: true,
+                }),
+            );
+            await mounted.element.updateComplete;
+            vi.advanceTimersByTime(600);
+            await timelineOf(mounted).updateComplete;
+            expect(collapsed(mounted)).toBe(false);
+            expect(timelineOf(mounted).shadowRoot?.querySelector('.opacity input')).not.toBeNull();
+            expect(timelineOf(mounted).hasAttribute('fadable')).toBe(true);
+        } finally {
+            vi.useRealTimers();
+        }
+    });
+
+    it('badPath_aFingerThatMovesOffThePillOpensTheCardWithoutTheOpacityCard', async () => {
+        vi.useFakeTimers({ toFake: ['setTimeout', 'clearTimeout'] });
+        try {
+            const mounted = await mountViewer(readyState(testManifest(), { year: 1966 }), COMPACT);
+            shadowQuery(timelineOf(mounted), '.thumb').dispatchEvent(
+                new PointerEvent('pointerdown', {
+                    pointerType: 'touch',
+                    clientX: 5,
+                    clientY: 5,
+                    bubbles: true,
+                    cancelable: true,
+                    composed: true,
+                }),
+            );
+            document.dispatchEvent(new PointerEvent('pointermove', { pointerType: 'touch', clientX: 60, clientY: 5 }));
+            vi.advanceTimersByTime(600);
+            await timelineOf(mounted).updateComplete;
+            expect(collapsed(mounted)).toBe(false);
+            expect(timelineOf(mounted).shadowRoot?.querySelector('.opacity')).toBeNull();
+            mounted.element.remove();
+        } finally {
+            vi.useRealTimers();
+        }
+    });
+
     it('happyPath_aPressOnTheMapOrEscCollapsesItAgain', async () => {
         const mounted = await mountViewer(readyState(testManifest(), { year: 1966 }), COMPACT);
         press(timelineOf(mounted));

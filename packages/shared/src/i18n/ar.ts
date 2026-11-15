@@ -78,6 +78,7 @@ export const ar: Messages = {
     'timeline.later': 'سنوات لاحقة، حتى {year}',
     'timeline.empty': 'لا توجد طبقات تاريخية في هذه الخريطة',
     'timeline.dates': 'تواريخ في {year}',
+    'timeline.opacityAll': 'كل {year}',
     'timeline.datesHint': 'عدة تواريخ ({count})، اضغط على "Enter" لعرضها',
     'layers.title': 'الطبقات',
     'layers.minimize': 'طيّ الطبقات',
