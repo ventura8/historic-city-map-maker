@@ -180,6 +180,11 @@ export class HcmOverlayList extends LitElement {
             }
 
             /* A row the timeline's year just turned on (\`reveal\`): a short primary tint that fades out. */
+            /* A revealed row lands under the Layers panel's sticky strip, never behind it (its height, set by the panel). */
+            li {
+                scroll-margin-block-start: var(--hcm-pinned-height, 0px);
+            }
+
             li.revealed {
                 border-radius: var(--md-sys-shape-corner-medium);
                 animation: hcm-revealed 1.6s ease-out;
@@ -237,7 +242,7 @@ export class HcmOverlayList extends LitElement {
     }
 
     /**
-     * Scrolls the first of these rows into view and marks them for a moment (the timeline's year turned them on; the
+     * Scrolls the first of these rows to the top of the view and marks them for a moment (the timeline's year turned them on; the
      * iPhone QA, 2026-11-15). Smooth unless the visitor asked for reduced motion; the focus never moves. False: no such row.
      */
     reveal(ids: readonly string[]): boolean {
@@ -247,7 +252,7 @@ export class HcmOverlayList extends LitElement {
             return false;
         }
         const reduce = globalThis.matchMedia('(prefers-reduced-motion: reduce)').matches;
-        first.scrollIntoView({ block: 'nearest', behavior: reduce ? 'instant' : 'smooth' });
+        first.scrollIntoView({ block: 'start', behavior: reduce ? 'instant' : 'smooth' });
         for (const row of rows) {
             row.classList.remove('revealed');
             // A reflow restarts the tint when the same row is revealed twice in a row.

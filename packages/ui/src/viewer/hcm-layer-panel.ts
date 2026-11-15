@@ -30,6 +30,7 @@ import { EMPTY } from './empty.js';
 import type { OverlayListGroup } from '../components/overlay-list.js';
 import { labelsNote, overlayGroups, overlayItems, pinnedIds, splitPinned, attributionLines } from './layer-panel-model.js';
 import type { SheetMode } from './layout.js';
+import { revealLayers, syncPinnedOffset } from './pinned-offset.js';
 import { closeEvent, renderSheetFrame } from './sheet-frame.js';
 import { baseStyles, sheetStyles } from './shared-styles.js';
 
@@ -122,6 +123,11 @@ export class HcmLayerPanel extends LitElement {
                 position: sticky;
                 inset-block-start: 0;
                 z-index: 1;
+                margin-block-end: -12px;
+            }
+
+            .body {
+                scroll-padding-block-start: var(--hcm-pinned-height, 0px);
             }
 
             @media (width < 1200px), (height < 700px) {
@@ -131,6 +137,7 @@ export class HcmLayerPanel extends LitElement {
 
                 .body .pinned {
                     position: static;
+                    margin-block-end: 0;
                 }
             }
 
@@ -194,10 +201,8 @@ export class HcmLayerPanel extends LitElement {
     declare comparing: boolean;
     /** The basemap's own labels; null: no map (no WebGL), no group. */
     declare labels: LayerPanelLabels | null;
-    /** The timeline's year: a new one scrolls to the layers it turned on and marks them, now or when the panel opens. */
+    /** The timeline's year: a new one scrolls to its layers and marks them, now or (`#pendingYear`) when the panel shows. */
     declare year: number | null;
-
-    /** A year picked while the panel was closed or minimized: revealed when it shows. */
     #pendingYear: number | null = null;
 
     constructor() {
@@ -244,14 +249,13 @@ export class HcmLayerPanel extends LitElement {
         if (changed.get('minimized') !== undefined) {
             void this.updateComplete.then(() => tabbableElements(this.renderRoot as ShadowRoot)[0]?.focus());
         }
-        // The first year is the page's own, not a pick: only a change reveals.
         if (changed.has('year') && changed.get('year') !== undefined) {
             this.#pendingYear = this.year;
         }
+        syncPinnedOffset(this, this.renderRoot);
         this.#revealPending();
     }
 
-    /** The panel shows its list (an open sheet or the docked pane, not minimized). */
     #showing(): boolean {
         return (this.open || this.mode === 'docked') && !(this.minimizable && this.minimized);
     }
@@ -264,11 +268,7 @@ export class HcmLayerPanel extends LitElement {
         }
         this.#pendingYear = null;
         const ids = this.manifest.layers.filter((layer) => layer.year === year).map((layer) => layer.id);
-        void this.updateComplete.then(() => {
-            for (const list of this.renderRoot.querySelectorAll('hcm-overlay-list')) {
-                list.reveal(ids);
-            }
-        });
+        void this.updateComplete.then(() => revealLayers(this, this.renderRoot, ids));
     }
 
     /** Minimizes or restores at once, and tells the viewer, which keeps it in the store. */

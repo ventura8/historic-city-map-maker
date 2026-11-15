@@ -67,7 +67,7 @@ describe('<hcm-overlay-list> reveal', () => {
         const scroll = vi.spyOn(row, 'scrollIntoView');
         vi.useFakeTimers({ toFake: ['setTimeout'] });
         expect(element.reveal(['plan-1911', 'ortofoto-1945'])).toBe(true);
-        expect(scroll).toHaveBeenCalledWith({ block: 'nearest', behavior: 'smooth' });
+        expect(scroll).toHaveBeenCalledWith({ block: 'start', behavior: 'smooth' });
         expect(row.classList.contains('revealed')).toBe(true);
         expect(shadowPart(element, '[data-overlay="ortofoto-1945"]').classList.contains('revealed')).toBe(true);
         expect(element.shadowRoot?.activeElement ?? null).toBeNull();
@@ -81,7 +81,7 @@ describe('<hcm-overlay-list> reveal', () => {
         const row = shadowPart(element, '[data-overlay="ortofoto-1945"]');
         const scroll = vi.spyOn(row, 'scrollIntoView');
         expect(element.reveal(['ortofoto-1945'])).toBe(true);
-        expect(scroll).toHaveBeenCalledWith({ block: 'nearest', behavior: 'instant' });
+        expect(scroll).toHaveBeenCalledWith({ block: 'start', behavior: 'instant' });
         expect(element.reveal(['no-such-layer'])).toBe(false);
         expect(element.reveal([])).toBe(false);
     });
