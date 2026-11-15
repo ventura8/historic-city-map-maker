@@ -64,7 +64,14 @@ function inputHandlers(on: On): Pick<ViewerHandlers, 'onMapLabel' | 'onLayersMin
 /** A photo to open, to show on the map (V51) or full size, and its thumbnail on screen. */
 type PhotoHandlers = Pick<
     ViewerHandlers,
-    'photoReturn' | 'onSheetClose' | 'onPhotoSelect' | 'onPhotoLocate' | 'onLightboxOpen' | 'onPhotoShown' | 'onPhotoVersion' | 'onLightboxClose'
+    | 'photoReturn'
+    | 'onSheetClose'
+    | 'onPhotoSelect'
+    | 'onPhotoLocate'
+    | 'onLightboxOpen'
+    | 'onPhotoShown'
+    | 'onPhotoVersion'
+    | 'onLightboxClose'
 >;
 
 function photoHandlers(on: On, host: HandlerHost): PhotoHandlers {
