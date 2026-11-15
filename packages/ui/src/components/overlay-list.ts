@@ -251,7 +251,7 @@ export class HcmOverlayList extends LitElement {
         for (const row of rows) {
             row.classList.remove('revealed');
             // A reflow restarts the tint when the same row is revealed twice in a row.
-            void row.offsetWidth;
+            row.getBoundingClientRect();
             row.classList.add('revealed');
         }
         globalThis.setTimeout(() => {

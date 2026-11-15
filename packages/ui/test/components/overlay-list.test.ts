@@ -54,7 +54,7 @@ function liveRegion(element: HcmOverlayList): string {
     return shadowPart(element, '[role="status"]').textContent.trim();
 }
 
-describe('<hcm-overlay-list>', () => {
+describe('<hcm-overlay-list> reveal', () => {
     afterEach(cleanup);
     afterEach(() => {
         vi.useRealTimers();
@@ -85,6 +85,10 @@ describe('<hcm-overlay-list>', () => {
         expect(element.reveal(['no-such-layer'])).toBe(false);
         expect(element.reveal([])).toBe(false);
     });
+});
+
+describe('<hcm-overlay-list>', () => {
+    afterEach(cleanup);
 
     it('happyPath_rowsUnderTheirGroupHeadingsInRomanian', async () => {
         const element = await list('ro');
