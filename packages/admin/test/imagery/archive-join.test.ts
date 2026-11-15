@@ -9,6 +9,10 @@ import { answer, at, CITY, callsOf, imageryWorld, VERSIONS, versionDoc } from '.
 const ARCHIVE = { kind: 'archive', archiveId: 'ar-971b77774eee2871', seriesId: 's-c7549c8348b5', sheetCount: 1 };
 const BASE = { id: 'ar-north', layerId: 'n', year: 1978 };
 
+function PART(versionId: string): Record<string, string> {
+    return { versionId, layerId: versionId, entityId: versionId };
+}
+
 function archiveMap(layerId: string, overrides: Record<string, unknown> = {}): Record<string, unknown> {
     return versionDoc({ layerId, jobId: layerId, origin: 'archive', year: 1978, source: ARCHIVE, ...overrides });
 }
@@ -71,7 +75,7 @@ describe('Join with… on an archive map', () => {
     it('happyPath_aMapAFailedJoinStampedIsOfferedAgain @S-A65-HAPPY-ARCHIVE-OFFER', async () => {
         const world = imageryWorld();
         world.store.docs.set(VERSIONS('ar-other'), archiveMap('other', { partOf: 'jn-old' }));
-        world.store.docs.set(VERSIONS('jn-old'), archiveMap('old', { state: 'failed', source: { kind: 'join', parts: [] } }));
+        world.store.docs.set(VERSIONS('jn-old'), archiveMap('old', { state: 'failed', origin: 'join', source: { kind: 'join', parts: [PART('ar-other'), PART('ar-x')] } }));
 
         const found = archiveJoinCandidates(world.services, BASE);
         await settle();
