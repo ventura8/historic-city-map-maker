@@ -134,6 +134,42 @@ describe('<hcm-layer-panel>', () => {
         document.body.replaceChildren();
     });
 
+    it('happyPath_aNewYearRevealsItsLayersNowOrWhenThePanelOpens', async () => {
+        const element = await panel({ year: null });
+        const reveals = (): (readonly string[])[] =>
+            [...(element.shadowRoot?.querySelectorAll('hcm-overlay-list') ?? [])].flatMap(
+                (list) => (list as unknown as { revealed: (readonly string[])[] }).revealed,
+            );
+        expect(reveals()).toEqual([]);
+        element.year = 1977;
+        await element.updateComplete;
+        await element.updateComplete;
+        expect(reveals()).toContainEqual(['kh9-1977']);
+
+        element.open = false;
+        await element.updateComplete;
+        element.year = 1966;
+        await element.updateComplete;
+        expect(reveals()).not.toContainEqual(['kh4-1966']);
+        element.open = true;
+        await element.updateComplete;
+        await element.updateComplete;
+        expect(reveals()).toContainEqual(['kh4-1966']);
+    });
+
+    it('badPath_theFirstYearAndAMinimizedPaneRevealNothing', async () => {
+        const element = await panel({ year: 1977, mode: 'docked', minimizable: true, minimized: true });
+        element.year = 1966;
+        await element.updateComplete;
+        await element.updateComplete;
+        expect(element.shadowRoot?.querySelector('hcm-overlay-list')).toBeNull();
+        element.manifest = null;
+        element.minimized = false;
+        await element.updateComplete;
+        await element.updateComplete;
+        expect(element.shadowRoot?.querySelector('hcm-overlay-list')).toBeNull();
+    });
+
     it('happyPath_modalSheetHostsTheOverlayList', async () => {
         const element = await panel({ mode: 'side', locale: 'en' });
 

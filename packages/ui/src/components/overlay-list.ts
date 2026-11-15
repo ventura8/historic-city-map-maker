@@ -11,6 +11,9 @@ import { defineHcmSwitch } from './switch.js';
 
 export const HCM_OVERLAY_LIST_TAG = 'hcm-overlay-list';
 
+/** How long a revealed row stays marked: its tint's 1.6 s fade. */
+export const REVEAL_MS = 1600;
+
 /** One overlay row: labels already localized, `opacity` 0..1, `color`/`icon` for a POI category's swatch. */
 export interface OverlayListItem {
     readonly id: string;
@@ -176,7 +179,30 @@ export class HcmOverlayList extends LitElement {
                 text-align: end;
             }
 
+            /* A row the timeline's year just turned on (\`reveal\`): a short primary tint that fades out. */
+            li.revealed {
+                border-radius: var(--md-sys-shape-corner-medium);
+                animation: hcm-revealed 1.6s ease-out;
+            }
+
+            @keyframes hcm-revealed {
+                from {
+                    background: var(--md-sys-color-primary-container);
+                }
+            }
+
+            @media (prefers-reduced-motion: reduce) {
+                li.revealed {
+                    animation: none;
+                    background: var(--md-sys-color-primary-container);
+                }
+            }
+
             @media (forced-colors: active) {
+                li.revealed {
+                    outline: 2px solid Highlight;
+                }
+
                 .swatch {
                     border: 1px solid CanvasText;
                 }
@@ -208,6 +234,32 @@ export class HcmOverlayList extends LitElement {
         this.hiddenText = '';
         this.disabled = false;
         this.announcement = '';
+    }
+
+    /**
+     * Scrolls the first of these rows into view and marks them for a moment (the timeline's year turned them on; the
+     * iPhone QA, 2026-11-15). Smooth unless the visitor asked for reduced motion; the focus never moves. False: no such row.
+     */
+    reveal(ids: readonly string[]): boolean {
+        const rows = ids.flatMap((id) => [...this.renderRoot.querySelectorAll<HTMLElement>(`li[data-overlay="${CSS.escape(id)}"]`)]);
+        const [first] = rows;
+        if (first === undefined) {
+            return false;
+        }
+        const reduce = globalThis.matchMedia('(prefers-reduced-motion: reduce)').matches;
+        first.scrollIntoView({ block: 'nearest', behavior: reduce ? 'instant' : 'smooth' });
+        for (const row of rows) {
+            row.classList.remove('revealed');
+            // A reflow restarts the tint when the same row is revealed twice in a row.
+            void row.offsetWidth;
+            row.classList.add('revealed');
+        }
+        globalThis.setTimeout(() => {
+            for (const row of rows) {
+                row.classList.remove('revealed');
+            }
+        }, REVEAL_MS);
+        return true;
     }
 
     override render(): TemplateResult {

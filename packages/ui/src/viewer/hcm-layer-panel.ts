@@ -63,6 +63,7 @@ export class HcmLayerPanel extends LitElement {
         canCompare: { type: Boolean, attribute: 'can-compare' },
         comparing: { type: Boolean },
         labels: { attribute: false },
+        year: { attribute: false },
     };
 
     static override readonly styles = [
@@ -193,6 +194,11 @@ export class HcmLayerPanel extends LitElement {
     declare comparing: boolean;
     /** The basemap's own labels; null: no map (no WebGL), no group. */
     declare labels: LayerPanelLabels | null;
+    /** The timeline's year: a new one scrolls to the layers it turned on and marks them, now or when the panel opens. */
+    declare year: number | null;
+
+    /** A year picked while the panel was closed or minimized: revealed when it shows. */
+    #pendingYear: number | null = null;
 
     constructor() {
         super();
@@ -206,6 +212,7 @@ export class HcmLayerPanel extends LitElement {
         this.canCompare = false;
         this.comparing = false;
         this.labels = null;
+        this.year = null;
     }
 
     override render(): TemplateResult {
@@ -237,6 +244,31 @@ export class HcmLayerPanel extends LitElement {
         if (changed.get('minimized') !== undefined) {
             void this.updateComplete.then(() => tabbableElements(this.renderRoot as ShadowRoot)[0]?.focus());
         }
+        // The first year is the page's own, not a pick: only a change reveals.
+        if (changed.has('year') && changed.get('year') !== undefined) {
+            this.#pendingYear = this.year;
+        }
+        this.#revealPending();
+    }
+
+    /** The panel shows its list (an open sheet or the docked pane, not minimized). */
+    #showing(): boolean {
+        return (this.open || this.mode === 'docked') && !(this.minimizable && this.minimized);
+    }
+
+    /** Scrolls to the pending year's layers once the panel shows; the list renders after this update, hence the wait. */
+    #revealPending(): void {
+        const year = this.#pendingYear;
+        if (year === null || !this.#showing() || this.manifest === null) {
+            return;
+        }
+        this.#pendingYear = null;
+        const ids = this.manifest.layers.filter((layer) => layer.year === year).map((layer) => layer.id);
+        void this.updateComplete.then(() => {
+            for (const list of this.renderRoot.querySelectorAll('hcm-overlay-list')) {
+                list.reveal(ids);
+            }
+        });
     }
 
     /** Minimizes or restores at once, and tells the viewer, which keeps it in the store. */

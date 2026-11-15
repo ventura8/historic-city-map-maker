@@ -1,10 +1,11 @@
 import { translate, type Locale } from '@hcm/shared';
 import { axeViolations } from '@hcm/test-support/axe';
 import { html } from 'lit';
-import { afterEach, describe, expect, it } from 'vitest';
+import { afterEach, describe, expect, it, vi } from 'vitest';
 import { page, userEvent } from 'vitest/browser';
 
 import {
+    REVEAL_MS,
     defineHcmOverlayList,
     type HcmOverlayList,
     type OverlayListGroup,
@@ -55,6 +56,35 @@ function liveRegion(element: HcmOverlayList): string {
 
 describe('<hcm-overlay-list>', () => {
     afterEach(cleanup);
+    afterEach(() => {
+        vi.useRealTimers();
+        vi.restoreAllMocks();
+    });
+
+    it('happyPath_revealScrollsToTheRowsAndMarksThemForAMoment', async () => {
+        const element = await list('ro');
+        const row = shadowPart(element, '[data-overlay="plan-1911"]');
+        const scroll = vi.spyOn(row, 'scrollIntoView');
+        vi.useFakeTimers({ toFake: ['setTimeout'] });
+        expect(element.reveal(['plan-1911', 'ortofoto-1945'])).toBe(true);
+        expect(scroll).toHaveBeenCalledWith({ block: 'nearest', behavior: 'smooth' });
+        expect(row.classList.contains('revealed')).toBe(true);
+        expect(shadowPart(element, '[data-overlay="ortofoto-1945"]').classList.contains('revealed')).toBe(true);
+        expect(element.shadowRoot?.activeElement ?? null).toBeNull();
+        vi.advanceTimersByTime(REVEAL_MS);
+        expect(row.classList.contains('revealed')).toBe(false);
+    });
+
+    it('badPath_revealWithReducedMotionIsInstantAndAnUnknownIdRevealsNothing', async () => {
+        const element = await list('ro');
+        vi.spyOn(globalThis, 'matchMedia').mockReturnValue({ matches: true } as MediaQueryList);
+        const row = shadowPart(element, '[data-overlay="ortofoto-1945"]');
+        const scroll = vi.spyOn(row, 'scrollIntoView');
+        expect(element.reveal(['ortofoto-1945'])).toBe(true);
+        expect(scroll).toHaveBeenCalledWith({ block: 'nearest', behavior: 'instant' });
+        expect(element.reveal(['no-such-layer'])).toBe(false);
+        expect(element.reveal([])).toBe(false);
+    });
 
     it('happyPath_rowsUnderTheirGroupHeadingsInRomanian', async () => {
         const element = await list('ro');

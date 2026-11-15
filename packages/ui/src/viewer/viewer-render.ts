@@ -355,6 +355,7 @@ function layerPanel(view: ViewerView, ready: Ready, placement: Placement, handle
         .canCompare=${ready.state.webgl && ready.manifest.layers.length > 0}
         .comparing=${ready.state.compare !== null}
         .labels=${ready.state.webgl ? ready.state.mapLabels : null}
+        .year=${ready.state.year}
         ?inert=${placement.inert === true}
         @hcm-close=${handlers.onSheetClose}
         @hcm-overlay-visibility=${handlers.onOverlayVisibility}

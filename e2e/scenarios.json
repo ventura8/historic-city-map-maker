@@ -1277,6 +1277,13 @@
             "source": "the owner's request of 2026-11-14 (make Follow my device's accent work: Chrome and Edge give the device's accent only to an installed web app, docs/LESSONS.md 711); docs/ENGINE_API.md → Installable app"
         },
         {
+            "id": "V73",
+            "area": "viewer",
+            "name": "A year picked on the timeline scrolls the Layers panel to the layers it turned on and marks them",
+            "milestone": "M1",
+            "source": "the iPhone QA, 2026-11-15: picking a year pill shows its layer(s) in Straturi, now or when the panel is opened later"
+        },
+        {
             "id": "A185",
             "area": "admin",
             "name": "The admin is an installable app at its own folder: its manifest and icons, the push worker as its service worker keeping nothing, and Install app in the account menu (also offered by Device accent on a computer) while the browser offers it",
@@ -22879,6 +22886,28 @@
             "tier": "e2e-viewer",
             "status": "exists",
             "notes": "The owner, 2026-11-14 (\"the installed PWA apps must update/refresh themselves\"); docs/ENGINE_API.md → Installable app → Updates; LESSONS 718. Unit: packages/shared/test/kit/app-update.test.ts, scripts/site/test/app.test.ts, scripts/site/test/build.test.ts, packages/ui/test/app-update.test.ts, packages/ui/test/viewer/hcm-map-viewer-update.test.ts. Test: e2e/specs/viewer/app.spec.ts."
+        },
+        {
+            "id": "S-V73-HAPPY-REVEAL",
+            "behaviour": "V73",
+            "area": "viewer",
+            "path": "happy",
+            "title": "A new year scrolls the open Layers panel to its layers, or does so when the panel opens later",
+            "asserts": "year 1977 with the panel open -> the kh9-1977 row scrolled into view (smooth) and marked for 1.6 s, the focus not moved; a year picked while closed -> revealed when the panel opens",
+            "tier": "e2e-viewer",
+            "status": "exists",
+            "notes": "The iPhone QA, 2026-11-15. Test: packages/ui/test/viewer/hcm-layer-panel.test.ts, packages/ui/test/components/overlay-list.test.ts."
+        },
+        {
+            "id": "S-V73-BAD-NO-REVEAL",
+            "behaviour": "V73",
+            "area": "viewer",
+            "path": "bad",
+            "title": "The page's first year, a minimized pane, reduced motion or a year without layers reveal nothing unexpected",
+            "asserts": "the first year -> no reveal; minimized or no manifest -> nothing revealed; reduced motion -> an instant scroll; an unknown id -> false, nothing marked",
+            "tier": "e2e-viewer",
+            "status": "exists",
+            "notes": "The iPhone QA, 2026-11-15. Test: packages/ui/test/viewer/hcm-layer-panel.test.ts, packages/ui/test/components/overlay-list.test.ts."
         },
         {
             "id": "S-A185-HAPPY-INSTALLABLE",

@@ -151,10 +151,17 @@ class ProgressDouble extends LitElement {
 class OverlayListDouble extends LitElement {
     static override readonly properties = { items: {}, groups: {}, toggleLabel: {}, opacityLabel: {}, valueText: {}, changedText: {} };
     declare items: readonly { readonly id: string; readonly label: string }[];
+    /** Every `reveal` the panel asked for, in order. */
+    readonly revealed: (readonly string[])[] = [];
 
     constructor() {
         super();
         this.items = [];
+    }
+
+    reveal(ids: readonly string[]): boolean {
+        this.revealed.push(ids);
+        return true;
     }
 
     override render(): TemplateResult {
