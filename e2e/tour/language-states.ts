@@ -49,7 +49,7 @@ export const LANGUAGE_STATES = {
         enter: async ({ page }) => {
             await chooseMenuItem(page, 'ar', t('ar', 'settings.title'));
             await expect(page.getByRole('dialog', { name: t('ar', 'settings.title') })).toBeVisible();
-            await expect(languageList(page).getByRole('radio')).toHaveCount(VIEWER_LOCALES.length);
+            await expect(languageList(page).getByRole('option')).toHaveCount(VIEWER_LOCALES.length);
         },
         escape: () => ({ opener: t('ar', 'action.menu') }),
         shows: arabic,
