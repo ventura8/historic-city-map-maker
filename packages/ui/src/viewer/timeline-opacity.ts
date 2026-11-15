@@ -18,9 +18,6 @@ import { placeTip } from './timeline-tip.js';
 
 export type { YearLayer, YearOpacity } from './timeline-opacity-card.js';
 
-/** Narrow screens: the card is a bottom sheet (`timeline-extra-styles.ts`), not placed by the thumb. */
-export const SHEET_QUERY = '(max-width: 599px)';
-
 /** How far (px) a finger may move between down and up and still be a tap on the thumb, not a scrub. */
 const TAP_SLOP_PX = 10;
 /** How long (ms) the card waits after the pointer left before hiding: the way from the thumb up to the card. */
@@ -256,15 +253,12 @@ function besideX(centreX: number, card: { readonly reach: number; readonly width
  * and a stop straight above would be a step back up the column (the tour's focus order). Where the end side has no
  * room it goes to the other side.
  */
-export function placeOpacityCard(host: HTMLElement & OpacityHost, rtl: boolean, vertical: boolean): void {
+export function placeOpacityCard(host: HTMLElement & OpacityHost & { readonly opacity: YearOpacity | null }, rtl: boolean, vertical: boolean): void {
+    // `fadable`: the pill has a card to open (its touch mark, `timeline-extra-styles.ts`).
+    host.toggleAttribute('fadable', host.opacity !== null);
     const card = host.renderRoot.querySelector<HTMLElement>('.opacity');
     const thumb = host.renderRoot.querySelector('.thumb');
     if (card === null || thumb === null) {
-        return;
-    }
-    if (matchMedia(SHEET_QUERY).matches) {
-        card.style.left = '';
-        card.style.top = '';
         return;
     }
     const box = host.getBoundingClientRect();

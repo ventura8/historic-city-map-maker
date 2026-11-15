@@ -282,7 +282,14 @@ async function holdOn(target: Locator): Promise<void> {
     const box = await target.boundingBox();
     const x = (box?.x ?? 0) + 4;
     const y = (box?.y ?? 0) + 4;
-    await target.dispatchEvent('pointerdown', { clientX: x, clientY: y, pointerType: 'touch', isPrimary: true, bubbles: true, composed: true });
+    await target.dispatchEvent('pointerdown', {
+        clientX: x,
+        clientY: y,
+        pointerType: 'touch',
+        isPrimary: true,
+        bubbles: true,
+        composed: true,
+    });
 }
 
 test(

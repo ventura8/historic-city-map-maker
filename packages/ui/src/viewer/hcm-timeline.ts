@@ -229,7 +229,6 @@ export class HcmTimeline extends LitElement {
         this.#scroll.crowd();
         this.#placeTip();
         placeOpacityCard(this, this.#rtl(), this.orientation === 'vertical');
-        this.toggleAttribute('fadable', this.opacity !== null);
         this.#markTipping();
     }
 
@@ -291,9 +290,9 @@ export class HcmTimeline extends LitElement {
     };
 
     /** A long press on the phone's pill (`timeline-dock.ts`): the opacity card shows once the card is open. */
-    holdOpacity(): void {
+    holdOpacity = (): void => {
         this.#reveal.hold();
-    }
+    };
 
     /** Moves keyboard focus to the thumb (the viewer's "skip to timeline" link). */
     override focus(options?: FocusOptions): void {

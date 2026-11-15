@@ -2,7 +2,7 @@ import type { Overlay } from '@hcm/shared';
 import { afterEach, describe, expect, it, vi } from 'vitest';
 
 import { HCM_TIMELINE_TAG, type HcmTimeline, defineHcmTimeline } from '../../src/viewer/hcm-timeline.js';
-import { SHEET_QUERY, yearOpacity } from '../../src/viewer/timeline-opacity.js';
+import { yearOpacity } from '../../src/viewer/timeline-opacity.js';
 import { meanPercent } from '../../src/viewer/timeline-opacity-card.js';
 import { mountElement, recordEvents, shadowQuery } from './doubles.js';
 
@@ -176,7 +176,7 @@ describe('the timeline opacity card, standing', () => {
         thumb(element).dispatchEvent(new KeyboardEvent('keydown', { key: 'a', bubbles: true, composed: true }));
         pointer(thumb(element), 'pointerover', 'mouse');
         await element.updateComplete;
-        expect(shadowQuery(element, '.opacity').style.top === '').toBe(matchMedia(SHEET_QUERY).matches);
+        expect(shadowQuery(element, '.opacity').style.top).not.toBe('');
         thumb(element).dispatchEvent(new KeyboardEvent('keydown', { key: 'Escape', bubbles: true, composed: true }));
         await element.updateComplete;
         expect(card(element)).toBeNull();
@@ -208,7 +208,11 @@ describe('the timeline opacity card of a year with several layers', () => {
         await element.updateComplete;
         type Kit = HTMLElement & { value: number; label: string; updateComplete: Promise<unknown> };
         const sliders = [...(element.shadowRoot?.querySelectorAll<Kit>('.opacity hcm-slider') ?? [])];
-        expect(sliders.map((slider) => slider.label)).toEqual(['Opacitate: Tot anul 1977', 'Opacitate: Spring 1977', 'Opacitate: Autumn 1977']);
+        expect(sliders.map((slider) => slider.label)).toEqual([
+            'Opacitate: Tot anul 1977',
+            'Opacitate: Spring 1977',
+            'Opacitate: Autumn 1977',
+        ]);
         expect(sliders.map((slider) => slider.value)).toEqual([65, 40, 90]);
         expect([...(element.shadowRoot?.querySelectorAll('.opacity-name') ?? [])].map((name) => name.textContent)).toEqual([
             'Tot anul 1977',

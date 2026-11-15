@@ -163,14 +163,15 @@ export const timelineExtraStyles = css`
         font: var(--md-sys-typescale-label-medium, 500 12px / 16px system-ui);
     }
 
-    /* Narrow screens (timeline-opacity.ts SHEET_QUERY): a bottom sheet across the viewport; a press elsewhere (the Layers button
-       too) closes it, so it never lies over the Layers panel. */
-    @media (max-width: 599px) {
+    /* Narrow screens: a bottom sheet across the viewport, over the place timeline-opacity.ts gives it beside the thumb (its
+       inline left and top, hence !important); a press elsewhere (the Layers button too) closes it, so it never lies over the
+       Layers panel. */
+    @media (width < 600px) {
         .opacity,
         .opacity.several {
             position: fixed;
             z-index: 4;
-            inset: auto 0 0;
+            inset: auto 0 0 !important;
             inline-size: auto;
             padding: 8px 24px calc(8px + env(safe-area-inset-bottom, 0px));
             border-radius: var(--md-sys-shape-corner-extra-large, 28px) var(--md-sys-shape-corner-extra-large, 28px) 0 0;

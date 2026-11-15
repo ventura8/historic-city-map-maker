@@ -71,7 +71,7 @@ describe('<hcm-map-viewer>: the timeline as a pill on a phone (V12)', () => {
             vi.advanceTimersByTime(600);
             await timelineOf(mounted).updateComplete;
             expect(collapsed(mounted)).toBe(false);
-            expect(timelineOf(mounted).shadowRoot?.querySelector('.opacity input')).not.toBeNull();
+            expect(timelineOf(mounted).shadowRoot?.querySelector('.opacity:not([hidden])')).not.toBeNull();
             expect(timelineOf(mounted).hasAttribute('fadable')).toBe(true);
         } finally {
             vi.useRealTimers();
@@ -96,7 +96,7 @@ describe('<hcm-map-viewer>: the timeline as a pill on a phone (V12)', () => {
             vi.advanceTimersByTime(600);
             await timelineOf(mounted).updateComplete;
             expect(collapsed(mounted)).toBe(false);
-            expect(timelineOf(mounted).shadowRoot?.querySelector('.opacity')).toBeNull();
+            expect(timelineOf(mounted).shadowRoot?.querySelector('.opacity:not([hidden])')).toBeNull();
             mounted.element.remove();
         } finally {
             vi.useRealTimers();

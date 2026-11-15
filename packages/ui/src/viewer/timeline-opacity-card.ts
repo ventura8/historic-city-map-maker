@@ -47,7 +47,14 @@ function sendAll(host: EventTarget, ids: readonly string[], event: Event, final:
  * One kit slider (as in the Layers panel: its track and handle keep 3:1 against the card, WCAG 1.4.11), 0 to 100 %, that
  * sends `ids`' opacity.
  */
-function slider(host: EventTarget, ids: readonly string[], percent: number, name: string, locale: ViewerLocale): TemplateResult {
+/** What one slider changes: the layers `ids`, at `percent`, named `name` as the Layers panel names it. */
+interface SliderOf {
+    readonly ids: readonly string[];
+    readonly percent: number;
+    readonly name: string;
+}
+
+function slider(host: EventTarget, { ids, percent, name }: SliderOf, locale: ViewerLocale): TemplateResult {
     return html`<hcm-slider
         min="0"
         max="100"
@@ -64,24 +71,20 @@ function slider(host: EventTarget, ids: readonly string[], percent: number, name
     ></hcm-slider>`;
 }
 
+function layerSlider(host: EventTarget, layer: YearLayer, locale: ViewerLocale): TemplateResult {
+    return slider(host, { ids: [layer.id], percent: Math.round(layer.opacity * 100), name: layer.name }, locale);
+}
+
 /** The card's sliders: one for a single layer; "all" and one row per layer for several. */
 export function opacitySliders(year: YearOpacity, locale: ViewerLocale, host: EventTarget): TemplateResult {
     const [only] = year.layers;
     if (only !== undefined && year.layers.length === 1) {
-        return slider(host, [only.id], Math.round(only.opacity * 100), only.name, locale);
+        return layerSlider(host, only, locale);
     }
     const all = translate(locale, 'timeline.opacityAll', { year: String(year.year) });
+    const ids = year.layers.map((layer) => layer.id);
     const row = (label: string, input: TemplateResult): TemplateResult =>
         html`<div class="opacity-row"><span class="opacity-name" aria-hidden="true">${label}</span>${input}</div>`;
-    return html`${row(
-        all,
-        slider(
-            host,
-            year.layers.map((layer) => layer.id),
-            meanPercent(year.layers),
-            all,
-            locale,
-        ),
-    )}
-    ${year.layers.map((layer) => row(layer.date, slider(host, [layer.id], Math.round(layer.opacity * 100), layer.name, locale)))}`;
+    return html`${row(all, slider(host, { ids, percent: meanPercent(year.layers), name: all }, locale))}
+    ${year.layers.map((layer) => row(layer.date, layerSlider(host, layer, locale)))}`;
 }
