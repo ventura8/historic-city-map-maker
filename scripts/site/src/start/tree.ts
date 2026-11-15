@@ -134,13 +134,16 @@ function manifestEntry(file: StartTreeFile): StartFile {
     return { path: file.path, bytes: file.bytes.length, sha256: sha256(file.bytes), ...(file.template ? { template: true as const } : {}) };
 }
 
-/** The page's own policy: its files, and Google's five API hosts (§1). */
+/** The public Landsat catalogue the imagery census searches and whose previews it shows (M29, `CENSUS_ORIGIN`). */
+const CENSUS_ORIGIN = 'https://planetarycomputer.microsoft.com';
+
+/** The page's own policy: its files, Google's five API hosts (§1) and the imagery census's catalogue (M29). */
 export function startPagePolicy(): string {
     return [
         "default-src 'none'",
         "script-src 'self'",
         "style-src 'self' 'unsafe-inline'",
-        "img-src 'self' data:",
+        `img-src 'self' data: ${CENSUS_ORIGIN}`,
         [
             "connect-src 'self'",
             'https://cloudresourcemanager.googleapis.com',
@@ -148,6 +151,7 @@ export function startPagePolicy(): string {
             'https://firebasehosting.googleapis.com',
             'https://upload-firebasehosting.googleapis.com',
             'https://identitytoolkit.googleapis.com',
+            CENSUS_ORIGIN,
         ].join(' '),
         "base-uri 'none'",
         "form-action 'none'",

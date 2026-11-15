@@ -201,6 +201,8 @@ interface ImportSlice {
 
 export interface SetupState {
     readonly mode: SetupMode;
+    /** M29: the city's rectangle (west, south, east, north) for the imagery census of the first card; null when none is known. */
+    readonly cityBBox?: readonly [number, number, number, number] | null;
     readonly projectId: string;
     readonly authDomain: string;
     /** The expanded card: the first incomplete step unless the address or a click named another. */
@@ -358,6 +360,7 @@ export function initialSetupState(host: SetupHost, mode: SetupMode): SetupState 
         mode,
         projectId: host.projectId,
         authDomain: host.authDomain,
+        cityBBox: host.cityBBox,
         openStep: null,
         ...{ order: stepsOf(host), stepOrder: stepsOf(host), steps },
         done: 0,

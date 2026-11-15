@@ -7227,3 +7227,7 @@ The owner, in chat on 2026-11-14: "dont hold images because of the 15m limit. i 
 - **233e** Argon frames are named KH-5 Argon by their id and set aside in Work as too coarse for streets (about 140 m a pixel), kept, never deleted.
 - **233f** A whole strip records where the city likely lies (`calibration.expected`), and the georeferencer opens there.
 - **233g** `imagery.browse` takes two requests an instance and sharp keeps no cache (memory, no raise); a content write while a manifest build is queued joins it without a transaction; a map is removed only once its style settles; crash groups of the browser's own scripts are left out of the Crashes list.
+
+## 234. The imagery census on the first step of a new map (the owner 2026-11-15) — APPLIED
+
+The start page and Setup show how many old images from above the city has before any account (`docs/research/M29-imagery-census.md`). Landsat is counted exactly from Microsoft Planetary Computer's public STAC API (the only public Landsat catalogue checked that answers another origin's page and serves its previews on the same host; USGS LandsatLook refuses other origins, Earth Search's previews are requester-pays S3). The declassified frames need a USGS login, so they are a labelled range with the scan price and the step that unlocks the exact count. The host joins the start page's and the admin's `connect-src` and `img-src`.

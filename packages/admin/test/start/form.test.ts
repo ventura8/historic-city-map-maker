@@ -2,6 +2,7 @@ import { describe, expect, it } from 'vitest';
 
 import {
     areaProblem,
+    censusBoxOf,
     cityIdProblem,
     EMPTY_FORM,
     nextProjectId,
@@ -31,6 +32,12 @@ describe('the start form', () => {
         const form = withName(EMPTY_FORM, name);
         expect(form.displayName).toBe(displayName);
         expect(planOf({ ...form, cityId: 'oras', projectId: 'harta-oras' })?.displayName).toBe(displayName);
+    });
+
+    it('happyPath_theCensusSearchesTheRectangleOnlyOnceItCanBeACity', () => {
+        expect(censusBoxOf(COMPLETE)).toEqual([26.85, 46.5, 26.98, 46.62]);
+        expect(censusBoxOf(EMPTY_FORM)).toBeNull();
+        expect(censusBoxOf({ ...COMPLETE, area: { ...COMPLETE.area, east: '40' } })).toBeNull();
     });
 
     it('edge_aNameLeftTooShortTakesTheProjectsId', () => {

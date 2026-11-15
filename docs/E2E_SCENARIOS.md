@@ -8,7 +8,7 @@ Every user-visible behaviour has at least one happy and one bad scenario. The re
 
 | Behaviours | Scenarios | Happy | Bad | Exists | Planned | Test files |
 | --- | --- | --- | --- | --- | --- | --- |
-| 187 | 1975 | 837 | 1138 | 1943 | 32 | 496 |
+| 188 | 1977 | 838 | 1139 | 1945 | 32 | 497 |
 
 ## Viewer
 
@@ -926,6 +926,8 @@ Every user-visible behaviour has at least one happy and one bad scenario. The re
 | `S-A187-BAD-TOO-COARSE` | A187 | bad | Work sets an Argon frame aside with its reason | Work with an Argon frame -> under Too coarse for streets (kept), the 140 m reason, not under In progress | e2e-admin | planned | - |
 | `S-A188-HAPPY-OPENS-ON-CITY` | A188 | happy | A whole strip opens zoomed on the expected city | a version with calibration.expected -> the scan pane centred on its first box, zoomed in | e2e-admin | planned | - |
 | `S-A188-BAD-NO-EXPECTED` | A188 | bad | No expected place opens the whole scan | a version without calibration.expected -> the scan fitted whole | e2e-admin | planned | - |
+| `S-A189-HAPPY` | A189 | happy | The start page counts the city's old images from above and shows the clearest of each decade | once the rectangle is a city, the census searches the public Landsat catalogue: the exact Landsat count of both collections, the total, free and paid ranges, the declassified estimate with the scan price, what unlocks the exact count, one preview per decade that has a scene (five), all on the catalogue's own host | e2e-admin | exists | `e2e/admin/specs/start/census.spec.ts` |
+| `S-A189-BAD-CENSUS` | A189 | bad | A Landsat catalogue that refuses the search is said in plain words, with Search again | the catalogue answers 503 -> an alert says the catalogue refused the search, probably busy, that the map can go on without the count, and offers Search again; once the catalogue answers, Search again shows the count | e2e-admin | exists | `e2e/admin/specs/start/census.spec.ts` |
 | `S-A19-HAPPY` | A19 | happy | Settings with a live M3 preview publish to the viewer | the area drawn as a rectangle with two clicks on the settings map, the zoom from the current view, the name and About in RO and EN, two credits, a new seed colour -> Save per section -> the manifest carries them and the viewer opens with the new name, About, credits and colours | e2e-admin | exists | `e2e/admin/specs/settings/map.spec.ts` |
 | `S-A19-BAD-BOUNDS-EXCLUDE-CONTENT` | A19 | bad | Bounds that would leave photos or places outside are refused | a smaller rectangle that leaves two photos and one place beyond the bounds plus 0.5 degrees -> the save is refused and lists them with links; nothing written | e2e-admin | exists | `e2e/tour/admin-settings.tour.ts` |
 | `S-A19-BAD-BOUNDS-UNREAD` | A19 | bad | Bounds whose check cannot read the content are refused | smaller bounds saved offline, or with the server silent for 30 s, or refused -> the save is refused with its reason (offline or denied) and nothing is written; an unread collection never counts as nothing outside | e2e-admin | exists | `e2e/admin/specs/settings/unread.spec.ts` |

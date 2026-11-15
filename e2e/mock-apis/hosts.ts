@@ -6,7 +6,8 @@ import { E2E_TELEMETRY_HOST, E2E_TILE_HOST } from '../fixtures/world.js';
  * Which hosts the e2e browser may reach, and how (docs/research/design-review-testability.md §4.2):
  *
  * - loopback (`127.0.0.1`, `localhost`): the site server and the mock APIs themselves;
- * - the mocked hosts below: every request is forwarded to the mock APIs, recorded, and answered there;
+ * - the mocked hosts below: every request is forwarded to the mock APIs, recorded, and answered there (M29: the public
+ *   Landsat catalogue of the imagery census, catalogue.ts);
  * - in the admin projects only, also the hosts of the fake upstreams (`upstreamHosts()` of `@hcm/test-support/fakes`:
  *   Google Cloud's REST APIs and OAuth tokeninfo, Mapbox; CR-M2-21), which the admin calls from the browser (PLAN
  *   Addendum 1); a viewer page that reached one of them is still blocked;
@@ -19,7 +20,7 @@ import { E2E_TELEMETRY_HOST, E2E_TILE_HOST } from '../fixtures/world.js';
 
 const LOOPBACK_HOSTS: readonly string[] = ['127.0.0.1', 'localhost'];
 
-export type HostKind = 'mapbox' | 'mapbox-events' | 'analytics' | 'cdn' | 'tiles' | 'telemetry';
+export type HostKind = 'mapbox' | 'mapbox-events' | 'analytics' | 'cdn' | 'tiles' | 'telemetry' | 'catalogue';
 
 /** Exact hosts, then suffixes (`.google-analytics.com` covers `region1.google-analytics.com`). */
 const EXACT: ReadonlyMap<string, HostKind> = new Map<string, HostKind>([
@@ -34,6 +35,8 @@ const EXACT: ReadonlyMap<string, HostKind> = new Map<string, HostKind>([
     ['cdn.jsdelivr.net', 'cdn'],
     [E2E_TILE_HOST, 'tiles'],
     [E2E_TELEMETRY_HOST, 'telemetry'],
+    // M29: the public Landsat catalogue of the imagery census (catalogue.ts).
+    ['planetarycomputer.microsoft.com', 'catalogue'],
 ]);
 
 const SUFFIXES: readonly (readonly [string, HostKind])[] = [

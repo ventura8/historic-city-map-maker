@@ -12,6 +12,14 @@ export const START_STATES = {
         visit: 'specs/start/start.spec.ts',
     },
     'start.plan': { title: 'Start your map: the city, its rectangle and the project', visit: 'specs/start/start.spec.ts' },
+    'start.census': {
+        title: 'Start your map: the city’s old images from above, counted, with the estimate, the price and a preview per decade',
+        visit: 'specs/start/census.spec.ts',
+    },
+    'start.census-failed': {
+        title: 'Start your map: the Landsat catalogue refused the search, the reason, what to do and Search again',
+        visit: 'specs/start/census.spec.ts',
+    },
     'start.plan-invalid': {
         title: 'Start your map: a rectangle too large and an id no project may take, said at their fields',
         visit: 'specs/start/start.spec.ts',

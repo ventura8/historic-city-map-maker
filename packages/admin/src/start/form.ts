@@ -134,6 +134,12 @@ export function areaProblem(form: StartForm): StartKey | null {
     return problem === null ? null : AREA_PROBLEMS[problem];
 }
 
+/** The rectangle as the imagery census takes it (M29), once it can be a city; null before. */
+export function censusBoxOf(form: StartForm): readonly [number, number, number, number] | null {
+    const { bounds } = areaOf(form);
+    return bounds === undefined || areaProblem(form) !== null ? null : [bounds.west, bounds.south, bounds.east, bounds.north];
+}
+
 export function cityIdProblem(form: StartForm): StartKey | null {
     return form.cityId === '' || isUsableCityId(form.cityId) ? null : 'start.plan.cityIdInvalid';
 }

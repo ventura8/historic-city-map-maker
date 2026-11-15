@@ -7,6 +7,7 @@ import { directionOf, familyLanguage, translateStart, type UiLocale, type StartK
 import { trackFunnel } from '@hcm/shared/funnels';
 import { LitElement, html, nothing, type TemplateResult } from 'lit';
 
+import { defineHcmImageryCensus } from '../census/hcm-imagery-census.js';
 import { defineOnce } from '../components/internal.js';
 import { applyTheme } from '../theme/apply.js';
 import { BASELINE_THEME } from '../theme/baseline.js';
@@ -59,6 +60,8 @@ export interface StartPagePort {
         tryAgain(): void;
         checkProvider(): void;
     };
+    /** M29: the rectangle the imagery census searches, once it can be a city (absent: no census). */
+    censusBox?(): readonly [number, number, number, number] | null;
     /** What the form says about its values (the form's own rules), and whether Create may run. */
     readonly problems: () => {
         readonly cityId: StartKey | null;
@@ -336,7 +339,13 @@ export class HcmStartPage extends LitElement {
                     problem: port.problems().cityId,
                     help: this.#t('start.plan.cityIdHelp', { cityId: form.cityId === '' ? '…' : form.cityId }),
                 })}
-                ${this.#edges(view, port)} ${this.#projectKind(view, port)}
+                ${this.#edges(view, port)}
+                ${
+                    port.censusBox === undefined
+                        ? nothing
+                        : html`<hcm-imagery-census .box=${port.censusBox()} .locale=${view.locale}></hcm-imagery-census>`
+                }
+                ${this.#projectKind(view, port)}
                 <button type="submit" class="filled" ?disabled=${!port.problems().ready}>
                     ${this.#t(form.create ? 'start.plan.go' : 'start.plan.goExisting')}
                 </button>
@@ -346,5 +355,6 @@ export class HcmStartPage extends LitElement {
 
 export function defineHcmStartPage(registry: CustomElementRegistry = customElements): void {
     defineHcmStartLanguage(registry);
+    defineHcmImageryCensus(registry);
     defineOnce(registry, HCM_START_PAGE_TAG, HcmStartPage);
 }

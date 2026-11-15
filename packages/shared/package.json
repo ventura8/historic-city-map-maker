@@ -43,6 +43,10 @@
             "types": "./src/sources.ts",
             "default": "./src/sources.ts"
         },
+        "./census": {
+            "types": "./src/census.ts",
+            "default": "./src/census.ts"
+        },
         "./credits": {
             "types": "./src/overlays/credits.ts",
             "default": "./src/overlays/credits.ts"

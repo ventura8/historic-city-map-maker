@@ -57,13 +57,15 @@ describe('the start entry', () => {
             define: (name: string, element: CustomElementConstructor) => defined.set(name, element),
         };
         const element = {
-            port: undefined as { problems(): unknown; view: unknown; subscribe(listener: () => void): () => void } | undefined,
+            port: undefined as
+                { problems(): unknown; censusBox(): unknown; view: unknown; subscribe(listener: () => void): () => void } | undefined,
         };
         const doc = { querySelector: () => null, body: { appendChild: () => element }, createElement: () => element };
         autoStart({ document: doc, customElements: registry } as never, fakeWindow(), testLog().log);
         const { port } = element;
         expect(defined.has('hcm-start-page')).toBe(true);
         expect(port?.problems()).toEqual({ cityId: null, area: null, projectId: null, ready: false });
+        expect(port?.censusBox()).toBeNull();
         expect(port?.view).toMatchObject({ locale: 'ro' });
         expect(port?.subscribe(() => undefined)).toEqual(expect.any(Function));
         await new Promise((resolve) => setImmediate(resolve));

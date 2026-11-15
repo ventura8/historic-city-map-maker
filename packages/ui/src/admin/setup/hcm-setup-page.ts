@@ -14,6 +14,7 @@ import { funnelHelpOpened, trackFunnel } from '@hcm/shared/funnels';
 import { css, html, nothing, type TemplateResult } from 'lit';
 
 import { defineHcmButton } from '../../components/button.js';
+import { defineHcmImageryCensus, setupCensus } from '../../census/hcm-imagery-census.js';
 import { defineOnce } from '../../components/internal.js';
 import { defineHcmProgress } from '../../components/progress.js';
 import { baseStyles, focusRing, typeStyles } from '../../components/styles.js';
@@ -141,7 +142,8 @@ export class HcmSetupPage extends SetupPortHost {
         return html`<section class="page" aria-labelledby="setup-title">
             ${this.renderHeader(view)}
             <div role="alert">${view.error === null ? nothing : html`<p class="alert">${setupText(this.language, view.error)}</p>`}</div>
-            ${selfTestList(this.language, view)} ${split ? this.renderSplit(view) : this.renderColumn(view)}
+            ${setupCensus(view, this.language)} ${selfTestList(this.language, view)}
+            ${split ? this.renderSplit(view) : this.renderColumn(view)}
         </section>`;
     }
 
@@ -377,6 +379,7 @@ export function defineHcmSetupPage(registry: CustomElementRegistry = customEleme
     defineHcmSetupSite(registry);
     defineHcmSetupMapbox(registry);
     defineHcmSetupUsgs(registry);
+    defineHcmImageryCensus(registry);
     void loadSourcesCards(registry);
     defineHcmSetupAnalytics(registry);
     defineHcmSetupImport(registry);

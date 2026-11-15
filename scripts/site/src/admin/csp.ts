@@ -33,6 +33,9 @@ const RECAPTCHA_FRAME_SOURCES: readonly string[] = ['https://www.google.com/reca
 /** Every Google API the admin calls (Cloud REST, tokeninfo, Identity Toolkit, Firestore, Storage) and the callables. */
 const GOOGLE_CONNECT_SOURCES: readonly string[] = ['https://*.googleapis.com', 'https://*.cloudfunctions.net', 'https://*.run.app'];
 
+/** M29: the public Landsat catalogue the imagery census of Setup searches, and whose previews it shows (`CENSUS_ORIGIN`). */
+const CENSUS_SOURCES: readonly string[] = ['https://planetarycomputer.microsoft.com'];
+
 /** This computer's local worker (`WORKER_PORT`), on its two loopback names. */
 const LOCAL_WORKER_CONNECT_SOURCES: readonly string[] = ['http://127.0.0.1:8765', 'http://localhost:8765'];
 
@@ -87,9 +90,10 @@ export function adminCspDirectives(projectId: string): readonly CspDirective[] {
                 ...MAPBOX_CONNECT_SOURCES,
                 ...ADMIN_ANALYTICS_CONNECT_SOURCES,
                 ...LOCAL_WORKER_CONNECT_SOURCES,
+                ...CENSUS_SOURCES,
             ],
         ],
-        ['img-src', ["'self'", 'data:', 'blob:', ...ADMIN_IMAGE_SOURCES, ...ANALYTICS_IMAGE_SOURCES]],
+        ['img-src', ["'self'", 'data:', 'blob:', ...ADMIN_IMAGE_SOURCES, ...CENSUS_SOURCES, ...ANALYTICS_IMAGE_SOURCES]],
         ['frame-src', ["'self'", ...authDomains(projectId), 'https://accounts.google.com', ...RECAPTCHA_FRAME_SOURCES]],
         ['worker-src', ["'self'", 'blob:']],
         ['font-src', ["'self'"]],

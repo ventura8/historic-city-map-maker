@@ -11,7 +11,7 @@ import { STAND_IN_ORIGIN } from '../auth/stand-in-origin.js';
 import { AUTHORIZE_URL } from './consent.js';
 import { StartController, type StartDeps } from './controller.js';
 import { gzipBytes, sha256Hex } from './files.js';
-import { areaProblem, cityIdProblem, planOf, projectIdProblem } from './form.js';
+import { areaProblem, censusBoxOf, cityIdProblem, planOf, projectIdProblem } from './form.js';
 
 /** The self-host road's command (`create-historic-city`, the release the page belongs to is printed by its own page). */
 const COMMAND = 'npx create-historic-city@1 self-host';
@@ -41,6 +41,7 @@ function portOf(controller: StartController): StartPagePort {
         },
         subscribe: (listener) => controller.subscribe(listener),
         intents: controller.intents,
+        censusBox: () => censusBoxOf(controller.view.form),
         problems: () => {
             const { form } = controller.view;
             return {

@@ -6,6 +6,7 @@ import { fileURLToPath } from 'node:url';
 import { KIT_PLACEHOLDER_TOKEN } from '@hcm/shared';
 
 import { E2E_BROKEN_TILESET, E2E_MEASUREMENT_ID, tilesetColour, XYZ_COLOURS, type Rgb } from '../fixtures/world.js';
+import { catalogue } from './catalogue.js';
 import { glyphRange, RANGE_SIZE } from './glyphs.js';
 import { firebaseWebConfig, GTAG_SCRIPT } from './gtag.js';
 import { mockedHostKind, type HostKind } from './hosts.js';
@@ -267,6 +268,8 @@ export function answer(request: MockRequest, files: MockFiles): Promise<MockResp
             return routed(CDN_ROUTES, request, files);
         case 'analytics':
             return analytics(request);
+        case 'catalogue':
+            return catalogue(request);
         case 'mapbox-events':
         case 'telemetry':
             return request.method === 'POST' ? NO_CONTENT : NOT_FOUND;

@@ -52,7 +52,11 @@ function shadowOf(page: HcmStartPage): ShadowRoot {
     return shadowRoot;
 }
 
-async function rendered(view: Partial<StartPageView>, problems: Partial<ReturnType<StartPagePort['problems']>> = {}): Promise<Rendered> {
+async function rendered(
+    view: Partial<StartPageView>,
+    problems: Partial<ReturnType<StartPagePort['problems']>> = {},
+    extra: Pick<StartPagePort, 'censusBox'> = {},
+): Promise<Rendered> {
     defineHcmStartPage();
     const calls: unknown[][] = [];
     const listeners = new Set<() => void>();
@@ -77,6 +81,7 @@ async function rendered(view: Partial<StartPageView>, problems: Partial<ReturnTy
         },
         intents,
         problems: () => ({ cityId: null, area: null, projectId: null, ready: true, ...problems }),
+        ...extra,
     };
     document.body.append(page);
     await page.updateComplete;
@@ -341,5 +346,20 @@ describe('hcm-start-page, the run', () => {
         expect(page.shadowRoot?.querySelector('main')).toBeNull();
         page.remove();
         expect(page.isConnected).toBe(false);
+    });
+});
+
+describe('the imagery census on the plan (M29)', () => {
+    it('is left out without a census, waits for the rectangle, then searches the rectangle', async () => {
+        expect((await rendered({ screen: 'plan' })).root.querySelector('hcm-imagery-census')).toBeNull();
+        document.body.replaceChildren();
+        let box: readonly [number, number, number, number] | null = null;
+        const { root, change } = await rendered({ screen: 'plan' }, {}, { censusBox: () => box });
+        const census = root.querySelector('hcm-imagery-census');
+        expect(census?.box).toBeNull();
+        box = [26.85, 46.53, 26.97, 46.6];
+        await change({});
+        expect(census?.box).toEqual(box);
+        expect(census?.locale).toBe('en');
     });
 });

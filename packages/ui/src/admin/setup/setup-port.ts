@@ -107,6 +107,8 @@ interface BillingAccountView {
 
 export interface SetupViewState {
     readonly mode: SetupMode;
+    /** M29: the city's rectangle (west, south, east, north) for the imagery census of the first card; null when none is known. */
+    readonly cityBBox?: readonly [number, number, number, number] | null;
     readonly projectId: string;
     readonly authDomain: string;
     readonly openStep: SetupStepId | null;

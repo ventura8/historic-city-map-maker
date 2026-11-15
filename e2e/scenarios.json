@@ -1310,6 +1310,13 @@
             "name": "The georeferencer opens a whole strip on where the city likely lies",
             "milestone": "post-M8",
             "source": "admin sweep 2026-11-14, bug 6"
+        },
+        {
+            "id": "A189",
+            "area": "admin",
+            "name": "How many old images from above the chosen city has, before any account",
+            "milestone": "M29",
+            "source": "the owner, 2026-11-15: the first step of a new map shows the city's historical satellite images, free and paid, with previews; docs/research/M29-imagery-census.md"
         }
     ],
     "scenarios": [
@@ -23037,6 +23044,28 @@
             "tier": "e2e-admin",
             "status": "planned",
             "notes": "Admin sweep 2026-11-14 (reports/admin-sweep/bugs.md), lesson 730. Covered today by Vitest: packages/ui/test/admin/georef/scan-viewer-keep.test.ts."
+        },
+        {
+            "id": "S-A189-HAPPY",
+            "behaviour": "A189",
+            "area": "admin",
+            "path": "happy",
+            "title": "The start page counts the city's old images from above and shows the clearest of each decade",
+            "asserts": "once the rectangle is a city, the census searches the public Landsat catalogue: the exact Landsat count of both collections, the total, free and paid ranges, the declassified estimate with the scan price, what unlocks the exact count, one preview per decade that has a scene (five), all on the catalogue's own host",
+            "tier": "e2e-admin",
+            "status": "exists",
+            "notes": "The owner's request, 2026-11-15. Test: e2e/admin/specs/start/census.spec.ts."
+        },
+        {
+            "id": "S-A189-BAD-CENSUS",
+            "behaviour": "A189",
+            "area": "admin",
+            "path": "bad",
+            "title": "A Landsat catalogue that refuses the search is said in plain words, with Search again",
+            "asserts": "the catalogue answers 503 -> an alert says the catalogue refused the search, probably busy, that the map can go on without the count, and offers Search again; once the catalogue answers, Search again shows the count",
+            "tier": "e2e-admin",
+            "status": "exists",
+            "notes": "The owner's request, 2026-11-15. Test: e2e/admin/specs/start/census.spec.ts."
         }
     ]
 }
