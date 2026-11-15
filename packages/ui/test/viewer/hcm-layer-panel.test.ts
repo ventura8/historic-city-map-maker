@@ -170,6 +170,18 @@ describe('<hcm-layer-panel>', () => {
         expect(element.shadowRoot?.querySelector('hcm-overlay-list')).toBeNull();
     });
 
+});
+
+describe('<hcm-layer-panel> more', () => {
+    beforeAll(() => {
+        defineKitDoubles();
+        defineHcmLayerPanel();
+    });
+
+    afterEach(() => {
+        document.body.replaceChildren();
+    });
+
     it('happyPath_modalSheetHostsTheOverlayList', async () => {
         const element = await panel({ mode: 'side', locale: 'en' });
 
