@@ -136,6 +136,7 @@ export const ja: Messages = {
     'photo.credit': '追加：{name}',
     'photo.openLightbox': '写真を拡大表示',
     'photo.locate': '地図で表示',
+    'photo.backToList': '一覧に戻る',
     'photo.mapOf': '{year}年の地図',
     'poi.category': 'カテゴリー：{category}',
     'poi.year': '{year}年',

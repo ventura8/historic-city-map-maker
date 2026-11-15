@@ -138,6 +138,7 @@ export const ru: Messages = {
     'photo.credit': 'Добавлено: {name}',
     'photo.openLightbox': 'Открыть фото в полном размере',
     'photo.locate': 'Показать на карте',
+    'photo.backToList': 'Назад к списку',
     'photo.mapOf': 'Карта {year} года',
     'poi.category': 'Категория: {category}',
     'poi.year': 'В {year} году',

@@ -132,6 +132,7 @@ export const ar: Messages = {
     'photo.credit': 'أضافها {name}',
     'photo.openLightbox': 'فتح الصورة بالحجم الكامل',
     'photo.locate': 'اعرض على الخريطة',
+    'photo.backToList': 'العودة إلى القائمة',
     'photo.mapOf': 'خريطة عام {year}',
     'poi.category': 'الفئة: {category}',
     'poi.year': 'في عام {year}',

@@ -131,6 +131,7 @@ export const hi: Messages = {
     'photo.credit': '{name} द्वारा जोड़ी गई',
     'photo.openLightbox': 'तस्वीर पूरे आकार में खोलें',
     'photo.locate': 'मानचित्र पर दिखाएँ',
+    'photo.backToList': 'सूची पर वापस जाएँ',
     'photo.mapOf': 'वर्ष {year} का मानचित्र',
     'poi.category': 'श्रेणी: {category}',
     'poi.year': 'वर्ष {year} में',

@@ -21,6 +21,7 @@ import { layoutFor, type ViewerLayout } from './layout.js';
 import { LegalLiftWatcher, NO_LIFT, sameLift, type LegalLift } from './legal-lift.js';
 import { watchMapMenu, type MenuPoint } from './map-menu-trigger.js';
 import { stopMyLocation } from './my-location.js';
+import { PhotoReturn } from './photo-return.js';
 import { browserServices, type ViewerServices } from './services.js';
 import type { Unsubscribe, ViewerController, ViewerError, ViewerState, ViewerStorePort } from './store-port.js';
 import { TimelineDock } from './timeline-dock.js';
@@ -170,6 +171,11 @@ export class HcmMapViewer extends LitElement {
         }
     };
 
+    /** V75: back from a photo to the list it was opened from (`photo-return.ts`). */
+    readonly #photoReturn = new PhotoReturn(window, (action) => {
+        this.#act(null, action);
+    });
+
     readonly #handlers: ViewerHandlers = createHandlers({
         act: (event, action) => {
             this.#act(event, action);
@@ -187,6 +193,7 @@ export class HcmMapViewer extends LitElement {
         },
         // Bound already (an arrow property), and created before the handlers.
         closeDates: this.#dock.closeDates,
+        photoReturn: this.#photoReturn,
     });
 
     constructor() {
@@ -279,6 +286,7 @@ export class HcmMapViewer extends LitElement {
         super.connectedCallback();
         this.#resizeObserver.observe(this);
         this.ownerDocument.addEventListener('keydown', this.#onKey);
+        this.#photoReturn.connect();
         this.ownerDocument.addEventListener('visibilitychange', this.#onVisibility);
         askForPadKeys(navigator);
         this.#pointer.addEventListener('change', this.#onPointer);
@@ -294,6 +302,7 @@ export class HcmMapViewer extends LitElement {
     override disconnectedCallback(): void {
         this.#resizeObserver.disconnect();
         this.ownerDocument.removeEventListener('keydown', this.#onKey);
+        this.#photoReturn.disconnect();
         this.ownerDocument.removeEventListener('visibilitychange', this.#onVisibility);
         this.#pointer.removeEventListener('change', this.#onPointer);
         this.#stopMyLocation();
@@ -350,6 +359,7 @@ export class HcmMapViewer extends LitElement {
             dock: this.#dock,
             gameConsole: isGameConsole(navigator.userAgent),
             update: this.#updates.offer(),
+            photoReturn: { fromList: this.#photoReturn.fromList, scroll: this.#photoReturn.scroll },
         };
         return renderViewer(view, this.#handlers);
     }

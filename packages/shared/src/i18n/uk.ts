@@ -134,6 +134,7 @@ export const uk: Messages = {
     'photo.credit': 'Додано: {name}',
     'photo.openLightbox': 'Відкрити фото',
     'photo.locate': 'Показати на мапі',
+    'photo.backToList': 'Назад до списку',
     'photo.mapOf': 'Мапа {year} року',
     'poi.category': 'Категорія: {category}',
     'poi.year': 'У {year} році',

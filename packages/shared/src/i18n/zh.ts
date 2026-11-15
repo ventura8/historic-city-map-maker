@@ -135,6 +135,7 @@ export const zh: Messages = {
     'photo.credit': '添加者：{name}',
     'photo.openLightbox': '打开原尺寸照片',
     'photo.locate': '在地图上显示',
+    'photo.backToList': '返回列表',
     'photo.mapOf': '{year}年地图',
     'poi.category': '类别：{category}',
     'poi.year': '{year}年',

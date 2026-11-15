@@ -4,6 +4,7 @@
  * sees only the public events of docs/ENGINE_API.md.
  */
 import type { MenuPoint } from './map-menu-trigger.js';
+import type { PhotoReturn } from './photo-return.js';
 import type { ViewerServices } from './services.js';
 import type { ViewerStorePort } from './store-port.js';
 import { closeSheet, isMenuAction, menuAction, selectPhoto, shareViewer, toggleCompare } from './viewer-actions.js';
@@ -21,6 +22,14 @@ export interface HandlerHost {
     closeDates(): void;
     /** Opens the map's menu at a point, or closes it (null). */
     mapMenu(point: MenuPoint | null): void;
+    /** V75: a photo opened from the list goes back to it (absent: every close closes). */
+    readonly photoReturn?: PhotoReturn;
+}
+
+/** The list's scroll a `hcm-photo-select` of `<hcm-photo-list>` carries (0 from anywhere else). */
+function scrollOf(detail: object): number {
+    const scroll: unknown = Reflect.get(detail, 'scroll');
+    return typeof scroll === 'number' ? scroll : 0;
 }
 
 /** A handler that stops its event and runs `action` on the store. */
@@ -58,9 +67,10 @@ type PhotoHandlers = Pick<
     'onPhotoSelect' | 'onPhotoLocate' | 'onLightboxOpen' | 'onPhotoShown' | 'onPhotoVersion' | 'onLightboxClose'
 >;
 
-function photoHandlers(on: On): PhotoHandlers {
+function photoHandlers(on: On, host: HandlerHost): PhotoHandlers {
     return {
         onPhotoSelect: on((store, event) => {
+            host.photoReturn?.opened(store.getState().sheet, scrollOf(event.detail));
             selectPhoto(store, event.detail.photoId);
         }),
         onPhotoLocate: on((store, event) => {
@@ -150,8 +160,12 @@ export function createHandlers(host: HandlerHost): ViewerHandlers {
         onOverlayOpacity: on((store, event) => {
             host.setOpacity(store, event.detail);
         }),
-        onSheetClose: on(closeSheet),
-        ...photoHandlers(on),
+        onSheetClose: on((store) => {
+            if (host.photoReturn?.back(store) !== true) {
+                closeSheet(store);
+            }
+        }),
+        ...photoHandlers(on, host),
         onMenuSelect: on((store, event) => {
             const value = event.detail.value;
             if (isMenuAction(value)) {

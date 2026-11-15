@@ -134,6 +134,7 @@ export const tr: Messages = {
     'photo.credit': 'Ekleyen: {name}',
     'photo.openLightbox': 'Fotoğrafı tam boyutta aç',
     'photo.locate': 'Haritada göster',
+    'photo.backToList': 'Listeye dön',
     'photo.mapOf': '{year} Haritası',
     'poi.category': 'Kategori: {category}',
     'poi.year': 'Yıl: {year}',

@@ -19,7 +19,7 @@ import type { WorkerOptions } from './support/test.js';
  * | `nogl` | `nogl` (`--disable-3d-apis`) | `specs/viewer/no-webgl.spec.ts` |
  * | `tour` | the per-push tour: `tour-{x3840,l1440,c915l,c360}-light-ro` (the viewer's and the admin's journeys), `tour-{x3840,l1440,c915l,c360}-dark-ro` and `tour-c360-light-en` (the viewer's) | `tour/*.tour.ts` (layout, axe, ARIA) |
  * | `tour-matrix` | the other 35 `tour-<viewport>-<light|dark>-<ro|en>` of the 11 viewports, the admin's journeys of the five per-push projects above that skip them (`tour-<…>-admin`), the Setup journey at `admin-{m768-ro,l1440-dark,l1440-en}-journey`, the imagery publishes at `admin-{m768-ro,l1440-dark,l1440-en}-imagery` and the window-class-independent functional specs at the other four functional projects (`fn-<…>-matrix`) (`all`, nightly) | `tour/*.tour.ts`, `admin/specs/journey.spec.ts`, `specs/viewer/` |
- * | `fn` | `fn-c360-ro`, `fn-m768-ro`, `fn-l1440-ro`, `fn-l1440-en`, `fn-c360-dark`, `fn-webkit-iphone15` | `specs/viewer/`, `specs/starter-kit/` (the window-class-independent ones at `fn-l1440-ro` only; `viewer/iphone-sheet.spec.ts` at `fn-webkit-iphone15` only, WebKit as an iPhone 15) |
+ * | `fn` | `fn-c360-ro`, `fn-m768-ro`, `fn-l1440-ro`, `fn-l1440-en`, `fn-c360-dark`, `fn-webkit-iphone15` | `specs/viewer/`, `specs/starter-kit/` (the window-class-independent ones at `fn-l1440-ro` only; `viewer/iphone-sheet.spec.ts` and `viewer/iphone-photo-back.spec.ts` at `fn-webkit-iphone15` only, WebKit as an iPhone 15) |
  *
  * Every scenario row runs on every push: what `tour-matrix` adds are repetitions of rows the push already ran at another
  * project (`docs/research/DECISIONS-for-review.md` §29a, §39c, §42g).
@@ -108,8 +108,8 @@ function project(tier: Tier, name: string, testMatch: string | string[], use: Us
 /** Globs relative to the project's test folder (`specs` unless the project says otherwise). */
 const SPECS = ['viewer/**/*.spec.ts', 'starter-kit/**/*.spec.ts'];
 const NO_WEBGL_SPEC = 'viewer/no-webgl.spec.ts';
-/** The owner's iPhone (2026-11-15): Safari's taps on the menu's and the Layers panel's X, in WebKit only. */
-const IPHONE_SPEC = 'viewer/iphone-sheet.spec.ts';
+/** The owner's iPhone (2026-11-15): Safari's taps on the menu's and the Layers panel's X, and Back to the photo list (V75), in WebKit only. */
+const IPHONE_SPECS = ['viewer/iphone-sheet.spec.ts', 'viewer/iphone-photo-back.spec.ts'];
 
 /**
  * The functional specs whose behaviour does not depend on the window class (DECISIONS-for-review.md §39c, §42g): the
@@ -174,7 +174,7 @@ const FUNCTIONAL_VARIANTS: readonly { readonly name: string; readonly use: Use; 
 function functionalProjects(): E2eProject[] {
     return FUNCTIONAL_VARIANTS.map(({ name, use, everySpec }) =>
         project('fn', name, SPECS, use, {
-            testIgnore: everySpec ? [NO_WEBGL_SPEC, IPHONE_SPEC] : [NO_WEBGL_SPEC, IPHONE_SPEC, ...ONE_PROJECT_SPECS],
+            testIgnore: everySpec ? [NO_WEBGL_SPEC, ...IPHONE_SPECS] : [NO_WEBGL_SPEC, ...IPHONE_SPECS, ...ONE_PROJECT_SPECS],
             timeout: SCENARIO_TIMEOUT_MS,
         }),
     ).concat(
@@ -182,7 +182,7 @@ function functionalProjects(): E2eProject[] {
         project(
             'fn',
             'fn-webkit-iphone15',
-            IPHONE_SPEC,
+            IPHONE_SPECS,
             { ...devices['iPhone 15'], browserName: 'webkit', locale: LOCALES.ro, lang: 'ro' },
             { timeout: SCENARIO_TIMEOUT_MS },
         ),

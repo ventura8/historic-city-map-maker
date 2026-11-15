@@ -142,6 +142,7 @@ export const fr: Messages = {
     'photo.credit': 'Ajoutée par {name}',
     'photo.openLightbox': 'Ouvrir la photo en grand',
     'photo.locate': 'Afficher sur la carte',
+    'photo.backToList': 'Retour à la liste',
     'photo.mapOf': 'Carte de {year}',
     'poi.category': 'Catégorie : {category}',
     'poi.year': 'En {year}',

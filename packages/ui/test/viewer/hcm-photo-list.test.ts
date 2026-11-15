@@ -43,8 +43,41 @@ describe('<hcm-photo-list>', () => {
 
         await page.getByRole('button', { name: /Mihai Vodă church/ }).click();
 
-        expect(events).toEqual([{ type: 'hcm-photo-select', detail: { photoId: 'mihai-voda-1978' } }]);
+        expect(events).toEqual([{ type: 'hcm-photo-select', detail: { photoId: 'mihai-voda-1978', scroll: 0 } }]);
         await expect.element(page.getByRole('status')).toHaveTextContent('3 photos');
+    });
+
+    // V75: the list remembers where it was scrolled and goes back there.
+    it('happyPath_theScrollGoesWithTheChoiceAndComesBack', async () => {
+        const box = document.createElement('div');
+        box.style.cssText = 'overflow-y: auto; block-size: 80px';
+        document.body.append(box);
+        const list = document.createElement(HCM_PHOTO_LIST_TAG);
+        Object.assign(list, { photos: MANIFEST.photos, locale: 'en', manifestUrl: TEST_MANIFEST_URL });
+        box.append(list);
+        await list.updateComplete;
+        box.scrollTop = 60;
+        const events = recordEvents(list, 'hcm-photo-select');
+
+        shadowQueryAll(list, 'button')[2]?.click();
+        expect(events).toEqual([{ type: 'hcm-photo-select', detail: { photoId: 'fara-an', scroll: box.scrollTop } }]);
+        expect(box.scrollTop).toBeGreaterThan(0);
+
+        box.replaceChildren();
+        box.scrollTop = 0;
+        const again = document.createElement(HCM_PHOTO_LIST_TAG);
+        Object.assign(again, { photos: MANIFEST.photos, manifestUrl: TEST_MANIFEST_URL, restoreScroll: 60 });
+        box.append(again);
+        await expect.poll(() => box.scrollTop).toBeGreaterThan(0);
+    });
+
+    it('badPath_noScrollingBoxNoScroll', async () => {
+        const element = await mountElement<HcmPhotoList>(HCM_PHOTO_LIST_TAG, { photos: MANIFEST.photos, restoreScroll: 60 });
+        const events = recordEvents(element, 'hcm-photo-select');
+
+        shadowQueryAll(element, 'button')[0]?.click();
+
+        expect(events).toEqual([{ type: 'hcm-photo-select', detail: { photoId: 'mihai-voda-1978', scroll: 0 } }]);
     });
 
     // M18 item 8: without a map this list is the page; its first rows load their thumbnails at once, the rest lazily.

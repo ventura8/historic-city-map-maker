@@ -136,6 +136,7 @@ export const ro = {
     'photo.credit': 'Adăugată de {name}',
     'photo.openLightbox': 'Deschide fotografia mărită',
     'photo.locate': 'Arată pe hartă',
+    'photo.backToList': 'Înapoi la listă',
     'photo.mapOf': 'Harta din {year}',
     'poi.category': 'Categoria: {category}',
     'poi.year': 'Anul {year}',

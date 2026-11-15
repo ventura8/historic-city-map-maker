@@ -240,6 +240,15 @@ const VIEWER_STATES = {
         },
         escape: sheetEscape(fromMenu),
     },
+    'photo-from-list': {
+        title: 'A photo opened from the list, with Back to the list (V75)',
+        enter: async ({ page, lang }) => {
+            // The list state's Esc check closed the list: it opens again from the menu.
+            await chooseMenuItem(page, lang, t(lang, 'photos.list'));
+            await viewer(page).locator('.photos-sheet hcm-photo-list').getByRole('button').first().click();
+            await expect(page.getByRole('button', { name: t(lang, 'photo.backToList') })).toBeVisible();
+        },
+    },
     poi: {
         title: "A point of interest's sheet",
         enter: async ({ page, lang }) => {
@@ -429,7 +438,7 @@ const VIEWER_JOURNEYS: readonly Journey[] = [
         title: 'A photo at every height, shown on the map, its lightbox, and the photo list',
         id: 'photo',
         boot: ({ page, lang }) => openViewer(page, { lang, hash: `18/44.42955/26.09560&photo=${PHOTO}` }),
-        states: ['photo', 'photo-map-year', 'photo-located', 'photo-peek', 'photo-full', 'lightbox', 'photo-list'],
+        states: ['photo', 'photo-map-year', 'photo-located', 'photo-peek', 'photo-full', 'lightbox', 'photo-list', 'photo-from-list'],
     },
     {
         title: 'A point of interest at every height, and About from top to end',

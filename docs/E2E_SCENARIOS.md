@@ -8,7 +8,7 @@ Every user-visible behaviour has at least one happy and one bad scenario. The re
 
 | Behaviours | Scenarios | Happy | Bad | Exists | Planned | Test files |
 | --- | --- | --- | --- | --- | --- | --- |
-| 188 | 1983 | 841 | 1142 | 1951 | 32 | 498 |
+| 189 | 1985 | 842 | 1143 | 1953 | 32 | 499 |
 
 ## Viewer
 
@@ -389,6 +389,8 @@ Every user-visible behaviour has at least one happy and one bad scenario. The re
 | `S-V72-BAD-NEVER-STALE` | V72 | bad | The worker never serves an old release nor keeps the data, the app manifest or Mapbox | after two loads the caches hold only the page and its own scripts, styles and fonts under the city's folder (no manifest.json, no data/, no app.webmanifest, no other origin); a changed site.css on the server shows on the next load through the worker | e2e-viewer | exists | `e2e/specs/viewer/app.spec.ts` |
 | `S-V72-BAD-NO-PROMPT` | V72 | bad | Without the browser's install prompt Settings offers no install and Device accent keeps its own advice | no beforeinstallprompt (a browser that cannot install, an installed app's window) -> no Install app in Settings, and Device accent says this browser does not share the device's colour, never the install | e2e-viewer | exists | `e2e/specs/viewer/app.spec.ts` |
 | `S-V72-BAD-UPDATE-HELD` | V72 | bad | An open dialog holds the reload, Reload reloads now, and a page still older after it never reloads again by itself | Settings open, Hosting serves a newer app-build.json but the old page (a stale cache) -> focus, then the tab hidden: no reload -> Settings closed, Reload in the snackbar -> one reload -> the page is still the older build: the snackbar offers Reload again, leaving the tab reloads nothing (sessionStorage remembers the build it reloaded for: no loop) | e2e-viewer | exists | `e2e/specs/viewer/app.spec.ts` |
+| `S-V75-HAPPY-BACK-TO-LIST` | V75 | happy | On an iPhone a photo opened from the list goes back to the list at the same row: Back, the back gesture and Esc | WebKit as an iPhone 15: a photo tapped far down the Photos list shows Back to the list; Back, the browser's back (history entry, iOS swipe-back) and Esc each reopen the list with that row still in view and no Back shown | e2e-viewer | exists | `e2e/specs/viewer/iphone-photo-back.spec.ts` |
+| `S-V75-BAD-FROM-MAP` | V75 | bad | On an iPhone a photo opened from the map has no Back and its Esc closes it | a photo opened from the map (not the list) shows no Back to the list; Esc closes the sheet and no list opens | e2e-viewer | exists | `e2e/specs/viewer/iphone-photo-back.spec.ts` |
 
 ## Admin
 

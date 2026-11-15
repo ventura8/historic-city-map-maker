@@ -138,6 +138,7 @@ export const de: Messages = {
     'photo.credit': 'Hinzugefügt von {name}',
     'photo.openLightbox': 'Foto in voller Größe öffnen',
     'photo.locate': 'Auf der Karte zeigen',
+    'photo.backToList': 'Zurück zur Liste',
     'photo.mapOf': 'Karte von {year}',
     'poi.category': 'Kategorie: {category}',
     'poi.year': 'Im Jahr {year}',

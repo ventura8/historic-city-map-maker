@@ -2934,6 +2934,28 @@
             "notes": "The owner, 2026-11-15. packages/ui/src/viewer/layer-panel-model.ts (newestFirst); packages/ui/test/viewer/hcm-layer-panel.test.ts; e2e/specs/viewer/iphone-sheet.spec.ts."
         },
         {
+            "id": "S-V75-HAPPY-BACK-TO-LIST",
+            "behaviour": "V75",
+            "area": "viewer",
+            "path": "happy",
+            "title": "On an iPhone a photo opened from the list goes back to the list at the same row: Back, the back gesture and Esc",
+            "asserts": "WebKit as an iPhone 15: a photo tapped far down the Photos list shows Back to the list; Back, the browser's back (history entry, iOS swipe-back) and Esc each reopen the list with that row still in view and no Back shown",
+            "tier": "e2e-viewer",
+            "status": "exists",
+            "notes": "The QA tester's iPhone, 2026-11-15. packages/ui/src/viewer/photo-return.ts, hcm-photo-sheet.ts (backToList), hcm-photo-list.ts (restoreScroll); project fn-webkit-iphone15; tour state photo-from-list."
+        },
+        {
+            "id": "S-V75-BAD-FROM-MAP",
+            "behaviour": "V75",
+            "area": "viewer",
+            "path": "bad",
+            "title": "On an iPhone a photo opened from the map has no Back and its Esc closes it",
+            "asserts": "a photo opened from the map (not the list) shows no Back to the list; Esc closes the sheet and no list opens",
+            "tier": "e2e-viewer",
+            "status": "exists",
+            "notes": "The QA tester's iPhone, 2026-11-15. packages/ui/src/viewer/photo-return.ts; project fn-webkit-iphone15."
+        },
+        {
             "id": "S-V15-HAPPY-IPHONE-LAYERS",
             "behaviour": "V15",
             "area": "viewer",

@@ -92,6 +92,7 @@ export class HcmPhotoSheet extends LitElement {
         canLocate: { attribute: false },
         years: { attribute: false },
         photoVersion: { attribute: false },
+        backToList: { attribute: false },
         imageFailed: { state: true },
     };
 
@@ -119,6 +120,11 @@ export class HcmPhotoSheet extends LitElement {
                 display: block;
                 inline-size: 100%;
                 block-size: auto;
+            }
+
+            /* V75: Back is the sheet's first control: a full 48 px target, nothing above it to borrow from. */
+            .back {
+                --hcm-control-size: 48px;
             }
 
             .placeholder {
@@ -153,6 +159,8 @@ export class HcmPhotoSheet extends LitElement {
     declare years: readonly TimelineStop[];
     /** The version the visitor picked (null: the photo's default, `shownView`). */
     declare photoVersion: PhotoView | null;
+    /** V75: the photo was opened from the list: Back returns to it (`hcm-photo-back`). */
+    declare backToList: boolean;
     declare mode: SheetMode;
     declare open: boolean;
     declare manifestUrl: string;
@@ -174,6 +182,7 @@ export class HcmPhotoSheet extends LitElement {
         this.canLocate = false;
         this.years = [];
         this.photoVersion = null;
+        this.backToList = false;
         this.imageFailed = false;
     }
 
@@ -221,7 +230,7 @@ export class HcmPhotoSheet extends LitElement {
     #photoDetails(photo: Photo): TemplateResult {
         const locale = this.locale;
         return html`<div class="details">
-            ${this.#image(photo)} ${this.#locate(photo)}
+            ${this.#back()} ${this.#image(photo)} ${this.#locate(photo)}
             <p class="link">${externalLink(streetViewUrl(photo.location, photo.bearing), translate(locale, 'mapMenu.streetView'))}</p>
             ${this.#date(photo)} ${photoRights(photo, locale)} ${this.#source(photo)}
             ${
@@ -232,6 +241,19 @@ export class HcmPhotoSheet extends LitElement {
             ${fallbackNote(photo.title, locale)} ${this.#links(photo)} ${this.#suggestion(photo)}
             ${relatedStories(this.stories, 'photoIds', photo.id, this.locale)}
         </div>`;
+    }
+
+    /** V75: Back to the photo list, when the photo was opened from it. */
+    #back(): TemplateResult {
+        if (!this.backToList) {
+            return EMPTY;
+        }
+        const onBack = (): void => {
+            this.dispatchEvent(new CustomEvent('hcm-photo-back', { bubbles: true, detail: null }));
+        };
+        return html`<p>
+            <hcm-button variant="tonal" icon="arrow_back" class="back" @click=${onBack}>${translate(this.locale, 'photo.backToList')}</hcm-button>
+        </p>`;
     }
 
     /** "Show on map": the offset keeps the photo's place in the middle of what a modal sheet leaves of the map. */

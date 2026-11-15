@@ -69,6 +69,21 @@ describe('<hcm-photo-sheet>', () => {
         expect(shadowText(element)).not.toContain('©');
     });
 
+    it('happyPath_backToTheListWhenOpenedFromIt', async () => {
+        const element = await sheet({ photo: photo('mihai-voda-1978'), locale: 'en', backToList: true });
+        const events = recordEvents(element, 'hcm-photo-back');
+
+        await page.getByRole('button', { name: 'Back to the list' }).click();
+
+        expect(events).toEqual([{ type: 'hcm-photo-back', detail: null }]);
+    });
+
+    it('badPath_noBackFromTheMap', async () => {
+        const element = await sheet({ photo: photo('mihai-voda-1978'), locale: 'en' });
+
+        expect(element.shadowRoot?.querySelector('.back')).toBeNull();
+    });
+
     it('happyPath_englishTitleAndTheLightboxButton', async () => {
         const element = await sheet({ photo: photo('mihai-voda-1978'), locale: 'en' });
         const events = recordEvents(element, 'hcm-lightbox-open');

@@ -62,6 +62,8 @@ export interface ViewerView {
     readonly gameConsole?: boolean;
     /** A newer deploy waits for a safe moment (`viewer-update.ts`): the Reload snackbar; null or absent: none. */
     readonly update?: UpdateOffer | null;
+    /** V75: the open photo came from the list (its sheet shows Back), and where the list was scrolled. */
+    readonly photoReturn?: { readonly fromList: boolean; readonly scroll: number };
 }
 
 /** `hcm-photo-locate` of `<hcm-photo-sheet>`: the photo, and its place's offset from the map's centre (`locateOffset`). */
@@ -403,8 +405,10 @@ function photoSheet(view: ViewerView, ready: Ready, placement: Placement, handle
         .canLocate=${ready.state.webgl}
         .years=${view.stops}
         .photoVersion=${ready.state.photoVersion}
+        .backToList=${view.photoReturn?.fromList === true}
         ?inert=${placement.inert === true}
         @hcm-close=${handlers.onSheetClose}
+        @hcm-photo-back=${handlers.onSheetClose}
         @hcm-year-change=${handlers.onYearChange}
         @hcm-photo-locate=${handlers.onPhotoLocate}
         @hcm-photo-select=${handlers.onPhotoSelect}
@@ -423,6 +427,7 @@ function photosSheet(view: ViewerView, ready: Ready, placement: Placement, handl
         .photos=${photos}
         .locale=${view.locale}
         .manifestUrl=${view.manifestUrl}
+        .restoreScroll=${view.photoReturn?.scroll ?? 0}
         @hcm-photo-select=${handlers.onPhotoSelect}
     ></hcm-photo-list>`;
     const onClose = (): void => {

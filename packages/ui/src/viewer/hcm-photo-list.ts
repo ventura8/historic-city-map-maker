@@ -8,7 +8,6 @@ import { DEFAULT_LOCALE, translate, type ViewerLocale, type Photo } from '@hcm/s
 import { LitElement, css, html, type TemplateResult } from 'lit';
 import { repeat } from 'lit/directives/repeat.js';
 
-import { photoSelectEvent } from './hcm-poi-detail.js';
 import { resolveAssetUrl } from './services.js';
 import { baseStyles } from './shared-styles.js';
 import { localizedText, photoCountText, photoDateText } from './text.js';
@@ -23,6 +22,7 @@ export class HcmPhotoList extends LitElement {
         photos: { attribute: false },
         locale: { type: String },
         manifestUrl: { type: String, attribute: 'manifest-url' },
+        restoreScroll: { attribute: false },
     };
 
     static override readonly styles = [
@@ -87,12 +87,27 @@ export class HcmPhotoList extends LitElement {
     declare photos: readonly Photo[];
     declare locale: ViewerLocale;
     declare manifestUrl: string;
+    /** V75: back from a photo opened here, the list scrolls to where it was. */
+    declare restoreScroll: number;
 
     constructor() {
         super();
         this.photos = [];
         this.locale = DEFAULT_LOCALE;
         this.manifestUrl = '';
+        this.restoreScroll = 0;
+    }
+
+    protected override firstUpdated(): void {
+        const top = this.restoreScroll;
+        if (top > 0) {
+            requestAnimationFrame(() => {
+                const scroller = scrollerOf(this);
+                if (scroller !== null) {
+                    scroller.scrollTop = top;
+                }
+            });
+        }
     }
 
     override render(): TemplateResult {
@@ -112,7 +127,8 @@ export class HcmPhotoList extends LitElement {
      */
     #item(photo: Photo, index: number): TemplateResult {
         const select = (): void => {
-            this.dispatchEvent(photoSelectEvent(photo.id));
+            const scroll = scrollerOf(this)?.scrollTop ?? 0;
+            this.dispatchEvent(new CustomEvent('hcm-photo-select', { bubbles: true, composed: true, detail: { photoId: photo.id, scroll } }));
         };
         const src = resolveAssetUrl(photo.image.thumb, this.manifestUrl, document.baseURI) ?? '';
         return html`<li>
@@ -123,6 +139,21 @@ export class HcmPhotoList extends LitElement {
             </button>
         </li>`;
     }
+}
+
+/** The element's parent across slots and shadow roots (null at the document). */
+function parentOf(node: Element): Element | null {
+    const root = node.getRootNode();
+    return node.assignedSlot ?? node.parentElement ?? (root instanceof ShadowRoot ? root.host : null);
+}
+
+/** The box that scrolls the list: the nearest ancestor (slots and shadow roots crossed) that scrolls vertically. */
+export function scrollerOf(start: Element): Element | null {
+    let node = parentOf(start);
+    while (node !== null && !/auto|scroll/.test(getComputedStyle(node).overflowY)) {
+        node = parentOf(node);
+    }
+    return node;
 }
 
 /** Registers `<hcm-photo-list>` once; calling it again is a no-op. */

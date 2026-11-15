@@ -135,6 +135,7 @@ export const ko: Messages = {
     'photo.credit': '{name} 님이 추가함',
     'photo.openLightbox': '사진 크게 보기',
     'photo.locate': '지도에서 보기',
+    'photo.backToList': '목록으로 돌아가기',
     'photo.mapOf': '{year}년 지도',
     'poi.category': '분류: {category}',
     'poi.year': '{year}년',
