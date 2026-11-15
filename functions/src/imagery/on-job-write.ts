@@ -21,7 +21,7 @@ import { locateEnded, recordProvedPass } from './pass-calibration.js';
  * the job again, so a redelivered event finds the job already moved and does nothing (S-A12-HAPPY-DISPATCH). A job that
  * becomes `queued` is dispatched; a cancellation the admin asks for is carried out; a job that reaches
  * `awaiting_approval` gets the approval policy; a job that becomes `cancelled` (the pipeline's SIGTERM handler, CR-M3-18)
- * has what it still held released. M7 (`docs/research/M7-local-worker.md` §3, §4.2): a queued job whose place the admin
+ * has what it still held released, and so does one that becomes `failed` (lesson 739). M7 (`docs/research/M7-local-worker.md` §3, §4.2): a queued job whose place the admin
  * changed, or that got the admin's OK past the free tier, is dispatched again; a cloud run that ended is counted into
  * the month's Cloud Run use. M8 (`docs/research/M8-join-interfaces.md` §5): a frame that rendered, or a join published,
  * rewrites the plan of whole-city dates. M9 (`docs/research/M9-calibration.md` §2): a `locate` that ended proved leaves its model
@@ -51,7 +51,7 @@ const STARTS: readonly (readonly [Acting, (job: JobDoc) => boolean])[] = [
     ['cancel', (job) => job.cancelRequested === true],
     ['dispatch', (job) => job.status === 'queued'],
     ['approval', (job) => job.status === 'awaiting_approval'],
-    ['release', (job) => job.status === 'cancelled'],
+    ['release', (job) => job.status === 'cancelled' || job.status === 'failed'],
 ];
 
 /** M7: the admin moved a placed job elsewhere (`imagery.runOn`). */

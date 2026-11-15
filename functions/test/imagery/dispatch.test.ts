@@ -302,6 +302,7 @@ describe('onJobWrite', () => {
             queued({ status: 'cancelled', cancelRequested: true }),
             'release',
         ],
+        ['a run that failed in a step', queued({ status: 'running' }), queued({ status: 'failed' }), 'release'],
         ['another write of a cancelled job', queued({ status: 'cancelled' }), queued({ status: 'cancelled', progress: 1 }), 'none'],
     ] as const)('transitionOf_%s', (_case, before, after, transition) => {
         expect(transitionOf(before, after)).toBe(transition);
@@ -550,6 +551,21 @@ describe('release (CR-M3-18)', () => {
         await onJobWrite(world.deps, CITY, 'job-1966-0712', { before: running, after: cancelled });
 
         expect(await readScene(world, 'DS1035-1057DA023')).toMatchObject({ status: 'imported', layerId: 'kh-4a-corona-1966' });
+    });
+
+    it('happyPath_aJoinThatFailedFreesItsLayerForTheNextJoin', async () => {
+        const world = await readyWorld();
+        const failed = queued({ status: 'failed', finishedAt: at(NOW) });
+        await seedJob(world, 'job-1966-0712', failed);
+        await seedVersion(world, 'job-1966-0712', renderedVersion({ state: 'failed' }));
+        await seedScene(world, 'DS1035-1057DA023', { status: 'imported', layerId: 'kh-4a-corona-1966' });
+        await seedLayer(world, 'kh-4a-corona-1966', { pendingVersion: 'job-1966-0712', currentVersion: 'v-first' });
+
+        expect(await onJobWrite(world.deps, CITY, 'job-1966-0712', { before: runningJob(), after: failed })).toBe('release');
+
+        expect((await readLayer(world, 'kh-4a-corona-1966'))?.pendingVersion).toBeUndefined();
+        // A failure may be retried: its scene stays imported.
+        expect(await readScene(world, 'DS1035-1057DA023')).toMatchObject({ status: 'imported' });
     });
 
     it('badPath_aRedeliveredOrStaleEventReleasesNothingMore', async () => {

@@ -270,11 +270,22 @@ export async function endWork(deps: EndDeps, cityId: string, jobId: string, endi
 }
 
 const CANCELLED: Ending = { status: 'cancelled', versionState: 'cancelled', by: IMAGERY_WRITER };
+const FAILED: Ending = { status: 'failed', versionState: 'failed', by: IMAGERY_WRITER };
+
+/** The ending a run the pipeline itself ended carries; none for a job still on its way. */
+function endingOf(job: JobDoc | undefined): Ending | undefined {
+    if (job?.status === 'cancelled') {
+        return CANCELLED;
+    }
+    return job?.status === 'failed' ? FAILED : undefined;
+}
 
 /**
  * What a run the pipeline cancelled still holds (CR-M3-18): the pipeline writes only its job, version, logs and objects,
  * so once the job is `cancelled` the dispatcher releases the layer's `pendingVersion`, a first import's scene and a
- * reservation, and ends a version the pipeline left open. False when the job is not cancelled or held nothing more.
+ * reservation, and ends a version the pipeline left open. A run that failed in a step (the pipeline writes `failed` the same
+ * way) is released alike: a failed join held its layer's `pendingVersion`, and every later join was refused as busy (live
+ * 2026-11-15, the 1974 join, lesson 739). False when the job is neither cancelled nor failed, or held nothing more.
  */
 export async function releaseCancelled(deps: EndDeps, cityId: string, jobId: string): Promise<boolean> {
     const now = deps.clock.now();
@@ -282,14 +293,15 @@ export async function releaseCancelled(deps: EndDeps, cityId: string, jobId: str
     const siblings = await siblingsOf(deps, cityId, jobId);
     return deps.documents.transaction(async (transaction) => {
         const job = await transaction.get(FIRESTORE_PATHS.job(cityId, jobId), jobDocSchema);
-        if (job?.status !== 'cancelled') {
+        const ending = endingOf(job);
+        if (job === undefined || ending === undefined) {
             return false;
         }
         const held = await readRest(transaction, { cityId, jobId, now, siblings }, job);
         const writes = [
-            versionWrite(held, CANCELLED, stamp),
+            versionWrite(held, ending, stamp),
             layerWrite(held, stamp),
-            sceneWrite(held, CANCELLED.versionState, stamp),
+            sceneWrite(held, ending.versionState, stamp),
             usageWrite(held, stamp),
         ];
         const due = writes.filter((write): write is Apply => write !== undefined);
