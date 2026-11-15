@@ -268,7 +268,7 @@ export class HcmLayerPanel extends LitElement {
         }
         this.#pendingYear = null;
         const ids = this.manifest.layers.filter((layer) => layer.year === year).map((layer) => layer.id);
-        void this.updateComplete.then(() => revealLayers(this, this.renderRoot, ids));
+        void this.updateComplete.then(revealLayers.bind(null, this, this.renderRoot, ids));
     }
 
     /** Minimizes or restores at once, and tells the viewer, which keeps it in the store. */
