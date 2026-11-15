@@ -15,7 +15,8 @@ import numpy.typing
 from hcm_pipeline.geo import FloatArray, Grid
 from hcm_pipeline.images import UInt8Array, as_uint8
 
-# A part owning less of the window than this adds nothing worth its weight.
+# A part owning less of what the parts cover than this adds nothing worth its weight (a share of the covered cells, not of the
+# window: two archive sheets of the centre cover about 1 % of the city's window each and must still be joined).
 MIN_OWNED_SHARE: Final = 0.01
 MIN_SEAM_M: Final = 1000.0
 SAMPLES_PER_SEAM: Final = 24
@@ -53,9 +54,10 @@ class Ownership:
 
 
 def assign(alphas: Sequence[UInt8Array]) -> Ownership:
-    """The owners, with every part owning under `MIN_OWNED_SHARE` of the window left out and its cells given to the others."""
+    """The owners, with every part owning under `MIN_OWNED_SHARE` of the covered cells left out and its cells given to the others."""
     owner = owners(alphas)
-    shares = numpy.bincount(owner.ravel(), minlength=len(alphas) + 1)[1:] / owner.size
+    counts = numpy.bincount(owner.ravel(), minlength=len(alphas) + 1)[1:]
+    shares = counts / max(int(counts.sum()), 1)
     kept = numpy.flatnonzero(shares >= MIN_OWNED_SHARE).tolist()
     omitted = numpy.flatnonzero(shares < MIN_OWNED_SHARE).tolist()
     return Ownership(_among(alphas, kept) if omitted and kept else owner, tuple(kept), tuple(omitted))

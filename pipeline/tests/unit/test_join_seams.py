@@ -58,6 +58,12 @@ def test_bad_path_a_sliver_under_one_percent_is_left_out_too() -> None:
     assert (found.kept, found.omitted) == ((0,), (1,))
 
 
+def test_happy_path_two_small_sheets_in_a_large_window_are_both_kept() -> None:
+    found = assign([frame(0, 2, 0, 2), frame(2, 4, 0, 2)])
+
+    assert (found.kept, found.omitted) == ((0, 1), ())
+
+
 def test_bad_path_with_nothing_kept_the_owners_stay_as_they_were() -> None:
     empty = numpy.zeros((80, 100), numpy.uint8)
 

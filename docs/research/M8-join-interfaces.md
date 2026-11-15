@@ -79,7 +79,7 @@ export const joinSeamSchema = z.strictObject({
 });
 export const joinReportSchema = z.strictObject({
     seams: z.array(joinSeamSchema),
-    omitted: z.array(idSchema), // parts that added under 1 % of the window
+    omitted: z.array(idSchema), // parts that added under 1 % of the covered cells
     coveragePct: z.number().min(0).max(100), // measured on the alpha over the city bounds
     checkpointRmseM: z.number().nonnegative().optional(), // the WORST part's own, never pooled
     checkpointCount: z.number().int().nonnegative(), // the LOWEST part's count
@@ -148,7 +148,7 @@ Params are read through `JoinParams.of`. Each part's raw record is read with `ct
    - Check room: `shutil.disk_usage` must show at least `largest scan + 1 byte/px × window px × (parts + 1)`, else `joinNoRoom`.
    - Stage a scan, attach its GCPs with `gcp_source`, warp it at z14 (9.55 m) clipped to the window, then `unstage` it.
 2. **Ownership at z13 (19.1 m).** Run `cv2.distanceTransform` per alpha mask. Each cell goes to the part deepest inside its own frame, which keeps seams off the panoramic edges.
-   - A part owning under 1 % of the window goes to `omitted`, which drops redundant fore/aft frames.
+   - A part owning under 1 % of the cells the parts cover (not of the window: small archive sheets count) goes to `omitted`, which drops redundant fore/aft frames.
    - Fewer than 2 parts left: fail `joinNoFrames`.
    - A seam is an owner boundary at least 1 km long.
 3. **Samples.** One per `clamp(length/24, 250 m, 1000 m)` along the seam's principal axis. A tile counts only if at least 90 % of it is valid in both parts.

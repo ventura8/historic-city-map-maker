@@ -69,7 +69,7 @@ export const joinSeamSchema = z.strictObject({
 /** `layerVersions/{version}.join`: what the `align` and `merge` steps measured. A join closes gaps, not absolute error. */
 export const joinReportSchema = z.strictObject({
     seams: z.array(joinSeamSchema),
-    /** Entity ids of the frames that added under 1 % of the window. */
+    /** Entity ids of the frames that added under 1 % of the covered cells. */
     omitted: z.array(idSchema),
     /** Measured on the merged alpha over the city's bounds. */
     coveragePct: z.number().min(0).max(100),
