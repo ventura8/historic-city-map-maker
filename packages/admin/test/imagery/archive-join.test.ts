@@ -75,7 +75,10 @@ describe('Join with… on an archive map', () => {
     it('happyPath_aMapAFailedJoinStampedIsOfferedAgain @S-A65-HAPPY-ARCHIVE-OFFER', async () => {
         const world = imageryWorld();
         world.store.docs.set(VERSIONS('ar-other'), archiveMap('other', { partOf: 'jn-old' }));
-        world.store.docs.set(VERSIONS('jn-old'), archiveMap('old', { state: 'failed', origin: 'join', source: { kind: 'join', parts: [PART('ar-other'), PART('ar-x')] } }));
+        world.store.docs.set(
+            VERSIONS('jn-old'),
+            archiveMap('old', { state: 'failed', origin: 'join', source: { kind: 'join', parts: [PART('ar-other'), PART('ar-x')] } }),
+        );
 
         const found = archiveJoinCandidates(world.services, BASE);
         await settle();
