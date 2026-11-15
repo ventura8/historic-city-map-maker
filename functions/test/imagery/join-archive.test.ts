@@ -19,6 +19,8 @@ import {
     readVersion,
     readyWorld,
     renderedVersion,
+    runningJob,
+    seedJob,
     seedLayer,
     seedVersion,
     type ImageryWorld,
@@ -117,6 +119,16 @@ describe('imagery.join: archive maps', () => {
         await seedLayer(ready, 'n', { currentVersion: NORTH, pendingVersion: 'rg-other' });
 
         expect((await failureOf(join(ready, [NORTH, SOUTH]))).details).toMatchObject({ code: 'apiError.imagery.joinLayerBusy' });
+    });
+
+    it('happyPath_aJoinThatFailedHoldsTheLayerNoMore @S-A65-HAPPY-ARCHIVE', async () => {
+        const ready = await world();
+        await seedJob(ready, 'jn-failed', runningJob({ status: 'failed' }));
+        await seedLayer(ready, 'n', { currentVersion: NORTH, pendingVersion: 'jn-failed' });
+
+        const answer = await join(ready, [NORTH, SOUTH]);
+
+        expect((await readLayer(ready, 'n'))?.pendingVersion).toBe(answer.versionId);
     });
 
     it('happyPath_withNoPartPublishedTheJoinReservesALayerOfItsOwn', async () => {

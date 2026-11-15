@@ -10,6 +10,7 @@
  */
 import {
     FIRESTORE_PATHS,
+    jobDocSchema,
     layerDocSchema,
     layerVersionDocSchema,
     type CallableResponse,
@@ -127,10 +128,19 @@ interface Plan {
     readonly placement: Placement;
 }
 
+/** A run that ended (failed or cancelled) holds its layer no more, whatever stamp it left (lesson 739). */
+const ENDED_RUNS: ReadonlySet<string> = new Set(['failed', 'cancelled']);
+
+/** The layer's pending version is a run still on its way (a version with no job of its own counts as one). */
+async function stillPending(transaction: DocumentTransaction, cityId: string, pending: string): Promise<boolean> {
+    const job = await transaction.get(FIRESTORE_PATHS.job(cityId, pending), jobDocSchema);
+    return job === undefined || !ENDED_RUNS.has(job.status);
+}
+
 /** The join's layer when it joins a published one: no other version may be on its way to it. */
 async function readFreeLayer(transaction: DocumentTransaction, plan: Plan): Promise<LayerDoc | undefined> {
     const layer = plan.joinsLayer ? await transaction.get(FIRESTORE_PATHS.layer(plan.cityId, plan.layerId), layerDocSchema) : undefined;
-    if (layer?.pendingVersion !== undefined) {
+    if (layer?.pendingVersion !== undefined && (await stillPending(transaction, plan.cityId, layer.pendingVersion))) {
         throw new ApiError('apiError.imagery.joinLayerBusy');
     }
     return layer;
