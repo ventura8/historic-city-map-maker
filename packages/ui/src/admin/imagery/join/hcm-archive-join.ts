@@ -24,8 +24,17 @@ const JOINABLE: ReadonlySet<LayerVersionState> = new Set<LayerVersionState>(['pu
  * stamp behind: its maps are offered again (live 2026-11-15, the 1974 and 1978 joins).
  */
 export function archiveJoinOffered(version: VersionViewPort | null, held: boolean | null = null): version is VersionViewPort {
-    const holds = held ?? (version !== null && version.partOf !== null);
-    return version?.archiveMap === true && JOINABLE.has(version.state) && pointed(version) && !holds;
+    return version?.archiveMap === true && usable(version) && !holds(version, held);
+}
+
+/** Usable, with points of its own. */
+function usable(version: VersionViewPort): boolean {
+    return JOINABLE.has(version.state) && pointed(version);
+}
+
+/** A live join holds the version: the page's reading, else any `partOf`. */
+function holds(version: VersionViewPort, held: boolean | null): boolean {
+    return held ?? version.partOf !== null;
 }
 
 /** Points of its own, not a file's embedded georeference. */

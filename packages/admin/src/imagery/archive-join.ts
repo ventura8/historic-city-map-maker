@@ -49,8 +49,12 @@ function endedJoins(docs: readonly Stored<LayerVersionDoc>[]): ReadonlySet<strin
 
 /** An archive map with a scan and its own points, usable and held by no live join: the join can take it. */
 function joinable(version: LayerVersionDoc, ended: ReadonlySet<string>): boolean {
-    const free = version.partOf === undefined || ended.has(version.partOf);
-    return version.source?.kind === 'archive' && USABLE.has(version.state) && pointed(version) && free;
+    return version.source?.kind === 'archive' && USABLE.has(version.state) && pointed(version) && unheld(version, ended);
+}
+
+/** No join stamped the map, or the one that did ended. */
+function unheld(version: LayerVersionDoc, ended: ReadonlySet<string>): boolean {
+    return version.partOf === undefined || ended.has(version.partOf);
 }
 
 /** The published version of a map wins, else the newest. */
