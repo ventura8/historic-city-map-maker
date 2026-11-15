@@ -59,3 +59,5 @@ core.[0-9]*
 
 # Agent scratch space
 .claude/worktrees/
+# Claude Code's local lock of its scheduled tasks (a tool file, never committed; the EditorConfig gate reads git's file list)
+.claude/scheduled_tasks.lock

@@ -117,6 +117,9 @@ export default defineConfig(
             // written by `npm run release:cdn` and held byte for byte to a fresh build by the release-cdn gate. Its sources
             // are linted in packages/; the bundle is no source.
             'cdn/engine/**',
+            // Agents' worktrees (gitignored): whole copies of this repository; linting them made the last group ('.' of
+            // scripts/ci/lint.sh) build every copy's TypeScript programs and run out of memory (DECISIONS §235).
+            '.claude/worktrees/**',
         ],
     },
     {
