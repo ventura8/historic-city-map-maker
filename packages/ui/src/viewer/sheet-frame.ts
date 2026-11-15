@@ -20,12 +20,24 @@ export interface SheetFrameOptions {
     readonly onClose: () => void;
     /** The docked close minimizes the sheet to a rail: a chevron, and it says the sheet is expanded. */
     readonly minimize?: boolean | undefined;
+    /**
+     * A standard sheet beside a live map instead of a modal one: no scrim, the map stays visible and usable, the close
+     * button and Esc close it (the Layers sheet, the owner, 2026-11-15). Default: modal.
+     */
+    readonly standard?: boolean | undefined;
 }
 
 export function renderSheetFrame(options: SheetFrameOptions, content: unknown): TemplateResult {
-    const { mode, open, label, closeLabel, handleLabel, onClose, minimize } = options;
+    const { mode, open, label, closeLabel, handleLabel, onClose, minimize, standard } = options;
     if (mode !== 'docked') {
-        return html`<hcm-sheet modal .open=${open} .label=${label} .variant=${mode} .closeLabel=${closeLabel} .handleLabel=${handleLabel}>
+        return html`<hcm-sheet
+            ?modal=${standard !== true}
+            .open=${open}
+            .label=${label}
+            .variant=${mode}
+            .closeLabel=${closeLabel}
+            .handleLabel=${handleLabel}
+        >
             <h2 slot="header" class="sheet-title">${label}</h2>
             ${content}
         </hcm-sheet>`;

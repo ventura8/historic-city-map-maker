@@ -172,7 +172,7 @@ const VIEWER_STATES = {
         escape: sheetEscape((lang) => t(lang, 'photos.nearYear', { year: '1966' })),
     },
     layers: {
-        title: 'The Layers panel (a bottom sheet at half height, a side sheet or a pane)',
+        title: 'The Layers panel (a bottom sheet at half height, a side sheet or a pane), no scrim: the map beside it stays usable',
         enter: async ({ page, lang }) => {
             await openLayers(page, lang);
             await mapIdle(page);
@@ -186,7 +186,7 @@ const VIEWER_STATES = {
             await slider.press('ArrowLeft');
         },
         announcements: (lang) => [leadOf(lang, 'layers.opacityChanged', { name: t(lang, 'layers.photos') }, 'percent')],
-        escape: sheetEscape(fromMenu),
+        // No escape check: the Layers sheet is a standard sheet, no popup (2026-11-15); its Esc is S-V15-HAPPY-IPHONE-LAYERS'.
     },
     'layers-peek': {
         title: 'The Layers sheet at its lowest height',

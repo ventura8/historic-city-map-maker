@@ -120,9 +120,18 @@ export const viewerStyles = [
         }
 
         /*
+         * The standard Layers sheet leaves the map visible and usable, with no scrim (the owner, 2026-11-15); the floating
+         * controls it would cover (and the skip link to the timeline) step aside while it is open, so none sits under it,
+         * reachable by Tab but not seen. Mapbox's legal line stays and rises above the sheet (below).
+         */
+        .frame[data-layers-sheet] :is(.skip, .dock.chip, .dock.compass, .dock.zoom, .dock.timeline, .dock.timeline-note, .dock.menu) {
+            visibility: hidden;
+        }
+
+        /*
          * Mapbox's bottom corners move out from under an open modal sheet: above a bottom sheet's top edge, beside a side
-         * sheet (the Pixel 9 Pro review, P3: a copy of the credits in a bar took the foot of every sheet). Under the
-         * sheet's scrim they stay in view, as the rest of the map does.
+         * sheet (the Pixel 9 Pro review, P3: a copy of the credits in a bar took the foot of every sheet). Under a modal
+         * sheet's scrim they stay in view, as the rest of the map does; beside the standard Layers sheet they stay usable.
          */
         .frame .mapboxgl-ctrl-bottom-left,
         .frame .mapboxgl-ctrl-bottom-right {

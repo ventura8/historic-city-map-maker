@@ -39,15 +39,23 @@ describe('<hcm-map-viewer>: layout per window class', () => {
         document.body.replaceChildren();
     });
 
-    it('happyPath_compactUsesModalBottomSheetsAndMakesTheMapInert', async () => {
+    it('happyPath_compactUsesBottomSheetsAndOnlyAModalOneMakesTheMapInert', async () => {
         const mounted = await mountViewer(readyState(), COMPACT);
         chooseFromMenu(mounted, 'layers');
         await mounted.element.updateComplete;
 
         const panel = part(mounted, 'hcm-layer-panel') as Sheet;
         expect([panel.mode, panel.open]).toEqual(['bottom', true]);
-        expect(part(mounted, '.frame').hasAttribute('inert')).toBe(true);
+        // The Layers sheet is a standard one (the owner, 2026-11-15): the map beside it stays usable.
+        expect(part(mounted, '.frame').hasAttribute('inert')).toBe(false);
+        expect(part(mounted, '.frame').hasAttribute('data-layers-sheet')).toBe(true);
+        expect(getComputedStyle(part(mounted, '.dock.menu')).visibility).toBe('hidden');
         expect(part(mounted, '.frame').dataset['panes']).toBe('none');
+
+        chooseFromMenu(mounted, 'photos');
+        await mounted.element.updateComplete;
+        expect(part(mounted, '.frame').hasAttribute('inert')).toBe(true);
+        expect(part(mounted, '.frame').hasAttribute('data-layers-sheet')).toBe(false);
     });
 
     it('happyPath_mediumUsesModalSideSheets', async () => {

@@ -107,7 +107,7 @@ export function menuButton(page: Page, lang: ViewerLocale): Locator {
 }
 
 /** The open FAB menu's item named `label`: an action, or a switch such as Show my location (`menuitemcheckbox`). */
-function menuItemNamed(page: Page, label: string): Locator {
+export function menuItemNamed(page: Page, label: string): Locator {
     return page.getByRole('menuitem', { name: label, exact: true }).or(page.getByRole('menuitemcheckbox', { name: label, exact: true }));
 }
 

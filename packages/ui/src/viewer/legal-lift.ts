@@ -50,9 +50,12 @@ function inPx(distance: number): number {
     return Math.max(0, Math.round(distance));
 }
 
-/** The surface of the open modal `<hcm-sheet>` under `root`, searched through open shadow roots; null when none is open. */
+/**
+ * The surface of the open `<hcm-sheet>` under `root` (modal, or the standard Layers sheet), searched through open shadow
+ * roots; null when none is open.
+ */
 export function openModalSheet(root: ParentNode): Element | null {
-    const sheet = root.querySelector('hcm-sheet[open][modal]');
+    const sheet = root.querySelector('hcm-sheet[open]');
     if (sheet !== null) {
         return sheet.shadowRoot?.querySelector('.sheet') ?? null;
     }

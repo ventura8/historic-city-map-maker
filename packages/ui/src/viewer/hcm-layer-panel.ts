@@ -223,7 +223,10 @@ export class HcmLayerPanel extends LitElement {
                 this.dispatchEvent(closeEvent());
             }
         };
-        return renderSheetFrame({ mode: this.mode, open: this.open, label, closeLabel, handleLabel, onClose, minimize }, this.#content());
+        return renderSheetFrame(
+            { mode: this.mode, open: this.open, label, closeLabel, handleLabel, onClose, minimize, standard: true },
+            this.#content(),
+        );
     }
 
     /**

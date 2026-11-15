@@ -28,6 +28,24 @@ describe('renderSheetFrame', () => {
         expect(sheet?.handleLabel).toBe('Redimensionează panoul');
         expect(host.querySelector('[slot="header"]')?.textContent).toBe('Straturi');
         expect(host.textContent).toContain('conținut');
+        expect(sheet?.hasAttribute('modal')).toBe(true);
+    });
+
+    it('badPath_aStandardSheetHasNoScrimOverTheMap', () => {
+        // The Layers sheet (the owner, 2026-11-15): no dimming, the map stays usable beside it.
+        const host = document.createElement('div');
+        document.body.append(host);
+        const options = {
+            mode: 'bottom' as const,
+            open: true,
+            label: 'Straturi',
+            closeLabel: 'Închide',
+            handleLabel: 'Mută',
+            onClose: vi.fn(),
+        };
+        render(renderSheetFrame({ ...options, standard: true }, html`<p>conținut</p>`), host);
+
+        expect(host.querySelector('hcm-sheet')?.hasAttribute('modal')).toBe(false);
     });
 
     it('happyPath_dockedModeIsALabelledSectionWithAClose', () => {

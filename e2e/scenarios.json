@@ -2898,11 +2898,33 @@
             "behaviour": "V15",
             "area": "viewer",
             "path": "bad",
-            "title": "A window under 760 px wide, or wide but short, still opens the Layers panel as a modal sheet",
-            "asserts": "at 759x1024 and at 915x412 the Layers panel opens as a dialog and Esc closes it",
+            "title": "A window under 760 px wide, or wide but short, still opens the Layers panel as a sheet over the map",
+            "asserts": "at 759x1024 and at 915x412 the Layers panel opens as a labelled sheet (a standard one since 2026-11-15, no dialog) and Esc closes it",
             "tier": "e2e-viewer",
             "status": "exists",
             "notes": "The dock threshold of the Pixel Tablet fix (760 px wide, not compact height). packages/ui/src/viewer/layout.ts."
+        },
+        {
+            "id": "S-V15-HAPPY-IPHONE-LAYERS",
+            "behaviour": "V15",
+            "area": "viewer",
+            "path": "happy",
+            "title": "On an iPhone the Layers panel leaves the map undimmed and usable, and its X closes it",
+            "asserts": "WebKit as an iPhone 15 with Safari's focus on a tap: the panel is a labelled region, no dialog and no scrim; the frame is not inert and a finger above the panel reaches the map's canvas; the X is at least 40 px and a tap on it closes the panel; Esc closes it too",
+            "tier": "e2e-viewer",
+            "status": "exists",
+            "notes": "The owner's iPhone, 2026-11-15 (lesson 740). packages/ui/src/viewer/sheet-frame.ts (standard), viewer-legal.ts (modalOpen), viewer-styles.ts (data-layers-sheet); project fn-webkit-iphone15."
+        },
+        {
+            "id": "S-V15-BAD-IPHONE-MENU-CLOSE",
+            "behaviour": "V15",
+            "area": "viewer",
+            "path": "bad",
+            "title": "On an iPhone the menu's X closes the menu although Safari blurs the focused item to nothing",
+            "asserts": "WebKit as an iPhone 15 with Safari's focus on a tap (a tapped button takes no focus, the focused item blurs): a tap on the open menu's X closes it and the FAB says collapsed",
+            "tier": "e2e-viewer",
+            "status": "exists",
+            "notes": "The owner's iPhone, 2026-11-15 (lesson 740): focusout closed the menu and the tap's click reopened it. packages/ui/src/components/fab-menu.ts (pressingFab); unit tests in packages/ui/test/components/fab-menu.test.ts."
         },
         {
             "id": "S-V15-BAD-COMPACT-LANDSCAPE",

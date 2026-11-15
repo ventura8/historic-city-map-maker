@@ -209,6 +209,14 @@ export class HcmSheet extends LitElement {
                 min-width: 0;
             }
 
+            /*
+             * The close button's own box is the 48 px target (the owner's iPhone, 2026-11-15): the ring drawn past a 40 px
+             * button was not hit below it in WebKit, where a tap there reached the header instead (lesson 740).
+             */
+            .header hcm-icon-button {
+                --hcm-control-size: 48px;
+            }
+
             .content {
                 flex: 1 1 auto;
                 padding: 0 24px 16px;

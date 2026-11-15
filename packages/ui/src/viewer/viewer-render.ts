@@ -183,6 +183,14 @@ function frameInert(view: ViewerView): boolean {
     return modalOpen(view.state, view.layout.sheetMode) || view.dock.modal();
 }
 
+/**
+ * The Layers sheet is open as a standard bottom or side sheet over the map (the owner, 2026-11-15: no dimming, the map
+ * stays usable): the floating controls it would cover step aside until it closes (`viewer-styles.ts`).
+ */
+function layersSheetOpen(view: ViewerView): boolean {
+    return view.state?.sheet === 'layers' && view.layout.sheetMode !== 'docked';
+}
+
 /** The lift as the properties the styles move Mapbox's bottom corners by (`viewer-styles.ts`); none without a sheet. */
 function liftProperties(lift: LegalLift): CssPropertyValues {
     const px = (value: number): string | undefined => (value === 0 ? undefined : `${String(value)}px`);
@@ -200,6 +208,7 @@ export function renderViewer(view: ViewerView, handlers: ViewerHandlers): Templa
                 data-timeline=${hasTimeline(view, ready) ? view.layout.timeline : nothing}
                 ?data-timeline-collapsed=${timelineCollapsed(view, ready)}
                 ?inert=${frameInert(view)}
+                ?data-layers-sheet=${layersSheetOpen(view)}
                 ${cssProperties(liftProperties(view.legalLift))}
             >
                 ${skipLink(view, ready, handlers)} ${leadingPane(view, ready, handlers)}

@@ -15,9 +15,14 @@ import { isDialogSheet } from './input-commands.js';
 import type { SheetMode } from './layout.js';
 import type { ViewerState } from './store-port.js';
 
-/** True while a modal surface covers the frame (its content is then inert): the lightbox, About, a modal sheet. */
+/**
+ * True while a modal surface covers the frame (its content is then inert): the lightbox, About, a modal sheet. The Layers
+ * sheet is a standard one, beside a map that stays usable (the owner, 2026-11-15: no dimming while it is open).
+ */
 export function modalOpen(state: ViewerState | null, mode: SheetMode): boolean {
-    return state !== null && (state.lightbox || isDialogSheet(state.sheet) || (mode !== 'docked' && state.sheet !== 'none'));
+    return (
+        state !== null && (state.lightbox || isDialogSheet(state.sheet) || (mode !== 'docked' && !['none', 'layers'].includes(state.sheet)))
+    );
 }
 
 /** The consent banner, in its dock over the map. */

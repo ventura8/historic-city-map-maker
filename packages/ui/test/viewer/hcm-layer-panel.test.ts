@@ -136,6 +136,7 @@ describe('<hcm-layer-panel>', () => {
         expect(sheet.variant).toBe('side');
         expect(sheet.label).toBe('Layers');
         expect(sheet.closeLabel).toBe('Close');
+        expect(sheet.hasAttribute('modal')).toBe(false);
         const list = shadowQuery(element, 'hcm-overlay-list') as HTMLElement & OverlayListProps;
         expect(list.items).toHaveLength(5);
         expect(list.groups.map((group) => group.label)).toEqual(['Historical layers', 'Places']);

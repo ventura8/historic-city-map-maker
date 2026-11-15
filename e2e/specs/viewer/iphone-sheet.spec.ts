@@ -1,0 +1,137 @@
+import type { Page } from '@playwright/test';
+
+import { expect, test } from '../../support/test.js';
+import { menuButton, menuItemNamed, openViewer, t, viewer } from '../../support/viewer.js';
+
+/**
+ * The owner's iPhone (2026-11-15; lesson 740): in Safari the X of the open menu did not close it, and the Layers panel
+ * dimmed the whole map. Run in WebKit with the iPhone 15 profile (project `fn-webkit-iphone15`, e2e/projects.ts).
+ *
+ * Playwright's WebKit on Linux focuses a tapped button, iOS Safari does not: there the element that had the focus blurs to
+ * nothing. `safariFocusModel` gives the page Safari's rule, which is what reproduced the bug before the fix.
+ */
+
+test.use({
+    expectedConsoleErrors: [
+        {
+            text: /^Refused to apply a stylesheet because its hash, its nonce, or 'unsafe-inline' does not appear in the style-src directive/,
+            url: /^(?:http:\/\/127\.0\.0\.1:\d+\/|$)/,
+            why: "Playwright's WebKit inserts <style>body {}</style> from its own inspector (web-inspector://bootstrap.js) after a tap; the page adds no inline style (seen 2026-11-15)",
+        },
+    ],
+});
+
+/**
+ * iOS Safari's focus on a tap: a pressed button takes no focus, and whatever had it blurs. A button with a `tabindex` (the
+ * menu's items) is focusable by a press there and takes the focus as everywhere else.
+ */
+async function safariFocusModel(page: Page): Promise<void> {
+    await page.addInitScript(() => {
+        const deepActive = (): Element | null => {
+            let active = document.activeElement;
+            while (active?.shadowRoot?.activeElement) {
+                active = active.shadowRoot.activeElement;
+            }
+            return active;
+        };
+        document.addEventListener(
+            'mousedown',
+            (event) => {
+                const button = event.composedPath().find((node) => node instanceof HTMLButtonElement);
+                if (button instanceof HTMLButtonElement && !button.hasAttribute('tabindex')) {
+                    event.preventDefault();
+                    const active = deepActive();
+                    if (active instanceof HTMLElement) {
+                        active.blur();
+                    }
+                }
+            },
+            true,
+        );
+    });
+}
+
+/** What a finger at (x, y) reaches, through every shadow root: its class list and its accessible name. */
+async function hitAt(page: Page, x: number, y: number): Promise<string> {
+    return page.evaluate(
+        ([px, py]) => {
+            let hit: Element | null = document.elementFromPoint(px, py);
+            while (hit?.shadowRoot) {
+                const inner = hit.shadowRoot.elementFromPoint(px, py);
+                if (inner === null || inner === hit) {
+                    break;
+                }
+                hit = inner;
+            }
+            return `${hit?.className ?? ''} ${hit?.getAttribute('aria-label') ?? ''}`;
+        },
+        [x, y] as const,
+    );
+}
+
+test(
+    'On an iPhone the Layers panel leaves the map undimmed and usable, and its X closes it',
+    { tag: '@S-V15-HAPPY-IPHONE-LAYERS' },
+    async ({ page, lang }, testInfo) => {
+        await safariFocusModel(page);
+        await openViewer(page, { lang });
+        await menuButton(page, lang).tap();
+        await menuItemNamed(page, t(lang, 'layers.title')).tap();
+        const panel = page.getByRole('region', { name: t(lang, 'layers.title'), exact: true });
+        await expect(panel).toBeVisible();
+
+        await expect(page.getByRole('dialog', { name: t(lang, 'layers.title'), exact: true })).toHaveCount(0);
+        await expect(viewer(page).locator('hcm-layer-panel hcm-sheet .scrim')).toHaveCount(0);
+        await expect(viewer(page).locator('.frame')).not.toHaveAttribute('inert');
+        const box = await panel.boundingBox();
+        expect(box).not.toBeNull();
+        expect(await hitAt(page, 40, Math.max(1, (box?.y ?? 0) / 2)), 'a finger above the panel reaches the map').toContain(
+            'mapboxgl-canvas',
+        );
+        await page.screenshot({ path: testInfo.outputPath('iphone-layers-open.png') });
+
+        const close = panel.getByRole('button', { name: t(lang, 'action.close'), exact: true });
+        const target = await close.boundingBox();
+        const [cx, cy] = [(target?.x ?? 0) + (target?.width ?? 0) / 2, (target?.y ?? 0) + (target?.height ?? 0) / 2];
+        // A real <button> whose touch target is at least 44 px: a finger 22 px from its centre still reaches it.
+        for (const [dx, dy] of [
+            [-21, 0],
+            [21, 0],
+            [0, -21],
+            [0, 21],
+        ] as const) {
+            expect(await hitAt(page, cx + dx, cy + dy), `the X at ${String(dx)}, ${String(dy)} px from its centre`).toContain(
+                t(lang, 'action.close'),
+            );
+        }
+        await close.tap();
+        await expect(panel).toHaveCount(0);
+        await page.screenshot({ path: testInfo.outputPath('iphone-layers-closed.png') });
+
+        await menuButton(page, lang).tap();
+        await menuItemNamed(page, t(lang, 'layers.title')).tap();
+        await expect(panel).toBeVisible();
+        await page.keyboard.press('Escape');
+        await expect(panel).toHaveCount(0);
+    },
+);
+
+test(
+    "On an iPhone the menu's X closes the menu although Safari blurs the focused item to nothing",
+    { tag: '@S-V15-BAD-IPHONE-MENU-CLOSE' },
+    async ({ page, lang }) => {
+        await safariFocusModel(page);
+        await openViewer(page, { lang });
+        await menuButton(page, lang).tap();
+        const item = menuItemNamed(page, t(lang, 'layers.title'));
+        await expect(item).toBeVisible();
+
+        await page
+            .getByRole('button', { name: t(lang, 'action.close'), exact: true })
+            .filter({ visible: true })
+            .tap();
+
+        await expect(item).toHaveCount(0);
+        await expect(menuButton(page, lang)).toHaveAttribute('aria-expanded', 'false');
+    },
+);

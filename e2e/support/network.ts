@@ -96,10 +96,19 @@ interface Decision {
     readonly options: NetworkOptions;
 }
 
+/**
+ * The host a request goes to. A `blob:` URL has none of its own: it is the page's memory, under the origin that made it
+ * (WebKit routes Mapbox's worker blob through here, Chromium does not; the iPhone project, 2026-11-15).
+ */
+function hostOf(url: string): string {
+    const parsed = new URL(url);
+    return parsed.protocol === 'blob:' ? new URL(parsed.origin).hostname : parsed.hostname;
+}
+
 async function decide(route: Route, decision: Decision): Promise<void> {
     const { api, testId, blocked, options } = decision;
     const url = route.request().url();
-    const host = new URL(url).hostname;
+    const host = hostOf(url);
     if (isLoopback(host)) {
         await passLoopback(route, testId);
     } else if (refusedAddress(new URL(url)) !== null || !isForwarded(host, options)) {

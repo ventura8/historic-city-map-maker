@@ -138,6 +138,8 @@ export class HcmFabMenu extends LitElement {
     declare open: boolean;
 
     private focusFirstItem = false;
+    /** A press on the FAB is in progress (pointerdown seen, click not yet): the focus leaving for it keeps the menu open. */
+    private pressingFab = false;
 
     constructor() {
         super();
@@ -164,6 +166,8 @@ export class HcmFabMenu extends LitElement {
                 aria-haspopup="menu"
                 aria-expanded=${String(this.open)}
                 aria-controls="menu"
+                @pointerdown=${this.onFabPointerDown}
+                @pointercancel=${this.onFabPointerCancel}
                 @click=${this.onFabClick}
                 @keydown=${this.onKeyDown}
             >
@@ -217,7 +221,21 @@ export class HcmFabMenu extends LitElement {
         emit(this, 'hcm-select', { value });
     }
 
+    /**
+     * iOS Safari never focuses a tapped button: the item that had the focus blurs to nothing, `focusout` closed the menu and
+     * the tap's `click` opened it again, so the X never closed it (the owner, 2026-11-15; lesson 740). A press on the FAB
+     * marks itself, and the focus leaving for it is no reason to close: its own click decides.
+     */
+    private readonly onFabPointerDown = (): void => {
+        this.pressingFab = true;
+    };
+
+    private readonly onFabPointerCancel = (): void => {
+        this.pressingFab = false;
+    };
+
     private readonly onFabClick = (): void => {
+        this.pressingFab = false;
         this.setOpen(!this.open);
     };
 
@@ -248,6 +266,9 @@ export class HcmFabMenu extends LitElement {
     /** Focus leaving the whole element (not moving between its items or to the FAB) closes the menu. */
     private readonly onFocusOut = (event: FocusEvent): void => {
         const next = event.relatedTarget;
+        if (this.pressingFab) {
+            return;
+        }
         if (!(next instanceof Node) || !this.renderRoot.contains(next)) {
             this.setOpen(false);
         }

@@ -225,21 +225,32 @@ export function modalPlace(element: Element, modals: readonly Element[], exempt:
     return exempt.some((legal) => flatContains(legal, element)) ? 'exempt' : 'outside';
 }
 
-/** The points of `element` a pointer check samples, and what it hits at each. */
-export function sampleElement(registry: Registry, element: Element, centreOnly: boolean): Sample[] {
+/**
+ * The points of `element` a pointer check samples, and what it hits at each. A large `surface` (the map's canvas) counts
+ * as one sample: the first of its centre and four inner points that reaches it, else its centre. A standard sheet over
+ * part of the map (the Layers sheet, 2026-11-15) leaves the rest of it usable.
+ */
+export function sampleElement(registry: Registry, element: Element, surface: boolean): Sample[] {
     const visible = visibleBoxOf(element);
     if (visible === null) {
         return [];
     }
     const own = isPinned(element);
+    const points = samplePoints(visible, false);
     // Only the points of the element's own shape: a round control scrolled to a strip has its box corners outside it.
-    const points = samplePoints(visible, centreOnly);
     const shaped = points.filter(({ x, y }) => withinShape(element, x, y));
-    return (shaped.length > 0 ? shaped : points.slice(0, 1)).map(({ x, y }) => {
+    // Inline: the page script carries only the helpers `LAYOUT_PROBE` lists into the page.
+    const sampleAt = ({ x, y }: { readonly x: number; readonly y: number }): Sample => {
         const hit = deepHit(x, y);
         const pinned = hit !== null && !own && isPinned(hit);
         return { x, y, hit: idOrNull(registry, hit), ok: reaches(element, hit) || ownMapControl(element, hit), pinned };
-    });
+    };
+    const samples = (shaped.length > 0 ? shaped : points.slice(0, 1)).map(sampleAt);
+    const reached = samples.find((sample) => sample.ok);
+    if (!surface) {
+        return samples;
+    }
+    return reached === undefined ? samples.slice(0, 1) : [reached];
 }
 
 /**

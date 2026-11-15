@@ -212,3 +212,41 @@ describe('<hcm-fab-menu>: an item that is on or off', () => {
         expect(getComputedStyle(action).borderTopWidth).toBe('0px');
     });
 });
+
+describe('<hcm-fab-menu> on iOS Safari, which never focuses a tapped button', () => {
+    afterEach(cleanup);
+
+    it('badPath_aTapOnTheCloseFabThatBlursTheItemToNothingClosesTheMenu', async () => {
+        // iOS Safari never focuses a tapped button: the item blurred to nothing, focusout closed the menu and the tap's
+        // click opened it again (the owner, 2026-11-15; lesson 740).
+        const element = await menu();
+        const toggles = recordEvents(element, 'hcm-toggle');
+        const fab = shadowPart(element, '.fab');
+        fab.click();
+        await element.updateComplete;
+        shadowPart(element, '[role="menuitem"]').focus();
+
+        fab.dispatchEvent(new PointerEvent('pointerdown', { bubbles: true, composed: true }));
+        (deepFocus() as HTMLElement).blur();
+        fab.click();
+        await element.updateComplete;
+
+        expect(toggles).toEqual([{ open: true }, { open: false }]);
+        expect(element.shadowRoot?.querySelector('[role="menu"]')).toBeNull();
+    });
+
+    it('badPath_aCancelledPressOnTheFabNoLongerKeepsTheMenuOpen', async () => {
+        const element = await menu();
+        const fab = shadowPart(element, '.fab');
+        fab.click();
+        await element.updateComplete;
+        shadowPart(element, '[role="menuitem"]').focus();
+
+        fab.dispatchEvent(new PointerEvent('pointerdown', { bubbles: true, composed: true }));
+        fab.dispatchEvent(new PointerEvent('pointercancel', { bubbles: true, composed: true }));
+        part(document, '#outside').focus();
+        await element.updateComplete;
+
+        expect(element.open).toBe(false);
+    });
+});

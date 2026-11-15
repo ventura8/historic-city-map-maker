@@ -276,7 +276,7 @@ test(
 );
 
 test(
-    'A window under 760 px wide, or wide but short, still opens the Layers panel as a modal sheet',
+    'A window under 760 px wide, or wide but short, still opens the Layers panel as a sheet over the map',
     { tag: '@S-V15-BAD-NARROW-OR-SHORT-MODAL' },
     async ({ page, lang }) => {
         for (const size of [
@@ -286,9 +286,10 @@ test(
             await boot(page, size, lang, '15/44.42700/26.08530&layers=e2e-1966');
             await openLayers(page, lang);
             const where = `${String(size.width)}x${String(size.height)}`;
-            await expect(page.getByRole('dialog', { name: t(lang, 'layers.title'), exact: true }), where).toBeVisible();
+            // A standard sheet since 2026-11-15 (no scrim, the map stays usable): a labelled region, not a dialog.
+            await expect(page.getByRole('region', { name: t(lang, 'layers.title'), exact: true }), where).toBeVisible();
             await page.keyboard.press('Escape');
-            await expect(page.getByRole('dialog', { name: t(lang, 'layers.title'), exact: true }), where).toHaveCount(0);
+            await expect(page.getByRole('region', { name: t(lang, 'layers.title'), exact: true }), where).toHaveCount(0);
         }
     },
 );

@@ -422,6 +422,19 @@ describe('edge cases of the probes', () => {
         expect(showsThrough(button, null)).toBe(false);
     });
 
+    test('badPath_aSheetOverTheCentreOfALargeSurfaceLeavesItReachableElsewhere_butOneOverAllOfItDoesNot', () => {
+        const canvas = h('canvas', { style: at(0, 0, 200, 100) });
+        const sheet = h('section', { style: at(0, 40, 200, 60) });
+        stage(h('div', {}, canvas, sheet));
+        const registry = { elements: [], ids: new Map() };
+
+        const [reached] = sampleElement(registry, canvas, true);
+        expect([reached?.x, reached?.y, reached?.ok]).toEqual([40, 20, true]);
+        sheet.setAttribute('style', at(0, 0, 200, 100));
+        const [covered] = sampleElement(registry, canvas, true);
+        expect([covered?.x, covered?.y, covered?.ok]).toEqual([100, 50, false]);
+    });
+
     test('happyPath_aMapsOwnControlsOverItsCanvasDoNotCoverIt_butAnotherElementDoes', () => {
         const canvas = h('canvas', { style: at(0, 0, 200, 100) });
         const attribution = h('a', { style: at(0, 0, 200, 100) }, '© Mapbox');
