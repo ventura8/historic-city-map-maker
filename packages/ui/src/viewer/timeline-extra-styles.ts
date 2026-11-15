@@ -160,7 +160,8 @@ export const timelineExtraStyles = css`
     }
 
     .opacity-name {
-        font: var(--md-sys-typescale-label-medium, 500 12px / 16px system-ui);
+        font-size: var(--md-sys-typescale-body-small-size, 12px);
+        line-height: var(--md-sys-typescale-body-small-line-height, 16px);
     }
 
     /* Narrow screens: a bottom sheet across the viewport, over the place timeline-opacity.ts gives it beside the thumb (its
