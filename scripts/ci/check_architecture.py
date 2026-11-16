@@ -2,7 +2,8 @@
 """Static gate: docs/ARCHITECTURE.md stays true to the tree.
 
 * every backticked repository path it names (under packages/, functions/, pipeline/, scripts/, firebase/, infra/,
-  sites/, templates/, docker/, e2e/, docs/) exists; a path with a placeholder (`<city>`, `*`, `{...}`) is skipped;
+  sites/, templates/, docker/, e2e/, docs/) exists; a path with a placeholder (`<city>`, `*`, `{...}`)
+  or under a build's `dist/` is skipped;
 * every relative Markdown link it makes resolves to a file;
 * it has at least one Mermaid diagram, and each ```mermaid block opens with a known diagram type, has a body and
   balanced brackets.
@@ -29,7 +30,7 @@ MERMAID_RE = re.compile(r"```mermaid\n(.*?)```", re.S)
 KINDS = ("flowchart", "graph", "sequenceDiagram", "stateDiagram-v2", "classDiagram", "erDiagram")
 PAIRS = (("[", "]"), ("(", ")"), ("{", "}"))
 MIN_LINES = 2  # the type line and at least one line of body
-PLACEHOLDER = re.compile(r"[<>*{}]")
+PLACEHOLDER = re.compile(r"[<>*{}]|(^|/)dist(/|$)")  # a placeholder, or a build output a clean checkout lacks
 
 
 def missing_paths(text: str, root: Path) -> list[str]:

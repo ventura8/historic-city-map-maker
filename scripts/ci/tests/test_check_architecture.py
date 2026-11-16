@@ -11,8 +11,11 @@ from treeutil import write
 GOOD = "# A\n\nSee `scripts/x.py` and [B](B.md) and `sites/<city>/`.\n\n```mermaid\nflowchart LR\n    a[A] --> b(B)\n```\n"
 
 
+PLUS = "Build output: `functions/dist/x.json`, `functions/dist`.\n"
+
+
 def test_happy_path_a_true_document_passes(tmp_path: Path, caplog: pytest.LogCaptureFixture) -> None:
-    write(tmp_path, "docs/ARCHITECTURE.md", GOOD)
+    write(tmp_path, "docs/ARCHITECTURE.md", GOOD + PLUS)
     write(tmp_path, "docs/B.md", "# B")
     write(tmp_path, "scripts/x.py", "")
 
