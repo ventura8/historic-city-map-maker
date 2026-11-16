@@ -55,6 +55,13 @@ describe('<hcm-slider>', () => {
 
         expect(Number.parseFloat(target.width)).toBeGreaterThanOrEqual(48);
         expect(Number.parseFloat(target.height)).toBeGreaterThanOrEqual(48);
+        // The visible bar is 20 px, centred on the track; the box around it stays 24 px wide.
+        const handle = shadowPart(element, '.handle');
+        const box = handle.getBoundingClientRect();
+        const track = shadowPart(element, '.track').getBoundingClientRect();
+        expect(getComputedStyle(handle).height).toBe('20px');
+        expect(box.width).toBe(24);
+        expect(box.top + box.height / 2).toBeCloseTo(track.top + track.height / 2, 0);
     });
 
     it('happyPath_keysMoveByStepPageAndToTheEnds', async () => {
