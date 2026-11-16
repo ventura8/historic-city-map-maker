@@ -6,6 +6,7 @@
  */
 import { html, type TemplateResult } from 'lit';
 
+import { cancelledGroup } from './cancelled-list.js';
 import { current, errorTemplate, loadingTemplate } from '../editing/states.js';
 import { EMPTY } from '../shell/empty.js';
 import { contentText } from '../shell/text.js';
@@ -28,7 +29,7 @@ function thumb(context: ImageryContext, version: VersionItemPort): TemplateResul
         : html`<img class="thumb" src=${url} alt="" />`;
 }
 
-function versionRow(context: ImageryContext, version: VersionItemPort): TemplateResult {
+function versionRow(context: ImageryContext, version: VersionItemPort, extra: TemplateResult = EMPTY): TemplateResult {
     const { locale, view } = context;
     const selected = view.detail?.kind === 'version' && view.detail.id === version.id;
     // A join and its frames share a label and a year: this tells them apart.
@@ -41,6 +42,7 @@ function versionRow(context: ImageryContext, version: VersionItemPort): Template
                 <span class="row-detail">${versionDetail(locale, version, view.jobs[version.id])}</span>
             </span>
         </a>
+        ${extra}
     </li>`;
 }
 
@@ -73,13 +75,18 @@ function group(context: ImageryContext, heading: Heading, versions: readonly Ver
     </section>`;
 }
 
+/** No version, open order or cancelled version to list (t130: a cancelled one alone still shows its group). */
+function nothingListed({ view }: ImageryContext): boolean {
+    return view.versions.items.length === 0 && openOrderCount(view) === 0 && (view.cancelled?.items.length ?? 0) === 0;
+}
+
 export function workView(context: ImageryContext): TemplateResult {
     const { locale, view, intents } = context;
     const list = view.versions;
     if (list.status === 'error') {
         return errorTemplate(locale, list.failure, () => intents?.retry());
     }
-    if (list.items.length === 0 && openOrderCount(view) === 0) {
+    if (nothingListed(context)) {
         return list.status === 'loading'
             ? loadingTemplate(locale)
             : html`<hcm-empty-state icon="pending" .text=${contentText(locale, 'adminContent.imagery.noWork')}></hcm-empty-state>`;
@@ -99,5 +106,6 @@ export function workView(context: ImageryContext): TemplateResult {
         context,
         'adminContent.imagery.tooCoarse',
         list.items.filter((version) => version.tooCoarse),
-    )}`;
+    )}
+    ${cancelledGroup(context, (version, extra) => versionRow(context, version, extra))}`;
 }

@@ -164,6 +164,9 @@ export const OPEN_VERSION_STATES: readonly LayerVersionState[] = [
     'failed',
 ];
 
+/** t130: the versions stopped before the map (by their own job or a Cancel), folded apart in Work. */
+export const CANCELLED_VERSION_STATES: readonly LayerVersionState[] = ['cancelled'];
+
 export interface VersionItem {
     readonly id: string;
     readonly layerId: string;

@@ -10,7 +10,7 @@ import { isId, type PublishChoice } from '@hcm/shared';
 import type { AreaModule, AreaStore } from '../content/areas.js';
 import type { ContentServices } from '../content/services.js';
 import { Store } from '../state/store.js';
-import { callImagery, refusalOf } from './api.js';
+import { callImagery, refusalOf, removeIntent } from './api.js';
 import { archiveJoinIntents } from './archive-join.js';
 import { BrowseImages } from './browse.js';
 import { ImageryFeeds, type FeedsPatch } from './feeds.js';
@@ -174,7 +174,7 @@ class ImageryStore implements AreaStore<ImageryState, ImageryIntents> {
         return {
             ...{ ...this.#findIntents(), ...this.#versionIntents(), ...this.#uploadIntents(), ...this.#orderIntents(), resumeGuard },
             ...{ joinFrames: (entityIds: readonly string[]) => this.#join.join(entityIds), ...archiveJoinIntents(this.#services) },
-            addTargetYear: (year) => this.#addYear(year),
+            ...{ addTargetYear: (year: number) => this.#addYear(year), removeVersion: removeIntent(this.#services) },
             archive: async () => (await import('../archive/archive.js')).createArchiveFeed(this.#services),
             archiveElements: async () => {
                 (await import('../archive/archive.js')).defineArchiveElements();

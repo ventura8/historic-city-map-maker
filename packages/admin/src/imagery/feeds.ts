@@ -33,7 +33,7 @@ import {
 import { sourcesOf, type SourceChoices } from '@hcm/shared/sources';
 
 import { LiveDoc, type DocState, type LiveDocDeps } from '../content/doc.js';
-import { isoOf, LiveList, type ListState } from '../content/list.js';
+import { isoOf, LiveList, type ListState, type LiveListDeps } from '../content/list.js';
 import type { ContentQuery, ContentServices, Stored } from '../content/services.js';
 import { ACTIVE_JOB_STATUSES } from '../jobs/jobs.js';
 import { frameOf, type CityFrame } from '../layers/map-session.js';
@@ -42,6 +42,7 @@ import { footprintColorsOf, type FootprintColors } from './imagery-map.js';
 import { ORDERS_QUERY, ordersList } from './orders/feed.js';
 import {
     jobProgressOf,
+    CANCELLED_VERSION_STATES,
     OPEN_VERSION_STATES,
     sceneItemOf,
     versionItemOf,
@@ -73,6 +74,7 @@ export interface FeedsPatch {
     /** The routed scene, read by its id. */
     readonly named?: NamedScene;
     readonly versions?: ListState<VersionItem>;
+    readonly cancelled?: ListState<VersionItem>;
     readonly jobs?: Readonly<Record<string, JobProgress>>;
     readonly guard?: GuardView | null;
     /** M8: the plan's rows (none without a plan). */
@@ -124,6 +126,20 @@ function namedSceneDoc(
 }
 
 /** M8: the plan of the dates, which reports its rows (none without a plan, or one that fails its schema). */
+/** A live list of the city's layer versions, each new state handed on as the patch `patch` makes of it (t130: the cancelled ones apart). */
+function versionList(
+    base: Omit<LiveListDeps<LayerVersionDoc, VersionItem>, 'schema' | 'map' | 'changed'>,
+    patch: (list: ListState<VersionItem>) => FeedsPatch,
+    changed: (patch: FeedsPatch) => void,
+): LiveList<LayerVersionDoc, VersionItem> {
+    return new LiveList({
+        ...{ ...base, schema: layerVersionReadSchema, map: versionItemOf },
+        changed: (list) => {
+            changed(patch(list));
+        },
+    });
+}
+
 function planDoc(base: Omit<LiveDocDeps<DatePlanDoc>, 'schema' | 'changed'>, changed: (patch: FeedsPatch) => void): LiveDoc<DatePlanDoc> {
     return new LiveDoc({
         ...base,
@@ -146,6 +162,7 @@ export class ImageryFeeds {
     readonly #orders: LiveList<UsgsSceneDoc, SceneItem>;
     readonly #named: LiveDoc<UsgsSceneDoc>;
     readonly #versions: LiveList<LayerVersionDoc, VersionItem>;
+    readonly #cancelled: LiveList<LayerVersionDoc, VersionItem>;
     readonly #jobs: LiveList<JobDoc, JobProgress>;
     readonly #guard: GuardFeed;
     readonly #plan: LiveDoc<DatePlanDoc>;
@@ -193,12 +210,9 @@ export class ImageryFeeds {
             changed({ orders });
         });
         this.#named = namedSceneDoc(base, changed);
-        this.#versions = new LiveList({
-            ...{ ...base, collection: FIRESTORE_PATHS.layerVersions(cityId), schema: layerVersionReadSchema, map: versionItemOf },
-            changed: (list) => {
-                changed({ versions: list });
-            },
-        });
+        const versions = { ...base, collection: FIRESTORE_PATHS.layerVersions(cityId) };
+        this.#versions = versionList(versions, (list) => ({ versions: list }), changed);
+        this.#cancelled = versionList(versions, (list) => ({ cancelled: list }), changed);
         this.#jobs = new LiveList({
             ...{ ...base, collection: FIRESTORE_PATHS.jobs(cityId), schema: jobDocSchema, map: jobProgressOf, pageSize: SCENE_PAGE },
             changed: (list) => {
@@ -227,6 +241,7 @@ export class ImageryFeeds {
         this.#scenes.show(scenesQuery(freeOnly));
         this.#orders.show(ORDERS_QUERY);
         this.#versions.show({ where: [['state', 'in', OPEN_VERSION_STATES]], orderBy: [['updatedAt', 'desc']] });
+        this.#cancelled.show({ where: [['state', 'in', CANCELLED_VERSION_STATES]], orderBy: [['updatedAt', 'desc']] });
         this.#jobs.show({ where: [['status', 'in', ACTIVE_JOB_STATUSES]], orderBy: [['createdAt', 'desc']] });
         this.#guard.start();
         this.#plan.show(FIRESTORE_PATHS.imageryPlan(this.#services.cityId));
@@ -262,6 +277,7 @@ export class ImageryFeeds {
             this.#scenes,
             this.#orders,
             this.#versions,
+            this.#cancelled,
             this.#jobs,
             this.#guard,
             this.#plan,
@@ -282,6 +298,7 @@ export class ImageryFeeds {
             this.#orders,
             this.#named,
             this.#versions,
+            this.#cancelled,
             this.#jobs,
             this.#guard,
             this.#plan,

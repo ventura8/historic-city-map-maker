@@ -138,3 +138,30 @@ export function refusalOf(error: unknown): NoticeInput {
     const { code, params } = error.details;
     return params === undefined ? { key: code } : { key: code, params };
 }
+
+/** What Remove on a cancelled version needs: the callables, the city, and the page's notices. */
+export interface RemoveServices {
+    readonly callables: CallablesPort;
+    readonly cityId: string;
+    readonly notify: (notice: NoticeInput) => void;
+}
+
+/**
+ * t131: Remove on a row of Work's folded "Cancelled versions": the same `imagery.deleteVersion` as the version page's
+ * Delete, by the row's id. True once the version is gone; a refusal is told in the notice, and the row stays.
+ */
+export async function removeCancelledVersion(services: RemoveServices, id: string): Promise<boolean> {
+    try {
+        await callImagery(services.callables, 'imagery.deleteVersion', { cityId: services.cityId, versionId: id });
+        services.notify({ key: 'adminContent.imagery.notice.versionDeleted' });
+        return true;
+    } catch (error) {
+        services.notify(refusalOf(error));
+        return false;
+    }
+}
+
+/** The Imagery area's `removeVersion` intent. */
+export function removeIntent(services: RemoveServices): (id: string) => Promise<boolean> {
+    return (id) => removeCancelledVersion(services, id);
+}

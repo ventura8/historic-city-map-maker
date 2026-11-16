@@ -1010,7 +1010,10 @@ until fn-imagery wires them (done: `Omit<Ports, 'jobs' | 'tilesets' | 'scenes' |
   Mapbox Standard style, **never Satellite**); List | Map on compact windows. Filters: free only (on by default), years,
   datasets, hide rejected. Import on the card and the detail; an imported scene links to its version or layer.
 - **In progress / Needs you**: the city's unfinished versions with their jobs, live (`onSnapshot`), each with its step
-  names, progress and wait reason in words (`adminContent.imagery.wait.*`, done).
+  names, progress and wait reason in words (`adminContent.imagery.wait.*`, done). The versions in state `cancelled` (their
+  own job stopped them, such as Snap my points with too few matching points, or a Cancel) are read by a second live list
+  and folded under a closed **Cancelled versions (n)** below them (t130, S-A190); each row's **Remove** opens a warning and
+  **Remove for good** calls `imagery.deleteVersion` with the row's id (t131, S-A191; none on a read-only page).
 - **The version page**: the steps as in Jobs; when awaiting approval, **the approval card**: the preview on the map (the
   version's `preview.png` as an image source on `output.bounds`, an opacity slider, the layers below), the checkpoint
   RMSE against the threshold in words, the pairs' count, the compute-unit estimate and what is left this month, Approve

@@ -71,6 +71,8 @@ export interface ImageryState extends OrderActionsState, JoinActionsState {
     readonly named: NamedScene;
     readonly browse: Readonly<Record<string, BrowseImage>>;
     readonly versions: ListState<VersionItem>;
+    /** t130: the versions their own job (or a Cancel) stopped before the map, folded apart in Work. */
+    readonly cancelled: ListState<VersionItem>;
     /** The unfinished jobs by id (a version's job has the version's id). */
     readonly jobs: Readonly<Record<string, JobProgress>>;
     readonly detail: ImageryDetail | null;
@@ -101,6 +103,7 @@ export const INITIAL_IMAGERY: ImageryState = {
     ...{ tab: 'find', usgs: null, settings: imagerySettingsOf(undefined), city: null, sources: sourcesOf(undefined) },
     ...{ search: IDLE_SEARCH, filters: DEFAULT_FILTERS },
     ...{ scenes: LOADING_LIST, visible: [], browse: {}, versions: LOADING_LIST, jobs: {}, detail: null, version: null },
+    cancelled: LOADING_LIST,
     ...{ importing: null, importRefusal: null, upload: IDLE_UPLOAD, map: 'none', previewOpacity: 1 },
     ...{ replaceLayer: null, guard: null, resuming: false, orders: LOADING_LIST, named: NO_NAMED_SCENE, ...IDLE_ORDERS },
     ...{ dates: [], ...IDLE_JOIN, image: NO_IMAGE, thumbs: {} },
@@ -128,6 +131,8 @@ export interface ImageryIntents {
     confirmRights(confirmedBy: string): Promise<boolean>;
     /** A version that never reached the map, deleted for good (`imagery.deleteVersion`); true once it is gone. */
     deleteVersion(): Promise<boolean>;
+    /** t131: a cancelled version in Work's folded group, deleted for good by its id (`imagery.deleteVersion`); true once gone. */
+    removeVersion(id: string): Promise<boolean>;
     choose(choice: PublishChoice): Promise<boolean>;
     studioDone(): Promise<boolean>;
     /** Saves the Studio file. */

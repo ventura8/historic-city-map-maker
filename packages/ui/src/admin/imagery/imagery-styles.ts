@@ -50,6 +50,20 @@ export const imageryStyles = [
             overflow-wrap: anywhere;
         }
 
+        /* t130/t131: the folded Cancelled versions and each row's Remove open from a full-size target. */
+        [data-cancelled-versions] > summary,
+        .remove > summary {
+            display: flex;
+            align-items: center;
+            min-block-size: 48px;
+            cursor: pointer;
+        }
+
+        [data-cancelled-versions] > summary h3 {
+            display: inline;
+            margin: 0;
+        }
+
         .thumb {
             display: grid;
             place-items: center;

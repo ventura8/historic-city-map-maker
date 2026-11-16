@@ -338,6 +338,8 @@ export interface ImageryViewState {
     readonly visible: readonly SceneItemPort[];
     readonly browse: Readonly<Record<string, BrowseImagePort>>;
     readonly versions: ListStatePort<VersionItemPort>;
+    /** t130: the versions stopped before the map, folded apart in Work (absent: none read). */
+    readonly cancelled?: ListStatePort<VersionItemPort>;
     readonly jobs: Readonly<Record<string, JobProgressPort>>;
     readonly detail: { readonly kind: 'scene' | 'version' | 'archive'; readonly id: string } | null;
     readonly version: VersionPagePort | null;
@@ -391,6 +393,8 @@ export interface ImageryIntentsPort {
     confirmRights(confirmedBy: string): Promise<boolean>;
     /** A version that never reached the map, deleted for good (`imagery.deleteVersion`); true once it is gone. */
     deleteVersion(): Promise<boolean>;
+    /** t131: a cancelled version in Work's folded group, deleted for good by its id; true once gone. */
+    removeVersion?(id: string): Promise<boolean>;
     /** M16: Refine automatically (the new version's id, or null when refused), and the map between the new version and the current one. */
     recalibrate(): Promise<string | null>;
     toggleCurrent(): void;

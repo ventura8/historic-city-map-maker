@@ -346,4 +346,9 @@ export const fr: Readonly<Partial<Record<AdminImageryKey, string>>> = {
     'adminContent.imagery.settings.removeYear': 'Supprimer {year}',
     'adminContent.imagery.settings.yearRefused':
         'Indiquez une année comprise entre 1800 et 2099 qui ne figure pas encore dans la liste (au maximum {max} années).',
+    'adminContent.imagery.cancelled': 'Versions annulées ({count})',
+    'adminContent.imagery.cancelledNote': 'Arrêtées avant la carte, ex. trop peu de points concordants. Supprimez les inutiles.',
+    'adminContent.imagery.removeVersion': 'Supprimer',
+    'adminContent.imagery.removeVersionWarning': 'Supprimée pour de bon avec sa tâche et ses fichiers. La carte et vos originaux restent.',
+    'adminContent.imagery.removeVersionConfirm': 'Supprimer définitivement',
 };
