@@ -118,6 +118,10 @@ ADMIN_CHUNK_BUDGETS: Mapping[str, int] = {
     # Home's Monthly costs (the owner, 2026-11-16; DECISIONS-for-review.md §237): `<hcm-home-costs>` and its
     # four live counters, fetched when Home opens; a new chunk, so Home kept its budget: 2.8 KB measured plus headroom.
     "costs": 4,
+    # Home's Visitors card (§238): `<hcm-home-visitors>` only, its numbers the Statistics page's last read; a new chunk.
+    "visitors": 3,
+    # Home's Visitors card's two reports (§238), read with the Statistics view's numbers; a new chunk, so `analytics-data` kept its budget.
+    "analytics-summary": 2,
     "jobs": 5,
     # 6 since 2026-11-14 (§215b, M28): 5.0 KB after the merge, the setup page's elements it shares now beside it.
     "crashes": 6,

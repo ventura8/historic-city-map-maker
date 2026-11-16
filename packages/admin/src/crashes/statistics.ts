@@ -62,6 +62,8 @@ export interface StatisticsSource {
      * `statistics_notReady` …): a `ui_error` with the code, never Google's words.
      */
     report?(code: string): void;
+    /** The last numbers read this session and their period (Home's Visitors card), or null before any. */
+    latest?(): { readonly days: StatisticsDays; readonly numbers: StatisticsNumbers } | null;
 }
 
 const CONSENT_PROBLEMS: Readonly<Record<Exclude<StatisticsConsent, { granted: true }>['failure'], StatisticsProblemKind>> = {

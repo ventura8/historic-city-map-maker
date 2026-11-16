@@ -3,6 +3,7 @@ import { createUpstreamFakes, GOOGLE_TOKENS } from '@hcm/test-support/fakes';
 import { describe, expect, it } from 'vitest';
 
 import { createMeasurementReports } from '../../src/google/analytics-reports.js';
+import { summaryOf } from '../../src/google/analytics-summary.js';
 import { readStatistics, type StatisticsDays } from '../../src/google/analytics-data.js';
 import { StatisticsProblem } from '../../src/google/statistics-problem.js';
 
@@ -28,7 +29,7 @@ async function world(options: { readonly reports?: boolean; readonly sample?: bo
     if (options.sample !== false) {
         fakes.scenario('analytics-data.sample');
     }
-    return { fakes, read: (days: StatisticsDays = 28, id = MEASUREMENT_ID) => readStatistics(transport, id, days) };
+    return { fakes, read: (days: StatisticsDays = 28, id = MEASUREMENT_ID) => readStatistics(transport, id, days, summaryOf) };
 }
 
 function urlOf(input: RequestInfo | URL): string {
@@ -76,7 +77,28 @@ describe('readStatistics', () => {
             },
             { wizard: 'new_city', step: 'create', visitors: 5, averageMs: null, errors: [] },
         ]);
-        expect(fakes.callsTo('analytics-data.batchRunReports')).toHaveLength(3);
+        expect(fakes.callsTo('analytics-data.batchRunReports')).toHaveLength(6);
+        expect(numbers.summary).toEqual({
+            daily: [
+                { date: '20261111', visitors: 40, sessions: 60 },
+                { date: '20261112', visitors: 80, sessions: 120 },
+            ],
+            previous: { visitors: 120, sessions: 180 },
+            newVsReturning: [
+                { name: 'new', count: 70 },
+                { name: 'returning', count: 50 },
+            ],
+            languages: [
+                { name: 'Romanian', count: 100 },
+                { name: 'English', count: 20 },
+            ],
+            years: [
+                { name: '1966', count: 30 },
+                { name: '1912', count: 12 },
+            ],
+            layers: [{ name: 'corona-1966', count: 25 }],
+            photos: [{ name: 'gara-de-nord', count: 9 }],
+        });
         expect(new URL(fakes.callsTo('analytics-data.batchRunReports')[0]?.url ?? '').pathname).toBe(
             '/v1beta/properties/400000001:batchRunReports',
         );
@@ -99,7 +121,9 @@ describe('readStatistics', () => {
         expect(numbers.pending).toMatchObject({ reason: 'notRegistered' });
         expect(numbers.pending?.names).toContain('app_surface');
         expect(numbers.visitors).toBe(120);
-        expect(fakes.callsTo('analytics-data.batchRunReports')).toHaveLength(2);
+        // The summary's own GA4 fields are still asked; the viewer's years, layers and photos wait for their names.
+        expect(fakes.callsTo('analytics-data.batchRunReports')).toHaveLength(4);
+        expect(numbers.summary?.years).toEqual([]);
     });
 
     it('badPath_noPropertyAtAllIsNoAccess_andAnotherPropertyIsNoProperty', async () => {
@@ -174,7 +198,7 @@ describe('readStatistics: names GA4 cannot use yet', () => {
             names: ['wizard_id', 'step_id', 'error_code', 'duration_ms', 'app_surface', 'route'],
         });
         expect(numbers).toMatchObject({ visitors: 120, steps: [], surfaces: [], screens: [] });
-        expect(fakes.callsTo('analytics-data.batchRunReports')).toHaveLength(2);
+        expect(fakes.callsTo('analytics-data.batchRunReports')).toHaveLength(4);
     });
 
     it('badPath_noValuesYet_isNoData', async () => {

@@ -27,7 +27,7 @@ describe('createMeasurementReports', () => {
     it('happyPath_everyFieldParameterIsRegisteredOnTheStreamsPropertyOnce', async () => {
         const { fakes, run } = world();
 
-        await expect(run()).resolves.toEqual({ created: 23, skipped: 0 });
+        await expect(run()).resolves.toEqual({ created: 26, skipped: 0 });
 
         const created = fakes.callsTo('analytics-admin.customDimensions.create').map((call) => JSON.parse(call.body) as unknown);
         expect(created).toContainEqual({ parameterName: 'metric_name', displayName: 'metric_name', scope: 'EVENT' });
@@ -46,7 +46,7 @@ describe('createMeasurementReports', () => {
         const { fakes, run } = world();
         await run();
 
-        await expect(run()).resolves.toEqual({ created: 0, skipped: 23 });
+        await expect(run()).resolves.toEqual({ created: 0, skipped: 26 });
         expect(fakes.callsTo('analytics-admin.customDimensions.create')).toHaveLength(FIELD_DIMENSIONS.length);
     });
 

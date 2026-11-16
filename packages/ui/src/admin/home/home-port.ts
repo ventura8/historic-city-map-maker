@@ -84,6 +84,31 @@ export interface MonthlyCostsPort {
     readonly overBudget: boolean;
 }
 
+interface NamedCountPort {
+    readonly name: string;
+    readonly count: number;
+}
+
+/** Home's Visitors card: the Statistics page's last numbers of this session (`packages/admin/src/google/analytics-data.ts`). */
+export interface VisitorsPort {
+    readonly days: 7 | 28 | 90;
+    readonly numbers: {
+        readonly visitors: number;
+        readonly sessions: number;
+        readonly devices: readonly NamedCountPort[];
+        readonly countries: readonly NamedCountPort[];
+        readonly summary?: {
+            readonly daily: readonly { readonly date: string; readonly visitors: number; readonly sessions: number }[];
+            readonly previous: { readonly visitors: number; readonly sessions: number };
+            readonly newVsReturning: readonly NamedCountPort[];
+            readonly languages: readonly NamedCountPort[];
+            readonly years: readonly NamedCountPort[];
+            readonly layers: readonly NamedCountPort[];
+            readonly photos: readonly NamedCountPort[];
+        };
+    };
+}
+
 export interface HomeViewState {
     readonly countsStatus: LoadStatusPort;
     readonly counts: Readonly<Record<HomeCountPort, number | null>> | null;
@@ -93,6 +118,7 @@ export interface HomeViewState {
     readonly dismissing: boolean;
     /** Null until the lazy `costs` chunk has loaded. */
     readonly costs: MonthlyCostsPort | null;
+    readonly visitors: VisitorsPort | null;
 }
 
 export interface HomeIntentsPort {

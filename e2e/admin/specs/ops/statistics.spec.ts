@@ -7,6 +7,7 @@ import { adminVisit } from '../../../tour/states.js';
 import { projectCity } from '../../support/content.js';
 import type { GoogleConsent } from '../../support/consent.js';
 import { contentText } from '../../support/ops.js';
+import { shellText } from '../../support/i18n.js';
 import { seedPhotosCity } from '../../support/photos.js';
 import { ADMIN_LOCK, adminPath, expect, test } from '../../support/test.js';
 
@@ -63,7 +64,7 @@ test(
         await expect(numbers.locator('[data-statistics-visitors]')).toHaveText('30');
         await numbers.getByRole('radio', { name: contentText(lang, 'adminContent.statistics.numbers.days.28') }).click();
         await expect(numbers.locator('[data-statistics-visitors]')).toHaveText('120');
-        expect(await upstream.calls('browser', 'analytics-data')).toHaveLength(8);
+        expect(await upstream.calls('browser', 'analytics-data')).toHaveLength(14);
         expect(await consent.requests()).toHaveLength(1);
 
         // Refresh lists the period's error groups again: Error Reporting off is said with the way to Setup.
@@ -147,7 +148,7 @@ test(
         const bodies = (await upstream.calls('browser', 'analytics-data'))
             .filter((call) => call.method === 'POST')
             .map((call) => call.body);
-        expect(bodies).toHaveLength(2);
+        expect(bodies).toHaveLength(4);
         expect(bodies.every((body) => !body.includes('customEvent:'))).toBe(true);
         await expectStateSound(page, adminVisit('crashes.statistics-pending', lang));
     },
@@ -205,5 +206,38 @@ test(
             'https://analytics.google.com/analytics/web/',
         );
         await expect.poll(() => consoleErrors.takeMatching(/status of 400/).length).toBeGreaterThan(0);
+    },
+);
+
+// Home's Visitors card (the owner, 2026-11-16; behaviour A194): the Statistics page's last numbers of this session.
+test(
+    "Home's Visitors card shows the Statistics page's last numbers, and before any read says where to allow it",
+    { tag: ['@S-A194-HAPPY', '@S-A194-BAD-NOT-READ'] },
+    async ({ page, lang, consent, inputBudget, upstream }) => {
+        await upstream.scenario('analytics-data.sample', 'browser');
+        await page.goto(adminPath(lang, 'home'));
+        const card = page.locator('[data-visitors]');
+        await expect(card).toHaveAttribute('data-visitors', 'none');
+        await expect(card.getByRole('link', { name: shellText(lang, 'adminShell.home.visitors.open') })).toHaveAttribute(
+            'href',
+            '#/crashes/statistics',
+        );
+        const calls = (await upstream.calls('browser', 'analytics-data')).length;
+        expect(calls).toBe(0);
+
+        await card.getByRole('link', { name: shellText(lang, 'adminShell.home.visitors.open') }).click();
+        const show = page
+            .locator('[data-statistics-numbers]')
+            .getByRole('button', { name: contentText(lang, 'adminContent.statistics.numbers.show') });
+        const popup = await consent.opened(page, () => show.click());
+        await popup.allow(inputBudget.flow('statistics-consent', 1));
+        await expect(page.locator('[data-statistics-visitors]')).toHaveText('120');
+
+        await page.evaluate(() => {
+            window.location.hash = '#/home';
+        });
+        await expect(card).toHaveAttribute('data-visitors', 'read');
+        await expect(card.locator('[data-top="years"]')).toContainText('1966');
+        await expectStateSound(page, adminVisit('home.visitors', lang));
     },
 );

@@ -36,6 +36,10 @@ export const FIELD_DIMENSIONS: readonly string[] = [
     'device',
     // Which app and which role sent an event (§203: the Statistics view's visitors per app and role).
     'app_surface',
+    // Home's Visitors card (§238): the years chosen, the layers turned on, the photos opened.
+    'year',
+    'layer_id',
+    'photo_id',
 ];
 
 /** The event-scoped custom metrics and their units: the numbers reports add up or average. */

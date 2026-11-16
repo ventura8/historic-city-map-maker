@@ -68,6 +68,7 @@ describe('statisticsSourceOf', () => {
             'G-E2E0000000',
         );
 
+        expect(source.latest?.()).toBeNull();
         const consent = await source.ask();
         const id = await source.measurementId();
         const numbers = await source.read({ token: ACCESS.token, expiresAt: ACCESS.expiresAt }, String(id), 28);
@@ -78,6 +79,8 @@ describe('statisticsSourceOf', () => {
         expect(lives).toEqual([{ scope: 'analyticsRead', min: 300_000 }]);
         expect(callables.calls[0]).toMatchObject({ name: 'setup.analyticsConfig', request: { cityId: 'bucharest' } });
         expect(numbers.visitors).toBe(120);
+        // Home's Visitors card reads the last answer, never Google.
+        expect(source.latest?.()).toEqual({ days: 28, numbers });
     });
 
     it('badPath_aRefusalAnEmptyGrantAndAnalyticsNotSetUp', async () => {

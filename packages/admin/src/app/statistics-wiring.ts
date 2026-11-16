@@ -32,7 +32,10 @@ function tokenOf(access: { readonly token: string; readonly expiresAt: number })
 }
 
 export function statisticsSourceOf(deps: StatisticsWiringDeps): StatisticsSource {
+    // The last answer, in memory only, for Home's Visitors card (it never asks Google itself).
+    let latest: ReturnType<NonNullable<StatisticsSource['latest']>> = null;
     return {
+        latest: () => latest,
         ask: async () => {
             const outcome = await deps.google.request('analyticsRead');
             if (!outcome.granted) {
@@ -53,8 +56,10 @@ export function statisticsSourceOf(deps: StatisticsWiringDeps): StatisticsSource
             deps.measure?.({ name: 'ui_error', params: { code, route: 'crashes' } });
         },
         // A lazy chunk (`analytics-data`), fetched on the first read only.
-        read: async (access, measurementId, days) =>
-            (await import('../google/analytics-data.js')).readStatistics(
+        read: async (access, measurementId, days) => {
+            const numbers = await (
+                await import('../google/analytics-data.js')
+            ).readStatistics(
                 {
                     fetch: (...args) => deps.fetch(...args),
                     token: () => access.token,
@@ -66,6 +71,10 @@ export function statisticsSourceOf(deps: StatisticsWiringDeps): StatisticsSource
                 },
                 measurementId,
                 days,
-            ),
+                async (...args) => (await import('../google/analytics-summary.js')).summaryOf(...args),
+            );
+            latest = { days, numbers };
+            return numbers;
+        },
     };
 }

@@ -8,7 +8,7 @@ Every user-visible behaviour has at least one happy and one bad scenario. The re
 
 | Behaviours | Scenarios | Happy | Bad | Exists | Planned | Test files |
 | --- | --- | --- | --- | --- | --- | --- |
-| 193 | 2004 | 852 | 1152 | 1971 | 33 | 503 |
+| 196 | 2010 | 855 | 1155 | 1977 | 33 | 504 |
 
 ## Viewer
 
@@ -401,6 +401,8 @@ Every user-visible behaviour has at least one happy and one bad scenario. The re
 | `S-V73-BAD-NO-REVEAL` | V73 | bad | The page's first year, a minimized pane, reduced motion or a year without layers reveal nothing unexpected | the first year -> no reveal; minimized or no manifest -> nothing revealed; reduced motion -> an instant scroll; an unknown id -> false, nothing marked | e2e-viewer | exists | `e2e/specs/viewer/layers-reveal.spec.ts` |
 | `S-V75-HAPPY-BACK-TO-LIST` | V75 | happy | On an iPhone a photo opened from the list goes back to the list at the same row: Back, the back gesture and Esc | WebKit as an iPhone 15: a photo tapped far down the Photos list shows Back to the list; Back, the browser's back (history entry, iOS swipe-back) and Esc each reopen the list with that row still in view and no Back shown | e2e-viewer | exists | `e2e/specs/viewer/iphone-photo-back.spec.ts` |
 | `S-V75-BAD-FROM-MAP` | V75 | bad | On an iPhone a photo opened from the map has no Back and its Esc closes it | a photo opened from the map (not the list) shows no Back to the list; Esc closes the sheet and no list opens | e2e-viewer | exists | `e2e/specs/viewer/iphone-photo-back.spec.ts` |
+| `S-V76-HAPPY-AERIAL-FILTER` | V76 | happy | An aerial photo is labelled in the list and the list filters street and aerial photos | a manifest with one photo of kind aerial (1944) -> the Photos list shows the Street / Aerial choice; Aerial leaves that one row, its line reads 'Aerial photo · 1944'; Street leaves every other row | e2e-viewer | exists | `e2e/specs/viewer/photos.spec.ts` |
+| `S-V76-BAD-NO-AERIAL` | V76 | bad | A map with no aerial photo shows no street or aerial choice | the fixture manifest (no kind on any photo: all street photos) -> the list shows every photo and no radio choice | e2e-viewer | exists | `e2e/specs/viewer/photos.spec.ts` |
 
 ## Admin
 
@@ -962,6 +964,10 @@ Every user-visible behaviour has at least one happy and one bad scenario. The re
 | `S-A191-BAD-REFUSED` | A191 | bad | A refused Remove is told and the cancelled version stays | imagery.deleteVersion refuses (a job still running) -> the notice gives the refusal's plain text and the version stays in the group | e2e-admin | exists | `e2e/admin/specs/imagery/cancelled.spec.ts` |
 | `S-A192-HAPPY` | A192 | happy | Home's Monthly costs shows each paid service with its month so far, its forecast, measured or estimated, and its console | usage/mapbox-<month> with 30 compute units of 20 free -> the Mapbox row says Measured by the map, 150% of the free tier, a link to Mapbox's statistics; Firebase is an estimate with its reason; five services listed | e2e-admin | exists | `e2e/admin/specs/ops/costs.spec.ts` |
 | `S-A192-BAD-OVER-BUDGET` | A192 | bad | Past the budget, Monthly costs says what pauses and offers Jobs and billing | ops/guard with Google's budget alert at 6 of 5 USD -> a status says the forecast passes the budget, that processing and publishing pause and the public map stays, with Open Jobs (#/jobs) | e2e-admin | exists | `e2e/admin/specs/ops/costs.spec.ts` |
+| `S-A193-HAPPY-KIND` | A193 | happy | The photo editor sets a photo's kind; aerial reaches the manifest | the editor's Kind select patches {kind:'aerial'}, Street clears it; the publish copies kind into the manifest photo | rules | exists | `firebase/rules-tests/test/photos.test.ts` |
+| `S-A193-BAD-UNKNOWN-KIND` | A193 | bad | A kind other than street or aerial is refused by the rules and the manifest | a photo document with kind 'underwater' is denied by firestore.rules; a manifest with it fails validation (validation.value) | rules | exists | `firebase/rules-tests/test/photos.test.ts` |
+| `S-A194-HAPPY` | A194 | happy | After the Statistics page read the numbers, Home's Visitors card shows them with the trend and the top lists | Show the numbers on Statistics (one consent) -> back on Home the card shows the period's visitors and visits, the trend, the last day, new against returning, the top countries, languages, devices, years, layers and photos, with All the numbers | e2e-admin | exists | `e2e/admin/specs/ops/statistics.spec.ts` |
+| `S-A194-BAD-NOT-READ` | A194 | bad | Before any read, Home's Visitors card says where to allow it and asks Google nothing | Home opened first -> the card says the numbers come from Google Analytics and must be allowed once on Statistics, with Open Statistics (#/crashes/statistics); no Data API call | e2e-admin | exists | `e2e/admin/specs/ops/statistics.spec.ts` |
 | `S-A20-HAPPY` | A20 | happy | The session refreshes its token silently | an hour later (clock) the ID token refreshes silently; callables, Firestore and an editor open all that time keep working, and its Save writes | e2e-admin | exists | `e2e/admin/specs/shell/shell.spec.ts` |
 | `S-A20-BAD-ADMIN-REMOVED` | A20 | bad | An admin removed mid-session is denied on the next action | admin removed mid-session -> the next Firestore read and callable are denied (apiError.notAdmin) at once, without waiting for the token to expire | e2e-admin | exists | `e2e/admin/specs/flows/revoke.spec.ts` |
 | `S-A20-BAD-NO-APP-CHECK` | A20 | bad | A call without App Check is refused once enforcement is on | HCM_APP_CHECK=enforce and no App Check token -> the callable is refused and the app shows apiError.appCheck with Reload | functions | planned | - |

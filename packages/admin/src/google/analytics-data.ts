@@ -13,9 +13,9 @@ import { createGoogleTransport, type GoogleTransport, type GoogleTransportOption
  * fetched on the button's click only.
  */
 
-const DATA_API = 'https://analyticsdata.googleapis.com/v1beta';
+export const DATA_API = 'https://analyticsdata.googleapis.com/v1beta';
 /** What a refusal names: the GA4 role the account needs on the property. */
-const VIEWER_ROLE = 'Viewer (Google Analytics)';
+export const VIEWER_ROLE = 'Viewer (Google Analytics)';
 /** The viewer's key actions the overview counts. */
 export const KEY_EVENTS: readonly string[] = ['year_change', 'compass_reset', 'layer_toggle', 'photo_open', 'compare_open', 'share'];
 const TOP = 10;
@@ -67,11 +67,27 @@ export interface StatisticsNumbers {
     readonly steps: readonly StepNumbers[];
     /** Why the apps, the admin screens or the wizards' steps are incomplete, or null when nothing is missing. */
     readonly pending: StatisticsPending | null;
+    /** Home's Visitors card (the owner, 2026-11-16): the period's days, the period before it, and what was looked at. */
+    readonly summary?: VisitorSummary;
+}
+
+export interface VisitorSummary {
+    /** Every day of the period: visitors and sessions, oldest first. */
+    readonly daily: readonly DayNumbers[];
+    /** The same number of days just before the period. */
+    readonly previous: { readonly visitors: number; readonly sessions: number };
+    /** `new` and `returning` visitors. */
+    readonly newVsReturning: readonly NamedCount[];
+    readonly languages: readonly NamedCount[];
+    /** The years chosen most (`year_change`), the layers turned on most (`layer_toggle`), the photos opened most (`photo_open`). */
+    readonly years: readonly NamedCount[];
+    readonly layers: readonly NamedCount[];
+    readonly photos: readonly NamedCount[];
 }
 
 type Filter = Readonly<Record<string, unknown>>;
 
-interface ReportSpec {
+export interface ReportSpec {
     readonly dimensions?: readonly string[];
     readonly metrics: readonly string[];
     readonly filter?: Filter;
@@ -79,7 +95,7 @@ interface ReportSpec {
     readonly orderBy?: string;
 }
 
-function eventIs(value: string): Filter {
+export function eventIs(value: string): Filter {
     return { filter: { fieldName: 'eventName', stringFilter: { value } } };
 }
 
@@ -104,7 +120,7 @@ interface Row {
     readonly values: readonly number[];
 }
 
-function rowsOf(report: unknown): readonly Row[] {
+export function rowsOf(report: unknown): readonly Row[] {
     return records(at(report, 'rows')).map((row) => ({
         dims: list(row['dimensionValues']).map((value) => stringAt(value, 'value') ?? ''),
         values: list(row['metricValues']).map((value) => Number(stringAt(value, 'value') ?? '0') || 0),
@@ -112,16 +128,16 @@ function rowsOf(report: unknown): readonly Row[] {
 }
 
 /** A row's dimension `index`, empty when absent. */
-function dim(row: Row, index: number): string {
+export function dim(row: Row, index: number): string {
     return row.dims[index] ?? '';
 }
 
 /** A row's metric `index`, zero when absent. */
-function num(row: Row, index: number): number {
+export function num(row: Row, index: number): number {
     return row.values[index] ?? 0;
 }
 
-function counts(report: unknown): readonly NamedCount[] {
+export function counts(report: unknown): readonly NamedCount[] {
     return rowsOf(report).map((row) => ({ name: dim(row, 0), count: num(row, 0) }));
 }
 
@@ -130,13 +146,18 @@ function fieldsOf(spec: ReportSpec): readonly string[] {
 }
 
 /** One period's question: its days and the custom parameters the property's reports can use. */
-interface Ask {
+export interface Ask {
     readonly days: StatisticsDays;
     readonly usable: ReadonlySet<string>;
 }
 
 /** The reports of `specs` in order; a report naming a parameter GA4 cannot use is not asked and reads as empty. */
-async function batch(transport: GoogleTransport, property: string, specs: readonly ReportSpec[], ask: Ask): Promise<readonly unknown[]> {
+export async function batch(
+    transport: GoogleTransport,
+    property: string,
+    specs: readonly ReportSpec[],
+    ask: Ask,
+): Promise<readonly unknown[]> {
     const asks = (spec: ReportSpec): boolean => parametersOf(fieldsOf(spec)).every((name) => ask.usable.has(name));
     const asked = specs.filter(asks);
     const queue = asked.length === 0 ? [] : [...(await runReports(transport, property, asked, ask.days))];
@@ -239,11 +260,15 @@ async function findProperty(transport: GoogleTransport, measurementId: string): 
     return property;
 }
 
+/** Reads Home's Visitors card with the same property and names (`analytics-summary.ts` `summaryOf`). */
+export type SummaryReader = (transport: GoogleTransport, property: string, ask: Ask) => Promise<VisitorSummary>;
+
 /** Every number of the Statistics view for the last `days`; rejects with a `GoogleApiError` or a {@link StatisticsProblem}. */
 export async function readStatistics(
     options: GoogleTransportOptions,
     measurementId: string,
     days: StatisticsDays,
+    summary?: SummaryReader,
 ): Promise<StatisticsNumbers> {
     const transport = createGoogleTransport(options);
     const property = await findProperty(transport, measurementId);
@@ -261,6 +286,8 @@ export async function readStatistics(
         ...{ events: counts(events), devices: counts(devices), countries: counts(countries) },
         surfaces: surfacesOf(surfaceTotals, surfaceDays),
         steps: stepsOf(views, errors, times),
+        // Home's Visitors card: the caller's reader (the lazy `analytics-summary` chunk), when given.
+        ...(summary === undefined ? {} : { summary: await summary(transport, property, ask) }),
     };
     const pending = (await missingParameters(transport, { property, role: VIEWER_ROLE }, WANTED, usable)) ?? noValues(read);
     if (pending !== null) {

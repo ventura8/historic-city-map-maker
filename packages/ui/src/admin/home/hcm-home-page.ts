@@ -6,7 +6,7 @@
  * document the last build left out, its first issue and a link to its editor (`docs/research/M2c-interfaces.md` §5.4,
  * S-A38-BAD-SKIPPED-SHOWN). A count that could not be read shows a dash; Refresh counts again. M6 (setup-ux): first,
  * what Setup left open (`./reminders.ts`): USGS later or waiting for its approval, a likely free trial ending soon. M18
- * item 7: then What needs you (`NEEDS`). The owner, 2026-11-16: last, Monthly costs (`<hcm-home-costs>`, `./hcm-home-costs.ts`, defined by its lazy chunk).
+ * item 7: then What needs you (`NEEDS`). The owner, 2026-11-16: last, Visitors (`<hcm-home-visitors>`, `./hcm-home-visitors.ts`) and Monthly costs (`<hcm-home-costs>`, `./hcm-home-costs.ts`, defined by its lazy chunk).
  */
 import { translate, type UiLocale } from '@hcm/shared';
 import { css, html, type TemplateResult } from 'lit';
@@ -181,6 +181,7 @@ export class HcmHomePage extends AreaPage<HomeViewState, HomeIntentsPort> {
             ${this.#tiles(locale, view, 'adminShell.home.needsYou', needs(view))}
             ${this.#tiles(locale, view, 'adminShell.home.holdings', HOLDINGS)}
             ${this.#tiles(locale, view, 'adminShell.home.waiting', WAITING)} ${this.#health(locale, view)} ${this.#publicMap(locale, view)}
+            <hcm-home-visitors .statistics=${view.visitors} locale=${locale}></hcm-home-visitors>
             <hcm-home-costs .costs=${view.costs} locale=${locale}></hcm-home-costs>
         </div>`;
     }

@@ -27,6 +27,7 @@ import type { ContentQuery, ContentServices } from '../content/services.js';
 import { ACTIVE_JOB_STATUSES } from '../jobs/jobs.js';
 import type { NoticeInput } from '../state/state.js';
 import { Store } from '../state/store.js';
+import type { StatisticsSource } from '../crashes/statistics.js';
 import type { MonthlyCosts } from './costs.js';
 import { remindersOf, type HomeReminder } from './reminders.js';
 
@@ -125,6 +126,8 @@ export interface HomeState {
     /** This month's costs, service by service (`./costs.ts`), live. */
     /** Null until the lazy `costs` chunk has loaded (its element and its watch). */
     readonly costs: MonthlyCosts | null;
+    /** The visitor numbers the Statistics page last read this session (never asked from Home), or null. */
+    readonly visitors: ReturnType<NonNullable<StatisticsSource['latest']>>;
 }
 
 export interface HomeIntents {
@@ -144,6 +147,7 @@ const INITIAL: HomeState = {
     reminders: [],
     dismissing: false,
     costs: null,
+    visitors: null,
 };
 
 type HealthRecord = NonNullable<SetupStatusDoc[SetupArea]>;
@@ -210,7 +214,10 @@ class HomeStore implements AreaStore<HomeState, HomeIntents> {
             },
         });
         this.intents = {
-            refresh: () => this.#count(),
+            refresh: () => {
+                this.#visitors();
+                return this.#count();
+            },
             retry: () => {
                 this.#status.retry();
                 this.#manifest.retry();
@@ -235,6 +242,7 @@ class HomeStore implements AreaStore<HomeState, HomeIntents> {
             this.#manifest.show(FIRESTORE_PATHS.manifestState(this.#services.cityId));
             this.#open = true;
             void this.#watchCosts();
+            this.#visitors();
             void this.#count();
         }
     }
@@ -265,6 +273,14 @@ class HomeStore implements AreaStore<HomeState, HomeIntents> {
         if (!outcome.ok) {
             this.#services.notify(outcome.error);
         }
+    }
+
+    /** Home's Visitors card: its element's chunk, and the Statistics page's last numbers of this session. */
+    #visitors(): void {
+        this.#cell.update({ visitors: this.#services.statistics?.latest?.() ?? null });
+        void import('./visitors.js').then(({ defineHcmHomeVisitors }) => {
+            defineHcmHomeVisitors();
+        });
     }
 
     /** The Monthly costs card's chunk (its element and its four counters), fetched when the dashboard opens. */

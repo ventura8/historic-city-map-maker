@@ -16,6 +16,10 @@ export const OPS_STATES = {
         title: 'Home: Monthly costs, each paid service with its month so far, forecast and console, past the budget',
         visit: 'specs/ops/costs.spec.ts',
     },
+    'home.visitors': {
+        title: "Home: Visitors, the Statistics page's last numbers with the trend and the most looked-at years, layers and photos",
+        visit: 'specs/ops/statistics.spec.ts, Home',
+    },
     'jobs.empty': { title: 'Jobs: none yet', visit: 'tour/admin-jobs.tour.ts' },
     'jobs.list': { title: 'Jobs: the live list with its status chips', visit: 'tour/admin-jobs.tour.ts' },
     'jobs.detail': {

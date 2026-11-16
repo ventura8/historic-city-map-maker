@@ -273,6 +273,7 @@ export function homeState(overrides: Partial<HomeViewState> = {}): HomeViewState
         reminders: [],
         dismissing: false,
         costs: COSTS,
+        visitors: null,
         ...overrides,
     };
 }

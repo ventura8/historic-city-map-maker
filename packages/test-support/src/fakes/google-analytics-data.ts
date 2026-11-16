@@ -41,10 +41,10 @@ const ANALYTICS_DATA: GoogleApi = {
 };
 
 /** GA4's own fields the Statistics view asks for. */
-const STANDARD_DIMENSIONS = ['date', 'eventName', 'pagePath', 'deviceCategory', 'country'];
+const STANDARD_DIMENSIONS = ['date', 'eventName', 'pagePath', 'deviceCategory', 'country', 'newVsReturning', 'language'];
 const STANDARD_METRICS = ['totalUsers', 'sessions', 'eventCount', 'screenPageViews'];
 /** The Statistics view's custom names (`packages/admin/src/google/analytics-data.ts`). */
-const VIEW_DIMENSIONS = ['wizard_id', 'step_id', 'error_code', 'app_surface', 'route'];
+const VIEW_DIMENSIONS = ['wizard_id', 'step_id', 'error_code', 'app_surface', 'route', 'year', 'layer_id', 'photo_id'];
 const VIEW_METRICS = ['duration_ms'];
 
 type SampleRow = readonly [readonly string[], readonly number[]];
@@ -104,6 +104,25 @@ const SAMPLES: Readonly<Record<string, readonly SampleRow[]>> = {
         [['Romania'], [90]],
         [['Germany'], [10]],
     ],
+    // Home's Visitors card (packages/admin/src/google/analytics-data.ts `SUMMARY_REPORTS`, `LOOKED_AT_REPORTS`).
+    'date|': [
+        [['20261111'], [40, 60]],
+        [['20261112'], [80, 120]],
+    ],
+    'newVsReturning|': [
+        [['new'], [70]],
+        [['returning'], [50]],
+    ],
+    'language|': [
+        [['Romanian'], [100]],
+        [['English'], [20]],
+    ],
+    'customEvent:year|year_change': [
+        [['1966'], [30]],
+        [['1912'], [12]],
+    ],
+    'customEvent:layer_id|layer_toggle': [[['corona-1966'], [25]]],
+    'customEvent:photo_id|photo_open': [[['gara-de-nord'], [9]]],
 };
 
 type Json = Readonly<Record<string, unknown>>;
@@ -180,9 +199,18 @@ function unregistered(
         .find((name) => name !== undefined && !registered.has(name));
 }
 
+/** `<n>daysAgo` as n; `today` (or anything else) as 0. */
+function ago(value: unknown): number {
+    return Number(/^(\d+)daysAgo$/.exec(String(value))?.[1] ?? '0');
+}
+
+/** A request's length in days (the period before the current one has as many); 28 without a range. */
 function daysOf(request: Json): number {
-    const range = Array.isArray(request['dateRanges']) ? (request['dateRanges'][0] as Json | undefined) : undefined;
-    return Number(/^(\d+)daysAgo$/.exec(String(range?.['startDate']))?.[1] ?? '28');
+    const ranges = Array.isArray(request['dateRanges']) ? (request['dateRanges'] as Json[]) : [];
+    const range = ranges[0] ?? { startDate: '28daysAgo', endDate: 'today' };
+    const start = ago(range['startDate']);
+    const end = ago(range['endDate']);
+    return end === 0 ? start : start - end + 1;
 }
 
 function reportOf(state: AnalyticsDataState, request: Json): Json {

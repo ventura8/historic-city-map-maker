@@ -7248,3 +7248,13 @@ brackets. It cannot judge prose; it catches the drift that renames and deletions
 The Monthly costs card took Home's chunk to 6.5 KB (budget 5 KB). Instead of raising it, the card's element and its four live
 counters moved to a lazy `costs` chunk fetched when Home opens (`packages/admin/src/home/costs.ts`, `<hcm-home-costs>`); Home is
 back to 4.7 KB. `check_bundle_budget.py` gains `"costs": 4` (2.8 KB measured plus headroom), as for every new chunk.
+
+## 238. Home's Visitors card reuses the Statistics page's read (2026-11-16) — APPLIED
+
+The owner asked for the map's statistics on Home. §203 stays: Google Analytics is read only in this browser after the
+owner's read-only consent on the Statistics page, and Home never asks Google. The source keeps the last answer in memory
+(`StatisticsSource.latest`, `packages/admin/src/app/statistics-wiring.ts`); Home's lazy `visitors` chunk shows it: the period's
+visitors and visits with the trend against the period before, the last day, new against returning, the top countries,
+languages, devices, and the most looked-at years, layers and photos (two more `batchRunReports` per period,
+`SUMMARY_REPORTS` and `LOOKED_AT_REPORTS` of `packages/admin/src/google/analytics-data.ts`). Before any read it says where
+to allow it, with Open Statistics. `check_bundle_budget.py` gains `"visitors": 3`. No cloud change.
