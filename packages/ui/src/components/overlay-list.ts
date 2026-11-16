@@ -177,14 +177,12 @@ export class HcmOverlayList extends LitElement {
                 min-width: 3.5em;
                 color: var(--md-sys-color-on-surface-variant);
                 text-align: end;
+
+                /* A revealed row lands under the Layers panel's sticky strip, never behind it (its height, set by the panel). */
+                scroll-margin-block-start: var(--hcm-pinned-height, 0);
             }
 
             /* A row the timeline's year just turned on (\`reveal\`): a short primary tint that fades out. */
-            /* A revealed row lands under the Layers panel's sticky strip, never behind it (its height, set by the panel). */
-            li {
-                scroll-margin-block-start: var(--hcm-pinned-height, 0px);
-            }
-
             li.revealed {
                 border-radius: var(--md-sys-shape-corner-medium);
                 animation: hcm-revealed 1.6s ease-out;

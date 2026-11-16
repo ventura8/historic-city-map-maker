@@ -128,7 +128,7 @@ export class HcmLayerPanel extends LitElement {
             }
 
             .body {
-                scroll-padding-block-start: var(--hcm-pinned-height, 0px);
+                scroll-padding-block-start: var(--hcm-pinned-height, 0);
             }
 
             @media (width < 1200px), (height < 700px) {

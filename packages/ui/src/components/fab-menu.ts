@@ -106,6 +106,7 @@ export class HcmFabMenu extends LitElement {
                 width: 56px;
                 border-radius: var(--md-sys-shape-corner-large);
                 box-shadow: var(--md-sys-elevation-level3);
+
                 /*
                  * The morph between the square with rounded corners and the circle animates one length, 16 px to 28 px
                  * (half the 56 px FAB), with an effects curve that never overshoots. The spatial spring overshot below

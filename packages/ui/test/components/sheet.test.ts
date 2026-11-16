@@ -64,19 +64,6 @@ describe('<hcm-sheet>', () => {
         expect(sheet.shadowRoot?.querySelector('.scrim')).toBeNull();
         expect(await axeViolations(sheet)).toEqual([]);
     });
-
-    it('badPath_noScrollMovesTheSheetItselfSoItsHeaderStaysInPlace', async () => {
-        // The tour (c915l, 2026-11-16): a scroll into view pushed the Layers sheet's own box 24 px up, its title and Close
-        // cut off. The sheet clips its overflow (`overflow: clip`): no script and no focus can scroll it.
-        const { sheet, opener } = await sheetIn(false);
-        await open(sheet, opener);
-        const box = shadowPart(sheet, '.sheet');
-        box.scrollTop = 24;
-        box.scrollTo({ top: 48 });
-        expect(box.scrollTop).toBe(0);
-        expect(getComputedStyle(box).overflow).toBe('clip');
-    });
-
     it('happyPath_escapeClosesAndReturnsTheFocus', async () => {
         const { sheet, opener } = await sheetIn(false);
         const closes = recordEvents(sheet, 'hcm-close');
@@ -269,5 +256,21 @@ describe('the drag handle', () => {
         expect([handle.width, handle.height, handle.top]).toEqual([48, 48, top]);
         expect(sheet.shadowRoot?.elementFromPoint(centre, top + 1)).toBe(shadowPart(sheet, '.handle'));
         expect(sheet.shadowRoot?.elementFromPoint(centre, handle.bottom - 1)).toBe(shadowPart(sheet, '.handle'));
+    });
+});
+
+describe('<hcm-sheet>, its own box', () => {
+    afterEach(cleanup);
+
+    it('badPath_noScrollMovesTheSheetItselfSoItsHeaderStaysInPlace', async () => {
+        // The tour (c915l, 2026-11-16): a scroll into view pushed the Layers sheet's own box 24 px up, its title and Close
+        // cut off. The sheet clips its overflow (`overflow: clip`): no script and no focus can scroll it.
+        const { sheet, opener } = await sheetIn(false);
+        await open(sheet, opener);
+        const box = shadowPart(sheet, '.sheet');
+        box.scrollTop = 24;
+        box.scrollTo({ top: 48 });
+        expect(box.scrollTop).toBe(0);
+        expect(getComputedStyle(box).overflow).toBe('clip');
     });
 });

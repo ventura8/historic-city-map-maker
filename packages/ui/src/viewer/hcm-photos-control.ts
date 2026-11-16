@@ -20,7 +20,7 @@ export const HCM_PHOTOS_CONTROL_TAG = 'hcm-photos-control';
 export const LONG_PRESS_MS = 500;
 
 /** `hcm-photos-near`: the visitor's scope; null shows every photo. */
-export interface PhotosNearDetail {
+interface PhotosNearDetail {
     readonly near: number | null;
 }
 

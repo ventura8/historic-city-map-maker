@@ -6,7 +6,7 @@
  */
 
 /** How long (ms) a finger rests before the press is a hold (iOS's own context press is about 500 ms). */
-export const HOLD_MS = 500;
+const HOLD_MS = 500;
 /** How far (px) a holding finger may drift. */
 const SLOP_PX = 10;
 

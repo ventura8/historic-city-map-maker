@@ -19,7 +19,7 @@ import { dateItems } from './timeline-dates.js';
 import { LongPress } from './long-press.js';
 import { placeTip } from './timeline-tip.js';
 
-export type { YearLayer, YearOpacity } from './timeline-opacity-card.js';
+export type { YearOpacity } from './timeline-opacity-card.js';
 
 /** How far (px) a finger may move between down and up and still be a tap on the thumb, not a scrub. */
 const TAP_SLOP_PX = 10;
@@ -244,7 +244,7 @@ export class OpacityReveal {
 }
 
 /** The card: the year's sliders (`timeline-opacity-card.ts`), one or "all" and a row per layer. */
-export function opacityCard(
+function opacityCard(
     year: YearOpacity,
     locale: ViewerLocale,
     reveal: OpacityReveal,
