@@ -131,7 +131,9 @@ async function readRest(transaction: DocumentTransaction, subject: Subject, job:
     // M12: a side job works beside its version: its ending holds nothing of the version's.
     const version = isSideJob(job.type)
         ? undefined
-        : await transaction.get(FIRESTORE_PATHS.layerVersion(cityId, versionIdOf(jobId, job)), layerVersionReadSchema);
+        : await transaction
+              .get(FIRESTORE_PATHS.layerVersion(cityId, versionIdOf(jobId, job)), layerVersionReadSchema)
+              .catch(() => undefined);
     const places = placesOf(subject, job, version);
     const read = <T>(path: string | undefined, schema: Schema<T>) => (path === undefined ? undefined : transaction.get(path, schema));
     const layer = await read(places.layer, layerDocSchema);
@@ -145,7 +147,8 @@ async function readRest(transaction: DocumentTransaction, subject: Subject, job:
 async function siblingsOf(deps: EndDeps, cityId: string, jobId: string): Promise<readonly string[]> {
     const job = await deps.documents.get(FIRESTORE_PATHS.job(cityId, jobId), jobDocSchema);
     const versionId = versionIdOf(jobId, job ?? {});
-    const version = await deps.documents.get(FIRESTORE_PATHS.layerVersion(cityId, versionId), layerVersionReadSchema);
+    const path = FIRESTORE_PATHS.layerVersion(cityId, versionId);
+    const version = await deps.documents.get(path, layerVersionReadSchema).catch(() => undefined);
     if (job?.type !== 'usgs-import' || version === undefined) {
         return [];
     }
@@ -270,14 +273,24 @@ export async function endWork(deps: EndDeps, cityId: string, jobId: string, endi
 }
 
 const CANCELLED: Ending = { status: 'cancelled', versionState: 'cancelled', by: IMAGERY_WRITER };
-const FAILED: Ending = { status: 'failed', versionState: 'failed', by: IMAGERY_WRITER };
+
+function failedEnding(job: JobDoc): Ending {
+    const code = job.error?.code ?? 'apiError.imagery.processingFailed';
+    const params = job.error?.params;
+    return {
+        status: 'failed',
+        versionState: 'failed',
+        by: IMAGERY_WRITER,
+        error: { code, ...(params === undefined ? {} : { params }) },
+    };
+}
 
 /** The ending a run the pipeline itself ended carries; none for a job still on its way. */
 function endingOf(job: JobDoc | undefined): Ending | undefined {
     if (job?.status === 'cancelled') {
         return CANCELLED;
     }
-    return job?.status === 'failed' ? FAILED : undefined;
+    return job?.status === 'failed' ? failedEnding(job) : undefined;
 }
 
 /**

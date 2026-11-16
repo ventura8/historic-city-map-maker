@@ -102,7 +102,7 @@ describe('counting a cloud run', () => {
 
     it('badPath_aCountThatFailsIsLoggedAndTheTriggerGoesOn', async () => {
         const world = await readyWorld();
-        const ended = job({ status: 'failed', error: { code: 'apiError.imagery.processingFailed', message: 'x' } });
+        const ended = job({ status: 'awaiting_gcps' });
         await seedJob(world, JOB, ended);
         world.deps.documents.transaction = () => Promise.reject(new Error('contention'));
 

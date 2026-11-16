@@ -116,7 +116,15 @@ describe('imagery.join: archive maps', () => {
 
     it('badPath_aLayerWithAVersionOnItsWayRefusesTheJoin', async () => {
         const ready = await world();
+        await seedJob(ready, 'rg-other', runningJob({ status: 'running' }));
         await seedLayer(ready, 'n', { currentVersion: NORTH, pendingVersion: 'rg-other' });
+
+        expect((await failureOf(join(ready, [NORTH, SOUTH]))).details).toMatchObject({ code: 'apiError.imagery.joinLayerBusy' });
+    });
+
+    it('badPath_aLayerWithAStalePendingVersionWithNoJobRefusesTheJoin', async () => {
+        const ready = await world();
+        await seedLayer(ready, 'n', { currentVersion: NORTH, pendingVersion: 'rg-no-job' });
 
         expect((await failureOf(join(ready, [NORTH, SOUTH]))).details).toMatchObject({ code: 'apiError.imagery.joinLayerBusy' });
     });

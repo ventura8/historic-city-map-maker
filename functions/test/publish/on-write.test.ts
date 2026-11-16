@@ -94,6 +94,7 @@ describe('the publish triggers', () => {
         const deps = contentDeps();
         const triggers = onWriteFunctions(() => deps);
         const cityPath = `cities/${CITY_ID}`;
+        const statePath = FIRESTORE_PATHS.manifestState(CITY_ID);
 
         await triggers.onCityWrite.run(
             written(cityPath, new Change(await snapshot(cityPath), await snapshot(cityPath, PUBLISHED)), { city: CITY_ID }),
@@ -105,13 +106,17 @@ describe('the publish triggers', () => {
             ['onPoiCategoryWrite', 'poiCategories'],
             ['onStoryWrite', 'stories'],
         ] as const) {
+            const current = await deps.documents.get(statePath, manifestStateDocSchema);
+            if (current !== undefined) {
+                await deps.documents.set(statePath, manifestStateDocSchema, { ...current, status: 'idle' });
+            }
             const path = `${cityPath}/${collection}/doc-1`;
             await triggers[name].run(
                 written(path, new Change(await snapshot(path), await snapshot(path, PUBLISHED)), { city: CITY_ID, id: 'doc-1' }),
             );
         }
 
-        expect(await deps.documents.get(FIRESTORE_PATHS.manifestState(CITY_ID), manifestStateDocSchema)).toMatchObject({
+        expect(await deps.documents.get(statePath, manifestStateDocSchema)).toMatchObject({
             requestedVersion: 6,
         });
         expect(deps.tasks.queued).toHaveLength(1);

@@ -4324,5 +4324,5 @@ Append a numbered entry to *Lessons from this repository* in the task that finds
 739. **A second try of the 1974 archive join was refused: "A frame's layer is busy processing or publishing".**
     - Seen: 2026-11-15 05:07, after the join jn-mwh6gr5d-1974-02 failed in its align step; the layer 1974-02 still named it as `pendingVersion`.
     - Cause: the dispatcher released what a run held only when the job became `cancelled`; a run that failed in a step (the pipeline writes `failed` itself) left its layer's `pendingVersion`, so every later join or re-run of that layer was refused as busy.
-    - Fix and pin: `on-job-write` releases on `failed` too (`releaseCancelled` takes either ending; a failed first import keeps its scene); an archive join also passes a layer whose pending version is a run that already ended (stamps left before the fix); `dispatch.test.ts`, `join-archive.test.ts`.
+    - Fix and pin: `on-job-write` releases on `failed` too (`releaseCancelled` takes either ending and carries the failure error to the version; a failed first import keeps its scene); an archive join also passes a layer whose pending version is a run that already ended (stamps left before the fix); `dispatch.test.ts`, `join-archive.test.ts`.
     - **Whatever a job holds must be released on every way it can end, not only the one that was tested first.**

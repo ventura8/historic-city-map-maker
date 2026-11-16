@@ -271,6 +271,7 @@ export function jobDoc(creator: string, status = 'running'): Data {
         machine: 'std',
         attempt: 1,
         lostRuns: 1,
+        lostOn: ['w-0123456789abcdef'],
         publishAttempts: 1,
         lease: { owner: 'raster-std-abc', until: later() },
         steps: { fetch: { status: 'running', gcsPath: 'usgs-raw/rules/frame.tgz', generation: '1700000000000000', sha256: SHA } },
