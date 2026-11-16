@@ -14,8 +14,9 @@
  * Finding 72 of 2026-11-02 ("I should not have to copy and paste"): the computer's part is `<hcm-worker-local>` of the
  * lazy `worker-local` chunk (the starter file, the auto-pair, Stop using this computer, the command behind Advanced),
  * asked of the feed once the image's digest is known and stopped with the panel. W5: below it, the city's computers
- * (`<hcm-worker-household>` of the lazy `worker-household` chunk: the list, Add another computer, Remove this computer). M10 (`docs/research/M10-local-ai.md`): the computer's
- * local AI: graphics card, processor only, comes when a frame needs it, or unavailable and why.
+ * (`<hcm-worker-household>` of the lazy `worker-household` chunk: the list, Add another computer, Remove this computer).
+ * M10 (`docs/research/M10-local-ai.md`): the computer's local AI: graphics card, processor only, comes when a frame
+ * needs it, or unavailable and why.
  */
 import { RUN_CHOICES, type RunChoice, type WorkerAi } from '@hcm/shared';
 import { trackFunnel } from '@hcm/shared/funnels';
@@ -33,9 +34,6 @@ const CHOICE_TEXT = {
     local: 'adminWorker.choice.local',
     cloud: 'adminWorker.choice.cloud',
 } as const satisfies Readonly<Record<RunChoice, string>>;
-
-/** Nothing: an outdated computer's version is said in its alert. */
-const EMPTY_LINE = html``;
 
 export class HcmWorkerPanel extends WorkerElement {
     static override readonly properties = {
@@ -153,7 +151,7 @@ export class HcmWorkerPanel extends WorkerElement {
         }
         const when = formatWhen(this.locale, worker.seenAt);
         return html`${this.#presence(view, worker, when)} ${this.#job(view, worker)} ${this.#ai(view, worker)}
-        ${this.#outdated(view, worker)} ${this.#pause(view, worker)} ${this.#disconnect(view, worker)}`;
+        ${this.#pause(view, worker)} ${this.#disconnect(view, worker)}`;
     }
 
     /**
@@ -162,17 +160,32 @@ export class HcmWorkerPanel extends WorkerElement {
      */
     #presence(view: WorkerViewPort, worker: WorkerSeenPort, when: string): TemplateResult {
         if (view.connected) {
-            const version = worker.outdated
-                ? EMPTY_LINE
-                : html`<p data-worker-version>${this.t('adminWorker.version', { version: worker.version })}</p>`;
             return html`<p>${this.t('adminWorker.connected', { when })}</p>
-                ${version}`;
+                ${this.#versions(view, worker)}`;
         }
         if (worker.state === 'busy' && worker.jobId !== null) {
             return html`<p data-worker-silent="busy">${this.t('adminWorker.busySilent', { when })}</p>
                 <p><a href="#/jobs">${this.t('adminWorker.busyHelp')}</a></p>`;
         }
         return html`<p>${this.t('adminWorker.none')} ${this.t('adminWorker.lastSeen', { when })}</p>`;
+    }
+
+    #versions(view: WorkerViewPort, fallback: WorkerSeenPort): TemplateResult {
+        const workers = view.workers.length === 0 ? [fallback] : view.workers;
+        return html`${workers.map((worker, index) => this.#versionLine(worker, index + 1))}`;
+    }
+
+    #versionLine(worker: WorkerSeenPort, number: number): TemplateResult {
+        const name = worker.name ?? this.t('adminWorker.computer', { number: String(number) });
+        const key = worker.outdated ? 'adminWorker.outdatedNamed' : 'adminWorker.versionNamed';
+        return html`<p
+            class=${worker.outdated ? 'alert' : ''}
+            data-worker-version
+            data-worker-id=${worker.id}
+            data-outdated=${String(worker.outdated)}
+        >
+            ${this.t(key, { name, version: worker.version })}
+        </p>`;
     }
 
     /**
@@ -197,13 +210,6 @@ export class HcmWorkerPanel extends WorkerElement {
 
     #aiDevice({ device, deviceName }: Pick<WorkerAi, 'device' | 'deviceName'>): string {
         return device === 'gpu' ? this.t('adminWorker.ai.gpu', { name: deviceName ?? '' }) : this.t('adminWorker.ai.cpu');
-    }
-
-    /** Finding 67: a connected worker whose image is not the installed one takes no job until the command runs again. */
-    #outdated(view: WorkerViewPort, worker: WorkerSeenPort): TemplateResult {
-        return view.connected && worker.outdated
-            ? html`<p class="alert" data-outdated>${this.t('adminWorker.outdated', { version: worker.version })}</p>`
-            : html``;
     }
 
     /**

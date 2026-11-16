@@ -22,7 +22,7 @@ const AT = '2026-11-13T09:00:00.000Z';
 
 function view(changes: Partial<WorkerViewPort> = {}): WorkerViewPort {
     return {
-        ...{ city: 'bucharest', status: 'ready', failure: null, worker: null, connected: true, choice: 'auto', image: null },
+        ...{ city: 'bucharest', status: 'ready', failure: null, worker: null, workers: [], connected: true, choice: 'auto', image: null },
         ...{ usage: { vcpuSeconds: 0, gibSeconds: 0 }, job: null, acting: false, refusal: null },
         ...changes,
     };
@@ -30,7 +30,17 @@ function view(changes: Partial<WorkerViewPort> = {}): WorkerViewPort {
 
 function worker(changes: Partial<WorkerSeenPort> = {}): WorkerSeenPort {
     return {
-        ...{ id: 'w-1', state: 'idle', seenAt: AT, jobId: null, lastJob: null, version: '1.0.0', outdated: false, revoked: false },
+        ...{
+            id: 'w-1',
+            name: 'Desk PC',
+            state: 'idle',
+            seenAt: AT,
+            jobId: null,
+            lastJob: null,
+            version: '1.0.0',
+            outdated: false,
+            revoked: false,
+        },
         ...{ ai: null, paused: null },
         ...changes,
     };

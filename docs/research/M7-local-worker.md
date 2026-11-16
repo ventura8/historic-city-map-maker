@@ -372,6 +372,9 @@ and **twice the free processing runs (8 → 16)**; past that, each `std` run cos
   seen and the job it works on, or "No computer connected"), the command with **Copy**, the notes (the work folder, the
   gcloud alternative), the city's choice (**Run on my computer when it is connected** / **Always on my computer** /
   **Always in Google Cloud**: `auto`, `local`, `cloud`), and the free-tier meter (§4.4).
+- A panel view may see several worker records in one city (for example two helpers started on different computers). It now
+  shows one version line per worker record and marks only the outdated lines, instead of flattening to one "installed"
+  version line that could alternate between records as heartbeats arrive.
 - `<hcm-run-place>` (the version page of an unfinished version whose job holds no run): where it runs, **Run on my
   computer** / **Run in Google Cloud**; for `waitReason: 'free-tier'` the estimate, the month's use and **Run in Google
   Cloud anyway** (the OK) / **Run on my computer**; for `waitReason: 'worker'` "Waiting for your computer" and the

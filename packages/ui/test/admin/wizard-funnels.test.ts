@@ -137,7 +137,7 @@ describe('imageryFunnels', () => {
 });
 
 const worker = (changes: Partial<WorkerViewPort>): WorkerViewPort =>
-    ({ status: 'ready', choice: 'local', worker: null, connected: false, refusal: null, ...changes }) as WorkerViewPort;
+    ({ status: 'ready', choice: 'local', worker: null, workers: [], connected: false, refusal: null, ...changes }) as WorkerViewPort;
 
 describe('workerFunnel', () => {
     it('happyPath_connectedThenCurrentCompletes', () => {

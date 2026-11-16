@@ -127,6 +127,20 @@ describe('the local worker feed', () => {
         expect(feed.state).toMatchObject({ connected: false, image: null, worker: { state: 'busy', jobId: 'j2', lastJob: null } });
     });
 
+    it('happyPath_twoWorkersStaySeparateInStateSoThePanelCanShowBothVersions', async () => {
+        const world = contentWorld();
+        world.callables.answer('setup.status', () => status(DIGEST));
+        world.store.docs.set(FIRESTORE_PATHS.worker(CITY, 'w-new'), workerDoc(before(world, 15), { version: '1.0.0-beta.1+4db7985' }));
+        world.store.docs.set(FIRESTORE_PATHS.worker(CITY, 'w-old'), workerDoc(before(world, 30), { version: '1.0.0-beta.1+2dd2225' }));
+        const { feed } = feedOf(world);
+        await settle();
+
+        expect(feed.state.workers.map(({ id, version }) => ({ id, version }))).toEqual([
+            { id: 'w-new', version: '1.0.0-beta.1+4db7985' },
+            { id: 'w-old', version: '1.0.0-beta.1+2dd2225' },
+        ]);
+    });
+
     it('happyPath_theChoiceChangesThroughImageryRunOnWithoutAJob', async () => {
         const world = contentWorld();
         world.callables.answer('imagery.runOn', () => ({ choice: 'cloud' }));

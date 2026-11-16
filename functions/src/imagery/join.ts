@@ -42,6 +42,8 @@ export type JoinDeps = ImportDeps & Pick<Ports, 'blobs'>;
 type Request = CallableRequest<'imagery.join'>;
 /** One date's USGS frames (the archive maps' join is `join-archive.ts`). */
 type FramesRequest = Extract<Request, { readonly entityIds: readonly string[] }>;
+/** Archive maps joined as one map (`join-archive.ts`). */
+type ArchiveRequest = Extract<Request, { readonly versionIds: readonly string[] }>;
 
 /** A scene with the version a join would take from its import, if it has one. */
 interface Frame {
@@ -172,8 +174,12 @@ function paramsOf(plan: JoinPlan): LayerJoinParams {
     return { parts: plan.frames.map(({ versionId, layerId }) => ({ versionId, layerId })), sensor: plan.sensor };
 }
 
+function isArchiveRequest(request: Request): request is ArchiveRequest {
+    return Array.isArray((request as { readonly versionIds?: unknown }).versionIds);
+}
+
 async function imageryJoin(deps: JoinDeps, caller: VerifiedCaller, request: Request): Promise<CallableResponse<'imagery.join'>> {
-    return 'versionIds' in request ? joinArchive(deps, caller, request) : joinFrames(deps, caller, request);
+    return isArchiveRequest(request) ? joinArchive(deps, caller, request) : joinFrames(deps, caller, request);
 }
 
 async function joinFrames(deps: JoinDeps, caller: VerifiedCaller, request: FramesRequest): Promise<CallableResponse<'imagery.join'>> {

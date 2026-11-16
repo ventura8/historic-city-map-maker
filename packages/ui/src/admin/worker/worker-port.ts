@@ -37,6 +37,7 @@ export type PauseLengthPort = 'forever' | 'hour' | 'tomorrow';
 
 export interface WorkerSeenPort {
     readonly id: string;
+    readonly name: string | null;
     readonly state: 'idle' | 'busy';
     readonly seenAt: string;
     readonly jobId: string | null;
@@ -71,6 +72,7 @@ export interface WorkerViewPort {
     readonly status: LoadStatusPort;
     readonly failure: StoreFailurePort | null;
     readonly worker: WorkerSeenPort | null;
+    readonly workers: readonly WorkerSeenPort[];
     readonly connected: boolean;
     readonly choice: RunChoice;
     /** The pipeline image's digest; null without one, undefined while asked for. */

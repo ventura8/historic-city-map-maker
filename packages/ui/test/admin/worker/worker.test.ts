@@ -31,6 +31,7 @@ function view(changes: Partial<WorkerViewPort> = {}): WorkerViewPort {
         status: 'ready',
         failure: null,
         worker: null,
+        workers: [],
         connected: false,
         choice: 'auto',
         image: DIGEST,
@@ -46,6 +47,7 @@ function view(changes: Partial<WorkerViewPort> = {}): WorkerViewPort {
 function seen(changes: Partial<NonNullable<WorkerViewPort['worker']>> = {}): NonNullable<WorkerViewPort['worker']> {
     return {
         id: 'w-1',
+        name: 'Desk PC',
         state: 'idle',
         seenAt: '2026-11-02T09:00:00.000Z',
         jobId: null,
@@ -206,7 +208,9 @@ describe('<hcm-worker-panel>', () => {
         expect(host.feed.calls).toEqual(['start null', 'local demo-hcm', 'household demo-hcm']);
         expect(text).toContain(t('en', 'adminWorker.connected', { when: '' }).split(' Seen')[0] ?? '');
         expect(text).toContain(t('en', 'adminWorker.lastDone', { when: '' }).slice(0, 10));
-        expect(deep(element, '[data-worker-version]').textContent).toBe(t('en', 'adminWorker.version', { version: '1.0.0' }));
+        expect(deep(element, '[data-worker-version]').textContent).toBe(
+            t('en', 'adminWorker.versionNamed', { name: 'Desk PC', version: '1.0.0' }),
+        );
         // Finding 72: this computer's part comes from the lazy chunk, started with the panel and stopped when it goes.
         const local = deep(element, 'hcm-worker-local') as LitElement & { image: string; city: string; project: string };
         expect([local.image, local.city, local.project]).toEqual([DIGEST, 'bucharest', 'demo-hcm']);
@@ -352,14 +356,40 @@ describe('<hcm-worker-panel>: findings 66-68 of 2026-11-02', () => {
     it('badPath_anOutdatedWorkerIsToldToUpdateAndADisconnectedOneSaysSo', async () => {
         const host = new FakeHost(view({ connected: true, worker: seen({ outdated: true }) }));
         const element = await panel(host);
-        expect(deep(element, '[data-outdated]').textContent).toBe(t('en', 'adminWorker.outdated', { version: '1.0.0' }));
-        expect(deepAll(element, '[data-worker-version]')).toHaveLength(0);
+        expect(deep(element, '[data-outdated="true"]').textContent).toBe(
+            t('en', 'adminWorker.outdatedNamed', { name: 'Desk PC', version: '1.0.0' }),
+        );
+        expect(deepAll(element, '[data-worker-version]')).toHaveLength(1);
 
         host.feed.set({ connected: false, worker: seen({ revoked: true }) });
         await updated(element);
         expect(deepAll(element, '[data-outdated]')).toHaveLength(0);
         expect(deepText(element)).toContain(t('en', 'adminWorker.disconnected'));
         expect(deepAll(element, 'hcm-button').some((found) => found.textContent.trim() === t('en', 'adminWorker.disconnect'))).toBe(false);
+    });
+
+    it('happyPath_multipleWorkersShowSeparateVersionsAndFlagOnlyOutdatedOnes', async () => {
+        const host = new FakeHost(
+            view({
+                connected: true,
+                worker: seen({ id: 'w-1', name: 'Desk PC', version: '1.0.0-beta.1+2dd2225', outdated: false }),
+                workers: [
+                    seen({ id: 'w-1', name: 'Desk PC', version: '1.0.0-beta.1+2dd2225', outdated: false }),
+                    seen({ id: 'w-2', name: 'NUC', version: '1.0.0-beta.1+4db7985', outdated: true }),
+                ],
+            }),
+        );
+        const element = await panel(host);
+
+        const lines = deepAll(element, '[data-worker-version]');
+        expect(lines).toHaveLength(2);
+        expect(lines[0]?.textContent).toBe(
+            t('en', 'adminWorker.versionNamed', { name: 'Desk PC', version: '1.0.0-beta.1+2dd2225' }),
+        );
+        expect(lines[1]?.textContent).toBe(
+            t('en', 'adminWorker.outdatedNamed', { name: 'NUC', version: '1.0.0-beta.1+4db7985' }),
+        );
+        expect(deepAll(element, '[data-outdated="true"]')).toHaveLength(1);
     });
 });
 

@@ -45,6 +45,8 @@ import { pausedOf, pauseUntil, type PausedView, type PauseLength } from './pause
 
 export interface WorkerSeen {
     readonly id: string;
+    /** The owner's name for it, else the computer's own, else null. */
+    readonly name: string | null;
     readonly state: WorkerDoc['state'];
     readonly seenAt: string;
     readonly jobId: string | null;
@@ -87,6 +89,8 @@ export interface WorkerState {
     readonly failure: StoreFailure | null;
     /** The city's most recently seen worker, or null when none ever was. */
     readonly worker: WorkerSeen | null;
+    /** The workers this city has reported lately, newest first. */
+    readonly workers: readonly WorkerSeen[];
     readonly connected: boolean;
     readonly choice: RunChoice;
     /** The pipeline image's digest; null without one, undefined while asked for. */
@@ -121,15 +125,19 @@ export interface WorkerIntents {
 const NO_USE: CloudRunUse = { vcpuSeconds: 0, gibSeconds: 0 };
 
 const INITIAL: Omit<WorkerState, 'city'> = {
-    ...{ status: 'loading', failure: null, worker: null, connected: false, choice: 'auto', image: undefined },
+    ...{ status: 'loading', failure: null, worker: null, workers: [], connected: false, choice: 'auto', image: undefined },
     ...{ usage: NO_USE, job: null, acting: false, refusal: null },
 };
+
+function workerNameOf({ name, host }: WorkerDoc): string | null {
+    return name ?? host ?? null;
+}
 
 function seenOf(doc: Stored<WorkerDoc>): WorkerSeen {
     const { state, jobId, lastJob, lastSeenAt } = doc.data;
     const last = lastJob === undefined ? null : { id: lastJob.id, outcome: lastJob.outcome, at: isoOf(lastJob.at) };
     const flags = { outdated: doc.data.outdated === true, revoked: doc.data.revokedAt !== undefined };
-    const said = { version: doc.data.version, ai: doc.data.ai ?? null, paused: pausedOf(doc.data.paused) };
+    const said = { name: workerNameOf(doc.data), version: doc.data.version, ai: doc.data.ai ?? null, paused: pausedOf(doc.data.paused) };
     return { id: doc.id, state, seenAt: isoOf(lastSeenAt), jobId: jobId ?? null, lastJob: last, ...said, ...flags };
 }
 
@@ -142,6 +150,8 @@ const PIPELINE_TYPES: ReadonlySet<JobDoc['type']> = new Set<JobDoc['type']>([
     'layer-tiles',
     'archive-series',
 ]);
+
+const WORKERS_MAX = 20;
 
 /** The pipeline job of a version's page, or null (none, or a job the pipeline does not run). */
 function jobOf(doc: Stored<JobDoc> | null): WorkerJob | null {
@@ -187,6 +197,17 @@ function usageOf(state: DocState<CloudRunUsageDoc>): CloudRunUse {
     return usage === undefined ? NO_USE : { vcpuSeconds: usage.vcpuSeconds, gibSeconds: usage.gibSeconds };
 }
 
+function isSeenWorker(worker: WorkerSeen | null): worker is WorkerSeen {
+    return worker !== null;
+}
+
+function staleIn(worker: WorkerSeen | null, now: number): number {
+    if (worker === null || worker.revoked) {
+        return 0;
+    }
+    return Date.parse(worker.seenAt) + WORKER_FRESH_SECONDS * 1000 - now;
+}
+
 export class WorkerFeed {
     readonly #services: ContentServices;
     readonly #cell: Store<WorkerState>;
@@ -209,7 +230,13 @@ export class WorkerFeed {
         };
         const common = { store, clock, denied };
         this.#workers = new LiveList({
-            ...{ ...common, collection: FIRESTORE_PATHS.workers(services.cityId), pageSize: 1, schema: workerDocSchema, map: seenOf },
+            ...{
+                ...common,
+                collection: FIRESTORE_PATHS.workers(services.cityId),
+                pageSize: WORKERS_MAX,
+                schema: workerDocSchema,
+                map: seenOf,
+            },
             changed: (list) => {
                 this.#seen(list);
             },
@@ -373,15 +400,17 @@ export class WorkerFeed {
     /** The workers' answer; while the worker counts as connected, a timer says when it no longer does. */
     #seen(list: ListState<WorkerSeen>): void {
         const { clock } = this.#services;
-        const worker = withoutEnded(list.items[0] ?? null, clock.now());
-        const left = worker === null || worker.revoked ? 0 : Date.parse(worker.seenAt) + WORKER_FRESH_SECONDS * 1000 - clock.now();
+        const now = clock.now();
+        const workers = list.items.map((worker) => withoutEnded(worker, now)).filter(isSeenWorker);
+        const worker = workers.find((candidate) => !candidate.revoked) ?? workers[0] ?? null;
+        const left = staleIn(worker, now);
         clock.clearTimeout(this.#stale);
         if (left > 0) {
             this.#stale = clock.setTimeout(() => {
                 this.#cell.update({ connected: false });
             }, left);
         }
-        this.#cell.update({ status: list.status, failure: list.failure, worker, connected: left > 0 });
+        this.#cell.update({ status: list.status, failure: list.failure, worker, workers, connected: left > 0 });
         this.#follow(worker);
     }
 
