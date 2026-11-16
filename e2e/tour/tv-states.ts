@@ -38,7 +38,8 @@ async function bootTvJourney({ page, context, lang }: TvTour): Promise<void> {
     await openViewer(page, { lang, hash: '15/44.42700/26.08530&layers=e2e-1966' });
     await connectPad(page);
     // The pad's greeting goes before the states: a toast that times out during the Tab round is not a state of these.
-    await expect(page.locator('hcm-snackbar').getByText(t(lang, 'gamepad.ready'))).toBeVisible();
+    // The snackbar's visible message, not its live region's copy of the same text (strict mode found both).
+    await expect(page.locator('hcm-snackbar .message', { hasText: t(lang, 'gamepad.ready') })).toBeVisible();
     await dismissToast(page, lang);
 }
 

@@ -111,20 +111,28 @@ export class HcmSlider extends LitElement {
                 background: var(--md-sys-color-on-secondary-container);
             }
 
+            /*
+             * The handle's box is 24 px wide (WCAG 2.5.8's minimum on its own, even where a neighbour or the Layers panel's
+             * pinned strip cuts its 48 px touch target: the tour, 2026-11-16): a 4 px bar, its colour clipped to the content
+             * box between 10 px of padding on either side.
+             */
             .handle {
                 position: absolute;
                 top: 2px;
-                inset-inline-start: calc(var(--used) + 6px);
+                inset-inline-start: calc(var(--used) - 4px);
+                box-sizing: content-box;
                 width: 4px;
                 height: 44px;
+                padding-inline: 10px;
                 border-radius: var(--md-sys-shape-corner-full);
                 background: var(--md-sys-color-primary);
+                background-clip: content-box;
                 outline-offset: 2px;
             }
 
             .handle:focus-visible {
                 width: 2px;
-                margin-inline-start: 1px;
+                padding-inline: 11px;
             }
 
             :host([disabled]) .track {
