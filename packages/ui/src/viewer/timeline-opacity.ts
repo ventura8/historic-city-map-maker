@@ -53,6 +53,8 @@ export class OpacityReveal {
     #root: EventTarget | null = null;
     /** A pointer pressed the thumb since it last lost the focus: the focus it has is a press's, not the keyboard's. */
     #pressing = false;
+    /** Opened by a long press or the Opacity button: it lasts until Esc or a press elsewhere, the focus may leave it. */
+    #held = false;
 
     /** A finger held on the thumb opens the card at once (`long-press.ts`). */
     readonly #hold = new LongPress(() => {
@@ -65,6 +67,7 @@ export class OpacityReveal {
     hold(): void {
         this.#down = null;
         this.show();
+        this.#held = true;
     }
 
     /** Listens on the timeline's shadow root for the thumb's pointer and focus events (one place, not six bindings). */
@@ -141,7 +144,7 @@ export class OpacityReveal {
 
     readonly onFocusOut = (event: FocusEvent): void => {
         this.#pressing = false;
-        if (!this.#within(event.relatedTarget)) {
+        if (!this.#held && !this.#within(event.relatedTarget)) {
             this.#set(false);
         }
     };
@@ -192,6 +195,7 @@ export class OpacityReveal {
     }
 
     #set(shown: boolean): void {
+        this.#held &&= shown;
         if (this.shown === shown) {
             return;
         }

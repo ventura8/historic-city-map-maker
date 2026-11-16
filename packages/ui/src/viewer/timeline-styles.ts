@@ -234,6 +234,10 @@ export const timelineStyles = [
 
             /* The thumb drags under a finger also where the card scrolls. */
             touch-action: none;
+
+            /* A long press opens the opacity card (long-press.ts): no iOS callout or text selection over it. */
+            -webkit-touch-callout: none;
+            user-select: none;
         }
 
         :host([orientation='vertical']) .thumb {

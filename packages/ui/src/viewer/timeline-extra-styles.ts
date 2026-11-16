@@ -164,18 +164,19 @@ export const timelineExtraStyles = css`
         line-height: var(--md-sys-typescale-body-small-line-height, 16px);
     }
 
-    /* Narrow screens: a bottom sheet across the viewport, over the place timeline-opacity.ts gives it beside the thumb (its
-       inline left and top, hence !important); a press elsewhere (the Layers button too) closes it, so it never lies over the
-       Layers panel. */
+    /* Narrow screens: a sheet at the foot of the map, over the place timeline-opacity.ts gives it beside the thumb (its inline
+       left and top, hence !important), between the standing timeline and the column of the zoom buttons and the menu, above
+       Mapbox's legal line (the tour's occlusion and legal checks); a press elsewhere (the Layers button too) closes it, so it
+       never lies over the Layers panel. */
     @media (width < 600px) {
         .opacity,
         .opacity.several {
             position: fixed;
             z-index: 4;
-            inset: auto 0 0 !important;
+            inset: auto 80px calc(48px + env(safe-area-inset-bottom, 0px)) !important;
             inline-size: auto;
-            padding: 8px 24px calc(8px + env(safe-area-inset-bottom, 0px));
-            border-radius: var(--md-sys-shape-corner-extra-large, 28px) var(--md-sys-shape-corner-extra-large, 28px) 0 0;
+            padding: 8px 16px;
+            border-radius: var(--md-sys-shape-corner-extra-large, 28px);
         }
     }
 

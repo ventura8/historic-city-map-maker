@@ -313,7 +313,7 @@ test(
         await expect(ranges).toHaveCount(3);
         const sheet = await viewer(page).locator('hcm-timeline .opacity').boundingBox();
         const height = page.viewportSize()?.height ?? 0;
-        expect(Math.round((sheet?.y ?? 0) + (sheet?.height ?? 0)), 'a bottom sheet on a phone').toBe(height);
+        expect(height - ((sheet?.y ?? 0) + (sheet?.height ?? 0)), 'a sheet at the foot, above the legal line').toBeLessThan(80);
 
         await ranges.first().focus();
         await ranges.first().press('Home');
