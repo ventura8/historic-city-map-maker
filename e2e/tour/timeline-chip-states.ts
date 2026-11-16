@@ -61,8 +61,16 @@ export const TIMELINE_CHIP_STATES = {
             for (let step = 0; step < 4; step += 1) {
                 await thumb.press('ArrowRight');
             }
-            await thumb.hover();
-            const range = viewer(page).locator('hcm-timeline .opacity [role="slider"]');
+            // A phone's open card has its Opacity button, which opens the modal sheet; elsewhere a mouse on the pill.
+            const opener = viewer(page).locator('hcm-timeline .opacity-open');
+            if (await opener.isVisible()) {
+                await opener.click();
+            } else {
+                await thumb.hover();
+            }
+            const range = viewer(page)
+                .locator('hcm-timeline .opacity:not([hidden]) [role="slider"], .opacity-sheet [role="slider"]')
+                .first();
             await expect(range).toBeVisible();
             const lead = t(lang, 'layers.opacity', { name: '\u0000' }).split('\u0000')[0] ?? '';
             await expect(range).toHaveAttribute('aria-label', new RegExp(`^${lead.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')}.+`));

@@ -1,14 +1,17 @@
 /**
  * The selected year's opacity slider (the owner, 2026-11-15: "when the pointer hovers on the selected year pill, show a
- * slider that changes the opacity of that year's layer"; scenario V12). A mouse resting on the timeline's thumb, the
- * keyboard's focus on it, or a finger's tap on it (a press that did not scrub) shows a small card beside it holding the kit's
- * slider per layer of the year (several layers: an "all" slider first, `timeline-opacity-card.ts`), a bottom sheet on a
- * narrow screen; a finger held on the pill opens it too (`long-press.ts`). Each slider is named as the Layers panel names it (`layers.opacity`).
+ * slider that changes the opacity of that year's layer"; scenario V12). A mouse resting on the timeline's thumb, Enter on
+ * it, or a finger's tap on it (a press that did not scrub) shows a small card beside it holding the kit's slider per layer of
+ * the year (several layers: an "all" slider first, `timeline-opacity-card.ts`), a finger held on the pill too
+ * (`long-press.ts`). The keyboard's or the D-pad's focus alone does not: on a TV it stood in the D-pad's way. On a phone
+ * (`phone`, set by the dock) the card is a modal sheet instead (`opacity-sheet.ts`, asked for with `hcm-opacity-sheet`):
+ * a tap, a long press, Enter, or the Opacity button the open card carries. Each slider is named as the Layers panel names it
+ * (`layers.opacity`).
  * It fires the Layers panel's own `hcm-overlay-opacity` (`{id, opacity, final}`), so the store keeps one value and the
  * panel's slider follows. The card hides when the pointer and the focus have both left the thumb and the card, on Esc (the
  * focus goes back to the thumb) and on a press anywhere else.
  */
-import { overlayLabel, type Layer, type Overlay, type ViewerLocale } from '@hcm/shared';
+import { overlayLabel, translate, type Layer, type Overlay, type ViewerLocale } from '@hcm/shared';
 import { html, nothing, type TemplateResult } from 'lit';
 
 import { opacitySliders, type YearLayer, type YearOpacity } from './timeline-opacity-card.js';
@@ -55,6 +58,8 @@ export class OpacityReveal {
     #pressing = false;
     /** Opened by a long press or the Opacity button: it lasts until Esc or a press elsewhere, the focus may leave it. */
     #held = false;
+    /** A mouse rests on the thumb or the card: the focus leaving does not close it. */
+    #pointerInside = false;
 
     /** A finger held on the thumb opens the card at once (`long-press.ts`). */
     readonly #hold = new LongPress(() => {
@@ -66,8 +71,21 @@ export class OpacityReveal {
     /** A long press (on the thumb, or on the phone's pill, `timeline-dock.ts`): the card shows, the finger's lift does not toggle it. */
     hold(): void {
         this.#down = null;
+        this.open();
+        this.#held = this.shown;
+    }
+
+    /** Opens the card, or on a phone asks the dock for its modal sheet. */
+    open(): void {
+        if (this.#phone()) {
+            this.host.dispatchEvent(new CustomEvent('hcm-opacity-sheet', { bubbles: true, composed: true }));
+            return;
+        }
         this.show();
-        this.#held = true;
+    }
+
+    #phone(): boolean {
+        return this.host instanceof Element && this.host.hasAttribute('phone');
     }
 
     /** Listens on the timeline's shadow root for the thumb's pointer and focus events (one place, not six bindings). */
@@ -102,16 +120,26 @@ export class OpacityReveal {
         root.addEventListener('pointerup', onThumb(this.onThumbUp));
         root.addEventListener('focusin', onThumb(this.onFocusIn));
         root.addEventListener('focusout', onThumb(this.onFocusOut));
+        root.addEventListener('keydown', onThumb(this.onThumbKey));
     }
 
+    /** Enter on the pill opens the card (a year of several dates opens its date menu in its place, `hide`). */
+    readonly onThumbKey = (event: Event): void => {
+        if ((event as KeyboardEvent).key === 'Enter') {
+            this.open();
+        }
+    };
+
     readonly onEnter = (event: PointerEvent): void => {
-        if (event.pointerType !== 'touch') {
+        if (event.pointerType !== 'touch' && !this.#phone()) {
+            this.#pointerInside = true;
             this.show();
         }
     };
 
     readonly onLeave = (event: PointerEvent): void => {
         if (event.pointerType !== 'touch') {
+            this.#pointerInside = false;
             this.#hideLater();
         }
     };
@@ -127,24 +155,30 @@ export class OpacityReveal {
         const down = this.#down;
         this.#down = null;
         if (down !== null && Math.hypot(event.clientX - down.x, event.clientY - down.y) <= TAP_SLOP_PX) {
-            this.#set(!this.shown);
+            this.#tapped();
         }
     };
 
-    /** The keyboard's focus on the thumb, or any focus in the card; a pointer's focus on the thumb is not a reason. */
+    /** A tap on the selected year: the phone's sheet, else the card opens or closes. */
+    #tapped(): void {
+        if (this.#phone()) {
+            this.open();
+        } else {
+            this.#set(!this.shown);
+        }
+    }
+
+    /** Any focus in the card keeps it; the focus on the thumb alone does not open it (the D-pad's path, the TV tour). */
     readonly onFocusIn = (event: FocusEvent): void => {
         const target = event.target;
-        if (this.#pressing) {
-            return;
-        }
-        if (target instanceof Element && (target.matches(':focus-visible') || target.closest('.opacity') !== null)) {
+        if (!this.#pressing && target instanceof Element && target.closest('.opacity') !== null) {
             this.show();
         }
     };
 
     readonly onFocusOut = (event: FocusEvent): void => {
         this.#pressing = false;
-        if (!this.#held && !this.#within(event.relatedTarget)) {
+        if (!this.#held && !this.#pointerInside && !this.#within(event.relatedTarget)) {
             this.#set(false);
         }
     };
@@ -240,7 +274,37 @@ export function maybeOpacityCard(
     // Rendered while there is a layer, hidden between shows: the same element each time it shows (the tour's Tab round
     // comes back to the slider it left; a new element each time never came back).
     const layer = host.opacity;
-    return layer === null ? nothing : opacityCard(layer, host.locale, reveal, { host, hidden: hidden || !reveal.shown });
+    return layer === null ? nothing : withOpener(host, layer, reveal, hidden);
+}
+
+/** The card, after the Opacity button of a phone's open card (`phone`, not collapsed, not dragged). */
+function withOpener(
+    host: EventTarget & { readonly locale: ViewerLocale },
+    year: YearOpacity,
+    reveal: OpacityReveal,
+    hidden: boolean,
+): TemplateResult {
+    const card = opacityCard(year, host.locale, reveal, { host, hidden: hidden || !reveal.shown });
+    const phone = host instanceof Element && host.hasAttribute('phone');
+    return html`${phone && !hidden ? opacityOpener(year, host.locale, reveal) : nothing}${card}`;
+}
+
+/** The Opacity button under the year of a phone's open card (the owner, 2026-11-16): the same sheet as a long press. */
+function opacityOpener(year: YearOpacity, locale: ViewerLocale, reveal: OpacityReveal): TemplateResult {
+    return html`<button
+        type="button"
+        class="opacity-open touch-target"
+        aria-haspopup="dialog"
+        @pointerdown=${(event: Event) => {
+            event.stopPropagation();
+        }}
+        @click=${() => {
+            reveal.open();
+        }}
+    >
+        <hcm-icon name="opacity" aria-hidden="true"></hcm-icon
+        ><span>${translate(locale, 'layers.opacity', { name: String(year.year) })}</span>
+    </button>`;
 }
 
 /** The card's centre (px from the timeline's left): past the thumb's end side, or its start side where the end has no room. */

@@ -164,6 +164,36 @@ export const timelineExtraStyles = css`
         line-height: var(--md-sys-typescale-body-small-line-height, 16px);
     }
 
+    /* The open phone card's Opacity button (timeline-opacity.ts opacityOpener): just past the card, beside a standing one at
+       its foot (a year's date menu opens by the pill, near its top), above a lying one near its end (the compass is over its start, the photos chip at its very end). */
+    .opacity-open {
+        position: absolute;
+        inset-block-end: calc(100% + 8px);
+        inset-inline-end: 64px;
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+        box-sizing: border-box;
+        min-block-size: 48px;
+        padding-inline: 12px 16px;
+        border: 1px solid var(--md-sys-color-outline-variant, CanvasText);
+        border-radius: var(--md-sys-shape-corner-full, 9999px);
+        background: var(--md-sys-color-surface-container-highest, Canvas);
+        color: var(--md-sys-color-on-surface, CanvasText);
+        font: inherit;
+        cursor: pointer;
+    }
+
+    .opacity-open:focus-visible {
+        outline: 3px solid var(--md-sys-color-secondary, Highlight);
+        outline-offset: 2px;
+    }
+
+    :host([orientation='vertical']) .opacity-open {
+        inset-block: auto 0;
+        inset-inline: calc(100% + 8px) auto;
+    }
+
     /* Narrow screens: a sheet at the foot of the map, over the place timeline-opacity.ts gives it beside the thumb (its inline
        left and top, hence !important), between the standing timeline and the column of the zoom buttons and the menu, above
        Mapbox's legal line (the tour's occlusion and legal checks); a press elsewhere (the Layers button too) closes it, so it
@@ -200,7 +230,8 @@ export const timelineExtraStyles = css`
     /* Forced colours (Windows contrast themes): a button's own pair, its edge in its text colour. */
     @media (forced-colors: active) {
         .edge,
-        .opacity {
+        .opacity,
+        .opacity-open {
             border: 2px solid ButtonText;
             background: ButtonFace;
             color: ButtonText;

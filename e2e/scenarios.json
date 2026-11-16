@@ -3033,6 +3033,28 @@
             "notes": "The owner, 2026-11-15: Safari did not apply the :has() sibling rule; the menu's hcm-toggle marks the frame (data-menu-open). packages/ui/src/viewer/viewer-render.ts, dock-styles.ts; unit test in packages/ui/test/viewer/viewer-zoom.test.ts."
         },
         {
+            "id": "S-V12-HAPPY-IPHONE-OPACITY-BUTTON",
+            "behaviour": "V12",
+            "area": "viewer",
+            "path": "happy",
+            "title": "On an iPhone the open timeline card's Opacity button opens the year's opacity as a modal sheet",
+            "asserts": "WebKit as an iPhone 15 on a year of two layers: the collapsed pill has no Opacity button; once the card is open, a tap on the button named for the year's opacity opens a dialog of that name with three sliders, the first focused",
+            "tier": "e2e-viewer",
+            "status": "exists",
+            "notes": "The owner, 2026-11-16. packages/ui/src/viewer/timeline-opacity.ts (opacityOpener), timeline-dock.ts, opacity-sheet.ts; unit tests in packages/ui/test/viewer/hcm-timeline-opacity.test.ts and timeline-dock.test.ts; tour journey timeline-opacity (e2e/tour/timeline-opacity-states.ts)."
+        },
+        {
+            "id": "S-V12-BAD-IPHONE-OPACITY-BUTTON",
+            "behaviour": "V12",
+            "area": "viewer",
+            "path": "bad",
+            "title": "On an iPhone Esc closes the opacity sheet and a tap outside it does too",
+            "asserts": "WebKit as an iPhone 15 on a year of two layers: the sheet opened from the Opacity button closes on Esc, and again on a tap on the map",
+            "tier": "e2e-viewer",
+            "status": "exists",
+            "notes": "The owner, 2026-11-16. packages/ui/src/viewer/timeline-opacity.ts."
+        },
+        {
             "id": "S-V12-HAPPY-IPHONE-YEAR-OPACITY-HOLD",
             "behaviour": "V12",
             "area": "viewer",

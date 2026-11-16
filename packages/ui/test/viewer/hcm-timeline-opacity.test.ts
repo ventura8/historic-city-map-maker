@@ -72,10 +72,14 @@ describe('the timeline opacity card', () => {
         ]);
     });
 
-    it('happyPath_theKeyboardsFocusShowsItTabReachesItAndEscHidesItBackOnTheThumb', async () => {
+    it('happyPath_EnterOnThePillShowsItTabReachesItAndEscHidesItBackOnTheThumb', async () => {
         const element = await timeline();
         thumb(element).focus();
         await element.updateComplete;
+        expect(card(element), "the focus alone does not open it (the D-pad's path)").toBeNull();
+        thumb(element).dispatchEvent(new KeyboardEvent('keydown', { key: 'Enter', bubbles: true, composed: true }));
+        await element.updateComplete;
+        expect(card(element)).not.toBeNull();
         const input = shadowQuery(element, '.opacity hcm-slider');
 
         shadowQuery(input, '[role="slider"]').focus();
@@ -279,5 +283,40 @@ describe('the timeline opacity card on a long press', () => {
         await element.updateComplete;
         expect(card(element)).toBeNull();
         element.remove();
+    });
+});
+
+describe('the opacity card on a phone', () => {
+    afterEach(() => {
+        document.body.replaceChildren();
+    });
+
+    it('happyPath_aTapEnterALongPressAndTheOpacityButtonAskForTheModalSheet', async () => {
+        const element = await timeline(TWO);
+        element.setAttribute('phone', '');
+        element.requestUpdate();
+        await element.updateComplete;
+        const asked = recordEvents(element, 'hcm-opacity-sheet');
+        pointer(thumb(element), 'pointerdown', 'touch');
+        pointer(thumb(element), 'pointerup', 'touch');
+        thumb(element).dispatchEvent(new KeyboardEvent('keydown', { key: 'Enter', bubbles: true, composed: true }));
+        const opener = shadowQuery(element, '.opacity-open');
+        expect(opener.textContent).toContain('Opacitate: 1977');
+        opener.dispatchEvent(new PointerEvent('pointerdown', { bubbles: true, composed: true }));
+        opener.click();
+        element.holdOpacity();
+        await element.updateComplete;
+        expect(asked).toHaveLength(4);
+        expect(card(element), "no card in the timeline: the sheet is the viewer's").toBeNull();
+    });
+
+    it('badPath_aMouseOverThePillShowsNothingAndTheCollapsedPillHasNoButton', async () => {
+        const element = await timeline();
+        element.setAttribute('phone', '');
+        pointer(thumb(element), 'pointerover', 'mouse');
+        element.collapsed = true;
+        await element.updateComplete;
+        expect(card(element)).toBeNull();
+        expect(element.shadowRoot?.querySelector('.opacity-open')).toBeNull();
     });
 });

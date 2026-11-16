@@ -33,4 +33,71 @@ export const timelineDockStyles = css`
     .frame[data-timeline='vertical'][data-timeline-collapsed]:has(.dock.menu > [open]) .dock.timeline {
         visibility: hidden;
     }
+
+    /* The year's opacity sheet on a phone (opacity-sheet.ts): modal over a transparent scrim like the date menu, at the foot
+       of the viewer above Mapbox's legal line, its sliders a row each. */
+    .opacity-scrim {
+        position: absolute;
+        z-index: 9;
+        inset: 0;
+    }
+
+    .opacity-sheet {
+        position: absolute;
+        z-index: 10;
+        inset: auto var(--hcm-gutter, 16px) calc(var(--hcm-map-chrome, 42px) + env(safe-area-inset-bottom, 0px));
+        display: grid;
+        grid-template-columns: 1fr auto;
+        gap: 8px;
+        align-items: start;
+        box-sizing: border-box;
+        max-inline-size: 480px;
+        margin-inline: auto;
+        padding: 12px 24px;
+        border-radius: var(--md-sys-shape-corner-extra-large, 28px);
+        background: var(--md-sys-color-surface-container-high, Canvas);
+        color: var(--md-sys-color-on-surface, CanvasText);
+        box-shadow: var(--md-sys-elevation-level3, none);
+    }
+
+    .opacity-sliders {
+        display: flex;
+        flex-direction: column;
+        gap: 4px;
+        min-inline-size: 0;
+    }
+
+    .opacity-close {
+        display: grid;
+        place-items: center;
+        inline-size: 48px;
+        block-size: 48px;
+        padding: 0;
+        border: 0;
+        border-radius: var(--md-sys-shape-corner-full, 9999px);
+        background: transparent;
+        color: var(--md-sys-color-on-surface-variant, CanvasText);
+        cursor: pointer;
+    }
+
+    .opacity-close:focus-visible {
+        outline: 3px solid var(--md-sys-color-secondary, Highlight);
+        outline-offset: 2px;
+    }
+
+    .opacity-sheet .opacity-row {
+        display: flex;
+        flex-direction: column;
+    }
+
+    .opacity-sheet .opacity-name {
+        font-size: var(--md-sys-typescale-body-small-size, 12px);
+        line-height: var(--md-sys-typescale-body-small-line-height, 16px);
+    }
+
+    @media (forced-colors: active) {
+        .opacity-sheet {
+            border: 2px solid CanvasText;
+        }
+    }
 `;

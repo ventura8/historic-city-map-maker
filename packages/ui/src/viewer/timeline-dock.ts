@@ -18,12 +18,12 @@
 import { translate, type Layer, type ViewerLocale } from '@hcm/shared';
 import { html, type ReactiveController, type ReactiveControllerHost, type TemplateResult } from 'lit';
 
-import { EMPTY } from './empty.js';
 import type { HcmTimeline, TimelineOrientation } from './hcm-timeline.js';
 import type { YearOpacity } from './timeline-opacity.js';
 import { dateCounts, dateItems, datesOpenEvent, frontOfYear, type DatesOpenDetail } from './timeline-dates.js';
 import type { TimelineStop } from './timeline-model.js';
 import { LongPress } from './long-press.js';
+import { opacitySheet } from './opacity-sheet.js';
 import { PEEK_LEAVE_MS, type DatesPeekDetail } from './timeline-peek.js';
 
 /** The floating controls the date menu keeps clear of (`date-menu-clear.ts`). */
@@ -40,6 +40,13 @@ export class TimelineDock implements ReactiveController {
     dates: DatesOpenDetail | null = null;
     /** The menu open is a peek (a pointer resting on its year), not modal. */
     peek = false;
+    /** The timeline is a phone's (it rests as its pill), as the last render asked (`collapsed`). */
+    phone = false;
+    /** The year's opacity sheet is open (a phone's, `opacity-sheet.ts`). */
+    sheet = false;
+    /** The last render's year opacity, language and opacity handler: what the sheet shows and sends to. */
+    #opacity: Pick<DockView, 'opacity' | 'locale'> | null = null;
+    #onOpacity: (event: CustomEvent) => void = () => undefined;
 
     readonly #host: DockHost;
     /** A finger held on the pill: the card opens with its opacity card (`long-press.ts`). */
@@ -68,7 +75,42 @@ export class TimelineDock implements ReactiveController {
 
     /** Whether a modal menu is open (the frame under it inert); a peek is not. */
     modal(): boolean {
-        return this.dates !== null && !this.peek;
+        return (this.dates !== null && !this.peek) || this.sheet;
+    }
+
+    /** What the timeline of this render shows and sends (`timelineDock`): the opacity sheet uses the same. */
+    remember(view: Pick<DockView, 'opacity' | 'locale'>, onOpacity: (event: CustomEvent) => void): void {
+        this.#opacity = view;
+        this.#onOpacity = onOpacity;
+    }
+
+    /** The timeline asks for the year's opacity sheet (a phone): it opens with the focus on its first slider. */
+    readonly onOpacitySheet = (event: Event): void => {
+        event.stopPropagation();
+        if (!this.#opacity?.opacity) {
+            return;
+        }
+        this.dates = null;
+        this.sheet = true;
+        this.#host.requestUpdate();
+        void this.#host.updateComplete.then(() => {
+            this.#host.renderRoot.querySelector<HTMLElement>('.opacity-sheet hcm-slider')?.focus();
+        });
+    };
+
+    /** Closes the opacity sheet; the focus goes back to the timeline once the frame is no longer inert. */
+    readonly closeSheet = (): void => {
+        this.sheet = false;
+        this.#host.requestUpdate();
+        void this.#host.updateComplete.then(() => {
+            this.#timeline()?.focus();
+        });
+    };
+
+    /** The sheet while it is open and the year has layers: its model (`opacity-sheet.ts`). */
+    sheetModel(): Parameters<typeof opacitySheet>[0] {
+        const view = this.sheet ? this.#opacity : null;
+        return view?.opacity ? { year: view.opacity, locale: view.locale, close: this.closeSheet, send: this.#onOpacity } : null;
     }
 
     /** A pointer rests on a year of several dates, or left it: its peek opens, or closes (gently: after `PEEK_LEAVE_MS`). */
@@ -120,6 +162,7 @@ export class TimelineDock implements ReactiveController {
 
     /** Whether the card shows as its pill now: a phone's timeline (`phone`) that is not open. */
     collapsed(phone: boolean): boolean {
+        this.phone = phone;
         return phone && !this.expanded;
     }
 
@@ -170,6 +213,7 @@ export class TimelineDock implements ReactiveController {
 
     #openDates(detail: DatesOpenDetail): void {
         clearTimeout(this.#closing);
+        this.sheet = false;
         this.peek = false;
         this.dates = detail;
         this.#host.requestUpdate();
@@ -177,10 +221,14 @@ export class TimelineDock implements ReactiveController {
 
     /** B (or the Xbox's emulated GamepadB: the input `close`) over the date menu closes it and keeps the date shown. */
     closedBy(command: string): boolean {
-        if (command !== 'close' || this.dates === null) {
+        if (command !== 'close' || (this.dates === null && !this.sheet)) {
             return false;
         }
-        this.closeDates();
+        if (this.sheet) {
+            this.closeSheet();
+        } else {
+            this.closeDates();
+        }
         return true;
     }
 
@@ -203,7 +251,7 @@ export class TimelineDock implements ReactiveController {
         if (!onMenu) {
             this.closePeek();
         }
-        const inside = path.some((target) => target instanceof Element && (target === dock || target.localName === 'hcm-date-menu'));
+        const inside = path.some((target) => target instanceof Element && (target === dock || isPopup(target)));
         if (this.expanded && !inside) {
             this.#set(false);
         }
@@ -227,6 +275,11 @@ export class TimelineDock implements ReactiveController {
     }
 }
 
+/** The date menu and the opacity sheet and its scrim: presses there are the dock's, not the map's. */
+function isPopup(target: Element): boolean {
+    return target.localName === 'hcm-date-menu' || target.matches('.opacity-sheet, .opacity-scrim');
+}
+
 /** What the dock's template needs from one render of the viewer. */
 export interface DockView {
     readonly stops: readonly TimelineStop[];
@@ -248,6 +301,7 @@ export function timelineDock(
     onYearChange: (event: CustomEvent) => void,
     onOpacity: (event: CustomEvent) => void,
 ): TemplateResult {
+    dock.remember(view, onOpacity);
     return html`<div class="dock timeline" @pointerdown=${dock.pointerDown} @keydown=${dock.onKeyDown}>
         <hcm-timeline
             id="timeline"
@@ -259,16 +313,18 @@ export function timelineDock(
             .collapsed=${view.collapsed}
             .dateCounts=${dateCounts(view.layers)}
             .opacity=${view.opacity}
+            ?phone=${dock.phone}
             ?near-year=${(view.near ?? null) !== null && view.year !== null}
             @hcm-year-change=${onYearChange}
             @hcm-overlay-opacity=${onOpacity}
             @hcm-dates-open=${dock.onDatesOpen}
             @hcm-dates-peek=${dock.onDatesPeek}
+            @hcm-opacity-sheet=${dock.onOpacitySheet}
         ></hcm-timeline>
     </div>`;
 }
 
-/** The date picker of the year the dock asked for (none while closed). */
+/** The date picker of the year the dock asked for, else the year's opacity sheet when it is open (`opacity-sheet.ts`). */
 export function dateMenu(
     view: Pick<DockView, 'locale' | 'layers' | 'orientation'> & { readonly front: string | null },
     dock: TimelineDock,
@@ -276,7 +332,7 @@ export function dateMenu(
 ): TemplateResult {
     const dates = dock.dates;
     if (dates === null) {
-        return EMPTY;
+        return opacitySheet(dock.sheetModel());
     }
     return html`<hcm-date-menu
         .items=${dateItems(view.layers, dates.year, view.locale)}

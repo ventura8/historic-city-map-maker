@@ -200,7 +200,7 @@ test(
     async ({ page, lang }) => {
         await openViewer(page, { lang });
         const thumb = await oldestYear(page);
-        const range = viewer(page).locator('hcm-timeline .opacity [role="slider"]');
+        const range = viewer(page).locator('.opacity-sheet [role="slider"]');
         await expect(range).toBeHidden();
 
         await thumb.tap();
@@ -217,6 +217,9 @@ test(
             await range.press('PageUp');
         }
         await expect(range).toHaveAttribute('aria-valuetext', t(lang, 'layers.opacityValue', { percent: '40' }));
+        // The sheet is modal: Esc closes it and gives the map back before the menu.
+        await range.press('Escape');
+        await expect(range).toBeHidden();
         await openLayers(page, lang);
         await expect(opacitySlider(page, lang, name)).toHaveAttribute('aria-valuenow', '40');
     },
@@ -227,7 +230,7 @@ test(
     { tag: '@S-V12-BAD-IPHONE-YEAR-OPACITY' },
     async ({ page, lang }) => {
         await openViewer(page, { lang });
-        const range = viewer(page).locator('hcm-timeline .opacity [role="slider"]');
+        const range = viewer(page).locator('.opacity-sheet [role="slider"]');
         await openTimelineCard(page);
         const thumb = viewer(page).locator('hcm-timeline .thumb');
         await thumb.tap();
@@ -304,14 +307,14 @@ test(
         await expect(viewer(page).locator('hcm-timeline[fadable]')).toHaveCount(1);
 
         await holdOn(thumb);
-        const ranges = viewer(page).locator('hcm-timeline .opacity [role="slider"]');
+        const ranges = viewer(page).locator('.opacity-sheet [role="slider"]');
         await expect(ranges).toHaveCount(3);
         await expect(ranges.first()).toBeVisible();
         const all = t(lang, 'layers.opacity', { name: t(lang, 'timeline.opacityAll', { year: '1980' }) });
         await expect(ranges.first()).toHaveAttribute('aria-label', all);
         await thumb.dispatchEvent('pointerup', { pointerType: 'touch', bubbles: true, composed: true });
         await expect(ranges).toHaveCount(3);
-        const sheet = await viewer(page).locator('hcm-timeline .opacity').boundingBox();
+        const sheet = await viewer(page).locator('.opacity-sheet').boundingBox();
         const height = page.viewportSize()?.height ?? 0;
         expect(height - ((sheet?.y ?? 0) + (sheet?.height ?? 0)), 'a sheet at the foot, above the legal line').toBeLessThan(80);
 
@@ -327,6 +330,45 @@ test(
 );
 
 test(
+    "On an iPhone the open timeline card's Opacity button opens the year's opacity as a modal sheet",
+    { tag: '@S-V12-HAPPY-IPHONE-OPACITY-BUTTON' },
+    async ({ page, lang }) => {
+        await serveManifest(page, twoDatesOf1980());
+        await openViewer(page, { lang });
+        await callController(page, 'setYear', 1980);
+        const opener = viewer(page).getByRole('button', { name: t(lang, 'layers.opacity', { name: '1980' }), exact: true });
+        await expect(opener, 'none on the collapsed pill').toHaveCount(0);
+        await openTimelineCard(page);
+        await opener.tap();
+        const sheet = page.getByRole('dialog', { name: t(lang, 'layers.opacity', { name: '1980' }), exact: true });
+        await expect(sheet).toBeVisible();
+        await expect(sheet.getByRole('slider')).toHaveCount(3);
+        await expect(sheet.getByRole('slider').first()).toBeFocused();
+    },
+);
+
+test(
+    'On an iPhone Esc closes the opacity sheet and a tap outside it does too',
+    { tag: '@S-V12-BAD-IPHONE-OPACITY-BUTTON' },
+    async ({ page, lang }) => {
+        await serveManifest(page, twoDatesOf1980());
+        await openViewer(page, { lang });
+        await callController(page, 'setYear', 1980);
+        await openTimelineCard(page);
+        const opener = viewer(page).getByRole('button', { name: t(lang, 'layers.opacity', { name: '1980' }), exact: true });
+        const sheet = page.getByRole('dialog', { name: t(lang, 'layers.opacity', { name: '1980' }), exact: true });
+        await opener.tap();
+        await expect(sheet).toBeVisible();
+        await page.keyboard.press('Escape');
+        await expect(sheet).toBeHidden();
+        await opener.tap();
+        await expect(sheet).toBeVisible();
+        await page.touchscreen.tap(200, 200);
+        await expect(sheet).toBeHidden();
+    },
+);
+
+test(
     'On an iPhone a short press on the collapsed pill opens the timeline without the opacity card',
     { tag: '@S-V12-BAD-IPHONE-YEAR-OPACITY-HOLD' },
     async ({ page, lang }) => {
@@ -335,6 +377,6 @@ test(
         await callController(page, 'setYear', 1980);
         await viewer(page).locator('hcm-timeline .thumb').tap();
         await expect(viewer(page).locator('hcm-timeline[collapsed]')).toHaveCount(0);
-        await expect(viewer(page).locator('hcm-timeline .opacity [role="slider"]').first()).toBeHidden();
+        await expect(viewer(page).locator('.opacity-sheet [role="slider"]').first()).toBeHidden();
     },
 );

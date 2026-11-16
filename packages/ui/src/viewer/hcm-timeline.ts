@@ -239,7 +239,7 @@ export class HcmTimeline extends LitElement {
     #markTipping(): void {
         this.removeAttribute('tipping');
         if (this.#tipShows()) {
-            this.setAttribute('tipping', this.#keyboardTip() || (this.tip === null && this.#reveal.shown) ? 'focus' : '');
+            this.setAttribute('tipping', this.#keyboardTip() ? 'focus' : '');
         }
     }
 
