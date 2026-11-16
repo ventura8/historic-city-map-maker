@@ -22,7 +22,7 @@ import { when, withValue } from '../imagery/when.js';
 import { EMPTY } from '../shell/empty.js';
 import { contentText } from '../shell/text.js';
 import { trackAreaFunnels } from '../editing/area-funnel.js';
-import { FullScreenInert } from './full-screen.js';
+import { enterScreen, FullScreenInert, leaveScreen, screenElement } from './full-screen.js';
 import type { GeorefMenuOpen } from './georef-menu-host.js';
 import type * as GeorefMenuChunk from './georef-menu.js';
 import { panes } from './georef-panes.js';
@@ -45,6 +45,7 @@ class HcmGeorefPage extends AreaPage<GeorefViewState, GeorefIntentsPort> {
         ...AreaPage.properties,
         sort: { state: true },
         full: { state: true },
+        fullRefused: { state: true },
         mapCss: { attribute: false },
         menu: { state: true },
     };
@@ -55,6 +56,8 @@ class HcmGeorefPage extends AreaPage<GeorefViewState, GeorefIntentsPort> {
     declare sort: ResidualSort;
     /** M22 (§13.2): the actions, the scan and the map fill the window (Esc leaves it). */
     declare full: boolean;
+    /** The browser refused its own full screen: the page fills the window instead, and says so. */
+    declare fullRefused: boolean;
     /** mapbox-gl.css of the pinned release ('' in tests: no network). */
     declare mapCss: string;
     /** The context menu, where it is open (null: closed). */
@@ -70,6 +73,7 @@ class HcmGeorefPage extends AreaPage<GeorefViewState, GeorefIntentsPort> {
         super();
         this.sort = 'pair';
         this.full = false;
+        this.fullRefused = false;
         this.mapCss = MAPBOX_GL_CSS_URL;
         this.menu = null;
         // Esc anywhere on the page: the half pair goes, else the selected pair is let go. The scan pane handles its own
@@ -77,7 +81,7 @@ class HcmGeorefPage extends AreaPage<GeorefViewState, GeorefIntentsPort> {
         this.addEventListener('keydown', (event) => {
             if (event.key === 'Escape' && !event.defaultPrevented) {
                 this.intents?.cancelHalf();
-                this.full = false;
+                this.#setFull(false);
             }
         });
     }
@@ -86,7 +90,23 @@ class HcmGeorefPage extends AreaPage<GeorefViewState, GeorefIntentsPort> {
         return content.georef;
     }
 
+    /** The user left the browser's full screen by Esc or its own bar: the page goes back in its place. */
+    readonly #onScreenChange = (): void => {
+        if (this.full && !this.fullRefused && screenElement() === null) {
+            this.full = false;
+        }
+    };
+
+    override connectedCallback(): void {
+        super.connectedCallback();
+        document.addEventListener('fullscreenchange', this.#onScreenChange);
+        document.addEventListener('webkitfullscreenchange', this.#onScreenChange);
+    }
+
     override disconnectedCallback(): void {
+        document.removeEventListener('fullscreenchange', this.#onScreenChange);
+        document.removeEventListener('webkitfullscreenchange', this.#onScreenChange);
+        void leaveScreen();
         this.#inert.cover(this, false);
         super.disconnectedCallback();
     }
@@ -117,6 +137,8 @@ class HcmGeorefPage extends AreaPage<GeorefViewState, GeorefIntentsPort> {
         super.updated(changed);
         if (changed.has('full')) {
             this.#inert.cover(this, this.full);
+            // Both panes (the scan and the Mapbox map) follow the new size.
+            window.dispatchEvent(new Event('resize'));
         }
         const saved = this.#newlySaved();
         if (saved !== null) {
@@ -165,10 +187,31 @@ class HcmGeorefPage extends AreaPage<GeorefViewState, GeorefIntentsPort> {
                 this.#addAtCentres();
             },
             full: this.full,
+            fullRefused: this.fullRefused,
             toggleFull: () => {
-                this.full = !this.full;
+                this.#setFull(!this.full);
             },
         };
+    }
+
+    /** On: the browser's own full screen on this page, or the in-page maximise when it refuses; off: both left. */
+    #setFull(on: boolean): void {
+        this.full = on;
+        this.fullRefused = false;
+        if (!on) {
+            void leaveScreen();
+            return;
+        }
+        void enterScreen(this).then((shown) => {
+            // Left (Esc, its button) while the browser was still entering: leave the browser's full screen too.
+            if (shown && !this.full) {
+                void leaveScreen();
+            }
+            this.fullRefused = !shown && this.full;
+            if (!shown) {
+                log.info('the browser refused full screen; the page fills the window instead', { reason: 'fullscreen-denied' });
+            }
+        });
     }
 
     #page(context: GeorefContext, version: GeorefVersionPort): TemplateResult {

@@ -4348,3 +4348,9 @@ Append a numbered entry to *Lessons from this repository* in the task that finds
     - Cause: the sheet slides up as it opens; the spec measured `boundingBox()` once, before the slide ended, and WebKit was slow enough to show it.
     - Fix and pin: the spec waits until two reads of the panel's top agree before measuring; 75 of 75 runs green after.
     - **Measure a moving element only once it has stopped: poll its box until two reads agree.**
+
+744. **The georeferencer's real full screen: shadow DOM retargets `fullscreenElement`, and a fast Esc beats the browser's entry.**
+    - Seen: 2026-11-16, `georeferencer.spec.ts` S-A122-HAPPY-GEOREF-REAL-FULL-SCREEN: the page left full screen at once, and later stayed in the browser's full screen after Esc; the tour's checkers then failed to resize the window.
+    - Cause: `document.fullscreenElement` is the outermost shadow host (the admin shell), never the page itself; Esc arrived while `requestFullscreen` was still pending, so leaving found nothing to exit; Chromium refuses `setWindowBounds` in full screen.
+    - Fix and pin: "left" is `fullscreenElement === null`; a request that resolves after the page already left exits again; the layout checkers run on the in-page cover (the refused path).
+    - **Compare against null, not the element, behind shadow roots, and undo a pending async entry when the user already left.**

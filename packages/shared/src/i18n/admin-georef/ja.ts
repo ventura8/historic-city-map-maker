@@ -26,6 +26,7 @@ export const ja: Readonly<Partial<Record<AdminGeorefKey, string>>> = {
     'adminContent.georef.addPairs': 'ペアを追加',
     'adminContent.georef.fullScreen': 'フルスクリーン',
     'adminContent.georef.leaveFullScreen': 'フルスクリーンを終了',
+    'adminContent.georef.fullScreenRefused': 'ブラウザーが全画面表示を拒否しました。サイト設定で許可するか、F11 を押してください。',
     'adminContent.georef.save': '保存して位置合わせを行う',
     'adminContent.georef.snapNone':
         '画像の位置がずれていると思われる場所に、1～12個の新しいポイントを配置し、それらを位置合わせしてください。',

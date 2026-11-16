@@ -388,7 +388,14 @@ test(
 
 test(
     'The georeferencer goes full screen and back (M22 §13.2)',
-    { tag: ['@S-A122-HAPPY-GEOREF-FULL-SCREEN', '@S-A122-BAD-GEOREF-FULL-SCREEN-LEFT', '@S-A122-BAD-GEOREF-PANES-MISALIGNED'] },
+    {
+        tag: [
+            '@S-A122-HAPPY-GEOREF-FULL-SCREEN',
+            '@S-A122-BAD-GEOREF-FULL-SCREEN-LEFT',
+            '@S-A122-BAD-GEOREF-PANES-MISALIGNED',
+            '@S-A122-HAPPY-GEOREF-REAL-FULL-SCREEN',
+        ],
+    },
     async ({ page, lang, adminWorld, mockApiRequest, upstream }) => {
         const imagery = await readyImagery(
             { emulators: adminWorld.emulators, api: mockApiRequest, upstream },
@@ -405,17 +412,47 @@ test(
         await enter.click();
         const leave = page.getByRole('button', { name: georefText(lang, 'adminContent.georef.leaveFullScreen') });
         await expect(leave).toBeVisible();
+        // The browser's own full screen, not only the page over the window (the owner, 2026-11-16).
+        await expect.poll(() => page.evaluate(() => document.fullscreenElement !== null)).toBe(true);
         await expect(page.getByRole('button', { name: georefText(lang, 'adminContent.georef.save') })).toBeVisible();
         await expectPanesAligned(page, lang);
-        await expectStateSound(page, adminVisit('georef.full-screen', lang));
-        // A tablet on its side, a wide screen and the owner's (about 2000 × 1125): the panes still line up in full screen.
-        await expectPanesAlignedAtSizes(page, lang);
 
         // Its own button leaves it; Esc does too.
         await leave.click();
         await expect(enter).toBeVisible();
+        await expect.poll(() => page.evaluate(() => document.fullscreenElement)).toBeNull();
         await enter.click();
         await page.keyboard.press('Escape');
         await expect(enter).toBeVisible();
+        await expect.poll(() => page.evaluate(() => document.fullscreenElement)).toBeNull();
+    },
+);
+
+test(
+    'A browser that refuses full screen: the georeferencer fills the window and says why',
+    { tag: ['@S-A122-BAD-GEOREF-FULL-SCREEN-REFUSED', '@S-A122-BAD-GEOREF-PANES-MISALIGNED'] },
+    async ({ page, lang, adminWorld, mockApiRequest, upstream }) => {
+        const imagery = await readyImagery(
+            { emulators: adminWorld.emulators, api: mockApiRequest, upstream },
+            adminWorld.accounts.owner.uid,
+        );
+        await imagery.script({ attempts: [{ outcome: 'no-match' }] });
+        await page.addInitScript(() => {
+            Element.prototype.requestFullscreen = () => Promise.reject(new TypeError('denied by a policy'));
+        });
+        await openGeoreferencer(page, lang);
+
+        await page.getByRole('button', { name: georefText(lang, 'adminContent.georef.fullScreen') }).click();
+
+        await expect(page.getByText(georefText(lang, 'adminContent.georef.fullScreenRefused'))).toBeVisible();
+        await expect(page.getByRole('button', { name: georefText(lang, 'adminContent.georef.leaveFullScreen') })).toBeVisible();
+        expect(await page.evaluate(() => document.fullscreenElement)).toBeNull();
+        // The tour's checkers resize the window, which the browser's real full screen does not allow: the full-screen layout is
+        // checked here, over the window, where it is the same page with the note.
+        await expectStateSound(page, adminVisit('georef.full-screen', lang));
+        await expectStateSound(page, adminVisit('georef.full-screen-refused', lang));
+        // A tablet on its side, a wide screen and the owner's (about 2000 × 1125): the panes still line up over the window (the
+        // browser's real full screen cannot be resized, so the sizes are walked with the page covering the window instead).
+        await expectPanesAlignedAtSizes(page, lang);
     },
 );

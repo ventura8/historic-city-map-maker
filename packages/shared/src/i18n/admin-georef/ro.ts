@@ -32,6 +32,7 @@ export const ro = {
     'adminContent.georef.addAtCentres': 'Adaugă la centre',
     'adminContent.georef.fullScreen': 'Ecran complet',
     'adminContent.georef.leaveFullScreen': 'Ieși din ecranul complet',
+    'adminContent.georef.fullScreenRefused': 'Browserul a refuzat ecranul complet: permite-l din setările site-ului sau apasă F11.',
     'adminContent.georef.save': 'Salvează și georeferențiază',
     'adminContent.georef.snap': 'Potrivește punctele mele',
     'adminContent.georef.snapNone': 'Pune între unu și douăsprezece puncte noi unde imaginea pare deplasată, apoi potrivește-le.',

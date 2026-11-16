@@ -20013,6 +20013,28 @@
             "notes": "M22 §13.2. Tests: packages/ui/test/admin/georef/georef-page.test.ts."
         },
         {
+            "id": "S-A122-HAPPY-GEOREF-REAL-FULL-SCREEN",
+            "behaviour": "A122",
+            "area": "admin",
+            "path": "happy",
+            "title": "Full screen asks the browser for its real full screen: the georeferencer fills the whole screen, browser bars and admin shell hidden, both panes resized; Esc (fullscreenchange) puts it back",
+            "asserts": "document.fullscreenElement is the georeferencer page; after leaving it is null and data-full is gone",
+            "tier": "e2e-admin",
+            "status": "exists",
+            "notes": "the owner, 2026-11-16: full screen must really go full screen. Tests: packages/ui/test/admin/georef/georef-page.test.ts, e2e/admin/specs/imagery/georeferencer.spec.ts."
+        },
+        {
+            "id": "S-A122-BAD-GEOREF-FULL-SCREEN-REFUSED",
+            "behaviour": "A122",
+            "area": "admin",
+            "path": "bad",
+            "title": "The browser refuses full screen: the page fills the window instead and says why and how to allow it",
+            "asserts": "data-full stays on the page and the full-screen-refused note shows",
+            "tier": "e2e-admin",
+            "status": "exists",
+            "notes": "the owner, 2026-11-16: full screen must really go full screen. Tests: packages/ui/test/admin/georef/georef-page.test.ts, e2e/admin/specs/imagery/georeferencer.spec.ts."
+        },
+        {
             "id": "S-A122-BAD-GEOREF-PANES-MISALIGNED",
             "behaviour": "A122",
             "area": "admin",

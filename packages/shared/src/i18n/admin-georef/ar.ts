@@ -26,6 +26,7 @@ export const ar: Readonly<Partial<Record<AdminGeorefKey, string>>> = {
     'adminContent.georef.addAtCentres': 'أضف في المنتصف',
     'adminContent.georef.fullScreen': 'شاشة كاملة',
     'adminContent.georef.leaveFullScreen': 'الخروج من وضع ملء الشاشة',
+    'adminContent.georef.fullScreenRefused': 'رفض المتصفح ملء الشاشة: اسمح به في إعدادات الموقع أو اضغط F11.',
     'adminContent.georef.snapNone': 'ضع من نقطة إلى اثنتي عشرة نقطة جديدة في الأماكن التي تبدو فيها الصورة غير متطابقة، ثم قم بمطابقتها.',
     'adminContent.georef.snapUnavailable': 'لم يتم تحميل عملية تحديد النقاط. تحقق من الاتصال وحاول مرة أخرى.',
     'adminContent.georef.mapUnavailable': 'لم يتم تحميل خريطة هذه النسخة: تعرض المعاينة مدى تطابق الأزواج.',

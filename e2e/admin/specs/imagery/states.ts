@@ -218,6 +218,10 @@ export const IMAGERY_STATES = {
         title: 'Georeferencer: full screen, the actions above the scan and the map',
         visit: 'specs/imagery/georeferencer.spec.ts',
     },
+    'georef.full-screen-refused': {
+        title: 'Georeferencer: the browser refused full screen, the page fills the window and says how to allow it',
+        visit: 'specs/imagery/georeferencer.spec.ts',
+    },
     'georef.rmse-over': {
         title: 'Georeferencer: an error over the threshold, the warning',
         visit: 'specs/imagery/georeferencer.spec.ts',

@@ -27,6 +27,7 @@ export const fr: Readonly<Partial<Record<AdminGeorefKey, string>>> = {
     'adminContent.georef.addAtCentres': 'Ajouter au centre',
     'adminContent.georef.fullScreen': 'Plein écran',
     'adminContent.georef.leaveFullScreen': 'Quitter le mode plein écran',
+    'adminContent.georef.fullScreenRefused': 'Le navigateur a refusé le plein écran : autorisez-le pour ce site, ou appuyez sur F11.',
     'adminContent.georef.save': 'Enregistrer et géoréférencer',
     'adminContent.georef.snapNone': 'Repérez entre un et douze nouveaux points là où l’image semble décalée, puis fusionnez-les.',
     'adminContent.georef.snapUnavailable': 'Impossible de charger la fonction de repérage des points. Vérifiez la connexion et réessayez.',

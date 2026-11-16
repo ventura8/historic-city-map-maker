@@ -1,5 +1,5 @@
 import { axeViolations } from '@hcm/test-support/axe';
-import { afterEach, beforeAll, describe, expect, it } from 'vitest';
+import { afterEach, beforeAll, describe, expect, it, vi } from 'vitest';
 
 import type { GeorefIntentsPort, GeorefViewState } from '../../../src/admin/georef/georef-port.js';
 import { surroundings } from '../../../src/admin/georef/full-screen.js';
@@ -288,5 +288,55 @@ describe('<hcm-georef-page>: full screen (M22)', () => {
         expect(inert.length).toBeGreaterThan(0);
         expect(inert.every(Boolean)).toBe(true);
         expect(document.querySelectorAll('[inert]')).toHaveLength(0);
+    });
+
+    it('happyPath_theBrowserFullScreenAndItsEscLeaveThePage @S-A122-HAPPY-GEOREF-REAL-FULL-SCREEN', async () => {
+        vi.restoreAllMocks();
+        const { element } = await georefPage(georefState());
+        const request = vi.spyOn(element, 'requestFullscreen').mockResolvedValue(undefined);
+
+        click(button(element, 'Full screen'));
+        await updated(element);
+        await Promise.resolve();
+        const asked = request.mock.calls.length;
+        document.dispatchEvent(new Event('fullscreenchange'));
+        await updated(element);
+
+        expect(asked).toBe(1);
+        expect(deep(element, '.page').hasAttribute('data-full')).toBe(false);
+        expect(deepText(element)).not.toContain('refused full screen');
+    });
+
+    it('badPath_refusedFullScreenFillsTheWindowAndSaysSo @S-A122-BAD-GEOREF-FULL-SCREEN-REFUSED', async () => {
+        const { element } = await georefPage(georefState());
+        vi.spyOn(element, 'requestFullscreen').mockRejectedValue(new TypeError('denied'));
+
+        click(button(element, 'Full screen'));
+        await updated(element);
+        await new Promise((resolve) => setTimeout(resolve, 0));
+        await updated(element);
+        document.dispatchEvent(new Event('fullscreenchange'));
+        await updated(element);
+
+        expect(deep(element, '.page').hasAttribute('data-full')).toBe(true);
+        expect(deepText(element)).toContain('refused full screen');
+    });
+
+    it('badPath_leftWhileTheBrowserWasStillEnteringLeavesItsFullScreenToo', async () => {
+        vi.restoreAllMocks();
+        const { element } = await georefPage(georefState());
+        let finish: () => void = () => undefined;
+        vi.spyOn(element, 'requestFullscreen').mockReturnValue(new Promise<void>((resolve) => (finish = resolve)));
+        vi.spyOn(document, 'fullscreenElement', 'get').mockReturnValue(element);
+        const exit = vi.spyOn(document, 'exitFullscreen').mockResolvedValue(undefined);
+
+        click(button(element, 'Full screen'));
+        await updated(element);
+        element.dispatchEvent(new KeyboardEvent('keydown', { key: 'Escape', bubbles: true }));
+        finish();
+        await new Promise((resolve) => setTimeout(resolve, 0));
+
+        expect(exit).toHaveBeenCalled();
+        expect(deep(element, '.page').hasAttribute('data-full')).toBe(false);
     });
 });

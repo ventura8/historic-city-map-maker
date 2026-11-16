@@ -5,7 +5,7 @@
  * preview's switch and opacity.
  */
 import { GEOREF_TRANSFORMS, type GeorefTransform, type UiLocale } from '@hcm/shared';
-import { html, type TemplateResult } from 'lit';
+import { html, nothing, type TemplateResult } from 'lit';
 
 import { numberText, pluralOf } from '../imagery/imagery-text.js';
 import { when, withValue } from '../imagery/when.js';
@@ -27,6 +27,8 @@ export interface GeorefContext {
     readonly addAtCentres: () => void;
     /** M22 (§13.2): the scan and the map fill the window, the actions above them. */
     readonly full: boolean;
+    /** The browser refused its full screen: the page fills the window instead. */
+    readonly fullRefused?: boolean;
     readonly toggleFull: () => void;
 }
 
@@ -237,6 +239,11 @@ export function tools(context: GeorefContext): TemplateResult {
             ${saveButtons(context)}
         </div>
         <p class="note" role="status">${halfText(locale, view)}</p>
+        ${
+            context.fullRefused === true
+                ? html`<p class="note" data-state="full-refused">${contentText(locale, 'adminContent.georef.fullScreenRefused')}</p>`
+                : nothing
+        }
         ${failure(context)}`;
 }
 

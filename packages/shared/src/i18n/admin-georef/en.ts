@@ -31,6 +31,7 @@ export const en: Readonly<Record<AdminGeorefKey, string>> = {
     'adminContent.georef.addAtCentres': 'Add at the centres',
     'adminContent.georef.fullScreen': 'Full screen',
     'adminContent.georef.leaveFullScreen': 'Leave full screen',
+    'adminContent.georef.fullScreenRefused': 'The browser refused full screen: allow it in the site settings, or press F11.',
     'adminContent.georef.save': 'Save and georeference',
     'adminContent.georef.snap': 'Snap my points',
     'adminContent.georef.snapNone': 'Place one to twelve new points where the image looks off, then snap them.',
