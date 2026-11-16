@@ -57,6 +57,22 @@ describe('<hcm-compass>', () => {
         expect(shadowQuery(compass, 'svg').style.transform).toBe('rotate(-270.4deg)');
     });
 
+    it('happyPath_theNorthAndSouthTrianglesAreTheSameSizeMirrored', async () => {
+        const compass = await compassWith(new FakeStore(readyState()));
+        const north = shadowQuery(compass, 'path.north') as unknown as SVGPathElement;
+        const south = shadowQuery(compass, 'path.south') as unknown as SVGPathElement;
+        const [n, s] = [north.getBBox(), south.getBBox()];
+        expect(n.width).toBeCloseTo(s.width, 5);
+        expect(n.height).toBeCloseTo(s.height, 5);
+        // Mirrored about the shared base: the north apex as far above it as the south apex below.
+        expect(n.y + n.height).toBeCloseTo(s.y, 5);
+        expect(getComputedStyle(north).strokeWidth).toBe(getComputedStyle(south).strokeWidth);
+        // The N sits inside the north triangle.
+        const letter = (shadowQuery(compass, 'text.letter') as unknown as SVGTextElement).getBBox();
+        expect(letter.y).toBeGreaterThanOrEqual(n.y);
+        expect(letter.y + letter.height).toBeLessThanOrEqual(n.y + n.height);
+    });
+
     it('happyPath_englishNameAndDescription', async () => {
         const store = new FakeStore(readyState());
         store.camera = { bearing: 12, pitch: 0 };

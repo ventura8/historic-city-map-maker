@@ -98,11 +98,16 @@ export class HcmCompass extends LitElement {
                 dominant-baseline: central;
             }
 
+            /* The two halves are one triangle mirrored, with the same stroke, so they draw the same size (the owner, 2026-11-16). */
+            .north,
             .south {
-                fill: none;
                 stroke: currentcolor;
                 stroke-width: 1.5;
                 stroke-linejoin: round;
+            }
+
+            .south {
+                fill: none;
             }
 
             .north {
