@@ -46,7 +46,10 @@ test(
     'A version its own job cancelled is folded apart, and Remove deletes it after a warning',
     { tag: ['@S-A190-HAPPY', '@S-A191-HAPPY'] },
     async ({ page, lang, adminWorld, mockApiRequest, upstream }) => {
-        const imagery = await readyImagery({ emulators: adminWorld.emulators, api: mockApiRequest, upstream }, adminWorld.accounts.owner.uid);
+        const imagery = await readyImagery(
+            { emulators: adminWorld.emulators, api: mockApiRequest, upstream },
+            adminWorld.accounts.owner.uid,
+        );
         await seedCancelled(imagery, 'snap-1', 'cancelled');
         await openWork(page, lang);
 
@@ -71,7 +74,10 @@ test(
     'No cancelled version shows no group, and a refused Remove is said while the row stays',
     { tag: ['@S-A190-BAD-NONE', '@S-A191-BAD-REFUSED'] },
     async ({ page, lang, adminWorld, mockApiRequest, upstream, consoleErrors }) => {
-        const imagery = await readyImagery({ emulators: adminWorld.emulators, api: mockApiRequest, upstream }, adminWorld.accounts.owner.uid);
+        const imagery = await readyImagery(
+            { emulators: adminWorld.emulators, api: mockApiRequest, upstream },
+            adminWorld.accounts.owner.uid,
+        );
         await openWork(page, lang);
         await expect(page.getByText(imageryText(lang, 'adminContent.imagery.noWork'))).toBeVisible({ timeout: FUNCTIONS_TIMEOUT_MS });
         await expect(group(page)).toHaveCount(0);
