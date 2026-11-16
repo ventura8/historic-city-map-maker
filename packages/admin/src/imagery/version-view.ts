@@ -119,6 +119,8 @@ export interface VersionView {
     } | null;
     /** Finding of 2026-11-14: an archive map, offered **Join with…**. */
     readonly archiveMap: boolean;
+    /** Whether this version is cancelled and can be removed. */
+    readonly cancelled: boolean;
 }
 
 /** M16: the public archive a published version is drawn from (none once its grace ended and it was removed). */
@@ -231,6 +233,7 @@ export function versionViewOf(doc: Stored<LayerVersionDoc>): VersionView {
         archiveMap: version.source?.kind === 'archive',
         ...helpFlagsOf(version),
         rights: rightsOf(version.rights),
+        cancelled: version.state === 'cancelled',
     };
 }
 
