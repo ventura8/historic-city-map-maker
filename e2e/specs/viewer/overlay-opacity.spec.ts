@@ -14,8 +14,7 @@ import {
     type ScreenPoint,
 } from '../../support/map.js';
 import { expect, test } from '../../support/test.js';
-import { openLayers,
-    openPhotoOptions, openViewer, opacitySlider, t, visibilitySwitch } from '../../support/viewer.js';
+import { openLayers, openPhotoOptions, openViewer, opacitySlider, t, visibilitySwitch } from '../../support/viewer.js';
 
 /**
  * Live overlay opacity (behaviour V22, PLAN Addendum 3): every overlay of the Layers panel (a historical layer, the

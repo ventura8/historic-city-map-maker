@@ -464,7 +464,11 @@ describe('<hcm-layer-panel>: the Photos switch (design B)', () => {
             photosNear: 25,
             overlays: withOverlayVisibility(overlaysFromManifest(testManifest()), 'photos', false),
         });
-        const photos = shadowQuery(element, '.pinned hcm-photos-control') as HTMLElement & { visible: boolean; near: number | null; opacity: number };
+        const photos = shadowQuery(element, '.pinned hcm-photos-control') as HTMLElement & {
+            visible: boolean;
+            near: number | null;
+            opacity: number;
+        };
 
         expect(photos.visible).toBe(false);
         expect(photos.near).toBe(25);

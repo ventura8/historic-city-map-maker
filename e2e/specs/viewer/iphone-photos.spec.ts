@@ -55,7 +55,11 @@ test(
         await opacity.focus();
         await opacity.press('PageDown');
         await expect.poll(() => hashParam(page, 'op')).toBe('photos:90');
-        await expect(viewer(page).locator('hcm-layer-panel hcm-overlay-list').getByRole('switch', { name: t(lang, 'layers.toggle', { name: t(lang, 'layers.photos') }) })).toHaveCount(0);
+        await expect(
+            viewer(page)
+                .locator('hcm-layer-panel hcm-overlay-list')
+                .getByRole('switch', { name: t(lang, 'layers.toggle', { name: t(lang, 'layers.photos') }) }),
+        ).toHaveCount(0);
         await page.keyboard.press('Escape');
         await expect(chevron).toHaveAttribute('aria-expanded', 'false');
     },

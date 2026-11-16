@@ -3,8 +3,15 @@ import type { Locale } from '@hcm/shared';
 
 import { sitePath } from '../../support/site.js';
 import { expect, test } from '../../support/test.js';
-import { callController, chooseMenuItem, openLayers,
-    openPhotoOptions, opacitySlider, t, waitForEngineEvent } from '../../support/viewer.js';
+import {
+    callController,
+    chooseMenuItem,
+    openLayers,
+    openPhotoOptions,
+    opacitySlider,
+    t,
+    waitForEngineEvent,
+} from '../../support/viewer.js';
 
 /**
  * The page's meta Content Security Policy (behaviour V16, bad path; docs/research/design-review-security-cost.md §1.8):
