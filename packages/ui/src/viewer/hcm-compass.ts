@@ -168,9 +168,9 @@ export class HcmCompass extends LitElement {
                 aria-describedby="heading"
             >
                 <svg viewBox="0 0 24 24" aria-hidden="true" ${cssProperties(needle)}>
-                    <path class="north" d="M12 1 L18.5 14 H5.5 Z"></path>
-                    <path class="south" d="M12 23 L18.5 14 H5.5 Z"></path>
-                    <text class="letter" x="12" y="9.8">N</text>
+                    <path class="north" d="M12 1 L18.5 12 H5.5 Z"></path>
+                    <path class="south" d="M12 23 L18.5 12 H5.5 Z"></path>
+                    <text class="letter" x="12" y="8.2">N</text>
                 </svg>
             </button>
             <span id="heading" class="visually-hidden">${compassDescription(this.locale, this.camera)}</span>`;
