@@ -63,7 +63,7 @@ export const timelineDockStyles = css`
     .opacity-sliders {
         display: flex;
         flex-direction: column;
-        gap: 4px;
+        gap: 8px;
         min-inline-size: 0;
     }
 
@@ -85,12 +85,12 @@ export const timelineDockStyles = css`
         outline-offset: 2px;
     }
 
-    .opacity-sheet .opacity-row {
+    .opacity-sliders .opacity-row {
         display: flex;
         flex-direction: column;
     }
 
-    .opacity-sheet .opacity-name {
+    .opacity-sliders .opacity-name {
         font-size: var(--md-sys-typescale-body-small-size, 12px);
         line-height: var(--md-sys-typescale-body-small-line-height, 16px);
     }

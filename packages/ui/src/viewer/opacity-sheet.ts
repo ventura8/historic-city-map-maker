@@ -39,6 +39,11 @@ function keepTab(event: KeyboardEvent): void {
     next?.focus();
 }
 
+/** The year's sliders for the date menu's side (`hcm-date-menu.ts`): the same rows, sent through the dock. */
+export function sliderPanel(year: YearOpacity, locale: ViewerLocale, send: (event: CustomEvent) => void): TemplateResult {
+    return html`<div class="opacity-sliders">${opacitySliders(year, locale, relay(send))}</div>`;
+}
+
 /** The scrim and the sheet, or nothing while closed. */
 export function opacitySheet(model: OpacitySheetModel | null): TemplateResult {
     if (model === null) {

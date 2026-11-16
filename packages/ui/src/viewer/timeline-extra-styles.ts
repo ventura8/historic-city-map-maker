@@ -123,6 +123,39 @@ export const timelineExtraStyles = css`
         box-shadow: var(--md-sys-elevation-level2, none);
     }
 
+    /* The caret under a lying timeline's card, over the selected year's pill (--hcm-caret, timeline-opacity.ts). */
+    :host(:not([orientation='vertical'])) .opacity::after {
+        position: absolute;
+        inset-block-end: -7px;
+        inset-inline-start: var(--hcm-caret, 50%);
+        box-sizing: border-box;
+        inline-size: 12px;
+        block-size: 12px;
+        border: solid var(--md-sys-color-outline-variant, CanvasText);
+        border-width: 0 1px 1px 0;
+        background: var(--md-sys-color-surface-container-highest, Canvas);
+        content: '';
+        pointer-events: none;
+        translate: -50% 0;
+        rotate: 45deg;
+    }
+
+    :host(:dir(rtl):not([orientation='vertical'])) .opacity::after {
+        translate: 50% 0;
+    }
+
+    /* Narrow screens: the card is a sheet at the foot (below), with no pill to point at. */
+    @media (width < 600px) {
+        :host(:not([orientation='vertical'])) .opacity::after {
+            display: none;
+        }
+    }
+
+    /* The year's date menu is open: its sliders sit beside it (hcm-date-menu.ts), not this card (one of each, no overlap). */
+    :host([dates-open]) .opacity {
+        display: none;
+    }
+
     .opacity[hidden] {
         display: none;
     }
@@ -146,9 +179,11 @@ export const timelineExtraStyles = css`
         content: '';
     }
 
-    /* A year of several layers: "all" first, then a row per layer, each its date above its slider. */
+    /* A year of several layers: "all" first, then a row per layer, each its date above its slider; 8 px apart, so two
+       handles at the same value keep WCAG 2.5.8's 24 px of space (axe, the tour at 1440 px). */
     .opacity.several {
         flex-direction: column;
+        gap: 8px;
         align-items: stretch;
         inline-size: 240px;
         padding-block: 8px;

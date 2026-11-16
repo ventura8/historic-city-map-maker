@@ -11,12 +11,16 @@
  * stays where it was, the frame stays live. The mouse entering or leaving it says so (`hcm-date-menu-pointer`), so the dock
  * keeps it open on the way from the year; a finger sliding over it marks the date under it (`touchAt`) and lifting picks it.
  *
+ * With `side` (a menu of the selected year, a peek too) the year's opacity sliders, slotted, sit beside the menu, centred on it,
+ * or under it on a phone (`stacked`), placed by `date-menu-side.ts`; Tab goes from the dates to them, Esc in them closes.
+ *
  * Events (viewer-internal): `hcm-date-pick` (`{layerId}`), `hcm-close`, `hcm-date-menu-pointer` (`{inside}`).
  */
 import { LitElement, css, html, type PropertyValues, type TemplateResult } from 'lit';
 
 import { EMPTY } from './empty.js';
 import { clearOf } from './date-menu-clear.js';
+import { placeSide } from './date-menu-side.js';
 import { closeEvent } from './sheet-frame.js';
 import { baseStyles } from './shared-styles.js';
 import type { DateItem, DatesOpenDetail } from './timeline-dates.js';
@@ -78,6 +82,8 @@ export class HcmDateMenu extends LitElement {
         selected: { attribute: false },
         label: { type: String },
         anchor: { attribute: false },
+        side: { type: Boolean },
+        stacked: { type: Boolean },
         avoid: { attribute: false },
         vertical: { type: Boolean },
         peek: { type: Boolean },
@@ -111,6 +117,20 @@ export class HcmDateMenu extends LitElement {
                 padding-block: 8px;
                 overflow: auto;
                 border-radius: var(--md-sys-shape-corner-extra-small);
+                background: var(--md-sys-color-surface-container);
+                color: var(--md-sys-color-on-surface);
+                box-shadow: var(--md-sys-elevation-level2);
+                pointer-events: auto;
+            }
+
+            .side {
+                position: absolute;
+                display: flex;
+                flex-direction: column;
+                box-sizing: border-box;
+                inline-size: 240px;
+                padding: 8px 16px;
+                border-radius: var(--md-sys-shape-corner-large);
                 background: var(--md-sys-color-surface-container);
                 color: var(--md-sys-color-on-surface);
                 box-shadow: var(--md-sys-elevation-level2);
@@ -165,7 +185,8 @@ export class HcmDateMenu extends LitElement {
 
             /* Forced colours drop the menu's fill and shadow: an edge keeps it apart from the map. */
             @media (forced-colors: active) {
-                .menu {
+                .menu,
+                .side {
                     border: 1px solid CanvasText;
                 }
             }
@@ -184,6 +205,10 @@ export class HcmDateMenu extends LitElement {
     declare vertical: boolean;
     /** Shown by a resting pointer, not by selecting the year: not modal. */
     declare peek: boolean;
+    /** The year's opacity sliders are slotted: they show beside the menu (not on a peek). */
+    declare side: boolean;
+    /** On a phone: the sliders go under the menu, one sheet. */
+    declare stacked: boolean;
 
     constructor() {
         super();
@@ -194,6 +219,8 @@ export class HcmDateMenu extends LitElement {
         this.avoid = () => [];
         this.vertical = false;
         this.peek = false;
+        this.side = false;
+        this.stacked = false;
     }
 
     override render(): TemplateResult {
@@ -211,8 +238,23 @@ export class HcmDateMenu extends LitElement {
                 @pointerleave=${this.#onPointer}
             >
                 ${this.items.map((item) => this.#item(item))}
-            </div>`;
+            </div>
+            ${
+                this.side
+                    ? html`<div class="side" @keydown=${this.#onSideKey} @pointerenter=${this.#onPointer} @pointerleave=${this.#onPointer}>
+                          <slot></slot>
+                      </div>`
+                    : EMPTY
+            }`;
     }
+
+    /** Esc in the sliders closes the menu as in the dates. */
+    readonly #onSideKey = (event: KeyboardEvent): void => {
+        if (event.key === 'Escape') {
+            event.preventDefault();
+            this.#close();
+        }
+    };
 
     /** The modal menu's scrim, which takes a press anywhere else and closes it; a peek has none. */
     #scrim(): TemplateResult {
@@ -268,6 +310,10 @@ export class HcmDateMenu extends LitElement {
         const origin = clearOf(wanted, [anchor, ...this.avoid().map(local)], host, LEGAL_STRIP);
         menu.style.setProperty('left', `${String(origin.x)}px`);
         menu.style.setProperty('top', `${String(origin.y)}px`);
+        const sliders = this.renderRoot.querySelector<HTMLElement>('.side');
+        if (sliders !== null) {
+            placeSide(sliders, { ...origin, ...size }, host, this.stacked);
+        }
     }
 
     #side(): Side {

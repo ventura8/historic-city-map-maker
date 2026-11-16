@@ -307,19 +307,11 @@ function opacityOpener(year: YearOpacity, locale: ViewerLocale, reveal: OpacityR
     </button>`;
 }
 
-/** The card's centre (px from the timeline's left): past the thumb's end side, or its start side where the end has no room. */
-function besideX(centreX: number, card: { readonly reach: number; readonly width: number; readonly left: number }, rtl: boolean): number {
-    const { reach, width, left } = card;
-    const fits = (x: number): boolean => x - width / 2 + left >= 8 && x + width / 2 + left <= innerWidth - 8;
-    const [first, second] = rtl ? [centreX - reach, centreX + reach] : [centreX + reach, centreX - reach];
-    return [first, second].find(fits) ?? first;
-}
-
 /**
- * Puts the card above the thumb and past its end (before it right to left; beside a standing timeline), clear of the
- * card's ends and the viewport's edges (`placeTip`). Never straight above the thumb: Tab goes from the thumb to the card,
- * and a stop straight above would be a step back up the column (the tour's focus order). Where the end side has no
- * room it goes to the other side.
+ * Puts the card centred straight above the thumb (beside a standing timeline), clamped inside the card's ends and the
+ * viewport's edges (`placeTip`; the owner, 2026-11-16), its caret (`--hcm-caret`) over the thumb's centre wherever the
+ * clamp moved the card. Tab from the thumb to the card's kit sliders crosses into their own shadow roots, so the step up
+ * is not a step back up one component's column (the tour's focus order).
  */
 export function placeOpacityCard(
     host: HTMLElement & OpacityHost & { readonly opacity: YearOpacity | null },
@@ -337,9 +329,11 @@ export function placeOpacityCard(
     const mark = thumb.getBoundingClientRect();
     const size = { width: card.offsetWidth, height: card.offsetHeight };
     const centreX = mark.left + mark.width / 2 - box.left;
-    const x = vertical ? centreX : besideX(centreX, { reach: mark.width / 2 + size.width / 2 + 4, width: size.width, left: box.left }, rtl);
-    const anchor = { x, y: mark.top + mark.height / 2 - box.top };
+    const anchor = { x: centreX, y: mark.top + mark.height / 2 - box.top };
     const place = placeTip(anchor, size, box, { width: innerWidth, height: innerHeight, rtl, vertical });
     card.style.left = `${String(place.left)}px`;
+    // The caret's place from the card's inline start (its right edge right to left).
+    const caret = rtl ? place.left + size.width - centreX : centreX - place.left;
+    card.style.setProperty('--hcm-caret', `${String(caret)}px`);
     card.style.top = `${String(place.top - (vertical ? 0 : mark.height / 2))}px`;
 }

@@ -42,7 +42,9 @@ async function openCard(page: Page, lang: Locale): Promise<void> {
         await page.mouse.move(0, 0);
         await viewer(page).locator('hcm-timeline .thumb').hover();
     }
-    const sliders = viewer(page).locator('hcm-timeline .opacity:not([hidden]) [role="slider"], .opacity-sheet [role="slider"]');
+    const sliders = viewer(page).locator(
+        'hcm-timeline:not([dates-open]) .opacity:not([hidden]) [role="slider"], .opacity-sheet [role="slider"], hcm-date-menu .opacity-sliders [role="slider"]',
+    );
     await expect(sliders).toHaveCount(3);
     await expect(sliders.first()).toHaveAttribute(
         'aria-label',
@@ -54,7 +56,7 @@ async function openCard(page: Page, lang: Locale): Promise<void> {
 
 export const TIMELINE_OPACITY_STATES = {
     'timeline-opacity-several': {
-        title: 'The opacity card of a year with two layers: "all" first, then a slider per layer by date',
+        title: 'The opacity card of a year with two layers: "all" first, then a slider per layer by date (beside its dates on a desktop)',
         enter: async ({ page, lang }: TimelineOpacityTour) => {
             await openCard(page, lang);
         },

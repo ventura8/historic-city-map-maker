@@ -60,6 +60,14 @@ describe('the timeline opacity card', () => {
         const slider = shadowQuery(element, '.opacity hcm-slider') as HTMLElement & { value: number; label: string; valueText: string };
         await (slider as unknown as { updateComplete: Promise<unknown> }).updateComplete;
         expect(slider.label).toBe('Opacitate: Bucharest 1977');
+        // Centred straight above the pill (clamped inside the viewport), its caret over the pill's centre.
+        const box = shadowQuery(element, '.opacity').getBoundingClientRect();
+        const pill = thumb(element).getBoundingClientRect();
+        const caret = Number.parseFloat(shadowQuery(element, '.opacity').style.getPropertyValue('--hcm-caret'));
+        // (A narrow test window shows it as the sheet at the foot instead: no pill to point at.)
+        const narrow = matchMedia('(width < 600px)').matches;
+        expect(narrow || Math.abs(box.left + caret - (pill.left + pill.width / 2)) < 1).toBe(true);
+        expect(narrow || box.bottom < pill.top).toBe(true);
         expect(slider.valueText).toBe('80 %');
         expect(slider.value).toBe(80);
 

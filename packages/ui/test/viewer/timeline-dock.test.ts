@@ -328,6 +328,16 @@ describe('<hcm-map-viewer>: the year opacity sheet on a phone', () => {
         await mounted.element.updateComplete;
         expect(mounted.element.shadowRoot?.querySelector('hcm-date-menu')).not.toBeNull();
         expect(mounted.element.shadowRoot?.querySelector('.opacity-sheet')).toBeNull();
+        // The year's sliders come with its dates, in the same popup (stacked on a phone).
+        const menu = mounted.element.shadowRoot?.querySelector('hcm-date-menu');
+        expect(menu?.querySelectorAll('.opacity-sliders hcm-slider')).toHaveLength(3);
+        expect(menu?.side).toBe(true);
+        expect(menu?.stacked).toBe(true);
+        expect(menu?.shadowRoot?.querySelector('.side slot')).not.toBeNull();
+        menu?.shadowRoot
+            ?.querySelector('.side')
+            ?.dispatchEvent(new KeyboardEvent('keydown', { key: 'Escape', bubbles: true, composed: true }));
+        menu?.shadowRoot?.querySelector('.side')?.dispatchEvent(new KeyboardEvent('keydown', { key: 'a', bubbles: true, composed: true }));
     });
 
     it('badPath_todayHasNoSheetAndTheFrameStaysLive', async () => {

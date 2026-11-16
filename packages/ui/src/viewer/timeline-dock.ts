@@ -23,7 +23,8 @@ import type { YearOpacity } from './timeline-opacity.js';
 import { dateCounts, dateItems, datesOpenEvent, frontOfYear, type DatesOpenDetail } from './timeline-dates.js';
 import type { TimelineStop } from './timeline-model.js';
 import { LongPress } from './long-press.js';
-import { opacitySheet } from './opacity-sheet.js';
+import { EMPTY } from './empty.js';
+import { opacitySheet, sliderPanel } from './opacity-sheet.js';
 import { PEEK_LEAVE_MS, type DatesPeekDetail } from './timeline-peek.js';
 
 /** The floating controls the date menu keeps clear of (`date-menu-clear.ts`). */
@@ -106,6 +107,12 @@ export class TimelineDock implements ReactiveController {
             this.#timeline()?.focus();
         });
     };
+
+    /** The sliders beside the date menu of `year`, when it is the selected year with layers (`hcm-date-menu.ts`). */
+    sidePanel(year: number): TemplateResult | null {
+        const view = this.#opacity;
+        return view?.opacity?.year === year ? sliderPanel(view.opacity, view.locale, this.#onOpacity) : null;
+    }
 
     /** The sheet while it is open and the year has layers: its model (`opacity-sheet.ts`). */
     sheetModel(): Parameters<typeof opacitySheet>[0] {
@@ -314,6 +321,7 @@ export function timelineDock(
             .dateCounts=${dateCounts(view.layers)}
             .opacity=${view.opacity}
             ?phone=${dock.phone}
+            ?dates-open=${dock.dates !== null}
             ?near-year=${(view.near ?? null) !== null && view.year !== null}
             @hcm-year-change=${onYearChange}
             @hcm-overlay-opacity=${onOpacity}
@@ -334,6 +342,7 @@ export function dateMenu(
     if (dates === null) {
         return opacitySheet(dock.sheetModel());
     }
+    const side = dock.sidePanel(dates.year);
     return html`<hcm-date-menu
         .items=${dateItems(view.layers, dates.year, view.locale)}
         .selected=${frontOfYear(view.layers, dates.year, view.front)}
@@ -342,8 +351,11 @@ export function dateMenu(
         .avoid=${dock.controls}
         .vertical=${view.orientation === 'vertical'}
         .peek=${dock.peek}
+        .side=${side !== null}
+        .stacked=${dock.phone}
         @hcm-date-pick=${onPick}
         @hcm-date-menu-pointer=${dock.onMenuPointer}
         @hcm-close=${dock.closeDates}
-    ></hcm-date-menu>`;
+        >${side ?? EMPTY}</hcm-date-menu
+    >`;
 }
