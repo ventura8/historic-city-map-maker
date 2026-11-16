@@ -3,13 +3,17 @@ import { adminVisit } from '../../../tour/states.js';
 import { shellText } from '../../support/i18n.js';
 import { projectCity } from '../../support/content.js';
 import { seedCity } from '../../support/ops.js';
-import { adminPath, expect, test } from '../../support/test.js';
+import { ADMIN_LOCK, adminPath, expect, test } from '../../support/test.js';
 
 /**
  * Home's Monthly costs (the owner, 2026-11-16; behaviour A192): every paid service with this month's spend, the forecast and its
  * console; Mapbox's compute units measured from `usage/mapbox-<month>`; past the budget the alert's numbers, what pauses and
  * the way to Jobs.
  */
+
+// One admin test at a time (the emulators are one Firebase project): see ADMIN_LOCK.
+test.describe.configure({ lock: ADMIN_LOCK });
+test.use({ persona: 'owner', mapOwner: 'owner', admins: ['admin'] });
 
 const AT = new Date('2026-11-10T09:00:00.000Z');
 
