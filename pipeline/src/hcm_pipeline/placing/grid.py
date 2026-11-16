@@ -45,7 +45,7 @@ from hcm_pipeline.placing.raster_io import read_working
 from hcm_pipeline.placing.reference import city_window
 from hcm_pipeline.placing.render import SheetWarp, render_sheets
 from hcm_pipeline.placing.series import SeriesJob, Sheet, series_of
-from hcm_pipeline.placing.single import LARGEST_WORKING_PX, Attempt, Drawn, Search, attempt, drawn_of, fit_from
+from hcm_pipeline.placing.single import LARGEST_WORKING_PX, OUTSIDE_CITY, Attempt, Drawn, Search, attempt, drawn_of, fit_from, in_city
 from hcm_pipeline.placing.stitched import NO_FRAME, NO_JOIN, JoinQuality, Stitched, wait_stitched
 from hcm_pipeline.placing.streets import UInt8Array, grey_of
 from hcm_pipeline.steps.gather import store_of, text_param
@@ -316,14 +316,24 @@ def _wait_picture(
     return Stitched(mosaic.image, "grid", len(rectified) + len(unframed), unframed, mosaic.metres)
 
 
-def _solved(
-    ctx: JobContext, series: SeriesJob, rectified: list[Rectified], scheme: CityGrid, unframed: tuple[tuple[str, str], ...] = ()
+def _guard_grid(ctx: JobContext, drawn: Drawn, found: Attempt | None) -> bool:
+    """The city guard: true when the grid placement lies inside the city's bounds."""
+    if found is None or in_city(ctx, drawn, found):
+        return True
+    ctx.log.warn(f"{drawn.name}: the best placement lies outside the city's bounds", ctx.step)
+    return False
+
+
+def _rendered_or_wait(
+    ctx: JobContext,
+    series: SeriesJob,
+    rectified: list[Rectified],
+    scheme: CityGrid,
+    mosaic: Mosaic,
+    order: int,
+    found: Attempt | None,
+    unframed: tuple[tuple[str, str], ...],
 ) -> StepResult:
-    """The quarter order chosen, the grid placed and the sheets rendered; or a wait for a person with the mosaic to place when the
-    grid does not prove."""
-    order = quarter_order(rectified, scheme)
-    mosaic = mosaic_of(rectified, scheme, order)
-    found = _placed(ctx, series, mosaic, mosaic_drawn(ctx, mosaic, rectified))
     held = None if found is None else found.held()
     if held is not None:
         ctx.log.info(f"the grid is placed, its quarters read in order {order}", ctx.step)
@@ -333,6 +343,20 @@ def _solved(
     ctx.log.info(f"the grid did not prove: placed from the sheets' names for the owner to approve, order {order}", ctx.step)
     placed = Placed(OWNER_METHOD, found.fit.checked, found.rival_clean)
     return _rendered(ctx, series, Solved(rectified, scheme, order, mosaic, found.fit.transform), placed)
+
+
+def _solved(
+    ctx: JobContext, series: SeriesJob, rectified: list[Rectified], scheme: CityGrid, unframed: tuple[tuple[str, str], ...] = ()
+) -> StepResult:
+    """The quarter order chosen, the grid placed and the sheets rendered; or a wait for a person with the mosaic to place when the
+    grid does not prove."""
+    order = quarter_order(rectified, scheme)
+    mosaic = mosaic_of(rectified, scheme, order)
+    drawn = mosaic_drawn(ctx, mosaic, rectified)
+    found = _placed(ctx, series, mosaic, drawn)
+    if not _guard_grid(ctx, drawn, found):
+        return wait_stitched(ctx, _wait_picture(ctx, mosaic, rectified, unframed, series.colour), "low-confidence", OUTSIDE_CITY)
+    return _rendered_or_wait(ctx, series, rectified, scheme, mosaic, order, found, unframed)
 
 
 @dataclass(frozen=True)

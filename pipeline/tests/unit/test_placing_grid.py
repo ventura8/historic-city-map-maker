@@ -8,7 +8,7 @@ import pytest
 from hcm_pipeline.archive.grammar import Cell
 from hcm_pipeline.geo import to_mercator
 from hcm_pipeline.jobs import Done, JobContext, Waiting
-from hcm_pipeline.placing import grid
+from hcm_pipeline.placing import coarse, grid
 from hcm_pipeline.placing.frame import content_frame
 from hcm_pipeline.placing.gridscheme import QUARTER_ORDERS, CityGrid, scheme_for
 from hcm_pipeline.placing.overview import MosaicReport
@@ -141,6 +141,31 @@ def test_happy_path_a_fitted_grid_that_does_not_prove_is_rendered_from_its_names
     assert report["checksDropped"] > 0
     assert 0.0 < report["seamScore"] <= 1.0
     assert "help" not in version
+
+
+def test_bad_path_a_grid_placed_outside_the_city_is_never_warped(
+    world: PipelineWorld, tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    """Scenarios: S-P20-BAD-OUTSIDE-CITY"""
+    ctx = grid_series(world, tmp_path)
+    real_placed = grid._placed
+    cx, cy = to_mercator(*CENTRE)
+    locked = numpy.array([[5.0, 0.0, cx - 13_000.0], [0.0, -5.0, cy + 13_000.0]])
+
+    def wrong(job: JobContext, series: grid.SeriesJob, mosaic: grid.Mosaic, drawn: grid.Drawn) -> grid.Attempt | None:
+        found = real_placed(job, series, mosaic, drawn)
+        return None if found is None else grid.Attempt(coarse.Coarse(locked, 1.0), found.fit, found.reference, True)
+
+    monkeypatch.setattr(grid, "_placed", wrong)
+
+    result = PlaceStep().run(ctx)
+
+    assert isinstance(result, Waiting)
+    version = world.version()
+    help_item = version["help"]
+    assert isinstance(help_item, dict)
+    assert help_item["note"] == grid.OUTSIDE_CITY
+    assert "archive" not in version
 
 
 def test_bad_path_sheets_without_frames_or_a_scheme_wait_for_a_person(world: PipelineWorld, tmp_path: Path) -> None:

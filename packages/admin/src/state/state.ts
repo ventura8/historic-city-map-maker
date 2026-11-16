@@ -143,6 +143,11 @@ export interface AdminState<Setup = unknown> {
      */
     readonly welcome?: ContributorWelcome | null;
     readonly setup: Setup;
+    /**
+     * City guard for grid/sheet series: the tour state for the 'Doubtful: outside the city' georeferencer view.
+     * This is set when a sheet placement is outside the city's bounds and no warping is applied.
+     */
+    readonly doubtfulTour?: boolean | null;
 }
 
 export const NO_GATE: AdminGate = { reconsent: false, issue: null, enableApi: null };

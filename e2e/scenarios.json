@@ -19039,7 +19039,7 @@
             "asserts": "the best placement's footprint lies outside the city's own bounds (the search window is the city grown by half) -> the version waits with help OUTSIDE_CITY, no suggestions and no archive report; a placement that did not hold scores its pairs at most UNPROVEN_SHARE (never high)",
             "tier": "e2e-pipeline",
             "status": "exists",
-            "notes": "The city guard (docs/LESSONS.md, the 1974 archive maps). Tests: pipeline/tests/unit/test_placing_single.py."
+            "notes": "The city guard (docs/LESSONS.md, the 1974 archive maps). Tests: pipeline/tests/unit/test_placing_single.py, pipeline/tests/unit/test_placing_grid.py."
         },
         {
             "id": "S-P20-HAPPY-OWNER-PAIRS",
