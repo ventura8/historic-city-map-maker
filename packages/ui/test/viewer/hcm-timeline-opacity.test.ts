@@ -110,14 +110,20 @@ describe('the timeline opacity card', () => {
         await element.updateComplete;
         expect(card(element)).toBeNull();
 
-        pointer(thumb(element), 'pointerover', 'mouse');
-        await element.updateComplete;
-        pointer(thumb(element), 'pointerout', 'mouse');
-        await new Promise((resolve) => {
-            setTimeout(resolve, 450);
-        });
-        await element.updateComplete;
-        expect(card(element)).toBeNull();
+        vi.useFakeTimers({ toFake: ['setTimeout', 'clearTimeout'] });
+        try {
+            pointer(thumb(element), 'pointerover', 'mouse');
+            await element.updateComplete;
+            pointer(thumb(element), 'pointerout', 'mouse');
+            vi.advanceTimersByTime(399);
+            await element.updateComplete;
+            expect(card(element), 'still there on the way to the card').not.toBeNull();
+            vi.advanceTimersByTime(1);
+            await element.updateComplete;
+            expect(card(element)).toBeNull();
+        } finally {
+            vi.useRealTimers();
+        }
     });
 
     it('badPath_noLayerTodayOrWhileDraggingNoCard', async () => {
