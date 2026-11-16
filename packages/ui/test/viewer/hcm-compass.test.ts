@@ -67,10 +67,11 @@ describe('<hcm-compass>', () => {
         // Mirrored about the shared base: the north apex as far above it as the south apex below.
         expect(n.y + n.height).toBeCloseTo(s.y, 5);
         expect(getComputedStyle(north).strokeWidth).toBe(getComputedStyle(south).strokeWidth);
-        // The N sits inside the north triangle.
+        // The N sits inside the north triangle: its line box centred between the apex and the base, narrower than the triangle there.
         const letter = (shadowQuery(compass, 'text.letter') as unknown as SVGTextElement).getBBox();
-        expect(letter.y).toBeGreaterThanOrEqual(n.y);
-        expect(letter.y + letter.height).toBeLessThanOrEqual(n.y + n.height);
+        expect(letter.y + letter.height / 2).toBeGreaterThan(n.y + n.height / 2);
+        expect(letter.y + letter.height / 2).toBeLessThan(n.y + n.height);
+        expect(letter.width).toBeLessThan(n.width / 2);
     });
 
     it('happyPath_englishNameAndDescription', async () => {
