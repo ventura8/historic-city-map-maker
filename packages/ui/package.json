@@ -27,6 +27,10 @@
             "types": "./src/admin/worker/hcm-worker-local.ts",
             "default": "./src/admin/worker/hcm-worker-local.ts"
         },
+        "./admin/home/costs": {
+            "types": "./src/admin/home/hcm-home-costs.ts",
+            "default": "./src/admin/home/hcm-home-costs.ts"
+        },
         "./admin/worker/household": {
             "types": "./src/admin/worker/hcm-worker-household.ts",
             "default": "./src/admin/worker/hcm-worker-household.ts"

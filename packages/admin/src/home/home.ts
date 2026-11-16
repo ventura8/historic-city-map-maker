@@ -27,7 +27,7 @@ import type { ContentQuery, ContentServices } from '../content/services.js';
 import { ACTIVE_JOB_STATUSES } from '../jobs/jobs.js';
 import type { NoticeInput } from '../state/state.js';
 import { Store } from '../state/store.js';
-import { CostsWatch, LOADING_COSTS, type MonthlyCosts } from './costs.js';
+import type { MonthlyCosts } from './costs.js';
 import { remindersOf, type HomeReminder } from './reminders.js';
 
 /** What the dashboard counts, in the order it shows them. */
@@ -123,7 +123,8 @@ export interface HomeState {
     /** "It is a paid account" is being recorded. */
     readonly dismissing: boolean;
     /** This month's costs, service by service (`./costs.ts`), live. */
-    readonly costs: MonthlyCosts;
+    /** Null until the lazy `costs` chunk has loaded (its element and its watch). */
+    readonly costs: MonthlyCosts | null;
 }
 
 export interface HomeIntents {
@@ -142,7 +143,7 @@ const INITIAL: HomeState = {
     publicMap: LOADING_DOC,
     reminders: [],
     dismissing: false,
-    costs: LOADING_COSTS,
+    costs: null,
 };
 
 type HealthRecord = NonNullable<SetupStatusDoc[SetupArea]>;
@@ -180,7 +181,8 @@ class HomeStore implements AreaStore<HomeState, HomeIntents> {
     readonly #cell: Store<HomeState>;
     readonly #status: LiveDoc<SetupStatusDoc>;
     readonly #manifest: LiveDoc<ManifestStateDoc>;
-    readonly #costs: CostsWatch;
+    #costs: { retry(): void; stop(): void } | null = null;
+    #open = false;
     #counting = 0;
     readonly intents: HomeIntents;
 
@@ -207,15 +209,12 @@ class HomeStore implements AreaStore<HomeState, HomeIntents> {
                 this.#cell.update({ publicMap: mapDoc(state, publicMapOf) });
             },
         });
-        this.#costs = new CostsWatch(services, (costs) => {
-            this.#cell.update({ costs });
-        });
         this.intents = {
             refresh: () => this.#count(),
             retry: () => {
                 this.#status.retry();
                 this.#manifest.retry();
-                this.#costs.retry();
+                this.#costs?.retry();
                 void this.#count();
             },
             dismissTrial: () => this.#dismissTrial(),
@@ -234,7 +233,8 @@ class HomeStore implements AreaStore<HomeState, HomeIntents> {
         if (this.#status.path === '') {
             this.#status.show(FIRESTORE_PATHS.setupStatus);
             this.#manifest.show(FIRESTORE_PATHS.manifestState(this.#services.cityId));
-            this.#costs.show();
+            this.#open = true;
+            void this.#watchCosts();
             void this.#count();
         }
     }
@@ -242,7 +242,9 @@ class HomeStore implements AreaStore<HomeState, HomeIntents> {
     close(): void {
         this.#status.stop();
         this.#manifest.stop();
-        this.#costs.stop();
+        this.#open = false;
+        this.#costs?.stop();
+        this.#costs = null;
     }
 
     hasUnsavedChanges(): boolean {
@@ -262,6 +264,19 @@ class HomeStore implements AreaStore<HomeState, HomeIntents> {
         this.#cell.update({ dismissing: false });
         if (!outcome.ok) {
             this.#services.notify(outcome.error);
+        }
+    }
+
+    /** The Monthly costs card's chunk (its element and its four counters), fetched when the dashboard opens. */
+    async #watchCosts(): Promise<void> {
+        const { CostsWatch, defineHcmHomeCosts } = await import('./costs.js');
+        defineHcmHomeCosts();
+        if (this.#open && this.#costs === null) {
+            const watch = new CostsWatch(this.#services, (costs) => {
+                this.#cell.update({ costs });
+            });
+            this.#costs = watch;
+            watch.show();
         }
     }
 

@@ -2,11 +2,15 @@
  * Home's Monthly costs card (`packages/admin/src/home/costs.ts`): one row per paid service the map uses, this month's spend so
  * far and the month's forecast, whether the number is measured by the map or an estimate (and why), the share of the free
  * tier used, and the service's console (a new tab); then the total against the budget, and when the forecast passes it, what
- * happens and where to act (Jobs, Google Cloud billing). Text only.
+ * happens and where to act (Jobs, Google Cloud billing). Text only. `<hcm-home-costs>`, defined by the admin's lazy `costs`
+ * chunk (`packages/admin/src/home/costs.ts`), so the dashboard's own chunk stays within its budget.
  */
-import type { UiLocale } from '@hcm/shared';
+import { DEFAULT_LOCALE, type UiLocale } from '@hcm/shared';
 import { ONE_SCAN_USD } from '@hcm/shared/sources';
-import { css, html, type TemplateResult } from 'lit';
+import { css, html, LitElement, type TemplateResult } from 'lit';
+
+import { visuallyHidden } from '../../components/styles.js';
+import { editingStyles } from '../editing/editing-styles.js';
 
 import { EMPTY } from '../shell/empty.js';
 import { setupLabel } from '../setup/setup-text.js';
@@ -21,7 +25,7 @@ function money(locale: UiLocale, amount: number, currency = 'USD'): string {
 }
 
 /** A range as text: one amount when both ends agree, else "low – high". */
-export function rangeText(locale: UiLocale, value: UsdRangePort): string {
+function rangeText(locale: UiLocale, value: UsdRangePort): string {
     return value.low === value.high ? money(locale, value.low) : `${money(locale, value.low)} – ${money(locale, value.high)}`;
 }
 
@@ -93,7 +97,7 @@ function overBudget(locale: UiLocale, costs: MonthlyCostsPort): TemplateResult {
 }
 
 /** The Monthly costs section. */
-export function costsSection(locale: UiLocale, costs: MonthlyCostsPort): TemplateResult {
+function costsSection(locale: UiLocale, costs: MonthlyCostsPort): TemplateResult {
     const body = costs.loading
         ? html`<p>${shellText(locale, 'adminShell.home.costs.loading')}</p>`
         : html`<ul class="costs">
@@ -120,7 +124,21 @@ export function costsSection(locale: UiLocale, costs: MonthlyCostsPort): Templat
     </section>`;
 }
 
-export const costsStyles = css`
+const costsStyles = css`
+    :host {
+        display: block;
+    }
+
+    section {
+        display: flex;
+        flex-direction: column;
+        gap: 12px;
+    }
+
+    p {
+        margin: 0;
+    }
+
     ul.costs {
         display: grid;
         grid-template-columns: repeat(auto-fill, minmax(min(100%, 280px), 1fr));
@@ -179,3 +197,36 @@ export const costsStyles = css`
         --hcm-icon-size: 18px;
     }
 `;
+
+export const HCM_HOME_COSTS_TAG = 'hcm-home-costs';
+
+export class HcmHomeCosts extends LitElement {
+    static override readonly properties = { costs: { attribute: false }, locale: { type: String } };
+
+    static override readonly styles = [...editingStyles, costsStyles, visuallyHidden];
+
+    declare costs: MonthlyCostsPort | null;
+    declare locale: UiLocale;
+
+    constructor() {
+        super();
+        this.costs = null;
+        this.locale = DEFAULT_LOCALE;
+    }
+
+    override render(): TemplateResult {
+        return this.costs === null ? EMPTY : costsSection(this.locale, this.costs);
+    }
+}
+
+export function defineHcmHomeCosts(registry: CustomElementRegistry = customElements): void {
+    if (registry.get(HCM_HOME_COSTS_TAG) === undefined) {
+        registry.define(HCM_HOME_COSTS_TAG, HcmHomeCosts);
+    }
+}
+
+declare global {
+    interface HTMLElementTagNameMap {
+        'hcm-home-costs': HcmHomeCosts;
+    }
+}

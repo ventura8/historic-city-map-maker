@@ -25,18 +25,20 @@ import {
 } from '@hcm/shared';
 import { PLATFORM_MONTHLY_USD, type UsdRange } from '@hcm/shared/sources';
 
+export { defineHcmHomeCosts } from '@hcm/ui/admin/home/costs';
+
 import { budgetAmountFor, DEFAULT_BUDGET_CURRENCY } from '../setup/budget.js';
 import { LiveDoc, LOADING_DOC, type DocState } from '../content/doc.js';
 import type { ContentServices } from '../content/services.js';
 
-export const COST_SERVICES = ['mapbox', 'firebase', 'cloudRun', 'ai', 'usgs'] as const;
+const COST_SERVICES = ['mapbox', 'firebase', 'cloudRun', 'ai', 'usgs'] as const;
 
-export type CostService = (typeof COST_SERVICES)[number];
+type CostService = (typeof COST_SERVICES)[number];
 
 /** Where a row's number comes from: counted by the map, or estimated (with why). */
-export type CostBasis = 'measured' | 'estimate' | 'unread';
+type CostBasis = 'measured' | 'estimate' | 'unread';
 
-export interface CostRow {
+interface CostRow {
     readonly service: CostService;
     readonly basis: CostBasis;
     /** The share of the free tier used so far (0..∞), when the service has one the map counts; else null. */
@@ -60,7 +62,7 @@ export interface MonthlyCosts {
 }
 
 /** Each service's console (a new tab). */
-export const COST_CONSOLES: Readonly<Record<CostService, string>> = {
+const COST_CONSOLES: Readonly<Record<CostService, string>> = {
     mapbox: 'https://console.mapbox.com/account/statistics/',
     firebase: 'https://console.firebase.google.com/project/_/usage',
     cloudRun: 'https://console.cloud.google.com/run/jobs',
@@ -68,11 +70,8 @@ export const COST_CONSOLES: Readonly<Record<CostService, string>> = {
     usgs: 'https://earthexplorer.usgs.gov/order/index/',
 };
 
-/** The Google Cloud billing reports: the real bill of every Google service. */
-export const BILLING_CONSOLE = 'https://console.cloud.google.com/billing/reports';
-
 /** Cloud Run jobs' list prices past the free tier (Tier 1, USD a second). */
-export const CLOUD_RUN_USD = { vcpuSecond: 0.000018, gibSecond: 0.000002 } as const;
+const CLOUD_RUN_USD = { vcpuSecond: 0.000018, gibSecond: 0.000002 } as const;
 
 /** The counters the card reads, each as its live document (null: absent, no use this month). */
 export interface CostInputs {

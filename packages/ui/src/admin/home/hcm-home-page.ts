@@ -6,7 +6,7 @@
  * document the last build left out, its first issue and a link to its editor (`docs/research/M2c-interfaces.md` §5.4,
  * S-A38-BAD-SKIPPED-SHOWN). A count that could not be read shows a dash; Refresh counts again. M6 (setup-ux): first,
  * what Setup left open (`./reminders.ts`): USGS later or waiting for its approval, a likely free trial ending soon. M18
- * item 7: then What needs you (`NEEDS`). The owner, 2026-11-16: last, Monthly costs (`./costs.ts`).
+ * item 7: then What needs you (`NEEDS`). The owner, 2026-11-16: last, Monthly costs (`<hcm-home-costs>`, `./hcm-home-costs.ts`, defined by its lazy chunk).
  */
 import { translate, type UiLocale } from '@hcm/shared';
 import { css, html, type TemplateResult } from 'lit';
@@ -21,7 +21,6 @@ import { errorTemplate, formatWhen, reconnectingStatus } from '../editing/states
 import { EMPTY } from '../shell/empty.js';
 import { contentText, noticeOf, shellText } from '../shell/text.js';
 import type { HealthChipPort, HomeCountPort, HomeIntentsPort, HomeViewState, PublicMapPort, SkippedDocumentPort } from './home-port.js';
-import { costsSection, costsStyles } from './costs.js';
 import { reminderStyles, remindersSection } from './reminders.js';
 
 export const HCM_HOME_PAGE_TAG = 'hcm-home-page';
@@ -155,7 +154,7 @@ export class HcmHomePage extends AreaPage<HomeViewState, HomeIntentsPort> {
     /** The dashboard scrolls with the page area like a form; it has no panes. */
     static override readonly fillsPage: boolean = false;
 
-    static override readonly styles = [...editingStyles, homeStyles, reminderStyles, costsStyles, visuallyHidden];
+    static override readonly styles = [...editingStyles, homeStyles, reminderStyles, visuallyHidden];
 
     protected readonly route: AdminRouteIdPort = 'home';
 
@@ -182,7 +181,7 @@ export class HcmHomePage extends AreaPage<HomeViewState, HomeIntentsPort> {
             ${this.#tiles(locale, view, 'adminShell.home.needsYou', needs(view))}
             ${this.#tiles(locale, view, 'adminShell.home.holdings', HOLDINGS)}
             ${this.#tiles(locale, view, 'adminShell.home.waiting', WAITING)} ${this.#health(locale, view)} ${this.#publicMap(locale, view)}
-            ${costsSection(locale, view.costs)}
+            <hcm-home-costs .costs=${view.costs} locale=${locale}></hcm-home-costs>
         </div>`;
     }
 

@@ -63,7 +63,7 @@ export interface UsdRangePort {
     readonly high: number;
 }
 
-export type CostServicePort = 'mapbox' | 'firebase' | 'cloudRun' | 'ai' | 'usgs';
+type CostServicePort = 'mapbox' | 'firebase' | 'cloudRun' | 'ai' | 'usgs';
 
 export interface CostRowPort {
     readonly service: CostServicePort;
@@ -91,7 +91,8 @@ export interface HomeViewState {
     readonly publicMap: DocStatePort<PublicMapPort>;
     readonly reminders: readonly HomeReminderPort[];
     readonly dismissing: boolean;
-    readonly costs: MonthlyCostsPort;
+    /** Null until the lazy `costs` chunk has loaded. */
+    readonly costs: MonthlyCostsPort | null;
 }
 
 export interface HomeIntentsPort {

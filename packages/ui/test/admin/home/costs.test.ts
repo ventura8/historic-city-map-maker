@@ -4,7 +4,7 @@
  */
 import { afterEach, beforeAll, describe, expect, it } from 'vitest';
 
-import { rangeText } from '../../../src/admin/home/costs.js';
+import { defineHcmHomeCosts } from '../../../src/admin/home/hcm-home-costs.js';
 import type { HomeIntentsPort, HomeViewState } from '../../../src/admin/home/home-port.js';
 import { FakeArea } from '../editing/fake-area.js';
 import { COSTS, homeState, page } from '../ops/fixtures.js';
@@ -13,7 +13,10 @@ import { cleanup, deep, deepAll, deepText, defineAll } from '../shell/fake-app.j
 const INTENTS = { dismissTrial: Promise.resolve() };
 
 describe('<hcm-home-page> monthly costs', () => {
-    beforeAll(defineAll);
+    beforeAll(() => {
+        defineAll();
+        defineHcmHomeCosts();
+    });
     afterEach(cleanup);
 
     it('happyPath_eachServiceShowsItsSpendForecastBasisAndConsole', async () => {
@@ -25,6 +28,7 @@ describe('<hcm-home-page> monthly costs', () => {
         const text = deepText(element);
         expect(text).toContain('Monthly costs');
         expect(text).toContain('Measured by the map');
+        expect(text).toContain('$0.25 – $1.00');
         expect(text).toContain('50% of the free tier used');
         expect(text).toContain('Google does not tell the map this cost');
         expect(text).toContain('this month’s use could not be read');
@@ -52,8 +56,4 @@ describe('<hcm-home-page> monthly costs', () => {
         expect(deepAll(element, 'li.cost')).toHaveLength(0);
     });
 
-    it('formatsARangeOrOneAmount', () => {
-        expect(rangeText('en', { low: 1, high: 1 })).toBe('$1.00');
-        expect(rangeText('en', { low: 0.5, high: 2 })).toBe('$0.50 – $2.00');
-    });
 });
