@@ -135,6 +135,18 @@ export const timelineStyles = [
             --hcm-fade-to: to left;
         }
 
+        /*
+         * An edge with years beyond keeps its own room for its button (the owner, 2026-11-16: "1847" read into "1914", "Azi"
+         * into "2000"): the years scroll inside the room left between the buttons, never under them. Not on a phone (the
+         * dock's phone attribute) nor below 840 px: there the card keeps the buttons over the faded ends, with no room to spare.
+         */
+        @media (width >= 840px) {
+            :host([density='scroll']:not([phone], [orientation='vertical'])) .scroller {
+                /* Always the same room (the buttons' 56 px), so the years never jump when an edge's button comes or goes. */
+                margin-inline: 56px;
+            }
+        }
+
         /* No margin, padding or marker: the stops are placed on the track, the list only holds them. */
         .stops {
             all: unset;

@@ -57,24 +57,32 @@ export const timelineExtraStyles = css`
         align-content: start;
         gap: 14px;
         box-sizing: border-box;
-        min-inline-size: 48px;
+        inline-size: 56px;
         min-block-size: 64px;
 
         /* In the bar, not over it (the owner, 2026-11-16): the arrow on the pills' line (its centre 32 px down the card,
            as the pill's and the rail's), the year on the labels' line below, on the card's own colour. */
         padding: 10px 2px 0;
         border: none;
-        border-radius: var(--md-sys-shape-corner-medium, 12px);
+        border-radius: var(--md-sys-shape-corner-large, 16px);
         background: transparent;
-        color: var(--md-sys-color-on-surface-variant, CanvasText);
+
+        /* Full contrast, as the selected year: the arrow and the year read at 4.5:1 or more in both themes. */
+        color: var(--md-sys-color-on-surface, CanvasText);
         font: inherit;
         font-size: 12px;
         line-height: 16px;
         cursor: pointer;
     }
 
+    /* The kit's text-button state layer: one rounded rectangle around the arrow and the year. */
     .edge:hover {
         background: color-mix(in srgb, var(--md-sys-color-on-surface, CanvasText) 8%, transparent);
+    }
+
+    .edge:active,
+    .edge:focus-visible {
+        background: color-mix(in srgb, var(--md-sys-color-on-surface, CanvasText) 10%, transparent);
     }
 
     .edge:focus-visible {

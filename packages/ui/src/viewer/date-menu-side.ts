@@ -1,11 +1,11 @@
 /**
  * Where the year's opacity sliders go beside its date menu (the owner, 2026-11-16; `hcm-date-menu.ts`): past the menu's end
- * side, centred on it, or before it where the end has no room; on a phone (`stacked`) under it, as wide as it, one sheet
+ * side, their bottoms aligned, or before it where the end has no room; on a phone (`stacked`) under it, as wide as it, one sheet
  * with the dates on top, or beside it where a short window has no room under it. Always inside the viewer and above the strip of Mapbox's legal line. Px from the viewer's corner.
  */
 
-/** The gap between the menu and the sliders, and the edge kept from the viewer's sides. */
-const GAP = 8;
+/** The gap between the menu and the sliders (their shadows never touch), and the edge kept from the viewer's sides. */
+const GAP = 12;
 /** The strip at the foot of the map kept for Mapbox's logo and attribution. */
 const LEGAL_STRIP = 42;
 
@@ -34,7 +34,8 @@ export function sideOrigin(
     }
     const after = menu.x + menu.width + GAP;
     const x = after + side.width <= room.width - GAP ? after : menu.x - GAP - side.width;
-    const y = menu.y + menu.height / 2 - side.height / 2;
+    // Bottoms aligned: the menu already stands clear above the timeline, so the sliders do too (the owner, 2026-11-16).
+    const y = menu.y + menu.height - side.height;
     return { x: within(x, side.width, GAP, room.width - GAP), y: within(y, side.height, GAP, bottom) };
 }
 

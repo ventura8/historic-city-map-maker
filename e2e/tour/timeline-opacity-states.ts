@@ -54,11 +54,38 @@ async function openCard(page: Page, lang: Locale): Promise<void> {
     await mapIdle(page);
 }
 
+type Box = { readonly x: number; readonly y: number; readonly width: number; readonly height: number } | null;
+
+/** Whether two boxes share any area (touching edges do not). */
+function intersects(first: Box, second: Box): boolean {
+    if (first === null || second === null) {
+        return false;
+    }
+    const apart = first.x + first.width <= second.x || second.x + second.width <= first.x;
+    return !apart && !(first.y + first.height <= second.y || second.y + second.height <= first.y);
+}
+
+/**
+ * The date menu, the sliders beside it and the timeline's bar never overlap (the owner's screenshot, 2026-11-16: the
+ * sliders covered 1985 to 1989), whichever of them shows.
+ */
+async function expectApart(page: Page): Promise<void> {
+    const box = async (selector: string): Promise<Box> => {
+        const shown = viewer(page).locator(selector).first();
+        return (await shown.count()) === 0 ? null : shown.boundingBox();
+    };
+    const [menu, side, bar] = await Promise.all([box('hcm-date-menu .menu'), box('hcm-date-menu .side'), box('hcm-timeline')]);
+    expect(intersects(menu, side), 'the dates and the sliders').toBe(false);
+    expect(intersects(menu, bar), 'the dates and the timeline').toBe(false);
+    expect(intersects(side, bar), 'the sliders and the timeline').toBe(false);
+}
+
 export const TIMELINE_OPACITY_STATES = {
     'timeline-opacity-several': {
         title: 'The opacity card of a year with two layers: "all" first, then a slider per layer by date (beside its dates on a desktop)',
         enter: async ({ page, lang }: TimelineOpacityTour) => {
             await openCard(page, lang);
+            await expectApart(page);
         },
     },
     'timeline-opacity-sheet': {
