@@ -150,7 +150,7 @@ export interface RemoveServices {
  * t131: Remove on a row of Work's folded "Cancelled versions": the same `imagery.deleteVersion` as the version page's
  * Delete, by the row's id. True once the version is gone; a refusal is told in the notice, and the row stays.
  */
-export async function removeCancelledVersion(services: RemoveServices, id: string): Promise<boolean> {
+async function removeCancelledVersion(services: RemoveServices, id: string): Promise<boolean> {
     try {
         await callImagery(services.callables, 'imagery.deleteVersion', { cityId: services.cityId, versionId: id });
         services.notify({ key: 'adminContent.imagery.notice.versionDeleted' });

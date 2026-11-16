@@ -59,6 +59,10 @@ export const imageryStyles = [
             cursor: pointer;
         }
 
+        .section > h3 {
+            padding-inline: 16px;
+        }
+
         [data-cancelled-versions] > summary h3 {
             display: inline;
             margin: 0;
@@ -204,10 +208,6 @@ export const imageryStyles = [
         .alert .detail {
             font-size: var(--md-sys-typescale-body-medium-size, 0.875rem);
             line-height: var(--md-sys-typescale-body-medium-line-height, 1.25rem);
-        }
-
-        .section > h3 {
-            padding-inline: 16px;
         }
     `,
 ];
