@@ -18427,7 +18427,7 @@
             "area": "viewer",
             "path": "happy",
             "title": "Each historical layer's date shows below its name in Layers without a taller row",
-            "asserts": "at 360 and 1440 px the e2e-1980 row shows its date in the visitor's language under the name; every dated row has the undated Photos row's height",
+            "asserts": "at 360 and 1440 px the e2e-1980 row shows its date in the visitor's language under the name; every dated row has an undated Places row's height",
             "tier": "e2e-viewer",
             "status": "exists",
             "notes": "Owner 2026-11-14. Unit: packages/ui/test/components/overlay-list.test.ts, packages/ui/test/viewer/hcm-layer-panel.test.ts. Test: e2e/specs/viewer/layers-date.spec.ts."
@@ -18438,7 +18438,7 @@
             "area": "viewer",
             "path": "bad",
             "title": "A long layer name wraps whole and rows without a date show nothing extra",
-            "asserts": "a 200-character layer name wraps over several lines with nothing cut (no ellipsis), its row taller than Photos; Photos and the Places rows have no date line",
+            "asserts": "a 200-character layer name wraps over several lines with nothing cut (no ellipsis), its row taller than a Places row; the Places rows have no date line and Photos has no row (it is a switch under Map labels)",
             "tier": "e2e-viewer",
             "status": "exists",
             "notes": "Owner 2026-11-14. Unit: packages/ui/test/components/overlay-list.test.ts, packages/ui/test/viewer/hcm-layer-panel.test.ts. Test: e2e/specs/viewer/layers-date.spec.ts."
