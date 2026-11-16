@@ -15,9 +15,13 @@ function paneWithRows(): { pane: HTMLElement; first: HTMLElement; sixth: HTMLEle
         return element;
     };
     const first = row();
-    const others = [row(), row(), row(), row()];
+    for (let index = 1; index < 5; index += 1) {
+        row();
+    }
     const sixth = row();
-    others.push(row(), row(), row(), row());
+    for (let index = 6; index < 10; index += 1) {
+        row();
+    }
     pane.append(host);
     document.body.append(pane);
     return { pane, first, sixth };
