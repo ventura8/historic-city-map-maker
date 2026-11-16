@@ -54,14 +54,18 @@ export const timelineExtraStyles = css`
         z-index: 1;
         display: grid;
         place-items: center;
-        align-content: center;
+        align-content: start;
+        gap: 14px;
         box-sizing: border-box;
         min-inline-size: 48px;
         min-block-size: 64px;
-        padding: 0 2px;
+
+        /* In the bar, not over it (the owner, 2026-11-16): the arrow on the pills' line (its centre 32 px down the card,
+           as the pill's and the rail's), the year on the labels' line below, on the card's own colour. */
+        padding: 10px 2px 0;
         border: none;
         border-radius: var(--md-sys-shape-corner-medium, 12px);
-        background: var(--md-sys-color-surface-container, Canvas);
+        background: transparent;
         color: var(--md-sys-color-on-surface-variant, CanvasText);
         font: inherit;
         font-size: 12px;
@@ -70,7 +74,7 @@ export const timelineExtraStyles = css`
     }
 
     .edge:hover {
-        background: color-mix(in srgb, var(--md-sys-color-on-surface, CanvasText) 8%, var(--md-sys-color-surface-container, Canvas));
+        background: color-mix(in srgb, var(--md-sys-color-on-surface, CanvasText) 8%, transparent);
     }
 
     .edge:focus-visible {
@@ -93,6 +97,9 @@ export const timelineExtraStyles = css`
     :host([orientation='vertical']) .edge {
         inset-inline: 0;
         inset-block-start: auto;
+        align-content: center;
+        gap: 0;
+        padding: 0 2px;
         min-block-size: 48px;
         margin-inline: auto;
         inline-size: 60px;
