@@ -55,6 +55,11 @@ export function splitPinned(overlays: readonly Overlay[], manifest: Manifest, pi
     return overlays.filter((overlay) => ids.has(overlay.id) === pinned);
 }
 
+/** The list below the strip: no pinned category, and no photos (their switch and slider are the Photos control's, 2026-11-16). */
+export function listedOverlays(overlays: readonly Overlay[], manifest: Manifest): readonly Overlay[] {
+    return splitPinned(overlays, manifest, false).filter((overlay) => overlay.kind !== 'photos');
+}
+
 /** The group headings: historical layers always, places only when the manifest has POI categories. */
 export function overlayGroups(manifest: Manifest, locale: ViewerLocale): readonly OverlayListGroup[] {
     const historical: OverlayListGroup = { kind: 'raster', label: translate(locale, 'layers.group.historical') };

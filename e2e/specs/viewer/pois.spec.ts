@@ -16,7 +16,7 @@ import {
     type LngLat,
 } from '../../support/map.js';
 import { expect, test } from '../../support/test.js';
-import { engineEvents, manifestIssues, openLayers, openViewer, serveManifest, t, viewer, visibilitySwitch } from '../../support/viewer.js';
+import { engineEvents, manifestIssues, openLayers, openViewer, serveManifest, t, viewer } from '../../support/viewer.js';
 
 /**
  * Points of interest (behaviour V24, PLAN Addendum 3) from the fixture set scripts/seed/e2e-pois.json
@@ -132,7 +132,7 @@ test('POI labels show from zoom 16 and not below', { tag: '@S-V24-HAPPY' }, asyn
     await openViewer(page, { lang, hash: POI_VIEW });
     // The photos are switched off: below zoom 16 their clusters would sit next to the building.
     await openLayers(page, lang);
-    await visibilitySwitch(page, lang, t(lang, 'layers.photos')).click();
+    await page.getByRole('switch', { name: t(lang, 'layers.photos'), exact: true }).click();
     await closeLayersSheet(page, lang);
     await expect
         .poll(async () => labelContrast(page, await screenPointOf(page, CLADIRE)), { message: 'a label under the icon at zoom 16' })

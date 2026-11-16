@@ -12,6 +12,7 @@ import {
     hashParam,
     isDocked,
     openLayers,
+    openPhotoOptions,
     openViewer,
     opacitySlider,
     t,
@@ -184,6 +185,7 @@ test('Overlay opacities go into the hash and come back after a reload', { tag: '
     await openViewer(page, { lang, hash: `${EMPTY_VIEW}&layers=${E2E_TILESET_LAYER.id}` });
     await openLayers(page, lang);
     await setWithKeys(page, lang, LAYER_LABEL, 40);
+    await openPhotoOptions(page, lang);
     await setWithKeys(page, lang, t(lang, 'layers.photos'), 70);
     await setWithKeys(page, lang, CATEGORY[lang], 20);
 
@@ -198,6 +200,7 @@ test('Overlay opacities go into the hash and come back after a reload', { tag: '
     );
     await openLayers(page, lang);
     await expect(opacitySlider(page, lang, LAYER_LABEL)).toHaveAttribute('aria-valuenow', '40');
+    await openPhotoOptions(page, lang);
     await expect(opacitySlider(page, lang, t(lang, 'layers.photos'))).toHaveAttribute('aria-valuenow', '70');
     await expect(opacitySlider(page, lang, CATEGORY[lang])).toHaveAttribute('aria-valuenow', '20');
     await expect(opacitySlider(page, lang, STREETS[lang])).toHaveAttribute('aria-valuenow', '80');
@@ -214,6 +217,7 @@ test(
         await expect.poll(() => opEntries(page)).toEqual({ photos: '0' });
         await openLayers(page, lang);
         await expect(opacitySlider(page, lang, LAYER_LABEL)).toHaveAttribute('aria-valuenow', '100');
+        await openPhotoOptions(page, lang);
         await expect(opacitySlider(page, lang, t(lang, 'layers.photos'))).toHaveAttribute('aria-valuenow', '0');
     },
 );
@@ -225,6 +229,7 @@ test('Unknown overlays and unreadable entries in the hash are ignored', { tag: '
     await expect.poll(() => hashParam(page, 'op')).toBeNull();
     await openLayers(page, lang);
     await expect(opacitySlider(page, lang, LAYER_LABEL)).toHaveAttribute('aria-valuenow', '100');
+    await openPhotoOptions(page, lang);
     await expect(opacitySlider(page, lang, t(lang, 'layers.photos'))).toHaveAttribute('aria-valuenow', '100');
     await expect(opacitySlider(page, lang, CATEGORY[lang])).toHaveAttribute('aria-valuenow', '100');
     await expect(opacitySlider(page, lang, STREETS[lang])).toHaveAttribute('aria-valuenow', '80');

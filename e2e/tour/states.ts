@@ -39,6 +39,7 @@ import {
     holdToast,
     menuButton,
     openLayers,
+    openPhotoOptions,
     openViewer,
     serveManifest,
     sheetsDock,
@@ -182,6 +183,7 @@ const VIEWER_STATES = {
     'layers-opacity': {
         title: 'An overlay made more transparent by the keyboard: its new opacity is announced',
         enter: async ({ page, lang }) => {
+            await openPhotoOptions(page, lang);
             const slider = page.getByRole('slider', { name: t(lang, 'layers.opacity', { name: t(lang, 'layers.photos') }), exact: true });
             await slider.focus();
             await slider.press('ArrowLeft');

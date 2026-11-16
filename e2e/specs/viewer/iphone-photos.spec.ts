@@ -51,6 +51,11 @@ test(
 
         await control.getByRole('radio', { name: t(lang, 'photosScope.years', { years: '25' }), exact: true }).tap();
         await expect.poll(() => hashParam(page, 'near')).toBe('25');
+        const opacity = control.getByRole('slider', { name: t(lang, 'layers.opacity', { name: t(lang, 'layers.photos') }), exact: true });
+        await opacity.focus();
+        await opacity.press('PageDown');
+        await expect.poll(() => hashParam(page, 'op')).toBe('photos:90');
+        await expect(viewer(page).locator('hcm-layer-panel hcm-overlay-list').getByRole('switch', { name: t(lang, 'layers.toggle', { name: t(lang, 'layers.photos') }) })).toHaveCount(0);
         await page.keyboard.press('Escape');
         await expect(chevron).toHaveAttribute('aria-expanded', 'false');
     },

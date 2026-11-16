@@ -11,6 +11,7 @@ import { PHOTO_YEAR_WINDOW, PHOTOS_NEAR_WINDOWS, PHOTOS_OVERLAY_ID, translate, D
 import { LitElement, css, html, nothing, type TemplateResult } from 'lit';
 
 import { EMPTY } from './empty.js';
+import { visuallyHidden } from '../components/styles.js';
 import { baseStyles } from './shared-styles.js';
 
 export const HCM_PHOTOS_CONTROL_TAG = 'hcm-photos-control';
@@ -27,12 +28,15 @@ export class HcmPhotosControl extends LitElement {
     static override readonly properties = {
         visible: { type: Boolean },
         near: { attribute: false },
+        opacity: { type: Number },
         locale: { type: String },
         open: { type: Boolean, reflect: true },
+        said: { state: true },
     };
 
     static override readonly styles = [
         baseStyles,
+        visuallyHidden,
         css`
             :host {
                 display: block;
@@ -96,8 +100,12 @@ export class HcmPhotosControl extends LitElement {
 
     declare visible: boolean;
     declare near: number | null;
+    /** The photo markers' opacity, 0 to 1 (the slider in the popover, the overlay list's row before 2026-11-16). */
+    declare opacity: number;
     declare locale: ViewerLocale;
     declare open: boolean;
+    /** The polite live region's text: the photos' new opacity once a change settles. */
+    declare said: string;
 
     #press: ReturnType<typeof setTimeout> | null = null;
 
@@ -105,8 +113,10 @@ export class HcmPhotosControl extends LitElement {
         super();
         this.visible = true;
         this.near = null;
+        this.opacity = 1;
         this.locale = DEFAULT_LOCALE;
         this.open = false;
+        this.said = '';
     }
 
     override disconnectedCallback(): void {
@@ -144,7 +154,8 @@ export class HcmPhotosControl extends LitElement {
                     @keydown=${this.#onSwitchKey}
                 ></hcm-switch>
             </div>
-            ${this.open ? this.#popover() : nothing}`;
+            ${this.open ? this.#popover() : nothing}
+            <div class="visually-hidden" role="status" aria-live="polite">${this.said}</div>`;
     }
 
     #badge(): TemplateResult {
@@ -190,7 +201,40 @@ export class HcmPhotosControl extends LitElement {
                 .value=${String(window)}
                 @hcm-change=${onWindow}
             ></hcm-segmented-button>
+            ${this.#opacitySlider()}
         </div>`;
+    }
+
+    /** The photo markers' opacity: `hcm-overlay-opacity` for `photos`, as the overlay list's row sent it (the hash keeps it). */
+    #opacitySlider(): TemplateResult {
+        const percent = Math.round(this.opacity * 100);
+        const label = translate(this.locale, 'layers.opacity', { name: translate(this.locale, 'layers.photos') });
+        const send = (event: Event, final: boolean): void => {
+            event.stopPropagation();
+            const opacity = (event as CustomEvent<{ readonly value: number }>).detail.value / 100;
+            const detail = { id: PHOTOS_OVERLAY_ID, opacity, final };
+            if (final) {
+                const name = translate(this.locale, 'layers.photos');
+                this.said = translate(this.locale, 'layers.opacityChanged', { name, percent: String(Math.round(opacity * 100)) });
+            }
+            this.dispatchEvent(new CustomEvent('hcm-overlay-opacity', { bubbles: true, composed: true, detail }));
+        };
+        return html`<p>${label}</p>
+            <hcm-slider
+                class="opacity"
+                min="0"
+                max="100"
+                step="1"
+                .value=${percent}
+                label=${label}
+                value-text=${translate(this.locale, 'layers.opacityValue', { percent: String(percent) })}
+                @hcm-input=${(event: Event) => {
+                    send(event, false);
+                }}
+                @hcm-change=${(event: Event) => {
+                    send(event, true);
+                }}
+            ></hcm-slider>`;
     }
 
     #setNear(near: number | null): void {

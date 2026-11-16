@@ -154,15 +154,23 @@ export async function dismissToast(page: Page, lang: ViewerLocale): Promise<void
 }
 
 /**
- * Opens the Layers panel unless it is already shown. Its first slider named for the photos is the photos' own (a category
- * may carry the same name: DECISIONS-for-review.md §37i).
+ * Opens the Layers panel unless it is already shown: the Photos switch's options button marks it (2026-11-16).
  */
 export async function openLayers(page: Page, lang: ViewerLocale): Promise<void> {
-    const opacity = page.getByRole('slider', { name: t(lang, 'layers.opacity', { name: t(lang, 'layers.photos') }) }).first();
-    if (!(await opacity.isVisible())) {
+    const options = page.getByRole('button', { name: t(lang, 'photosScope.options'), exact: true });
+    if (!(await options.isVisible())) {
         await chooseMenuItem(page, lang, t(lang, 'layers.title'));
     }
-    await expect(opacity).toBeVisible();
+    await expect(options).toBeVisible();
+}
+
+/** Opens the Photos switch's popover in the open Layers panel (its scope and the photos' opacity slider), unless it is open. */
+export async function openPhotoOptions(page: Page, lang: ViewerLocale): Promise<void> {
+    const options = page.getByRole('button', { name: t(lang, 'photosScope.options'), exact: true });
+    if ((await options.getAttribute('aria-expanded')) !== 'true') {
+        await options.click();
+    }
+    await expect(options).toHaveAttribute('aria-expanded', 'true');
 }
 
 /** The opacity slider of the overlay named `name` in the Layers panel. */

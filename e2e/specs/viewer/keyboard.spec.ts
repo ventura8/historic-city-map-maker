@@ -80,7 +80,7 @@ test('The skip link leads to the timeline, the menu to the layers and the photos
 
     await tabUntil(page, (info) => info.name === menu, 'the menu button');
     await openFromMenu(page, t(lang, 'layers.title'));
-    await expect(page.getByRole('slider', { name: t(lang, 'layers.opacity', { name: t(lang, 'layers.photos') }) })).toBeVisible();
+    await expect(page.getByRole('button', { name: t(lang, 'photosScope.options'), exact: true })).toBeVisible();
     await closeModalSheet(page);
     await expectFocus(page, (info) => info.name === menu, 'the menu button again');
 

@@ -28,7 +28,7 @@ import { tabbableElements } from '../components/focus.js';
 import { stateLayer } from '../components/styles.js';
 import { EMPTY } from './empty.js';
 import type { OverlayListGroup } from '../components/overlay-list.js';
-import { labelsNote, overlayGroups, overlayItems, pinnedIds, splitPinned, attributionLines } from './layer-panel-model.js';
+import { labelsNote, listedOverlays, overlayGroups, overlayItems, pinnedIds, splitPinned, attributionLines } from './layer-panel-model.js';
 import type { SheetMode } from './layout.js';
 import { revealLayers, syncPinnedOffset } from './pinned-offset.js';
 import { closeEvent, renderSheetFrame } from './sheet-frame.js';
@@ -317,7 +317,7 @@ export class HcmLayerPanel extends LitElement {
                     ? nothing
                     : html`<p class="empty"><hcm-icon name="timeline"></hcm-icon>${translate(locale, 'layers.empty')}</p>`
             }
-            ${this.#list(splitPinned(this.overlays, manifest, false), manifest, overlayGroups(manifest, locale))}
+            ${this.#list(listedOverlays(this.overlays, manifest), manifest, overlayGroups(manifest, locale))}
             <ul class="attribution">
                 ${attributionLines(this.overlays, manifest, locale).map((line) => html`<li>${line}</li>`)}
             </ul>
@@ -355,8 +355,13 @@ export class HcmLayerPanel extends LitElement {
         if (manifest.photos.length === 0) {
             return EMPTY;
         }
-        const visible = this.overlays.find((overlay) => overlay.kind === 'photos')?.visible ?? true;
-        return html`<hcm-photos-control .visible=${visible} .near=${this.photosNear} .locale=${locale}></hcm-photos-control>`;
+        const photos = this.overlays.find((overlay) => overlay.kind === 'photos') ?? { visible: true, opacity: 1 };
+        return html`<hcm-photos-control
+            .visible=${photos.visible}
+            .opacity=${photos.opacity}
+            .near=${this.photosNear}
+            .locale=${locale}
+        ></hcm-photos-control>`;
     }
 
     #mapLabels(manifest: Manifest, locale: ViewerLocale): TemplateResult {

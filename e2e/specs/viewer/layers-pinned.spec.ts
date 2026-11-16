@@ -62,7 +62,9 @@ test(
 
         await expect(page.getByRole('button', { name: t(lang, 'compare.open'), exact: true })).toHaveCount(0);
         await expect(page.getByRole('group', { name: translateMapLabels(lang, 'mapLabels.group'), exact: true })).toHaveCount(0);
-        await expect(viewer(page).locator('hcm-layer-panel .pinned')).toHaveCount(0);
+        // The strip holds the Photos switch alone (2026-11-16): nothing of Compare, Map labels or a pinned category.
+        await expect(viewer(page).locator('hcm-layer-panel .pinned > :not(hcm-photos-control)')).toHaveCount(0);
+        await expect(viewer(page).locator('hcm-layer-panel .pinned hcm-photos-control')).toBeVisible();
         await expect(viewer(page).locator('hcm-overlay-list')).toBeVisible();
     },
 );
@@ -89,7 +91,7 @@ test(
             .poll(async () => (await compare.boundingBox())?.y ?? -1, 'Compare scrolls away with the list')
             .toBeLessThan((before?.y ?? 0) - 40);
 
-        const last = panel.getByRole('switch', { name: t(lang, 'layers.toggle', { name: t(lang, 'layers.photos') }), exact: true }).last();
+        const last = panel.getByRole('switch').last();
         await last.focus();
         const box = await last.boundingBox();
         const hit = await page.evaluate(

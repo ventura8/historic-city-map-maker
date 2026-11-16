@@ -14,7 +14,8 @@ import {
     type ScreenPoint,
 } from '../../support/map.js';
 import { expect, test } from '../../support/test.js';
-import { openLayers, openViewer, opacitySlider, t, visibilitySwitch } from '../../support/viewer.js';
+import { openLayers,
+    openPhotoOptions, openViewer, opacitySlider, t, visibilitySwitch } from '../../support/viewer.js';
 
 /**
  * Live overlay opacity (behaviour V22, PLAN Addendum 3): every overlay of the Layers panel (a historical layer, the
@@ -123,6 +124,7 @@ test(
         expect(colourDistance(coneFull, BASEMAP_BACKGROUND), 'the view cone is drawn').toBeGreaterThan(8);
 
         await openLayers(page, lang);
+        await openPhotoOptions(page, lang);
         await setWithKeys(opacitySlider(page, lang, t(lang, 'layers.photos')), 50);
         await closeLayers(page, lang);
 

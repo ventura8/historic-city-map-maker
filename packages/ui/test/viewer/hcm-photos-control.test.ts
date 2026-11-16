@@ -131,4 +131,21 @@ describe('<hcm-photos-control> (design B)', () => {
 
         expect(element.open).toBe(false);
     });
+
+    it('happyPath_theOpacitySliderInThePopoverSendsThePhotosOpacityAndAnnouncesIt', async () => {
+        const element = await control({ open: true, opacity: 0.6 });
+        const slider = shadowQuery(element, 'hcm-slider.opacity') as HTMLElement & { value: number };
+        const events = recordEvents(document.body, 'hcm-overlay-opacity');
+        expect(slider.value).toBe(60);
+
+        fireKitEvent(slider, 'hcm-input', { value: 50 });
+        fireKitEvent(slider, 'hcm-change', { value: 40 });
+        await element.updateComplete;
+
+        expect(events.map((event) => event.detail)).toEqual([
+            { id: 'photos', opacity: 0.5, final: false },
+            { id: 'photos', opacity: 0.4, final: true },
+        ]);
+        expect(shadowQuery(element, '[role="status"]').textContent).toBe('Photos: opacity 40%');
+    });
 });

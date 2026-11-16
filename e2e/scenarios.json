@@ -1685,7 +1685,7 @@
             "area": "viewer",
             "path": "happy",
             "title": "On an iPhone the Photos switch shows or hides every photo and its popover keeps only the photos near the year",
-            "asserts": "WebKit as an iPhone 15: the Layers panel's Photos switch, under Map labels, is on; a tap turns it off and on; its chevron is a 44 px target with aria-haspopup and opens the popover (aria-expanded true); Only near the selected year writes near=10 and shows the calendar badge; ±25 writes near=25; Esc closes it; unit: the switch fires hcm-overlay-visibility for photos, a right-click, a long press and ArrowDown open it, the store redraws only the photos near the year and the pill gets its dot",
+            "asserts": "WebKit as an iPhone 15: the Layers panel's Photos switch, under Map labels, is on; a tap turns it off and on; its chevron is a 44 px target with aria-haspopup and opens the popover (aria-expanded true); Only near the selected year writes near=10 and shows the calendar badge; ±25 writes near=25; the popover's slider 'Opacitate: Fotografii' sets the photos' opacity (op=photos:…) and the overlay list has no Photos row (the owner, 2026-11-16); Esc closes it; unit: the switch fires hcm-overlay-visibility for photos, a right-click, a long press and ArrowDown open it, the store redraws only the photos near the year and the pill gets its dot",
             "tier": "e2e-viewer",
             "status": "exists",
             "notes": "The owner, 2026-11-15, design B. packages/ui/src/viewer/hcm-photos-control.ts, hcm-layer-panel.ts, timeline-extra-styles.ts (near-year); packages/engine/src/core/store.ts (setPhotosNear), map-specs.ts (photosScope); packages/shared/src/url/hash.ts (near=). Tests: e2e/specs/viewer/iphone-photos.spec.ts (project fn-webkit-iphone15); packages/ui/test/viewer/hcm-photos-control.test.ts; packages/engine/test/core/store-photos-near.test.ts."
@@ -4226,7 +4226,7 @@
             "area": "viewer",
             "path": "bad",
             "title": "Without Compare or map labels, Layers has no pinned strip",
-            "asserts": "no historical layers and a custom basemap with no map-label kinds -> no Compare, no map-labels group, no .pinned; the overlay list still lists photos and places",
+            "asserts": "no historical layers and a custom basemap with no map-label kinds -> no Compare, no map-labels group; the top strip holds only the Photos switch (2026-11-16); the overlay list still lists the places",
             "tier": "e2e-viewer",
             "status": "exists",
             "notes": "Owner 2026-11-10. Tests: e2e/specs/viewer/layers-pinned.spec.ts, packages/ui/test/viewer/hcm-layer-panel.test.ts; e2e/specs/viewer/iphone-sheet.spec.ts."

@@ -196,7 +196,7 @@ describe('<hcm-layer-panel> more', () => {
         expect(sheet.closeLabel).toBe('Close');
         expect(sheet.hasAttribute('modal')).toBe(false);
         const list = shadowQuery(element, 'hcm-overlay-list') as HTMLElement & OverlayListProps;
-        expect(list.items).toHaveLength(5);
+        expect(list.items).toHaveLength(4);
         expect(list.groups.map((group) => group.label)).toEqual(['Historical layers', 'Places']);
         expect([list.toggleLabel, list.opacityLabel, list.valueText, list.changedText]).toEqual([
             'Show {name}',
@@ -418,7 +418,7 @@ describe('<hcm-layer-panel> M27 pinned Disappeared streets', () => {
         expect(lists[0]?.items.map((item) => item.id)).toEqual(['strazi-disparute']);
         expect(lists[0]?.groups).toEqual([]);
         // The list below starts with the historical layers and no longer holds it.
-        expect(lists[1]?.items.map((item) => item.id)).toEqual(['kh9-1977', 'kh4-1966', 'photos', 'cladiri', 'evenimente']);
+        expect(lists[1]?.items.map((item) => item.id)).toEqual(['kh9-1977', 'kh4-1966', 'cladiri', 'evenimente']);
         expect(overlaysFromManifest(manifest).find((overlay) => overlay.id === 'strazi-disparute')?.visible).toBe(false);
     });
 
@@ -464,10 +464,13 @@ describe('<hcm-layer-panel>: the Photos switch (design B)', () => {
             photosNear: 25,
             overlays: withOverlayVisibility(overlaysFromManifest(testManifest()), 'photos', false),
         });
-        const photos = shadowQuery(element, '.pinned hcm-photos-control') as HTMLElement & { visible: boolean; near: number | null };
+        const photos = shadowQuery(element, '.pinned hcm-photos-control') as HTMLElement & { visible: boolean; near: number | null; opacity: number };
 
         expect(photos.visible).toBe(false);
         expect(photos.near).toBe(25);
+        expect(photos.opacity).toBe(1);
+        const list = shadowQuery(element, 'hcm-overlay-list') as unknown as OverlayListProps;
+        expect(list.items.map((item) => item.id)).not.toContain('photos');
     });
 
     it('badPath_aCityWithoutPhotosHasNoPhotosSwitch', async () => {
