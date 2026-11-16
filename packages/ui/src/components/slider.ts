@@ -101,16 +101,6 @@ export class HcmSlider extends LitElement {
                 background: var(--md-sys-color-secondary-container);
             }
 
-            .stop {
-                position: absolute;
-                inset-inline-end: 6px;
-                top: 6px;
-                width: 4px;
-                height: 4px;
-                border-radius: var(--md-sys-shape-corner-full);
-                background: var(--md-sys-color-on-secondary-container);
-            }
-
             /*
              * The handle's box is 24 px wide (WCAG 2.5.8's minimum on its own, even where a neighbour or the Layers panel's
              * pinned strip cuts its 48 px touch target: the tour, 2026-11-16): a 4 px bar, its colour clipped to the content
@@ -200,7 +190,7 @@ export class HcmSlider extends LitElement {
         const fraction = range > 0 ? (value - this.min) / range : 0;
         return html`<div class="track" part="track" ${cssProperties({ '--fraction': String(fraction) })} @pointerdown=${this.onPointerDown}>
             <span class="active"></span>
-            <span class="inactive"><span class="stop"></span></span>
+            <span class="inactive"></span>
             <span
                 class="handle touch-target"
                 part="handle"

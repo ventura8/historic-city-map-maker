@@ -43,6 +43,8 @@ describe('<hcm-slider>', () => {
         await expect.element(handle).toHaveAttribute('aria-valuemin', '0');
         await expect.element(handle).toHaveAttribute('aria-valuemax', '100');
         expect(shadowPart(element, '.track').style.getPropertyValue('--fraction')).toBe('0.8');
+        // No stop dot at the track's end: beside a nearly full slider it read as a second knob (the owner, 2026-11-16).
+        expect(element.shadowRoot?.querySelector('.stop') ?? null).toBeNull();
         expect(await axeViolations(element)).toEqual([]);
     });
 

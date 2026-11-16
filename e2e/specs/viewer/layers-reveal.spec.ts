@@ -17,6 +17,19 @@ test('A new year scrolls the open Layers panel to its layer and marks it', { tag
     await expect(row).toHaveCount(1);
     await expect(row).toContainText('1966');
     await expect(row).toBeInViewport();
+    // The reveal scrolls the pane only (live bug 2026-11-16: the viewer's host scrolled, the app in the top 60 % of the window).
+    const frame = await page.evaluate(() => {
+        const host = document.querySelector('hcm-map-viewer');
+        return {
+            page: document.scrollingElement?.scrollTop ?? 0,
+            host: host?.scrollTop ?? -1,
+            bottom: host?.getBoundingClientRect().bottom ?? 0,
+            height: window.innerHeight,
+        };
+    });
+    expect(frame.page).toBe(0);
+    expect(frame.host).toBe(0);
+    expect(frame.bottom).toBe(frame.height);
 });
 
 test("The page's first year reveals nothing in the Layers panel", { tag: '@S-V73-BAD-NO-REVEAL' }, async ({ page, lang }) => {
