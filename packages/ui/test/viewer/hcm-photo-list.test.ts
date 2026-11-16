@@ -42,7 +42,7 @@ describe('<hcm-photo-list>', () => {
         const element = await mountElement<HcmPhotoList>(HCM_PHOTO_LIST_TAG, { photos, locale: 'en', manifestUrl: TEST_MANIFEST_URL });
 
         await expect.element(page.getByRole('group', { name: 'Kind of photo' })).toBeVisible();
-        expect(shadowQueryAll(element, '.date')[0]?.textContent).toBe('Aerial photo · 1978–1979');
+        expect(shadowQueryAll(element, '.date')[0]?.textContent).toBe('Aerial photo · Years 1978–1979');
 
         await page.getByRole('radio', { name: 'Aerial' }).click();
         await expect.element(page.getByRole('status')).toHaveTextContent('1 photo');

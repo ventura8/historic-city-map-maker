@@ -23,7 +23,7 @@ const EXPORTS = {
     // The interface's twenty-five languages (docs/I18N.md).
     uiI18n: UI_I18N_EXPORTS,
     adminI18n: ['translateAdminContent', 'translateAdminSetup', 'translateAdminShell'],
-    viewerExtras: ['PHOTO_VIEWS', 'streetViewUrl'],
+    viewerExtras: ['PHOTO_KINDS', 'PHOTO_VIEWS', 'photoKindOf', 'streetViewUrl'],
     geo: [
         'EARTH_RADIUS_M',
         'MAX_MERCATOR_LAT',

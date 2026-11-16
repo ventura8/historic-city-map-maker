@@ -98,7 +98,7 @@ describe('Mapbox adapter', () => {
         });
         expect(map.layerOrder).toEqual(['hcm-photos-cone-fill', 'hcm-photos-cone-line', 'hcm-photos-cluster', 'hcm-photos-marker']);
         expect([...map.images.keys()]).toEqual(['hcm-photo-aerial', 'hcm-photo-camera', 'hcm-photo-direction', 'hcm-photo-cluster']);
-        expect(map.callsOf('updateImage')).toHaveLength(3);
+        expect(map.callsOf('updateImage')).toHaveLength(4);
         expect(env.observed).toBe(1);
         expect(nativeMap(port)).toBe(map);
         expect(nativeMap(new FakeMap())).toBeNull();
