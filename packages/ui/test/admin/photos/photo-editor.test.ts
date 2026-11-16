@@ -223,6 +223,19 @@ describe('<hcm-admin-photo-editor>: fields', () => {
         ]);
     });
 
+    it('happyPath_theKindStreetOrAerial', async () => {
+        const { element, photos } = await editorOf(editor({ value: { ...VALUE, kind: 'aerial' } }));
+        const kind = deep(element, '#photo-kind') as HTMLSelectElement;
+
+        expect(kind.value).toBe('aerial');
+        kind.value = 'ground';
+        kind.dispatchEvent(new Event('change'));
+        kind.value = 'aerial';
+        kind.dispatchEvent(new Event('change'));
+
+        expect(photos.calls).toEqual(['edit {}', 'edit {"kind":"aerial"}']);
+    });
+
     it('badPath_atMostFiveLinks', async () => {
         const links = Array.from({ length: 5 }, (_value, index) => ({ url: `https://${String(index)}.example`, label: String(index) }));
         const { element } = await editorOf(editor({ value: { ...VALUE, links } }));

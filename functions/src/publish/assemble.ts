@@ -173,6 +173,7 @@ function layerEntry(layer: LayerDoc, id: string): unknown {
 function photoCommon(photo: PhotoDoc & { readonly image: NonNullable<PhotoDoc['image']> }, id: string) {
     return {
         id,
+        kind: photo.kind,
         title: photo.title,
         description: photo.description,
         year: photo.year,

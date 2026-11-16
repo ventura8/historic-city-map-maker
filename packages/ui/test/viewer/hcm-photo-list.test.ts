@@ -33,6 +33,28 @@ describe('<hcm-photo-list>', () => {
         );
     });
 
+    it('happyPath_aerialPhotosAreLabelledAndFilteredByKind', async () => {
+        const [first, second] = MANIFEST.photos;
+        const photos = [{ ...first!, kind: 'aerial' as const }, second!];
+        const element = await mountElement<HcmPhotoList>(HCM_PHOTO_LIST_TAG, { photos, locale: 'en', manifestUrl: TEST_MANIFEST_URL });
+
+        await expect.element(page.getByRole('group', { name: 'Kind of photo' })).toBeVisible();
+        expect(shadowQueryAll(element, '.date')[0]?.textContent).toBe('Aerial photo · 1978–1979');
+
+        await page.getByRole('radio', { name: 'Aerial' }).click();
+        await expect.element(page.getByRole('status')).toHaveTextContent('1 photo');
+        await page.getByRole('radio', { name: 'Street' }).click();
+        expect(shadowQueryAll(element, '.title').map((title) => title.textContent)).toEqual(['Strada Uranus']);
+        await page.getByRole('radio', { name: 'All' }).click();
+        await expect.element(page.getByRole('status')).toHaveTextContent('2 photos');
+    });
+
+    it('badPath_noAerialPhotoShowsNoKindChoice', async () => {
+        const element = await mountElement<HcmPhotoList>(HCM_PHOTO_LIST_TAG, { photos: MANIFEST.photos, manifestUrl: TEST_MANIFEST_URL });
+
+        expect(shadowQueryAll(element, 'fieldset')).toHaveLength(0);
+    });
+
     it('happyPath_choosingAPhotoFiresItsId', async () => {
         const element = await mountElement<HcmPhotoList>(HCM_PHOTO_LIST_TAG, {
             photos: MANIFEST.photos,

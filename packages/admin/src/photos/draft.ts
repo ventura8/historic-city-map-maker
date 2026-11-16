@@ -25,6 +25,8 @@ const PHOTO_EDITABLE = [
     'day',
     'author',
     'license',
+    /** Street (absent) or aerial (the owner 2026-11-16). */
+    'kind',
     'rightsHolder',
     'sourceUrl',
     'sourceLabel',

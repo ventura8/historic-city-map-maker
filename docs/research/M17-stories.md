@@ -77,6 +77,9 @@ body, yearStart?, yearEnd?, photoIds?, poiIds?, credit?}`, the texts `{ro, en?}`
 
 ## 5. The public map
 
+A story may link aerial photos as it links any photo: since 2026-11-16 an aerial photo is a photo of the kind `aerial`
+(`docs/research/M28-sources.md` → *Aerial photos are photos*), never a layer, so `photoIds` covers both kinds.
+
 - **Where a story is found**: a Stories item in the map's menu (when the city has any) opens the list, newest year last; a
   photo's sheet and a place's sheet list the stories that name them; a story's own link is the hash `#story=<id>` (and
   `&story=<id>` after the view), which the Share button copies while a story is open.

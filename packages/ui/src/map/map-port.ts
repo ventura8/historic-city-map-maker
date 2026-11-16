@@ -42,6 +42,8 @@ export interface PhotoPointProperties {
     readonly year: number | null;
     /** Rotates the camera icon; null draws an unrotated marker and no cone. */
     readonly bearing: number | null;
+    /** True for a photo taken from above: its own marker (an aeroplane), never rotated. */
+    readonly aerial?: boolean;
 }
 
 export interface PhotoPointFeature {

@@ -8,6 +8,7 @@ import {
     drawIcon,
     ensureIcon,
     ICON_PIXEL_RATIO,
+    PHOTO_AERIAL_ICON,
     PHOTO_CAMERA_ICON,
     PHOTO_CLUSTER_ICON,
     PHOTO_DIRECTION_ICON,
@@ -68,6 +69,15 @@ describe('sprite icons', () => {
         await drawIcon(poiIconId('church'), env);
 
         expect(env.contexts[0]?.drawn).toEqual(['beginPath', 'arc', 'closePath', 'fill']);
+    });
+
+    it('happyPath_anAerialPhotoHasItsOwnAeroplaneMarker', async () => {
+        const env = fakeIconEnv();
+
+        const aerial = await drawIcon(PHOTO_AERIAL_ICON, env);
+
+        expect(aerial?.width).toBe(64);
+        expect(env.contexts[0]?.drawn).toContain('fill(path)');
     });
 
     it('badPath_anUnknownIdOrNoCanvasDrawsNothing', async () => {

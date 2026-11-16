@@ -1,5 +1,6 @@
 import { describe, expect, it } from 'vitest';
 
+import { photoKindOf } from '../../src/schemas/manifest.js';
 import { MAX_GEOMETRY_VERTICES, MAX_POLYGON_RINGS } from '../../src/schemas/geometry.js';
 import { MAX_LINKS } from '../../src/schemas/primitives.js';
 import { parseManifestJson, validateManifest, type ValidationIssue } from '../../src/schemas/validation.js';
@@ -36,6 +37,13 @@ function issuesOf(input: unknown): readonly ValidationIssue[] {
 describe('manifest v1: happy paths', () => {
     it('happyPath_theFixtureIsValid', () => {
         expect(issuesOf(validManifest())).toEqual([]);
+    });
+
+    it('happyPath_anAerialPhotoAndAPhotoWithoutKindIsAStreetPhoto', () => {
+        const result = validateManifest(patched(['photos', 0, 'kind'], 'aerial'));
+
+        expect(result.ok && photoKindOf(result.value.photos[0]!)).toBe('aerial');
+        expect(photoKindOf({})).toBe('ground');
     });
 
     it('happyPath_textIsTrimmed', () => {
@@ -264,6 +272,7 @@ const RULES = [
     ['a brightness over 1', ['layers', 0, 'adjustments', 'brightnessMax'], 1.2, 'layers[0].adjustments.brightnessMax', 'validation.tooBig'],
     ['an unknown adjustment', ['layers', 0, 'adjustments', 'gamma'], 2, 'layers[0].adjustments.gamma', 'validation.unknownKey'],
     ['an unknown layer kind', ['layers', 0, 'kind'], 'drawing', 'layers[0].kind', 'validation.value'],
+    ['an unknown photo kind', ['photos', 0, 'kind'], 'underwater', 'photos[0].kind', 'validation.value'],
     ['a layer named like the photos overlay', ['layers', 0, 'id'], 'photos', 'layers[0].id', 'validation.duplicateId'],
     ['an end year before the year', ['photos', 0, 'yearEnd'], 1970, 'photos[0].yearEnd', 'validation.yearRange'],
     ['the licence unknown', ['photos', 0, 'license'], 'unknown', 'photos[0].license', 'validation.value'],

@@ -163,7 +163,8 @@ export const GUIDED_CATALOGUE: readonly GuidedFacts[] = [
     ),
     guided(
         'nara',
-        { publicUse: 'perItem', path: 'imageryUpload', automatic: 'none' },
+        // Air photos are photos of the kind `aerial`, never map layers (the owner, 2026-11-16).
+        { publicUse: 'perItem', path: 'photos', automatic: 'none' },
         'https://www.archives.gov/research/cartographic/aerial-photography/rg-373-gx-foreign-aerial-photography',
         'https://ncap.org.uk/NARA',
     ),

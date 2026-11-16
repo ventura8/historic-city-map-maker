@@ -541,3 +541,29 @@ test(
         expect(unknown.every((date) => date.size === '14px' && !date.clipped)).toBe(true);
     },
 );
+
+test(
+    'An aerial photo is labelled in the list and the list filters street and aerial photos',
+    { tag: '@S-V76-HAPPY-AERIAL-FILTER' },
+    async ({ page, lang }) => {
+        await serveManifest(page, withPhotoFields({ kind: 'aerial', year: 1944 }));
+        await openViewer(page, { lang });
+        await openPhotoList(page, lang);
+        const list = viewer(page).locator('.photos-sheet hcm-photo-list');
+
+        await list.getByRole('radio', { name: t(lang, 'photos.filter.aerial'), exact: true }).check();
+        await expect(list.getByRole('button')).toHaveCount(1);
+        await expect(list.locator('.date')).toHaveText(`${t(lang, 'photos.kind.aerial')} · 1944`);
+        await list.getByRole('radio', { name: t(lang, 'photos.filter.ground'), exact: true }).check();
+        await expect(list.getByRole('button')).toHaveCount(PHOTOS.length - 1);
+    },
+);
+
+test('A map with no aerial photo shows no street or aerial choice', { tag: '@S-V76-BAD-NO-AERIAL' }, async ({ page, lang }) => {
+    await openViewer(page, { lang });
+    await openPhotoList(page, lang);
+
+    const list = viewer(page).locator('.photos-sheet hcm-photo-list');
+    await expect(list.getByRole('button')).toHaveCount(PHOTOS.length);
+    await expect(list.getByRole('radio')).toHaveCount(0);
+});

@@ -4,7 +4,7 @@
  * publishing (Published, with why it cannot be switched on yet, and Rights to check). Each change is a patch of the
  * draft; nothing is written until Save.
  */
-import type { FirestoreLicense, UiLocale, ValidationIssue } from '@hcm/shared';
+import { PHOTO_KINDS, type FirestoreLicense, type UiLocale, type ValidationIssue } from '@hcm/shared';
 import { html, nothing, type TemplateResult } from 'lit';
 
 import type { AssistActionsPort, AssistViewPort } from '../assist/assist-port.js';
@@ -93,11 +93,31 @@ function localizedPair(
 /** The one note above both "date as written" fields, which each name it. */
 const DATE_TEXT_HINT = partId('photo-dateText', 'hint');
 
+/** Street or aerial (the owner 2026-11-16): an aerial photo shows with its own marker and filter on the map. */
+function kindField(input: SectionInput): TemplateResult {
+    const { locale, value, edit } = input;
+    const options = PHOTO_KINDS.map((kind) => ({ value: kind, label: photoText(locale, `adminContent.photos.kind.${kind}`) }));
+    return selectField(
+        {
+            id: 'photo-kind',
+            label: photoText(locale, 'adminContent.photos.field.kind'),
+            value: value.kind ?? 'ground',
+            error: null,
+            options,
+            readOnly: input.readOnly,
+        },
+        (chosen) => {
+            edit({ kind: chosen === 'aerial' ? 'aerial' : undefined });
+        },
+    );
+}
+
 export function textsSection(input: SectionInput): TemplateResult {
     const { locale, value, issues, edit } = input;
     const title = value.title;
     return html`<fieldset>
         <legend>${photoText(locale, 'adminContent.photos.section.texts')}</legend>
+        ${kindField(input)}
         ${textField(
             {
                 id: 'photo-title-ro',

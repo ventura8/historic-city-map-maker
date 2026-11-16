@@ -14,7 +14,7 @@ import { wrapBearing, type BBox, type LngLat, type ViewerLocale, type MapView, t
 import { Basemap3dObjects } from './basemap.js';
 import { animates, cameraMove, fitCamera, moveCamera } from './camera.js';
 import { browserAdapterEnv, type AdapterEnv } from './env.js';
-import { ensureIcon, PHOTO_CAMERA_ICON, PHOTO_CLUSTER_ICON, PHOTO_DIRECTION_ICON, poiIconId } from './icons.js';
+import { ensureIcon, PHOTO_AERIAL_ICON, PHOTO_CAMERA_ICON, PHOTO_CLUSTER_ICON, PHOTO_DIRECTION_ICON, poiIconId } from './icons.js';
 import { EventListeners, Listeners } from './listeners.js';
 import {
     PHOTOS_OVERLAY_ID,
@@ -191,7 +191,7 @@ class MapboxPort implements MapPort {
     /** After `load`: sprite images, the photo sources and layers, the 3D switch, selection. */
     #prepare(session: Session): void {
         const { map, registry } = session;
-        for (const icon of [PHOTO_CAMERA_ICON, PHOTO_DIRECTION_ICON, PHOTO_CLUSTER_ICON]) {
+        for (const icon of [PHOTO_AERIAL_ICON, PHOTO_CAMERA_ICON, PHOTO_DIRECTION_ICON, PHOTO_CLUSTER_ICON]) {
             this.#ensureIcon(session, icon);
         }
         for (const [id, source] of photoSources()) {

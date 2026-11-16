@@ -142,6 +142,19 @@ describe('map specs: photos, POIs, options', () => {
         expect(CONE_LENGTH_M).toBe(60);
     });
 
+    it('happyPath_anAerialPhotoIsMarkedAerialAndAStreetPhotoIsNot', () => {
+        const data = photoFeatures(
+            [
+                { ...photo(), kind: 'aerial' },
+                { ...photo(), id: 'street', kind: 'ground' },
+            ],
+            'en',
+        );
+
+        expect(data.features[0]?.properties).toMatchObject({ aerial: true });
+        expect(data.features[1]?.properties).not.toHaveProperty('aerial');
+    });
+
     it('happyPath_aConeWithoutFieldOfViewUsesTheDefault', () => {
         const data = photoFeatures([omit(photo(), 'fov')], 'ro');
 

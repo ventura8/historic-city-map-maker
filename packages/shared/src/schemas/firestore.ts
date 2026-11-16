@@ -25,6 +25,7 @@ import {
     LICENSES,
     themeSchema,
     LAYER_KINDS,
+    PHOTO_KINDS,
 } from './manifest.js';
 import { ARCHIVE_PLACE_METHODS, layerRightsSchema } from './imagery-archive.js';
 import { iconNameSchema, MAX_POI_PHOTOS, photosOverlaySchema } from './poi.js';
@@ -209,6 +210,8 @@ const photoReplacementSchema = z.strictObject({
  */
 const photoDocObjectSchema = z
     .strictObject({
+        /** Absent on a street photo; `aerial` on a photo taken from above (Imagery → aerial photos, the owner 2026-11-16). */
+        kind: z.enum(PHOTO_KINDS).optional(),
         title: localizedPartial(200),
         description: localizedPartial(5000).optional(),
         year: yearSchema.optional(),

@@ -5,7 +5,7 @@
  * store satisfies `PhotosAreaPort`. The elements render the state and call the intents; they never touch Firestore,
  * Storage or the map's library themselves.
  */
-import type { AdminContentKey, ApiErrorCode, CityRole, FirestoreLicense, ReviewStatus, ValidationIssue } from '@hcm/shared';
+import type { AdminContentKey, ApiErrorCode, CityRole, FirestoreLicense, PhotoKind, ReviewStatus, ValidationIssue } from '@hcm/shared';
 
 import type { AssistActionsPort, AssistViewPort } from '../assist/assist-port.js';
 
@@ -89,6 +89,8 @@ export interface LocalizedPort {
 
 /** The editor's draft: the editable fields of a photo. */
 export interface PhotoValuePort extends StickyPort {
+    /** Absent on a street photo; `aerial` on one taken from above (the owner 2026-11-16). */
+    readonly kind?: PhotoKind | undefined;
     readonly title: LocalizedPort;
     readonly description?: LocalizedPort | undefined;
     readonly dateText?: LocalizedPort | undefined;

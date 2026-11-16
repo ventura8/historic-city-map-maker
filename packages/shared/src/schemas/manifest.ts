@@ -203,9 +203,23 @@ const photoVersionSchema = photoImageSchema.extend({ credit: plainText(200).opti
 /** Where the photo comes from: an https address and, optionally, its name. */
 const photoSourceSchema = z.strictObject({ url: httpsUrlSchema, label: plainText(200).optional() });
 
+/**
+ * What a photo shows (the owner, 2026-11-16): `ground`, taken on the street (the default, so a photo without `kind` is
+ * one), or `aerial`, taken from above (Imagery → aerial photos land here as photos, never as map layers).
+ */
+export const PHOTO_KINDS = ['ground', 'aerial'] as const;
+export type PhotoKind = (typeof PHOTO_KINDS)[number];
+
+/** The kind of `photo`: `ground` when it says none. */
+export function photoKindOf(photo: { readonly kind?: PhotoKind | undefined }): PhotoKind {
+    return photo.kind ?? 'ground';
+}
+
 /** What a photo says wherever it stands on the map or, unplaced (M13), in the gallery. */
 const photoFields = {
     id: idSchema,
+    /** Absent on a street photo (`ground`); `aerial` on a photo taken from above. */
+    kind: z.enum(PHOTO_KINDS).optional(),
     title: localizedPartial(200),
     description: localizedPartial(5000).optional(),
     year: yearSchema.optional(),

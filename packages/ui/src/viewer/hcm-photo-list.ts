@@ -4,15 +4,26 @@
  * items: the title in body-large, the date as supporting text in body-medium (14 px; the M1 UX review found the
  * 12 px body-small too small to read on a phone).
  */
-import { DEFAULT_LOCALE, translate, type ViewerLocale, type Photo } from '@hcm/shared';
-import { LitElement, css, html, type TemplateResult } from 'lit';
+import { DEFAULT_LOCALE, photoKindOf, translate, type ViewerLocale, type Photo, type PhotoKind } from '@hcm/shared';
+import { LitElement, css, html, nothing, type TemplateResult } from 'lit';
 import { repeat } from 'lit/directives/repeat.js';
 
+import { visuallyHidden } from '../components/styles.js';
 import { resolveAssetUrl } from './services.js';
 import { baseStyles } from './shared-styles.js';
 import { localizedText, photoCountText, photoDateText } from './text.js';
 
 export const HCM_PHOTO_LIST_TAG = 'hcm-photo-list';
+
+/** Which photos the list shows (the owner, 2026-11-16): every kind, street photos or aerial photos. */
+export type PhotoKindFilter = 'all' | PhotoKind;
+
+const KIND_FILTERS: readonly PhotoKindFilter[] = ['all', 'ground', 'aerial'];
+
+/** The photos of `photos` that `filter` keeps. */
+export function photosOfKind(photos: readonly Photo[], filter: PhotoKindFilter): readonly Photo[] {
+    return filter === 'all' ? photos : photos.filter((photo) => photoKindOf(photo) === filter);
+}
 
 /** The rows whose thumbnails load at once. */
 const EAGER_ROWS = 12;
@@ -23,13 +34,40 @@ export class HcmPhotoList extends LitElement {
         locale: { type: String },
         manifestUrl: { type: String, attribute: 'manifest-url' },
         restoreScroll: { attribute: false },
+        kindFilter: { state: true },
     };
 
     static override readonly styles = [
         baseStyles,
+        visuallyHidden,
         css`
             :host {
                 display: block;
+            }
+
+            .kinds {
+                display: flex;
+                flex-wrap: wrap;
+                gap: 8px;
+                margin: 0 0 8px;
+                padding: 0;
+                border: 0;
+            }
+
+            .kinds label {
+                display: inline-flex;
+                align-items: center;
+                gap: 4px;
+                min-block-size: 48px;
+                padding-inline: 12px;
+                border: 1px solid var(--md-sys-color-outline);
+                border-radius: var(--md-sys-shape-corner-small);
+                cursor: pointer;
+            }
+
+            .kinds label:has(input:checked) {
+                background: var(--md-sys-color-secondary-container);
+                color: var(--md-sys-color-on-secondary-container);
             }
 
             .count {
@@ -89,6 +127,8 @@ export class HcmPhotoList extends LitElement {
     declare manifestUrl: string;
     /** V75: back from a photo opened here, the list scrolls to where it was. */
     declare restoreScroll: number;
+    /** Street, aerial or both; the choice shows only when the city has aerial photos. */
+    declare kindFilter: PhotoKindFilter;
 
     constructor() {
         super();
@@ -96,6 +136,7 @@ export class HcmPhotoList extends LitElement {
         this.locale = DEFAULT_LOCALE;
         this.manifestUrl = '';
         this.restoreScroll = 0;
+        this.kindFilter = 'all';
     }
 
     protected override firstUpdated(): void {
@@ -111,14 +152,42 @@ export class HcmPhotoList extends LitElement {
     }
 
     override render(): TemplateResult {
-        return html`<p class="count" role="status">${photoCountText(this.photos.length, this.locale)}</p>
+        const shown = photosOfKind(this.photos, this.kindFilter);
+        return html`${this.#kinds()}
+            <p class="count" role="status">${photoCountText(shown.length, this.locale)}</p>
             <ul aria-label=${translate(this.locale, 'photos.list')}>
                 ${repeat(
-                    this.photos,
+                    shown,
                     (photo) => photo.id,
                     (photo, index) => this.#item(photo, index),
                 )}
             </ul>`;
+    }
+
+    /** The Street / Aerial choice, only when some photo is aerial (a city of street photos sees no change). */
+    #kinds(): TemplateResult | typeof nothing {
+        if (!this.photos.some((photo) => photoKindOf(photo) === 'aerial')) {
+            return nothing;
+        }
+        const choose = (filter: PhotoKindFilter): void => {
+            this.kindFilter = filter;
+        };
+        return html`<fieldset class="kinds">
+            <legend class="visually-hidden">${translate(this.locale, 'photos.filter')}</legend>
+            ${KIND_FILTERS.map(
+                (filter) =>
+                    html`<label
+                        ><input
+                            type="radio"
+                            name="kind"
+                            .checked=${this.kindFilter === filter}
+                            @change=${() => {
+                                choose(filter);
+                            }}
+                        />${translate(this.locale, `photos.filter.${filter}`)}</label
+                    >`,
+            )}
+        </fieldset>`;
     }
 
     /**
@@ -137,10 +206,19 @@ export class HcmPhotoList extends LitElement {
             <button type="button" @click=${select}>
                 <img src=${src} alt="" loading=${index < EAGER_ROWS ? 'eager' : 'lazy'} decoding="async" />
                 <span class="title">${localizedText(photo.title, this.locale)}</span>
-                <span class="date">${photoDateText(photo, this.locale)}</span>
+                <span class="date">${dateLine(photo, this.locale)}</span>
             </button>
         </li>`;
     }
+}
+
+/** The supporting line: the date, after "Aerial photo" for a photo taken from above. */
+function dateLine(photo: Photo, locale: ViewerLocale): string {
+    const date = photoDateText(photo, locale);
+    if (photoKindOf(photo) !== 'aerial') {
+        return date;
+    }
+    return `${translate(locale, 'photos.kind.aerial')} · ${date}`;
 }
 
 /** The element's parent across slots and shadow roots (null at the document). */

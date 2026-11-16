@@ -49,6 +49,7 @@ export const MANIFEST_FIELDS: Readonly<Record<HistoryEntity, readonly string[]>>
         'status',
     ],
     photo: [
+        'kind',
         'title',
         'description',
         'year',

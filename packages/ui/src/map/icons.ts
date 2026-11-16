@@ -17,6 +17,8 @@ export const ICON_PIXEL_RATIO = 2;
 
 export const PHOTO_CAMERA_ICON = 'hcm-photo-camera';
 export const PHOTO_DIRECTION_ICON = 'hcm-photo-direction';
+/** An aerial photo (the owner, 2026-11-16): the marker disc with an aeroplane instead of the camera. */
+export const PHOTO_AERIAL_ICON = 'hcm-photo-aerial';
 export const PHOTO_CLUSTER_ICON = 'hcm-photo-cluster';
 const POI_ICON_PREFIX = 'hcm-poi-icon-';
 
@@ -133,6 +135,20 @@ function camera(context: IconContext, env: IconEnv, size: number): void {
     context.restore();
 }
 
+/** Material Symbols' `flight`, a 24 px path: the glyph of an aerial photo's marker. */
+const AEROPLANE_PATH =
+    'M21 16v-2l-8-5V3.5c0-.83-.67-1.5-1.5-1.5S10 2.67 10 3.5V9l-8 5v2l8-2.5V19l-2 1.5V22l3.5-1 3.5 1v-1.5L13 19v-5.5l8 2.5z';
+
+/** The aeroplane glyph, as wide as the camera, centred in a `size` box. */
+function aeroplane(context: IconContext, env: IconEnv, size: number): void {
+    context.save();
+    context.translate(size / 2 - CAMERA_GLYPH / 2, size / 2 - CAMERA_GLYPH / 2);
+    context.scale(CAMERA_GLYPH / 24, CAMERA_GLYPH / 24);
+    context.fillStyle = MARKER_STROKE;
+    context.fill(env.createPath(AEROPLANE_PATH));
+    context.restore();
+}
+
 /** A pointer at the top edge: with `icon-rotate` it shows where the camera looked. */
 function pointer(context: IconContext, size: number): void {
     context.beginPath();
@@ -163,6 +179,16 @@ const PHOTO_ICONS: ReadonlyMap<string, IconSpec> = new Map<string, IconSpec>([
                 pointer(context, MARKER_SIZE);
                 outlinedDisc(context, MARKER_SIZE / 2, 20);
                 camera(context, env, MARKER_SIZE);
+            },
+        },
+    ],
+    [
+        PHOTO_AERIAL_ICON,
+        {
+            size: MARKER_SIZE,
+            draw: (context, env) => {
+                outlinedDisc(context, MARKER_SIZE / 2, 22);
+                aeroplane(context, env, MARKER_SIZE);
             },
         },
     ],

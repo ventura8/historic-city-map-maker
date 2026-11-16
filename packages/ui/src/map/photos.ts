@@ -5,7 +5,7 @@
  * default, so Mapbox Standard's night does not dim them (docs/research/viewer-input.md §4).
  */
 import type { MapSlot, PhotoConeFeature, PhotoFeatureCollection, PhotoPointFeature } from './map-port.js';
-import { PHOTO_CAMERA_ICON, PHOTO_CLUSTER_ICON, PHOTO_DIRECTION_ICON } from './icons.js';
+import { PHOTO_AERIAL_ICON, PHOTO_CAMERA_ICON, PHOTO_CLUSTER_ICON, PHOTO_DIRECTION_ICON } from './icons.js';
 import { layerOpacityPaint, visibilityValue, type MapLayerEntry, type OverlayEntry } from './overlay-registry.js';
 
 export const PHOTO_POINTS_SOURCE = 'hcm-photos-points';
@@ -39,8 +39,14 @@ function isPoint(feature: PhotoPointFeature | PhotoConeFeature): feature is Phot
 
 /** A point without a null bearing or year: Mapbox expressions test `has`, and a null would still count as present. */
 function pointForMap(feature: PhotoPointFeature): Readonly<Record<string, unknown>> {
-    const { id, title, year, bearing } = feature.properties;
-    const properties = { id, title, ...(year === null ? {} : { year }), ...(bearing === null ? {} : { bearing }) };
+    const { id, title, year, bearing, aerial } = feature.properties;
+    const properties = {
+        id,
+        title,
+        ...(year === null ? {} : { year }),
+        ...(bearing === null ? {} : { bearing }),
+        ...(aerial === true ? { aerial } : {}),
+    };
     return { type: 'Feature', geometry: feature.geometry, properties };
 }
 
@@ -103,7 +109,7 @@ export function photoLayers(slot: MapSlot, visible: boolean, opacity: number): r
             filter: ['!', ['has', 'point_count']],
             layout: {
                 visibility,
-                'icon-image': ['case', ['has', 'bearing'], PHOTO_DIRECTION_ICON, PHOTO_CAMERA_ICON],
+                'icon-image': ['case', ['has', 'aerial'], PHOTO_AERIAL_ICON, ['has', 'bearing'], PHOTO_DIRECTION_ICON, PHOTO_CAMERA_ICON],
                 'icon-rotate': ['coalesce', ['get', 'bearing'], 0],
                 'icon-rotation-alignment': 'map',
                 'icon-allow-overlap': true,

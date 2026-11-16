@@ -97,7 +97,7 @@ describe('Mapbox adapter', () => {
             config: { basemap: { show3dObjects: true } },
         });
         expect(map.layerOrder).toEqual(['hcm-photos-cone-fill', 'hcm-photos-cone-line', 'hcm-photos-cluster', 'hcm-photos-marker']);
-        expect([...map.images.keys()]).toEqual(['hcm-photo-camera', 'hcm-photo-direction', 'hcm-photo-cluster']);
+        expect([...map.images.keys()]).toEqual(['hcm-photo-aerial', 'hcm-photo-camera', 'hcm-photo-direction', 'hcm-photo-cluster']);
         expect(map.callsOf('updateImage')).toHaveLength(3);
         expect(env.observed).toBe(1);
         expect(nativeMap(port)).toBe(map);
@@ -305,6 +305,11 @@ describe('Mapbox adapter: overlays', () => {
                     geometry: { type: 'Point', coordinates: [26, 44] },
                     properties: { id: 'a', title: 'A', year: null, bearing: 10 },
                 },
+                {
+                    type: 'Feature',
+                    geometry: { type: 'Point', coordinates: [26, 44] },
+                    properties: { id: 'b', title: 'B', year: 1944, bearing: null, aerial: true },
+                },
             ],
         });
 
@@ -312,6 +317,11 @@ describe('Mapbox adapter: overlays', () => {
             type: 'FeatureCollection',
             features: [
                 { type: 'Feature', geometry: { type: 'Point', coordinates: [26, 44] }, properties: { id: 'a', title: 'A', bearing: 10 } },
+                {
+                    type: 'Feature',
+                    geometry: { type: 'Point', coordinates: [26, 44] },
+                    properties: { id: 'b', title: 'B', year: 1944, aerial: true },
+                },
             ],
         });
         expect(map.getSource('hcm-photos-cones')?.data).toEqual({ type: 'FeatureCollection', features: [] });

@@ -395,6 +395,7 @@ service cloud.firestore {
                 && data.license in ['CC0', 'CC-BY-4.0', 'CC-BY-SA-4.0', 'PD', 'permission', 'permission-legacy', 'unknown']
                 && data.published is bool
                 && data.get('rightsReview', false) is bool
+                && data.get('kind', 'ground') in ['ground', 'aerial']
                 && stamped(data);
         }
 
@@ -684,7 +685,7 @@ service cloud.firestore {
                         : (isCityUploader(city) && request.resource.data.get('reviewStatus', '') == 'pending'
                             && !('legacyId' in request.resource.data)))
                     && isId(photo)
-                    && request.resource.data.keys().hasOnly(['title', 'description', 'year', 'yearEnd', 'month', 'day', 'dateText', 'author', 'license',
+                    && request.resource.data.keys().hasOnly(['kind', 'title', 'description', 'year', 'yearEnd', 'month', 'day', 'dateText', 'author', 'license',
                         'rightsHolder', 'sourceUrl', 'sourceLabel', 'permissionNote', 'legacyId', 'links', 'location', 'bearing', 'fov',
                         'published', 'rightsReview', 'credit', 'versionCredits', 'reviewStatus', 'processing', 'createdAt', 'createdBy',
                         'updatedBy', 'updatedAt'])
@@ -699,7 +700,7 @@ service cloud.firestore {
                         ? publishedStaysTheServers()
                         : (isCityUploader(city) && ownItem(resource.data) && resource.data.get('reviewStatus', '') == 'pending'
                             && !changedKeys().hasAny(['published', 'legacyId', 'rightsReview'])))
-                    && changedKeys().hasOnly(['title', 'description', 'year', 'yearEnd', 'month', 'day', 'dateText', 'author', 'license',
+                    && changedKeys().hasOnly(['kind', 'title', 'description', 'year', 'yearEnd', 'month', 'day', 'dateText', 'author', 'license',
                         'rightsHolder', 'sourceUrl', 'sourceLabel', 'permissionNote', 'legacyId', 'links', 'location', 'bearing', 'fov', 'published',
                         'rightsReview', 'credit', 'versionCredits', 'versions', 'updatedBy', 'updatedAt'])
                     && (!('versions' in changedKeys())

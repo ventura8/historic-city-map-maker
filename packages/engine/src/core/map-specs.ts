@@ -84,7 +84,13 @@ function photoPoint(photo: Photo, locale: ViewerLocale): PhotoPointFeature {
     return {
         type: 'Feature',
         geometry: { type: 'Point', coordinates: [photo.location.lng, photo.location.lat] },
-        properties: { id: photo.id, title: localized(photo.title, locale), year: photo.year ?? null, bearing: photo.bearing ?? null },
+        properties: {
+            id: photo.id,
+            title: localized(photo.title, locale),
+            year: photo.year ?? null,
+            bearing: photo.bearing ?? null,
+            ...(photo.kind === 'aerial' ? { aerial: true } : {}),
+        },
     };
 }
 

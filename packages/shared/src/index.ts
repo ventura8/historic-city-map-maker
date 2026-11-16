@@ -14,7 +14,7 @@ export type { LogData, LogLevel, LogRecord, LogSink, Logger, LoggerOptions } fro
 export { EARTH_RADIUS_M, MAX_MERCATOR_LAT, bearingDelta, clamp, roundTo, toDegrees, toRadians, wrapBearing } from './geo/math.js';
 export type { LngLat } from './geo/math.js';
 export { streetViewUrl } from './geo/street-view.js';
-export { PHOTO_VIEWS, type PhotoVersion, type PhotoView } from './schemas/manifest.js';
+export { PHOTO_KINDS, PHOTO_VIEWS, photoKindOf, type PhotoKind, type PhotoVersion, type PhotoView } from './schemas/manifest.js';
 export { bearingBetween, destinationPoint, distanceMeters } from './geo/bearing.js';
 export { DEFAULT_FOV, MAX_FOV, MIN_FOV, angularSpan, coneFromPolygon, conePolygon, findConeApex, openRing } from './geo/cone.js';
 export type { MeasuredCone, ViewCone } from './geo/cone.js';

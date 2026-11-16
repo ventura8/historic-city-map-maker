@@ -1331,6 +1331,20 @@
             "name": "Every monthly cost of the map on the dashboard",
             "milestone": "M18",
             "source": "the owner, 2026-11-16: the admin sees on the dashboard every monthly cost (Mapbox, Google Cloud, Firebase, USGS, AI)"
+        },
+        {
+            "id": "V76",
+            "area": "viewer",
+            "name": "Aerial photos are photos of their own kind, with their marker, label and a Street / Aerial filter",
+            "milestone": "M17",
+            "source": "the owner, 2026-11-16: Imagery's aerial photos are not map layers, they are another type of photos"
+        },
+        {
+            "id": "A193",
+            "area": "admin",
+            "name": "A photo's kind, street or aerial, set in the photo editor and published",
+            "milestone": "M28",
+            "source": "the owner, 2026-11-16: aerial photos come in as photos of the kind aerial, never as layer candidates"
         }
     ],
     "scenarios": [
@@ -23377,6 +23391,50 @@
             "tier": "e2e-admin",
             "status": "exists",
             "notes": "The owner's request, 2026-11-16. Test: e2e/admin/specs/ops/costs.spec.ts; unit: packages/admin/test/home/costs.test.ts, packages/ui/test/admin/home/costs.test.ts."
+        },
+        {
+            "id": "S-V76-HAPPY-AERIAL-FILTER",
+            "behaviour": "V76",
+            "area": "viewer",
+            "path": "happy",
+            "title": "An aerial photo is labelled in the list and the list filters street and aerial photos",
+            "asserts": "a manifest with one photo of kind aerial (1944) -> the Photos list shows the Street / Aerial choice; Aerial leaves that one row, its line reads 'Aerial photo · 1944'; Street leaves every other row",
+            "tier": "e2e-viewer",
+            "status": "exists",
+            "notes": "Test: e2e/specs/viewer/photos.spec.ts. The owner, 2026-11-16. packages/ui/src/viewer/hcm-photo-list.ts (kind filter, label), packages/ui/src/map/icons.ts (PHOTO_AERIAL_ICON); unit: packages/ui/test/viewer/hcm-photo-list.test.ts, packages/ui/test/map/parts.test.ts."
+        },
+        {
+            "id": "S-V76-BAD-NO-AERIAL",
+            "behaviour": "V76",
+            "area": "viewer",
+            "path": "bad",
+            "title": "A map with no aerial photo shows no street or aerial choice",
+            "asserts": "the fixture manifest (no kind on any photo: all street photos) -> the list shows every photo and no radio choice",
+            "tier": "e2e-viewer",
+            "status": "exists",
+            "notes": "Test: e2e/specs/viewer/photos.spec.ts. The owner, 2026-11-16. packages/ui/src/viewer/hcm-photo-list.ts (kind filter, label), packages/ui/src/map/icons.ts (PHOTO_AERIAL_ICON); unit: packages/ui/test/viewer/hcm-photo-list.test.ts, packages/ui/test/map/parts.test.ts."
+        },
+        {
+            "id": "S-A193-HAPPY-KIND",
+            "behaviour": "A193",
+            "area": "admin",
+            "path": "happy",
+            "title": "The photo editor sets a photo's kind; aerial reaches the manifest",
+            "asserts": "the editor's Kind select patches {kind:'aerial'}, Street clears it; the publish copies kind into the manifest photo",
+            "tier": "rules",
+            "status": "exists",
+            "notes": "Unit: packages/ui/test/admin/photos/photo-editor.test.ts; rules: firebase/rules-tests/test/photos.test.ts ('an aerial photo'); functions/src/publish/assemble.ts."
+        },
+        {
+            "id": "S-A193-BAD-UNKNOWN-KIND",
+            "behaviour": "A193",
+            "area": "admin",
+            "path": "bad",
+            "title": "A kind other than street or aerial is refused by the rules and the manifest",
+            "asserts": "a photo document with kind 'underwater' is denied by firestore.rules; a manifest with it fails validation (validation.value)",
+            "tier": "rules",
+            "status": "exists",
+            "notes": "Rules: firebase/rules-tests/test/photos.test.ts; unit: packages/shared/test/schemas/manifest.test.ts."
         }
     ]
 }

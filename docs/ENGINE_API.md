@@ -451,6 +451,7 @@ Common rules:
 | Field | Type | Rule |
 | --- | --- | --- |
 | `id` | string | unique; the `#photo=` id |
+| `kind?` | `ground` or `aerial` | absent is `ground` (a street photo); `aerial`, a photo taken from above: its own marker, an "Aerial photo" label and a Street / Aerial choice in the Photos list (the owner, 2026-11-16) |
 | `title`, `description?` | `{ro, en?}` | at most 200 and 5,000 characters |
 | `year?`, `yearEnd?` | integer | 1800 to 2100; `yearEnd` needs `year` and is not before it |
 | `month?`, `day?` | integer | 1 to 12 and 1 to 31: the date's precision beyond the year. A month needs a `year` (and a `yearEnd`, when present, equal to it), a day needs a month and must exist in it, leap years counted (`validation.datePart`, `validation.dateRange`, `validation.dateImpossible`). The viewer reads them through `Intl`: `12 iulie 1936`, `12 July 1936`, `Iulie 1936`, `July 1936`; the timeline keeps using the year |

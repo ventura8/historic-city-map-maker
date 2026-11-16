@@ -54,6 +54,8 @@ const PHOTO_EDITABLE = [
     'fov',
     'published',
     'rightsReview',
+    /** Street (`ground`, the default) or `aerial` (the owner 2026-11-16). */
+    'kind',
     /** M13: the optional credit name. */
     'credit',
     /** Who improved or colorized the photo (the owner 2026-11-09); the versions themselves are `photos.onUpload`'s. */

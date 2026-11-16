@@ -233,6 +233,7 @@ describe('photo layers', () => {
         expect(layers[1]?.['paint']).toMatchObject({ 'line-opacity': 0.4 });
         expect(layers[3]?.['layout']).toMatchObject({
             visibility: 'none',
+            'icon-image': ['case', ['has', 'aerial'], 'hcm-photo-aerial', ['has', 'bearing'], 'hcm-photo-direction', 'hcm-photo-camera'],
             'icon-rotate': ['coalesce', ['get', 'bearing'], 0],
             'icon-rotation-alignment': 'map',
         });
