@@ -374,6 +374,29 @@ export const imageryProbeResponseSchema = z.strictObject({
     tile: z.strictObject({ z: z.number().int().min(0).max(24), x: z.number().int().min(0), y: z.number().int().min(0) }),
 });
 
+/** M12: superseded published versions whose own tiles still exist in the public bucket. */
+export const supersededOwnVersionSchema = z.strictObject({
+    versionId: idSchema,
+    year: z.number().int().min(1800).max(2100),
+    updatedAt: isoTimeSchema,
+    tileCount: z.number().int().min(0),
+});
+export const supersededOwnLayerSchema = z.strictObject({
+    layerId: idSchema,
+    versions: z.array(supersededOwnVersionSchema),
+});
+export const imageryListSupersededRequestSchema = z.strictObject({ cityId: cityIdSchema });
+export const imageryListSupersededResponseSchema = z.strictObject({
+    layers: z.array(supersededOwnLayerSchema),
+    versions: z.number().int().min(0),
+    tiles: z.number().int().min(0),
+});
+export const imageryDeleteSupersededRequestSchema = z.strictObject({ cityId: cityIdSchema });
+export const imageryDeleteSupersededResponseSchema = z.strictObject({
+    deletedVersions: z.number().int().min(0),
+    deletedTiles: z.number().int().min(0),
+});
+
 /** A publish task (`imagery.publish`): start the publish of the job's version, or poll its MTS job (`poll` times so far). */
 export const publishTaskSchema = z.strictObject({
     cityId: cityIdSchema,
@@ -403,6 +426,7 @@ export type ImageryChooseRequest = z.infer<typeof imageryChooseRequestSchema>;
 export type ImagerySaveGcpsRequest = z.infer<typeof imagerySaveGcpsRequestSchema>;
 export type ImageryCropRequest = z.infer<typeof imageryCropRequestSchema>;
 export type ImageryProbeRequest = z.infer<typeof imageryProbeRequestSchema>;
+export type ImageryListSupersededResponse = z.infer<typeof imageryListSupersededResponseSchema>;
 export type ImageryJoinRequest = z.infer<typeof imageryJoinRequestSchema>;
 export type ImageryJoinResponse = z.infer<typeof imageryJoinResponseSchema>;
 export type PublishTask = z.infer<typeof publishTaskSchema>;

@@ -84,6 +84,7 @@ export const ro = {
     'adminArchive.state.published': 'Publicată',
     'adminArchive.state.failed': 'Eșuată',
     'adminArchive.state.cancelled': 'Anulată',
+    'adminArchive.state.sourceOfLiveVersion': 'Sursa versiunii active',
     'adminArchive.help.no-path': 'încă nu există o cale automată pentru acest fel de hartă',
     'adminArchive.help.low-confidence': 'potrivirea nu e sigură',
     'adminArchive.help.frame-not-found': 'chenarul foilor nu a fost găsit',

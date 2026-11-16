@@ -14,7 +14,6 @@ import {
     type LayerDoc,
     type PoiCategoryDoc,
 } from '@hcm/shared';
-
 import type { AreaStore } from '../content/areas.js';
 import { LiveDoc, LOADING_DOC, type DocState } from '../content/doc.js';
 import { LiveList, LOADING_LIST } from '../content/list.js';
@@ -25,20 +24,19 @@ import { layerItemOf, type LayerItem } from '../layers/model.js';
 import { PreviewLayer } from '../layers/preview.js';
 import { startersFor } from '../pois/starter.js';
 import { Store } from '../state/store.js';
-import { viewFields } from './area.js';
 import { canAdd, categoryItemOf, inOrder, type CategoryItem } from './categories.js';
 import { CategoryArea } from './category-area.js';
 import { iconIntents, NO_ICON_SECTION, type IconSectionState } from './icon.js';
 import { CITY_SECTIONS, CitySections, NO_CITY_SECTION, type CitySection } from './city-sections.js';
+import { settingsIntentsOf } from './intents.js';
 import { NO_OVERLAY_DEFAULTS, OverlayDefaults } from './overlay-defaults.js';
 import { photosOpacityOf } from './overlays.js';
 import { reportOutcome } from './report.js';
 import { settingsRoute, type SettingsRoute } from './sections.js';
 import { NO_SETTINGS_MAP, SettingsMap } from './settings-map.js';
 import type { SettingsIntents, SettingsState } from './state.js';
-import { editedCredits, movedCredit, withCredit, withoutCredit } from './texts.js';
-import { basemapFor, type ThemeTools } from './theme.js';
-
+import { NO_SUPERSEDED, SupersededTiles } from './superseded.js';
+import type { ThemeTools } from './theme.js';
 const INITIAL: SettingsState = {
     section: null,
     city: LOADING_DOC,
@@ -56,8 +54,8 @@ const INITIAL: SettingsState = {
     export: NO_EXPORT_SECTION,
     budget: NO_BUDGET_SECTION,
     icon: NO_ICON_SECTION,
+    superseded: NO_SUPERSEDED,
 };
-
 function isCitySection(section: SettingsRoute['section']): section is CitySection {
     return (CITY_SECTIONS as readonly (string | null)[]).includes(section);
 }
@@ -77,7 +75,8 @@ export class SettingsStore implements AreaStore<SettingsState, SettingsIntents> 
     readonly #export: ExportSection;
     /** M5 (owner: multi-city): the budget section's listeners, attached while it shows. */
     readonly #budget: BudgetSection;
-    /** What the M5 sections report goes into the page's state (fields, so the constructor stays within its 60 lines). */
+    readonly #superseded: SupersededTiles;
+    /** What the section controllers report goes into the page's state (field callbacks keep constructor lines short). */
     readonly #exportChanged = (state: ExportSectionState): void => {
         this.#cell.update({ export: state });
     };
@@ -95,31 +94,84 @@ export class SettingsStore implements AreaStore<SettingsState, SettingsIntents> 
         this.#services = services;
         this.#cell = new Store<SettingsState>(INITIAL, services.log);
         const { store, clock, cityId } = services;
-        const denied = (): void => {
-            services.denied();
+        const denied = () => services.denied();
+        const listsChanged = () => this.#listsChanged();
+        this.#city = this.#newCityDoc(store, clock, denied);
+        const liveLists = { store, clock, denied, cityId, changed: listsChanged };
+        this.#layers = this.#newLayers(liveLists);
+        this.#categories = this.#newCategories(liveLists);
+        this.#sections = new CitySections(services, tools, (citySection) => {
+            this.#cell.update({ citySection });
+            this.#boundsChanged();
+        });
+        this.#map = this.#newMap(services);
+        this.#overlays = this.#newOverlays(services);
+        this.#categoryArea = this.#newCategoryArea(services);
+        this.#export = new ExportSection(services, this.#exportChanged);
+        this.#budget = new BudgetSection(services, this.#budgetChanged);
+        this.#superseded = this.#newSuperseded(services);
+        this.intents = {
+            ...this.#export.intents,
+            ...this.#budget.intents,
+            ...iconIntents(services, this.#iconChanged),
+            ...settingsIntentsOf({
+                sections: this.#sections,
+                categoryArea: this.#categoryArea,
+                overlays: this.#overlays,
+                services: this.#services,
+                map: this.#map,
+                preview: this.#preview,
+                reported: (write) => this.#reported(write),
+                retry: () => this.#retry(),
+            }),
+            refreshSuperseded: async () => {
+                await this.#superseded.refresh();
+            },
+            deleteSuperseded: async () => {
+                await this.#superseded.deleteAll();
+            },
         };
-        const listsChanged = (): void => {
-            this.#listsChanged();
-        };
-        this.#city = new LiveDoc({
+    }
+
+    #newCityDoc(store: ContentServices['store'], clock: ContentServices['clock'], denied: () => void): LiveDoc<CityDoc> {
+        return new LiveDoc({
             ...{ store, clock, denied, schema: cityDocSchema },
             changed: (city) => {
                 this.#cityChanged(city);
             },
         });
-        this.#layers = new LiveList({
+    }
+
+    #newLayers(args: {
+        store: ContentServices['store'];
+        clock: ContentServices['clock'];
+        denied: () => void;
+        cityId: string;
+        changed: () => void;
+    }): LiveList<LayerDoc, LayerItem> {
+        const { store, clock, denied, cityId, changed } = args;
+        return new LiveList({
             ...{ store, clock, denied, collection: FIRESTORE_PATHS.layers(cityId), schema: layerDocSchema, map: layerItemOf },
-            ...{ pageSize: MAX_LAYERS, changed: listsChanged },
+            ...{ pageSize: MAX_LAYERS, changed },
         });
-        this.#categories = new LiveList({
+    }
+
+    #newCategories(args: {
+        store: ContentServices['store'];
+        clock: ContentServices['clock'];
+        denied: () => void;
+        cityId: string;
+        changed: () => void;
+    }): LiveList<PoiCategoryDoc, CategoryItem> {
+        const { store, clock, denied, cityId, changed } = args;
+        return new LiveList({
             ...{ store, clock, denied, collection: FIRESTORE_PATHS.poiCategories(cityId), schema: poiCategoryDocSchema },
-            ...{ map: categoryItemOf, pageSize: MAX_POI_CATEGORIES + 1, changed: listsChanged },
+            ...{ map: categoryItemOf, pageSize: MAX_POI_CATEGORIES + 1, changed },
         });
-        this.#sections = new CitySections(services, tools, (citySection) => {
-            this.#cell.update({ citySection });
-            this.#boundsChanged();
-        });
-        this.#map = new SettingsMap({
+    }
+
+    #newMap(services: ContentServices): SettingsMap {
+        return new SettingsMap({
             ...{ services, preview: this.#preview },
             changed: (map) => {
                 this.#cell.update({ map });
@@ -128,22 +180,18 @@ export class SettingsStore implements AreaStore<SettingsState, SettingsIntents> 
                 this.#sections.edit({ bounds });
             },
         });
-        this.#overlays = new OverlayDefaults(services, this.#preview, (overlays) => {
+    }
+
+    #newOverlays(services: ContentServices): OverlayDefaults {
+        return new OverlayDefaults(services, this.#preview, (overlays) => {
             this.#cell.update({ overlays });
         });
-        this.#categoryArea = this.#newCategoryArea(services);
-        this.#export = new ExportSection(services, this.#exportChanged);
-        this.#budget = new BudgetSection(services, this.#budgetChanged);
-        this.intents = {
-            ...this.#export.intents,
-            ...this.#budget.intents,
-            ...iconIntents(services, this.#iconChanged),
-            ...this.#cityIntents(),
-            ...this.#creditIntents(),
-            ...this.#categoryArea.intents,
-            ...this.#otherIntents(),
-            ...this.#mapIntents(),
-        };
+    }
+
+    #newSuperseded(services: ContentServices): SupersededTiles {
+        return new SupersededTiles(services, (superseded) => {
+            this.#cell.update({ superseded });
+        });
     }
 
     /** The categories section's moving parts, over the listed layers and categories. */
@@ -195,123 +243,6 @@ export class SettingsStore implements AreaStore<SettingsState, SettingsIntents> 
         this.#preview.attach(null);
     }
 
-    #cityIntents(): Pick<
-        SettingsIntents,
-        | 'editCity'
-        | 'setNumber'
-        | 'setText'
-        | 'useView'
-        | 'setSeed'
-        | 'setBasemap'
-        | 'saveSection'
-        | 'discardSection'
-        | 'keepMine'
-        | 'takeTheirs'
-    > {
-        const sections = this.#sections;
-        return {
-            editCity: (patch) => {
-                sections.edit(patch);
-            },
-            setNumber: (field, text) => {
-                sections.setNumber(field, text);
-            },
-            setText: (field, locale, text) => {
-                sections.setText(field, locale, text);
-            },
-            useView: (view) => {
-                sections.edit(viewFields(view));
-            },
-            setSeed: (typed) => {
-                sections.setSeed(typed);
-            },
-            setBasemap: (choice) => {
-                sections.edit({ basemap: basemapFor(choice, sections.state.draft.value?.basemap) });
-            },
-            saveSection: () => this.#reported(sections.save()),
-            discardSection: () => {
-                sections.discard();
-            },
-            keepMine: () => {
-                sections.keepMine();
-                this.#categoryArea.keepMine();
-            },
-            takeTheirs: () => {
-                sections.takeTheirs();
-                this.#categoryArea.takeTheirs();
-            },
-        };
-    }
-
-    #creditIntents(): Pick<SettingsIntents, 'addCredit' | 'removeCredit' | 'moveCredit' | 'editCredit'> {
-        const sections = this.#sections;
-        return {
-            addCredit: () => {
-                sections.editCredits(withCredit);
-            },
-            removeCredit: (row) => {
-                sections.editCredits((credits) => withoutCredit(credits, row));
-            },
-            moveCredit: (row, by) => {
-                sections.editCredits((credits) => movedCredit(credits, row, by));
-            },
-            editCredit: (row, field, text) => {
-                sections.editCredits((credits) => editedCredits(credits, row, field, text));
-            },
-        };
-    }
-
-    #otherIntents(): Pick<
-        SettingsIntents,
-        'retry' | 'setOverlayOpacity' | 'setShownAtStart' | 'saveOverlays' | 'discardOverlays' | 'attachPreview'
-    > {
-        const overlays = this.#overlays;
-        return {
-            retry: () => {
-                this.#retry();
-            },
-            // A revoked admin's page takes no edit (DECISIONS-for-review.md §42d).
-            setOverlayOpacity: (kind, id, percent) => {
-                if (!this.#services.readOnly()) {
-                    overlays.setOpacity(kind, id, percent);
-                }
-            },
-            setShownAtStart: (id, visible) => {
-                if (!this.#services.readOnly()) {
-                    overlays.setShownAtStart(id, visible);
-                }
-            },
-            saveOverlays: () => this.#reported(overlays.save()),
-            discardOverlays: () => {
-                overlays.discard();
-            },
-            attachPreview: (sink) => {
-                this.#preview.attach(sink);
-            },
-        };
-    }
-
-    #mapIntents(): Pick<SettingsIntents, 'attachMap' | 'zoomBy' | 'drawBounds' | 'useMapView'> {
-        const map = this.#map;
-        return {
-            attachMap: (container) => {
-                map.attach(container);
-            },
-            zoomBy: (delta) => {
-                map.zoomBy(delta);
-            },
-            drawBounds: () => {
-                map.toggleDrawing();
-            },
-            useMapView: () => {
-                const view = map.view();
-                if (view !== null) {
-                    this.#sections.edit(viewFields(view));
-                }
-            },
-        };
-    }
-
     /** The area section's bounds on the map as its draft holds them; no rectangle in any other section. */
     #boundsChanged(): void {
         const { section, draft } = this.#sections.state;
@@ -327,15 +258,34 @@ export class SettingsStore implements AreaStore<SettingsState, SettingsIntents> 
     #route(route: SettingsRoute): void {
         this.#routeExport(route.section === 'export');
         this.#routeBudget(route.section === 'budget');
+        this.#routeIcon(route);
+        this.#cell.update({ section: route.section });
+        this.#sections.open(isCitySection(route.section) ? route.section : null);
+        this.#routeSuperseded(route);
+        this.#routeOverlays(route);
+        this.#categoryArea.open(route.category);
+    }
+
+    #routeIcon(route: SettingsRoute): void {
         if (route.section !== 'icon') {
             this.#iconChanged(NO_ICON_SECTION);
         }
-        this.#cell.update({ section: route.section });
-        this.#sections.open(isCitySection(route.section) ? route.section : null);
+    }
+
+    #routeSuperseded(route: SettingsRoute): void {
+        if (route.section === 'imagery') {
+            void this.#superseded.refresh();
+            return;
+        }
+        if (this.#superseded.state.layers.length > 0 || this.#superseded.state.error !== null) {
+            this.#superseded.clear();
+        }
+    }
+
+    #routeOverlays(route: SettingsRoute): void {
         if (route.section !== 'overlays') {
             this.#overlays.discard();
         }
-        this.#categoryArea.open(route.category);
     }
 
     /** The export section's listeners follow its route: attached when it opens, detached when it closes. */

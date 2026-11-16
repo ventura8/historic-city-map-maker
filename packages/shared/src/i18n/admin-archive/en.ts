@@ -84,6 +84,7 @@ export const en: Readonly<Record<AdminArchiveKey, string>> = {
     'adminArchive.state.published': 'Published',
     'adminArchive.state.failed': 'Failed',
     'adminArchive.state.cancelled': 'Cancelled',
+    'adminArchive.state.sourceOfLiveVersion': 'Source of the live version',
     'adminArchive.help.no-path': 'there is no automatic path for this kind of map yet',
     'adminArchive.help.low-confidence': 'the match is not certain',
     'adminArchive.help.frame-not-found': "the sheets' frame was not found",

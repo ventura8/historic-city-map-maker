@@ -79,4 +79,14 @@ describe('the archive model', () => {
         expect(Object.keys(progress)).toEqual([SERIES.seriesId]);
         expect(progress[SERIES.seriesId]).toMatchObject({ versionId: 'a', errorM: null, thresholdM: null, help: null });
     });
+
+    it('happyPath_aCancelledArchiveVersionBehindAPublishedOneIsNamedAsItsSource', () => {
+        const source = { kind: 'archive', archiveId: 'ar-0123456789abcdef', seriesId: SERIES.seriesId, sheetCount: 1 } as const;
+        const cancelled = stored('a', { state: 'cancelled', source } as unknown as LayerVersionDoc);
+        const published = stored('b', { state: 'published', source, basedOn: 'a' } as unknown as LayerVersionDoc);
+
+        const progress = progressOf([cancelled, published], [], undefined);
+
+        expect(progress[SERIES.seriesId]).toMatchObject({ versionId: 'a', state: 'cancelled', sourceOfLiveVersion: true });
+    });
 });

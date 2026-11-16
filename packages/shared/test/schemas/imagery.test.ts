@@ -143,6 +143,7 @@ describe('city imagery settings', () => {
             publishThroughMapbox: false,
             mapThresholdMaxM: 60,
             mapAutoPublish: true,
+            supersededTilesRetentionDays: 30,
             landsatAuto: true,
             landsatFrom: 1984,
             landsatTo: undefined,
@@ -154,6 +155,7 @@ describe('city imagery settings', () => {
             publishThroughMapbox: true,
             mapThresholdMaxM: 60,
             mapAutoPublish: true,
+            supersededTilesRetentionDays: 30,
             landsatAuto: true,
             landsatFrom: 1984,
             landsatTo: undefined,
@@ -166,6 +168,7 @@ describe('city imagery settings', () => {
             issues: [{ path: 'targetYears', code: 'validation.duplicateId' }],
         });
         expect(validate(cityImagerySchema, { rmseThresholdM: 0.5 }).ok).toBe(false);
+        expect(validate(cityImagerySchema, { supersededTilesRetentionDays: 0 }).ok).toBe(false);
     });
 
     it('happyPath_theCityAndLayerDocumentsCarryTheM3Fields', () => {

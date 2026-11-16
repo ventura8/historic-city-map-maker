@@ -47,6 +47,7 @@ export interface SeriesEditPort {
 export interface SeriesProgressPort {
     readonly versionId: string | null;
     readonly state: LayerVersionState | null;
+    readonly sourceOfLiveVersion: boolean;
     readonly jobStatus: JobStatus | null;
     readonly waitReason: JobWaitReason | null;
     readonly step: string | null;

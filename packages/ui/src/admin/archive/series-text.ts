@@ -98,6 +98,9 @@ const LINES: Readonly<Partial<Record<NonNullable<SeriesProgressPort['state']>, L
 
 /** Where an imported series stands, in one line. */
 export function stateText(locale: UiLocale, progress: SeriesProgressPort): string {
+    if (progress.state === 'cancelled' && progress.sourceOfLiveVersion) {
+        return archiveText(locale, 'adminArchive.state.sourceOfLiveVersion');
+    }
     const line = progress.state === null ? undefined : LINES[progress.state];
     return (line ?? processing)(locale, progress);
 }

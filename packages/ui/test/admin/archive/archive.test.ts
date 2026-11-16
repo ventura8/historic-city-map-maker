@@ -204,7 +204,7 @@ function button(element: Element, selector: string): HTMLElement & { disabled: b
 }
 
 const progress = (more: Partial<SeriesProgressPort>): SeriesProgressPort => ({
-    ...{ versionId: 'job-0', state: 'processing', jobStatus: 'queued', waitReason: null, step: null, progress: null },
+    ...{ versionId: 'job-0', state: 'processing', sourceOfLiveVersion: false, jobStatus: 'queued', waitReason: null, step: null, progress: null },
     ...{ help: null, errorM: null, thresholdM: null, ...more },
 });
 
@@ -518,6 +518,12 @@ describe('stateText', () => {
             t('adminArchive.state.queued'),
         ]);
         expect(sizeText('en', 512)).toBe('512 byte');
+    });
+
+    it('happyPath_cancelledVersionThatFeedsTheLiveOneIsNamedAsSource', () => {
+        expect(stateText('en', progress({ state: 'cancelled', sourceOfLiveVersion: true }))).toBe(
+            t('adminArchive.state.sourceOfLiveVersion'),
+        );
     });
 });
 

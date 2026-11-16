@@ -32,6 +32,7 @@ import { acceptLayoutFunction } from './accept-layout.js';
 import { markSceneFunction } from './mark-scene.js';
 import { searchFunction } from './search.js';
 import { chooseFunction, studioDoneFunction } from './studio.js';
+import { deleteSupersededFunction, listSupersededFunction } from './superseded.js';
 import { tickFunction, type TickDeps } from './tick.js';
 
 /** Every port the family uses (the union of its functions' own `Pick<Ports, …>`). */
@@ -42,6 +43,8 @@ export function imageryFunctions(getDeps: () => ImageryFamilyDeps, bucket?: stri
         search: searchFunction(getDeps),
         browse: browseFunction(getDeps),
         markScene: markSceneFunction(getDeps),
+        listSuperseded: listSupersededFunction(getDeps),
+        deleteSuperseded: deleteSupersededFunction(getDeps),
         import: importFunction(getDeps),
         approve: approveFunction(getDeps),
         reject: rejectFunction(getDeps),

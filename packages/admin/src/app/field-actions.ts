@@ -22,6 +22,7 @@ const MEASURED_ACTIONS: ReadonlySet<string> = new Set([
     'imagery.join',
     'imagery.recalibrate',
     'imagery.retry',
+    'imagery.deleteSuperseded',
     // Pause (2026-11-13): Pause and Resume of a job, every job or a computer, with the refusal's code when refused.
     'imagery.pause',
     'setup.createCity',

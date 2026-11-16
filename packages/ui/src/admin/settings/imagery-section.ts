@@ -6,10 +6,12 @@
  * tick's own imports and its years).
  */
 import {
+    DEFAULT_SUPERSEDED_TILES_RETENTION_DAYS,
     imagerySettingsOf,
     MAP_THRESHOLD_MAX_RANGE,
     MAX_TARGET_YEARS,
     RMSE_THRESHOLD_RANGE,
+    SUPERSEDED_TILES_RETENTION_DAYS_RANGE,
     type CityDoc,
     type CityImagery,
     type ValidationIssue,
@@ -31,6 +33,10 @@ function thresholdOf(text: string): number {
 
 function shown(value: number): string {
     return Number.isNaN(value) ? '' : String(value);
+}
+
+function numberOrNaN(text: string): number {
+    return text.trim() === '' ? Number.NaN : Number(text);
 }
 
 function edit(context: SectionContext, imagery: CityImagery | undefined, patch: Partial<CityImagery>): void {
@@ -183,6 +189,114 @@ function landsatGroup(context: SectionContext, city: CityDoc, issues: readonly V
     </section>`;
 }
 
+function supersededRetentionField(context: SectionContext, city: CityDoc, issues: readonly ValidationIssue[]): TemplateResult {
+    const { locale } = context;
+    const settings = imagerySettingsOf(city.imagery);
+    const range = {
+        min: String(SUPERSEDED_TILES_RETENTION_DAYS_RANGE.min),
+        max: String(SUPERSEDED_TILES_RETENTION_DAYS_RANGE.max),
+        default: String(DEFAULT_SUPERSEDED_TILES_RETENTION_DAYS),
+    };
+    return field(locale, {
+        id: 'imagery-superseded-retention',
+        label: contentText(locale, 'adminContent.imagery.settings.supersededRetentionDays'),
+        value: shown(settings.supersededTilesRetentionDays),
+        issue: issueAt(issues, 'imagery.supersededTilesRetentionDays'),
+        help: contentText(locale, 'adminContent.imagery.settings.supersededRetentionDaysHelp', range),
+        inputMode: 'numeric',
+        readOnly: context.readOnly,
+        onInput: (text) => {
+            edit(context, city.imagery, { supersededTilesRetentionDays: numberOrNaN(text) });
+        },
+    });
+}
+
+function supersededRows(context: SectionContext): TemplateResult {
+    const { locale } = context;
+    const superseded = context.view.superseded;
+    if (superseded.loading) {
+        return html`<p class="note">${contentText(locale, 'adminContent.imagery.settings.supersededLoading')}</p>`;
+    }
+    if (superseded.versions === 0) {
+        return html`<p class="note">${contentText(locale, 'adminContent.imagery.settings.supersededEmpty')}</p>`;
+    }
+    return html`<ul class="rows years">
+        ${superseded.layers.map(
+            (layer) => html`<li class="year-row">
+                <span>${contentText(locale, 'adminContent.imagery.settings.supersededLayer', { layer: layer.layerId })}</span>
+                <span
+                    >${layer.versions
+                        .map((version) =>
+                            contentText(locale, 'adminContent.imagery.settings.supersededVersion', {
+                                year: String(version.year),
+                                version: version.versionId,
+                                tiles: String(version.tileCount),
+                            }),
+                        )
+                        .join(' · ')}</span
+                >
+            </li>`,
+        )}
+    </ul>`;
+}
+
+function supersededGroup(context: SectionContext): TemplateResult {
+    const { locale } = context;
+    const superseded = context.view.superseded;
+    return html`<section class="group" data-superseded>
+        <h3>${contentText(locale, 'adminContent.imagery.settings.supersededTitle')}</h3>
+        <p class="note">
+            ${contentText(locale, 'adminContent.imagery.settings.supersededSummary', {
+                versions: String(superseded.versions),
+                tiles: String(superseded.tiles),
+            })}
+        </p>
+        ${supersededErrorLine(context)}
+        ${supersededRows(context)}
+        ${supersededActions(context)}
+    </section>`;
+}
+
+function supersededErrorLine(context: SectionContext): TemplateResult {
+    return when(
+        context.view.superseded.error !== null,
+        () => html`<p class="error" role="alert">${contentText(context.locale, 'adminContent.imagery.settings.supersededError')}</p>`,
+    );
+}
+
+function supersededActions(context: SectionContext): TemplateResult {
+    const superseded = context.view.superseded;
+    const disabled = supersededDeleteDisabled(context, superseded);
+    return html`<div class="actions">
+        <hcm-button
+            variant="tonal"
+            ?disabled=${context.readOnly || superseded.loading || superseded.deleting}
+            @click=${() => {
+                void context.intents?.refreshSuperseded();
+            }}
+            >${contentText(context.locale, 'adminContent.imagery.settings.supersededRefresh')}</hcm-button
+        >
+        <hcm-button ?disabled=${disabled} @click=${() => void context.intents?.deleteSuperseded()}>
+            ${contentText(context.locale, supersededDeleteLabel(superseded))}
+        </hcm-button>
+    </div>`;
+}
+
+function supersededDeleteDisabled(
+    context: SectionContext,
+    superseded: SectionContext['view']['superseded'],
+): boolean {
+    return context.readOnly || superseded.deleting || superseded.versions === 0;
+}
+
+function supersededDeleteLabel(
+    superseded: SectionContext['view']['superseded'],
+): Parameters<typeof contentText>[1] {
+    return superseded.deleting
+        ? 'adminContent.imagery.settings.supersededDeleteRunning'
+        : 'adminContent.imagery.settings.supersededDelete';
+}
+
 /** The typed year when the list takes it (from 1800 to 2099, not in the list yet, room left), else null. */
 function acceptedYear(text: string, years: readonly number[]): number | null {
     const year = Number(text);
@@ -237,7 +351,10 @@ function yearsGroup(context: SectionContext, city: CityDoc, issues: readonly Val
         <ul class="rows years">
             ${years.map((year) => yearRow(context, city, year))}
         </ul>
-        ${when(issue !== null, () => html`<p class="error" role="alert">${contentText(locale, 'adminContent.imagery.settings.yearsInvalid')}</p>`)}
+        ${when(
+            issue !== null,
+            () => html`<p class="error" role="alert">${contentText(locale, 'adminContent.imagery.settings.yearsInvalid')}</p>`,
+        )}
         <div class="field">
             <label for=${NEW_YEAR_ID}>${contentText(locale, 'adminContent.imagery.settings.newYear')}</label>
             <input id=${NEW_YEAR_ID} inputmode="numeric" ?readonly=${context.readOnly} />
@@ -262,7 +379,13 @@ export function imagerySection(context: SectionContext): TemplateResult {
         <p class="note">${contentText(locale, 'adminContent.imagery.settings.note')}</p>
         <section class="group">
             <h3>${contentText(locale, 'adminContent.imagery.settings.publishing')}</h3>
-            ${autoPublishRow(context, city)} ${thresholdField(context, city, issues)} ${mapboxPathRow(context, city)}
+            ${autoPublishRow(context, city)}
+            ${thresholdField(context, city, issues)}
+            ${supersededRetentionField(context, city, issues)}
+            ${mapboxPathRow(context, city)}
         </section>
-        ${mapsGroup(context, city, issues)} ${yearsGroup(context, city, issues)} ${landsatGroup(context, city, issues)}`;
+        ${supersededGroup(context)}
+        ${mapsGroup(context, city, issues)}
+        ${yearsGroup(context, city, issues)}
+        ${landsatGroup(context, city, issues)}`;
 }

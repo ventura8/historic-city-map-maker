@@ -9,7 +9,11 @@ import { cityDoc, draftOf, page, settingsState } from '../layers/fixtures.js';
 import { cleanup, deep, deepAll, deepText, defineAll, updated } from '../shell/fake-app.js';
 
 function area(state: SettingsViewState): FakeArea<SettingsViewState, SettingsIntentsPort> {
-    return new FakeArea<SettingsViewState, SettingsIntentsPort>(state, { saveSection: Promise.resolve({ ok: true }) });
+    return new FakeArea<SettingsViewState, SettingsIntentsPort>(state, {
+        saveSection: Promise.resolve({ ok: true }),
+        refreshSuperseded: Promise.resolve(),
+        deleteSuperseded: Promise.resolve(),
+    });
 }
 
 function calls(store: FakeArea<SettingsViewState, SettingsIntentsPort>): readonly string[] {
@@ -88,6 +92,36 @@ describe('<hcm-settings-page> imagery', () => {
         expect(await axeViolations(element)).toEqual([]);
     });
 
+    it('happyPath_supersededListAndDeleteAllAndRetentionSetting', async () => {
+        const settings = area(
+            imageryState(cityDoc(), {
+                draft: draftOf(cityDoc({ imagery: { supersededTilesRetentionDays: 30 } })),
+            }),
+        );
+        settings.set({
+            ...settings.state,
+            superseded: {
+                loading: false,
+                deleting: false,
+                versions: 2,
+                tiles: 11,
+                error: null,
+                layers: [{ layerId: 'layer-1911', versions: [{ versionId: 'v1', year: 1911, updatedAt: '2026-11-16T09:00:00Z', tileCount: 11 }] }],
+            },
+        });
+        const { element } = await page('settings', settings, { params: ['imagery'] });
+        const retention = deep(element, '#imagery-superseded-retention') as HTMLInputElement;
+        retention.value = '45';
+        retention.dispatchEvent(new Event('input'));
+        deep(deepAll(element, '[data-superseded] .actions hcm-button')[1] ?? element, 'button').click();
+
+        expect(deepText(element)).toContain('2 versions, 11 tiles');
+        expect(calls(settings)).toEqual([
+            'editCity {"imagery":{"supersededTilesRetentionDays":45}}',
+            'deleteSuperseded []',
+        ]);
+    });
+
     it('badPath_aMapCapOutsideItsRangeIsSaidAtItsField', async () => {
         const issues = [{ path: 'imagery.mapThresholdMaxM', code: 'validation.tooBig' as const }];
         const city = cityDoc({ imagery: { mapThresholdMaxM: 200 } });
@@ -97,6 +131,11 @@ describe('<hcm-settings-page> imagery', () => {
         expect(deep(element, '#imagery-map-threshold').closest('.field')?.hasAttribute('data-invalid')).toBe(true);
         expect(deepText(element)).toContain('Între 15 și 200.');
     });
+});
+
+describe('<hcm-settings-page> imagery: bad paths and defaults', () => {
+    beforeAll(defineAll);
+    afterEach(cleanup);
 
     it('badPath_aYearThatIsNoYearOrAlreadyListedIsRefusedAndAnInvalidThresholdIsSaid', async () => {
         const issues = [

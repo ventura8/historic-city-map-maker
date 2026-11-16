@@ -42,6 +42,7 @@ export interface SeriesEdit {
 export interface SeriesProgress {
     readonly versionId: string | null;
     readonly state: LayerVersionState | null;
+    readonly sourceOfLiveVersion: boolean;
     readonly jobStatus: JobStatus | null;
     readonly waitReason: JobWaitReason | null;
     readonly step: string | null;
@@ -144,9 +145,19 @@ export function importUrlOf(port: number, city: CityDoc | undefined): string {
 }
 
 const NO_PROGRESS: SeriesProgress = {
-    ...{ versionId: null, state: null, jobStatus: null, waitReason: null, step: null, progress: null },
+    ...{ versionId: null, state: null, sourceOfLiveVersion: false, jobStatus: null, waitReason: null, step: null, progress: null },
     ...{ help: null, errorM: null, thresholdM: null },
 };
+
+function liveSources(versions: readonly Stored<LayerVersionDoc>[]): ReadonlySet<string> {
+    const sources = new Set<string>();
+    for (const version of versions) {
+        if (version.data.state === 'published' && version.data.basedOn !== undefined) {
+            sources.add(version.data.basedOn);
+        }
+    }
+    return sources;
+}
 
 function seriesOfVersion(version: LayerVersionDoc): string | null {
     const source = version.source;
@@ -169,11 +180,12 @@ function measuredOf(report: ArchiveReport | undefined, city: CityDoc | undefined
 }
 
 /** What the version says: its state, why it waits, its error and the threshold its scale earns. */
-function fromVersion(doc: Stored<LayerVersionDoc>, city: CityDoc | undefined): Partial<SeriesProgress> {
+function fromVersion(doc: Stored<LayerVersionDoc>, city: CityDoc | undefined, sources: ReadonlySet<string>): Partial<SeriesProgress> {
     const help = doc.data.help;
     return {
         versionId: doc.id,
         state: doc.data.state,
+        sourceOfLiveVersion: doc.data.state === 'cancelled' && sources.has(doc.id),
         help: help === undefined ? null : { reason: help.reason, note: help.note },
         ...measuredOf(doc.data.archive, city),
     };
@@ -191,6 +203,7 @@ export function progressOf(
     city: CityDoc | undefined,
 ): Record<string, SeriesProgress> {
     const progress: Record<string, SeriesProgress> = {};
+    const sources = liveSources(versions);
     const merge = (seriesId: string | null, part: Partial<SeriesProgress>): void => {
         if (seriesId !== null) {
             progress[seriesId] = { ...(progress[seriesId] ?? NO_PROGRESS), ...part };
@@ -200,7 +213,7 @@ export function progressOf(
         merge(seriesOfJob(job.data), fromJob(job));
     }
     for (const version of versions) {
-        merge(seriesOfVersion(version.data), fromVersion(version, city));
+        merge(seriesOfVersion(version.data), fromVersion(version, city, sources));
     }
     return progress;
 }

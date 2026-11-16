@@ -58,6 +58,8 @@ export const RUNTIME_ACCOUNTS: Readonly<Record<FunctionName, RuntimeAccount>> = 
     'imagery.search': 'fn-admin',
     'imagery.browse': 'fn-admin',
     'imagery.markScene': 'fn-admin',
+    'imagery.listSuperseded': 'fn-admin',
+    'imagery.deleteSuperseded': 'fn-admin',
     'imagery.import': 'fn-admin',
     'imagery.approve': 'fn-admin',
     'imagery.reject': 'fn-admin',

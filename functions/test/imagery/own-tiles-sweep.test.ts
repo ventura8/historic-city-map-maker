@@ -307,7 +307,17 @@ describe('what own tiles leave behind', () => {
     it('happyPath_aSupersededArchiveGoesAfterItsGrace @S-A72-HAPPY-SUPERSEDED', async () => {
         const made = await cleanWorld();
 
-        await cleanOwnTiles(made.deps, CITY, new Date(LATER.getTime() + 8 * 86_400_000));
+        await cleanOwnTiles(made.deps, CITY, new Date(LATER.getTime() + 31 * 86_400_000));
+
+        expect(await made.deps.blobs.stat('public', PUBLIC_V1)).toBeUndefined();
+        expect((await readVersion(made, 'v1'))?.own?.removedAt).toBeDefined();
+    });
+
+    it('happyPath_itUsesTheConfiguredSupersededRetentionDays @S-A72-HAPPY-SUPERSEDED', async () => {
+        const made = await cleanWorld();
+        await seedCity(made, { imagery: { supersededTilesRetentionDays: 1 } });
+
+        await cleanOwnTiles(made.deps, CITY, new Date(LATER.getTime() + 2 * 86_400_000));
 
         expect(await made.deps.blobs.stat('public', PUBLIC_V1)).toBeUndefined();
         expect((await readVersion(made, 'v1'))?.own?.removedAt).toBeDefined();
@@ -324,7 +334,7 @@ describe('what own tiles leave behind', () => {
     it('badPath_aLayerThatPointsAtItAgainKeepsIt @S-A72-BAD-SHOWN-AGAIN', async () => {
         const made = await cleanWorld({}, 'v1');
 
-        await cleanOwnTiles(made.deps, CITY, new Date(LATER.getTime() + 8 * 86_400_000));
+        await cleanOwnTiles(made.deps, CITY, new Date(LATER.getTime() + 31 * 86_400_000));
 
         expect(await made.deps.blobs.stat('public', PUBLIC_V1)).toBeDefined();
         expect((await readVersion(made, 'v1'))?.own?.removedAt).toBeUndefined();

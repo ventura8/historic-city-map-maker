@@ -11,9 +11,11 @@ import {
     imageryChooseResponseSchema,
     imageryConfirmRightsResponseSchema,
     imageryCropResponseSchema,
+    imageryDeleteSupersededResponseSchema,
     imageryDeleteVersionResponseSchema,
     imageryImportResponseSchema,
     imageryJoinResponseSchema,
+    imageryListSupersededResponseSchema,
     imageryLayoutResponseSchema,
     imageryPreviewUrlResponseSchema,
     imageryProbeResponseSchema,
@@ -31,8 +33,10 @@ import type {
     imageryChooseRequestSchema,
     imageryConfirmRightsRequestSchema,
     imageryCropRequestSchema,
+    imageryDeleteSupersededRequestSchema,
     imageryImportRequestSchema,
     imageryJoinRequestSchema,
+    imageryListSupersededRequestSchema,
     imageryAcceptLayoutRequestSchema,
     imagerySaveLayoutRequestSchema,
     imageryProbeRequestSchema,
@@ -53,6 +57,8 @@ const IMAGERY_RESPONSES = {
     'imagery.search': imagerySearchResponseSchema,
     'imagery.browse': imageryBrowseResponseSchema,
     'imagery.import': imageryImportResponseSchema,
+    'imagery.listSuperseded': imageryListSupersededResponseSchema,
+    'imagery.deleteSuperseded': imageryDeleteSupersededResponseSchema,
     'imagery.join': imageryJoinResponseSchema,
     'imagery.approve': imageryApproveResponseSchema,
     'imagery.reject': imageryRejectResponseSchema,
@@ -81,6 +87,8 @@ interface ImageryRequests {
     'imagery.search': typeof imagerySearchRequestSchema;
     'imagery.browse': typeof imageryBrowseRequestSchema;
     'imagery.import': typeof imageryImportRequestSchema;
+    'imagery.listSuperseded': typeof imageryListSupersededRequestSchema;
+    'imagery.deleteSuperseded': typeof imageryDeleteSupersededRequestSchema;
     'imagery.join': typeof imageryJoinRequestSchema;
     'imagery.approve': typeof imageryApproveRequestSchema;
     'imagery.reject': typeof imageryVersionRequestSchema;

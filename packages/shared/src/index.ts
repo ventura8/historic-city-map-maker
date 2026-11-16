@@ -20,10 +20,8 @@ export { DEFAULT_FOV, MAX_FOV, MIN_FOV, angularSpan, coneFromPolygon, conePolygo
 export type { MeasuredCone, ViewCone } from './geo/cone.js';
 export { bboxCenter, bboxContains, bboxExpand, bboxFromRecord, bboxIntersects, bboxOf, bboxToRecord, clampToBBox } from './geo/bbox.js';
 export type { BBox, BoundsRecord } from './geo/bbox.js';
-
 export { DEFAULT_COMPARE_POSITION, DEFAULT_HASH_LIMITS, MAX_HASH_LENGTH, MAX_OVERLAY_ENTRIES, decodeHash, encodeHash } from './url/hash.js';
 export type { CompareState, DecodedHash, HashLimits, HashState, MapView } from './url/hash.js';
-
 export { formatPhotoDate, monthNames } from './text/photo-date.js';
 export { MAX_URL_LENGTH, isCspOrigin, isHostOf, isHttpsUrl, isRelativeUrl, toHttpsUrl } from './text/urls.js';
 export { linkTargets, markdownToPlainText, parseMarkdown } from './text/markdown.js';
@@ -202,16 +200,22 @@ export { RANKING_VERSION, RANKING_WEIGHTS } from './schemas/usgs-scene.js';
 export { RANK_REASONS, SENSORS, SENSOR_SPECS, UNUSABLE_REASONS, USGS_ATTRIBUTION } from './schemas/usgs-scene.js';
 export { cloudEstimateSchema, rankReasonSchema, usgsBrowseUrlSchema } from './schemas/usgs-scene.js';
 export type { CloudEstimate, RankReason, RankReasonEntry, Sensor, SensorSpec, UnusableReason, UsgsDataset } from './schemas/usgs-scene.js';
-export { AUTO_MIN_MEASURED_PCT, CITY_MIN_COVERAGE_PCT, DEFAULT_RMSE_THRESHOLD_M, JOIN_MAX_PARTS } from './schemas/imagery-settings.js';
-export { MAX_TARGET_YEARS, RMSE_THRESHOLD_RANGE, cityImagerySchema, imagerySettingsOf } from './schemas/imagery-settings.js';
-// M25 (docs/research/M25-landsat.md): named, never `export *` (a star re-export costs the engine bytes: docs/LESSONS.md 532).
-export { DECLASS_DATASETS, DEFAULT_LANDSAT_YEARS, ETM_SLC_OFF_DATE, LANDSAT_ATTRIBUTION } from './schemas/landsat.js';
-export { LANDSAT_AUTO_MAX_CLOUD, LANDSAT_AUTO_MAX_PER_TICK, LANDSAT_AUTO_PER_TICK, LANDSAT_DATASETS } from './schemas/landsat.js';
-export { LANDSAT_MAX_CITY_CLOUD_PCT, LANDSAT_MAX_OFFSET_PX, landsatClear } from './schemas/landsat-verdict.js';
-export { LANDSAT_MONTHS, LANDSAT_SEARCH_MAX_CLOUD, LEAF_ON_MONTHS, USGS_DATASETS } from './schemas/landsat.js';
-export { isLandsatDataset, landsatReportSchema, landsatYearsOf } from './schemas/landsat.js';
-export type * from './schemas/landsat.js';
-export type { CityImagery, ImagerySettings } from './schemas/imagery-settings.js';
+export {
+    AUTO_MIN_MEASURED_PCT,
+    CITY_MIN_COVERAGE_PCT,
+    DEFAULT_RMSE_THRESHOLD_M,
+    DEFAULT_SUPERSEDED_TILES_RETENTION_DAYS,
+    JOIN_MAX_PARTS,
+    SUPERSEDED_TILES_RETENTION_DAYS_RANGE,
+} from './schemas/imagery-settings-public.js';
+export { MAX_TARGET_YEARS, RMSE_THRESHOLD_RANGE, cityImagerySchema, imagerySettingsOf } from './schemas/imagery-settings-public.js';
+export { DECLASS_DATASETS, DEFAULT_LANDSAT_YEARS, ETM_SLC_OFF_DATE, LANDSAT_ATTRIBUTION } from './schemas/imagery-settings-public.js';
+export { LANDSAT_AUTO_MAX_CLOUD, LANDSAT_AUTO_MAX_PER_TICK, LANDSAT_AUTO_PER_TICK, LANDSAT_DATASETS } from './schemas/imagery-settings-public.js';
+export { LANDSAT_MAX_CITY_CLOUD_PCT, LANDSAT_MAX_OFFSET_PX, landsatClear } from './schemas/imagery-settings-public.js';
+export { LANDSAT_MONTHS, LANDSAT_SEARCH_MAX_CLOUD, LEAF_ON_MONTHS, USGS_DATASETS } from './schemas/imagery-settings-public.js';
+export { isLandsatDataset, landsatReportSchema, landsatYearsOf } from './schemas/imagery-settings-public.js';
+export type * from './schemas/imagery-settings-public.js';
+export type { CityImagery, ImagerySettings } from './schemas/imagery-settings-public.js';
 export {
     CHECKPOINT_KINDS,
     GCP_ORIGINS,
@@ -290,8 +294,7 @@ export {
     parseRasterUploadPath,
 } from './schemas/imagery-paths.js';
 export type { RasterUpload, ReferenceKind, VersionFile, VersionTilesPaths } from './schemas/imagery-paths.js';
-// M4 (docs/research/M4-interfaces.md): buying a scan, automatic GCP suggestions, the assists, notifications (every export
-// of these modules is public; `test/index.test.ts` lists them).
+// M4 (docs/research/M4-interfaces.md): scan buying, autogcp, assists and notifications; `test/index.test.ts` lists exports.
 export * from './schemas/usgs-order.js';
 export * from './schemas/autogcp.js';
 export * from './schemas/assist.js';
@@ -302,8 +305,7 @@ export * from './schemas/imagery-recalibration.js';
 export * from './schemas/imagery-join.js';
 export { layerVersionReadSchema, salvageLayerVersion, setupStatusReadSchema, type SalvagedVersion } from './schemas/legacy-reads.js';
 export * from './schemas/imagery-plan.js';
-// M20 (docs/research/M20-import-local.md): a local archive's report, its series, rights, the map threshold. By name, not
-// `export *`: the star cost the engine's IIFE 19 bytes gzip of module glue it never uses (DECISIONS-for-review.md §137j).
+// M20 (docs/research/M20-import-local.md): local archive report/series/rights/map threshold, by name (DECISIONS §137j).
 export { ARCHIVE_ACTIONS, ARCHIVE_AUTO_LIKELIHOODS, ARCHIVE_ENCODINGS, ARCHIVE_ID_PATTERN } from './schemas/imagery-archive.js';
 export { ARCHIVE_ISSUES_MAX, ARCHIVE_MAX_SERIES, ARCHIVE_MIN_YEAR, ARCHIVE_PLACE_METHODS } from './schemas/imagery-archive.js';
 export { ARCHIVE_SERIES_CLASSES, ARCHIVE_SERIES_MAX_BYTES, ARCHIVE_SKIP_REASONS } from './schemas/imagery-archive.js';
@@ -323,8 +325,7 @@ export {
     type Stitched,
 } from './schemas/imagery-help.js';
 export * from './schemas/imagery-tiles.js';
-// M5 (docs/research/M5-interfaces.md): many cities in one project, the static export, engine releases on jsDelivr (every
-// export of these modules is public; `test/index.test.ts` lists them).
+// M5 (docs/research/M5-interfaces.md): many cities, static export and engine releases; exports listed by `test/index.test.ts`.
 export * from './schemas/cities.js';
 export * from './schemas/city-export.js';
 export * from './schemas/engine-release.js';
@@ -360,7 +361,6 @@ export { formatPath, isValidationCode, parseManifestJson, toValidationIssues, va
 export type { Schema, ValidationIssue, ValidationResult } from './schemas/validation.js';
 export { checkManifestCompat, compareVersions, parseReleaseVersion, parseVersion, PRERELEASE_CHANNELS } from './schemas/compat.js';
 export type { ManifestCompat, PrereleaseChannel, ReleaseVersionParts } from './schemas/compat.js';
-
 export {
     DEFAULT_PHOTOS_OPACITY,
     OVERLAY_KINDS,
@@ -393,28 +393,7 @@ export {
 } from './overlays/adjustments.js';
 export type { AdjustmentSlider } from './overlays/adjustments.js';
 
-// Field measurements (DECISIONS-for-review.md §76): GA4's event schemas and guards, Core Web Vitals as GA4 parameters;
-// imported only by the apps' consented lazy chunks (each its own app's table).
-export {
-    APP_SURFACES,
-    COMMON_EVENT_PARAMS,
-    SURFACE_PARAMS,
-    FIELD_EVENT_BUDGET,
-    GA_LIMITS,
-    MAP_ERROR_KINDS,
-    VIEWER_PHASES,
-    VITAL_DEBUG_NUMBERS,
-    WEB_VITAL_NAMES,
-    WINDOW_CLASS_NAMES,
-    createFieldGuard,
-    eventProblem,
-    eventSchemas,
-} from './telemetry/field-events.js';
-export type * from './telemetry/field-events.js';
-export { INPUT_DEVICES, VIEWER_EVENT_PARAMS, createViewerGuard, type ViewerEventName } from './telemetry/viewer-events.js';
-export { ADMIN_EVENT_PARAMS, FUNNEL_EVENT_PARAMS, createAdminGuard, type AdminEventName } from './telemetry/admin-events.js';
-export { observeWebVitals, sanitizeTarget, shortTarget, vitalParams } from './telemetry/web-vitals.js';
-export { privacySignal, type PrivacyNavigator } from './telemetry/privacy.js';
-export type { FieldChunk, VitalAttribution, VitalMetric, VitalObserver, VitalOptions } from './telemetry/web-vitals.js';
+// Field measurements (DECISIONS-for-review.md §76): event schemas, guards and web vitals, grouped in one export barrel.
+export * from './telemetry/index.js';
 export * from './migration/index.js';
 export * from './api/index.js';

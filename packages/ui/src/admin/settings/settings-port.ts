@@ -67,6 +67,18 @@ interface CitySectionPort {
     readonly linkLines: { readonly about: Lines; readonly privacy: Lines };
 }
 
+export interface SupersededVersionPort {
+    readonly versionId: string;
+    readonly year: number;
+    readonly updatedAt: string;
+    readonly tileCount: number;
+}
+
+export interface SupersededLayerPort {
+    readonly layerId: string;
+    readonly versions: readonly SupersededVersionPort[];
+}
+
 export interface CategoryItemPort {
     readonly id: string;
     readonly label: PoiCategoryDoc['label'];
@@ -140,6 +152,14 @@ export interface SettingsViewState {
     readonly budget: BudgetSectionPort;
     /** The browser tab icon's card. */
     readonly icon: IconSectionPort;
+    readonly superseded: {
+        readonly loading: boolean;
+        readonly deleting: boolean;
+        readonly layers: readonly SupersededLayerPort[];
+        readonly versions: number;
+        readonly tiles: number;
+        readonly error: 'load' | 'delete' | null;
+    };
 }
 
 export interface SettingsIntentsPort extends ExportIntentsPort, BudgetIntentsPort, IconIntentsPort {
@@ -187,4 +207,6 @@ export interface SettingsIntentsPort extends ExportIntentsPort, BudgetIntentsPor
     zoomBy(delta: number): void;
     drawBounds(): void;
     useMapView(): void;
+    refreshSuperseded(): Promise<void>;
+    deleteSuperseded(): Promise<void>;
 }

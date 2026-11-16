@@ -45,6 +45,10 @@ export const AUTO_MIN_MEASURED_PCT = 70;
 export const DEFAULT_MAP_THRESHOLD_MAX_M = 60;
 export const MAP_THRESHOLD_MAX_RANGE = { min: 15, max: 200 } as const;
 
+/** M12: how many days superseded own tiles stay in the public bucket before cleanup. */
+export const DEFAULT_SUPERSEDED_TILES_RETENTION_DAYS = 30;
+export const SUPERSEDED_TILES_RETENTION_DAYS_RANGE = { min: 1, max: 365 } as const;
+
 /**
  * M25 (`docs/research/M25-landsat.md` §4): the years the tick imports a Landsat scene of on its own by default: from 1984 to the current
  * year (the owner, 2026-11-13; 1984 to 2000 before, when only TM and early ETM+ were searched). `to` absent is "up to this year": a city
@@ -75,6 +79,13 @@ export const cityImagerySchema = z.strictObject({
     mapThresholdMaxM: z.number().min(MAP_THRESHOLD_MAX_RANGE.min).max(MAP_THRESHOLD_MAX_RANGE.max).optional(),
     /** M20 (§5): true (the default): a drawn map within its scaled threshold, its rights clear, publishes without a click. */
     mapAutoPublish: z.boolean().optional(),
+    /** M12: superseded own tiles are removed after this many days (default 30). */
+    supersededTilesRetentionDays: z
+        .number()
+        .int()
+        .min(SUPERSEDED_TILES_RETENTION_DAYS_RANGE.min)
+        .max(SUPERSEDED_TILES_RETENTION_DAYS_RANGE.max)
+        .optional(),
     /** M25: true (the default): `imagery.tick` imports the best Landsat scene of each year from `landsatFrom` to `landsatTo`. */
     landsatAuto: z.boolean().optional(),
     landsatFrom: yearSchema.optional(),
@@ -91,6 +102,7 @@ export interface ImagerySettings {
     readonly publishThroughMapbox: boolean;
     readonly mapThresholdMaxM: number;
     readonly mapAutoPublish: boolean;
+    readonly supersededTilesRetentionDays: number;
     readonly landsatAuto: boolean;
     readonly landsatFrom: number;
     /** M25: the last year, or undefined for up to the current year (the default). */
@@ -105,6 +117,7 @@ const DEFAULT_SETTINGS: ImagerySettings = {
     publishThroughMapbox: false,
     mapThresholdMaxM: DEFAULT_MAP_THRESHOLD_MAX_M,
     mapAutoPublish: true,
+    supersededTilesRetentionDays: DEFAULT_SUPERSEDED_TILES_RETENTION_DAYS,
     landsatAuto: true,
     landsatFrom: DEFAULT_LANDSAT_YEARS.from,
     landsatTo: DEFAULT_LANDSAT_YEARS.to,
@@ -123,6 +136,7 @@ export function imagerySettingsOf(imagery: CityImagery | undefined): ImagerySett
         publishThroughMapbox: setting(imagery, 'publishThroughMapbox'),
         mapThresholdMaxM: setting(imagery, 'mapThresholdMaxM'),
         mapAutoPublish: setting(imagery, 'mapAutoPublish'),
+        supersededTilesRetentionDays: setting(imagery, 'supersededTilesRetentionDays'),
         landsatAuto: setting(imagery, 'landsatAuto'),
         landsatFrom: setting(imagery, 'landsatFrom'),
         landsatTo: setting(imagery, 'landsatTo'),

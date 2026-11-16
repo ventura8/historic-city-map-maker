@@ -24,6 +24,27 @@ import type { SettingsMapState } from './settings-map.js';
 import type { SettingsSection } from './sections.js';
 import type { BasemapChoice, ThemeTools } from './theme.js';
 
+export interface SupersededVersionState {
+    readonly versionId: string;
+    readonly year: number;
+    readonly updatedAt: string;
+    readonly tileCount: number;
+}
+
+export interface SupersededLayerState {
+    readonly layerId: string;
+    readonly versions: readonly SupersededVersionState[];
+}
+
+export interface SupersededState {
+    readonly loading: boolean;
+    readonly deleting: boolean;
+    readonly layers: readonly SupersededLayerState[];
+    readonly versions: number;
+    readonly tiles: number;
+    readonly error: 'load' | 'delete' | null;
+}
+
 export interface SettingsState {
     /** `#/settings/<section>`, or null on the list of sections. */
     readonly section: SettingsSection | null;
@@ -53,6 +74,8 @@ export interface SettingsState {
     readonly budget: BudgetSectionState;
     /** The browser tab icon's card (`./icon.ts`). */
     readonly icon: IconSectionState;
+    /** M12: superseded own-tile versions listed and removed from the imagery settings section. */
+    readonly superseded: SupersededState;
 }
 
 export interface SettingsIntents extends CategoryIntents, ExportIntents, BudgetIntents, IconIntents {
@@ -89,6 +112,8 @@ export interface SettingsIntents extends CategoryIntents, ExportIntents, BudgetI
     drawBounds(): void;
     /** **Use this view**: the map's centre and zoom become the city's start view. */
     useMapView(): void;
+    refreshSuperseded(): Promise<void>;
+    deleteSuperseded(): Promise<void>;
 }
 
 /** What the settings module needs besides `ContentServices`: the theme's contrast check (`@hcm/ui/dynamic-color`). */

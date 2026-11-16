@@ -6,9 +6,10 @@
  */
 import {
     FIRESTORE_PATHS,
-    LAYER_DELETE_GRACE_DAYS,
     RASTER_PATHS,
     STORAGE_PATHS,
+    cityDocSchema,
+    imagerySettingsOf,
     layerDocSchema,
     layerVersionDocSchema,
     timestampFromDate,
@@ -24,9 +25,8 @@ export type OwnTilesCleanDeps = Pick<Ports, 'documents' | 'clock' | 'log' | 'blo
 
 const DAY_MS = 86_400_000;
 
-function graceOver(version: LayerVersionDoc, now: Date): boolean {
-    const limit = now.getTime() - LAYER_DELETE_GRACE_DAYS * DAY_MS;
-    return version.own !== undefined && version.own.removedAt === undefined && timestampToDate(version.updatedAt).getTime() <= limit;
+function ownListed(version: LayerVersionDoc): boolean {
+    return version.own !== undefined && version.own.removedAt === undefined;
 }
 
 /** The layer shows this very archive again (a revert from History). */
@@ -52,10 +52,13 @@ async function cleanOne(deps: OwnTilesCleanDeps, cityId: string, stored: StoredD
 
 /** `imagery.tick`'s part: every superseded archive past its grace. */
 export async function cleanOwnTiles(deps: OwnTilesCleanDeps, cityId: string, now: Date): Promise<void> {
+    const city = await deps.documents.get(FIRESTORE_PATHS.city(cityId), cityDocSchema);
+    const settings = imagerySettingsOf(city?.imagery);
+    const limit = now.getTime() - settings.supersededTilesRetentionDays * DAY_MS;
     const superseded = await deps.documents.query(FIRESTORE_PATHS.layerVersions(cityId), layerVersionDocSchema, {
         where: [['state', '==', 'superseded']],
     });
-    for (const version of superseded.documents.filter(({ data }) => graceOver(data, now))) {
+    for (const version of superseded.documents.filter(({ data }) => ownListed(data) && timestampToDate(data.updatedAt).getTime() <= limit)) {
         await cleanOne(deps, cityId, version, now);
     }
 }
