@@ -55,5 +55,4 @@ describe('<hcm-home-page> monthly costs', () => {
         expect(deepText(element)).toContain('Reading this month’s use…');
         expect(deepAll(element, 'li.cost')).toHaveLength(0);
     });
-
 });

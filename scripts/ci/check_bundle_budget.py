@@ -115,6 +115,9 @@ ADMIN_CHUNK_BUDGETS: Mapping[str, int] = {
     "history": 8,
     "admins": 6,
     "home": 5,
+    # Home's Monthly costs (the owner, 2026-11-16; DECISIONS-for-review.md §237): `<hcm-home-costs>` and its
+    # four live counters, fetched when Home opens; a new chunk, so Home kept its budget: 2.8 KB measured plus headroom.
+    "costs": 4,
     "jobs": 5,
     # 6 since 2026-11-14 (§215b, M28): 5.0 KB after the merge, the setup page's elements it shares now beside it.
     "crashes": 6,

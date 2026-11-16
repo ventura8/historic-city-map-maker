@@ -31,9 +31,7 @@ import { budgetAmountFor, DEFAULT_BUDGET_CURRENCY } from '../setup/budget.js';
 import { LiveDoc, LOADING_DOC, type DocState } from '../content/doc.js';
 import type { ContentServices } from '../content/services.js';
 
-const COST_SERVICES = ['mapbox', 'firebase', 'cloudRun', 'ai', 'usgs'] as const;
-
-type CostService = (typeof COST_SERVICES)[number];
+type CostService = 'mapbox' | 'firebase' | 'cloudRun' | 'ai' | 'usgs';
 
 /** Where a row's number comes from: counted by the map, or estimated (with why). */
 type CostBasis = 'measured' | 'estimate' | 'unread';

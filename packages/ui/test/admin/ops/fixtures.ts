@@ -180,7 +180,7 @@ export function crashesState(overrides: Partial<CrashesViewState> = {}): Crashes
 }
 
 /** A month's costs as the dashboard shows them (`packages/admin/src/home/costs.ts`). */
-export const COSTS: HomeViewState['costs'] = {
+export const COSTS: NonNullable<HomeViewState['costs']> = {
     month: '2026-11',
     loading: false,
     rows: [

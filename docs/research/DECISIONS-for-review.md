@@ -7242,3 +7242,9 @@ The owner asked that architecture documents always be correct and carry Mermaid 
 (`scripts/ci/check_architecture.py`, in `static` after `skill-mirrors`) fails when `docs/ARCHITECTURE.md` names a repository
 path or links a file that does not exist, has no Mermaid diagram, or has one without a known type, a body or balanced
 brackets. It cannot judge prose; it catches the drift that renames and deletions cause.
+
+## 237. Home's Monthly costs in a chunk of its own (2026-11-16) — APPLIED (pre-approved: keeps a gate working, no budget raised)
+
+The Monthly costs card took Home's chunk to 6.5 KB (budget 5 KB). Instead of raising it, the card's element and its four live
+counters moved to a lazy `costs` chunk fetched when Home opens (`packages/admin/src/home/costs.ts`, `<hcm-home-costs>`); Home is
+back to 4.7 KB. `check_bundle_budget.py` gains `"costs": 4` (2.8 KB measured plus headroom), as for every new chunk.
