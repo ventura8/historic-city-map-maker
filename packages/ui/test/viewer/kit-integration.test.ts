@@ -74,6 +74,8 @@ describe('<hcm-map-viewer> with the real kit', () => {
         await page.getByRole('menuitem', { name: 'Straturi' }).click();
         await expect.element(page.getByRole('heading', { name: 'Straturi' })).toBeVisible();
 
+        // The photos' slider lives in the Photos switch's popover (2026-11-16): its options button opens it.
+        await page.getByRole('button', { name: 'Opțiunile fotografiilor' }).click();
         const slider = page.getByRole('slider', { name: 'Opacitate: Fotografii' });
         await expect.element(slider).toBeVisible();
         await userEvent.click(slider);
