@@ -27,7 +27,7 @@ describe('scroll-to-row', () => {
 
     it('happyPath_theRowsOwnPaneScrollsItToTheTopBelowItsMarginAndThePageDoesNot', () => {
         const { pane, rows } = paneWithRows();
-        const row = rows[5] as HTMLElement;
+        const row = rows[5]!;
         expect(scrollerOf(row)).toBe(pane);
         const scroll = vi.spyOn(pane, 'scrollTo');
         const page = vi.spyOn(window, 'scrollTo');
@@ -42,7 +42,7 @@ describe('scroll-to-row', () => {
         expect(scrollRowToTop(lone, 'smooth')).toBe(false);
         const { pane, rows } = paneWithRows();
         const scroll = vi.spyOn(pane, 'scrollTo');
-        scrollRowToTop(rows[0] as HTMLElement, 'smooth');
+        scrollRowToTop(rows[0]!, 'smooth');
         expect(scroll).toHaveBeenCalledWith({ top: 0, behavior: 'smooth' });
     });
 });

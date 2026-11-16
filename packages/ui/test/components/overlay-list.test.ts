@@ -73,7 +73,7 @@ describe('<hcm-overlay-list> reveal', () => {
     it('happyPath_revealScrollsToTheRowsAndMarksThemForAMoment', async () => {
         const element = inScroller(await list('ro'));
         const row = shadowPart(element, '[data-overlay="plan-1911"]');
-        const scroll = vi.spyOn(element.parentElement as HTMLElement, 'scrollTo');
+        const scroll = vi.spyOn(element.parentElement!, 'scrollTo');
         const page = vi.spyOn(row, 'scrollIntoView');
         vi.useFakeTimers({ toFake: ['setTimeout'] });
         expect(element.reveal(['plan-1911', 'ortofoto-1945'])).toBe(true);
@@ -89,7 +89,7 @@ describe('<hcm-overlay-list> reveal', () => {
     it('badPath_revealWithReducedMotionIsInstantAndAnUnknownIdRevealsNothing', async () => {
         const element = inScroller(await list('ro'));
         vi.spyOn(globalThis, 'matchMedia').mockReturnValue({ matches: true } as MediaQueryList);
-        const scroll = vi.spyOn(element.parentElement as HTMLElement, 'scrollTo');
+        const scroll = vi.spyOn(element.parentElement!, 'scrollTo');
         expect(element.reveal(['ortofoto-1945'])).toBe(true);
         expect(scroll).toHaveBeenCalledWith({ top: expect.any(Number) as number, behavior: 'instant' });
         expect(element.reveal(['no-such-layer'])).toBe(false);
