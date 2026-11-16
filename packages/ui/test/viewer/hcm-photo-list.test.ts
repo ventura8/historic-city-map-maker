@@ -35,7 +35,10 @@ describe('<hcm-photo-list>', () => {
 
     it('happyPath_aerialPhotosAreLabelledAndFilteredByKind', async () => {
         const [first, second] = MANIFEST.photos;
-        const photos = [{ ...first!, kind: 'aerial' as const }, second!];
+        if (first === undefined || second === undefined) {
+            throw new Error('the fixture has two photos');
+        }
+        const photos = [{ ...first, kind: 'aerial' as const }, second];
         const element = await mountElement<HcmPhotoList>(HCM_PHOTO_LIST_TAG, { photos, locale: 'en', manifestUrl: TEST_MANIFEST_URL });
 
         await expect.element(page.getByRole('group', { name: 'Kind of photo' })).toBeVisible();

@@ -42,7 +42,7 @@ describe('manifest v1: happy paths', () => {
     it('happyPath_anAerialPhotoAndAPhotoWithoutKindIsAStreetPhoto', () => {
         const result = validateManifest(patched(['photos', 0, 'kind'], 'aerial'));
 
-        expect(result.ok && photoKindOf(result.value.photos[0]!)).toBe('aerial');
+        expect(result.ok && photoKindOf(result.value.photos[0] ?? {})).toBe('aerial');
         expect(photoKindOf({})).toBe('ground');
     });
 

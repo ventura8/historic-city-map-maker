@@ -5,7 +5,7 @@
  * 12 px body-small too small to read on a phone).
  */
 import { DEFAULT_LOCALE, photoKindOf, translate, type ViewerLocale, type Photo, type PhotoKind } from '@hcm/shared';
-import { LitElement, css, html, nothing, type TemplateResult } from 'lit';
+import { LitElement, css, html, type TemplateResult } from 'lit';
 import { repeat } from 'lit/directives/repeat.js';
 
 import { visuallyHidden } from '../components/styles.js';
@@ -165,9 +165,9 @@ export class HcmPhotoList extends LitElement {
     }
 
     /** The Street / Aerial choice, only when some photo is aerial (a city of street photos sees no change). */
-    #kinds(): TemplateResult | typeof nothing {
+    #kinds(): TemplateResult {
         if (!this.photos.some((photo) => photoKindOf(photo) === 'aerial')) {
-            return nothing;
+            return html``;
         }
         const choose = (filter: PhotoKindFilter): void => {
             this.kindFilter = filter;

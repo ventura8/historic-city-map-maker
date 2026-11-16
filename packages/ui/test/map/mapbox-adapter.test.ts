@@ -293,7 +293,9 @@ describe('Mapbox adapter: overlays', () => {
         expect(map.callsOf('removeSource').map(([id]) => id)).toEqual(['hcm-source-cladiri', 'hcm-source-cladiri']);
         expect(map.layers.has('hcm-photos-marker')).toBe(true);
     });
+});
 
+describe('Mapbox adapter: photo data', () => {
     it('happyPath_photoDataIsSplitIntoItsSources', async () => {
         const { port, map } = await mounted();
 
