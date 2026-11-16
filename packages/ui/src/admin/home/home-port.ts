@@ -57,6 +57,33 @@ export type HomeReminderPort =
     // M6 installer (A55–A57): a stopped installation or an update, with the Setup step whose card acts on it.
     | { readonly kind: 'installUpdate' | 'installFailed'; readonly step: string };
 
+/** This month's costs (`packages/admin/src/home/costs.ts`). */
+export interface UsdRangePort {
+    readonly low: number;
+    readonly high: number;
+}
+
+export type CostServicePort = 'mapbox' | 'firebase' | 'cloudRun' | 'ai' | 'usgs';
+
+export interface CostRowPort {
+    readonly service: CostServicePort;
+    readonly basis: 'measured' | 'estimate' | 'unread';
+    readonly freeUsed: number | null;
+    readonly usd: UsdRangePort;
+    readonly forecastUsd: UsdRangePort;
+    readonly console: string;
+}
+
+export interface MonthlyCostsPort {
+    readonly month: string;
+    readonly loading: boolean;
+    readonly rows: readonly CostRowPort[];
+    readonly total: UsdRangePort;
+    readonly forecast: UsdRangePort;
+    readonly budget: { readonly amount: number; readonly currency: string; readonly spent: number | null };
+    readonly overBudget: boolean;
+}
+
 export interface HomeViewState {
     readonly countsStatus: LoadStatusPort;
     readonly counts: Readonly<Record<HomeCountPort, number | null>> | null;
@@ -64,6 +91,7 @@ export interface HomeViewState {
     readonly publicMap: DocStatePort<PublicMapPort>;
     readonly reminders: readonly HomeReminderPort[];
     readonly dismissing: boolean;
+    readonly costs: MonthlyCostsPort;
 }
 
 export interface HomeIntentsPort {

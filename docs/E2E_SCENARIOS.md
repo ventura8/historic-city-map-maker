@@ -8,7 +8,7 @@ Every user-visible behaviour has at least one happy and one bad scenario. The re
 
 | Behaviours | Scenarios | Happy | Bad | Exists | Planned | Test files |
 | --- | --- | --- | --- | --- | --- | --- |
-| 192 | 2000 | 850 | 1150 | 1967 | 33 | 502 |
+| 193 | 2002 | 851 | 1151 | 1969 | 33 | 503 |
 
 ## Viewer
 
@@ -958,6 +958,8 @@ Every user-visible behaviour has at least one happy and one bad scenario. The re
 | `S-A191-HAPPY` | A191 | happy | Remove on a cancelled version warns that it goes for good, then deletes it in one click | the row's Remove opens a warning (the version, its job and server files go for good, cannot be undone, the map and the originals stay) with Remove for good; that click calls imagery.deleteVersion with the row's version id and the notice says the version was deleted | e2e-admin | exists | `e2e/admin/specs/imagery/cancelled.spec.ts` |
 | `S-A191-BAD-READ-ONLY` | A191 | bad | A revoked admin sees the Cancelled versions group with no Remove | a read-only page lists the cancelled versions but offers no Remove control | e2e-admin | planned | - |
 | `S-A191-BAD-REFUSED` | A191 | bad | A refused Remove is told and the cancelled version stays | imagery.deleteVersion refuses (a job still running) -> the notice gives the refusal's plain text and the version stays in the group | e2e-admin | exists | `e2e/admin/specs/imagery/cancelled.spec.ts` |
+| `S-A192-HAPPY` | A192 | happy | Home's Monthly costs shows each paid service with its month so far, its forecast, measured or estimated, and its console | usage/mapbox-<month> with 30 compute units of 20 free -> the Mapbox row says Measured by the map, 150% of the free tier, a link to Mapbox's statistics; Firebase is an estimate with its reason; five services listed | e2e-admin | exists | `e2e/admin/specs/ops/costs.spec.ts` |
+| `S-A192-BAD-OVER-BUDGET` | A192 | bad | Past the budget, Monthly costs says what pauses and offers Jobs and billing | ops/guard with Google's budget alert at 6 of 5 USD -> a status says the forecast passes the budget, that processing and publishing pause and the public map stays, with Open Jobs (#/jobs) | e2e-admin | exists | `e2e/admin/specs/ops/costs.spec.ts` |
 | `S-A20-HAPPY` | A20 | happy | The session refreshes its token silently | an hour later (clock) the ID token refreshes silently; callables, Firestore and an editor open all that time keep working, and its Save writes | e2e-admin | exists | `e2e/admin/specs/shell/shell.spec.ts` |
 | `S-A20-BAD-ADMIN-REMOVED` | A20 | bad | An admin removed mid-session is denied on the next action | admin removed mid-session -> the next Firestore read and callable are denied (apiError.notAdmin) at once, without waiting for the token to expire | e2e-admin | exists | `e2e/admin/specs/flows/revoke.spec.ts` |
 | `S-A20-BAD-NO-APP-CHECK` | A20 | bad | A call without App Check is refused once enforcement is on | HCM_APP_CHECK=enforce and no App Check token -> the callable is refused and the app shows apiError.appCheck with Reload | functions | planned | - |

@@ -1324,6 +1324,13 @@
             "name": "How many old images from above the chosen city has, before any account",
             "milestone": "M29",
             "source": "the owner, 2026-11-15: the first step of a new map shows the city's historical satellite images, free and paid, with previews; docs/research/M29-imagery-census.md"
+        },
+        {
+            "id": "A192",
+            "area": "admin",
+            "name": "Every monthly cost of the map on the dashboard",
+            "milestone": "M18",
+            "source": "the owner, 2026-11-16: the admin sees on the dashboard every monthly cost (Mapbox, Google Cloud, Firebase, USGS, AI)"
         }
     ],
     "scenarios": [
@@ -23326,6 +23333,28 @@
             "tier": "e2e-admin",
             "status": "planned",
             "notes": "Backlog t130/t131 (split from t35), 2026-11-16. Unit tests: packages/ui/test/admin/imagery/cancelled-list.test.ts, packages/admin/test/imagery/remove-cancelled.test.ts; the Playwright spec (a cancelled version seeded in the emulator) is still to write."
+        },
+        {
+            "id": "S-A192-HAPPY",
+            "behaviour": "A192",
+            "area": "admin",
+            "path": "happy",
+            "title": "Home's Monthly costs shows each paid service with its month so far, its forecast, measured or estimated, and its console",
+            "asserts": "usage/mapbox-<month> with 30 compute units of 20 free -> the Mapbox row says Measured by the map, 150% of the free tier, a link to Mapbox's statistics; Firebase is an estimate with its reason; five services listed",
+            "tier": "e2e-admin",
+            "status": "exists",
+            "notes": "The owner's request, 2026-11-16. Test: e2e/admin/specs/ops/costs.spec.ts; unit: packages/admin/test/home/costs.test.ts, packages/ui/test/admin/home/costs.test.ts."
+        },
+        {
+            "id": "S-A192-BAD-OVER-BUDGET",
+            "behaviour": "A192",
+            "area": "admin",
+            "path": "bad",
+            "title": "Past the budget, Monthly costs says what pauses and offers Jobs and billing",
+            "asserts": "ops/guard with Google's budget alert at 6 of 5 USD -> a status says the forecast passes the budget, that processing and publishing pause and the public map stays, with Open Jobs (#/jobs)",
+            "tier": "e2e-admin",
+            "status": "exists",
+            "notes": "The owner's request, 2026-11-16. Test: e2e/admin/specs/ops/costs.spec.ts; unit: packages/admin/test/home/costs.test.ts, packages/ui/test/admin/home/costs.test.ts."
         }
     ]
 }

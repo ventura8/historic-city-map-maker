@@ -133,3 +133,11 @@ A group of six cards (`packages/shared/src/schemas/translation-sources.ts`, `TRA
 | MyMemory | 5,000 characters a day anonymous, 50,000 with an email | not stated | no | not stated |
 
 **Not built (planned):** the app translating through these services. Today the drafts come from Vertex AI when the cloud AI is on; the local models with their check, the key boxes for DeepL, Azure and MyMemory, and LibreTranslate on the household's computers are follow-ups, and each card says so.
+
+## 12. Monthly costs on Home (the owner, 2026-11-16)
+
+Home ends with **Monthly costs** (`packages/admin/src/home/costs.ts`, `packages/ui/src/admin/home/costs.ts`; behaviour A192): one row per paid service, with this month's spend so far, the forecast for the whole month (the spend divided by the share of the month gone, at least one day), whether the number is **measured by the map** or an **estimate** and why, the share of the free tier used, and the service's console in a new tab; then the total, the forecast and the budget.
+
+- Measured: Mapbox's compute units past the free units (`usage/mapbox-<month>`, the publish guard's counter, `USD_PER_COMPUTE_UNIT`); Cloud Run's vCPU and GiB seconds past `CLOUD_RUN_FREE_TIER` at the Tier 1 job prices (`usage/cloudrun-<month>`, M7); the AI drafts' dollars (`usage/ai-<month>`); the budget alert's cost so far and budget (`ops/guard.spend`).
+- Estimated, with the reason on the card: Firebase (Hosting, Functions, Firestore, Storage) from `PLATFORM_MONTHLY_USD`, since Google does not tell the map; visitors' Mapbox map loads (not counted by the map, the first 50,000 a month are free); a USGS scan, paid per purchase (`ONE_SCAN_USD` at most as the month's forecast).
+- A counter that cannot be read is shown as an estimate with that reason; with no budget alert yet the budget is Setup's default (`setup/budget.ts`). Past the budget, a status says that processing and publishing pause and the public map stays, with Open Jobs and Google Cloud billing.

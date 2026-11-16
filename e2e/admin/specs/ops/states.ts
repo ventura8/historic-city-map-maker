@@ -12,6 +12,10 @@ export const OPS_STATES = {
         title: 'Home: Not on the public map, a skipped layer with its first issue and its link',
         visit: 'specs/ops/skipped.spec.ts',
     },
+    'home.costs': {
+        title: 'Home: Monthly costs, each paid service with its month so far, forecast and console, past the budget',
+        visit: 'specs/ops/costs.spec.ts',
+    },
     'jobs.empty': { title: 'Jobs: none yet', visit: 'tour/admin-jobs.tour.ts' },
     'jobs.list': { title: 'Jobs: the live list with its status chips', visit: 'tour/admin-jobs.tour.ts' },
     'jobs.detail': {

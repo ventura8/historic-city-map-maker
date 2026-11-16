@@ -179,6 +179,42 @@ export function crashesState(overrides: Partial<CrashesViewState> = {}): Crashes
     };
 }
 
+/** A month's costs as the dashboard shows them (`packages/admin/src/home/costs.ts`). */
+export const COSTS: HomeViewState['costs'] = {
+    month: '2026-11',
+    loading: false,
+    rows: [
+        {
+            service: 'mapbox',
+            basis: 'measured',
+            freeUsed: 0.5,
+            usd: { low: 0, high: 0 },
+            forecastUsd: { low: 0, high: 0 },
+            console: 'https://console.mapbox.com/account/statistics/',
+        },
+        {
+            service: 'firebase',
+            basis: 'estimate',
+            freeUsed: null,
+            usd: { low: 0.25, high: 1 },
+            forecastUsd: { low: 0.5, high: 2 },
+            console: 'https://console.firebase.google.com/project/_/usage',
+        },
+        {
+            service: 'cloudRun',
+            basis: 'unread',
+            freeUsed: null,
+            usd: { low: 0, high: 0 },
+            forecastUsd: { low: 0, high: 0 },
+            console: 'https://console.cloud.google.com/run/jobs',
+        },
+    ],
+    total: { low: 0.25, high: 1 },
+    forecast: { low: 0.5, high: 2 },
+    budget: { amount: 5, currency: 'USD', spent: null },
+    overBudget: false,
+};
+
 export function homeState(overrides: Partial<HomeViewState> = {}): HomeViewState {
     return {
         countsStatus: 'ready',
@@ -236,6 +272,7 @@ export function homeState(overrides: Partial<HomeViewState> = {}): HomeViewState
         // M6 setup-ux: what Setup left open (none unless a test says so).
         reminders: [],
         dismissing: false,
+        costs: COSTS,
         ...overrides,
     };
 }

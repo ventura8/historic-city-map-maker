@@ -5,7 +5,7 @@
  * the public map's state from `manifests/{city}` (live). Counts are Firestore aggregations (one read per thousand
  * documents), counted when the page opens and on Refresh. M6 (setup-ux, `./reminders.ts`): what Setup left open, as
  * reminders: USGS later or waiting for its approval, a likely free trial nearing its end ("It is a paid account": one
- * input, recorded with `setup.recordCloud`).
+ * input, recorded with `setup.recordCloud`). The owner, 2026-11-16: this month's costs, service by service (`./costs.ts`).
  */
 import {
     FIRESTORE_PATHS,
@@ -27,6 +27,7 @@ import type { ContentQuery, ContentServices } from '../content/services.js';
 import { ACTIVE_JOB_STATUSES } from '../jobs/jobs.js';
 import type { NoticeInput } from '../state/state.js';
 import { Store } from '../state/store.js';
+import { CostsWatch, LOADING_COSTS, type MonthlyCosts } from './costs.js';
 import { remindersOf, type HomeReminder } from './reminders.js';
 
 /** What the dashboard counts, in the order it shows them. */
@@ -121,6 +122,8 @@ export interface HomeState {
     readonly reminders: readonly HomeReminder[];
     /** "It is a paid account" is being recorded. */
     readonly dismissing: boolean;
+    /** This month's costs, service by service (`./costs.ts`), live. */
+    readonly costs: MonthlyCosts;
 }
 
 export interface HomeIntents {
@@ -139,6 +142,7 @@ const INITIAL: HomeState = {
     publicMap: LOADING_DOC,
     reminders: [],
     dismissing: false,
+    costs: LOADING_COSTS,
 };
 
 type HealthRecord = NonNullable<SetupStatusDoc[SetupArea]>;
@@ -176,6 +180,7 @@ class HomeStore implements AreaStore<HomeState, HomeIntents> {
     readonly #cell: Store<HomeState>;
     readonly #status: LiveDoc<SetupStatusDoc>;
     readonly #manifest: LiveDoc<ManifestStateDoc>;
+    readonly #costs: CostsWatch;
     #counting = 0;
     readonly intents: HomeIntents;
 
@@ -202,11 +207,15 @@ class HomeStore implements AreaStore<HomeState, HomeIntents> {
                 this.#cell.update({ publicMap: mapDoc(state, publicMapOf) });
             },
         });
+        this.#costs = new CostsWatch(services, (costs) => {
+            this.#cell.update({ costs });
+        });
         this.intents = {
             refresh: () => this.#count(),
             retry: () => {
                 this.#status.retry();
                 this.#manifest.retry();
+                this.#costs.retry();
                 void this.#count();
             },
             dismissTrial: () => this.#dismissTrial(),
@@ -225,6 +234,7 @@ class HomeStore implements AreaStore<HomeState, HomeIntents> {
         if (this.#status.path === '') {
             this.#status.show(FIRESTORE_PATHS.setupStatus);
             this.#manifest.show(FIRESTORE_PATHS.manifestState(this.#services.cityId));
+            this.#costs.show();
             void this.#count();
         }
     }
@@ -232,6 +242,7 @@ class HomeStore implements AreaStore<HomeState, HomeIntents> {
     close(): void {
         this.#status.stop();
         this.#manifest.stop();
+        this.#costs.stop();
     }
 
     hasUnsavedChanges(): boolean {
