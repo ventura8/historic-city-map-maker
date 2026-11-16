@@ -150,7 +150,7 @@ describe('createSetupCloud', () => {
         world.fakes.scenario('firebase-management.analyticsLinked');
         const cloud = cloudOf(world);
 
-        await expect(cloud.createMeasurementReports(ACCESS, 'G-E2E0000000')).resolves.toEqual({ created: 23, skipped: 0 });
+        await expect(cloud.createMeasurementReports(ACCESS, 'G-E2E0000000')).resolves.toEqual({ created: 26, skipped: 0 });
         await expect(cloud.createMeasurementReports(ACCESS, 'G-SOMEONE0')).resolves.toBeNull();
     });
 
