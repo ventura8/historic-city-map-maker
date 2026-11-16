@@ -5,6 +5,7 @@ import { repeat } from 'lit/directives/repeat.js';
 import { cssProperties } from './css-properties.js';
 import { defineHcmIcon } from './icon.js';
 import { defineOnce, emit, fillTemplate } from './internal.js';
+import { scrollRowToTop } from './scroll-to-row.js';
 import { defineHcmSlider } from './slider.js';
 import { baseStyles, typeStyles, visuallyHidden } from './styles.js';
 import { defineHcmSwitch } from './switch.js';
@@ -250,7 +251,7 @@ export class HcmOverlayList extends LitElement {
             return false;
         }
         const reduce = globalThis.matchMedia('(prefers-reduced-motion: reduce)').matches;
-        first.scrollIntoView({ block: 'start', behavior: reduce ? 'instant' : 'smooth' });
+        scrollRowToTop(first, reduce ? 'instant' : 'smooth');
         for (const row of rows) {
             row.classList.remove('revealed');
             // A reflow restarts the tint when the same row is revealed twice in a row.

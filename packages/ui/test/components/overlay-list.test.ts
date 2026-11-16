@@ -46,6 +46,15 @@ function list(locale: Locale, items: readonly OverlayListItem[] = ITEMS): Promis
     );
 }
 
+/** Puts the list in a short scrolling pane, as the Layers panel does. */
+function inScroller(element: HcmOverlayList): HcmOverlayList {
+    const pane = document.createElement('div');
+    pane.style.cssText = 'height: 60px; overflow-y: auto';
+    element.replaceWith(pane);
+    pane.append(element);
+    return element;
+}
+
 function sliderOf(element: HcmOverlayList, id: string): HcmSlider {
     return shadowPart(element, `[data-overlay="${id}"] hcm-slider`) as HcmSlider;
 }
@@ -62,12 +71,14 @@ describe('<hcm-overlay-list> reveal', () => {
     });
 
     it('happyPath_revealScrollsToTheRowsAndMarksThemForAMoment', async () => {
-        const element = await list('ro');
+        const element = inScroller(await list('ro'));
         const row = shadowPart(element, '[data-overlay="plan-1911"]');
-        const scroll = vi.spyOn(row, 'scrollIntoView');
+        const scroll = vi.spyOn(element.parentElement as HTMLElement, 'scrollTo');
+        const page = vi.spyOn(row, 'scrollIntoView');
         vi.useFakeTimers({ toFake: ['setTimeout'] });
         expect(element.reveal(['plan-1911', 'ortofoto-1945'])).toBe(true);
-        expect(scroll).toHaveBeenCalledWith({ block: 'start', behavior: 'smooth' });
+        expect(scroll).toHaveBeenCalledWith({ top: expect.any(Number) as number, behavior: 'smooth' });
+        expect(page).not.toHaveBeenCalled();
         expect(row.classList.contains('revealed')).toBe(true);
         expect(shadowPart(element, '[data-overlay="ortofoto-1945"]').classList.contains('revealed')).toBe(true);
         expect(element.shadowRoot?.activeElement ?? null).toBeNull();
@@ -76,12 +87,11 @@ describe('<hcm-overlay-list> reveal', () => {
     });
 
     it('badPath_revealWithReducedMotionIsInstantAndAnUnknownIdRevealsNothing', async () => {
-        const element = await list('ro');
+        const element = inScroller(await list('ro'));
         vi.spyOn(globalThis, 'matchMedia').mockReturnValue({ matches: true } as MediaQueryList);
-        const row = shadowPart(element, '[data-overlay="ortofoto-1945"]');
-        const scroll = vi.spyOn(row, 'scrollIntoView');
+        const scroll = vi.spyOn(element.parentElement as HTMLElement, 'scrollTo');
         expect(element.reveal(['ortofoto-1945'])).toBe(true);
-        expect(scroll).toHaveBeenCalledWith({ block: 'start', behavior: 'instant' });
+        expect(scroll).toHaveBeenCalledWith({ top: expect.any(Number) as number, behavior: 'instant' });
         expect(element.reveal(['no-such-layer'])).toBe(false);
         expect(element.reveal([])).toBe(false);
     });
