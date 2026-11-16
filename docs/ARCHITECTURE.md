@@ -46,6 +46,41 @@ Layering (enforced by dependency-cruiser): `shared` below `ui` below `engine` an
 - **One Firebase Hosting origin for the public map and the admin** (M6, [research/M6-interfaces.md](research/M6-interfaces.md) §2): `<proj>.web.app` serves the viewer at its root and the admin under `/admin/`; the admin's CSP is a header on `/admin/**` only and every viewer page keeps its own meta policy, so no page has two; their storage never collides (`hcm:<cityId>:*` beside `hcm:admin:*`, the admin's GA4 cookies prefixed `hcm_admin`; `admin` and `city` are reserved city ids). Before M6 the admin had this origin alone because `ventura8.github.io` is shared by every Pages site of the account; GitHub Pages is optional now (a redirect tree can replace the old site). **Since 2026-11-13 the admin has its own site** ([research/DECISIONS-for-review.md](research/DECISIONS-for-review.md) §210): `<proj>-admin.web.app/admin/`, made by Provision's `admin-site` item and released beside the public map by the site build's `hosting` step; the public map's `/admin/…` answers 301 there (the hash route kept); a project without that site keeps the admin under `/admin/` of the map's origin.
 - **Region**: Firestore `nam5`, everything else `us-central1`, where the free tiers apply and triggers stay in-region.
 
+## Diagrams
+
+```mermaid
+flowchart LR
+    visitor[Visitor] --> viewer[Public viewer: engine on a city page]
+    viewer -->|manifest.json, photo WebP| bucket[(Public bucket)]
+    viewer -->|GL JS, basemap| mapbox[Mapbox]
+    viewer -->|PMTiles ranges| tiles[(Layer tiles)]
+    owner[Owner and admins] --> admin[Admin at /admin/]
+    admin -->|callables| functions[Cloud Functions]
+    admin --> firestore[(Firestore)]
+    functions --> firestore
+    functions -->|publish trigger| bucket
+    functions -->|jobs| pipeline[Raster pipeline: Cloud Run Job]
+    functions -->|runOn local| worker[Local worker on the owner's computer]
+    pipeline --> tiles
+    worker --> tiles
+    functions -->|M2M| usgs[USGS]
+```
+
+```mermaid
+sequenceDiagram
+    participant A as Admin
+    participant F as Functions
+    participant D as Dispatcher
+    participant P as Pipeline or local worker
+    A->>F: Import a scene
+    F->>D: queue a job
+    D->>P: cloud, or the computer while its worker is seen
+    P->>F: steps: fetch, extract, georef, warp, export, pyramid
+    F-->>A: version waits for approval
+    A->>F: Approve
+    F->>F: publish trigger rebuilds manifest.json
+```
+
 ## Engine (public viewer)
 
 The public contract (config.js, `<hcm-map-viewer>`, the JavaScript API, the URL hash, the City Manifest v1, versioning) is [ENGINE_API.md](ENGINE_API.md); the M1 module interfaces and ownership are in [research/M1-interfaces.md](research/M1-interfaces.md).
@@ -176,6 +211,22 @@ around them) and the georeferencer's Save (route `manual`). The pipeline measure
 held-out checks (`steps/recalibrate.py`); a refine with nothing better ends `cancelled` with its reason and changes nothing. The
 version's page shows both figures and swaps its one map between the new version and the current one at full detail; a recalibration
 never publishes itself, and one not shown better replaces the current layer only by the owner's choice (`acceptWorse`).
+
+## Later milestones (M9 to M29)
+
+Each has its contract in `docs/research/`; only the shape is here.
+
+- **Calibration anywhere** (M9, [research/M9-calibration.md](research/M9-calibration.md)): a frame is found and proved on Earth with no landmark, against OpenStreetMap and Sentinel-2 only; the pipeline's `pipeline/src/hcm_pipeline/calibrate/` holds the votes, the prior and the proof; the AI matcher runs only locally. **Recalibration** (M16) is above, under *The local worker*.
+- **Roles and review** (M13, [research/M13-roles.md](research/M13-roles.md)): uploader and moderator city roles, the review queue, held pictures and public suggestions; the security rules enforce them.
+- **Start your map** (M14, [research/M14-start-your-map.md](research/M14-start-your-map.md)): a new owner's map started from a browser with Google's consent, without a terminal.
+- **Stories** (M17, [research/M17-stories.md](research/M17-stories.md)): a titled text linked to photos, places and years, edited in the admin (`packages/admin/src/stories/`) with history and revert, read in the public map.
+- **Local archive import** (M20, [research/M20-import-local.md](research/M20-import-local.md)): scanned maps imported and calibrated on the owner's computer (`functions/src/imagery/archive-import.ts`, `functions/src/worker/archive-host.ts`), falling back to the shared Help-calibrate queue.
+- **Landsat** (M25, [research/M25-landsat.md](research/M25-landsat.md)): Landsat scenes harvested through the same USGS M2M token beside the declassified frames (`functions/src/imagery/harvest-landsat.ts`, `functions/src/imagery/landsat-auto.ts`) and imported on their own each wanted year.
+- **Hardware governor** (M26, [research/M26-governor.md](research/M26-governor.md)): one budget for the local worker's and matcher's share of the owner's computer (CPU, memory, GPU), in place of scattered knobs.
+- **Disappeared streets** (M27, [research/M27-lost-streets.md](research/M27-lost-streets.md)): a pinned POI category rebuilt from open data and traced on our own georeferenced maps (`functions/src/imagery/lost-run.ts`); nothing from `fostulbucuresti`.
+- **Platform and Sources** (M28, [research/M28-sources.md](research/M28-sources.md)): Setup's Platform card (the required services) and Sources step (which imagery and data sources the map uses, with costs and accounts; `packages/admin/src/setup/sources.ts`, `functions/src/ops/country-sources.ts`).
+- **Imagery census** (M29, [research/M29-imagery-census.md](research/M29-imagery-census.md)): on the first step of a new map, how many historical images from above the city exist, free and paid, with a preview per decade (`packages/shared/src/census.ts`).
+- **Viewer timeline and photos** (2026-11): the timeline dock (`packages/ui/src/viewer/timeline-dock.ts`) carries a picked year's opacity card (`packages/ui/src/viewer/timeline-opacity.ts`, the kit's slider); Layers keeps its rows under the pinned strip and scrolls a picked year's layer to the top; a photo opened from the photo list goes back to it by button, back gesture or Esc (`packages/ui/src/viewer/photo-return.ts`).
 
 ## Security
 

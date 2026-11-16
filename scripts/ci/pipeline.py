@@ -142,6 +142,8 @@ GATES: dict[str, Gate] = {
         # static: cheapest first, network-bound audits last.
         Gate("suppressions", ("python3", "scripts/ci/check_no_inline_suppressions.py")),
         Gate("skill-mirrors", ("python3", "scripts/ci/check_skill_mirrors.py")),
+        # docs/ARCHITECTURE.md names only paths that exist, links only files that exist, and has well-formed Mermaid diagrams.
+        Gate("architecture", ("python3", "scripts/ci/check_architecture.py")),
         Gate("agent-assets", ("python3", "scripts/ci/check_agent_assets.py")),
         Gate("data-files", ("python3", "scripts/ci/check_data_files.py")),
         # The released engine (cdn/engine/ and its release.json: every file's size and SHA-384) and the starter kit's page
@@ -264,6 +266,7 @@ STAGES: dict[str, tuple[str, ...]] = {
     "static": (
         "suppressions",
         "skill-mirrors",
+        "architecture",
         "agent-assets",
         "data-files",
         "kit-pins",

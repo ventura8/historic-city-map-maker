@@ -7235,3 +7235,10 @@ The start page and Setup show how many old images from above the city has before
 ## 235. ESLint out of memory on the NUC: the agents' worktrees left out (2026-11-15) — APPLIED (pre-approved: keeps a tool working)
 
 `static`'s ESLint gate died with "JavaScript heap out of memory" in its last group (`.`, the rest of the tree, `scripts/ci/lint.sh`) on every run from a checkout that holds `.claude/worktrees/` (gitignored agents' worktrees, each a whole copy of the repository): ESLint does not read `.gitignore`, so it built the TypeScript programs of every copy and passed its 6 GiB heap. `eslint.config.js` now ignores `.claude/worktrees/**` (no source of ours is skipped; nothing about the rules changes). `.claude/scheduled_tasks.lock`, Claude Code's local lock file, joins `.gitignore`, which is the EditorConfig gate's exclusion list (it reads git's file list).
+
+## 236. A static gate keeps the architecture document true (2026-11-16) — APPLIED (pre-approved: a stricter gate)
+
+The owner asked that architecture documents always be correct and carry Mermaid diagrams. `architecture`
+(`scripts/ci/check_architecture.py`, in `static` after `skill-mirrors`) fails when `docs/ARCHITECTURE.md` names a repository
+path or links a file that does not exist, has no Mermaid diagram, or has one without a known type, a body or balanced
+brackets. It cannot judge prose; it catches the drift that renames and deletions cause.
