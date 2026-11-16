@@ -95,6 +95,16 @@ test(
         await expect(page.getByRole('dialog', { name: t(lang, 'layers.title'), exact: true })).toHaveCount(0);
         await expect(viewer(page).locator('hcm-layer-panel hcm-sheet .scrim')).toHaveCount(0);
         await expect(viewer(page).locator('.frame')).not.toHaveAttribute('inert');
+        // The sheet slides up as it opens: measured mid-slide, "above the panel" still lay on it (WebKit, 2 runs in 3).
+        let lastY = Number.NaN;
+        await expect
+            .poll(async () => {
+                const y = (await panel.boundingBox())?.y ?? Number.NaN;
+                const still = y === lastY;
+                lastY = y;
+                return still;
+            })
+            .toBe(true);
         const box = await panel.boundingBox();
         expect(box).not.toBeNull();
         expect(await hitAt(page, 40, Math.max(1, (box?.y ?? 0) / 2)), 'a finger above the panel reaches the map').toContain(

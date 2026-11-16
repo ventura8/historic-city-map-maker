@@ -4342,3 +4342,9 @@ Append a numbered entry to *Lessons from this repository* in the task that finds
     - Cause: a native `<input type="range">` paints its track with no 3:1 boundary; the card straight above the thumb made Tab from the thumb go back up its column; the card was created on each show, so the Tab round never came back to "the same" slider; the press that focused the thumb ran before the reveal knew it was a press, so the card covered the year chip under a finger.
     - Fix and pin: the kit's `hcm-slider`; the card past the thumb's end side and in the DOM right after the track; the card kept and hidden between shows; presses marked in the capture phase. `hcm-timeline-opacity.test.ts`, the tour's `timeline-opacity` state.
     - **A transient control in the Tab order must be one lasting element, placed so Tab never steps back up its column.**
+
+743. **The iPhone Layers test read the panel's box mid-slide, so "above the panel" still lay on the sheet.**
+    - Seen: 2026-11-16, `fn-webkit-iphone15` run with `--repeat-each=3` (no iPhone in the household): `iphone-sheet.spec.ts` S-V15-HAPPY-IPHONE-LAYERS failed 2 runs in 3, the hit test above the panel reaching `sheet Straturi`.
+    - Cause: the sheet slides up as it opens; the spec measured `boundingBox()` once, before the slide ended, and WebKit was slow enough to show it.
+    - Fix and pin: the spec waits until two reads of the panel's top agree before measuring; 75 of 75 runs green after.
+    - **Measure a moving element only once it has stopped: poll its box until two reads agree.**

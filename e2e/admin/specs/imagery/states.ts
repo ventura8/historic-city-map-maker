@@ -152,6 +152,11 @@ export const IMAGERY_STATES = {
         title: 'Historical imagery: a failure no retry cures, no Try again, and Delete this version asked first',
         visit: 'specs/imagery/import.spec.ts',
     },
+    // t130/t131: Work's folded Cancelled versions, open, with a row's Remove warning shown.
+    'imagery.work-cancelled': {
+        title: 'Historical imagery: Work with its Cancelled versions open and a Remove warning',
+        visit: 'specs/imagery/cancelled.spec.ts',
+    },
     'imagery.version-usgs-wait': {
         title: 'Historical imagery: an import waiting for USGS maintenance to end',
         visit: 'specs/imagery/import.spec.ts',

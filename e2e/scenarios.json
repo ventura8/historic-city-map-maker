@@ -23280,8 +23280,8 @@
             "title": "A version its own job cancelled is folded under a closed Cancelled versions group in Work, apart from the live ones",
             "asserts": "a version in state cancelled (Snap my points with too few matching points, or a Cancel) is read apart; Work shows it under a closed 'Cancelled versions (n)' disclosure below Needs you, In progress and Too coarse, with a note saying why and that nothing is asked; it is never among the live rows; only cancelled versions still show the group, not the empty state",
             "tier": "e2e-admin",
-            "status": "planned",
-            "notes": "Backlog t130/t131 (split from t35), 2026-11-16. Unit tests: packages/ui/test/admin/imagery/cancelled-list.test.ts, packages/admin/test/imagery/remove-cancelled.test.ts; the Playwright spec (a cancelled version seeded in the emulator) is still to write."
+            "status": "exists",
+            "notes": "Backlog t130/t131 (split from t35), 2026-11-16. Unit tests: packages/ui/test/admin/imagery/cancelled-list.test.ts, packages/admin/test/imagery/remove-cancelled.test.ts; e2e/admin/specs/imagery/cancelled.spec.ts."
         },
         {
             "id": "S-A190-BAD-NONE",
@@ -23291,8 +23291,8 @@
             "title": "No cancelled version shows no Cancelled versions group",
             "asserts": "with no version in state cancelled Work shows no Cancelled versions heading or disclosure",
             "tier": "e2e-admin",
-            "status": "planned",
-            "notes": "Backlog t130/t131 (split from t35), 2026-11-16. Unit tests: packages/ui/test/admin/imagery/cancelled-list.test.ts, packages/admin/test/imagery/remove-cancelled.test.ts; the Playwright spec (a cancelled version seeded in the emulator) is still to write."
+            "status": "exists",
+            "notes": "Backlog t130/t131 (split from t35), 2026-11-16. Unit tests: packages/ui/test/admin/imagery/cancelled-list.test.ts, packages/admin/test/imagery/remove-cancelled.test.ts; e2e/admin/specs/imagery/cancelled.spec.ts."
         },
         {
             "id": "S-A191-HAPPY",
@@ -23302,8 +23302,8 @@
             "title": "Remove on a cancelled version warns that it goes for good, then deletes it in one click",
             "asserts": "the row's Remove opens a warning (the version, its job and server files go for good, cannot be undone, the map and the originals stay) with Remove for good; that click calls imagery.deleteVersion with the row's version id and the notice says the version was deleted",
             "tier": "e2e-admin",
-            "status": "planned",
-            "notes": "Backlog t130/t131 (split from t35), 2026-11-16. Unit tests: packages/ui/test/admin/imagery/cancelled-list.test.ts, packages/admin/test/imagery/remove-cancelled.test.ts; the Playwright spec (a cancelled version seeded in the emulator) is still to write."
+            "status": "exists",
+            "notes": "Backlog t130/t131 (split from t35), 2026-11-16. Unit tests: packages/ui/test/admin/imagery/cancelled-list.test.ts, packages/admin/test/imagery/remove-cancelled.test.ts; e2e/admin/specs/imagery/cancelled.spec.ts."
         },
         {
             "id": "S-A191-BAD-REFUSED",
@@ -23313,8 +23313,8 @@
             "title": "A refused Remove is told and the cancelled version stays",
             "asserts": "imagery.deleteVersion refuses (a job still running) -> the notice gives the refusal's plain text and the version stays in the group",
             "tier": "e2e-admin",
-            "status": "planned",
-            "notes": "Backlog t130/t131 (split from t35), 2026-11-16. Unit tests: packages/ui/test/admin/imagery/cancelled-list.test.ts, packages/admin/test/imagery/remove-cancelled.test.ts; the Playwright spec (a cancelled version seeded in the emulator) is still to write."
+            "status": "exists",
+            "notes": "Backlog t130/t131 (split from t35), 2026-11-16. Unit tests: packages/ui/test/admin/imagery/cancelled-list.test.ts, packages/admin/test/imagery/remove-cancelled.test.ts; e2e/admin/specs/imagery/cancelled.spec.ts."
         },
         {
             "id": "S-A191-BAD-READ-ONLY",
