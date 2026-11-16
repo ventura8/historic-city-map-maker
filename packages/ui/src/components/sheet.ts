@@ -107,7 +107,7 @@ export class HcmSheet extends LitElement {
                 display: flex;
                 flex-direction: column;
                 box-sizing: border-box;
-                overflow: hidden;
+                overflow: clip;
                 background: var(--md-sys-color-surface-container-low);
                 color: var(--md-sys-color-on-surface);
                 box-shadow: var(--md-sys-elevation-level1);
