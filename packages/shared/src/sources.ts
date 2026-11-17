@@ -16,11 +16,23 @@ export {
     PLATFORM_SECTIONS,
     SOURCE_CATALOGUE,
     SOURCES_CHECKED_ON,
+    naraDigitizedAerialSearchCall,
     sourceFacts,
     sourceOn,
     sourcesEstimate,
 } from './schemas/sources-catalogue.js';
-export type { GuidedFacts, GuidedSource, ImportPath, NotUsableSource, PlatformSection, PublicUse } from './schemas/sources-catalogue.js';
+export type {
+    GuidedCallable,
+    GuidedFacts,
+    GuidedKeySetup,
+    GuidedSource,
+    ImportPath,
+    NaraDigitizedAerialSearchCall,
+    NaraDigitizedAerialSearchRequest,
+    NotUsableSource,
+    PlatformSection,
+    PublicUse,
+} from './schemas/sources-catalogue.js';
 export type { SourceAccount, SourceFacts, SourceGroup, SourceLink, SourcesEstimate, UsdRange } from './schemas/sources-catalogue.js';
 export {
     COUNTRY_SOURCES_REFRESH_DAYS,

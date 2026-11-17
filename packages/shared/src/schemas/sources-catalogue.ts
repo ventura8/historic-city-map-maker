@@ -144,15 +144,51 @@ export interface GuidedFacts {
     readonly id: GuidedSource;
     readonly publicUse: PublicUse;
     readonly path: ImportPath;
+    /** A provider key the owner pastes in Setup and the app stores as a secret (like the USGS token). */
+    readonly key: GuidedKeySetup | null;
+    /** A callable that uses that stored key to query the provider, when one exists. */
+    readonly callable: GuidedCallable | null;
     /** An automatic import through the holder's official interface: `planned` (not built), or none possible. */
     readonly automatic: 'planned' | 'none';
     readonly links: readonly SourceLink[];
 }
 
-type GuidedHow = Pick<GuidedFacts, 'publicUse' | 'path' | 'automatic'>;
+export interface GuidedKeySetup {
+    /** Secret Manager id; the pasted key value is never kept in Firestore documents. */
+    readonly secretId: string;
+    /** Where the owner requests the key. */
+    readonly request: {
+        readonly kind: 'email';
+        readonly value: string;
+    };
+}
+
+export interface GuidedCallable {
+    /** The callable's name in the backend registry. */
+    readonly name: string;
+}
+
+export interface NaraDigitizedAerialSearchRequest {
+    readonly query: string;
+    readonly rows: number;
+}
+
+export interface NaraDigitizedAerialSearchCall {
+    readonly callable: string;
+    readonly payload: NaraDigitizedAerialSearchRequest;
+    readonly auth: Readonly<Record<'x-api-key', string>>;
+}
+
+type GuidedHow = Pick<GuidedFacts, 'publicUse' | 'path' | 'automatic' | 'key' | 'callable'>;
 
 function guided(id: GuidedSource, how: GuidedHow, ...urls: string[]): GuidedFacts {
-    return { id, ...how, links: urls.map((url) => ({ kind: 'site', url })) };
+    return {
+        id,
+        key: null,
+        callable: null,
+        ...how,
+        links: urls.map((url) => ({ kind: 'site', url })),
+    };
 }
 
 export const GUIDED_CATALOGUE: readonly GuidedFacts[] = [
@@ -164,7 +200,16 @@ export const GUIDED_CATALOGUE: readonly GuidedFacts[] = [
     guided(
         'nara',
         // Air photos are photos of the kind `aerial`, never map layers (the owner, 2026-11-16).
-        { publicUse: 'perItem', path: 'photos', automatic: 'none' },
+        {
+            publicUse: 'perItem',
+            path: 'photos',
+            automatic: 'none',
+            key: {
+                secretId: 'nara-catalog-api-v2-key',
+                request: { kind: 'email', value: 'Catalog_API@nara.gov' },
+            },
+            callable: { name: 'sources.searchNaraDigitizedAerialItems' },
+        },
         'https://www.archives.gov/research/cartographic/aerial-photography/rg-373-gx-foreign-aerial-photography',
         'https://ncap.org.uk/NARA',
     ),
@@ -183,6 +228,18 @@ export const GUIDED_CATALOGUE: readonly GuidedFacts[] = [
     guided('mapillary', { publicUse: 'yes', path: 'photos', automatic: 'planned' }, 'https://www.mapillary.com/'),
     guided('arcanum', { publicUse: 'permission', path: 'imageryUpload', automatic: 'none' }, 'https://maps.arcanum.com/'),
 ];
+
+/**
+ * The NARA search callable payload for digitized aerial items (Catalog API v2) and its key auth header.
+ * The caller passes the key that Setup stored as `nara-catalog-api-v2-key`.
+ */
+export function naraDigitizedAerialSearchCall(storedKey: string, query: string, rows = 25): NaraDigitizedAerialSearchCall {
+    return {
+        callable: 'sources.searchNaraDigitizedAerialItems',
+        payload: { query: query.trim(), rows },
+        auth: { 'x-api-key': storedKey.trim() },
+    };
+}
 
 /** What the step lists as not usable, each with why (`adminSources.notUsable.<id>`). */
 export const NOT_USABLE_SOURCES = ['facebookScraping', 'otherMapSites', 'googleImagery', 'mapboxSatellite', 'unknownWeb'] as const;

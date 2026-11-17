@@ -14,6 +14,7 @@ import {
     PLATFORM_MONTHLY_USD,
     PLATFORM_SECTIONS,
     SOURCE_CATALOGUE,
+    naraDigitizedAerialSearchCall,
     sourceFacts,
     sourceOn,
     sourcesEstimate,
@@ -137,6 +138,21 @@ describe('SOURCE_CATALOGUE', () => {
 
         expect([...links, ...platform].every((link) => link.url.startsWith('https://'))).toBe(true);
         expect(GUIDED_CATALOGUE.find((entry) => entry.id === 'romanianArchives')?.links).toHaveLength(2);
+    });
+
+    it('happyPath_naraGuidedSourceIsKeyedAndUsesTheStoredKeyInItsCallableAuth', () => {
+        const nara = GUIDED_CATALOGUE.find((entry) => entry.id === 'nara');
+        expect(nara?.key).toEqual({
+            secretId: 'nara-catalog-api-v2-key',
+            request: { kind: 'email', value: 'Catalog_API@nara.gov' },
+        });
+        expect(nara?.callable).toEqual({ name: 'sources.searchNaraDigitizedAerialItems' });
+
+        expect(naraDigitizedAerialSearchCall('  e2e-nara-key  ', 'Bucharest 1944', 50)).toEqual({
+            callable: 'sources.searchNaraDigitizedAerialItems',
+            payload: { query: 'Bucharest 1944', rows: 50 },
+            auth: { 'x-api-key': 'e2e-nara-key' },
+        });
     });
 });
 

@@ -51,6 +51,9 @@ Nothing here runs on its own, so there is nothing to turn on. Each card says whe
 
 **Aerial photos are photos** (the owner, 2026-11-16): an air photo from a collection (the US National Archives' wartime prints above) comes in through Photos with the kind **Aerial** (`photoSchema.kind`, `PHOTO_KINDS`: `ground`, the default when absent, or `aerial`), its year, an approximate place only when its caption names one, its licence, credit and source link; it never becomes a layer candidate. The viewer marks it with an aeroplane marker (`PHOTO_AERIAL_ICON`), labels it "Aerial photo" in the Photos list and offers a Street / Aerial choice there whenever the city has one (V76, A193). The 1944 US Army Air Forces prints of Bucharest (NARA RG 342-FH, public domain) were the first ones added this way.
 
+Addendum (2026-11-17, NARA part 1): the NARA guided card now declares a keyed setup slot (`nara-catalog-api-v2-key`), the
+request path (`Catalog_API@nara.gov`) and the callable metadata for digitized aerial search (`sources.searchNaraDigitizedAerialItems`), so Setup can add the secure paste box and the server call in the next parts without changing the card model again.
+
 **Not usable, and why** (listed on the card): collecting Facebook posts automatically; copying another historical map site (fostulbucuresti: no licence, reference only); Google Earth or Street View images (terms); Mapbox Satellite to align (terms); web images with no known author or licence.
 
 ## 3. Storage and rules
