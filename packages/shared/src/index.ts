@@ -10,7 +10,6 @@ export { translateAdminSetup, type AdminSetupKey, type AdminSetupMessages } from
 export { translateAdminContent, type AdminContentKey, type AdminContentMessages } from './i18n/admin-content/index.js';
 export { REDACTED, consoleSink, createLogger, redact } from './log.js';
 export type { LogData, LogLevel, LogRecord, LogSink, Logger, LoggerOptions } from './log.js';
-
 export { EARTH_RADIUS_M, MAX_MERCATOR_LAT, bearingDelta, clamp, roundTo, toDegrees, toRadians, wrapBearing } from './geo/math.js';
 export type { LngLat } from './geo/math.js';
 export { streetViewUrl } from './geo/street-view.js';
@@ -20,17 +19,14 @@ export { DEFAULT_FOV, MAX_FOV, MIN_FOV, angularSpan, coneFromPolygon, conePolygo
 export type { MeasuredCone, ViewCone } from './geo/cone.js';
 export { bboxCenter, bboxContains, bboxExpand, bboxFromRecord, bboxIntersects, bboxOf, bboxToRecord, clampToBBox } from './geo/bbox.js';
 export type { BBox, BoundsRecord } from './geo/bbox.js';
-
 export { DEFAULT_COMPARE_POSITION, DEFAULT_HASH_LIMITS, MAX_HASH_LENGTH, MAX_OVERLAY_ENTRIES, decodeHash, encodeHash } from './url/hash.js';
 export type { CompareState, DecodedHash, HashLimits, HashState, MapView } from './url/hash.js';
-
 export { formatPhotoDate, monthNames } from './text/photo-date.js';
 export { MAX_URL_LENGTH, isCspOrigin, isHostOf, isHttpsUrl, isRelativeUrl, toHttpsUrl } from './text/urls.js';
 export { linkTargets, markdownToPlainText, parseMarkdown } from './text/markdown.js';
 export { redactText } from './text/redact.js';
 export type { InlineNode, MarkdownDocument, MarkdownParagraph } from './text/markdown.js';
 export { parseStory, storyFigureIds, type StoryBlock, type StoryFigure } from './text/story.js';
-
 export { ID_PATTERN, MAX_LINKS, MAX_TOKENS, PHOTOS_OVERLAY_ID, TOKEN_NAME_PATTERN, isId, yearSchema } from './schemas/primitives.js';
 export type { ValidationCode } from './schemas/primitives.js';
 export {
@@ -167,8 +163,11 @@ export {
     HARVEST_DATASET_STATES,
     HARVEST_OUTCOMES,
     HARVEST_STOP_REASONS,
+    HARVEST_TIMEOUT_MS,
+    HARVEST_TIMEOUT_REASON,
     harvestDatasetSchema,
     harvestStateDocSchema,
+    isStaleHarvest,
 } from './schemas/harvest-state.js';
 export type { HarvestDataset, HarvestDatasets, HarvestStateDoc } from './schemas/harvest-state.js';
 export type {
@@ -360,7 +359,6 @@ export { formatPath, isValidationCode, parseManifestJson, toValidationIssues, va
 export type { Schema, ValidationIssue, ValidationResult } from './schemas/validation.js';
 export { checkManifestCompat, compareVersions, parseReleaseVersion, parseVersion, PRERELEASE_CHANNELS } from './schemas/compat.js';
 export type { ManifestCompat, PrereleaseChannel, ReleaseVersionParts } from './schemas/compat.js';
-
 export {
     DEFAULT_PHOTOS_OPACITY,
     OVERLAY_KINDS,
@@ -392,29 +390,6 @@ export {
     withAdjustment,
 } from './overlays/adjustments.js';
 export type { AdjustmentSlider } from './overlays/adjustments.js';
-
-// Field measurements (DECISIONS-for-review.md §76): GA4's event schemas and guards, Core Web Vitals as GA4 parameters;
-// imported only by the apps' consented lazy chunks (each its own app's table).
-export {
-    APP_SURFACES,
-    COMMON_EVENT_PARAMS,
-    SURFACE_PARAMS,
-    FIELD_EVENT_BUDGET,
-    GA_LIMITS,
-    MAP_ERROR_KINDS,
-    VIEWER_PHASES,
-    VITAL_DEBUG_NUMBERS,
-    WEB_VITAL_NAMES,
-    WINDOW_CLASS_NAMES,
-    createFieldGuard,
-    eventProblem,
-    eventSchemas,
-} from './telemetry/field-events.js';
-export type * from './telemetry/field-events.js';
-export { INPUT_DEVICES, VIEWER_EVENT_PARAMS, createViewerGuard, type ViewerEventName } from './telemetry/viewer-events.js';
-export { ADMIN_EVENT_PARAMS, FUNNEL_EVENT_PARAMS, createAdminGuard, type AdminEventName } from './telemetry/admin-events.js';
-export { observeWebVitals, sanitizeTarget, shortTarget, vitalParams } from './telemetry/web-vitals.js';
-export { privacySignal, type PrivacyNavigator } from './telemetry/privacy.js';
-export type { FieldChunk, VitalAttribution, VitalMetric, VitalObserver, VitalOptions } from './telemetry/web-vitals.js';
+export * from './telemetry/index.js';
 export * from './migration/index.js';
 export * from './api/index.js';

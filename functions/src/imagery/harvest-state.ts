@@ -16,7 +16,10 @@ import {
     HARVEST_EVERY_DAYS,
     HARVEST_RESUME_MINUTES,
     HARVEST_RETRY_HOURS,
+    HARVEST_TIMEOUT_MS,
+    HARVEST_TIMEOUT_REASON,
     harvestStateDocSchema,
+    isStaleHarvest,
     timestampFromDate,
     timestampToDate,
     type ApiErrorCode,
@@ -34,8 +37,8 @@ type HarvestStateDeps = Pick<Ports, 'documents' | 'clock'>;
 const MINUTE_MS = 60_000;
 const HOUR_MS = 60 * MINUTE_MS;
 const MONTH_MS = HARVEST_EVERY_DAYS * 24 * HOUR_MS;
-/** A run still `running` this long after it started was stopped by the server (the callable's 540 s, and a minute more). */
-export const HARVEST_KILLED_AFTER_MS = 600_000;
+/** A run still `running` this long after it started was stopped by the server (the callable's 540 s). */
+export const HARVEST_KILLED_AFTER_MS = HARVEST_TIMEOUT_MS;
 
 /** How long after the `failures`-th unfinished run in a row the harvest is tried again. */
 function retryDelayMs(outcome: HarvestStateDoc['outcome'], failures: number): number {
@@ -51,9 +54,49 @@ export function harvestStateOf(deps: Pick<Ports, 'documents'>, cityId: string): 
     return deps.documents.get(FIRESTORE_PATHS.harvestState(cityId), harvestStateDocSchema);
 }
 
-/** True for an attempt the server stopped: still `running` long after it started. */
+/** True for an attempt the server stopped: still `running` older than 540s, or marked failed due to timeout. */
 export function wasKilled(state: HarvestStateDoc | undefined, now: Date): boolean {
-    return state?.outcome === 'running' && timestampToDate(state.attemptedAt).getTime() + HARVEST_KILLED_AFTER_MS <= now.getTime();
+    if (state === undefined) {
+        return false;
+    }
+    if (state.outcome === 'failed' && state.reason === HARVEST_TIMEOUT_REASON) {
+        return true;
+    }
+    return isStaleHarvest(state, now);
+}
+
+/**
+ * Transitions a stale `running` harvest older than 540s to `failed` with its reason, inside a transaction so concurrent
+ * ticks or searches never produce duplicate status updates. Returns true if transitioned.
+ */
+export async function failStaleHarvest(
+    deps: Pick<Ports, 'documents' | 'clock' | 'log'>,
+    cityId: string,
+    now: Date = deps.clock.now(),
+): Promise<boolean> {
+    return deps.documents.transaction(async (transaction) => {
+        const state = await transaction.get(FIRESTORE_PATHS.harvestState(cityId), harvestStateDocSchema);
+        if (!state || !isStaleHarvest(state, now)) {
+            return false;
+        }
+        const failures = state.failures + 1;
+        await transaction.set(FIRESTORE_PATHS.harvestState(cityId), harvestStateDocSchema, {
+            attemptedAt: state.attemptedAt,
+            outcome: 'failed',
+            reason: HARVEST_TIMEOUT_REASON,
+            failures,
+            nextAt: timestampFromDate(new Date(now.getTime() + retryDelayMs('failed', failures))),
+            finishedAt: timestampFromDate(now),
+            datasets: state.datasets,
+            ...stampOf(IMAGERY_WRITER, now),
+        });
+        deps.log.error('usgs harvest timed out past 540s limit', {
+            cityId,
+            reasonCode: 'harvest.killed',
+            datasets: state.datasets,
+        });
+        return true;
+    });
 }
 
 /** Unfinished runs in a row after each outcome, from the count before it (a run still going keeps it). */
@@ -73,6 +116,7 @@ function failuresAfter(previous: HarvestStateDoc | undefined, outcome: HarvestSt
 interface HarvestRecord {
     readonly outcome: HarvestStateDoc['outcome'];
     readonly error?: ApiErrorCode;
+    readonly reason?: string;
     readonly datasets?: HarvestDatasets;
     /** The run's start (the `attemptedAt` of every write of one run). */
     readonly startedAt?: Date;
@@ -81,20 +125,32 @@ interface HarvestRecord {
 }
 
 /** Writes the attempt `record` (each write of a run carries every dataset's part so far). */
-async function writeHarvest(deps: HarvestStateDeps, cityId: string, record: HarvestRecord): Promise<void> {
-    const now = deps.clock.now();
-    const failures = failuresAfter(record.previous, record.outcome);
-    const finished = record.outcome === 'running' ? {} : { finishedAt: timestampFromDate(now) };
-    await deps.documents.set(FIRESTORE_PATHS.harvestState(cityId), harvestStateDocSchema, {
+/** Prepares the data for the harvest state update. */
+function prepareHarvestUpdate(now: Date, record: HarvestRecord, failures: number): HarvestStateDoc {
+    const recordFields = {
         attemptedAt: timestampFromDate(record.startedAt ?? now),
         outcome: record.outcome,
         failures,
         nextAt: timestampFromDate(new Date(now.getTime() + retryDelayMs(record.outcome, failures))),
+    };
+    return { ...recordFields, ...prepareHarvestFields(now, record), ...stampOf(IMAGERY_WRITER, now) };
+}
+
+function prepareHarvestFields(now: Date, record: HarvestRecord) {
+    const finished = record.outcome === 'running' ? {} : { finishedAt: timestampFromDate(now) };
+    const optional = {
         ...(record.error === undefined ? {} : { error: record.error }),
+        ...(record.reason === undefined ? {} : { reason: record.reason }),
         ...(record.datasets === undefined ? {} : { datasets: record.datasets }),
-        ...finished,
-        ...stampOf(IMAGERY_WRITER, now),
-    });
+    };
+    return { ...optional, ...finished };
+}
+
+/** Writes the attempt `record` (each write of a run carries every dataset's part so far). */
+async function writeHarvest(deps: HarvestStateDeps, cityId: string, record: HarvestRecord): Promise<void> {
+    const now = deps.clock.now();
+    const failures = failuresAfter(record.previous, record.outcome);
+    await deps.documents.set(FIRESTORE_PATHS.harvestState(cityId), harvestStateDocSchema, prepareHarvestUpdate(now, record, failures));
 }
 
 /**
@@ -129,12 +185,16 @@ export class HarvestProgress {
     }
 
     /** The run's last write: its outcome, after every `running` one. */
-    async finish(outcome: HarvestStateDoc['outcome'], error?: ApiErrorCode): Promise<void> {
+    async finish(outcome: HarvestStateDoc['outcome'], error?: ApiErrorCode, reason?: string): Promise<void> {
         await this.#writes;
-        await this.#write(error === undefined ? { outcome } : { outcome, error });
+        await this.#write({
+            outcome,
+            ...(error === undefined ? {} : { error }),
+            ...(reason === undefined ? {} : { reason }),
+        });
     }
 
-    #write(record: Pick<HarvestRecord, 'outcome' | 'error'>): Promise<void> {
+    #write(record: Pick<HarvestRecord, 'outcome' | 'error' | 'reason'>): Promise<void> {
         return writeHarvest(this.#deps, this.#cityId, {
             ...record,
             datasets: this.datasets,

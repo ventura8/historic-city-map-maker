@@ -9,13 +9,15 @@ import {
     FIRESTORE_PATHS,
     HARVEST_EVERY_DAYS,
     harvestStateDocSchema,
+    isStaleHarvest,
     type HarvestDataset,
     type HarvestDatasets,
+    type HarvestStateDoc,
     type ServiceState,
     type UsgsDataset,
 } from '@hcm/shared';
 
-import type { ContentServices } from '../content/services.js';
+import type { ContentServices, Stored } from '../content/services.js';
 import type { NoticeInput } from '../state/state.js';
 import { callImagery, refusalOf } from './api.js';
 import { IMAGERY_SEARCH_TIMEOUT_MS } from './search-timeout.js';
@@ -167,13 +169,25 @@ export class HarvestSearch {
             FIRESTORE_PATHS.harvestState(this.#services.cityId),
             harvestStateDocSchema,
             (stored) => {
-                const datasets = stored?.data.outcome === 'running' ? partsOf(stored.data.datasets) : undefined;
-                if (this.#state.phase === 'searching' && datasets !== undefined) {
-                    this.#set({ ...this.#state, datasets });
-                }
+                this.#onHarvestState(stored);
             },
             () => undefined,
         );
+    }
+
+    #onHarvestState(stored: Stored<HarvestStateDoc> | null): void {
+        const now = this.#services.clock.now();
+        if (this.#state.phase !== 'searching' || !this.#isStale(stored, now)) {
+            return;
+        }
+        const datasets = stored ? partsOf(stored.data.datasets) : undefined;
+        if (datasets !== undefined) {
+            this.#set({ ...this.#state, datasets });
+        }
+    }
+
+    #isStale(stored: Stored<HarvestStateDoc> | null, now: number): boolean {
+        return stored?.data.outcome === 'running' && !isStaleHarvest(stored.data, now);
     }
 
     #set(state: SearchState): void {
