@@ -123,10 +123,6 @@ export const timelineExtraStyles = css`
         box-shadow: var(--md-sys-elevation-level2, none);
     }
 
-    .opacity[hidden] {
-        display: none;
-    }
-
     .opacity hcm-slider {
         flex: 1;
         min-inline-size: 0;
@@ -140,5 +136,10 @@ export const timelineExtraStyles = css`
             background: ButtonFace;
             color: ButtonText;
         }
+    }
+
+    /* After every .opacity rule: higher specificity must not precede a later bare .opacity. */
+    .opacity[hidden] {
+        display: none;
     }
 `;

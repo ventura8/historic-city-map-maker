@@ -238,9 +238,11 @@ export class HcmTimeline extends LitElement {
      */
     #markTipping(): void {
         this.removeAttribute('tipping');
-        if (this.#tipShows()) {
-            this.setAttribute('tipping', this.#keyboardTip() || (this.tip === null && this.#reveal.shown) ? 'focus' : '');
+        if (!this.#tipShows()) {
+            return;
         }
+        const focus = this.#keyboardTip() || (this.tip === null && this.#reveal.shown);
+        this.setAttribute('tipping', focus ? 'focus' : '');
     }
 
     /** The year chip or the opacity card shows above the thumb: the photos chip under them steps aside. */

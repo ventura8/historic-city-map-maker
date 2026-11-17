@@ -182,7 +182,7 @@ export class OpacityReveal {
 }
 
 /** The card: one labelled range input, 0 to 100 % in steps of 5. */
-export function opacityCard(
+function opacityCard(
     layer: YearOpacity,
     locale: ViewerLocale,
     reveal: OpacityReveal,

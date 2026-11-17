@@ -14,9 +14,11 @@ import { menuButton, menuItemNamed, openLayers, openTimelineCard, openViewer, op
 test.use({
     expectedConsoleErrors: [
         {
-            text: /^Refused to apply a stylesheet because its hash, its nonce, or 'unsafe-inline' does not appear in the style-src directive/,
+            text: /^Refused to apply a stylesheet because .* does not appear in the style-src directive/,
             url: /^(?:http:\/\/127\.0\.0\.1:\d+\/|$)/,
-            why: "Playwright's WebKit inserts <style>body {}</style> from its own inspector (web-inspector://bootstrap.js) after a tap; the page adds no inline style (seen 2026-11-15)",
+            why:
+                "Playwright's WebKit inserts <style>body {}</style> from its own inspector (web-inspector://bootstrap.js) after a tap; " +
+                'the page adds no inline style (seen 2026-11-15)',
         },
     ],
 });

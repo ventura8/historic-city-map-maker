@@ -150,7 +150,7 @@ function parentOf(node: Element): Element | null {
 }
 
 /** The box that scrolls the list: the nearest ancestor (slots and shadow roots crossed) that scrolls vertically. */
-export function scrollerOf(start: Element): Element | null {
+function scrollerOf(start: Element): Element | null {
     let node = parentOf(start);
     while (node !== null && !/auto|scroll/.test(getComputedStyle(node).overflowY)) {
         node = parentOf(node);
