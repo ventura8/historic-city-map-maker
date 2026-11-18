@@ -7248,3 +7248,10 @@ brackets. It cannot judge prose; it catches the drift that renames and deletions
 The Monthly costs card took Home's chunk to 6.5 KB (budget 5 KB). Instead of raising it, the card's element and its four live
 counters moved to a lazy `costs` chunk fetched when Home opens (`packages/admin/src/home/costs.ts`, `<hcm-home-costs>`); Home is
 back to 4.7 KB. `check_bundle_budget.py` gains `"costs": 4` (2.8 KB measured plus headroom), as for every new chunk.
+
+## 238. OpenAPI 3.1 for callables, HTTPS and the viewer static contract (2026-11-16) — APPLIED
+
+The owner asked for Swagger/OpenAPI of the map app. `docs/openapi.yaml` (OpenAPI 3.1) documents every Firebase
+callable and HTTPS endpoint from `@hcm/shared`'s registry (name, access role, App Check mode, request/response
+schemas, errors) and the viewer's static paths (`manifest.json`, photo WebP derivatives, `app.webmanifest`). Linked
+from `README.md`, `docs/ARCHITECTURE.md`, `docs/ENGINE_API.md` and `docs/research/M2-interfaces.md`.

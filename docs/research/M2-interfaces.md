@@ -612,6 +612,17 @@ publisher) becomes the `MapboxTilesets` port of `functions/src/ports/mapbox-tile
 `MapboxTilesetsApi` moves into its adapter). The `CloudRunJobs` port gained `get` and run options; `Deps` leaves out the
 five M3 ports until fn-imagery wires them.
 
+## OpenAPI 3.1 surface (2026-11-16)
+
+The owner (2026-11-16): every Firebase callable and HTTPS endpoint, plus the viewer's static bucket contract, is
+documented as OpenAPI 3.1 in [`docs/openapi.yaml`](../openapi.yaml). Paths use the deployed name
+(`admin.session` → `/admin-session`); each operation carries `x-function-name`, `x-access-role`, `x-app-check`,
+`x-max-instances` and `x-owner` from the registry in `@hcm/shared` (`CALLABLES`, `HTTP_ENDPOINTS`). Request and
+response schemas follow the shared zod contracts; App Check is modelled as the `AppCheck` security scheme
+(`X-Firebase-AppCheck`). The Viewer tag covers `cities/{cityId}/manifest.json`, the photo WebP derivatives and
+`app.webmanifest` (the public viewer never calls Functions for data). Background triggers stay out of the file; they
+remain in `BACKGROUND_FUNCTIONS` and this document.
+
 ## The city's tab icon (2026-11-08)
 
 The owner (2026-11-08): the Layers panel's map icon is the default browser tab icon of the app, and the admin can change
