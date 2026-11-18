@@ -24,7 +24,10 @@ interface OverlayListProps {
     readonly changedText: string;
 }
 
-async function panel(properties: Partial<HcmLayerPanel> = {}): Promise<HcmLayerPanel> {
+type LayerPanelProps = Partial<HcmLayerPanel> & { readonly year?: number | null };
+type LayerPanelWithYear = HcmLayerPanel & { year: number | null };
+
+async function panel(properties: LayerPanelProps = {}): Promise<HcmLayerPanel> {
     const manifest = testManifest();
     return mountElement<HcmLayerPanel>(HCM_LAYER_PANEL_TAG, {
         manifest,
@@ -141,14 +144,14 @@ describe('<hcm-layer-panel>', () => {
                 (list) => (list as unknown as { revealed: (readonly string[])[] }).revealed,
             );
         expect(reveals()).toEqual([]);
-        element.year = 1977;
+        (element as LayerPanelWithYear).year = 1977;
         await element.updateComplete;
         await element.updateComplete;
         expect(reveals()).toContainEqual(['kh9-1977']);
 
         element.open = false;
         await element.updateComplete;
-        element.year = 1966;
+        (element as LayerPanelWithYear).year = 1966;
         await element.updateComplete;
         expect(reveals()).not.toContainEqual(['kh4-1966']);
         element.open = true;
@@ -159,7 +162,7 @@ describe('<hcm-layer-panel>', () => {
 
     it('badPath_theFirstYearAndAMinimizedPaneRevealNothing', async () => {
         const element = await panel({ year: 1977, mode: 'docked', minimizable: true, minimized: true });
-        element.year = 1966;
+        (element as LayerPanelWithYear).year = 1966;
         await element.updateComplete;
         await element.updateComplete;
         expect(element.shadowRoot?.querySelector('hcm-overlay-list')).toBeNull();

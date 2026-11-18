@@ -1,6 +1,7 @@
 import { describe, expect, it } from 'vitest';
 
 import { PhotoReturn, type ReturnWindow } from '../../src/viewer/photo-return.js';
+import type { ViewerStorePort } from '../../src/viewer/store-port.js';
 import { FakeStore, readyState } from './fake-store.js';
 
 type Listener = () => void;
@@ -46,7 +47,7 @@ class FakeWindow implements ReturnWindow {
 function setup(sheet: 'photos' | 'none' = 'photos'): { win: FakeWindow; store: FakeStore; back: PhotoReturn } {
     const win = new FakeWindow();
     const store = new FakeStore(readyState(undefined, { sheet }));
-    const back = new PhotoReturn(win, (action) => {
+    const back = new PhotoReturn(win, (action: (store: ViewerStorePort) => void) => {
         action(store);
     });
     return { win, store, back };

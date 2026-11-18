@@ -1,0 +1,4 @@
+#!/bin/bash
+F="packages/ui/test/start/hcm-start-page.test.ts packages/ui/test/viewer/hcm-layer-panel.test.ts packages/ui/test/viewer/hcm-photo-list.test.ts packages/ui/test/viewer/hcm-photo-sheet.test.ts packages/ui/test/viewer/hcm-timeline-opacity.test.ts packages/ui/test/viewer/photo-return.test.ts packages/ui/test/viewer/sheet-frame.test.ts"
+P=""
+npx tsc -b && python3 scripts/ci/check_no_inline_suppressions.py && python3 scripts/ci/check_i18n.py && python3 scripts/ci/check_e2e_matrix.py check && { [ -z "$P" ] || { ruff check $P && ruff format --check $P && mypy; }; } && { [ -z "$F" ] || { npx eslint $F && npx prettier --check $F && npx vitest related --run $F --passWithNoTests --project shared --project ui --project admin --project engine --coverage.enabled=false; }; } && { [ -z "$P" ] || ( cd pipeline && /opt/hcm/pipeline-venv/bin/python -m pytest -q -p no:cacheprovider --no-cov tests/unit ); } && echo '[targeted] [SUCCESS] changed files checked'

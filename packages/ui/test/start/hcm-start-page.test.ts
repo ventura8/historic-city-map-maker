@@ -55,7 +55,7 @@ function shadowOf(page: HcmStartPage): ShadowRoot {
 async function rendered(
     view: Partial<StartPageView>,
     problems: Partial<ReturnType<StartPagePort['problems']>> = {},
-    extra: Pick<StartPagePort, 'censusBox'> = {},
+    extra: { readonly censusBox?: () => readonly [number, number, number, number] | null } = {},
 ): Promise<Rendered> {
     defineHcmStartPage();
     const calls: unknown[][] = [];
@@ -355,7 +355,9 @@ describe('the imagery census on the plan (M29)', () => {
         document.body.replaceChildren();
         let box: readonly [number, number, number, number] | null = null;
         const { root, change } = await rendered({ screen: 'plan' }, {}, { censusBox: () => box });
-        const census = root.querySelector('hcm-imagery-census');
+        const census = root.querySelector('hcm-imagery-census') as
+            | (Element & { box: readonly [number, number, number, number] | null; locale: string })
+            | null;
         expect(census?.box).toBeNull();
         box = [26.85, 46.53, 26.97, 46.6];
         await change({});

@@ -17,7 +17,9 @@ function photo(id: string): Photo {
     return found;
 }
 
-async function sheet(properties: Partial<HcmPhotoSheet> = {}): Promise<HcmPhotoSheet> {
+type PhotoSheetProps = Partial<HcmPhotoSheet> & { readonly backToList?: boolean };
+
+async function sheet(properties: PhotoSheetProps = {}): Promise<HcmPhotoSheet> {
     return mountElement<HcmPhotoSheet>(HCM_PHOTO_SHEET_TAG, {
         photos: MANIFEST.photos,
         open: true,

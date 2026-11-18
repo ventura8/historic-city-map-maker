@@ -8,6 +8,11 @@ import { mountElement, recordEvents, shadowQuery, shadowQueryAll } from './doubl
 import { TEST_MANIFEST_URL, testManifest } from './fixtures.js';
 
 const MANIFEST = testManifest();
+type PhotoListProps = Partial<HcmPhotoList> & { readonly restoreScroll?: number };
+
+async function list(properties: PhotoListProps): Promise<HcmPhotoList> {
+    return mountElement<HcmPhotoList>(HCM_PHOTO_LIST_TAG, properties);
+}
 
 describe('<hcm-photo-list>', () => {
     beforeAll(() => {
@@ -19,7 +24,7 @@ describe('<hcm-photo-list>', () => {
     });
 
     it('happyPath_everyPhotoWithItsDateAndACount', async () => {
-        const element = await mountElement<HcmPhotoList>(HCM_PHOTO_LIST_TAG, { photos: MANIFEST.photos, manifestUrl: TEST_MANIFEST_URL });
+        const element = await list({ photos: MANIFEST.photos, manifestUrl: TEST_MANIFEST_URL });
 
         await expect.element(page.getByRole('status')).toHaveTextContent('3 fotografii');
         await expect.element(page.getByRole('list', { name: 'Lista fotografiilor' })).toBeVisible();
@@ -34,7 +39,7 @@ describe('<hcm-photo-list>', () => {
     });
 
     it('happyPath_choosingAPhotoFiresItsId', async () => {
-        const element = await mountElement<HcmPhotoList>(HCM_PHOTO_LIST_TAG, {
+        const element = await list({
             photos: MANIFEST.photos,
             locale: 'en',
             manifestUrl: TEST_MANIFEST_URL,
@@ -72,7 +77,7 @@ describe('<hcm-photo-list>', () => {
     });
 
     it('badPath_noScrollingBoxNoScroll', async () => {
-        const element = await mountElement<HcmPhotoList>(HCM_PHOTO_LIST_TAG, { photos: MANIFEST.photos, restoreScroll: 60 });
+        const element = await list({ photos: MANIFEST.photos, restoreScroll: 60 });
         const events = recordEvents(element, 'hcm-photo-select');
 
         shadowQueryAll(element, 'button')[0]?.click();
@@ -85,7 +90,7 @@ describe('<hcm-photo-list>', () => {
         const photos = Array.from({ length: 5 }, () => MANIFEST.photos)
             .flat()
             .map((photo, index) => ({ ...photo, id: `photo-${String(index)}` }));
-        const element = await mountElement<HcmPhotoList>(HCM_PHOTO_LIST_TAG, { photos, manifestUrl: TEST_MANIFEST_URL });
+        const element = await list({ photos, manifestUrl: TEST_MANIFEST_URL });
 
         const loading = shadowQueryAll(element, 'img').map((image) => image.getAttribute('loading'));
         expect(loading.slice(0, 12).every((value) => value === 'eager')).toBe(true);
@@ -93,14 +98,14 @@ describe('<hcm-photo-list>', () => {
     });
 
     it('badPath_noPhotosShowsAZeroCount', async () => {
-        const element = await mountElement<HcmPhotoList>(HCM_PHOTO_LIST_TAG, { photos: [] });
+        const element = await list({ photos: [] });
 
         await expect.element(page.getByRole('status')).toHaveTextContent('0 fotografii');
         expect(shadowQueryAll(element, 'li')).toHaveLength(0);
     });
 
     it('badPath_anUnresolvableThumbnailLeavesAnEmptyImage', async () => {
-        const element = await mountElement<HcmPhotoList>(HCM_PHOTO_LIST_TAG, {
+        const element = await list({
             photos: MANIFEST.photos.slice(0, 1),
             manifestUrl: 'https://[bad',
         });
@@ -109,7 +114,7 @@ describe('<hcm-photo-list>', () => {
     });
 
     it('happyPath_theDateIsBodyMediumSupportingTextUnderABodyLargeTitle', async () => {
-        const element = await mountElement<HcmPhotoList>(HCM_PHOTO_LIST_TAG, { photos: MANIFEST.photos.slice(0, 1) });
+        const element = await list({ photos: MANIFEST.photos.slice(0, 1) });
         element.style.setProperty('--md-sys-typescale-body-medium-size', '14px');
         element.style.setProperty('--md-sys-typescale-body-medium-line-height', '20px');
         element.style.setProperty('--md-sys-typescale-body-large-size', '16px');
@@ -123,7 +128,7 @@ describe('<hcm-photo-list>', () => {
     it('badPath_theDateNeverFallsBackToTheSmallBodyStyle', async () => {
         // The M1 UX review found the dates in body-small (12 px): a theme's body-small never reaches them now. The viewer
         // always sets every token (theme-tokens.test.ts), so the theme here is the viewer's baseline.
-        const element = await mountElement<HcmPhotoList>(HCM_PHOTO_LIST_TAG, { photos: MANIFEST.photos.slice(0, 1) });
+        const element = await list({ photos: MANIFEST.photos.slice(0, 1) });
         applyTheme(element, VIEWER_BASELINE, 'light', false);
         element.style.setProperty('--md-sys-typescale-body-small-size', '11px');
 

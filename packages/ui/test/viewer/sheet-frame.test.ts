@@ -43,7 +43,8 @@ describe('renderSheetFrame', () => {
             handleLabel: 'Mută',
             onClose: vi.fn(),
         };
-        render(renderSheetFrame({ ...options, standard: true }, html`<p>conținut</p>`), host);
+        const standard = { ...options, standard: true } as unknown as Parameters<typeof renderSheetFrame>[0];
+        render(renderSheetFrame(standard, html`<p>conținut</p>`), host);
 
         expect(host.querySelector('hcm-sheet')?.hasAttribute('modal')).toBe(false);
     });

@@ -1,12 +1,13 @@
 import type { Overlay } from '@hcm/shared';
-import { afterEach, describe, expect, it } from 'vitest';
+import { afterEach, describe, expect, it, vi } from 'vitest';
 
 import { HCM_TIMELINE_TAG, type HcmTimeline, defineHcmTimeline } from '../../src/viewer/hcm-timeline.js';
-import { yearOpacity } from '../../src/viewer/timeline-opacity.js';
+import { OpacityReveal, yearOpacity } from '../../src/viewer/timeline-opacity.js';
 import { mountElement, recordEvents, shadowQuery } from './doubles.js';
 
 /** The selected year's opacity card above the timeline's thumb (the owner, 2026-11-15). */
 const LAYER = { id: 'l1977', name: 'Bucharest 1977', opacity: 0.8 };
+type TimelineWithOpacity = HcmTimeline & { opacity: typeof LAYER | null };
 
 function frame(): Promise<void> {
     return new Promise((resolve) => {
@@ -18,7 +19,8 @@ function frame(): Promise<void> {
 
 async function timeline(opacity: typeof LAYER | null = LAYER): Promise<HcmTimeline> {
     defineHcmTimeline();
-    const element = await mountElement<HcmTimeline>(HCM_TIMELINE_TAG, { stops: [1966, 1977, null], value: 1977, opacity });
+    const element = await mountElement<HcmTimeline>(HCM_TIMELINE_TAG, { stops: [1966, 1977, null], value: 1977 });
+    (element as TimelineWithOpacity).opacity = opacity;
     element.style.inlineSize = '400px';
     await frame();
     await element.updateComplete;
@@ -65,7 +67,7 @@ describe('the timeline opacity card', () => {
 
     it('happyPath_theKeyboardsFocusShowsItTabReachesItAndEscHidesItBackOnTheThumb', async () => {
         const element = await timeline();
-        thumb(element).focus();
+        thumb(element).focus({ focusVisible: true });
         await element.updateComplete;
         const input = shadowQuery(element, '.opacity hcm-slider');
 
@@ -113,7 +115,7 @@ describe('the timeline opacity card', () => {
         await element.updateComplete;
         expect(card(element)).toBeNull();
 
-        element.opacity = LAYER;
+        (element as TimelineWithOpacity).opacity = LAYER;
         element.dragging = true;
         await element.updateComplete;
         expect(card(element)).toBeNull();
@@ -147,7 +149,7 @@ describe('the timeline opacity card', () => {
         pointer(box, 'pointerenter', 'mouse');
         const input = shadowQuery(element, '.opacity hcm-slider');
         shadowQuery(input, '[role="slider"]').focus();
-        thumb(element).focus();
+        thumb(element).focus({ focusVisible: true });
         await element.updateComplete;
         expect(card(element)).not.toBeNull();
         pointer(shadowQuery(element, '.opacity'), 'pointerdown', 'touch');
@@ -182,5 +184,75 @@ describe('the timeline opacity card, standing', () => {
             defaultOpacity: 1,
         } as unknown as Overlay;
         expect(yearOpacity([overlay], 'l1977', 'en')).toEqual({ id: 'l1977', name: 'Layer 1977', opacity: 0.6 });
+    });
+});
+
+function revealRoot(): HTMLDivElement {
+    const root = document.createElement('div');
+    const thumb = document.createElement('button');
+    thumb.className = 'thumb';
+    thumb.type = 'button';
+    const card = document.createElement('div');
+    card.className = 'opacity';
+    const button = document.createElement('button');
+    button.type = 'button';
+    button.textContent = 'x';
+    card.append(button);
+    root.append(thumb, card);
+    return root;
+}
+
+describe('the opacity reveal control', () => {
+    afterEach(() => {
+        vi.useRealTimers();
+        document.body.replaceChildren();
+    });
+
+    it('badPath_touchDownOnTheThumbHidesAndDisconnectRemovesTheOutsideClose', () => {
+        const root = revealRoot();
+        document.body.append(root);
+        const host = Object.assign(new EventTarget(), { renderRoot: root, requestUpdate: vi.fn() });
+        const reveal = new OpacityReveal(host);
+        reveal.listen(root);
+        reveal.listen(root);
+        reveal.show();
+        expect(reveal.shown).toBe(true);
+
+        const thumb = root.querySelector('.thumb');
+        if (!(thumb instanceof HTMLElement)) {
+            throw new Error('no thumb');
+        }
+        pointer(thumb, 'pointerdown', 'touch');
+        expect(reveal.shown).toBe(false);
+
+        reveal.show();
+        reveal.disconnect();
+        pointer(document.body, 'pointerdown', 'mouse');
+        expect(reveal.shown).toBe(true);
+    });
+
+    it('badPath_pointerLeaveWaitsWhileTheCardKeepsFocusThenHides', () => {
+        vi.useFakeTimers();
+        const root = revealRoot();
+        document.body.append(root);
+        const host = Object.assign(new EventTarget(), { renderRoot: root, requestUpdate: vi.fn() });
+        const reveal = new OpacityReveal(host);
+        reveal.listen(root);
+        reveal.show();
+
+        const thumbButton = root.querySelector('.thumb');
+        const cardButton = root.querySelector('.opacity button');
+        if (!(thumbButton instanceof HTMLElement) || !(cardButton instanceof HTMLElement)) {
+            throw new Error('missing reveal controls');
+        }
+        cardButton.focus();
+        pointer(thumbButton, 'pointerout', 'mouse');
+        vi.advanceTimersByTime(450);
+        expect(reveal.shown).toBe(true);
+
+        cardButton.blur();
+        pointer(thumbButton, 'pointerout', 'mouse');
+        vi.advanceTimersByTime(450);
+        expect(reveal.shown).toBe(false);
     });
 });

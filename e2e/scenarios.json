@@ -22939,7 +22939,7 @@
             "title": "A new year scrolls the open Layers panel to its layers, or does so when the panel opens later",
             "asserts": "year 1977 with the panel open -> the kh9-1977 row scrolled to the top of the list, just under the sticky pinned strip (smooth), and marked for 1.6 s, the focus not moved; a year picked while closed -> revealed when the panel opens",
             "tier": "e2e-viewer",
-            "status": "exists",
+            "status": "planned",
             "notes": "The iPhone QA, 2026-11-15. Test: packages/ui/test/viewer/hcm-layer-panel.test.ts, packages/ui/test/components/overlay-list.test.ts."
         },
         {
@@ -22950,7 +22950,7 @@
             "title": "The page's first year, a minimized pane, reduced motion or a year without layers reveal nothing unexpected",
             "asserts": "the first year -> no reveal; minimized or no manifest -> nothing revealed; reduced motion -> an instant scroll; an unknown id -> false, nothing marked",
             "tier": "e2e-viewer",
-            "status": "exists",
+            "status": "planned",
             "notes": "The iPhone QA, 2026-11-15. Test: packages/ui/test/viewer/hcm-layer-panel.test.ts, packages/ui/test/components/overlay-list.test.ts."
         },
         {
