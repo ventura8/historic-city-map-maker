@@ -7,6 +7,8 @@ import { describe, expect, it } from 'vitest';
 import type { StatisticsSource } from '../../src/crashes/statistics.js';
 import { NO_STATISTICS_SOURCE } from '../../src/crashes/statistics.js';
 import { HOME_MODULE } from '../../src/home/home.js';
+// Warm the Visitors chunk so Home's dynamic import resolves from cache (no load after Vitest teardown).
+import '../../src/home/visitors.js';
 import { contentWorld } from '../content/world.js';
 
 async function settled(): Promise<void> {

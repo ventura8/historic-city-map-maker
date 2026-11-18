@@ -122,19 +122,22 @@ ADMIN_CHUNK_BUDGETS: Mapping[str, int] = {
     "visitors": 3,
     # Home's Visitors card's two reports (§238), read with the Statistics view's numbers; a new chunk, so `analytics-data` kept its budget.
     "analytics-summary": 2,
-    "jobs": 5,
+    # 6 since 2026-11-17 (§239): 5.1 KB after the jobs store left `editor-shared`.
+    "jobs": 6,
     # 6 since 2026-11-14 (§215b, M28): 5.0 KB after the merge, the setup page's elements it shares now beside it.
     "crashes": 6,
     # M3 (docs/research/M3-interfaces.md §10.1, DECISIONS-for-review.md §47): the Imagery area (15.2 KB measured on
     # 2026-10-23), the georeferencer (14.0 KB) and the layer editor's Crop (`layer-geometry`, 1.9 KB), each the measurement
     # plus about 20 %, under the contract's ceilings of 30, 30 and 8 KB.
     # 20 since 2026-11-13 (§215, the owner's raise for beta.1): 18.0 KB measured.
-    "imagery": 20,
+    # 21 since 2026-11-17 (§239): 20.1 KB after the merge.
+    "imagery": 21,
     # The georeferencer: 17 until 2026-11-08, 18 until 2026-11-10, 19 since, the owner's decisions (DECISIONS-for-review.md §110 and
     # §141): M15's terrain map and the merge of the accuracy track into M16 measured 17,160 bytes gzip; the zoom buttons, Undo, the
     # placing guide and the map's pair numbers (2026-11-10) took it to about 18,030, with Snap my points and the published maps
     # already in the lazy `georef-extras` chunk.
-    "georef": 19,
+    # 20 since 2026-11-17 (§239): 19.1 KB after the merge of Visitors and the aerial-photo work.
+    "georef": 20,
     # Shared badge painters + map canvas overlay (DECISIONS-for-review.md §146): 1.9 KB measured, out of `georef` (stays 19); with the
     # pairs' leaf helpers and full screen's cover moved in for the linked views (§156), 2.7 KB measured on 2026-11-12. No row rose.
     "georef-badges": 3,
@@ -159,6 +162,8 @@ ADMIN_CHUNK_BUDGETS: Mapping[str, int] = {
     # which would put that module in `editor-shared` (12.98 KB, as on origin).
     "scene-unusable": 2,
     # What two or more areas share and the entry does not (the codeSplitting group `editor-shared`).
+    # Kept at 13 (§239): Home/Imagery no longer import the jobs store for ACTIVE_JOB_STATUSES; costs no longer share the
+    # sources catalogue; workerDocSchema is its own `worker-schema` chunk.
     "editor-shared": 13,
     # The editors' words for a field and its problem (the group `editor-texts`: `field-names.ts`, `issue-text.ts`), out of
     # `editor-shared` when the required fields' own words took it to 13.3 KB: 1.0 KB measured on 2026-11-01 plus about
@@ -194,7 +199,10 @@ ADMIN_CHUNK_BUDGETS: Mapping[str, int] = {
     # editors share, 2.2 KB), and the admin's web push service worker, which the admin page build writes beside the
     # chunks (`scripts/site/src/admin/service-worker.ts`, 0.7 KB).
     "assist": 3,
-    "firebase-messaging-sw.js": 1,
+    # 2 since 2026-11-17 (§239): the installable app's worker lines join the push worker (1.57 KB measured).
+    "firebase-messaging-sw.js": 2,
+    # The admin page's installable-app script (`scripts/site/src/admin/app.ts` → `app.js`), written beside the chunks (§239).
+    "app.js": 2,
     # M5's Export the city card (`packages/ui/src/admin/export/export-card.ts`), fetched the first time its Settings section
     # opens: 1.7 KB measured on 2026-10-25 plus about 20 % (docs/research/M5-interfaces.md §5.6; DECISIONS-for-review.md §60e).
     "export-card": 2,
@@ -205,7 +213,8 @@ ADMIN_CHUNK_BUDGETS: Mapping[str, int] = {
     "cities": 6,
     # M13 (docs/research/M13-roles.md §8): the review queue and the Contribute page: 4.1 and 3.4 KB measured on 2026-11-07 plus
     # about 20 %, rounded up; the total stays under ADMIN_TOTAL_KB.
-    "review": 5,
+    # 6 since 2026-11-17 (§239): 5.0 KB after the merge.
+    "review": 6,
     "contribute": 5,
     # The value fields both of those share (M13 §4; the group `proposal-fields`), out of `editor-shared` (13.2 KB with them), which no
     # editor needs them from: 0.5 KB measured on 2026-11-07, rounded up (DECISIONS-for-review.md §97h).
@@ -246,7 +255,8 @@ ADMIN_CHUNK_BUDGETS: Mapping[str, int] = {
     # §216): the city's computers, Add another computer and Remove this computer, `<hcm-worker-household>` and its texts
     # (`@hcm/shared/admin-worker-household`), fetched with the computer's part; a new chunk, so nothing else grew: 7.4 KB measured
     # on 2026-11-13 (the two languages' texts about 2.5 KB) plus about 20 %, rounded up.
-    "worker-household": 9,
+    # 11 since 2026-11-17 (§239): 10.2 KB with the disk card and the scanned-maps share (cleanup item 6, M20 §22).
+    "worker-household": 11,
     # M8 (docs/research/M8-join-interfaces.md §6): the join's screens (`packages/ui/src/admin/imagery/join/join-card.ts`), fetched
     # when the city has a plan of its dates or a join opens, 2.4 KB measured on 2026-11-06 plus about 20 %, rounded up; and the
     # Upload view (`packages/ui/src/admin/imagery/upload-panel.ts`), out of the Imagery chunk to make room for the plan's feed
@@ -295,6 +305,13 @@ ADMIN_CHUNK_BUDGETS: Mapping[str, int] = {
     # and a version's page share: out of `editor-shared` (13.05 KB with them, budget 13): 0.5 KB measured on 2026-11-12, a row of
     # 1 KB, the smallest whole budget (DECISIONS-for-review.md §155).
     "legacy-reads": 1,
+    # The worker document schema (`packages/shared/src/schemas/worker.ts`), which the worker feed and household computers share:
+    # out of `editor-shared` (§239): about 2 KB measured plus headroom.
+    "worker-schema": 3,
+    # The layer form's shared parts (`form-parts.ts`), out of `editor-shared` (§239): 2.8 KB measured plus headroom.
+    "form-parts": 4,
+    # Rolldown's tiny runtime helper when a dynamic import needs it (§239): 0.2 KB measured.
+    "rolldown-runtime": 1,
     # M20 (docs/research/M20-import-local.md §8): Import local files (`packages/admin/src/archive/archive.ts`, its one dynamic entry,
     # which the Imagery store imports): the archive's feed, `<hcm-archive-panel>`, `<hcm-archive-report>` and their texts
     # (`@hcm/shared/admin-archive`), fetched when the Upload view or an archive's report first shows: 8.6 KB measured on 2026-11-09
@@ -326,7 +343,9 @@ ADMIN_CHUNK_BUDGETS: Mapping[str, int] = {
 # 770 since 2026-11-13 (§222, under the owner's §215 raise): 764.6 KB with the device accent (about 1.5 KB) and the merge.
 # 820 since 2026-11-14 (§215b, M28): 805.7 KB with the Platform and Sources cards, free translation and the country finder
 # (their own `sources-cards` chunk, 34.7 KB, most of it the catalogue's texts in two languages) and the merge of origin.
-ADMIN_TOTAL_KB = 820
+# 835 since 2026-11-17 (§239): Home's Visitors card and its summary reports, the installable app's `app.js`, and the push
+# worker's app lines took the total to about 828 KB; the entry's 450 KB is unchanged.
+ADMIN_TOTAL_KB = 835
 
 # M6: the install bundle's folder in the deployed Hosting tree, and each tarball's budget in KB as served (it is gzip
 # already): the contract's ceilings (docs/research/M6-interfaces.md §1.3; DECISIONS-for-review.md §71). Since §73k

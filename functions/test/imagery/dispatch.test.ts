@@ -557,7 +557,11 @@ describe('release (CR-M3-18)', () => {
         const world = await readyWorld();
         const failed = queued({ status: 'failed', finishedAt: at(NOW) });
         await seedJob(world, 'job-1966-0712', failed);
-        await seedVersion(world, 'job-1966-0712', renderedVersion({ state: 'failed' }));
+        await seedVersion(
+            world,
+            'job-1966-0712',
+            renderedVersion({ state: 'failed', error: { code: 'apiError.imagery.processingFailed' } }),
+        );
         await seedScene(world, 'DS1035-1057DA023', { status: 'imported', layerId: 'kh-4a-corona-1966' });
         await seedLayer(world, 'kh-4a-corona-1966', { pendingVersion: 'job-1966-0712', currentVersion: 'v-first' });
 

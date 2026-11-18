@@ -4,7 +4,15 @@
  * items: the title in body-large, the date as supporting text in body-medium (14 px; the M1 UX review found the
  * 12 px body-small too small to read on a phone).
  */
-import { DEFAULT_LOCALE, photoKindOf, translate, type ViewerLocale, type Photo, type PhotoKind } from '@hcm/shared';
+import {
+    DEFAULT_LOCALE,
+    photoKindOf,
+    translate,
+    type MessageKey,
+    type ViewerLocale,
+    type Photo,
+    type PhotoKind,
+} from '@hcm/shared';
 import { LitElement, css, html, type TemplateResult } from 'lit';
 import { repeat } from 'lit/directives/repeat.js';
 
@@ -20,8 +28,15 @@ export type PhotoKindFilter = 'all' | PhotoKind;
 
 const KIND_FILTERS: readonly PhotoKindFilter[] = ['all', 'ground', 'aerial'];
 
+/** The list's kind radio labels (`photos.filter.*`), keyed so the translate call stays a MessageKey. */
+const FILTER_LABELS = {
+    all: 'photos.filter.all',
+    ground: 'photos.filter.ground',
+    aerial: 'photos.filter.aerial',
+} as const satisfies Record<PhotoKindFilter, MessageKey>;
+
 /** The photos of `photos` that `filter` keeps. */
-export function photosOfKind(photos: readonly Photo[], filter: PhotoKindFilter): readonly Photo[] {
+function photosOfKind(photos: readonly Photo[], filter: PhotoKindFilter): readonly Photo[] {
     return filter === 'all' ? photos : photos.filter((photo) => photoKindOf(photo) === filter);
 }
 
@@ -184,7 +199,7 @@ export class HcmPhotoList extends LitElement {
                             @change=${() => {
                                 choose(filter);
                             }}
-                        />${translate(this.locale, `photos.filter.${filter}`)}</label
+                        />${translate(this.locale, FILTER_LABELS[filter])}</label
                     >`,
             )}
         </fieldset>`;

@@ -7258,3 +7258,19 @@ visitors and visits with the trend against the period before, the last day, new 
 languages, devices, and the most looked-at years, layers and photos (two more `batchRunReports` per period,
 `SUMMARY_REPORTS` and `LOOKED_AT_REPORTS` of `packages/admin/src/google/analytics-data.ts`). Before any read it says where
 to allow it, with Open Statistics. `check_bundle_budget.py` gains `"visitors": 3`. No cloud change.
+
+## 239. Bundle budgets after Visitors and the installable admin app (2026-11-17) — APPLIED
+
+The admin total reached about 828 KB of 820 after Home's Visitors card (§238), and several lazy chunks were over their rows:
+`editor-shared` 15.3 of 13, `worker-household` 10.2 of 9, `firebase-messaging-sw.js` 1.57 of 1, and `app.js` had no row.
+Real splits for `editor-shared`: Home and Imagery read `ACTIVE_JOB_STATUSES` from `packages/admin/src/jobs/statuses.ts`
+instead of the jobs store; `refusalOf` lives in `packages/admin/src/callables/refusal.ts` so the worker and archive chunks
+no longer share `imagery/api.ts` for that helper; Monthly costs reads `PLATFORM_MONTHLY_USD` / `ONE_SCAN_USD` from
+`@hcm/shared/platform-costs` so it no longer shares the sources catalogue with Setup; `workerDocSchema` is a
+`worker-schema` chunk (budget 3) and the layer form's `form-parts.ts` is a `form-parts` chunk (budget 4). After the splits
+`editor-shared` measured 11.8 KB (budget 13) after the form-parts move (that chunk 2.8 KB, budget 4). Small raises for
+what the merge left at or over: `imagery` 21, `georef` 20, `jobs` 6, `review` 6. `worker-household` rises to 11 KB (disk
+card and scanned-maps share). The push worker rises to 2 KB and `app.js` gets a row of 2 KB (1.8 KB measured). `rolldown-runtime` gets a
+row of 1 KB (0.2 KB measured). `ADMIN_TOTAL_KB` rises to 835; the entry's 450 KB is unchanged. Home's Visitors lazy import
+awaits and only defines the element while the dashboard is open (same as Monthly costs), and the home tests warm
+`visitors.js` so Vitest does not load the UI chunk after teardown. No cloud change.

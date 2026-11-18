@@ -23,7 +23,7 @@ import {
     type OpsGuardDoc,
     type UsageDoc,
 } from '@hcm/shared';
-import { PLATFORM_MONTHLY_USD, type UsdRange } from '@hcm/shared/sources';
+import { PLATFORM_MONTHLY_USD, type UsdRange } from '@hcm/shared/platform-costs';
 
 export { defineHcmHomeCosts } from '@hcm/ui/admin/home/costs';
 

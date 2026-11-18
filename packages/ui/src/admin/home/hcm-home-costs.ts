@@ -6,7 +6,7 @@
  * chunk (`packages/admin/src/home/costs.ts`), so the dashboard's own chunk stays within its budget.
  */
 import { DEFAULT_LOCALE, type UiLocale } from '@hcm/shared';
-import { ONE_SCAN_USD } from '@hcm/shared/sources';
+import { ONE_SCAN_USD } from '@hcm/shared/platform-costs';
 import { css, html, LitElement, type TemplateResult } from 'lit';
 
 import { visuallyHidden } from '../../components/styles.js';
@@ -186,12 +186,6 @@ const costsStyles = css`
         color: var(--md-sys-color-on-error-container, CanvasText);
     }
 
-    /* On the error container the theme's focus colour is too faint (2.4:1): the ring takes the text's colour. */
-    .over a.action:focus-visible {
-        outline: 2px solid currentcolor;
-        outline-offset: 2px;
-    }
-
     [data-costs] a.action {
         display: inline-flex;
         gap: 4px;
@@ -201,6 +195,12 @@ const costsStyles = css`
         font-weight: var(--md-sys-typescale-label-large-weight, 500);
 
         --hcm-icon-size: 18px;
+    }
+
+    /* On the error container the theme's focus colour is too faint (2.4:1): the ring takes the text's colour. */
+    .over a.action:focus-visible {
+        outline: 2px solid currentcolor;
+        outline-offset: 2px;
     }
 `;
 

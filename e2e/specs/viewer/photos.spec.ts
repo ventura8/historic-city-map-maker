@@ -5,7 +5,17 @@ import { siteManifestData, type Json } from '../../fixtures/manifest.js';
 import { mapFacts, mapIdle, renderedFeatureIds, renderedPoints, screenPointOf, type LngLat } from '../../support/map.js';
 import { isColour, probePixel, sitePath } from '../../support/site.js';
 import { expect, test } from '../../support/test.js';
-import { chooseMenuItem, engineEvents, isDocked, openViewer, serveManifest, t, viewer, windowClassOf } from '../../support/viewer.js';
+import {
+    chooseMenuItem,
+    engineEvents,
+    isDocked,
+    openViewer,
+    PHOTO_FILTER,
+    serveManifest,
+    t,
+    viewer,
+    windowClassOf,
+} from '../../support/viewer.js';
 
 /**
  * Photos on the map (behaviour V07) and the lightbox (V08): clustered camera markers that expand when the visitor zooms
@@ -551,10 +561,10 @@ test(
         await openPhotoList(page, lang);
         const list = viewer(page).locator('.photos-sheet hcm-photo-list');
 
-        await list.getByRole('radio', { name: t(lang, 'photos.filter.aerial'), exact: true }).check();
+        await list.getByRole('radio', { name: t(lang, PHOTO_FILTER.aerial), exact: true }).check();
         await expect(list.getByRole('button')).toHaveCount(1);
         await expect(list.locator('.date')).toHaveText(`${t(lang, 'photos.kind.aerial')} · 1944`);
-        await list.getByRole('radio', { name: t(lang, 'photos.filter.ground'), exact: true }).check();
+        await list.getByRole('radio', { name: t(lang, PHOTO_FILTER.ground), exact: true }).check();
         await expect(list.getByRole('button')).toHaveCount(PHOTOS.length - 1);
     },
 );

@@ -3,6 +3,8 @@ import { describe, expect, it } from 'vitest';
 
 import { RECONNECT_DELAYS_MS } from '../../src/content/live.js';
 import { healthChipsOf, HOME_MODULE, publicMapOf } from '../../src/home/home.js';
+// Warm the Visitors chunk so Home's dynamic import resolves from cache (no load after Vitest teardown).
+import '../../src/home/visitors.js';
 import { at, CITY, contentWorld } from '../content/world.js';
 
 const STAMP = { updatedBy: 'system:ops', updatedAt: at('2026-10-17T10:00:00Z') };

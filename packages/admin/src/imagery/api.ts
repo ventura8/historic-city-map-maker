@@ -45,8 +45,11 @@ import type {
 } from '@hcm/shared';
 import type { z } from 'zod';
 
+import { refusalOf } from '../callables/refusal.js';
 import { CallableFailure, type CallablesPort, type CallOptions } from '../firebase/ports.js';
 import type { NoticeInput } from '../state/state.js';
+
+export { refusalOf };
 
 /** Each imagery callable's response schema, which checks its answer. */
 const IMAGERY_RESPONSES = {
@@ -128,15 +131,6 @@ export async function callImagery<N extends ImageryCallName>(
         throw INTERNAL();
     }
     return parsed.data as ImageryResponse<N>;
-}
-
-/** A failed call as a notice (a failure that is no callable's, such as the network, is `apiError.unavailable`). */
-export function refusalOf(error: unknown): NoticeInput {
-    if (!(error instanceof CallableFailure)) {
-        return { key: 'apiError.unavailable' };
-    }
-    const { code, params } = error.details;
-    return params === undefined ? { key: code } : { key: code, params };
 }
 
 /** What Remove on a cancelled version needs: the callables, the city, and the page's notices. */

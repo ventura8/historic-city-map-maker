@@ -43,6 +43,10 @@
             "types": "./src/sources.ts",
             "default": "./src/sources.ts"
         },
+        "./platform-costs": {
+            "types": "./src/schemas/platform-costs.ts",
+            "default": "./src/schemas/platform-costs.ts"
+        },
         "./census": {
             "types": "./src/census.ts",
             "default": "./src/census.ts"

@@ -4354,3 +4354,9 @@ Append a numbered entry to *Lessons from this repository* in the task that finds
     - Cause: `document.fullscreenElement` is the outermost shadow host (the admin shell), never the page itself; Esc arrived while `requestFullscreen` was still pending, so leaving found nothing to exit; Chromium refuses `setWindowBounds` in full screen.
     - Fix and pin: "left" is `fullscreenElement === null`; a request that resolves after the page already left exits again; the layout checkers run on the in-page cover (the refused path).
     - **Compare against null, not the element, behind shadow roots, and undo a pending async entry when the user already left.**
+
+745. **Home's Visitors lazy chunk loaded after Vitest tore the environment down.**
+    - Seen: 2026-11-17, `packages/admin/test/home/home.test.ts` and `visitors.test.ts`: `EnvironmentTeardownError` loading `@hcm/ui/admin/home/visitors` from `packages/admin/src/home/visitors.ts`.
+    - Cause: `#visitors` fired `void import('./visitors.js')` without awaiting or checking `#open` (unlike Monthly costs); the test's `settled()` microtasks finished and Vitest tore down while the chunk was still loading.
+    - Fix and pin: `#watchVisitors` awaits the import and defines the element only while open; home/visitors/reminders tests statically import `visitors.js` so the dynamic import hits the module cache (same pattern as `costs.test.ts` importing `costs.js`).
+    - **A test that opens a store with a lazy UI chunk must warm that chunk (static import) or await the load before the file ends; fire-and-forget dynamic imports race Vitest teardown.**

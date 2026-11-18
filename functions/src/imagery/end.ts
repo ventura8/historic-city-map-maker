@@ -11,6 +11,7 @@ import {
     ENDED_VERSION_STATES,
     FINISHED_JOB_STATUSES,
     FIRESTORE_PATHS,
+    isApiErrorCode,
     isSideJob,
     jobDocSchema,
     layerDocSchema,
@@ -270,14 +271,22 @@ export async function endWork(deps: EndDeps, cityId: string, jobId: string, endi
 }
 
 const CANCELLED: Ending = { status: 'cancelled', versionState: 'cancelled', by: IMAGERY_WRITER };
-const FAILED: Ending = { status: 'failed', versionState: 'failed', by: IMAGERY_WRITER };
+
+/** The failure code a ended job carries, or the processing-failed default. */
+function failedCode(job: JobDoc): ApiErrorCode {
+    const raw = job.error?.code;
+    return isApiErrorCode(raw) ? raw : 'apiError.imagery.processingFailed';
+}
 
 /** The ending a run the pipeline itself ended carries; none for a job still on its way. */
 function endingOf(job: JobDoc | undefined): Ending | undefined {
     if (job?.status === 'cancelled') {
         return CANCELLED;
     }
-    return job?.status === 'failed' ? FAILED : undefined;
+    if (job?.status !== 'failed') {
+        return undefined;
+    }
+    return { status: 'failed', versionState: 'failed', by: IMAGERY_WRITER, error: { code: failedCode(job) } };
 }
 
 /**

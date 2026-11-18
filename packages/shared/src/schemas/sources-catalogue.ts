@@ -5,8 +5,10 @@
  * AI drafts' monthly cap, USGS's scan price); a cost the product has no figure for links the provider's pricing page instead.
  */
 import { AI_MONTHLY_CAP } from './assist.js';
+import { ONE_SCAN_USD, PLATFORM_MONTHLY_USD, type UsdRange } from './platform-costs.js';
 import { REQUIRED_SOURCES, SOURCE_TOGGLES, type SourceChoices, type SourceId, type SourceToggle } from './sources.js';
-import { orderEstimateUsd } from './usgs-order.js';
+
+export { ONE_SCAN_USD, PLATFORM_MONTHLY_USD, type UsdRange } from './platform-costs.js';
 
 /** The day the figures and links below were last compared with the providers' pages. */
 export const SOURCES_CHECKED_ON = '2026-11-13';
@@ -19,12 +21,6 @@ export type SourceAccount = 'usgs' | 'google';
 export interface SourceLink {
     readonly kind: 'pricing' | 'licence' | 'policy' | 'site';
     readonly url: string;
-}
-
-/** A monthly cost estimate in US dollars. */
-export interface UsdRange {
-    readonly low: number;
-    readonly high: number;
 }
 
 export interface SourceFacts {
@@ -44,15 +40,6 @@ export interface SourceFacts {
 }
 
 const FREE: UsdRange = { low: 0, high: 0 };
-
-/**
- * The app's platform, always on and not a source (its own Setup steps): Setup's billing card says "The Blaze plan charges only
- * for use beyond the free tier: about USD 0.5–2 a month", and its Mapbox card "Free up to 50,000 map loads a month".
- */
-export const PLATFORM_MONTHLY_USD: UsdRange = { low: 0.5, high: 2 };
-
-/** One frame scanned on demand, in one order (USD 30 a frame plus USD 5 an order, `usgs-order.ts`). */
-export const ONE_SCAN_USD = orderEstimateUsd(1);
 
 const PRICING = {
     vertex: 'https://cloud.google.com/vertex-ai/generative-ai/pricing',

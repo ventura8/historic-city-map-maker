@@ -44,17 +44,32 @@ def broken_links(text: str, root: Path) -> list[str]:
     return sorted({link for link in LINK_RE.findall(text) if not (root / "docs" / link).exists()})
 
 
+def unbalanced_pairs(block: str) -> list[str]:
+    """Bracket pairs whose counts do not match."""
+    return [f"unbalanced {a}{b}" for a, b in PAIRS if block.count(a) != block.count(b)]
+
+
+def has_valid_header(block: str) -> bool:
+    """True when the diagram starts with a known type and has a body."""
+    lines = [line.strip() for line in block.splitlines() if line.strip()]
+    return len(lines) >= MIN_LINES and lines[0].startswith(KINDS)
+
+
+def diagram_problems(index: int, block: str) -> list[str]:
+    """Checks one Mermaid diagram block for a known type, a body and balanced pairs."""
+    if not has_valid_header(block):
+        return [f"diagram {index}: needs a known type ({', '.join(KINDS)}) and a body"]
+    return [f"diagram {index}: {p}" for p in unbalanced_pairs(block)]
+
+
 def mermaid_problems(text: str) -> list[str]:
     """Each malformed Mermaid block, or the absence of any."""
     blocks = MERMAID_RE.findall(text)
     if not blocks:
         return ["no ```mermaid diagram"]
-    problems = []
+    problems: list[str] = []
     for index, block in enumerate(blocks, 1):
-        lines = [line.strip() for line in block.splitlines() if line.strip()]
-        if len(lines) < MIN_LINES or not lines[0].startswith(KINDS):
-            problems.append(f"diagram {index}: needs a known type ({', '.join(KINDS)}) and a body")
-        problems.extend(f"diagram {index}: unbalanced {a}{b}" for a, b in PAIRS if block.count(a) != block.count(b))
+        problems.extend(diagram_problems(index, block))
     return problems
 
 

@@ -4,14 +4,8 @@
  */
 export { DEFAULT_SOURCES, REQUIRED_SOURCES, SOURCE_TOGGLES, citySourcesSchema, needsUsgsAccount, sourcesOf } from './schemas/sources.js';
 export type { CitySources, RequiredSource, SourceChoices, SourceId, SourceToggle } from './schemas/sources.js';
-export {
-    GUIDED_CATALOGUE,
-    GUIDED_SOURCES,
-    NOT_USABLE_SOURCES,
-    ONE_SCAN_USD,
-    PLATFORM_LINKS,
-    PLATFORM_MONTHLY_USD,
-} from './schemas/sources-catalogue.js';
+export { ONE_SCAN_USD, PLATFORM_MONTHLY_USD, type UsdRange } from './schemas/platform-costs.js';
+export { GUIDED_CATALOGUE, GUIDED_SOURCES, NOT_USABLE_SOURCES, PLATFORM_LINKS } from './schemas/sources-catalogue.js';
 export {
     PLATFORM_SECTIONS,
     SOURCE_CATALOGUE,
@@ -21,7 +15,7 @@ export {
     sourcesEstimate,
 } from './schemas/sources-catalogue.js';
 export type { GuidedFacts, GuidedSource, ImportPath, NotUsableSource, PlatformSection, PublicUse } from './schemas/sources-catalogue.js';
-export type { SourceAccount, SourceFacts, SourceGroup, SourceLink, SourcesEstimate, UsdRange } from './schemas/sources-catalogue.js';
+export type { SourceAccount, SourceFacts, SourceGroup, SourceLink, SourcesEstimate } from './schemas/sources-catalogue.js';
 export {
     COUNTRY_SOURCES_REFRESH_DAYS,
     IMPORT_ROUTES,

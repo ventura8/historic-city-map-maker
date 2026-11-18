@@ -27,20 +27,12 @@ import { GuardFeed, resumeGuard, type GuardView } from '../imagery/guard.js';
 import { Store } from '../state/store.js';
 import { pauseAllJobs, rasterFieldsOf, retryRasterJob, runSceneAgain, type RasterJobFields } from './raster.js';
 import type { WorkerFeed } from '../worker/feed.js';
+import { ACTIVE_JOB_STATUSES } from './statuses.js';
+
+export { ACTIVE_JOB_STATUSES };
 
 /** The list's status chips: every job, the unfinished ones, the failed ones, the others that ended. */
 export type JobFilter = 'all' | 'active' | 'failed' | 'done';
-
-/** Statuses of a job that has not finished (Cancel is offered, the progress moves). */
-export const ACTIVE_JOB_STATUSES: readonly JobStatus[] = [
-    'queued',
-    'starting',
-    'running',
-    'waiting_usgs',
-    'mts_processing',
-    'awaiting_approval',
-    'awaiting_gcps',
-];
 
 const FILTER_STATUSES: Readonly<Record<Exclude<JobFilter, 'all'>, readonly JobStatus[]>> = {
     active: ACTIVE_JOB_STATUSES,

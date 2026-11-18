@@ -24,7 +24,7 @@ import type { AreaModule, AreaStore } from '../content/areas.js';
 import { LiveDoc, LOADING_DOC, type DocState } from '../content/doc.js';
 import { isoOf, type LoadStatus } from '../content/list.js';
 import type { ContentQuery, ContentServices } from '../content/services.js';
-import { ACTIVE_JOB_STATUSES } from '../jobs/jobs.js';
+import { ACTIVE_JOB_STATUSES } from '../jobs/statuses.js';
 import type { NoticeInput } from '../state/state.js';
 import { Store } from '../state/store.js';
 import type { StatisticsSource } from '../crashes/statistics.js';
@@ -215,7 +215,7 @@ class HomeStore implements AreaStore<HomeState, HomeIntents> {
         });
         this.intents = {
             refresh: () => {
-                this.#visitors();
+                void this.#watchVisitors();
                 return this.#count();
             },
             retry: () => {
@@ -242,7 +242,7 @@ class HomeStore implements AreaStore<HomeState, HomeIntents> {
             this.#manifest.show(FIRESTORE_PATHS.manifestState(this.#services.cityId));
             this.#open = true;
             void this.#watchCosts();
-            this.#visitors();
+            void this.#watchVisitors();
             void this.#count();
         }
     }
@@ -276,11 +276,12 @@ class HomeStore implements AreaStore<HomeState, HomeIntents> {
     }
 
     /** Home's Visitors card: its element's chunk, and the Statistics page's last numbers of this session. */
-    #visitors(): void {
+    async #watchVisitors(): Promise<void> {
         this.#cell.update({ visitors: this.#services.statistics?.latest?.() ?? null });
-        void import('./visitors.js').then(({ defineHcmHomeVisitors }) => {
+        const { defineHcmHomeVisitors } = await import('./visitors.js');
+        if (this.#open) {
             defineHcmHomeVisitors();
-        });
+        }
     }
 
     /** The Monthly costs card's chunk (its element and its four counters), fetched when the dashboard opens. */

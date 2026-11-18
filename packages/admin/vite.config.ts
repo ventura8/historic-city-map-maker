@@ -84,6 +84,18 @@ const IMAGERY_UI_SHARED_MODULES = /packages[\\/]ui[\\/]src[\\/]admin[\\/]imagery
 const LEGACY_READ_MODULES = /packages[\\/]shared[\\/]src[\\/]schemas[\\/]legacy-reads\.ts$/;
 
 /**
+ * The worker document schema (`packages/shared/src/schemas/worker.ts`), which the worker feed and the household computers
+ * list both read: their own chunk, kept out of `editor-shared` (DECISIONS-for-review.md §239).
+ */
+const WORKER_SCHEMA_MODULES = /packages[\\/]shared[\\/]src[\\/]schemas[\\/]worker\.ts$/;
+
+/**
+ * The layer form's shared parts (`packages/ui/src/admin/layers/form-parts.ts`), which the layers page and the layer editor
+ * share: their own chunk, kept out of `editor-shared` (§239).
+ */
+const FORM_PARTS_MODULES = /packages[\\/]ui[\\/]src[\\/]admin[\\/]layers[\\/]form-parts\.ts$/;
+
+/**
  * The wizard funnels (§200): each wizard page's snapshot (`*-funnel.ts`, `*-funnels.ts` of `packages/ui/src/admin/`) and the
  * shared helper, in a chunk of their own so the archive, imagery, worker and editor-shared chunks keep their budgets.
  */
@@ -182,6 +194,7 @@ export default defineConfig({
                 // the place editor and the settings share (§78d). `georef-badges`: shared pair painters and the map overlay (§146).
                 // `georef-panes`: the georeferencer's panes, pair removal and the map pane's layers (§173).
                 // `legacy-reads`: the tolerant reads of older records, which Home and the Imagery pages share (§155).
+                // `worker-schema`: the worker document schema, which the worker feed and household computers share (§239).
                 // `funnels`: the wizards' funnel snapshots and the shared helper (§200).
                 // M7's `worker` chunk is no group: the natural chunk of its one dynamic entry (`src/worker/worker.ts`), whose
                 // namespace is the chunk's own (a group's needs Rolldown's runtime helper, a chunk of its own beside terra-draw's),
@@ -194,6 +207,8 @@ export default defineConfig({
                         { name: 'georef-badges', test: GEOREF_BADGE_MODULES, priority: 2 },
                         { name: 'georef-panes', test: GEOREF_PANE_MODULES, priority: 2 },
                         { name: 'legacy-reads', test: LEGACY_READ_MODULES, priority: 2 },
+                        { name: 'worker-schema', test: WORKER_SCHEMA_MODULES, priority: 2 },
+                        { name: 'form-parts', test: FORM_PARTS_MODULES, priority: 2 },
                         { name: 'funnels', test: FUNNEL_MODULES, priority: 2 },
                         {
                             name: 'editor-texts',

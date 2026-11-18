@@ -7,6 +7,8 @@ import { describe, expect, it } from 'vitest';
 
 import { HOME_MODULE } from '../../src/home/home.js';
 import { TRIAL_DAYS, TRIAL_REMINDER_DAYS, remindersOf } from '../../src/home/reminders.js';
+// Warm the Visitors chunk so Home's dynamic import resolves from cache (no load after Vitest teardown).
+import '../../src/home/visitors.js';
 import { at, contentWorld } from '../content/world.js';
 import { statusView } from '../setup/harness.js';
 

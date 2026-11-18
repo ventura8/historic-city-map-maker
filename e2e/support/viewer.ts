@@ -34,6 +34,13 @@ export function t(lang: ViewerLocale, key: MessageKey, params: Readonly<Record<s
     return translate(lang, key, params);
 }
 
+/** Kind filters on the photo list (aerial photos are their own kind; the owner, 2026-11-16). */
+export const PHOTO_FILTER = {
+    all: 'photos.filter.all',
+    ground: 'photos.filter.ground',
+    aerial: 'photos.filter.aerial',
+} as const satisfies Record<'all' | 'ground' | 'aerial', MessageKey>;
+
 /** Serves `manifest` instead of the built fixture (a page route wins over the site server). */
 export async function serveManifest(page: Page, manifest: unknown, url = BUCHAREST_MANIFEST): Promise<void> {
     await page.route(url, (route: Route) => route.fulfill({ json: manifest }));
