@@ -37,6 +37,7 @@ type Part = (deps: TickDeps, cityId: string, now: Date) => Promise<void>;
 
 /** The parts in order, and whether each runs while the guard is red. */
 const PARTS: readonly (readonly [name: string, part: Part, whileRed: boolean])[] = [
+    ['harvest', monthlyHarvest, false],
     ['dispatch', dispatchDue, false],
     ['lost', recoverLost, true],
     // Finding 68 (docs/research/M7-local-worker.md §3.1): a local job no computer came for offers the cloud, once.
@@ -52,7 +53,6 @@ const PARTS: readonly (readonly [name: string, part: Part, whileRed: boolean])[]
     ['ownTilesClean', cleanOwnTiles, false],
     ['deletions', runDeletions, false],
     ['sweep', sweepEnded, false],
-    ['harvest', monthlyHarvest, false],
     // M25 (docs/research/M25-landsat.md §4): the best Landsat scene of a wanted year, imported on its own within the daily cap.
     ['landsat', importLandsat, false],
     // M4 (docs/research/M4-interfaces.md §1.5): the order watch asks USGS and reminds while the guard is red; its import waits.

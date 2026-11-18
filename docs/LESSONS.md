@@ -4354,3 +4354,9 @@ Append a numbered entry to *Lessons from this repository* in the task that finds
     - Cause: `document.fullscreenElement` is the outermost shadow host (the admin shell), never the page itself; Esc arrived while `requestFullscreen` was still pending, so leaving found nothing to exit; Chromium refuses `setWindowBounds` in full screen.
     - Fix and pin: "left" is `fullscreenElement === null`; a request that resolves after the page already left exits again; the layout checkers run on the in-page cover (the refused path).
     - **Compare against null, not the element, behind shadow roots, and undo a pending async entry when the user already left.**
+
+745. **A harvest the callable timed out left `ops/harvest-{city}` stuck at `running` on the screen.**
+    - Seen: 2026-11-14, `ops/harvest-bucharest` still `running` after the 540 s Cloud Functions timeout; Historical imagery kept showing a search that had ended.
+    - Cause: a stopped run was only noticed when the next harvest resumed (`wasKilled`); nothing wrote `failed`, and using the failure backoff for `nextAt` would have deferred that resume by an hour on the tick.
+    - Fix and pin: `failStaleHarvest` on the next search or tick marks a `running` record with `now - attemptedAt > 540 s` as `failed` with reason `timeout exceeded 540s limit` (transactional, `nextAt` due now); `wasKilled` stays true for that reason so resume still works (S-A11-BAD-HARVEST-KILLED).
+    - **A status the UI reads live must be settled when its time limit passes, not only when the next job happens to notice.**

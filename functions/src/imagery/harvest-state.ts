@@ -7,9 +7,10 @@
  *
  * Lesson 676: the attempt is written `running` at its start and again as each dataset is stored (`HarvestProgress`), so a run the
  * server stops past its timeout still leaves what it stored and where each dataset resumes, and is due again
- * `HARVEST_RESUME_MINUTES` later. A run found still `running` after `HARVEST_KILLED_AFTER_MS` was stopped: the next one says so in the
- * log (`reasonCode` `harvest.killed`) and counts it as unfinished. A `partial` run (a dataset searched only in part) resumes after
- * `HARVEST_RESUME_MINUTES`, doubled after each further one.
+ * `HARVEST_RESUME_MINUTES` later. Lesson 745: a run still `running` after `HARVEST_TIMEOUT_MS` (540 s) is marked `failed` with
+ * `HARVEST_TIMEOUT_REASON` on the next search or tick (`failStaleHarvest`, `nextAt` due now), logged `harvest.killed`, and resumed;
+ * `wasKilled` stays true for that reason. A `partial` run (a dataset searched only in part) resumes after `HARVEST_RESUME_MINUTES`,
+ * doubled after each further one.
  */
 import {
     FIRESTORE_PATHS,
@@ -65,6 +66,21 @@ export function wasKilled(state: HarvestStateDoc | undefined, now: Date): boolea
     return isStaleHarvest(state, now);
 }
 
+/** The `ops/harvest-{city}` write that marks a stale `running` attempt failed past the 540s limit. */
+function staleFailureDoc(state: HarvestStateDoc, now: Date, failures: number): HarvestStateDoc {
+    return {
+        attemptedAt: state.attemptedAt,
+        outcome: 'failed',
+        reason: HARVEST_TIMEOUT_REASON,
+        failures,
+        // Due now so the same search or tick can resume (failure backoff would hide it for an hour).
+        nextAt: timestampFromDate(now),
+        finishedAt: timestampFromDate(now),
+        datasets: state.datasets,
+        ...stampOf(IMAGERY_WRITER, now),
+    };
+}
+
 /**
  * Transitions a stale `running` harvest older than 540s to `failed` with its reason, inside a transaction so concurrent
  * ticks or searches never produce duplicate status updates. Returns true if transitioned.
@@ -74,29 +90,19 @@ export async function failStaleHarvest(
     cityId: string,
     now: Date = deps.clock.now(),
 ): Promise<boolean> {
-    return deps.documents.transaction(async (transaction) => {
+    const datasets = await deps.documents.transaction(async (transaction) => {
         const state = await transaction.get(FIRESTORE_PATHS.harvestState(cityId), harvestStateDocSchema);
         if (!state || !isStaleHarvest(state, now)) {
-            return false;
+            return undefined;
         }
-        const failures = state.failures + 1;
-        await transaction.set(FIRESTORE_PATHS.harvestState(cityId), harvestStateDocSchema, {
-            attemptedAt: state.attemptedAt,
-            outcome: 'failed',
-            reason: HARVEST_TIMEOUT_REASON,
-            failures,
-            nextAt: timestampFromDate(new Date(now.getTime() + retryDelayMs('failed', failures))),
-            finishedAt: timestampFromDate(now),
-            datasets: state.datasets,
-            ...stampOf(IMAGERY_WRITER, now),
-        });
-        deps.log.error('usgs harvest timed out past 540s limit', {
-            cityId,
-            reasonCode: 'harvest.killed',
-            datasets: state.datasets,
-        });
-        return true;
+        await transaction.set(FIRESTORE_PATHS.harvestState(cityId), harvestStateDocSchema, staleFailureDoc(state, now, state.failures + 1));
+        return { datasets: state.datasets };
     });
+    if (datasets === undefined) {
+        return false;
+    }
+    deps.log.error('usgs harvest timed out past 540s limit', { cityId, reasonCode: 'harvest.killed', datasets: datasets.datasets });
+    return true;
 }
 
 /** Unfinished runs in a row after each outcome, from the count before it (a run still going keeps it). */

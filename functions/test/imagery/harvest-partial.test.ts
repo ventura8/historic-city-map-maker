@@ -7,6 +7,8 @@
  */
 import {
     FIRESTORE_PATHS,
+    HARVEST_TIMEOUT_MS,
+    HARVEST_TIMEOUT_REASON,
     harvestStateDocSchema,
     jobDocSchema,
     timestampFromDate,
@@ -18,7 +20,7 @@ import { describe, expect, it } from 'vitest';
 
 import { TIMED_OUT_REASON } from '../../src/adapters/upstream-http.js';
 import { PAGE_TIMEOUT_MS } from '../../src/imagery/harvest-pages.js';
-import { HARVEST_KILLED_AFTER_MS } from '../../src/imagery/harvest-state.js';
+import { failStaleHarvest, HARVEST_KILLED_AFTER_MS } from '../../src/imagery/harvest-state.js';
 import { SEARCH_BUDGET_MS } from '../../src/imagery/harvest-target.js';
 import { importLandsat } from '../../src/imagery/landsat-auto.js';
 import { searchFunction } from '../../src/imagery/search.js';
@@ -185,30 +187,6 @@ describe('imagery.search: a partial harvest', () => {
         expect((await harvestState(world))?.outcome).toBe('partial');
     });
 
-    it('badPath_aRunTheServerStoppedIsCountedAndItsUnfinishedDatasetsResume @S-A11-BAD-HARVEST-KILLED', async () => {
-        const world = await readyWorld(NOW, records());
-        const stopped = new Date(new Date(NOW).getTime() - HARVEST_KILLED_AFTER_MS);
-        await world.deps.documents.set(FIRESTORE_PATHS.harvestState(CITY), harvestStateDocSchema, {
-            attemptedAt: timestampFromDate(stopped),
-            outcome: 'running',
-            failures: 0,
-            nextAt: timestampFromDate(new Date(NOW)),
-            datasets: { corona2: { state: 'done', found: 250 }, declassii: { state: 'searching', found: 0 } },
-            updatedBy: 'system:imagery',
-            updatedAt: timestampFromDate(stopped),
-        });
-
-        const response = await search(world);
-
-        expect(world.scenes.recorder.argsOf('search').map(([, request]) => (request as { dataset: string }).dataset)).toEqual([
-            'declassii',
-        ]);
-        expect(response.datasets).toMatchObject({ corona2: { state: 'done', found: 250 }, declassii: { state: 'done', found: 1 } });
-        expect(await harvestState(world)).toMatchObject({ outcome: 'ok', failures: 0, attemptedAt: at(NOW) });
-        const stoppedLog = world.deps.recording.records.find((record) => record.message === 'usgs harvest was stopped before it finished');
-        expect(stoppedLog).toMatchObject({ level: 'error', data: { reasonCode: 'harvest.killed' } });
-    });
-
     it('badPath_everyDatasetRefusedIsStillUsgsNotAnsweringAndRecordedFailed @S-A11-BAD-USGS-UNAVAILABLE', async () => {
         const world = await readyWorld(NOW, records());
         for (const dataset of ['corona2', 'declassii', 'declassiii', 'landsat_tm_c2_l1', 'landsat_etm_c2_l1', 'landsat_ot_c2_l1']) {
@@ -217,6 +195,69 @@ describe('imagery.search: a partial harvest', () => {
 
         expect(await failureOf(search(world))).toMatchObject({ details: { code: 'apiError.usgs.maintenance' } });
         expect(await harvestState(world)).toMatchObject({ outcome: 'failed', error: 'apiError.usgs.maintenance' });
+    });
+});
+
+describe('imagery.search: a harvest past the 540s limit', () => {
+    async function seedStaleRunning(world: ImageryWorld, nextAt: Date): Promise<void> {
+        const stopped = new Date(new Date(NOW).getTime() - HARVEST_TIMEOUT_MS - 1);
+        await world.deps.documents.set(FIRESTORE_PATHS.harvestState(CITY), harvestStateDocSchema, {
+            attemptedAt: timestampFromDate(stopped),
+            outcome: 'running',
+            failures: 0,
+            nextAt: timestampFromDate(nextAt),
+            datasets: { corona2: { state: 'done', found: 250 }, declassii: { state: 'searching', found: 0 } },
+            updatedBy: 'system:imagery',
+            updatedAt: timestampFromDate(stopped),
+        });
+    }
+
+    it('badPath_aStaleRunningHarvestPast540sIsMarkedFailedWithTimeoutReason @S-A11-BAD-HARVEST-KILLED', async () => {
+        const world = await readyWorld(NOW, records());
+        await seedStaleRunning(world, new Date(new Date(NOW).getTime() + 60_000));
+
+        expect(await failStaleHarvest(world.deps, CITY, new Date(NOW))).toBe(true);
+        expect(await harvestState(world)).toMatchObject({
+            outcome: 'failed',
+            reason: HARVEST_TIMEOUT_REASON,
+            failures: 1,
+            nextAt: at(NOW),
+            datasets: { corona2: { state: 'done', found: 250 }, declassii: { state: 'searching', found: 0 } },
+        });
+        expect(await failStaleHarvest(world.deps, CITY, new Date(NOW))).toBe(false);
+        expect(HARVEST_KILLED_AFTER_MS).toBe(HARVEST_TIMEOUT_MS);
+    });
+
+    it('badPath_concurrentFailStaleHarvestWritesFailedOnce @S-A11-BAD-HARVEST-KILLED', async () => {
+        const world = await readyWorld(NOW, records());
+        await seedStaleRunning(world, new Date(new Date(NOW).getTime() + 60_000));
+        world.deps.documents.contend(1);
+
+        expect(await failStaleHarvest(world.deps, CITY, new Date(NOW))).toBe(true);
+        expect(await failStaleHarvest(world.deps, CITY, new Date(NOW))).toBe(false);
+        expect(await harvestState(world)).toMatchObject({
+            outcome: 'failed',
+            reason: HARVEST_TIMEOUT_REASON,
+            failures: 1,
+        });
+        expect(world.deps.recording.records.filter((record) => record.message === 'usgs harvest timed out past 540s limit')).toHaveLength(1);
+    });
+
+    it('badPath_aRunTheServerStoppedIsCountedAndItsUnfinishedDatasetsResume @S-A11-BAD-HARVEST-KILLED', async () => {
+        const world = await readyWorld(NOW, records());
+        await seedStaleRunning(world, new Date(NOW));
+
+        const response = await search(world);
+
+        expect(world.scenes.recorder.argsOf('search').map(([, request]) => (request as { dataset: string }).dataset)).toEqual([
+            'declassii',
+        ]);
+        expect(response.datasets).toMatchObject({ corona2: { state: 'done', found: 250 }, declassii: { state: 'done', found: 1 } });
+        expect(await harvestState(world)).toMatchObject({ outcome: 'ok', failures: 0, attemptedAt: at(NOW) });
+        const timedOut = world.deps.recording.records.find((record) => record.message === 'usgs harvest timed out past 540s limit');
+        expect(timedOut).toMatchObject({ level: 'error', data: { reasonCode: 'harvest.killed' } });
+        const stoppedLog = world.deps.recording.records.find((record) => record.message === 'usgs harvest was stopped before it finished');
+        expect(stoppedLog).toMatchObject({ level: 'error', data: { reasonCode: 'harvest.killed' } });
     });
 });
 

@@ -6058,10 +6058,10 @@
             "area": "admin",
             "path": "bad",
             "title": "A harvest the server stopped is found, logged and resumed",
-            "asserts": "ops/harvest-{city} still running 10 minutes after it started -> the next run logs harvest.killed as an error, searches only the dataset that was not done, keeps the done one's part and records ok",
+            "asserts": "ops/harvest-{city} still running more than 540 s after it started -> the next search or tick marks it failed with reason 'timeout exceeded 540s limit' (nextAt due now, once under a transaction), logs harvest.killed, searches only the dataset that was not done, keeps the done one's part and records ok",
             "tier": "functions",
             "status": "exists",
-            "notes": "Lesson 676 (2026-11-13: no Landsat over Bucharest; the harvest was all or nothing and a run past the callable's 540 s stored and recorded nothing). Test: functions/test/imagery/harvest-partial.test.ts."
+            "notes": "Lesson 676 (2026-11-13) and lesson 745 (2026-11-17: a stale running harvest past the callable's 540 s stayed on screen as running). Tests: functions/test/imagery/harvest-partial.test.ts, functions/test/imagery/tick.test.ts, packages/shared/test/schemas/harvest-state.test.ts, packages/admin/test/imagery/search.test.ts."
         },
         {
             "id": "S-A11-BAD-BROWSE-HOST-REFUSED",

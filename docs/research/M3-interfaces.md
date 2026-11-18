@@ -347,9 +347,11 @@ The browser never requests a USGS address (the admin's CSP does not allow one, a
   `SEARCH_BUDGET_MS` (300 s) and the run ends by `RUN_BUDGET_MS` (420 s), inside the callable's 540 s. `ops/harvest-{city}` is
   written `running` at the start and as each dataset is stored (`datasets`: state, scenes stored, reason, `next` cursor); a run
   with a dataset unfinished is `partial` and due again after `HARVEST_RESUME_MINUTES` (15, doubled after each further one), when
-  only the unfinished datasets are searched, from their cursor; a run still `running` 10 minutes after its start was stopped by
-  the server (`harvest.killed`, logged as an error) and is resumed the same way. `imagery.search` answers `datasets` too, and
-  the Imagery area shows each dataset's part live from `ops/harvest-{city}`.
+  only the unfinished datasets are searched, from their cursor; a run still `running` more than 540 s after its start (`HARVEST_TIMEOUT_MS`)
+  is marked `failed` with reason `timeout exceeded 540s limit` on the next `imagery.search` or `imagery.tick` (`failStaleHarvest`, once
+  under a transaction, `nextAt` due now so the same pass can resume), logged `harvest.killed`, and resumed the same way. `imagery.search`
+  answers `datasets` too, and the Imagery area shows each dataset's part live from `ops/harvest-{city}` only while the record is still a
+  live `running` attempt (not past the 540 s limit).
 
 ## 4. The import job model (fn-imagery, pipeline)
 
