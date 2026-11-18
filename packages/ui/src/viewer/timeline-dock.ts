@@ -95,7 +95,7 @@ export class TimelineDock implements ReactiveController {
         this.sheet = true;
         this.#host.requestUpdate();
         void this.#host.updateComplete.then(() => {
-            this.#host.renderRoot.querySelector<HTMLElement>('.opacity-sheet hcm-slider')?.focus();
+            this.#host.renderRoot.querySelector<HTMLElement>('.opacity-sheet hcm-slider')?.focus({ preventScroll: true });
         });
     };
 

@@ -266,7 +266,7 @@ export class HcmSlider extends LitElement {
 
     private startDrag(clientX: number): void {
         this.pending = null;
-        this.focus();
+        this.focus({ preventScroll: true });
         this.interacting = true;
         this.moveTo(clientX);
     }

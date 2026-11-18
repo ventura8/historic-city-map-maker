@@ -26,6 +26,20 @@ const TAP_SLOP_PX = 10;
 /** How long (ms) the card waits after the pointer left before hiding: the way from the thumb up to the card. */
 const HIDE_DELAY_MS = 400;
 
+/** `target` as an Element, or null. */
+function elementOf(target: EventTarget | null): Element | null {
+    return target instanceof Element ? target : null;
+}
+
+/** The next ancestor in the flat tree: parent, or the host when `node` sits at a shadow root. */
+function nextFlat(node: Element): Element | null {
+    if (node.parentElement !== null) {
+        return node.parentElement;
+    }
+    const root = node.getRootNode();
+    return root instanceof ShadowRoot ? root.host : null;
+}
+
 /** The card's layers: every layer of `year` among the overlays, by date (`dateItems`), or null (none). */
 export function yearOpacity(
     overlays: readonly Overlay[],
@@ -178,15 +192,22 @@ export class OpacityReveal {
 
     readonly onFocusOut = (event: FocusEvent): void => {
         this.#pressing = false;
-        if (!this.#held && !this.#pointerInside && !this.#within(event.relatedTarget)) {
-            this.#set(false);
+        if (this.#held || this.#pointerInside || this.#within(event.relatedTarget)) {
+            return;
         }
+        // relatedTarget is often null when focus crosses into a nested shadow; hide-later's :focus-within sees the handle.
+        if (event.relatedTarget === null) {
+            this.#hideLater();
+            return;
+        }
+        this.#set(false);
     };
 
     readonly onKeyDown = (event: KeyboardEvent): void => {
         if (event.key === 'Escape' && this.shown) {
             event.stopPropagation();
-            this.host.renderRoot.querySelector<HTMLElement>('.thumb')?.focus();
+            // preventScroll: focus must not scroll the viewer (overflow:hidden still did; the host is overflow:clip).
+            this.host.renderRoot.querySelector<HTMLElement>('.thumb')?.focus({ preventScroll: true });
             this.#set(false);
         }
     };
@@ -218,14 +239,26 @@ export class OpacityReveal {
     #hideLater(): void {
         clearTimeout(this.#hiding);
         this.#hiding = setTimeout(() => {
-            if (this.host.renderRoot.querySelector('.opacity :focus') === null) {
+            // :focus-within sees the kit slider's handle inside its own shadow; :focus on a light descendant does not.
+            if (this.host.renderRoot.querySelector('.opacity:focus-within') === null) {
                 this.#set(false);
             }
         }, HIDE_DELAY_MS);
     }
 
+    /** Whether `target` is the thumb, the card, or inside either (across the kit slider's shadow root). */
     #within(target: EventTarget | null): boolean {
-        return target instanceof Element && target.closest('.thumb, .opacity') !== null && this.host.renderRoot.contains(target);
+        for (let node = elementOf(target); node !== null; node = nextFlat(node)) {
+            if (this.#ownCardOrThumb(node)) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    /** The thumb or opacity card that belongs to this timeline (not another copy of the class names). */
+    #ownCardOrThumb(node: Element): boolean {
+        return node.matches('.thumb, .opacity') && this.host.renderRoot.contains(node);
     }
 
     #set(shown: boolean): void {
@@ -258,6 +291,7 @@ function opacityCard(
         @pointerdown=${(event: Event) => {
             event.stopPropagation();
         }}
+        @focusin=${reveal.onFocusIn}
         @focusout=${reveal.onFocusOut}
         @keydown=${reveal.onKeyDown}
     >

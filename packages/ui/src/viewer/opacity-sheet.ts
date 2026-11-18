@@ -36,7 +36,7 @@ function keepTab(event: KeyboardEvent): void {
     const at = stops.findIndex((stop) => stop.matches(':focus-within, :focus'));
     const next = stops[(at + (event.shiftKey ? -1 : 1) + stops.length) % stops.length];
     event.preventDefault();
-    next?.focus();
+    next?.focus({ preventScroll: true });
 }
 
 /** The year's sliders for the date menu's side (`hcm-date-menu.ts`): the same rows, sent through the dock. */

@@ -47,7 +47,8 @@
  * past the map; the kit's notes (an engine refused) still scroll.
  */
 :root:has(> .hcm-fullpage hcm-map-viewer:defined) {
-    overflow: hidden;
+    /* clip, not hidden: focus and scrollIntoView can still move a hidden root (the year opacity handle on a 4K tour). */
+    overflow: clip;
     overscroll-behavior: none;
 }
 

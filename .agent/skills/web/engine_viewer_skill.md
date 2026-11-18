@@ -60,6 +60,7 @@ The public viewer engine `@hcm/engine` (`packages/engine`): a data-driven histor
 ## Rules
 
 - Rendering: Lit templates and `textContent` only; Mapbox popups use `setDOMContent`; About and privacy are rendered by walking `parseMarkdown(...).paragraphs` into DOM nodes (`web/web_security_skill.md`). Inline styles only through the CSSOM (`cssProperties`, `web/ui_m3_adaptive_skill.md`): the city page's CSP refuses a `style` attribute.
+- **App shell never scrolls from focus** (LESSONS 745): the viewer host, the city / starter-kit roots and the kit's `:root:has(…hcm-map-viewer:defined)` use `overflow: clip`, not `hidden` (`hidden` still scrolls from focus and `scrollIntoView`). The year's opacity card (`timeline-opacity.ts`) treats focus inside the kit slider's shadow as inside the card (`#within` walks nested roots; the card's `focusin` clears hide-later; hide-later uses `:focus-within`; a null `relatedTarget` on focusout defers to that); Esc returns to the pill with `preventScroll`.
 - Every string in `@hcm/shared` i18n catalogues, RO and EN (`web/i18n_skill.md`).
 - Logging through `createLogger('engine', …)`; no `console`.
 - A user-visible change edits its scenario rows (`quality/e2e_scenario_matrix_skill.md`).

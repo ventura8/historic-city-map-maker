@@ -4354,3 +4354,9 @@ Append a numbered entry to *Lessons from this repository* in the task that finds
     - Cause: `document.fullscreenElement` is the outermost shadow host (the admin shell), never the page itself; Esc arrived while `requestFullscreen` was still pending, so leaving found nothing to exit; Chromium refuses `setWindowBounds` in full screen.
     - Fix and pin: "left" is `fullscreenElement === null`; a request that resolves after the page already left exits again; the layout checkers run on the in-page cover (the refused path).
     - **Compare against null, not the element, behind shadow roots, and undo a pending async entry when the user already left.**
+
+745. **Focus on the year's opacity handle scrolled the viewer: map canvas at y=-492, Tab never back to the handle.**
+    - Seen: 2026-11-17, tour `timeline-chip` state `timeline-opacity` at `tour-x3840-dark-ro`.
+    - Cause: `overflow: hidden` still scrolls from script and from focus (`scrollIntoView`); the opacity card's centring commit had put the viewer's host back to `hidden` while its comment still said `clip`. Focusing the kit slider's handle moved the page; the thumb left the pointer, the card closed across the slider's shadow (`closest` stops at the shadow root; `.opacity :focus` missed the handle), and the Tab round never reached the handle again.
+    - Fix and pin: `overflow: clip` on the viewer host, the city and starter-kit roots, and the kit's `:root:has(…hcm-map-viewer:defined)`; `#within` walks out of nested shadow roots; the card's `focusin` clears hide-later; hide-later uses `:focus-within`; a focusout with a null `relatedTarget` (Tab into the kit slider's shadow) defers to that hide-later; Esc returns to the pill with `preventScroll`. `hcm-timeline-opacity.test.ts`, journey `timeline-chip` / state `timeline-opacity`.
+    - **An app shell that must not move uses `overflow: clip`, not `hidden`; treat focus inside a nested shadow as still inside the card.**
