@@ -115,7 +115,7 @@ function costsSection(locale: UiLocale, costs: MonthlyCostsPort): TemplateResult
               </dl>
               <p>${budgetText(locale, costs)}</p>
               ${overBudget(locale, costs)} ${newTab(locale, BILLING, shellText(locale, 'adminShell.home.costs.billing'))}`;
-    return html`<section aria-labelledby="monthly-costs" data-costs>
+    return html`<section aria-labelledby="monthly-costs" data-cost>
         <h2 id="monthly-costs">${shellText(locale, 'adminShell.home.costs.title')}</h2>
         <p>
             ${shellText(locale, 'adminShell.home.costs.intro', { month: costs.month })} ${shellText(locale, 'adminShell.home.costs.intro2')}
@@ -192,7 +192,7 @@ const costsStyles = css`
         outline-offset: 2px;
     }
 
-    [data-costs] a.action {
+    [data-cost] a.action {
         display: inline-flex;
         gap: 4px;
         align-items: center;

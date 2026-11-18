@@ -4,7 +4,10 @@ import { expect, type Page } from '@playwright/test';
 import { siteManifestData, type Json } from '../fixtures/manifest.js';
 import { chooseMenuItem, openViewer, serveManifest, t, viewer } from '../support/viewer.js';
 
-/** The tour's states of aerial photos (V76; the owner, 2026-11-16: aerial photos are photos of their own kind), from e2e/tour/states.ts. */
+/**
+ * Scenarios: S-V76-HAPPY-AERIAL-FILTER
+ * The tour's states of aerial photos (V76; the owner, 2026-11-16: aerial photos are photos of their own kind), from e2e/tour/states.ts.
+ */
 
 interface AerialPhotoState {
     readonly title: string;
@@ -24,7 +27,7 @@ export const AERIAL_PHOTO_STATES = {
 } as const satisfies Record<string, AerialPhotoState>;
 
 /** The fixture with its first photo taken from above, in 1944. */
-export function aerialPhotoManifest(): Json {
+function aerialPhotoManifest(): Json {
     const manifest = siteManifestData();
     const [first] = manifest['photos'] as [Json];
     Object.assign(first, { kind: 'aerial' });
