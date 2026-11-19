@@ -348,3 +348,16 @@ Where the owner and the admins get stuck in a wizard, so the wizards can be fixe
 ## Quality system
 
 Every gate runs inside one pinned Docker image through `scripts/ci/run-all-checks.sh`; per-file coverage of 90 % or more for every language; no inline suppressions; SonarQube Cloud; a scenario registry with a happy and a bad row per behaviour. Details: [CI_PIPELINE.md](CI_PIPELINE.md), [TESTING.md](TESTING.md).
+
+## Milestone documents
+
+- [M10: the local matcher](research/M10-local-ai.md) (`docs/research/M10-local-ai.md`): Local matcher (ALIKED + LightGlue) in a sidecar container on the admin's computer (GPU first, CPU fallback) for frame calibration without cloud inference.
+- [M11: Mapbox publishing without the owner](research/M11-mapbox-automatic.md) (`docs/research/M11-mapbox-automatic.md`): Automatic Mapbox publishing and metering design; unchosen design kept as the record of why serving tiles from the project's own public bucket (M12) was chosen instead.
+- [M15: calibration accuracy](research/M15-calibration-accuracy.md) (`docs/research/M15-calibration-accuracy.md`): Calibration error budget, panoramic camera model (KH-9), lattice TPS warping, orientation matching, terrain RPCs, and joint frame adjustment.
+- [M18: improvements from the owner's use](research/M18-improvements.md) (`docs/research/M18-improvements.md`): Operational improvements from owner feedback: admin tab self-reloading across deploys, Google consent popup retry, and automatic frame relocation with new pipeline images.
+- [M20: Import local files](research/M20-import-local.md) (`docs/research/M20-import-local.md`): Local archive and map series imports processed on the owner's computer without uploading raw files to the cloud.
+- [M22: Help calibrate](research/M22-help-calibrate.md) (`docs/research/M22-help-calibrate.md`): Guided admin assistance flow and queue for hard-to-calibrate photos, drawings, and maps, with prior-aware matching jobs.
+- [M25: Landsat as a source](research/M25-landsat.md) (`docs/research/M25-landsat.md`): Automated harvest, ranking, and import of USGS Landsat Collection 2 Level-1 imagery (1984–present) alongside declassified satellite frames.
+- [M26: the hardware governor](research/M26-governor.md) (`docs/research/M26-governor.md`): Dynamic hardware governor regulating worker and sidecar resource consumption (CPU, memory, thermals, battery) on the owner's computer.
+- [M27: Disappeared streets](research/M27-lost-streets.md) (`docs/research/M27-lost-streets.md`): Historical disappeared streets (Străzi dispărute) modeled as POIs with LineString geometries in a pinned POI category rebuilt from open data and georeferenced maps.
+- [M28: the map's sources and the app's platform in Setup](research/M28-sources.md) (`docs/research/M28-sources.md`): Setup's Platform card and Sources step for configuring imagery and data sources with transparent costs and accounts.
