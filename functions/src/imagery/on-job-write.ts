@@ -129,6 +129,19 @@ async function dispatchQueued(deps: JobWriteDeps): Promise<void> {
     }
 }
 
+/** Runs the transition action; a lost release is soft-caught so the notice and Cloud Run count still run. */
+async function runTransition(deps: JobWriteDeps, cityId: string, jobId: string, transition: JobTransition): Promise<void> {
+    if (transition === 'release') {
+        await releaseCancelled(deps, cityId, jobId).catch((error: unknown) => {
+            deps.log.warn('cancelled job not released', { cityId, jobId, error: String(error) });
+        });
+        return;
+    }
+    if (transition !== 'none') {
+        await ACTIONS[transition](deps, cityId, jobId);
+    }
+}
+
 /** Acts on one write of a job; returns the transition it acted on. */
 export async function onJobWrite(deps: JobWriteDeps, cityId: string, jobId: string, change: JobChange): Promise<JobTransition> {
     const after = parsed(change.after);
@@ -137,9 +150,7 @@ export async function onJobWrite(deps: JobWriteDeps, cityId: string, jobId: stri
     }
     const before = parsed(change.before);
     const transition = transitionOf(before, after);
-    if (transition !== 'none') {
-        await ACTIONS[transition](deps, cityId, jobId);
-    }
+    await runTransition(deps, cityId, jobId, transition);
     // M7 (docs/research/M7-local-worker.md §4.2): a cloud run that ended counts into the month's Cloud Run use.
     await countCloudRun(deps, cityId, jobId, { before, after }).catch((error: unknown) => {
         deps.log.warn('cloud run not counted', { cityId, jobId, error: String(error) });

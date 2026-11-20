@@ -21,7 +21,7 @@ export type PhotoKindFilter = 'all' | PhotoKind;
 const KIND_FILTERS: readonly PhotoKindFilter[] = ['all', 'ground', 'aerial'];
 
 /** The photos of `photos` that `filter` keeps. */
-export function photosOfKind(photos: readonly Photo[], filter: PhotoKindFilter): readonly Photo[] {
+function photosOfKind(photos: readonly Photo[], filter: PhotoKindFilter): readonly Photo[] {
     return filter === 'all' ? photos : photos.filter((photo) => photoKindOf(photo) === filter);
 }
 

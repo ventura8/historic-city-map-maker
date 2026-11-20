@@ -6,6 +6,7 @@ import type { LayerVersionDoc } from '@hcm/shared';
 import { describe, expect, it } from 'vitest';
 
 import { omit } from '../../src/api/objects.js';
+import { maxzoomOf } from '../../src/imagery/join-archive.js';
 import { joinFunction } from '../../src/imagery/join.js';
 import { failureOf } from '../admin/world.js';
 import { adminCall } from '../publish/fakes.js';
@@ -140,5 +141,13 @@ describe('imagery.join: archive maps', () => {
 
         expect(answer.layerId).not.toBe('n');
         expect((await readJob(ready, answer.jobId))?.params).toMatchObject({ maxzoom: 18 });
+    });
+});
+
+describe('maxzoomOf', () => {
+    it('happyPath_noOutputUsesTheDefaultAndExtremesClamp', () => {
+        expect(maxzoomOf([{ version: {} }, { version: {} }])).toBe(17);
+        expect(maxzoomOf([{ version: { output: { ...goldenOutput(), maxzoom: 4 } } }])).toBe(10);
+        expect(maxzoomOf([{ version: { output: { ...goldenOutput(), maxzoom: 30 } } }])).toBe(22);
     });
 });

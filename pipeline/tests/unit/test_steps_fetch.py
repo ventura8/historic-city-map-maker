@@ -45,6 +45,17 @@ def test_happy_path_a_delivery_another_city_fetched_is_reused(world: PipelineWor
     assert dig(world.job(), "steps", "fetch", "gcsPath") == RAW
 
 
+def test_happy_path_a_staged_dds_delivery_is_used_when_m2m_has_not_listed_it(world: PipelineWorld) -> None:
+    """Paid order-page TIFFs staged under usgs-raw/ before EarthExplorer lists the download."""
+    world.seed_import()
+    world.offer_download(10, available=False)
+    world.gcs.put(RAW, world.delivery)
+
+    assert fetch(world) is RunOutcome.DONE
+    assert dig(world.job(), "steps", "fetch", "gcsPath") == RAW
+    assert not any(request.path.endswith(".tgz") for request in world.http.requests)
+
+
 def test_happy_path_a_download_reports_its_bytes_of_the_total_as_they_arrive(world: PipelineWorld) -> None:
     world.seed_import()
     size = len(world.delivery)

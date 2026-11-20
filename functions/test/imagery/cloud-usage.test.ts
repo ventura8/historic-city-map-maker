@@ -106,8 +106,11 @@ describe('counting a cloud run', () => {
         await seedJob(world, JOB, ended);
         world.deps.documents.transaction = () => Promise.reject(new Error('contention'));
 
-        await expect(onJobWrite(world.deps, CITY, JOB, { before: job(), after: ended })).resolves.toBe('none');
-        expect(world.deps.recording.records.map((record) => record.message)).toContain('cloud run not counted');
+        // Failed jobs also release what they held; contention on that path is logged, then the count's own failure is.
+        await expect(onJobWrite(world.deps, CITY, JOB, { before: job(), after: ended })).resolves.toBe('release');
+        expect(world.deps.recording.records.map((record) => record.message)).toEqual(
+            expect.arrayContaining(['cancelled job not released', 'cloud run not counted']),
+        );
     });
 
     it.each([

@@ -117,6 +117,20 @@ export const workerStarterQuerySchema = z.strictObject({
     action: z.enum(WORKER_STARTER_ACTIONS),
 });
 
+/** The most bytes one archive series' copy may put in the bucket (a guard on the bucket's traffic, not a limit of the scans). */
+export const ARCHIVE_COPY_MAX_BYTES = 8 * 1024 ** 3;
+
+/**
+ * M20 §22 (2026-11-14): the most bytes one computer shares through the bucket in a day (UTC). Every byte shared is downloaded once
+ * by another computer, and that download is the bucket's only billed traffic (about 0.12 USD a GB): 20 GB is about 2.4 USD a day at
+ * most. Over it the computer stops sharing until the next day and runs those series itself. Lives here (not `worker-calls.ts`) so the
+ * admin's household card can name the day limit without pulling the worker-only callable schemas into its chunk.
+ */
+export const ARCHIVE_SHARE_DAY_BYTES = 20 * 1024 ** 3;
+
+/** M20 §22: why `wanted` names no series to share now: none waits, no other computer could take one, or today's bytes are spent. */
+export const ARCHIVE_SHARE_IDLE_WHYS = ['nothing', 'alone', 'dayLimit'] as const;
+
 /** The USGS M2M endpoints a worker may ask the server to call for its job (§2.5). */
 export const WORKER_USGS_ENDPOINTS = ['download-options', 'download-request', 'download-retrieve', 'download-order-remove'] as const;
 

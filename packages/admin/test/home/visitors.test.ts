@@ -15,7 +15,18 @@ async function settled(): Promise<void> {
     }
 }
 
-const NUMBERS = { visitors: 5, sessions: 7, pages: [], screens: [], events: [], devices: [], countries: [], surfaces: [], steps: [], pending: null };
+const NUMBERS = {
+    visitors: 5,
+    sessions: 7,
+    pages: [],
+    screens: [],
+    events: [],
+    devices: [],
+    countries: [],
+    surfaces: [],
+    steps: [],
+    pending: null,
+};
 
 describe("Home's Visitors card", () => {
     it('happyPath_showsTheStatisticsPagesLastNumbersAndFollowsThemOnRefresh', async () => {

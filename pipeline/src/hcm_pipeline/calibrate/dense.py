@@ -39,6 +39,8 @@ WIDE_BLUR_CELLS: Final = 15.0
 ROW_COLUMNS: Final = 6
 # A peak flatter than this has no sub-cell place.
 FLAT_CURVE: Final = 1e-6
+# `cv2.remap` asserts every side of its source and its result under 32 767 pixels (matcher.REMAP_MAX_PX twin).
+REMAP_MAX_PX: Final = 32_766
 Box = tuple[int, int, int, int]
 
 
@@ -168,12 +170,31 @@ class WarpedFilm:
     map_y: Image
 
 
+def _remap_bounded(source: Image, map_x: Image, map_y: Image) -> Image:
+    """`cv2.remap` of `source` through `map_x`/`map_y`, shrinking the source when a side is more than remap takes.
+
+    A full Corona film crop after the owner's corner points can be about one hundred thousand pixels wide; OpenCV refuses that.
+    The returned maps stay in the original source's coordinates (callers keep them for film ties); only the sample is downscaled.
+    """
+    height, width = source.shape[:2]
+    applied = max(1.0, max(width, height) / REMAP_MAX_PX)
+    if applied > 1.0:
+        size = (max(1, round(width / applied)), max(1, round(height / applied)))
+        scale_x, scale_y = width / size[0], height / size[1]
+        source = numpy.asarray(cv2.resize(source, size, interpolation=cv2.INTER_AREA), numpy.float32)
+        map_x = (map_x + 0.5) / scale_x - 0.5
+        map_y = (map_y + 0.5) / scale_y - 0.5
+    return numpy.asarray(
+        cv2.remap(source, map_x, map_y, cv2.INTER_LINEAR, borderMode=cv2.BORDER_CONSTANT, borderValue=0),
+        numpy.float32,
+    )
+
+
 def warp_film(film: FilmWindow, mapping: PlaceMap, grid: Grid) -> WarpedFilm:
     """The read film warped onto `grid` through `mapping`."""
     map_x, map_y = _coarse_maps(mapping, film, grid)
     # Plus 1: a warped 0 is no film, whatever the film's darkest grey.
-    source = film.pixels.astype(numpy.float32) + 1
-    image = numpy.asarray(cv2.remap(source, map_x, map_y, cv2.INTER_LINEAR, borderMode=cv2.BORDER_CONSTANT, borderValue=0), numpy.float32)
+    image = _remap_bounded(film.pixels.astype(numpy.float32) + 1, map_x, map_y)
     valid = numpy.asarray(image > 0, numpy.float32)
     return WarpedFilm(film_filter(image, valid), valid, map_x, map_y)
 

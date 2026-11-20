@@ -7273,3 +7273,20 @@ The Statistics page's "Most opened admin screens" showed a blank first row (8 vi
 unit test pins the filter. Separately, Cloud Error Reporting's top group was `imagery-markScene` out of memory (259 MiB
 used on 256 MiB, 22 reports). `callableOptions` gains `CALLABLE_MEMORY` with `imagery.markScene` at `512MiB`; the
 cost-shape table and `callable.test.ts` match. No gate was relaxed; deploy needs Setup's **Update the map**.
+
+## 241. Admin chunk budgets after W5/M20/M26 growth — APPLIED 2026-11-20 (owner: finish and merge WIP)
+
+Measured on `feat/engine-rewrite` after the household day-limit constant left `worker-calls.ts` (lesson 749):
+
+| Row | Was | Now | Measured |
+| --- | --- | --- | --- |
+| `worker-household` | 9 | 10 | 9.1 KB |
+| `editor-shared` | 13 | 18 | 17.1 KB |
+| `firebase-messaging-sw.js` | 1 | 2 | 1.6 KB |
+| `georef` | 19 | 20 | 19.1 KB |
+| `imagery` | 20 | 21 | 20.0 KB |
+| `ADMIN_TOTAL_KB` | 820 | 850 | 832 KB |
+| `app.js` | — | 2 | 1.8 KB (Hosting page script) |
+| `rolldown-runtime` | — | 1 | 0.2 KB |
+
+No new chunk. Headroom about 10 %. Verify: `PIPELINE_STAGE=build`.

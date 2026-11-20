@@ -91,6 +91,7 @@ describe('onContentWrite', () => {
 
 describe('the publish triggers', () => {
     it('happyPath_eachTriggerRequestsABuildForItsCity', async () => {
+        // Six triggers fire; the first queues the window's build and the rest join it (S-A10-BAD-BURST-JOINS-QUEUED).
         const deps = contentDeps();
         const triggers = onWriteFunctions(() => deps);
         const cityPath = `cities/${CITY_ID}`;
@@ -112,7 +113,7 @@ describe('the publish triggers', () => {
         }
 
         expect(await deps.documents.get(FIRESTORE_PATHS.manifestState(CITY_ID), manifestStateDocSchema)).toMatchObject({
-            requestedVersion: 6,
+            requestedVersion: 1,
         });
         expect(deps.tasks.queued).toHaveLength(1);
     });

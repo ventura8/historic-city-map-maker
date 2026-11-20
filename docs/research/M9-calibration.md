@@ -78,7 +78,7 @@ class ProposalMatcher(Protocol):
 ## 4. Prove (`calibrate/dense.py`, `proof.py`)
 
 - Read the proposal's window plus the search reach at `PROOF_READ_GROUND_M = 5` a pixel: new `Segment.averaged_window` (`frames.py`, `AVERAGED`), a segment at a time.
-- Warp onto the reference grid (a whole factor coarser where 10 m Mercator is under about 5 m ground). `PROOF_TILE_GROUND_M = 900`, every 450 m. `PROOF_SEARCH_GROUND_M = 600`, halving, at least 10 cells; 3 iterations, refitting.
+- Warp onto the reference grid (a whole factor coarser where 10 m Mercator is under about 5 m ground). `PROOF_TILE_GROUND_M = 900`, every 450 m. `PROOF_SEARCH_GROUND_M = 600`, halving, at least 10 cells; 3 iterations, refitting. A whole-frame Corona can exceed OpenCV remap's 32 766 px side: `_remap_bounded` / `warp_film` downsamples the source for `cv2.remap` while the maps stay in the original read (lesson 746; S-P06-HAPPY-REMAP-BOUNDED / S-P06-BAD-REMAP-NARROW).
 - A tile counts with `PROOF_MIN_PEAK = 0.2` and `PROOF_MIN_MARGIN = 0.03` over the best beyond ±8 cells.
 - RANSAC poly1 then poly2, `PROOF_RANSAC_M = 25` ground (2.4 and 1.6 times first), job-id seed. Metres use each pair's latitude, never `refine.py`'s fixed cosine.
 

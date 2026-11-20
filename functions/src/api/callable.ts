@@ -42,6 +42,15 @@ const CALLABLE_CONCURRENCY: Readonly<Partial<Record<CallableName, number>>> = { 
  */
 const CALLABLE_MEMORY: Readonly<Partial<Record<CallableName, '512MiB'>>> = { 'imagery.markScene': '512MiB' };
 
+/** Timeout, concurrency and memory overrides when `CALLABLE_*` names the callable. */
+function callableLimits(name: CallableName): Pick<CallableOptions, 'timeoutSeconds' | 'concurrency' | 'memory'> {
+    return {
+        ...(CALLABLE_TIMEOUT_SECONDS[name] === undefined ? {} : { timeoutSeconds: CALLABLE_TIMEOUT_SECONDS[name] }),
+        ...(CALLABLE_CONCURRENCY[name] === undefined ? {} : { concurrency: CALLABLE_CONCURRENCY[name] }),
+        ...(CALLABLE_MEMORY[name] === undefined ? {} : { memory: CALLABLE_MEMORY[name] }),
+    };
+}
+
 /**
  * The deploy options of a callable: its `maxInstances`, a longer timeout where `CALLABLE_TIMEOUT_SECONDS` names one,
  * its runtime service account (`runAs`: `fn-admin@` for every callable), and App Check from `HCM_APP_CHECK` (security review §1.6: one week of `monitor`, which leaves enforcement
@@ -52,14 +61,9 @@ const CALLABLE_MEMORY: Readonly<Partial<Record<CallableName, '512MiB'>>> = { 'im
 export function callableOptions(name: CallableName, env: Env): CallableOptions {
     const spec = CALLABLES[name];
     const enforce = env['HCM_APP_CHECK'] === 'enforce' && spec.appCheck !== 'off';
-    const timeoutSeconds = CALLABLE_TIMEOUT_SECONDS[name];
-    const concurrency = CALLABLE_CONCURRENCY[name];
-    const memory = CALLABLE_MEMORY[name];
     return {
         maxInstances: spec.maxInstances,
-        ...(timeoutSeconds === undefined ? {} : { timeoutSeconds }),
-        ...(concurrency === undefined ? {} : { concurrency }),
-        ...(memory === undefined ? {} : { memory }),
+        ...callableLimits(name),
         ...runAs(name),
         enforceAppCheck: enforce,
         consumeAppCheckToken: enforce && spec.appCheck === 'consume',

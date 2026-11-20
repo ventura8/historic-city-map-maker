@@ -20,6 +20,7 @@ import type { StoredDocument } from '../ports/documents.js';
 import type { Ports } from '../ports/index.js';
 import { alreadyImported, confirmScanned, refuseWithoutDownloads, type ImportDeps } from './import.js';
 import { joinArchive } from './join-archive.js';
+import { asJoinLayerBusy } from './join-busy.js';
 import { ON_ITS_LAYER, usablePartIn, versionsOfLayer } from './join-parts.js';
 import { writeJoin, type JoinFrame, type JoinPlan } from './join-write.js';
 import { refuseBusyLayer, refuseRasterJobs } from './limits.js';
@@ -129,9 +130,7 @@ async function requireFreeLayer(deps: JoinDeps, cityId: string, published: Store
     if (published === undefined) {
         return;
     }
-    await refuseBusyLayer(deps.documents, cityId, published.data.layerId, published.data.partOf).catch((error: unknown) => {
-        throw error instanceof ApiError && error.code === 'apiError.layers.busy' ? new ApiError('apiError.imagery.joinLayerBusy') : error;
-    });
+    await refuseBusyLayer(deps.documents, cityId, published.data.layerId, published.data.partOf).catch(asJoinLayerBusy);
 }
 
 /** What the plan is made of. */

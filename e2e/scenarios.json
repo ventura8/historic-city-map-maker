@@ -20683,6 +20683,28 @@
             "notes": "Live 2026-11-12 (DS1103-1058DF027, track/stripfix); docs/research/M9-calibration.md §17. Tests: pipeline/tests/unit/test_whole.py, pipeline/tests/integration/test_whole_frame.py."
         },
         {
+            "id": "S-P06-HAPPY-REMAP-BOUNDED",
+            "behaviour": "P06",
+            "area": "pipeline",
+            "path": "happy",
+            "title": "A whole-frame Corona wider than OpenCV remap still warps",
+            "asserts": "owner corner points crop a film over 32 766 px a side -> dense warp downsamples the source for cv2.remap, keeps the maps in the original read, and finishes without apiError.internal",
+            "tier": "e2e-pipeline",
+            "status": "exists",
+            "notes": "Live 2026-11-19 (DV069 / DF094 / DF095 / DA044); docs/LESSONS.md 746. Tests: pipeline/tests/unit/test_calibrate_remap.py."
+        },
+        {
+            "id": "S-P06-BAD-REMAP-NARROW",
+            "behaviour": "P06",
+            "area": "pipeline",
+            "path": "bad",
+            "title": "A film under the remap limit is not shrunk",
+            "asserts": "a source whose longest side is under 32 766 px -> _remap_bounded remaps without downsampling and the filled mean stays",
+            "tier": "e2e-pipeline",
+            "status": "exists",
+            "notes": "docs/LESSONS.md 746. Tests: pipeline/tests/unit/test_calibrate_remap.py."
+        },
+        {
             "id": "S-P22-HAPPY-PAIRS-IN-SCAN",
             "behaviour": "P22",
             "area": "pipeline",

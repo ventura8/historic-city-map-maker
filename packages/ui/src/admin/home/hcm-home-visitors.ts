@@ -71,7 +71,10 @@ function topList(locale: UiLocale, key: ListKey, items: Named): TemplateResult {
 function newVsReturning(locale: UiLocale, numbers: Numbers): string {
     const kinds = (numbers.summary ?? NO_SUMMARY).newVsReturning;
     const of = (name: string): number => kinds.find((item) => item.name === name)?.count ?? 0;
-    return shellText(locale, 'adminShell.home.visitors.newReturning', { new: count(locale, of('new')), returning: count(locale, of('returning')) });
+    return shellText(locale, 'adminShell.home.visitors.newReturning', {
+        new: count(locale, of('new')),
+        returning: count(locale, of('returning')),
+    });
 }
 
 function totals(locale: UiLocale, statistics: VisitorsPort): TemplateResult {
@@ -86,7 +89,10 @@ function totals(locale: UiLocale, statistics: VisitorsPort): TemplateResult {
             })}
             ${trendText(locale, numbers.visitors, previous.visitors, days)}
         </p>
-        <p>${shellText(locale, 'adminShell.home.visitors.lastDay', { visitors: count(locale, lastDay) })} ${newVsReturning(locale, numbers)}</p>`;
+        <p>
+            ${shellText(locale, 'adminShell.home.visitors.lastDay', { visitors: count(locale, lastDay) })}
+            ${newVsReturning(locale, numbers)}
+        </p>`;
 }
 
 function card(locale: UiLocale, statistics: VisitorsPort | null): TemplateResult {

@@ -41,6 +41,42 @@ def test_a_picture_with_no_band_keeps_everything_even_a_dark_field() -> None:
 def test_a_box_wholly_on_the_border_is_kept_as_it_was() -> None:
     """Scenarios: S-P33-BAD-NO-BORDER"""
     assert trimmed((0, 0, 100, 50), (0, 60, 600, 400), 1.0) == (0, 0, 100, 50)
+    assert trimmed((0, 0, 40, 200), (60, 0, 600, 400), 1.0) == (0, 0, 40, 200)
+
+
+def test_a_band_with_a_wide_gap_stops_at_the_first_run() -> None:
+    """Scenarios: S-P33-HAPPY"""
+    pixels = _picture()
+    pixels[0:40, :] = 10
+    pixels[40:55, :] = 180
+    pixels[55:100, :] = 10
+
+    _left, top, _right, _bottom = exposed_area(pixels)
+
+    assert 40 <= top <= 50
+
+
+def test_a_short_gap_in_the_band_is_still_border() -> None:
+    """A bright run shorter than GAP_SHARE is still the border (the soft edge), not the picture."""
+    pixels = _picture()
+    pixels[0:40, :] = 10
+    pixels[40:45, :] = 180
+    pixels[45:80, :] = 10
+
+    _left, top, _right, _bottom = exposed_area(pixels)
+
+    assert top >= 80
+
+
+def test_a_band_that_fills_the_depth_cap_is_cut_there() -> None:
+    """A solid black band past DEPTH_SHARE ends at the depth cap (the for-loop exits without a gap break)."""
+    pixels = _picture()
+    depth = round(SIZE[0] * 0.3)
+    pixels[0:depth, :] = 10
+
+    _left, top, _right, _bottom = exposed_area(pixels)
+
+    assert top >= depth
 
 
 def test_bands_on_every_side() -> None:
@@ -56,3 +92,17 @@ def test_bands_on_every_side() -> None:
     assert right <= SIZE[1] - 30
     assert bottom <= SIZE[0] - 50
     assert top == 0
+
+
+def test_a_dark_band_that_starts_too_far_in_is_not_the_border() -> None:
+    """A dark strip deeper than START_SHARE of the side is farmland, not the film's edge."""
+    pixels = _picture()
+    start = max(2, round(SIZE[0] * 0.05))
+    pixels[start : start + 40, :] = 8
+
+    assert exposed_area(pixels) == (0, 0, SIZE[1], SIZE[0])
+
+
+def test_trimmed_keeps_the_overlap_when_the_box_crosses_the_border() -> None:
+    """A crop that straddles the exposed area is clipped to the overlap."""
+    assert trimmed((0, 0, 400, 300), (50, 40, 500, 280), 1.0) == (50, 40, 400, 280)

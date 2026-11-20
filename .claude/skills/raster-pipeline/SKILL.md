@@ -80,7 +80,8 @@ The Python + GDAL pipeline that turns declassified USGS film scans (Corona KH-4,
 - Shrink film by averaging (`Segment.averaged`, `averaged_window`), never by picking pixels: picked pixels alias the grain, and a
   true pair of a fine camera scores under `MIN_PAIR_SCORE`. Test a threshold's misses against the matcher before moving the number.
 - A frame camera's crop stays off the film's black border (`georef/film_edge.py`, `FILM_EDGE_SENSORS`); a whole frame records where
-  the city likely lies on its scan (`calibration.expected`), which the georeferencer opens on.
+  the city likely lies on its scan (`calibration.expected`), which the georeferencer opens on. Tests (`test_film_edge.py`, S-P33): a
+  band with a wide gap stops at the first run; `trimmed` keeps a box wholly on the top or the left of the border.
 
 ## Job state machine (`cities/{c}/jobs/{id}`)
 

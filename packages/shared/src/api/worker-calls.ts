@@ -14,7 +14,14 @@ import { ARCHIVE_ID_PATTERN } from '../schemas/imagery-archive.js';
 import { workerArchiveReportRequestSchema, workerArchiveReportResponseSchema } from './archive.js';
 import { isoTimeSchema } from './common.js';
 import type { CallableSpec, WorkerCallableName } from './registry.js';
-import { WORKER_PAIR_CODE_PATTERN, WORKER_PAIR_ID_PATTERN, WORKER_URLS_MAX, WORKER_USGS_ENDPOINTS } from './worker.js';
+import {
+    ARCHIVE_COPY_MAX_BYTES,
+    ARCHIVE_SHARE_IDLE_WHYS,
+    WORKER_PAIR_CODE_PATTERN,
+    WORKER_PAIR_ID_PATTERN,
+    WORKER_URLS_MAX,
+    WORKER_USGS_ENDPOINTS,
+} from './worker.js';
 
 const workerIdSchema = z.string().regex(WORKER_ID_PATTERN);
 /** Cleanup item 1: the most job folders a claim names in `held`. */
@@ -272,25 +279,13 @@ export const workerEndRequestSchema = z.strictObject({
 });
 export const workerEndResponseSchema = z.strictObject({ status: z.enum(JOB_STATUSES) });
 
-/** The most bytes one archive series' copy may put in the bucket (a guard on the bucket's traffic, not a limit of the scans). */
-export const ARCHIVE_COPY_MAX_BYTES = 8 * 1024 ** 3;
-
-/**
- * M20 §22 (2026-11-14): the most bytes one computer shares through the bucket in a day (UTC). Every byte shared is downloaded once
- * by another computer, and that download is the bucket's only billed traffic (about 0.12 USD a GB): 20 GB is about 2.4 USD a day at
- * most. Over it the computer stops sharing until the next day and runs those series itself.
- */
-export const ARCHIVE_SHARE_DAY_BYTES = 20 * 1024 ** 3;
-
-/** M20 §22: why `wanted` names no series to share now: none waits, no other computer could take one, or today's bytes are spent. */
-export const ARCHIVE_SHARE_IDLE_WHYS = ['nothing', 'alone', 'dayLimit'] as const;
-
 /**
  * `worker.archiveCopy` (M20, live report of 2026-11-13): the computer holding an archive sends a series' sheets for a job another
  * worker waits on. `objects`: signed PUTs (and GETs, to see what is there) of `tmp/archive-copies/{city}/{job}/` files, each
  * a sheet by its SHA-256 or `manifest.json`; `done`: the copy is complete, `bytes` sent, and the job may be claimed again.
  * M20 §22 (2026-11-14): `wanted` (no job) asks which series to share next, from the sharing thread, also while the computer runs a
  * job; `progress` says how far the copy got (the Computers card). Every kind but `wanted` names its job.
+ * Day-limit constants: `ARCHIVE_COPY_MAX_BYTES` / `ARCHIVE_SHARE_*` in `worker.ts` (admin-safe).
  */
 export const workerArchiveCopyRequestSchema = z.strictObject({
     cityId: cityIdSchema,

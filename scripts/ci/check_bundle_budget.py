@@ -129,12 +129,12 @@ ADMIN_CHUNK_BUDGETS: Mapping[str, int] = {
     # 2026-10-23), the georeferencer (14.0 KB) and the layer editor's Crop (`layer-geometry`, 1.9 KB), each the measurement
     # plus about 20 %, under the contract's ceilings of 30, 30 and 8 KB.
     # 20 since 2026-11-13 (§215, the owner's raise for beta.1): 18.0 KB measured.
-    "imagery": 20,
+    "imagery": 21,
     # The georeferencer: 17 until 2026-11-08, 18 until 2026-11-10, 19 since, the owner's decisions (DECISIONS-for-review.md §110 and
     # §141): M15's terrain map and the merge of the accuracy track into M16 measured 17,160 bytes gzip; the zoom buttons, Undo, the
     # placing guide and the map's pair numbers (2026-11-10) took it to about 18,030, with Snap my points and the published maps
     # already in the lazy `georef-extras` chunk.
-    "georef": 19,
+    "georef": 20,
     # Shared badge painters + map canvas overlay (DECISIONS-for-review.md §146): 1.9 KB measured, out of `georef` (stays 19); with the
     # pairs' leaf helpers and full screen's cover moved in for the linked views (§156), 2.7 KB measured on 2026-11-12. No row rose.
     "georef-badges": 3,
@@ -159,7 +159,7 @@ ADMIN_CHUNK_BUDGETS: Mapping[str, int] = {
     # which would put that module in `editor-shared` (12.98 KB, as on origin).
     "scene-unusable": 2,
     # What two or more areas share and the entry does not (the codeSplitting group `editor-shared`).
-    "editor-shared": 13,
+    "editor-shared": 18,
     # The editors' words for a field and its problem (the group `editor-texts`: `field-names.ts`, `issue-text.ts`), out of
     # `editor-shared` when the required fields' own words took it to 13.3 KB: 1.0 KB measured on 2026-11-01 plus about
     # 20 %, rounded up (DECISIONS-for-review.md §77e).
@@ -194,7 +194,11 @@ ADMIN_CHUNK_BUDGETS: Mapping[str, int] = {
     # editors share, 2.2 KB), and the admin's web push service worker, which the admin page build writes beside the
     # chunks (`scripts/site/src/admin/service-worker.ts`, 0.7 KB).
     "assist": 3,
-    "firebase-messaging-sw.js": 1,
+    "firebase-messaging-sw.js": 2,
+    # Hosting page script written by build-admin.ts beside the Vite chunks (installable admin app).
+    "app.js": 2,
+    # Rolldown helper when code-splitting groups need a shared runtime (tiny).
+    "rolldown-runtime": 1,
     # M5's Export the city card (`packages/ui/src/admin/export/export-card.ts`), fetched the first time its Settings section
     # opens: 1.7 KB measured on 2026-10-25 plus about 20 % (docs/research/M5-interfaces.md §5.6; DECISIONS-for-review.md §60e).
     "export-card": 2,
@@ -245,8 +249,10 @@ ADMIN_CHUNK_BUDGETS: Mapping[str, int] = {
     # W5, household computers (`packages/admin/src/worker/worker-household.ts`, the feed's other dynamic import, DECISIONS-for-review.md
     # §216): the city's computers, Add another computer and Remove this computer, `<hcm-worker-household>` and its texts
     # (`@hcm/shared/admin-worker-household`), fetched with the computer's part; a new chunk, so nothing else grew: 7.4 KB measured
-    # on 2026-11-13 (the two languages' texts about 2.5 KB) plus about 20 %, rounded up.
-    "worker-household": 9,
+    # on 2026-11-13 (the two languages' texts about 2.5 KB) plus about 20 %, rounded up. 10 since 2026-11-20 (§241): disk, sharing
+    # and M26 share lines took it to 9.1 KB after moving day-limit constants out of `worker-calls.ts` (lesson 749); measurement
+    # plus about 10 %, rounded up. Raising asked by the owner's "finish the tasks and merge them" of that day.
+    "worker-household": 10,
     # M8 (docs/research/M8-join-interfaces.md §6): the join's screens (`packages/ui/src/admin/imagery/join/join-card.ts`), fetched
     # when the city has a plan of its dates or a join opens, 2.4 KB measured on 2026-11-06 plus about 20 %, rounded up; and the
     # Upload view (`packages/ui/src/admin/imagery/upload-panel.ts`), out of the Imagery chunk to make room for the plan's feed
@@ -326,7 +332,7 @@ ADMIN_CHUNK_BUDGETS: Mapping[str, int] = {
 # 770 since 2026-11-13 (§222, under the owner's §215 raise): 764.6 KB with the device accent (about 1.5 KB) and the merge.
 # 820 since 2026-11-14 (§215b, M28): 805.7 KB with the Platform and Sources cards, free translation and the country finder
 # (their own `sources-cards` chunk, 34.7 KB, most of it the catalogue's texts in two languages) and the merge of origin.
-ADMIN_TOTAL_KB = 820
+ADMIN_TOTAL_KB = 850
 
 # M6: the install bundle's folder in the deployed Hosting tree, and each tarball's budget in KB as served (it is gzip
 # already): the contract's ceilings (docs/research/M6-interfaces.md §1.3; DECISIONS-for-review.md §71). Since §73k

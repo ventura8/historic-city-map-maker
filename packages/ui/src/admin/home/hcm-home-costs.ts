@@ -179,6 +179,17 @@ const costsStyles = css`
         font-weight: var(--md-sys-typescale-title-medium-weight, 500);
     }
 
+    [data-costs] a.action {
+        display: inline-flex;
+        gap: 4px;
+        align-items: center;
+        min-block-size: 48px;
+        color: inherit;
+        font-weight: var(--md-sys-typescale-label-large-weight, 500);
+
+        --hcm-icon-size: 18px;
+    }
+
     .over {
         padding: 16px;
         border-radius: var(--md-sys-shape-corner-large, 16px);
@@ -190,17 +201,6 @@ const costsStyles = css`
     .over a.action:focus-visible {
         outline: 2px solid currentcolor;
         outline-offset: 2px;
-    }
-
-    [data-costs] a.action {
-        display: inline-flex;
-        gap: 4px;
-        align-items: center;
-        min-block-size: 48px;
-        color: inherit;
-        font-weight: var(--md-sys-typescale-label-large-weight, 500);
-
-        --hcm-icon-size: 18px;
     }
 `;
 

@@ -1,8 +1,9 @@
 // Finding of 2026-11-14 (the owner's harti.zip maps): Join with… on an archive map's page, the year's other maps it may be joined
 // with, and the join itself (`src/imagery/archive-join.ts`).
+import { FIRESTORE_PATHS } from '@hcm/shared';
 import { describe, expect, it } from 'vitest';
 
-import { archiveJoinCandidates, joinArchiveMaps } from '../../src/imagery/archive-join.js';
+import { archiveJoinCandidates, archiveJoinIntents, joinArchiveMaps } from '../../src/imagery/archive-join.js';
 import { failure, settle } from '../app/fakes.js';
 import { answer, at, CITY, callsOf, imageryWorld, VERSIONS, versionDoc } from './world.js';
 
@@ -100,5 +101,26 @@ describe('Join with… on an archive map', () => {
 
         await expect(joinArchiveMaps(world.services, ['ar-north', 'rg-south'])).resolves.toBeNull();
         expect(world.notices).toEqual([{ key: 'apiError.imagery.joinNeedsPoints', params: { map: 'S' } }]);
+    });
+
+    it('happyPath_theImageryIntentsExposeTheSameCandidatesAndJoin', async () => {
+        const world = seeded();
+        answer(world.callables, 'imagery.join', () => ({ jobId: 'jn-n', versionId: 'jn-n', layerId: 'n' }));
+        const intents = archiveJoinIntents(world.services);
+
+        const found = intents.archiveJoinCandidates(BASE);
+        await settle();
+
+        await expect(found).resolves.toMatchObject([{ id: 'rg-south', layerId: 's' }]);
+        await expect(intents.joinArchive(['ar-north', 'rg-south'])).resolves.toBe('jn-n');
+    });
+
+    it('badPath_aFailedReadOffersNoCandidate', async () => {
+        const world = seeded();
+        world.store.setOffline(true);
+        const found = archiveJoinCandidates(world.services, BASE);
+        world.store.fail(FIRESTORE_PATHS.layerVersions(CITY), { kind: 'denied', code: 'permission-denied' });
+
+        await expect(found).resolves.toEqual([]);
     });
 });

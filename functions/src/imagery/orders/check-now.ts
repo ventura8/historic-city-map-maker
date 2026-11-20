@@ -33,6 +33,14 @@ function checkable(scene: UsgsSceneDoc, now: Date): OrderedScene {
     return scene;
 }
 
+/** The callable answer after the order was checked (and imported when delivered). */
+function answerOf(written: OrderedScene, available: boolean, jobId: string | undefined): Response {
+    if (written.order.state !== 'delivered') {
+        return { state: written.order.state, available };
+    }
+    return jobId === undefined ? { state: 'delivered', available } : { state: 'importing', available, jobId };
+}
+
 async function checkOrder(deps: CheckDeps, caller: VerifiedCaller, request: Request): Promise<Response> {
     await requireCity(deps.documents, request.cityId);
     const usgs = await requireUsgs(deps.setup);
@@ -40,17 +48,25 @@ async function checkOrder(deps: CheckDeps, caller: VerifiedCaller, request: Requ
     if (!usgsDownloads(usgs)) {
         throw new ApiError('apiError.usgs.accessPending');
     }
-    const { scene: written, outcome } = await checkOne(deps, request.cityId, scene, caller.uid);
+    // DDS e-mail download page: M2M may still say unavailable; the admin confirms and we treat it as delivered.
+    const { scene: written, outcome } = await checkOne(deps, {
+        cityId: request.cityId,
+        scene,
+        by: caller.uid,
+        ...(request.fromOrderPage === true ? { forced: { kind: 'available' as const } } : {}),
+    });
     if (outcome.kind === 'failed') {
         throw new ApiError(outcome.code);
     }
-    const available = outcome.kind === 'available';
-    if (written.order.state !== 'delivered') {
-        return { state: written.order.state, available };
-    }
-    const jobId = await importDelivered(deps, request.cityId, written, deps.clock.now());
-    deps.log.info('usgs order checked now', { uid: caller.uid, cityId: request.cityId, entityId: request.entityId, jobId });
-    return jobId === undefined ? { state: 'delivered', available } : { state: 'importing', available, jobId };
+    const jobId = written.order.state === 'delivered' ? await importDelivered(deps, request.cityId, written, deps.clock.now()) : undefined;
+    deps.log.info('usgs order checked now', {
+        uid: caller.uid,
+        cityId: request.cityId,
+        entityId: request.entityId,
+        jobId,
+        fromOrderPage: request.fromOrderPage === true,
+    });
+    return answerOf(written, outcome.kind === 'available', jobId);
 }
 
 /** The `usgs-checkOrder` callable. */

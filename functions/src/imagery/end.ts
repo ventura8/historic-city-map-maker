@@ -271,13 +271,29 @@ export async function endWork(deps: EndDeps, cityId: string, jobId: string, endi
 
 const CANCELLED: Ending = { status: 'cancelled', versionState: 'cancelled', by: IMAGERY_WRITER };
 const FAILED: Ending = { status: 'failed', versionState: 'failed', by: IMAGERY_WRITER };
+const FAILED_DEFAULT_ERROR: NonNullable<Ending['error']> = { code: 'apiError.internal' };
+
+/** A failed version's `error` from the job, or a stable default when the job wrote none. */
+function failedError(job: JobDoc): NonNullable<Ending['error']> {
+    const error = job.error;
+    if (error === undefined) {
+        return FAILED_DEFAULT_ERROR;
+    }
+    // Job stores `code` as a short string; version docs require an `ApiErrorCode` (pipeline codes are that set).
+    return {
+        code: error.code as ApiErrorCode,
+        message: error.message,
+        ...(error.params === undefined ? {} : { params: error.params }),
+    };
+}
 
 /** The ending a run the pipeline itself ended carries; none for a job still on its way. */
 function endingOf(job: JobDoc | undefined): Ending | undefined {
     if (job?.status === 'cancelled') {
         return CANCELLED;
     }
-    return job?.status === 'failed' ? FAILED : undefined;
+    // A failed version needs `error` (`REQUIRED_BY_STATE.failed`); copy the job's, or a stable default when it has none.
+    return job?.status === 'failed' ? { ...FAILED, error: failedError(job) } : undefined;
 }
 
 /**

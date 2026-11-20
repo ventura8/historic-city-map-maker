@@ -4361,10 +4361,10 @@ Append a numbered entry to *Lessons from this repository* in the task that finds
     - Fix and pin: `endingOf` copies the job's error onto a failed release; `onJobWrite` soft-catches `release` like the Cloud Run count; fixtures gain `kind` / `lostOn`; publish trigger expects one queued build (`S-A10-BAD-BURST-JOINS-QUEUED`, `happyPath_eachTriggerRequestsABuildForItsCity`, `badPath_aCountThatFailsIsLoggedAndTheTriggerGoesOn`).
     - **An ending that sets a state must carry every field that state requires, and a soft side path must not abort the trigger's later soft paths.**
 
-746. **Owner corner points on a whole-frame Corona crashed georef: `cv2.remap` refuses a side over 32 767 px.**
-    - Seen: 2026-11-19, DV069 / DF094 / DF095 / DA044: after saveGcps, georef cropped the full film (~100k×11k) and died with `apiError.internal` / OpenCV `SHRT_MAX` in `warp_film`.
+746. **Owner corner points on a full Corona film crashed georef: `cv2.remap` refuses a side over 32 767 px.**
+    - Seen: 2026-11-19, DV069 / DF094 / DF095 / DA044: after saveGcps, georef cropped the full film (about 100 000 × 11 000 px) and died with `apiError.internal` / OpenCV `SHRT_MAX` in `warp_film`.
     - Found by: worker logs on ZenBook, NUC and the PC; the matcher already shrank for remap (`REMAP_MAX_PX`), dense measure did not.
-    - Fix and pin: `_remap_bounded` in `calibrate/dense.py` downsamples the source (maps stay in the original read); `test_calibrate_remap.py`.
+    - Fix and pin: `_remap_bounded` in `calibrate/dense.py` downsamples the source (maps stay in the original read); scenarios `S-P06-HAPPY-REMAP-BOUNDED` / `S-P06-BAD-REMAP-NARROW` in `pipeline/tests/unit/test_calibrate_remap.py`.
     - **Any `cv2.remap` of film must shrink past 32 766 px a side the same way the matcher already does.**
 
 747. **Statistics showed a blank admin screen; `imagery.markScene` OOMed on the date plan.**
@@ -4372,3 +4372,15 @@ Append a numbered entry to *Lessons from this repository* in the task that finds
     - Cause: GA4 returns `route` as `''` for page views before the admin named the screen (left in after `(not set)` was filtered); `markScene` rewrites the whole-city date plan in the default 256 MiB.
     - Fix and pin: filter empty `route` with `(not set)` in `readStatistics`; `CALLABLE_MEMORY` for `imagery.markScene` at 512 MiB; cost-shape + DECISIONS §240.
     - **Drop empty GA4 dimension values the same as `(not set)`, and give a callable that rewrites the city plan the same memory as `imagery.tick`.**
+
+748. **Static leftovers: descending specificity after a later base rule, knip on file-local helpers, radon on one Mermaid checker.**
+    - Seen: 2026-11-20, `static` on `feat/engine-rewrite`: stylelint `no-descending-specificity` on `hcm-home-costs` (`.over a.action:focus-visible` before `[data-costs] a.action`), knip unused exports `aerialPhotoManifest` / `photosOfKind`, radon B(9) on `mermaid_problems`.
+    - Cause: a more specific override was listed above its lower-specificity base; helpers used only in-file stayed `export`; one function held the type check, the empty-line filter and the bracket counts.
+    - Fix: reorder the CSS (look unchanged); drop `export` on the helpers; split Mermaid checks into named helpers.
+    - **Put lower-specificity selectors first; keep same-file helpers unexported; split a radon B block into named helpers.**
+
+749. **The household chunk pulled every worker callable schema because it named the day-limit constant.**
+    - Seen: 2026-11-20, `build`/`bundle-budget`: `worker-household` 10.4 KB gzip of 9 after M20 sharing texts.
+    - Cause: `household-sharing.ts` imported `ARCHIVE_SHARE_DAY_BYTES` from `@hcm/shared`, which re-exported it from `worker-calls.ts`, so Rolldown put the whole worker-only schema module in the household chunk.
+    - Fix and pin: move `ARCHIVE_COPY_MAX_BYTES` / `ARCHIVE_SHARE_DAY_BYTES` / `ARCHIVE_SHARE_IDLE_WHYS` to `api/worker.ts` (admin-safe); `worker-calls.ts` imports them.
+    - **Constants the admin UI reads must not live in `worker-calls.ts`.**

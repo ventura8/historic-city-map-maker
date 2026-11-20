@@ -110,6 +110,7 @@ export function photoDoc(cityId: string, photoId: string, creator: string): Data
         location: { lat: 44.4462, lng: 26.0969 },
         bearing: 90,
         fov: 60,
+        kind: 'ground',
         published: false,
         rightsReview: false,
         image: { web: derivative(cityId, photoId, 'web'), thumb: derivative(cityId, photoId, 'thumb'), sha256: SHA, w: 2048, h: 1536 },
@@ -168,6 +169,7 @@ export function newPhoto(uid: string): Data {
         location: { lat: 44.4462, lng: 26.0969 },
         bearing: 360,
         fov: 180,
+        kind: 'ground',
         published: false,
         rightsReview: true,
         credit: 'Ion Mureșan',
@@ -288,6 +290,8 @@ export function jobDoc(creator: string, status = 'running'): Data {
         // Finding 68 of 2026-11-02: imagery.tick's mark of a local job no computer came for.
         workerOverdueAt: past(),
         filesOn: 'cloud',
+        // M7 hand-over: workers that held the job and lost it (imagery.tick / claim).
+        lostOn: ['w-0123456789abcdef'],
         // M18 item 3: the pipeline image a parked frame was searched with (imagery.tick's relocate part).
         searchedWith: `sha256:${'ab'.repeat(32)}`,
         // Review of M18 item 3: an editor placing points on the parked frame (the georeferencer's mark).
@@ -632,6 +636,7 @@ export const EDITS: Readonly<Record<ClientCollection, Readonly<Data>>> = {
         location: { lat: 44.3 - 0.5, lng: 26.3 + 0.5 },
         bearing: 0,
         fov: 1,
+        kind: 'aerial',
         published: true,
         rightsReview: true,
         credit: 'Maria Popescu',

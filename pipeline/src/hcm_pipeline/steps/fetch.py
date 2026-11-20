@@ -221,7 +221,8 @@ def _delivered(ctx: JobContext, entity: UsgsImportParams, size: int) -> ObjectIn
     """A delivery of the scene already in the bucket at least the announced size (another city fetched it).
 
     Landsat may announce a band-scale `filesize` while the stored object is the full tar; any object that large enough
-    is the same product.
+    is the same product. A paid DDS order-page delivery staged by hand uses `size=1`: any object in the prefix is enough
+    when M2M has not listed the scene yet.
     """
     prefix = paths.usgs_raw(entity.dataset, entity.entity_id, "x").rsplit("/", 1)[0] + "/"
     return next((info for info in ctx.services.objects.list(prefix) if info.size >= size), None)
@@ -247,7 +248,14 @@ class FetchStep:
     def _fetch(self, ctx: JobContext, m2m: M2MSession, entity: UsgsImportParams, checkpoint: Checkpoint) -> StepResult:
         option = download_option(m2m, entity.dataset, entity.entity_id)
         if option is None:
-            raise StepFailedError(Errors.NOT_SCANNED, f"USGS offers no download of {entity.entity_id} yet", {"entityId": entity.entity_id})
+            # A DDS order-page delivery staged under usgs-raw/ is enough when M2M has not listed the scene yet.
+            staged = _delivered(ctx, entity, 1)
+            if staged is None:
+                raise StepFailedError(
+                    Errors.NOT_SCANNED, f"USGS offers no download of {entity.entity_id} yet", {"entityId": entity.entity_id}
+                )
+            checkpoint.clear(ctx)
+            return Done(staged, object_sha256(ctx, staged.path))
         info = _delivered(ctx, entity, option.size) or self._download(ctx, m2m, entity, option, checkpoint)
         if info is None:
             retry_at = ctx.now().plus(USGS_PREPARING_MINUTES * 60)

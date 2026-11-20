@@ -682,3 +682,7 @@ The owner's harti.zip maps include maps in parts: the n and S halves of 1978, 19
   fails as before (`joinSeamTooFar`), and a part that shares no seam with another fails with `apiError.imagery.joinMapsApart {a, b}`;
 - the version page of an archive map offers **Join with…** (`<hcm-archive-join>`): one button per other map of its year that the join can
   take, then a link to the join. A map a failed (or otherwise ended) join stamped is offered again (lesson 738). Scenarios: S-A65-HAPPY-ARCHIVE, S-A65-BAD-ARCHIVE-NO-POINTS, S-A65-*-ARCHIVE-OFFER, S-P05-*-ARCHIVE*.
+  Coverage (2026-11-20): `functions/test/imagery/join-archive.test.ts` also drives `maxzoomOf` (default and
+  clamp), English labels, a cancelled or missing pending job, embedded georeference, no scan, and a live `partOf` hold;
+  `packages/admin/test/imagery/archive-join.test.ts` covers `archiveJoinIntents` and a failed candidates read; busy join
+  detection lives in `join-busy.ts`.

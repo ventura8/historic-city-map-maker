@@ -328,6 +328,9 @@ export {
     workerRevokeRequestSchema,
     workerRevokeResponseSchema,
     WORKER_HOUSEHOLD_PAIR_SECONDS,
+    ARCHIVE_COPY_MAX_BYTES,
+    ARCHIVE_SHARE_DAY_BYTES,
+    ARCHIVE_SHARE_IDLE_WHYS,
 } from './worker.js';
 export { WORKER_MANAGE_ACTIONS, workerManageRequestSchema, workerManageResponseSchema } from './worker-manage.js';
 export type { PauseAction, WorkerOs, WorkerStarterAction, WorkerStarterUpdate } from './worker.js';
@@ -365,9 +368,6 @@ export type {
 } from './registry.js';
 // M7: the local worker's callables, and the whole table (the functions' and the tests'; the admin reads ADMIN_CALLABLES).
 export {
-    ARCHIVE_COPY_MAX_BYTES,
-    ARCHIVE_SHARE_DAY_BYTES,
-    ARCHIVE_SHARE_IDLE_WHYS,
     WORKER_CALLABLES,
     workerArchiveCopyRequestSchema,
     workerArchiveCopyResponseSchema,

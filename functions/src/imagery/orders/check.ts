@@ -141,9 +141,21 @@ export async function checkOrders(deps: CheckDeps, cityId: string, scenes: reado
     deps.log.info('usgs orders checked', { cityId, asked: scenes.length });
 }
 
+/** Who asks "Check now" about which scene; `forced` skips USGS (DDS e-mail confirm). */
+export interface CheckOneAsk {
+    readonly cityId: string;
+    readonly scene: OrderedScene;
+    readonly by: string;
+    readonly forced?: CheckOutcome;
+}
+
 /** "Check now": USGS asked about one order (one session), the answer recorded as the watch records it. */
-export async function checkOne(deps: CheckDeps, cityId: string, scene: OrderedScene, by: string): Promise<Checked> {
+export async function checkOne(deps: CheckDeps, ask: CheckOneAsk): Promise<Checked> {
+    const { cityId, scene, by, forced } = ask;
     const now = deps.clock.now();
+    if (forced !== undefined) {
+        return record(deps, { cityId, writer: { by, now } }, scene, forced);
+    }
     let outcome: CheckOutcome;
     try {
         const options = await withUsgs(deps, (apiKey) => deps.scenes.downloadOptions(apiKey, scene.dataset, [scene.entityId]));

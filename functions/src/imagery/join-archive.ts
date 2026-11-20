@@ -24,6 +24,7 @@ import type { VerifiedCaller } from '../api/access.js';
 import { ApiError } from '../api/api-error.js';
 import type { DocumentTransaction } from '../ports/documents.js';
 import type { Ports } from '../ports/index.js';
+import { asJoinLayerBusy } from './join-busy.js';
 import { isUsablePart, refuseHeldPart } from './join-parts.js';
 import { refuseBusyLayer, refuseRasterJobs, type Placement } from './limits.js';
 import { requireCity, requireVersion, stampOf } from './records.js';
@@ -94,7 +95,7 @@ async function readParts(deps: ArchiveJoinDeps, request: ArchiveJoinRequest): Pr
 }
 
 /** The parts' own largest zoom, within what a join renders. */
-function maxzoomOf(parts: readonly Part[]): number {
+export function maxzoomOf(parts: readonly { readonly version: Pick<LayerVersionDoc, 'output'> }[]): number {
     const zooms = parts.flatMap(({ version }) => (version.output === undefined ? [] : [version.output.maxzoom]));
     const zoom = zooms.length === 0 ? DEFAULT_MAXZOOM : Math.max(...zooms);
     return Math.min(MAX_ZOOM, Math.max(MIN_ZOOM, zoom));
@@ -176,9 +177,7 @@ async function requireFreeLayer(deps: ArchiveJoinDeps, cityId: string, published
     if (published === undefined) {
         return;
     }
-    await refuseBusyLayer(deps.documents, cityId, published.version.layerId).catch((error: unknown) => {
-        throw error instanceof ApiError && error.code === 'apiError.layers.busy' ? new ApiError('apiError.imagery.joinLayerBusy') : error;
-    });
+    await refuseBusyLayer(deps.documents, cityId, published.version.layerId).catch(asJoinLayerBusy);
 }
 
 /** The published part's layer, else a new one named after the parts. */

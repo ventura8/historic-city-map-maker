@@ -181,6 +181,19 @@ describe('usgs.checkOrder', () => {
         expect((await readScene(world, PAID))?.updatedBy).toBe('u-admin');
     });
 
+    it('happyPath_fromOrderPageImportsWhenM2mStillSaysUnavailable', async () => {
+        const world = await paidWorld({ order: order({ state: 'reminder', remindersSent: [7] }) });
+        listDownload(world, PAID, false);
+
+        const response = await checkOrder(world, PAID, true);
+
+        const jobId = `im-${Date.parse(NOW).toString(36)}-${PAID}`;
+        expect(response).toEqual({ state: 'importing', available: true, jobId });
+        expect(world.scenes.recorder.argsOf('downloadOptions')).toHaveLength(0);
+        expect(await readJob(world, jobId)).toMatchObject({ type: 'usgs-import', status: 'queued' });
+        expect((await readScene(world, PAID))?.downloadAvailable).toBe(true);
+    });
+
     it('badPath_checkNowTwiceWithinAMinuteAsksUsgsOnce @S-A13-BAD-CHECK-NOW-TOO-OFTEN', async () => {
         const world = await paidWorld({ order: order() });
         listDownload(world, PAID, false);

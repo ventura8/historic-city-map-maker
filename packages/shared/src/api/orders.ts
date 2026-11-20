@@ -23,8 +23,13 @@ export const usgsMarkOrderedResponseSchema = z.strictObject({ state: z.literal('
 /**
  * `usgs.checkOrder` (admin): "Check now", at most once a minute per scene (`apiError.rateLimited`). Delivered: the import
  * starts at once (or with the next tick while the budget guard is red or today's raster jobs are used up).
+ * `fromOrderPage`: the admin confirms USGS's e-mail download page already has the scan (M2M may still say no); the
+ * scene becomes free and the import starts so a staged `usgs-raw/` delivery on the worker can run.
  */
-export const usgsCheckOrderRequestSchema = z.strictObject(sceneField);
+export const usgsCheckOrderRequestSchema = z.strictObject({
+    ...sceneField,
+    fromOrderPage: z.boolean().optional(),
+});
 export const usgsCheckOrderResponseSchema = z.strictObject({
     state: z.enum(ORDER_STATES),
     /** USGS lists the download now. */

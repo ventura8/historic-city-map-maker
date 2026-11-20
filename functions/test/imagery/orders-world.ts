@@ -80,8 +80,10 @@ export function markOrdered(world: ImageryWorld, entityId = PAID) {
     return markOrderedFunction(() => world.deps).run(request(entityId));
 }
 
-export function checkOrder(world: ImageryWorld, entityId = PAID) {
-    return checkOrderFunction(() => world.deps).run(request(entityId));
+export function checkOrder(world: ImageryWorld, entityId = PAID, fromOrderPage?: boolean) {
+    return checkOrderFunction(() => world.deps).run(
+        adminCall({ cityId: CITY, entityId, ...(fromOrderPage === true ? { fromOrderPage } : {}) }),
+    );
 }
 
 export function cancelOrder(world: ImageryWorld, entityId = PAID) {
