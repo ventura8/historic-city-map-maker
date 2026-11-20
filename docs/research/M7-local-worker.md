@@ -299,7 +299,7 @@ A run on 2 vCPUs may take longer than on 4 (the CPU-bound warp: 2.6 times the wa
 | --- | --- | --- |
 | every function | `minInstances` none → keep | an idle project keeps no instance warm: nothing billed while idle |
 | global options | us-central1, `maxInstances` 5, concurrency 80, 256 MiB, 60 s → keep | the smallest memory; concurrency 80 lets one instance serve a burst; `cpu: 'gcf_gen1'` (a sixth of a vCPU at 256 MiB) would force concurrency 1 and more instances, so it is not proposed |
-| callables (about 50: `admin.*`, `setup.*`, `imagery.*`, `worker.*`, ...) | 256 MiB, 60 s (`imagery.search` 300 s), `maxInstances` from the registry → keep | short reads and writes; billed only while a request runs |
+| callables (about 50: `admin.*`, `setup.*`, `imagery.*`, `worker.*`, ...) | 256 MiB, 60 s (`imagery.search` 540 s; `imagery.markScene` **512 MiB**), `maxInstances` from the registry → keep | short reads and writes; billed only while a request runs; `markScene` rewrites the date plan (259 MiB used on 256 MiB, 2026-11-20) |
 | `worker.starter`, `telemetry.reportError` (HTTPS) | 256 MiB, their registry caps → keep | |
 | Firestore triggers (`history.*`, `publish.on*`, `imagery.onJobWrite`, `notify.onEvent`, `ops.onProbe`), `ops.onBudget` | 256 MiB, 60 s → keep | |
 | `imagery.onJobWrite` | → also dispatches every city's queued jobs when a run leaves `starting` / `running` | so the tick can run every 15 minutes (S-A12-HAPPY-FREED-PLACE) |

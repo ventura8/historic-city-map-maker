@@ -342,6 +342,12 @@ describe('callableOptions', () => {
         expect(callableOptions('imagery.search', {})).not.toHaveProperty('concurrency');
     });
 
+    it('happyPath_markSceneTakesHalfAGigabyteForTheDatePlanRewrite', () => {
+        // Crashes 2026-11-20: `imagery-markscene` used 259 MiB on the default 256 MiB (22 reports).
+        expect(callableOptions('imagery.markScene', {})).toMatchObject({ memory: '512MiB' });
+        expect(callableOptions('imagery.browse', {})).not.toHaveProperty('memory');
+    });
+
     it('badPath_theLocalWorkersCallablesNeverEnforceAppCheck', () => {
         // M7 (docs/research/M7-local-worker.md §2.4): a process on the owner's computer cannot be attested.
         expect(callableOptions('worker.step', { HCM_APP_CHECK: 'enforce' })).toEqual({

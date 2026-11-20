@@ -32,6 +32,8 @@ const MEMORY_MB: Readonly<Record<string, number>> = {
     'imagery.tick': 512,
     // A city's manifest is built in memory.
     'publish.buildManifest': 512,
+    // `imagery.markScene` rewrites the date plan after each mark (259 MiB used on 256 MiB; Crashes, 2026-11-20).
+    'imagery.markScene': 512,
 };
 
 /** The reviewed timeouts that are not the default 60 s. */

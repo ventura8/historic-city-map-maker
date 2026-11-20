@@ -4354,3 +4354,21 @@ Append a numbered entry to *Lessons from this repository* in the task that finds
     - Cause: `document.fullscreenElement` is the outermost shadow host (the admin shell), never the page itself; Esc arrived while `requestFullscreen` was still pending, so leaving found nothing to exit; Chromium refuses `setWindowBounds` in full screen.
     - Fix and pin: "left" is `fullscreenElement === null`; a request that resolves after the page already left exits again; the layout checkers run on the in-page cover (the refused path).
     - **Compare against null, not the element, behind shadow roots, and undo a pending async entry when the user already left.**
+
+745. **A failed job's release wrote a version without `error`, and the trigger died before its notice.**
+    - Seen: 2026-11-19, Vitest: `producers` / `dispatch` / `cloud-usage` failed with `InvalidDocumentError` on `layerVersions/…` (`state: failed` needs `error`) or threw on transaction contention before `countCloudRun`'s soft catch; `on-write` still expected `requestedVersion: 6` after burst-join.
+    - Found by: `PIPELINE_STAGE=tests` vitest gate (10 failures); rules fixtures also lagged `kind` / `lostOn`.
+    - Fix and pin: `endingOf` copies the job's error onto a failed release; `onJobWrite` soft-catches `release` like the Cloud Run count; fixtures gain `kind` / `lostOn`; publish trigger expects one queued build (`S-A10-BAD-BURST-JOINS-QUEUED`, `happyPath_eachTriggerRequestsABuildForItsCity`, `badPath_aCountThatFailsIsLoggedAndTheTriggerGoesOn`).
+    - **An ending that sets a state must carry every field that state requires, and a soft side path must not abort the trigger's later soft paths.**
+
+746. **Owner corner points on a whole-frame Corona crashed georef: `cv2.remap` refuses a side over 32 767 px.**
+    - Seen: 2026-11-19, DV069 / DF094 / DF095 / DA044: after saveGcps, georef cropped the full film (~100k×11k) and died with `apiError.internal` / OpenCV `SHRT_MAX` in `warp_film`.
+    - Found by: worker logs on ZenBook, NUC and the PC; the matcher already shrank for remap (`REMAP_MAX_PX`), dense measure did not.
+    - Fix and pin: `_remap_bounded` in `calibrate/dense.py` downsamples the source (maps stay in the original read); `test_calibrate_remap.py`.
+    - **Any `cv2.remap` of film must shrink past 32 766 px a side the same way the matcher already does.**
+
+747. **Statistics showed a blank admin screen; `imagery.markScene` OOMed on the date plan.**
+    - Seen: 2026-11-20, live admin Statistics: "Most opened admin screens" first row had no label (8, 22 %); Crashes top group "Memory limit of 256 MiB exceeded" on `imagery-markscene-00032-wut` (22 reports, 259 MiB used). Home's Visitors card after a same-tab Statistics read showed 26 visitors / 182 visits as designed (§238).
+    - Cause: GA4 returns `route` as `''` for page views before the admin named the screen (left in after `(not set)` was filtered); `markScene` rewrites the whole-city date plan in the default 256 MiB.
+    - Fix and pin: filter empty `route` with `(not set)` in `readStatistics`; `CALLABLE_MEMORY` for `imagery.markScene` at 512 MiB; cost-shape + DECISIONS §240.
+    - **Drop empty GA4 dimension values the same as `(not set)`, and give a callable that rewrites the city plan the same memory as `imagery.tick`.**

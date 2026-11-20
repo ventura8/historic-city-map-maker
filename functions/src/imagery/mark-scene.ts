@@ -22,7 +22,8 @@ import { stampOf } from './records.js';
  * kept offering to buy): an editor sets a scene aside as not useful with why (clouds, haze or blur, wrong area, other), or takes it
  * back. Marked, the scene is `rejected` with `unusable` (the plan, which leaves rejected scenes out, and the list's Hide not useful
  * read that); taken back, a `candidate` again. The plan is written again at once, so it says what else would complete that date.
- * An imported scene is refused (`apiError.imagery.alreadyImported`: its layer is the thing to delete or reject).
+ * An imported scene is refused (`apiError.imagery.alreadyImported`: its layer is the thing to delete or reject). Deploys at 512 MiB
+ * (`CALLABLE_MEMORY`: the plan rewrite used 259 MiB on 256 MiB; Crashes 2026-11-20).
  */
 export type MarkSceneDeps = Pick<Ports, 'documents' | 'clock' | 'log'>;
 

@@ -85,7 +85,7 @@ taplo, ruff and the suppression scan, and knip ignores the `braces` and `minimat
 | shfmt | `mvdan/shfmt:v3.14.1@sha256:8c06884a35683d8763fba6c0d9484d11a61a96da65f8d497d6f625825a6043f2` (newer than the 3.13.1 in the conventions doc) |
 | gitleaks | `zricethezav/gitleaks:v8.30.1@sha256:c00b6bd0aeb3071cbcb79009cb16a60dd9e0a7c60e2be9ab65d25e6bc8abbb7f` |
 
-apt pins (Ubuntu 26.04): `openjdk-21-jre-headless=21.0.12*`, `git=1:2.53.0*`, `curl=8.18.0*`,
+apt pins (Ubuntu 26.04): `openjdk-21-jre-headless=21.0.13*`, `git=1:2.53.0*`, `curl=8.18.0*`,
 `python3.14-venv=3.14.4*`. Playwright's `install --with-deps chromium firefox webkit` works on
 26.04 as is.
 

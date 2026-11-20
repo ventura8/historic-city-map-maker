@@ -183,7 +183,7 @@ describe('readStatistics: names GA4 cannot use yet', () => {
         const numbers = await read();
 
         expect(numbers.pending).toBeNull();
-        expect(numbers.screens.map((screen) => screen.name)).not.toContain('(not set)');
+        expect(numbers.screens.map((screen) => screen.name)).toEqual(['home', 'crashes']);
         expect(fakes.callsTo('analytics-data.getMetadata')).toHaveLength(1);
     });
 

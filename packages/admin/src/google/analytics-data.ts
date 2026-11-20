@@ -282,7 +282,8 @@ export async function readStatistics(
         visitors: num(total, 0),
         sessions: num(total, 1),
         // A page view without a screen name is the public map's, or the admin's before `route` was registered.
-        ...{ pages: counts(pages), screens: counts(screens).filter((item) => item.name !== NOT_SET) },
+        // An empty `route` is a page view before the admin registered the screen name (same as `(not set)`: no label to show).
+        ...{ pages: counts(pages), screens: counts(screens).filter((item) => item.name !== NOT_SET && item.name !== '') },
         ...{ events: counts(events), devices: counts(devices), countries: counts(countries) },
         surfaces: surfacesOf(surfaceTotals, surfaceDays),
         steps: stepsOf(views, errors, times),

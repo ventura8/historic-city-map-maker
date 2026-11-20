@@ -90,6 +90,9 @@ const SAMPLES: Readonly<Record<string, readonly SampleRow[]>> = {
     ],
     'customEvent:route|page_view': [
         [['home'], [12]],
+        // An empty route and `(not set)` are page views before the admin named the screen; Statistics leaves them out.
+        [[''], [8]],
+        [['(not set)'], [1]],
         [['crashes'], [4]],
     ],
     'eventName|': [

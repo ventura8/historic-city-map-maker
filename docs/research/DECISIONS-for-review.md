@@ -7258,3 +7258,18 @@ visitors and visits with the trend against the period before, the last day, new 
 languages, devices, and the most looked-at years, layers and photos (two more `batchRunReports` per period,
 `SUMMARY_REPORTS` and `LOOKED_AT_REPORTS` of `packages/admin/src/google/analytics-data.ts`). Before any read it says where
 to allow it, with Open Statistics. `check_bundle_budget.py` gains `"visitors": 3`. No cloud change.
+
+## 239. Quality image OpenJDK pin 21.0.12 → 21.0.13 (2026-11-19) — APPLIED (pre-approved: keeps a tool working)
+
+`docker/Dockerfile.quality` pinned `openjdk-21-jre-headless=21.0.12*`. After the build cache was gone, `apt-get` failed
+because Ubuntu 26.04 only carries `21.0.13.1+2-1~26.04.1` (and the older `21.0.11~8ea-1`). The pin is now `21.0.13*`;
+`docs/research/M0-handoff.md` matches. No gate was relaxed.
+
+## 240. Statistics drops empty admin screen names; `imagery.markScene` at 512 MiB (2026-11-20) — APPLIED
+
+The Statistics page's "Most opened admin screens" showed a blank first row (8 views, 22 %): GA4 returns page views whose
+`route` is the empty string before the admin registers the screen name, the same class as `(not set)`.
+`readStatistics` now drops both (`packages/admin/src/google/analytics-data.ts`); the sample fake carries them so the
+unit test pins the filter. Separately, Cloud Error Reporting's top group was `imagery-markScene` out of memory (259 MiB
+used on 256 MiB, 22 reports). `callableOptions` gains `CALLABLE_MEMORY` with `imagery.markScene` at `512MiB`; the
+cost-shape table and `callable.test.ts` match. No gate was relaxed; deploy needs Setup's **Update the map**.

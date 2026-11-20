@@ -36,6 +36,13 @@ const CALLABLE_TIMEOUT_SECONDS: Readonly<Partial<Record<CallableName, number>>> 
 const CALLABLE_CONCURRENCY: Readonly<Partial<Record<CallableName, number>>> = { 'imagery.browse': 2 };
 
 /**
+ * Callables that need more than the default 256 MiB: `imagery.markScene` rewrites the whole-city date plan after each mark and
+ * ran out of 256 MiB (259 MiB used; Crashes top group, release `imagery-markscene-00032-wut`, 2026-11-20). 512 MiB matches
+ * `imagery.tick` / `publish.buildManifest` (cost-shape table).
+ */
+const CALLABLE_MEMORY: Readonly<Partial<Record<CallableName, '512MiB'>>> = { 'imagery.markScene': '512MiB' };
+
+/**
  * The deploy options of a callable: its `maxInstances`, a longer timeout where `CALLABLE_TIMEOUT_SECONDS` names one,
  * its runtime service account (`runAs`: `fn-admin@` for every callable), and App Check from `HCM_APP_CHECK` (security review §1.6: one week of `monitor`, which leaves enforcement
  * off, then `enforce`); `consume` callables then also consume the token (replay protection for ownership and secret
@@ -47,10 +54,12 @@ export function callableOptions(name: CallableName, env: Env): CallableOptions {
     const enforce = env['HCM_APP_CHECK'] === 'enforce' && spec.appCheck !== 'off';
     const timeoutSeconds = CALLABLE_TIMEOUT_SECONDS[name];
     const concurrency = CALLABLE_CONCURRENCY[name];
+    const memory = CALLABLE_MEMORY[name];
     return {
         maxInstances: spec.maxInstances,
         ...(timeoutSeconds === undefined ? {} : { timeoutSeconds }),
         ...(concurrency === undefined ? {} : { concurrency }),
+        ...(memory === undefined ? {} : { memory }),
         ...runAs(name),
         enforceAppCheck: enforce,
         consumeAppCheckToken: enforce && spec.appCheck === 'consume',
