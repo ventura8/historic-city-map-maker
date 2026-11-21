@@ -12,6 +12,7 @@ A `Proposal` is what the placers mosaic when it is `good` (`tiles`, through `can
 (`layout_files`). An owner's layout (`owner_layout`) fixes the grid, the variants and the sheets left out before steps 3 and 4.
 """
 
+import functools
 import math
 from collections.abc import Mapping, Sequence
 from dataclasses import dataclass, field, replace
@@ -20,10 +21,10 @@ from typing import Final
 
 import numpy
 
-from hcm_pipeline.placing import bundle, featured, sheetnames
+from hcm_pipeline.placing import bundle, featured, jigsaw, sheetnames
 from hcm_pipeline.placing.canvas_window import Tile
 from hcm_pipeline.placing.quality import Measures, Quality, judged
-from hcm_pipeline.placing.seams import STRONG_SCORE, Seam, seam_of
+from hcm_pipeline.placing.seams import ABUT_RMS_PX, STRONG_SCORE, Seam, seam_of
 from hcm_pipeline.placing.sheetwork import Part, allowed, cell_of, on_cell, read_parts
 from hcm_pipeline.placing.streets import UInt8Array
 
@@ -245,8 +246,12 @@ def propose(named: Sequence[tuple[str, Path]]) -> Proposal:
     by_names = solved(plan, grid)
     if by_names.quality.verdict == "good":
         return by_names
-    by_features = from_features(parts, cell, by_names.plan.out)
-    return by_names if by_features is None else better(by_names, by_features)
+    return best_of([by_names, from_features(parts, cell, by_names.plan.out), from_edges(parts, cell, by_names.plan.out, names)])
+
+
+def best_of(found: Sequence[Proposal | None]) -> Proposal:
+    """The best of the layouts tried (the first, the names', is always there)."""
+    return functools.reduce(better, [proposal for proposal in found if proposal is not None])
 
 
 RANK: Final = {"poor": 0, "check": 1, "good": 2}
@@ -288,3 +293,56 @@ def _cells_of(positions: Mapping[int, tuple[float, float]], cell: tuple[int, int
 
 def _extent(cells: Mapping[int, Cell], axis: int) -> int:
     return 1 + max((cell[axis] for cell in cells.values()), default=0)
+
+
+def _numbers(names: Sequence[str]) -> dict[int, int]:
+    numbers = ((index, sheetnames.number_of(Path(name).stem)) for index, name in enumerate(names))
+    return {index: number for index, number in numbers if number is not None}
+
+
+def _edge_seam(tables: Sequence[jigsaw.Table], order: jigsaw.Order, pair: tuple[int, int, str], cell: tuple[int, int]) -> Seam:
+    """The abutting seam the edges' continuity says: strong when it counts against the series' own baseline, else missing (0)."""
+    a, b, side = pair
+    found = jigsaw.counted(tables, order, a, b, side)
+    score, shift = found if found is not None else (0.0, 0)
+    dx, dy = (float(cell[0]), float(shift)) if side == "right" else (float(shift), float(cell[1]))
+    return Seam(a, b, side, dx, dy, score, ABUT_RMS_PX, "strong" if found is not None else "missing")
+
+
+@dataclass(frozen=True)
+class _Edges:
+    """A series' parts on the cell with their edges' continuity tables."""
+
+    parts: Sequence[Part]
+    cell: tuple[int, int]
+    out: Mapping[int, str]
+    variants: dict[int, int]
+    tables: list[jigsaw.Table]
+
+
+def _edges(parts: Sequence[Part], cell: tuple[int, int], out: Mapping[int, str]) -> _Edges:
+    variants = {part.index: allowed(part, cell)[0] for part in parts}
+    found = {part.index: jigsaw.edges_of(on_cell(part, variants[part.index], cell)) for part in parts if part.index not in out}
+    return _Edges(parts, cell, out, variants, [jigsaw.table(found, "right", cell[1]), jigsaw.table(found, "below", cell[0])])
+
+
+def _edge_proposal(edges: _Edges, cells: dict[int, Cell], order: jigsaw.Order) -> Proposal:
+    """The layout on `cells`, every neighbour pair's seam read from the edges, judged like any other."""
+    plan = Plan(list(edges.parts), cells, dict(edges.variants), edges.cell, dict(edges.out))
+    seams = [_edge_seam(edges.tables, order, pair, edges.cell) for pair in plan.pairs()]
+    answer = bundle.solve(cells, seams, edges.cell, set(cells))
+    grid = sheetnames.NameGrid(dict(cells), _extent(cells, 0), _extent(cells, 1), "seam")
+    return Proposal(plan, grid, _marked(seams, answer.dropped), answer, judged(_measures(plan, seams, answer)))
+
+
+def from_edges(parts: Sequence[Part], cell: tuple[int, int], out: Mapping[int, str], names: Sequence[str]) -> Proposal | None:
+    """The series laid out as pages that only touch (`jigsaw`, M20 §19.15): on the grid its numbers give once the edges below agree
+    on the numbers' stride, else by the edges alone; None when no two pages join."""
+    edges = _edges(parts, cell, out)
+    numbers = {index: number for index, number in _numbers(names).items() if index not in out}
+    found = jigsaw.joins(edges.tables, jigsaw.Order(numbers))
+    order = jigsaw.Order(numbers, jigsaw.stride_of(found, numbers))
+    if order.stride is not None:
+        return _edge_proposal(edges, jigsaw.numbered_cells(order, found), order)
+    cells, _used = jigsaw.assemble(found, jigsaw.fitting(edges.tables))
+    return _edge_proposal(edges, cells, order) if len(cells) > 1 else None

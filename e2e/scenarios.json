@@ -20393,6 +20393,28 @@
             "notes": "M20 §19.14 (2026-11-21). Tests: pipeline/tests/unit/test_placing_featured.py."
         },
         {
+            "id": "S-P20-HAPPY-STITCH-JIGSAW",
+            "behaviour": "P20",
+            "area": "pipeline",
+            "path": "happy",
+            "title": "An atlas whose pages only touch is put back together from the lines crossing their edges",
+            "asserts": "a line-art atlas cut with no overlap, framed, numbered row-major -> the joins below agree on the numbers' stride, every page on its true cell, 10 or more held by an edge seam that beats the series' shuffled-pair baseline",
+            "tier": "e2e-pipeline",
+            "status": "exists",
+            "notes": "M20 §19.15 (2026-11-21). Tests: pipeline/tests/unit/test_placing_jigsaw.py."
+        },
+        {
+            "id": "S-P20-BAD-STITCH-JIGSAW-NOISE",
+            "behaviour": "P20",
+            "area": "pipeline",
+            "path": "bad",
+            "title": "Edges that do not continue each other never make a layout good",
+            "asserts": "noise pages -> no edge profile, no join; a blank edge scores nothing; a numbered neighbour helps only over the baseline; groups never share a cell or touch where their edges contradict; pages with no numbers laid out wrongly are never judged good",
+            "tier": "e2e-pipeline",
+            "status": "exists",
+            "notes": "M20 §19.15 (2026-11-21). Tests: pipeline/tests/unit/test_placing_jigsaw.py."
+        },
+        {
             "id": "S-P20-BAD-STITCH-FOREIGN-SHEET",
             "behaviour": "P20",
             "area": "pipeline",

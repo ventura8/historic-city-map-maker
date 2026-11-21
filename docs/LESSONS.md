@@ -4407,3 +4407,8 @@ Append a numbered entry to *Lessons from this repository* in the task that finds
     - Found by: the pixel proof added with the features layout (`featured.proof`); the feature counts alone would have passed it.
     - Fix and pin: a feature link counts only once the two placed sheets correlate over their common area (`seams.prepared`), the verdict reads that score, and only sheets a proved seam holds are placed (M20 §19.13; S-P20-BAD-STITCH-FEATURES-NOISE, `pipeline/tests/unit/test_placing_featured.py`).
     - **A match count says two pictures share features, not that they share ground: prove a stitch by its pixels before a verdict trusts it.**
+754. **An atlas's own neighbours raised the bar they had to clear, and a missing page number counted as a match.**
+    - Seen: 2026-11-21, the edge jigsaw (M20 §19.15) on a 12-page synthetic atlas: the 95th percentile of all pairs' continuity, taken as the shuffled baseline, sat among the true neighbours (17 of 132 pairs are neighbours), so half of them failed; and two pages with no number "followed" each other (`None == None`).
+    - Found by: `pipeline/tests/unit/test_placing_jigsaw.py` while measuring true and false pairs' scores apart.
+    - Fix and pin: the baseline leaves out each page's two best candidates before taking its percentile; `Order.follows` needs a first number (S-P20-HAPPY-STITCH-JIGSAW, S-P20-BAD-STITCH-JIGSAW-NOISE).
+    - **A baseline for "chance" must leave out the candidates under test, and a missing value must never compare equal to another missing value.**
