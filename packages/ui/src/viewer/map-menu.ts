@@ -17,6 +17,7 @@ import { EMPTY } from './empty.js';
 import type { MenuPoint } from './map-menu-trigger.js';
 import { closeEvent } from './sheet-frame.js';
 import { baseStyles } from './shared-styles.js';
+import { openStreetView } from './street-view-opener.js';
 
 export const HCM_MAP_MENU_TAG = 'hcm-map-menu';
 
@@ -32,11 +33,20 @@ export interface MapMenuItem {
     readonly label: MessageKey;
     readonly href?: (place: MapPlace) => string;
     readonly copy?: (place: MapPlace) => string;
+    readonly action?: (place: MapPlace) => void;
 }
 
 /** The menu's items, in order. */
 export const MAP_MENU_ITEMS: readonly MapMenuItem[] = [
-    { id: 'street-view', icon: 'travel_explore', label: 'mapMenu.streetView', href: (place) => streetViewUrl(place) },
+    {
+        id: 'street-view',
+        icon: 'travel_explore',
+        label: 'mapMenu.streetView',
+        href: (place) => streetViewUrl(place),
+        action: (place) => {
+            openStreetView(streetViewUrl(place));
+        },
+    },
     { id: 'copy', icon: 'content_copy', label: 'mapMenu.copy', copy: (place) => `${place.lat.toFixed(6)}, ${place.lng.toFixed(6)}` },
     { id: 'share', icon: 'share', label: 'mapMenu.share' },
 ];
@@ -219,6 +229,13 @@ export class HcmMapMenu extends LitElement {
         const label = translate(this.locale, item.label);
         const content = html`<hcm-icon name=${item.icon}></hcm-icon><span>${label}</span>`;
         if (item.href !== undefined) {
+            const onClick = (event: MouseEvent): void => {
+                if (item.action !== undefined) {
+                    event.preventDefault();
+                    item.action(place);
+                }
+                this.#close();
+            };
             return html`<a
                 class="item"
                 role="menuitem"
@@ -226,7 +243,7 @@ export class HcmMapMenu extends LitElement {
                 href=${item.href(place)}
                 target="_blank"
                 rel="noopener noreferrer"
-                @click=${this.#close}
+                @click=${onClick}
                 >${content}</a
             >`;
         }

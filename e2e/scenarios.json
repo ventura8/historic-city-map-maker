@@ -1095,6 +1095,13 @@
             "source": "the owner, 2026-11-09: go to Google Street View from a right-click panel (hold on a touch screen) on the map, and from a photo's details"
         },
         {
+            "id": "V63",
+            "area": "viewer",
+            "name": "Google Street View side-by-side placement",
+            "milestone": "post-M8",
+            "source": "docs/research/DECISIONS-for-review.md §167h; the owner's request of 2026-11-18"
+        },
+        {
             "id": "V64",
             "area": "viewer",
             "name": "The compass: its needle turns with the map, and a press, Enter or Space turns the map back to north up and level",
