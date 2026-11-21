@@ -35,7 +35,7 @@ import { sourcesOf, type SourceChoices } from '@hcm/shared/sources';
 import { LiveDoc, type DocState, type LiveDocDeps } from '../content/doc.js';
 import { isoOf, LiveList, type ListState, type LiveListDeps } from '../content/list.js';
 import type { ContentQuery, ContentServices, Stored } from '../content/services.js';
-import { ACTIVE_JOB_STATUSES } from '../jobs/jobs.js';
+import { ACTIVE_JOB_STATUSES } from '../jobs/job-items.js';
 import { frameOf, type CityFrame } from '../layers/map-session.js';
 import { GuardFeed, type GuardView } from './guard.js';
 import { footprintColorsOf, type FootprintColors } from './imagery-map.js';

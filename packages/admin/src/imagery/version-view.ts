@@ -37,7 +37,7 @@ import {
 
 import { isoOf } from '../content/list.js';
 import type { Stored } from '../content/services.js';
-import { ACTIVE_JOB_STATUSES } from '../jobs/jobs.js';
+import { ACTIVE_JOB_STATUSES } from '../jobs/job-items.js';
 import type { NoticeInput } from '../state/state.js';
 import { isoOrNull, orNull } from './model.js';
 

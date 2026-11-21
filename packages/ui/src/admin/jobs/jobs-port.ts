@@ -44,6 +44,8 @@ export interface JobItemPort {
     readonly retryable: boolean;
     /** Lesson 728: the USGS scene Run again with the latest pipeline imports again, or null. */
     readonly rerunScene: string | null;
+    /** The later run that worked and replaced this failed job, or null: said so, with no Retry. */
+    readonly replacedBy: string | null;
 }
 
 export interface JobLogLinePort {

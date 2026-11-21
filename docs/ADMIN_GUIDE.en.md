@@ -210,7 +210,7 @@ Visitors can turn the map's own street names and points of interest (tram and me
 
 ### Jobs
 
-The live list of jobs (Running, Failed, Finished) with their progress; a job's steps and log as they arrive; **Cancel job** (asked first) while it runs. A layer deletion waits with its date ("Runs after …, with the raster pipeline"). An imagery job names each of its steps, says why it waits and until when (USGS preparing the download or under maintenance, this month's Mapbox budget, your points), offers **Run it again** when it failed (three tries at most; the steps already done are not done again) and **Open the georeferencer** when it waits for your points.
+The live list of jobs (Running, Failed, Finished) with their progress; a job's steps and log as they arrive; **Cancel job** (asked first) while it runs. A layer deletion waits with its date ("Runs after …, with the raster pipeline"). An imagery job names each of its steps, says why it waits and until when (USGS preparing the download or under maintenance, this month's Mapbox budget, your points), offers **Run it again** when it failed (three tries at most; the steps already done are not done again) and **Open the georeferencer** when it waits for your points. A failed job that a later run of the same kind for the same layer or scene finished well reads **Replaced by a later run that worked**, with **Open the run that worked** and no Retry, and Home does not count it as work for you.
 
 ### Admins
 

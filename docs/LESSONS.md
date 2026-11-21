@@ -4384,3 +4384,9 @@ Append a numbered entry to *Lessons from this repository* in the task that finds
     - Cause: `household-sharing.ts` imported `ARCHIVE_SHARE_DAY_BYTES` from `@hcm/shared`, which re-exported it from `worker-calls.ts`, so Rolldown put the whole worker-only schema module in the household chunk.
     - Fix and pin: move `ARCHIVE_COPY_MAX_BYTES` / `ARCHIVE_SHARE_DAY_BYTES` / `ARCHIVE_SHARE_IDLE_WHYS` to `api/worker.ts` (admin-safe); `worker-calls.ts` imports them.
     - **Constants the admin UI reads must not live in `worker-calls.ts`.**
+
+750. **A failed job that a later run already replaced still showed as work for the owner.**
+    - Seen: 2026-11-21, live Bucharest: layer-join jobs that failed with `apiError.imagery.joinNoFrames` on 2026-11-14/15 stayed in Home's failed count and on Jobs with Retry after later joins of the same layers succeeded and became those layers' current, published versions.
+    - Cause: Home counted every `status == failed` job and the Jobs list showed each failure on its own; nothing related a failure to a later run of the same work.
+    - Fix and pin: `replacedJobIds` (`packages/admin/src/jobs/replaced.ts`: same type, same target, a later `succeeded`); Home subtracts them, Jobs marks them "Replaced by a later run that worked" with no Retry (`S-A195-HAPPY-REPLACED-JOB`, `S-A195-BAD-NOT-REPLACED`).
+    - **A count of work for a person must leave out what later work already settled.**

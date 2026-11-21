@@ -167,6 +167,8 @@ export const en: Readonly<Record<AdminOpsKey, string>> = {
     'adminContent.jobs.keepRunning': 'Keep it running',
     'adminContent.jobs.cancelRequested': 'The job was asked to stop.',
     'adminContent.jobs.cancelRefused': 'The job could not be cancelled: it has already finished.',
+    'adminContent.jobs.replaced': 'Replaced by a later run that worked. Nothing to do here.',
+    'adminContent.jobs.replacedOpen': 'Open the run that worked',
     'adminContent.jobs.retry': 'Run it again',
     'adminContent.jobs.retrying': 'Starting again…',
     'adminContent.jobs.retried': 'The job is queued again.',

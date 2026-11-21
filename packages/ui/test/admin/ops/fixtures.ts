@@ -42,7 +42,7 @@ export function jobItem(overrides: Partial<JobItemPort> = {}): JobItemPort {
         cancelRequested: false,
         paused: false,
         error: null,
-        ...{ waitReason: null, retryAt: null, versionId: null, retryable: false, rerunScene: null },
+        ...{ waitReason: null, retryAt: null, versionId: null, retryable: false, rerunScene: null, replacedBy: null },
         ...overrides,
     };
 }

@@ -443,6 +443,12 @@ belong to the dispatcher and the lease, so an execution never races its own retr
 
 ### 4.5 Retry, cancel, SIGTERM and out-of-memory
 
+- **Replaced** (the owner, 2026-11-21; `packages/admin/src/jobs/replaced.ts`): a `failed` job is replaced when a later job
+  (`createdAt` after it) of the same type for the same target ended `succeeded`; the target is `params.layerId`, for a
+  `layer-join` also each `params.parts[].layerId`, for a `usgs-import` `params.entityId` (a `regeoref` names only its
+  `basedOn` version: never replaced). The admin reads the newest 500 failed and 500 succeeded jobs once (Home's count, the
+  Jobs page on open and on Try again): Home leaves replaced jobs out of the failed count, the Jobs list says "Replaced by a
+  later run that worked" with a link to that run (the earliest later success) and offers no Retry nor Run again with the latest pipeline. Nothing is written; the server's Retry rules are unchanged.
 - **Retry** (`imagery.retry`, admin): only a `failed` job of a pipeline or publish type with `attempt <
   JOB_MAX_ATTEMPTS`, whose version is failed, or still `processing` (a stranded run: the runner writes the job first, and
   neither Dismiss nor Cancel takes it), never one that ended otherwise (2026-11-06); it becomes `queued` with every step after the first finished of `locate`, `inspect`, `extract`, `fetch`

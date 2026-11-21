@@ -128,3 +128,15 @@ export function statusTone(job: Pick<JobItemPort, 'status' | 'finished'>): 'erro
 export function percentOf(job: Pick<JobItemPort, 'progress'>): number | null {
     return job.progress === null ? null : Math.round(job.progress * 100);
 }
+
+/** A row's second line: Replaced (a later run that worked replaced the failed job), Paused, or its status and percent. */
+export function jobRowDetail(locale: UiLocale, job: JobItemPort): string {
+    if (job.replacedBy !== null) {
+        return contentText(locale, 'adminContent.jobs.replaced');
+    }
+    const percent = percentOf(job);
+    const status = job.paused ? contentText(locale, 'adminContent.jobs.status.paused') : jobStatusText(locale, job.status);
+    return percent === null || job.finished
+        ? status
+        : contentText(locale, 'adminContent.jobs.statusPercent', { status, percent: String(percent) });
+}

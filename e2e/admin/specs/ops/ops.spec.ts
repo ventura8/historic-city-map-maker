@@ -313,6 +313,31 @@ test(
     },
 );
 
+// The owner, 2026-11-21: a failed join a later join of the same layer that worked replaced is no work left for the owner.
+test(
+    'What needs you leaves out a failed job a later run that worked replaced, and counts one nothing replaced',
+    { tag: ['@S-A195-HAPPY-REPLACED-JOB', '@S-A195-BAD-NOT-REPLACED'] },
+    async ({ page, lang, adminWorld }) => {
+        const city = projectCity(adminWorld.emulators, adminWorld.accounts.owner.uid);
+        await seedCity(city, AT);
+        const join = (layerId: string): Record<string, unknown> => ({
+            type: 'layer-join',
+            params: { parts: [{ layerId }] },
+            createdBy: city.uid,
+        });
+        const failure = { status: 'failed', error: { code: 'apiError.imagery.joinNoFrames', message: 'no frames' } };
+        await seedJob(city, 'join-old', { ...join('aerial-1974'), ...failure }, AT);
+        await seedJob(city, 'join-new', { ...join('aerial-1974'), status: 'succeeded' }, new Date('2026-10-17T10:00:00.000Z'));
+        await seedJob(city, 'join-other', { ...join('aerial-1975'), ...failure }, AT);
+        await page.goto(adminPath(lang, 'home'));
+
+        const needs = page.getByRole('region', { name: shellText(lang, 'adminShell.home.needsYou') });
+        await expect(
+            needs.getByRole('link', { name: new RegExp(`1\\s+${shellText(lang, 'adminShell.home.count.failedJobs')}`) }),
+        ).toBeVisible();
+    },
+);
+
 // DECISIONS-for-review.md §104c: an uploader's photos and places wait in the same review queue as their stories.
 test(
     'What needs you counts the photos and places waiting in the review queue, each a link to it',

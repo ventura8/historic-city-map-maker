@@ -169,6 +169,8 @@ export const ro = {
     'adminContent.jobs.keepRunning': 'Las-o să ruleze',
     'adminContent.jobs.cancelRequested': 'Procesarea va fi oprită.',
     'adminContent.jobs.cancelRefused': 'Procesarea nu a putut fi anulată: s-a încheiat deja.',
+    'adminContent.jobs.replaced': 'Înlocuită de o procesare ulterioară care a reușit. Nu mai e nimic de făcut aici.',
+    'adminContent.jobs.replacedOpen': 'Deschide procesarea care a reușit',
     'adminContent.jobs.retry': 'Rulează din nou',
     'adminContent.jobs.retrying': 'Pornește din nou…',
     'adminContent.jobs.retried': 'Procesarea a fost pusă din nou în coadă.',

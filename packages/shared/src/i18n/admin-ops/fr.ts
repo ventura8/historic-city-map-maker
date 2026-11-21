@@ -165,6 +165,8 @@ export const fr: Readonly<Partial<Record<AdminOpsKey, string>>> = {
     'adminContent.jobs.keepRunning': 'Laissez-le fonctionner.',
     'adminContent.jobs.cancelRequested': 'Le traitement sera interrompu.',
     'adminContent.jobs.cancelRefused': 'Impossible d’annuler le traitement : il est déjà terminé.',
+    'adminContent.jobs.replaced': 'Remplacé par un traitement ultérieur qui a réussi. Rien à faire ici.',
+    'adminContent.jobs.replacedOpen': 'Ouvrir le traitement qui a réussi',
     'adminContent.jobs.retry': 'Relancer.',
     'adminContent.jobs.retrying': 'Relance…',
     'adminContent.jobs.retried': 'La tâche a été remise en file d’attente.',

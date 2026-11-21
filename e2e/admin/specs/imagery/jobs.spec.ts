@@ -87,7 +87,7 @@ test(
         for (const step of JOB_STEPS['usgs-import']) {
             await expect(page.getByText(text(lang, `adminContent.jobs.stepName.${step}`), { exact: true })).toBeVisible();
         }
-        await expect(page.getByRole('button', { name: text(lang, 'adminContent.jobs.retry') })).toBeEnabled();
+        await expect(page.getByRole('button', { name: text(lang, 'adminContent.jobs.retry'), exact: true })).toBeEnabled();
         await expectStateSound(page, adminVisit('imagery.job-failed', lang));
 
         // Why each waiting job waits, in words; the one waiting for points opens the georeferencer.
@@ -101,7 +101,7 @@ test(
             '#/georef/points',
         );
         await expectStateSound(page, adminVisit('imagery.job-points', lang));
-        await expect(page.getByRole('button', { name: text(lang, 'adminContent.jobs.retry') })).toHaveCount(0);
+        await expect(page.getByRole('button', { name: text(lang, 'adminContent.jobs.retry'), exact: true })).toHaveCount(0);
     },
 );
 
@@ -190,7 +190,7 @@ test(
         await page.goto(content.address(lang, 'jobs/outdated', { map: false }));
         await expect(page.getByRole('heading', { name: text(lang, 'adminContent.jobs.type.archiveSeries') })).toBeVisible();
         await expect(page.locator('hcm-jobs-page')).not.toContainText('{count}');
-        const retry = page.getByRole('button', { name: text(lang, 'adminContent.jobs.retry') });
+        const retry = page.getByRole('button', { name: text(lang, 'adminContent.jobs.retry'), exact: true });
         await expect(retry).toBeEnabled();
         await retry.click();
         await expect(page.locator('hcm-jobs-page .pane .chips .tag')).toContainText(text(lang, 'adminContent.jobs.status.queued'));
@@ -199,6 +199,39 @@ test(
         // An import that failed on its own three times stays failed, with no Run it again.
         await page.goto(content.address(lang, 'jobs/exhausted', { map: false }));
         await expect(page.getByRole('heading', { name: text(lang, 'adminContent.jobs.type.usgsImport') })).toBeVisible();
-        await expect(page.getByRole('button', { name: text(lang, 'adminContent.jobs.retry') })).toHaveCount(0);
+        await expect(page.getByRole('button', { name: text(lang, 'adminContent.jobs.retry'), exact: true })).toHaveCount(0);
+    },
+);
+
+/** A failed import of the scene, and one hour later the same scene's import that worked (the owner, 2026-11-21). */
+const LATER = new Date('2026-10-20T10:00:00Z');
+const EARLIER = new Date('2026-10-20T08:00:00Z');
+
+test(
+    'A failed job a later run that worked replaced says so with no Retry; one nothing replaced keeps its error and Retry',
+    { tag: ['@S-A195-HAPPY-REPLACED-JOB', '@S-A195-BAD-NOT-REPLACED'] },
+    async ({ page, lang, content }) => {
+        await seedCity(content, AT);
+        const failure = { status: 'failed', attempt: 1, createdBy: content.uid, steps: STEPS_OF_FAILED };
+        const error = { code: 'apiError.imagery.archiveCorrupt', message: 'the archive could not be read' };
+        await seedJob(content, 'old', { ...IMPORT, ...failure, versionId: 'old', error }, AT);
+        await seedJob(content, 'new', { ...IMPORT, status: 'succeeded', versionId: 'new', createdBy: content.uid }, LATER);
+        // Another scene's failure, and a success of that scene from before it: nothing replaced it.
+        const other = { ...IMPORT, params: { ...IMPORT.params, entityId: 'DS1035-1057DA024' } };
+        await seedJob(content, 'other', { ...other, ...failure, versionId: 'other', error }, AT);
+        await seedJob(content, 'before', { ...other, status: 'succeeded', versionId: 'before', createdBy: content.uid }, EARLIER);
+
+        await page.goto(content.address(lang, 'jobs/old', { map: false }));
+        const replaced = text(lang, 'adminContent.jobs.replaced');
+        await expect(page.locator('hcm-jobs-page [data-replaced]')).toContainText(replaced);
+        await expect(page.getByRole('link', { name: text(lang, 'adminContent.jobs.replacedOpen') })).toHaveAttribute('href', /jobs\/new$/);
+        await expect(page.locator('hcm-jobs-page a.row[href$="/old"]')).toContainText(replaced);
+        await expect(page.getByRole('button', { name: text(lang, 'adminContent.jobs.retry'), exact: true })).toHaveCount(0);
+        await expectStateSound(page, adminVisit('imagery.job-failed', lang));
+
+        await page.goto(content.address(lang, 'jobs/other', { map: false }));
+        await expect(page.locator('hcm-jobs-page [data-replaced]')).toHaveCount(0);
+        await expect(page.locator('hcm-jobs-page a.row[href$="/other"]')).not.toContainText(replaced);
+        await expect(page.getByRole('button', { name: text(lang, 'adminContent.jobs.retry'), exact: true })).toBeEnabled();
     },
 );

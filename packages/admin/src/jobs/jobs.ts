@@ -5,42 +5,24 @@
  * `seq`, so a re-read never shows one twice. **Cancel** sets `cancelRequested` (stamped) on an unfinished job; the rules
  * refuse it on a finished one. From M3 (CR-M3-5, `raster.ts`): a job says why it waits, an `awaiting_gcps` one names its
  * version for the georeferencer, and **Retry** runs a failed raster job again (`imagery.retry`); while the budget guard
- * pauses the raster work the page says so, with the spend, and offers **Resume processing** (CR-M3-47).
+ * pauses the raster work the page says so, with the spend, and offers **Resume processing** (CR-M3-47). A failed job a
+ * later run that worked replaced says so and offers no Retry (`./replaced.ts`).
  */
-import {
-    FIRESTORE_PATHS,
-    isId,
-    JOB_STEPS,
-    jobDocSchema,
-    jobLogDocSchema,
-    type JobDoc,
-    type JobLogDoc,
-    type JobStatus,
-    type TimestampLike,
-} from '@hcm/shared';
+import { FIRESTORE_PATHS, isId, jobDocSchema, jobLogDocSchema, type JobDoc, type JobLogDoc, type JobStatus } from '@hcm/shared';
 
 import type { AreaModule, AreaStore } from '../content/areas.js';
 import { LiveDoc, LOADING_DOC, type DocState } from '../content/doc.js';
-import { isoOf, LiveList, LOADING_LIST, type ListState } from '../content/list.js';
-import type { ContentQuery, ContentServices, Stored, WriteOutcome } from '../content/services.js';
+import { LiveList, LOADING_LIST, type ListState } from '../content/list.js';
+import type { ContentQuery, ContentServices, WriteOutcome } from '../content/services.js';
 import { GuardFeed, resumeGuard, type GuardView } from '../imagery/guard.js';
 import { Store } from '../state/store.js';
-import { pauseAllJobs, rasterFieldsOf, retryRasterJob, runSceneAgain, type RasterJobFields } from './raster.js';
+import { ACTIVE_JOB_STATUSES, jobItemOf, jobLogLineOf, markReplaced, type JobItem, type JobLogLine } from './job-items.js';
+import { pauseAllJobs, retryRasterJob, runSceneAgain } from './raster.js';
+import { readReplacedJobIds } from './replaced.js';
 import type { WorkerFeed } from '../worker/feed.js';
 
 /** The list's status chips: every job, the unfinished ones, the failed ones, the others that ended. */
 export type JobFilter = 'all' | 'active' | 'failed' | 'done';
-
-/** Statuses of a job that has not finished (Cancel is offered, the progress moves). */
-export const ACTIVE_JOB_STATUSES: readonly JobStatus[] = [
-    'queued',
-    'starting',
-    'running',
-    'waiting_usgs',
-    'mts_processing',
-    'awaiting_approval',
-    'awaiting_gcps',
-];
 
 const FILTER_STATUSES: Readonly<Record<Exclude<JobFilter, 'all'>, readonly JobStatus[]>> = {
     active: ACTIVE_JOB_STATUSES,
@@ -50,34 +32,6 @@ const FILTER_STATUSES: Readonly<Record<Exclude<JobFilter, 'all'>, readonly JobSt
 
 /** A job's log keeps at most this many lines (`jobLogDocSchema`: 500 per job). */
 const MAX_JOB_LOG_LINES = 500;
-
-interface JobItem extends RasterJobFields {
-    readonly id: string;
-    readonly type: string;
-    readonly status: JobStatus;
-    readonly finished: boolean;
-    /** 0 to 1, or null when the job reports none. */
-    readonly progress: number | null;
-    readonly step: string | null;
-    readonly steps: readonly { readonly name: string; readonly status: string }[];
-    readonly createdBy: string;
-    readonly createdAt: string;
-    /** A job that waits for its date (a deleted layer's tileset, CR-M2c-3): when it may run. */
-    readonly dispatchAt: string | null;
-    readonly cancelRequested: boolean;
-    /** Pause (2026-11-13): the owner paused it (`imagery.pause`); its row reads Paused. */
-    readonly paused: boolean;
-    /** The job's own error: a code and a redacted message, shown as text. */
-    readonly error: { readonly code: string; readonly message: string } | null;
-}
-
-interface JobLogLine {
-    readonly seq: number;
-    readonly level: JobLogDoc['level'];
-    readonly step: string | null;
-    readonly message: string;
-    readonly at: string;
-}
 
 interface JobDetail {
     readonly id: string;
@@ -134,40 +88,6 @@ const INITIAL: JobsState = {
     ...{ guard: null, resuming: false, pausingAll: false },
 };
 
-function optionalIso(timestamp: TimestampLike | undefined): string | null {
-    return timestamp === undefined ? null : isoOf(timestamp);
-}
-
-/** A step's place in the order its job's type runs them; one the type does not list goes last. */
-function stepRank(order: readonly string[], name: string): number {
-    const rank = order.indexOf(name);
-    return rank === -1 ? order.length : rank;
-}
-
-/** The steps of a job in the order its type runs them (finding 80 of 2026-11-03: a retry's write reordered the stored map). */
-function stepsOf(job: JobDoc): JobItem['steps'] {
-    const order: readonly string[] = JOB_STEPS[job.type];
-    return Object.entries(job.steps ?? {})
-        .toSorted(([left], [right]) => stepRank(order, left) - stepRank(order, right))
-        .map(([name, step]) => ({ name, status: step.status }));
-}
-
-function jobItemOf(doc: Stored<JobDoc>): JobItem {
-    const job = doc.data;
-    return {
-        ...{ id: doc.id, type: job.type, status: job.status, finished: !ACTIVE_JOB_STATUSES.includes(job.status) },
-        ...{ progress: job.progress ?? null, step: job.step ?? null, steps: stepsOf(job) },
-        ...{ createdBy: job.createdBy, createdAt: isoOf(job.createdAt), dispatchAt: optionalIso(job.dispatchAt) },
-        ...{ cancelRequested: job.cancelRequested === true, paused: job.paused !== undefined, error: job.error ?? null },
-        ...rasterFieldsOf(job),
-    };
-}
-
-function jobLogLineOf(doc: Stored<JobLogDoc>): JobLogLine {
-    const line = doc.data;
-    return { seq: line.seq, level: line.level, step: line.step ?? null, message: line.message, at: isoOf(line.updatedAt) };
-}
-
 /** The list's query for a filter: newest first, one `in` filter on the status (indexed: status, createdAt). */
 export function jobsQuery(filter: JobFilter): ContentQuery {
     return { where: filter === 'all' ? [] : [['status', 'in', FILTER_STATUSES[filter]]], orderBy: [['createdAt', 'desc']] };
@@ -206,6 +126,7 @@ class JobsStore implements AreaStore<JobsState, JobsIntents> {
     readonly #job: LiveDoc<JobDoc>;
     readonly #logs: LiveList<JobLogDoc, JobLogLine>;
     readonly #guard: GuardFeed;
+    #replaced: ReadonlyMap<string, string> = new Map();
     readonly intents: JobsIntents;
 
     constructor(services: ContentServices) {
@@ -217,8 +138,8 @@ class JobsStore implements AreaStore<JobsState, JobsIntents> {
         };
         this.#list = new LiveList({
             ...{ store, clock, denied, collection: FIRESTORE_PATHS.jobs(cityId), schema: jobDocSchema, map: jobItemOf },
-            changed: (list) => {
-                this.#cell.update({ list });
+            changed: () => {
+                this.#listChanged();
             },
         });
         const changed = (): void => {
@@ -266,6 +187,7 @@ class JobsStore implements AreaStore<JobsState, JobsIntents> {
         if (!this.#list.active) {
             this.#list.show(jobsQuery(this.#cell.state.filter));
             this.#guard.start();
+            void this.#readReplaced();
         }
         this.#select(params[0] ?? null);
     }
@@ -309,13 +231,28 @@ class JobsStore implements AreaStore<JobsState, JobsIntents> {
         this.#logs.showIn(FIRESTORE_PATHS.jobLogs(cityId, id), { orderBy: [['seq', 'asc']] });
     }
 
+    /** Which failed jobs a later run that worked replaced, read once (on opening the page and on Try again). */
+    async #readReplaced(): Promise<void> {
+        this.#replaced = await readReplacedJobIds(this.#services);
+        this.#listChanged();
+        this.#detailChanged();
+    }
+
+    #listChanged(): void {
+        const list = this.#list.list;
+        this.#cell.update({ list: { ...list, items: list.items.map((item) => markReplaced(item, this.#replaced)) } });
+    }
+
     #detailChanged(): void {
         const detail = this.#cell.state.detail;
         if (detail === null) {
             return;
         }
         const state = this.#job.state;
-        const job: DocState<JobItem> = { ...state, doc: state.doc === null ? null : { ...state.doc, data: jobItemOf(state.doc) } };
+        const job: DocState<JobItem> = {
+            ...state,
+            doc: state.doc === null ? null : { ...state.doc, data: markReplaced(jobItemOf(state.doc), this.#replaced) },
+        };
         this.#cell.update({ detail: { id: detail.id, job, logs: this.#logs.list } });
     }
 
@@ -342,6 +279,7 @@ class JobsStore implements AreaStore<JobsState, JobsIntents> {
     #retry(): void {
         this.#list.retry();
         this.#guard.retry();
+        void this.#readReplaced();
         if (this.#cell.state.detail !== null && this.#job.path !== '') {
             this.#job.retry();
             this.#logs.retry();

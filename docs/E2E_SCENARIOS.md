@@ -8,7 +8,7 @@ Every user-visible behaviour has at least one happy and one bad scenario. The re
 
 | Behaviours | Scenarios | Happy | Bad | Exists | Planned | Test files |
 | --- | --- | --- | --- | --- | --- | --- |
-| 196 | 2012 | 856 | 1156 | 1979 | 33 | 505 |
+| 197 | 2014 | 857 | 1157 | 1981 | 33 | 505 |
 
 ## Viewer
 
@@ -968,6 +968,8 @@ Every user-visible behaviour has at least one happy and one bad scenario. The re
 | `S-A193-BAD-UNKNOWN-KIND` | A193 | bad | A kind other than street or aerial is refused by the rules and the manifest | a photo document with kind 'underwater' is denied by firestore.rules; a manifest with it fails validation (validation.value) | rules | exists | `firebase/rules-tests/test/photos.test.ts` |
 | `S-A194-HAPPY` | A194 | happy | After the Statistics page read the numbers, Home's Visitors card shows them with the trend and the top lists | Show the numbers on Statistics (one consent) -> back on Home the card shows the period's visitors and visits, the trend, the last day, new against returning, the top countries, languages, devices, years, layers and photos, with All the numbers | e2e-admin | exists | `e2e/admin/specs/ops/statistics.spec.ts` |
 | `S-A194-BAD-NOT-READ` | A194 | bad | Before any read, Home's Visitors card says where to allow it and asks Google nothing | Home opened first -> the card says the numbers come from Google Analytics and must be allowed once on Statistics, with Open Statistics (#/crashes/statistics); no Data API call | e2e-admin | exists | `e2e/admin/specs/ops/statistics.spec.ts` |
+| `S-A195-HAPPY-REPLACED-JOB` | A195 | happy | A failed job a later run that worked replaced says so, offers no Retry and is not counted on Home | a failed usgs-import and a later succeeded import of the same scene -> its row and page say Replaced by a later run that worked with Open the run that worked, no Retry; a failed layer-join and a later succeeded join of the same layer -> What needs you counts it out | e2e-admin | exists | `e2e/admin/specs/imagery/jobs.spec.ts`<br>`e2e/admin/specs/ops/ops.spec.ts` |
+| `S-A195-BAD-NOT-REPLACED` | A195 | bad | A failed job nothing later replaced keeps its error, its Retry and its place in Home's count | a failed import whose scene only succeeded before it, or a failed join of another layer -> no Replaced note, Retry offered, still counted in What needs you | e2e-admin | exists | `e2e/admin/specs/imagery/jobs.spec.ts`<br>`e2e/admin/specs/ops/ops.spec.ts` |
 | `S-A20-HAPPY` | A20 | happy | The session refreshes its token silently | an hour later (clock) the ID token refreshes silently; callables, Firestore and an editor open all that time keep working, and its Save writes | e2e-admin | exists | `e2e/admin/specs/shell/shell.spec.ts` |
 | `S-A20-BAD-ADMIN-REMOVED` | A20 | bad | An admin removed mid-session is denied on the next action | admin removed mid-session -> the next Firestore read and callable are denied (apiError.notAdmin) at once, without waiting for the token to expire | e2e-admin | exists | `e2e/admin/specs/flows/revoke.spec.ts` |
 | `S-A20-BAD-NO-APP-CHECK` | A20 | bad | A call without App Check is refused once enforcement is on | HCM_APP_CHECK=enforce and no App Check token -> the callable is refused and the app shows apiError.appCheck with Reload | functions | planned | - |

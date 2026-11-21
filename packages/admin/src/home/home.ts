@@ -5,7 +5,8 @@
  * the public map's state from `manifests/{city}` (live). Counts are Firestore aggregations (one read per thousand
  * documents), counted when the page opens and on Refresh. M6 (setup-ux, `./reminders.ts`): what Setup left open, as
  * reminders: USGS later or waiting for its approval, a likely free trial nearing its end ("It is a paid account": one
- * input, recorded with `setup.recordCloud`). The owner, 2026-11-16: this month's costs, service by service (`./costs.ts`).
+ * input, recorded with `setup.recordCloud`). A failed job a later run that worked replaced is not counted (`../jobs/replaced.ts`).
+ * The owner, 2026-11-16: this month's costs, service by service (`./costs.ts`).
  */
 import {
     FIRESTORE_PATHS,
@@ -24,7 +25,8 @@ import type { AreaModule, AreaStore } from '../content/areas.js';
 import { LiveDoc, LOADING_DOC, type DocState } from '../content/doc.js';
 import { isoOf, type LoadStatus } from '../content/list.js';
 import type { ContentQuery, ContentServices } from '../content/services.js';
-import { ACTIVE_JOB_STATUSES } from '../jobs/jobs.js';
+import { ACTIVE_JOB_STATUSES } from '../jobs/job-items.js';
+import { readReplacedJobIds } from '../jobs/replaced.js';
 import type { NoticeInput } from '../state/state.js';
 import { Store } from '../state/store.js';
 import type { StatisticsSource } from '../crashes/statistics.js';
@@ -180,6 +182,11 @@ function mapDoc<From, To>(state: DocState<From>, map: (data: From) => To): DocSt
     return { ...state, doc: state.doc === null ? null : { ...state.doc, data: map(state.doc.data) } };
 }
 
+/** The failed jobs that still need the owner: a later run that worked replaced the others (`../jobs/replaced.ts`). */
+function withoutReplaced(failed: number | null, replaced: number): number | null {
+    return failed === null ? null : Math.max(0, failed - replaced);
+}
+
 class HomeStore implements AreaStore<HomeState, HomeIntents> {
     readonly #services: ContentServices;
     readonly #cell: Store<HomeState>;
@@ -302,11 +309,13 @@ class HomeStore implements AreaStore<HomeState, HomeIntents> {
         this.#cell.update({ countsStatus: 'loading' });
         const { store, cityId } = this.#services;
         const asked = HOME_COUNTS.filter((name) => readable(name, this.#services.cityRole()));
-        const values = await Promise.all(
-            asked.map((name) => store.count(COUNT_QUERIES[name].collection(cityId), COUNT_QUERIES[name].query)),
-        );
+        const [values, replaced] = await Promise.all([
+            Promise.all(asked.map((name) => store.count(COUNT_QUERIES[name].collection(cityId), COUNT_QUERIES[name].query))),
+            readReplacedJobIds(this.#services),
+        ]);
         if (run === this.#counting) {
             const read = new Map(asked.map((name, index) => [name, values[index] ?? null]));
+            read.set('failedJobs', withoutReplaced(read.get('failedJobs') ?? null, replaced.size));
             const counts = Object.fromEntries(HOME_COUNTS.map((name) => [name, read.has(name) ? (read.get(name) ?? null) : 0])) as Record<
                 HomeCount,
                 number | null

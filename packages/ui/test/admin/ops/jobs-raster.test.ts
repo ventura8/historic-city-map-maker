@@ -122,3 +122,28 @@ describe('<hcm-jobs-page>: Run again with the latest pipeline (lesson 729)', () 
         expect(deepAll(element, '[data-run-again]')).toHaveLength(0);
     });
 });
+
+describe('<hcm-jobs-page>: a failed job a later run replaced (2026-11-21)', () => {
+    beforeAll(defineAll);
+    afterEach(cleanup);
+
+    it('happyPath_itSaysSoInItsRowAndPageWithNoErrorNorRetry @S-A195-HAPPY-REPLACED-JOB', async () => {
+        const replaced = { ...FAILED, retryable: false, replacedBy: 'new' };
+        const { element } = await page('jobs', area(opened(replaced, { list: ready([replaced]) })), { params: ['b'] });
+
+        expect(deep(element, '[data-replaced]').textContent).toContain('Replaced by a later run that worked. Nothing to do here.');
+        expect(deep(element, '[data-replaced] a').getAttribute('href')).toMatch(/jobs\/new$/);
+        expect(deep(element, '.row .row-detail').textContent).toContain('Replaced by a later run that worked');
+        expect(deepAll(element, '.alert')).toHaveLength(0);
+        expect(deepAll(element, 'hcm-button[icon="replay"]')).toHaveLength(0);
+        expect(await axeViolations(element)).toEqual([]);
+    });
+
+    it('badPath_aFailedJobNothingReplacedKeepsItsError @S-A195-BAD-NOT-REPLACED', async () => {
+        const { element } = await page('jobs', area(opened(FAILED, { list: ready([FAILED]) })), { params: ['b'] });
+
+        expect(deepAll(element, '[data-replaced]')).toHaveLength(0);
+        expect(deepAll(element, '.alert')).toHaveLength(1);
+        expect(deep(element, '.row .row-detail').textContent).not.toContain('Replaced');
+    });
+});

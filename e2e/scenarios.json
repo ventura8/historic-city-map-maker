@@ -23486,6 +23486,28 @@
             "tier": "e2e-admin",
             "status": "exists",
             "notes": "The owner's request, 2026-11-16. Test: e2e/admin/specs/ops/statistics.spec.ts; unit: packages/ui/test/admin/home/visitors.test.ts, packages/admin/test/home/visitors.test.ts."
+        },
+        {
+            "id": "S-A195-HAPPY-REPLACED-JOB",
+            "behaviour": "A195",
+            "area": "admin",
+            "path": "happy",
+            "title": "A failed job a later run that worked replaced says so, offers no Retry and is not counted on Home",
+            "asserts": "a failed usgs-import and a later succeeded import of the same scene -> its row and page say Replaced by a later run that worked with Open the run that worked, no Retry; a failed layer-join and a later succeeded join of the same layer -> What needs you counts it out",
+            "tier": "e2e-admin",
+            "status": "exists",
+            "notes": "The owner, 2026-11-21 (Bucharest's layer-join jobs that failed with joinNoFrames stayed in Home's failed count after later joins of the same layers worked). Tests: e2e/admin/specs/imagery/jobs.spec.ts, e2e/admin/specs/ops/ops.spec.ts; unit: packages/admin/test/jobs/replaced.test.ts, packages/admin/test/jobs/jobs.test.ts, packages/admin/test/home/home.test.ts, packages/ui/test/admin/ops/jobs-raster.test.ts."
+        },
+        {
+            "id": "S-A195-BAD-NOT-REPLACED",
+            "behaviour": "A195",
+            "area": "admin",
+            "path": "bad",
+            "title": "A failed job nothing later replaced keeps its error, its Retry and its place in Home's count",
+            "asserts": "a failed import whose scene only succeeded before it, or a failed join of another layer -> no Replaced note, Retry offered, still counted in What needs you",
+            "tier": "e2e-admin",
+            "status": "exists",
+            "notes": "The owner, 2026-11-21 (Bucharest's layer-join jobs that failed with joinNoFrames stayed in Home's failed count after later joins of the same layers worked). Tests: e2e/admin/specs/imagery/jobs.spec.ts, e2e/admin/specs/ops/ops.spec.ts; unit: packages/admin/test/jobs/replaced.test.ts, packages/admin/test/jobs/jobs.test.ts, packages/admin/test/home/home.test.ts, packages/ui/test/admin/ops/jobs-raster.test.ts."
         }
     ]
 }
