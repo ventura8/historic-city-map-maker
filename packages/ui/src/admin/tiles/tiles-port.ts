@@ -67,6 +67,8 @@ export interface TilesViewState {
     readonly step: TileStepPort;
     readonly rows: number;
     readonly cols: number;
+    /** Files numbered 1..N: the columns offered to lay them out row by row (the names' count, else the grid's); null: not numbered. */
+    readonly reflowCols: number | null;
     readonly revision: number;
     readonly sheets: readonly TileSheetPort[];
     /** The chosen cell (the roving focus of step 1). */
@@ -104,6 +106,10 @@ export interface TilesIntentsPort {
     takeOut(): void;
     /** Puts a sheet left out back in the first empty cell. */
     putBack(index: number): void;
+    /** The grid with a row or column more or fewer (`rows`, `cols`: -1, 0 or 1), never losing a sheet in it (M20 §19.17). */
+    resize(rows: number, cols: number): void;
+    /** The numbered files laid out row by row in `cols` columns. */
+    reflow(cols: number): void;
     /** Step 2: the guess accepted (Enter), a point clicked on one strip, the next seam (N). */
     acceptSeam(): void;
     pick(side: 'a' | 'b', point: TilePointPort): void;

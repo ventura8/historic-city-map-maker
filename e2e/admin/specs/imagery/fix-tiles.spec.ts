@@ -27,7 +27,7 @@ function text(lang: Lang, key: Parameters<typeof translateAdminContent>[1]): str
 }
 
 /** The series waiting for approval as the worker leaves it; `origin` usgs for a frame, which Fix the tiles passes over. */
-async function seedSeries(world: ContentWorld, origin: 'archive' | 'usgs', scan = true): Promise<void> {
+async function seedSeries(world: ContentWorld, origin: 'archive' | 'usgs', scan = true, parked: string | null = null): Promise<void> {
     const folder = `rasters/${world.city}/${LAYER}/${SERIES}`;
     const golden = JSON.parse(
         readFileSync(GOLDEN, 'utf8').replaceAll('rasters/bucharest/kh-4a-corona-1966/job-1966-0712', folder),
@@ -41,7 +41,12 @@ async function seedSeries(world: ContentWorld, origin: 'archive' | 'usgs', scan 
         world,
         SERIES,
         {
-            ...{ type: 'archive-series', status: 'awaiting_approval', layerId: LAYER, versionId: SERIES },
+            ...{
+                type: 'archive-series',
+                status: parked === null ? 'awaiting_approval' : 'awaiting_gcps',
+                layerId: LAYER,
+                versionId: SERIES,
+            },
             params: {
                 archiveId: 'ar-0123456789abcdef',
                 seriesId: 's-b250f2e03a5f',
@@ -62,6 +67,7 @@ async function seedSeries(world: ContentWorld, origin: 'archive' | 'usgs', scan 
         ...kept,
         ...{ layerId: LAYER, jobId: SERIES, origin, label: { ro: 'București actual 1:500' }, year: 1960 },
         ...(origin === 'archive' ? { source: archive } : {}),
+        ...(parked === null ? {} : { state: 'needs_gcps', help: { reason: parked, note: 'n', at: AT } }),
         ...{ createdBy: world.uid, createdAt: AT, updatedBy: 'system:pipeline', updatedAt: AT },
     });
 }
@@ -102,5 +108,36 @@ test(
             'href',
             `#/imagery/version/${SERIES}`,
         );
+    },
+);
+
+test(
+    'A series parked for points is offered Fix the tiles and is laid out again',
+    { tag: ['@S-A-HAPPY-FIX-TILES-PARKED'] },
+    async ({ page, lang, content }) => {
+        await seedSeries(content, 'archive', true, 'no-scale');
+        await page.goto(content.address(lang, `imagery/version/${SERIES}`, { map: false }));
+
+        await page.getByRole('button', { name: text(lang, 'adminContent.imagery.fixTiles') }).click();
+
+        await expect
+            .poll(async () => (await content.emulators.document(`cities/${content.city}/layerVersions/${SERIES}`))?.['state'], {
+                timeout: FUNCTIONS_TIMEOUT_MS,
+            })
+            .toBe('cancelled');
+    },
+);
+
+test(
+    'A series waiting for its tiles opens Arrange the tiles, not Fix the tiles',
+    { tag: ['@S-A-BAD-FIX-TILES-LAYOUT-WAITS'] },
+    async ({ page, lang, content }) => {
+        await seedSeries(content, 'archive', true, 'layout-check');
+        await page.goto(content.address(lang, `imagery/version/${SERIES}`, { map: false }));
+
+        await expect(page.getByRole('link', { name: text(lang, 'adminContent.imagery.openTiles') })).toBeVisible({
+            timeout: FUNCTIONS_TIMEOUT_MS,
+        });
+        await expect(page.getByRole('button', { name: text(lang, 'adminContent.imagery.fixTiles') })).toHaveCount(0);
     },
 );

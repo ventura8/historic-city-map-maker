@@ -13,6 +13,7 @@ export const INITIAL_TILES: TilesViewState = {
     step: 'order',
     rows: 1,
     cols: 1,
+    reflowCols: null,
     revision: 0,
     sheets: [],
     selected: { row: 0, col: 0 },

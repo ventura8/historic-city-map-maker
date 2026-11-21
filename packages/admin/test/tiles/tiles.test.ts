@@ -265,3 +265,50 @@ describe('the tile-import wizard store refuses and recovers', () => {
         expect(missing.tiles.state.status).toBe('notFound');
     });
 });
+
+describe("the tile grid under the owner's hand (M20 §19.17)", () => {
+    it('happyPath_theOwnerAddsAColumnAndSendsASheetInIt @S-A-HAPPY-TILE-WIZARD-GRID-SIZE', async () => {
+        const { tiles, callables } = await opened();
+        answer(callables, 'imagery.saveLayout', () => ({ jobId: ID, versionId: ID }));
+        expect(tiles.state.reflowCols).toBeNull();
+        tiles.intents.resize(0, 1);
+        tiles.intents.resize(1, 0);
+        expect(tiles.state).toMatchObject({ rows: 3, cols: 3, dirty: true });
+        tiles.intents.place(1, 0, 2);
+        tiles.intents.resize(-1, 0);
+        expect(tiles.state.rows).toBe(2);
+        await tiles.intents.preview();
+        const [request] = callsOf(callables, 'imagery.saveLayout') as { sheets: unknown[] }[];
+        expect(request?.sheets).toContainEqual({ index: 1, row: 0, col: 2, turn: 0, flip: false });
+    });
+
+    it('badPath_aColumnWithASheetIsNotTakenAwayAndTheChosenCellStaysInside @S-A-BAD-TILE-WIZARD-GRID-SIZE', async () => {
+        const { tiles } = await opened();
+        tiles.intents.resize(0, -1);
+        expect(tiles.state).toMatchObject({ cols: 2, dirty: false });
+        tiles.intents.resize(0, 1);
+        tiles.intents.select(1, 2);
+        tiles.intents.resize(0, -1);
+        expect(tiles.state).toMatchObject({ cols: 2, selected: { row: 1, col: 1 } });
+    });
+
+    it('happyPath_numberedFilesAreLaidOutByNumber', async () => {
+        const made = setup();
+        const sample = golden('layout.sample.json') as { sheets: { name: string }[] };
+        const numbered = { ...sample, sheets: sample.sheets.map((sheet, index) => ({ ...sheet, name: `atlas/${String(index + 1)}.jpg` })) };
+        made.files.put(file('layout.json'), JSON.stringify({ ...numbered, revision: 2 }));
+        made.tiles.open([ID, 'tiles']);
+        await settle();
+        expect(made.tiles.state.reflowCols).toBe(2);
+        made.tiles.intents.reflow(4);
+        expect(made.tiles.state).toMatchObject({ rows: 1, cols: 4, dirty: true });
+        expect(made.tiles.state.sheets.slice(0, 4).map((sheet) => [sheet.row, sheet.col])).toEqual([
+            [0, 0],
+            [0, 1],
+            [0, 2],
+            [0, 3],
+        ]);
+        made.tiles.intents.reflow(0);
+        expect(made.tiles.state.cols).toBe(4);
+    });
+});

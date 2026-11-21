@@ -60,7 +60,7 @@ function fieldsOf(base: LayerVersionDoc, help: HelpItem | undefined): Parameters
     };
 }
 
-/** An archive series on the map or waiting for approval with its own job, else `apiError.imagery.versionState`. */
+/** An archive series on the map, waiting for approval or parked for points, with its own job, else `apiError.imagery.versionState`. */
 function requireRelayoutable(version: LayerVersionDoc | undefined, job: JobDoc | undefined): [LayerVersionDoc, JobDoc] {
     if (version === undefined || job?.type !== 'archive-series' || !relayoutable(version)) {
         throw new ApiError('apiError.imagery.versionState');
@@ -75,9 +75,9 @@ async function readBase(transaction: DocumentTransaction, cityId: string, versio
     return requireRelayoutable(version, job);
 }
 
-/** A base waiting for approval ends, cancelled: the new version replaces it (the version on the map, if any, stays). */
+/** A base waiting (for approval, or parked for points) ends, cancelled: the new version replaces it (the one on the map stays). */
 async function endWaitingBase(transaction: DocumentTransaction, work: NewWork, base: LayerVersionDoc, job: JobDoc): Promise<void> {
-    if (base.state !== 'awaiting_approval') {
+    if (base.state === 'published') {
         return;
     }
     const stamp = stampOf(work.createdBy, work.now);
@@ -142,7 +142,7 @@ async function imageryRelayout(deps: RegeorefDeps, caller: VerifiedCaller, reque
         await deps.documents.get(FIRESTORE_PATHS.job(cityId, versionId), jobDocSchema),
     );
     await refuseWhileGuardRed(deps.documents);
-    await refuseBusyLayer(deps.documents, cityId, base.layerId, base.state === 'awaiting_approval' ? base.jobId : undefined);
+    await refuseBusyLayer(deps.documents, cityId, base.layerId, base.state === 'published' ? undefined : base.jobId);
     const jobId = await deps.documents.transaction((transaction) => relayoutIn(transaction, request, caller.uid, deps.clock.now()));
     deps.log.info('archive series reopened at its tile layout', { uid: caller.uid, cityId, basedOn: versionId, jobId });
     return { jobId, versionId: jobId };

@@ -124,9 +124,22 @@ describe('imagery.relayout: Fix the tiles', () => {
         expect((await readLayer(ready, LAYER))?.pendingVersion).toBe(jobId);
     });
 
+    it('happyPath_aSeriesParkedForPointsIsReplaced @S-A-HAPPY-FIX-TILES-PARKED', async () => {
+        const parked = { state: 'needs_gcps' as const, help: { reason: 'no-scale' as const, note: 'n', at: at(NOW) } };
+        const ready = await world(parked, { status: 'awaiting_gcps' }, { pendingVersion: BASE });
+
+        const { jobId } = await relayout(ready);
+
+        expect((await readVersion(ready, jobId))?.state).toBe('processing');
+        expect((await readVersion(ready, BASE))?.state).toBe('cancelled');
+        expect((await readJob(ready, BASE))?.status).toBe('cancelled');
+        expect((await readLayer(ready, LAYER))?.pendingVersion).toBe(jobId);
+    });
+
     it('badPath_aVersionNotOnTheMapOrNotASeriesIsRefused @S-A-BAD-FIX-TILES-STATE', async () => {
         const cases: [Partial<LayerVersionDoc>, Partial<JobDoc>][] = [
-            [{ state: 'needs_gcps', help: { reason: 'no-scale', note: 'n', at: at(NOW) } }, {}],
+            [{ state: 'needs_gcps', help: { reason: 'layout-check', note: 'n', at: at(NOW) } }, {}],
+            [{ state: 'processing' }, {}],
             [{ origin: 'usgs' }, {}],
             [{}, { type: 'regeoref' }],
         ];

@@ -142,27 +142,13 @@ function ownerSheetOf(sheet: DraftSheet): OwnerSheet {
 }
 
 /**
- * The reasons a sheet keeps a cell of the pipeline's grid while it is left out: no seam to its neighbours was found (or no shared
- * edge, the older joins). Such a sheet is tried again at its cell (`docs/research/M20-import-local.md` §19.11): the pipeline marks
- * every sheet an answer does not name `not-part` for good.
- */
-const RETRIED: ReadonlySet<LeftOutReason> = new Set<LeftOutReason>(['no-seam', 'no-join']);
-
-/** A sheet the answer names: in the grid, taken out by the owner, or left out for no seam with its cell still free. */
-function named(sheet: DraftSheet, sheets: readonly DraftSheet[]): boolean {
-    if (sheet.out === null || sheet.out === 'not-part') {
-        return true;
-    }
-    return RETRIED.has(sheet.out) && sheetAt(sheets, sheet) === undefined;
-}
-
-/**
- * The owner's answer: every sheet in the grid, every sheet the owner took out of the map, and every sheet left out for no seam
- * whose cell no other sheet took (it goes back to that cell, so the pipeline seeks its seams again). A blank page or a sheet with no
- * frame is not named.
+ * The owner's answer: every sheet in the grid and every sheet the owner took out of the map. A sheet still in **Sheets left out**
+ * (blank, no seam, a name the grid did not read) is not named: the pipeline keeps its own reason and it stays out
+ * (`docs/research/M20-import-local.md` §19.17; the plan-ghid 1923's 62 text pages came back into empty cells on the real preview when
+ * the answer named them at their free cells). The owner puts a sheet back to have it placed.
  */
 export function ownerSheetsOf(sheets: readonly DraftSheet[]): OwnerSheet[] {
-    return sheets.filter((sheet) => named(sheet, sheets)).map(ownerSheetOf);
+    return sheets.filter((sheet) => sheet.out === null || sheet.out === 'not-part').map(ownerSheetOf);
 }
 
 /**

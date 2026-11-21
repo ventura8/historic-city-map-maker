@@ -19997,6 +19997,61 @@
             "notes": "Tests: e2e/admin/specs/imagery/fix-tiles.spec.ts, functions/test/imagery/relayout.test.ts, packages/ui/test/admin/imagery/imagery-fix-tiles.test.ts, packages/ui/test/admin/tiles/empty-cells.test.ts, pipeline/tests/unit/test_place_relayout.py."
         },
         {
+            "id": "S-A-HAPPY-TILE-WIZARD-GRID-SIZE",
+            "behaviour": "A141",
+            "area": "admin",
+            "path": "happy",
+            "title": "The owner adds rows and columns to the tile grid, or lays numbered files out by number",
+            "asserts": "Add a row / Add a column grow the grid and a sheet moved into the new cell is sent at it in the layout answer; files numbered 1..N are laid out row by row in the columns typed (the names' column count offered first)",
+            "tier": "e2e-admin",
+            "status": "exists",
+            "notes": "Tests: e2e/admin/specs/imagery/tiles-grid.spec.ts, packages/admin/test/tiles/grid.test.ts, packages/admin/test/tiles/tiles.test.ts, packages/ui/test/admin/tiles/grid-size.test.ts. M20 §19.17."
+        },
+        {
+            "id": "S-A-BAD-TILE-WIZARD-GRID-SIZE",
+            "behaviour": "A141",
+            "area": "admin",
+            "path": "bad",
+            "title": "A row or column with a sheet is not taken away, and a grid past LAYOUT_SHEETS_MAX is not made",
+            "asserts": "Remove the last row / column is off while a sheet sits in it; a grid of more than LAYOUT_SHEETS_MAX cells and a bad column count change nothing; names that are not numbered offer no layout by number",
+            "tier": "e2e-admin",
+            "status": "exists",
+            "notes": "Tests: e2e/admin/specs/imagery/tiles-grid.spec.ts, packages/admin/test/tiles/grid.test.ts, packages/admin/test/tiles/tiles.test.ts, packages/ui/test/admin/tiles/grid-size.test.ts. M20 §19.17."
+        },
+        {
+            "id": "S-A-BAD-TILE-WIZARD-LEFT-OUT-STAYS",
+            "behaviour": "A141",
+            "area": "admin",
+            "path": "bad",
+            "title": "A sheet the owner left out stays out of the real preview",
+            "asserts": "a sheet the pipeline left out (no seam, no shared edge) that the owner did not put back is not named in the layout answer, so the preview does not put it into an empty cell; put back, it is sent at its cell",
+            "tier": "e2e-admin",
+            "status": "exists",
+            "notes": "Tests: e2e/admin/specs/imagery/tiles-grid.spec.ts, packages/admin/test/tiles/draft.test.ts. M20 §19.17."
+        },
+        {
+            "id": "S-A-HAPPY-FIX-TILES-PARKED",
+            "behaviour": "A196",
+            "area": "admin",
+            "path": "happy",
+            "title": "A series parked for points is offered Fix the tiles",
+            "asserts": "an archive series waiting for points (low confidence, states no scale) shows Fix the tiles; imagery.relayout cancels it and starts a new version that opens at the tile wizard",
+            "tier": "e2e-admin",
+            "status": "exists",
+            "notes": "Tests: e2e/admin/specs/imagery/fix-tiles.spec.ts, functions/test/imagery/relayout.test.ts, packages/shared/test/restitchable.test.ts. M20 §19.17."
+        },
+        {
+            "id": "S-A-BAD-FIX-TILES-LAYOUT-WAITS",
+            "behaviour": "A196",
+            "area": "admin",
+            "path": "bad",
+            "title": "A series already waiting for its tiles opens Arrange the tiles, not Fix the tiles",
+            "asserts": "a version waiting with layout-check shows Arrange the tiles and no Fix the tiles; imagery.relayout refuses it (apiError.imagery.versionState)",
+            "tier": "e2e-admin",
+            "status": "exists",
+            "notes": "Tests: e2e/admin/specs/imagery/fix-tiles.spec.ts, functions/test/imagery/relayout.test.ts, packages/shared/test/restitchable.test.ts. M20 §19.17."
+        },
+        {
             "id": "S-A122-HAPPY-RESTITCH",
             "behaviour": "A122",
             "area": "admin",
@@ -20423,7 +20478,7 @@
             "asserts": "city grid names 19A'1-4, 19B'1, 20A'1 -> cells two per city cell in each quarter order, the seams choosing the order; a 4000 px sheet of ten thin lines read at 320 px -> not a blank page (checked again at 1024 px)",
             "tier": "e2e-pipeline",
             "status": "exists",
-            "notes": "M20 §19.16 (2026-11-21). Tests: pipeline/tests/unit/test_placing_city_grid.py."
+            "notes": "M20 §19.17 (2026-11-21). Tests: pipeline/tests/unit/test_placing_city_grid.py."
         },
         {
             "id": "S-P20-BAD-STITCH-CITY-GRID",
@@ -20434,7 +20489,7 @@
             "asserts": "plain names, two names on one cell, letters J and Q -> no city grid; an empty sheet -> blank at 320 and at 1024 px",
             "tier": "e2e-pipeline",
             "status": "exists",
-            "notes": "M20 §19.16 (2026-11-21). Tests: pipeline/tests/unit/test_placing_city_grid.py."
+            "notes": "M20 §19.17 (2026-11-21). Tests: pipeline/tests/unit/test_placing_city_grid.py."
         },
         {
             "id": "S-P20-BAD-STITCH-FOREIGN-SHEET",

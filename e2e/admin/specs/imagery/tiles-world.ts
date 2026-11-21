@@ -36,9 +36,10 @@ export function tilesText(lang: 'ro' | 'en', key: AdminTilesKey, params: Readonl
     return translateAdminTiles(lang, key, params);
 }
 
-function layoutFile(revision: number, quality: Quality): Record<string, unknown> {
-    const sample = JSON.parse(readFileSync(resolve(CONTRACTS, 'layout.sample.json'), 'utf8')) as Record<string, unknown>;
-    return { ...sample, revision, quality };
+function layoutFile(revision: number, quality: Quality, noSeam = false): Record<string, unknown> {
+    const sample = JSON.parse(readFileSync(resolve(CONTRACTS, 'layout.sample.json'), 'utf8')) as { sheets: Record<string, unknown>[] };
+    const sheets = sample.sheets.map((sheet, index) => (noSeam && index === 3 ? { ...sheet, out: 'no-seam' } : sheet));
+    return { ...sample, sheets, revision, quality };
 }
 
 function grey(width: number, height: number, shade: number): Promise<Buffer> {
@@ -66,9 +67,10 @@ function versionOf(world: ContentWorld, revision: number, quality: Quality): Rec
 }
 
 /** The layout's files: `layout.json` unless `withLayout` is false, and the three pictures. */
-async function storeFiles(world: ContentWorld, revision: number, quality: Quality, withLayout: boolean): Promise<void> {
-    if (withLayout) {
-        await store(world, 'layout.json', Buffer.from(JSON.stringify(layoutFile(revision, quality))), 'application/json');
+async function storeFiles(world: ContentWorld, revision: number, quality: Quality, options: SeriesOptions): Promise<void> {
+    if (options.withLayout ?? true) {
+        const file = layoutFile(revision, quality, options.noSeam ?? false);
+        await store(world, 'layout.json', Buffer.from(JSON.stringify(file)), 'application/json');
     }
     await store(world, 'thumbs.jpg', await grey(640, 128, 170), 'image/jpeg');
     await store(world, 'seams.jpg', await grey(512, 512, 150), 'image/jpeg');
@@ -79,6 +81,8 @@ export interface SeriesOptions {
     readonly quality?: Quality;
     /** False: the worker never wrote `layout.json` (the wizard says it cannot read the layout). */
     readonly withLayout?: boolean;
+    /** True: the pipeline left the sheet of row 2, column 2 out for no seam (M20 §19.17). */
+    readonly noSeam?: boolean;
 }
 
 /** The series' job as the worker leaves it parked for the owner: waiting with its version, `place` done. */
@@ -104,7 +108,7 @@ export async function seedWaitingSeries(world: ContentWorld, options: SeriesOpti
     const quality = options.quality ?? CHECK;
     await seedCity(world, AT);
     await seedWaitingJob(world);
-    await storeFiles(world, 2, quality, options.withLayout ?? true);
+    await storeFiles(world, 2, quality, options);
     await world.emulators.setDocument(`cities/${world.city}/layerVersions/${SERIES}`, versionOf(world, 2, quality));
 }
 

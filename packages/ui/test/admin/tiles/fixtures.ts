@@ -32,6 +32,7 @@ export function tilesView(overrides: Partial<TilesViewState> = {}): TilesViewSta
         step: 'order',
         rows: 2,
         cols: 2,
+        reflowCols: null,
         revision: 2,
         sheets: [
             sheet(0, 0, 0),

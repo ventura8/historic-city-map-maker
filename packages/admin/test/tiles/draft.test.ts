@@ -88,15 +88,16 @@ describe('the draft of the sheets', () => {
         ]);
     });
 
-    it('happyPath_aSheetLeftOutForNoSeamIsTriedAgainAtItsFreeCell', () => {
+    it('badPath_aSheetTheOwnerLeftOutStaysOutOfTheAnswer @S-A-BAD-TILE-WIZARD-LEFT-OUT-STAYS', () => {
         const file = sample();
         const noSeam = {
             ...file,
             sheets: file.sheets.map((sheet, index) => (index === 3 ? { ...sheet, out: 'no-seam' as const } : sheet)),
         };
         const sheets = sheetsOf(noSeam);
-        expect(ownerSheetsOf(sheets).map((sheet) => sheet.index)).toEqual([0, 1, 2, 3]);
-        expect(ownerSheetsOf(sheets)[3]).toEqual({ index: 3, row: 1, col: 1, turn: 0, flip: false });
+        expect(ownerSheetsOf(sheets).map((sheet) => sheet.index)).toEqual([0, 1, 2]);
+        const back = putBack(sheets, 3, GRID);
+        expect(ownerSheetsOf(back)[3]).toEqual({ index: 3, row: 1, col: 1, turn: 0, flip: false });
     });
 
     it('badPath_aSheetLeftOutForNoSeamWhoseCellIsTakenOrABlankPageIsNotNamed', () => {

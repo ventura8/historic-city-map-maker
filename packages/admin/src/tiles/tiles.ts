@@ -15,7 +15,8 @@ import type { CallableFailure } from '../firebase/ports.js';
 import { callImagery } from '../imagery/api.js';
 import { NO_FILES, type FilePort } from '../imagery/files.js';
 import { Store } from '../state/store.js';
-import { ownerSheetsOf, sheetsOf, thumbSpriteOf, type DraftSheet } from './draft.js';
+import { ownerSheetsOf, sheetsOf, stepFrom, thumbSpriteOf, type DraftSheet, type Grid } from './draft.js';
+import { reflowColsOf } from './grid.js';
 import { tilesIntentsOf, type TilesHost } from './intents.js';
 import { loadLayout, releaseLayout, type LoadedLayout } from './load.js';
 import { ownerSeamsOf, seamsAfter, seamSpriteOf, weakSeamsOf, type DraftSeam } from './seams.js';
@@ -129,6 +130,12 @@ class TilesStore implements AreaStore<TilesViewState, TilesIntentsPort>, TilesHo
             this.#cell.update({ sheets: sheets.map(sheetPortOf), seams: this.#seamPorts(), seam, dirty: true, refusal: null });
         }
         this.#cell.update({ selected });
+    }
+
+    /** The grid the owner sized (M20 §19.17): the chosen cell kept inside it. */
+    setGrid(grid: Grid): void {
+        const selected = stepFrom(this.#cell.state.selected, 0, 0, grid);
+        this.#cell.update({ rows: grid.rows, cols: grid.cols, selected, dirty: true, refusal: null });
     }
 
     setSeams(seams: readonly DraftSeam[]): void {
@@ -265,6 +272,7 @@ class TilesStore implements AreaStore<TilesViewState, TilesIntentsPort>, TilesHo
         const answered = this.#sent !== null && file.revision > this.#sent;
         this.#cell.update({
             ...{ status: 'ready', rows: file.rows, cols: file.cols, revision: file.revision, quality: file.quality },
+            reflowCols: reflowColsOf(this.#sheets, file),
             ...{ sheets: this.#sheets.map(sheetPortOf), seams: this.#seamPorts(), seam: 0, dirty: false },
             ...{ selected: { row: 0, col: 0 }, stitched: loaded.stitched },
             thumbs: loaded.thumbs === null ? null : { url: loaded.thumbs, ...thumbSpriteOf(file.sheets.length) },

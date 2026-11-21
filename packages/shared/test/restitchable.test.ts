@@ -48,8 +48,14 @@ describe('relayoutable (Fix the tiles, M20 §19.13)', () => {
         expect(relayoutable({ origin: 'archive', state: 'awaiting_approval' })).toBe(true);
     });
 
+    it('happyPath_aSeriesParkedForPoints @S-A-HAPPY-FIX-TILES-PARKED', () => {
+        expect(relayoutable({ origin: 'archive', state: 'needs_gcps', help: { reason: 'no-scale' } })).toBe(true);
+        expect(relayoutable({ origin: 'archive', state: 'needs_gcps' })).toBe(true);
+    });
+
     it('badPath_notASeriesOrNotPlacedYet @S-A-BAD-FIX-TILES-STATE', () => {
         expect(relayoutable({ origin: 'usgs', state: 'published' })).toBe(false);
-        expect(relayoutable({ origin: 'archive', state: 'needs_gcps' })).toBe(false);
+        expect(relayoutable({ origin: 'archive', state: 'processing' })).toBe(false);
+        expect(relayoutable({ origin: 'archive', state: 'needs_gcps', help: { reason: 'layout-check' } })).toBe(false);
     });
 });

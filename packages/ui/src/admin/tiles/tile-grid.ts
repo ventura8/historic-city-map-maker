@@ -12,6 +12,7 @@ import { css, html, LitElement, type PropertyValues, type TemplateResult } from 
 import { cssProperties } from '../../components/css-properties.js';
 import { adminBase } from '../shell/admin-styles.js';
 import { emptyCellsSection } from './empty-cells.js';
+import { gridSizeSection } from './grid-size.js';
 import { sheetLabel, tilesText as t } from './tiles-text.js';
 import { tileStyles } from './tiles-styles.js';
 import type { TileSheetPort, TilesIntentsPort, TilesViewState } from './tiles-port.js';
@@ -215,7 +216,8 @@ class HcmTileGrid extends LitElement {
                 </div>
             </div>
             <p class="note" role="status">${this.said}</p>
-            ${this.#tools(view)} ${this.#left(view)} ${emptyCellsSection(this.locale, view)}`;
+            ${this.#tools(view)} ${gridSizeSection(this.locale, view, this.intents)} ${this.#left(view)}
+            ${emptyCellsSection(this.locale, view)}`;
     }
 
     /** The sheet in the chosen cell, if any. */

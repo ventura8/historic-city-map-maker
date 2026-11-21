@@ -4,7 +4,8 @@
  */
 import type { TilePointPort, TilesIntentsPort, TilesViewState, TileStepPort } from '@hcm/ui/admin';
 
-import { changeAt, mirrored, notPart, placeAt, putBack, shiftFrom, stepFrom, turned, type DraftSheet } from './draft.js';
+import { changeAt, mirrored, notPart, placeAt, putBack, shiftFrom, stepFrom, turned, type DraftSheet, type Grid } from './draft.js';
+import { canResize, reflowed } from './grid.js';
 import { acceptGuess, pickPoint, type DraftSeam } from './seams.js';
 
 /** What the edits need of the store. */
@@ -14,6 +15,7 @@ export interface TilesHost {
     readonly seams: readonly DraftSeam[];
     setSheets(sheets: readonly DraftSheet[], selected?: { readonly row: number; readonly col: number }): void;
     setSeams(seams: readonly DraftSeam[]): void;
+    setGrid(grid: Grid): void;
     update(patch: Partial<TilesViewState>): void;
     preview(): Promise<void>;
     handOff(): Promise<void>;
@@ -55,6 +57,24 @@ function sheetEdits(host: TilesHost): Pick<TilesIntentsPort, 'select' | 'shift' 
     };
 }
 
+function gridEdits(host: TilesHost): Pick<TilesIntentsPort, 'resize' | 'reflow'> {
+    return {
+        resize: (rows, cols) => {
+            const next = { rows: host.state.rows + Math.sign(rows), cols: host.state.cols + Math.sign(cols) };
+            if (canResize(host.sheets, next)) {
+                host.setGrid(next);
+            }
+        },
+        reflow: (cols) => {
+            const laid = reflowed(host.sheets, cols);
+            if (laid !== null) {
+                host.setSheets(laid.sheets, { row: 0, col: 0 });
+                host.setGrid(laid.grid);
+            }
+        },
+    };
+}
+
 function seamEdits(host: TilesHost): Pick<TilesIntentsPort, 'acceptSeam' | 'pick' | 'nextSeam'> {
     return {
         acceptSeam: () => {
@@ -76,6 +96,7 @@ export function tilesIntentsOf(host: TilesHost): TilesIntentsPort {
             host.update({ step });
         },
         ...sheetEdits(host),
+        ...gridEdits(host),
         ...seamEdits(host),
         preview: () => host.preview(),
         handOff: () => host.handOff(),

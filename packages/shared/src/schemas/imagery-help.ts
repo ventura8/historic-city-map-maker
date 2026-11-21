@@ -65,12 +65,19 @@ export function restitchable(version: RestitchInput): boolean {
 /** The states of an archive series that **Fix the tiles** reopens: on the map, or waiting for its approval. */
 const RELAYOUT_STATES: ReadonlySet<string> = new Set(['published', 'awaiting_approval']);
 
+/** Parked for points (low confidence, "states no scale", ...), not for its tiles: the tile wizard is not open to it. */
+function parkedForPoints(version: Pick<RestitchInput, 'state' | 'help'>): boolean {
+    return version.state === 'needs_gcps' && version.help?.reason !== 'layout-check';
+}
+
 /**
- * M20 §19.13 (2026-11-21, the 1:500 of 1960-71 published with gaps and sheets off): an archive series on the map or waiting for its
- * approval, which **Fix the tiles** lays out again in a new version of its layer (`functions/src/imagery/relayout.ts`).
+ * M20 §19.13 (2026-11-21, the 1:500 of 1960-71 published with gaps and sheets off): an archive series on the map, waiting for its
+ * approval or parked for points (§19.17: `ar-mw993zri-s-890875e3ff8d`, "states no scale", promised Fix the tiles and had none), which
+ * **Fix the tiles** lays out again in a new version of its layer (`functions/src/imagery/relayout.ts`). A series parked for its tiles
+ * (`layout-check`) opens Arrange the tiles instead.
  */
-export function relayoutable(version: Pick<RestitchInput, 'origin' | 'state'>): boolean {
-    return version.origin === 'archive' && RELAYOUT_STATES.has(version.state);
+export function relayoutable(version: Pick<RestitchInput, 'origin' | 'state' | 'help'>): boolean {
+    return version.origin === 'archive' && (RELAYOUT_STATES.has(version.state) || parkedForPoints(version));
 }
 
 /** What `helpFlagsOf` answers. */

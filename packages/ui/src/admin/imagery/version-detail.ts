@@ -194,7 +194,7 @@ function locateButton(shown: Shown): TemplateResult {
     return action(shown, { offered, icon: 'replay', label: 'adminContent.imagery.locateAgain' }, () => context.intents?.locateAgain());
 }
 
-/** M20 §19.13: an archive series on the map or waiting for approval lays its sheets out again in a new version (`imagery.relayout`). */
+/** M20 §19.13, §19.17: an archive series on the map, waiting for approval or parked for points is laid out again (`imagery.relayout`). */
 function fixTilesButton(shown: Shown): TemplateResult {
     const offered = shown.version?.relayoutable === true;
     return action(shown, { offered, icon: 'tune', label: 'adminContent.imagery.fixTiles' }, () => shown.context.intents?.fixTiles?.());
