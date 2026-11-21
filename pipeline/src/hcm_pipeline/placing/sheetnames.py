@@ -237,21 +237,25 @@ def _city_cell(stem: str, order: int) -> Cell | None:
 
 def city(names: Sequence[str], order: int = 0) -> NameGrid | None:
     """The sheets on a city's Seria/Coloana grid by their names (the IPB 1:500 of 1960-71: `0B'3`, `19A2`), the quarters read in
-    `order`; None unless most names read and no two share a cell. `autostitch` tries every order and keeps the one whose seams join
-    best (M20 §19.16)."""
+    `order`; None unless most names read (one sheet a cell, `_one_a_cell`). `autostitch` tries every order and keeps the one whose
+    seams join best (M20 §19.16)."""
     stems = [_stem(name) for name in names]
-    found = _read_by(lambda stem: _city_cell(stem, order), stems)
-    return _grid(_from_zero(found), len(stems), "name") if _agreed_cells(found, len(stems)) else None
+    found = _one_a_cell(_read_by(lambda stem: _city_cell(stem, order), stems), stems)
+    return _grid(_from_zero(found), len(stems), "name") if len(found) >= AGREE_SHARE * len(stems) else None
+
+
+def _one_a_cell(found: dict[int, Cell], stems: Sequence[str]) -> dict[int, Cell]:
+    """One sheet a cell: of a cell's editions (`15M1`, `15M1_62`, `15M1_64`) or a sheet filed twice (`2/2M2`, `2'/2M2`) the one with
+    the plainest name (the shortest, then the first); the others are left unread (`no-join`)."""
+    kept: dict[Cell, int] = {}
+    for index in sorted(found, key=lambda at: (len(stems[at]), at)):
+        kept.setdefault(found[index], index)
+    return {index: cell for cell, index in kept.items()}
 
 
 def _from_zero(found: dict[int, Cell]) -> dict[int, Cell]:
     top, left = min(row for row, _col in found.values()), min(col for _row, col in found.values())
     return {index: (row - top, col - left) for index, (row, col) in found.items()}
-
-
-def _agreed_cells(found: dict[int, Cell], count: int) -> bool:
-    """Most names read and no two on one cell (negative places allowed: a city grid runs both ways from its zero row)."""
-    return len(set(found.values())) == len(found) and len(found) >= AGREE_SHARE * count
 
 
 def grid_of(names: Sequence[str], aspect: float = 1.0) -> NameGrid:

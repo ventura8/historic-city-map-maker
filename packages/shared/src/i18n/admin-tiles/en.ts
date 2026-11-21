@@ -73,7 +73,7 @@ export const en: Readonly<Record<AdminTilesKey, string>> = {
     'adminTiles.previewSent': 'Your layout was sent. The preview comes back in a few minutes.',
     'adminTiles.stitched': 'The joined picture',
     'adminTiles.meterLabel': 'Quality of the layout',
-    'adminTiles.meter.placed': 'Sheets placed: {pct} %',
+    'adminTiles.meter.placed': 'Sheets joined by a seam: {pct} %',
     'adminTiles.meter.seam': 'Seams agree: {score}',
     'adminTiles.meter.rms': 'Seam error: {px} px',
     'adminTiles.meter.ok': 'good',

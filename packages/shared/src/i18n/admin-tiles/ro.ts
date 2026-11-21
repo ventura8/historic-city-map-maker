@@ -74,7 +74,7 @@ export const ro = {
     'adminTiles.previewSent': 'Așezarea a fost trimisă. Previzualizarea vine în câteva minute.',
     'adminTiles.stitched': 'Imaginea îmbinată',
     'adminTiles.meterLabel': 'Calitatea așezării',
-    'adminTiles.meter.placed': 'Foi așezate: {pct} %',
+    'adminTiles.meter.placed': 'Foi legate de vecini: {pct} %',
     'adminTiles.meter.seam': 'Potrivirea îmbinărilor: {score}',
     'adminTiles.meter.rms': 'Eroarea îmbinărilor: {px} px',
     'adminTiles.meter.ok': 'bine',
