@@ -46,6 +46,8 @@ describe('presentation', () => {
         ['a removed description, attribution and date', { description: deleted(), attribution: deleted(), date: deleted() }],
         ['a leap day', { date: '1968-02-29' }],
         ['the oldest year', { year: 1800 }],
+        ['a corrected licence and author', { rights: { licence: 'CC-BY-SA-4.0', author: 'Institutul Geografic' } }],
+        ['removed rights', { rights: deleted() }],
     ])('happyPath_adminSaves_%s', async (_label, changes) => {
         expect(await edit(changes)).toBe('allow');
     });
@@ -66,6 +68,11 @@ describe('presentation', () => {
         ['a removed label', { label: deleted() }],
         ['a description that is not bilingual', { description: { de: 'Luftbild' } }],
         ['an attribution over 500 characters', { attribution: 'x'.repeat(501) }],
+        ['a licence that never publishes', { rights: { licence: 'unknown' } }],
+        ['rights without a licence', { rights: { author: 'IGA' } }],
+        ['rights with an unknown field', { rights: { licence: 'PD', note: 'x' } }],
+        ['an author over 200 characters', { rights: { licence: 'PD', author: 'x'.repeat(201) } }],
+        ['a source address that is not https', { rights: { licence: 'PD', source: { label: 'IGA', url: 'iga.ro/harta' } } }],
         ['another editor', { updatedBy: 'someone-else' }],
     ])('badPath_adminCannotSave_%s', async (_label, changes) => {
         expect(await edit(changes)).toBe('deny');

@@ -4422,3 +4422,8 @@ Append a numbered entry to *Lessons from this repository* in the task that finds
     - Cause: the grid's size was only ever the pipeline's; the answer named every `no-seam` sheet at its free cell so the pipeline would retry it, and the pipeline places every sheet an answer names; `relayoutable` listed only `published` and `awaiting_approval`.
     - Fix and pin: Grid size and Lay out by file number (`tiles/grid.ts`, `grid-size.ts`), the answer names only the grid and the owner's X (`ownerSheetsOf`), `relayoutable` takes a series parked for points (M20 §19.17; S-A-*-TILE-WIZARD-GRID-SIZE, S-A-BAD-TILE-WIZARD-LEFT-OUT-STAYS, S-A-*-FIX-TILES-PARKED / -LAYOUT-WAITS).
     - **What the owner leaves alone must stay as the owner left it; and every page that promises a way back must offer it in every state it can show.**
+757. **Six live layers said "permission" and nothing in the admin could correct them.**
+    - Seen: 2026-11-22, live admin: drawn maps in the public domain or under CC BY-SA carried licence `permission` on the layer and in the public credit line.
+    - Cause: a layer's `rights` were written once, by finalize from the series' rights, and `imagery.confirmRights` always clears as `permission`; `rights` was server-owned (`CLIENT_WRITES.layer.update` and the rules left it out), so no editor showed it.
+    - Fix and pin: Licence and Author in the layer editor; `rights` is client-editable under `validLayerRights`, and the attribution's licence part follows the licence so the manifest's credit line changes on the next publish (M20 addendum of 2026-11-22; S-A197-HAPPY, S-A197-BAD-AUTHOR-TOO-LONG).
+    - **Every value an import writes once must stay correctable afterwards, where the owner sees it.**

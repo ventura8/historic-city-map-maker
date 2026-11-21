@@ -1,6 +1,6 @@
 /**
  * The layer editor's pane (`docs/research/M2c-interfaces.md` §8.2, §8.3; behaviours A35, A36, A38): the save row, the
- * conflict and gone banners, the texts in both languages, the attribution, year and date, Shown at start and Published,
+ * conflict and gone banners, the texts in both languages, the attribution, the rights' licence and author (`./rights-group.ts`), year and date, Shown at start and Published,
  * the default opacity and the four image adjustments with Reset (every slider previews live; Save writes), the image and
  * geometry tools of the raster pipeline (M3, `./geometry-group.ts`), and Delete with its confirmation. On a revoked admin's read-only page
  * (`DECISIONS-for-review.md` §42d) every field is read-only and every control that writes is off.
@@ -27,6 +27,7 @@ import { contentText } from '../shell/text.js';
 import { conflictBanner, field, issueAt, saveBar, saveStateOf, sliderRow, type FieldSpec } from './form-parts.js';
 import type { CropStatePort } from './geometry/crop-port.js';
 import { geometryGroup } from './geometry-group.js';
+import { licenceSelect } from './rights-group.js';
 import {
     labelOf,
     type LayerDeletionPort,
@@ -97,6 +98,12 @@ const TEXT_PAIRS: readonly TextPair[] = [
     },
 ];
 
+/** The rights' two fields as text (none without rights). */
+function rightsTexts(layer: LayerDoc): Readonly<Record<'rights.licence' | 'rights.author', string | undefined>> {
+    const rights = layer.rights;
+    return { 'rights.licence': rights?.licence, 'rights.author': rights?.author };
+}
+
 /** The text a field shows: its value in the draft ('' when absent). */
 function textOf(layer: LayerDoc, name: LayerTextFieldPort): string {
     const values: Readonly<Record<LayerTextFieldPort, string | number | undefined>> = {
@@ -105,6 +112,7 @@ function textOf(layer: LayerDoc, name: LayerTextFieldPort): string {
         'description.ro': layer.description?.ro,
         'description.en': layer.description?.en,
         attribution: layer.attribution,
+        ...rightsTexts(layer),
         year: Number.isNaN(layer.year) ? undefined : layer.year,
         date: layer.date,
     };
@@ -156,6 +164,8 @@ function textsGroup(context: EditorContext, editor: LayerEditorPort, layer: Laye
         ${TEXT_PAIRS.map(pair)}
         <div class="fields">
             ${text('attribution', 'adminContent.layers.attribution', { help: contentText(locale, 'adminContent.layers.attributionHelp') })}
+            ${licenceSelect(context, layer)}
+            ${layer.rights === undefined ? nothing : text('rights.author', 'adminContent.layers.rightsAuthor')}
             ${text('year', 'adminContent.layers.year', { inputMode: 'numeric', required: true })}
             ${text('date', 'adminContent.layers.date', { type: 'date' })}
         </div>

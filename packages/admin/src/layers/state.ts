@@ -24,6 +24,7 @@ export const LAYER_EDITABLE = [
     'label',
     'description',
     'attribution',
+    'rights',
     'year',
     'date',
     'opacity',

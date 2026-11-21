@@ -1359,6 +1359,13 @@
             "name": "Fix the tiles: a placed archive series laid out again in a new version, the version on the map kept",
             "milestone": "M20",
             "source": "the owner, 2026-11-21: the 1:500 of 1960-71 was published with gaps and sheets off, and nothing reopened it (docs/research/M20-import-local.md §19.12)"
+        },
+        {
+            "id": "A197",
+            "area": "admin",
+            "name": "A layer's licence and author corrected after the import, the attribution's licence following it",
+            "milestone": "M20",
+            "source": "the owner, 2026-11-22: six drawn maps were imported as permission and nothing could correct their licence afterwards"
         }
     ],
     "scenarios": [
@@ -23658,6 +23665,28 @@
             "tier": "e2e-admin",
             "status": "exists",
             "notes": "The owner, 2026-11-21 (Bucharest's layer-join jobs that failed with joinNoFrames stayed in Home's failed count after later joins of the same layers worked). Tests: e2e/admin/specs/imagery/jobs.spec.ts, e2e/admin/specs/ops/ops.spec.ts; unit: packages/admin/test/jobs/replaced.test.ts, packages/admin/test/jobs/jobs.test.ts, packages/admin/test/home/home.test.ts, packages/ui/test/admin/ops/jobs-raster.test.ts."
+        },
+        {
+            "id": "S-A197-HAPPY",
+            "behaviour": "A197",
+            "area": "admin",
+            "path": "happy",
+            "title": "A drawn map's licence corrected in the layer editor reaches the public credit line",
+            "asserts": "a layer imported as permission: Licence -> Public domain swaps the attribution's licence part (permission -> PD); the author typed; Save writes rights {licence, author, source kept} and the attribution; the manifest the publish trigger builds carries the corrected credit line",
+            "tier": "e2e-admin",
+            "status": "exists",
+            "notes": "Tests: e2e/admin/specs/flows/layer-rights.spec.ts, packages/admin/test/layers/fields.test.ts, packages/ui/test/admin/layers/layer-rights.test.ts, firebase/rules-tests/test/layers.test.ts."
+        },
+        {
+            "id": "S-A197-BAD-AUTHOR-TOO-LONG",
+            "behaviour": "A197",
+            "area": "admin",
+            "path": "bad",
+            "title": "An author over 200 characters is refused at its field",
+            "asserts": "an author of 201 characters -> the field is marked invalid and Save stays off; the layer's rights stay as stored; the rules refuse a licence that never publishes, unknown rights fields, a long author and an http source",
+            "tier": "e2e-admin",
+            "status": "exists",
+            "notes": "Tests: e2e/admin/specs/flows/layer-rights.spec.ts, packages/admin/test/layers/fields.test.ts, packages/ui/test/admin/layers/layer-rights.test.ts, firebase/rules-tests/test/layers.test.ts."
         }
     ]
 }

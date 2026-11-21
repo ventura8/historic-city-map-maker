@@ -626,6 +626,10 @@ The admin-input budget: from the Upload view, Choose (1), the zip on the worker'
 
 A series imported while rights still said `needs-confirmation` (or confirmed only at Import) no longer strands Approve. The city's owner confirms on the version's approval card (`imagery.confirmRights`: `cityOwner`, licence `permission`, `confirmedBy`, `confirmedAt` from the server clock). Approve stays disabled until `rightsAllowPublish`. DECISIONS §148; S-A120-HAPPY-CONFIRM-RIGHTS, S-A120-BAD-CONFIRM-*.
 
+### Addendum (2026-11-22): a published layer's licence and author, edited afterwards
+
+Confirming as `permission` was the only way to clear a waiting series, so six live layers said "permission" for maps in the public domain or under CC BY-SA, and nothing could correct them. The layer editor (`#/layers/<id>`) now has **Licence** (Not set, or one of `LAYER_LICENSES`) and, once a licence is set, **Author of the map**. They write `layers/{layer}.rights` from the client like the other presentation fields: `rights` joined `CLIENT_WRITES.layer.update`, and the rules check it field by field (`validLayerRights`: the five licences, an author of at most 200 characters, a source `{label, url?}` with an https address); `unknown` never reaches a layer. The manifest still carries no `rights` (§14's byte budget): changing the licence swaps the part of the attribution that names the old one (`creditLine` joins its parts with " · "), so the public credit line follows on the next publish or Update the map; a hand-written attribution that names no licence is left alone and stays editable beside it. Behaviour A197; S-A197-HAPPY, S-A197-BAD-AUTHOR-TOO-LONG.
+
 ## 17. As built: the review's fixes (track/archive, 2026-11-09)
 
 DECISIONS §137; lessons 530 and 531.

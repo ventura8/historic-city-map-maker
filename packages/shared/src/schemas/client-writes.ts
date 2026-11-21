@@ -67,6 +67,8 @@ const LAYER_EDITABLE = [
     'label',
     'description',
     'attribution',
+    /** A drawn map's licence and author, corrected after the import (the owner, 2026-11-22). */
+    'rights',
     'year',
     'date',
     'order',
