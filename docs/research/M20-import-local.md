@@ -929,6 +929,27 @@ The 1844–46 atlas is now on an 11-wide grid its edges vouch for (the Dâmbovi�
 its other pages have no counted seam and wait for the owner. The 1969 atlas's joins below disagree (14 and 18 twice each), so it
 has no stride, and its edges alone join too few pages to beat the names' layout. No verdict is `good`: no series is publishable yet.
 
+### 19.16 The 1:500 of 1960-71: sparse sheets are not blank, and its names are its grid (2026-11-21)
+
+The live layout of `ar-mwq8cv76-bucuresti-actual-1-500` (4,534 sheets) placed 2,393, every seam 0.00, rms 94 px, and left 2,141
+sheets out as "blank page". Three causes, three fixes (lesson 755):
+
+- **Blank pages.** A series this long reads each page at 320 px (`work_px`), where a 1-bit scan's one-pixel lines average into the
+  paper. A page blank there is looked at again, its content box only, at 1024 px (`sheetwork.blank_page`, `BLANK_CHECK_PX`), and is
+  drawn when it holds `BLANK_INK` of ink or ten marks of 3 px or more (`frame.marks`, at a faint shade: a thin line reduced is only a
+  little darker than the paper). On the whole 1:500 folder (4,536 files): 2,140 blank before, 35 after; a sample of the 35 shows a
+  few specks of dust on empty paper, a sample of the recovered ones thin streets, frames and labels.
+- **Solid black.** Many pages have the scanner's black backing below the short sheet. It was taken for the frame (an outline with
+  paper around it) or the margins were trimmed to it, so the page's content was the block's inside. Solid black (ink filling a square
+  8 % of the page's short side, its rim grown 5 px; `frame._solid`) is no drawing: no frame is mostly solid, the margins are trimmed to
+  the drawing, and `ink_share` leaves it out.
+- **The names.** `19A'2` is row 19, column A', quarter 2 of Bucharest's Seria/Coloana grid (`archive.grammar.parse_quarter`), which no
+  `sheetnames` scheme read: the cells were not the sheets' neighbours, so no seam could join. `sheetnames.city` puts each sheet on a
+  grid two rows and columns per city cell, and `autostitch` keeps the quarter order (`gridscheme.QUARTER_ORDERS`) whose seams join best.
+  The features and the edge jigsaw compare every pair of sheets; a series of more than 400 (`PAIRWISE_MAX`) keeps its names' grid.
+
+Measured (dry runs on the NUC): see the table below §19.15's in this file's history and the coordinator's report for this commit.
+
 ## 20. Any computer runs an archive series: copies through the bucket (live report of 2026-11-13; DECISIONS §204)
 
 **What happened.** The owner connected two more workers for Bucharest (the NUC and the PC's WSL) beside the laptop that imported

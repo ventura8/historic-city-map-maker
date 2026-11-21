@@ -164,6 +164,14 @@ def content_frame(grey: UInt8Array, aspect: float, scale: float = 1.0) -> FloatA
 # M20 §19.2: before seams are measured, a page's margins and frame are cropped, and a blank page is told apart.
 # A page is blank when less than this share of it is ink (a separator, the back of a sheet, an empty grid cell).
 BLANK_INK: Final = 0.003
+# A page with this many ink marks or more is drawn, however little ink it holds (`marks`).
+BLANK_MAX_MARKS: Final = 10
+MARK_MIN_PX: Final = 3
+# A frame whose inside is more solid black than this is a solid block, not a frame.
+SOLID_INSIDE: Final = 0.5
+SOLID_SHARE: Final = 0.08
+SOLID_MIN_PX: Final = 9
+SOLID_RIM_PX: Final = 5
 # The paper's level: this percentile of the page (a map filled with dark blocks has little paper; its lightest pixels are the paper).
 PAPER_PERCENTILE: Final = 98
 # The frame's own line is left outside the content (it would read as a seam of its own): the frame's box is trimmed while its edge row
@@ -178,13 +186,25 @@ MARGIN_MIN_SHARE: Final = 0.02
 
 
 def ink_share(grey: UInt8Array) -> float:
-    """The share of the page that is ink (darker than the paper by `FAINT_LEVELS`, or than Otsu's threshold on an inked page)."""
+    """The share of the page that is drawn ink (darker than the paper by twice `FAINT_LEVELS`; solid black, the scanner's backing,
+    is no drawing)."""
     paper = float(numpy.percentile(grey, PAPER_PERCENTILE))
-    return float((grey < paper - 2 * FAINT_LEVELS).mean())
+    ink = grey < paper - 2 * FAINT_LEVELS
+    return float((ink & ~_solid(ink)).mean())
 
 
 def is_blank(grey: UInt8Array) -> bool:
     return ink_share(grey) < BLANK_INK
+
+
+def marks(grey: UInt8Array) -> int:
+    """How many separate ink marks the page holds (pieces of `MARK_MIN_PX` pixels or more): a sparse line-art sheet (the 1:500's
+    outskirts: a few thin lines, some labels) has dozens, a blank back a few specks of dust."""
+    paper = float(numpy.percentile(grey, PAPER_PERCENTILE))
+    # A faint shade counts: a 1-bit scan's one-pixel line, reduced, is only a little darker than the paper.
+    ink = (grey < paper - FAINT_LEVELS).astype(numpy.uint8)
+    _count, _labels, stats, _centres = cv2.connectedComponentsWithStats(ink, connectivity=8)
+    return int(numpy.count_nonzero(stats[1:, cv2.CC_STAT_AREA] >= MARK_MIN_PX))
 
 
 def _margin(profile: numpy.ndarray) -> int:
@@ -228,11 +248,40 @@ def _paper_outside(ink: numpy.ndarray, corners: FloatArray) -> bool:
     return float(outside.mean()) >= OUTSIDE_MIN_SHARE and float(ink[outside].mean()) < OUTSIDE_INK
 
 
+def _solid_inside(ink: numpy.ndarray, box: tuple[int, int, int, int]) -> bool:
+    """True when a "frame" is a solid black block (the scanner's backing below a short page, M20 §19.16): its inside is mostly
+    solid ink, so it holds no drawing and is no frame."""
+    left, top, right, bottom = box
+    inside = _solid(ink)[top:bottom, left:right]
+    return inside.size == 0 or float(inside.mean()) > SOLID_INSIDE
+
+
+def _solid(ink: numpy.ndarray) -> numpy.ndarray:
+    """Solid black (the scanner's backing): ink filling a square `SOLID_SHARE` of the page's short side. It is no drawing, so the
+    paper margins are trimmed to the drawing, never to it."""
+    side = max(SOLID_MIN_PX, round(SOLID_SHARE * min(ink.shape)))
+    # Paper beyond the border: a dark strip along the edge narrower than the square is no block.
+    square = numpy.ones((side, side), numpy.uint8)
+    opened = cv2.morphologyEx(ink.astype(numpy.uint8), cv2.MORPH_OPEN, square, borderType=cv2.BORDER_CONSTANT, borderValue=0)
+    # Only a block that reaches the scan's edge (the backing beyond the paper); its ragged rim too.
+    grown = cv2.dilate(_at_edge(opened), numpy.ones((SOLID_RIM_PX, SOLID_RIM_PX), numpy.uint8))
+    return numpy.asarray(grown > 0, bool)
+
+
+def _at_edge(blocks: numpy.ndarray) -> numpy.ndarray:
+    """The blocks that touch the image's border (a dark area inside the drawing is the drawing's)."""
+    _count, labels, _stats, _centres = cv2.connectedComponentsWithStats(blocks, connectivity=8)
+    border = numpy.unique(numpy.concatenate((labels[0], labels[-1], labels[:, 0], labels[:, -1])))
+    return numpy.isin(labels, border[border > 0]).astype(numpy.uint8)
+
+
 def content_box(grey: UInt8Array) -> tuple[int, int, int, int]:
     """The page's content (left, top, right, bottom): inside its frame, its line trimmed off; else with its paper margins trimmed."""
     ink = grey < float(numpy.percentile(grey, PAPER_PERCENTILE)) - 2 * FAINT_LEVELS
     corners = find_frame(grey)
-    if corners is not None and _paper_outside(ink, corners):
-        return _inside_frame(ink, corners)
-    (left, right), (top, bottom) = _inked_span(ink.mean(axis=0)), _inked_span(ink.mean(axis=1))
+    inside = _inside_frame(ink, corners) if corners is not None and _paper_outside(ink, corners) else None
+    if inside is not None and not _solid_inside(ink, inside):
+        return inside
+    drawn = ink & ~_solid(ink)
+    (left, right), (top, bottom) = _inked_span(drawn.mean(axis=0)), _inked_span(drawn.mean(axis=1))
     return left, top, right, bottom

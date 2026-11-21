@@ -16,13 +16,15 @@ from typing import Final
 import cv2
 import numpy
 
-from hcm_pipeline.placing.frame import content_box, is_blank
-from hcm_pipeline.placing.raster_io import RGB, read_working
+from hcm_pipeline.placing.frame import BLANK_MAX_MARKS, content_box, is_blank, marks
+from hcm_pipeline.placing.raster_io import RGB, read_box, read_working
 from hcm_pipeline.placing.streets import UInt8Array, grey_of
 
 WORK_BUDGET_BYTES: Final = 160_000_000
 WORK_PX_MAX: Final = 1024
 WORK_PX_MIN: Final = 320
+# A page blank on its working copy is looked at again with its content box's long side this many pixels.
+BLANK_CHECK_PX: Final = 1024
 VARIANTS: Final = 8
 TURNS: Final = 4
 # Two shapes are the same when their width over height differs by less than this share (a square-ish page may be turned either way).
@@ -68,7 +70,22 @@ def read_part(index: int, name: str, path: Path, px: int) -> Part:
     crop = numpy.ascontiguousarray(grey[top:bottom, left:right])
     box = tuple(round(value * working.scale) for value in (left, top, right, bottom))
     colour = working.image.ndim == RGB
-    return Part(index, name, path, crop, working.scale, (box[0], box[1], box[2], box[3]), is_blank(crop), colour)
+    whole = (box[0], box[1], box[2], box[3])
+    return Part(index, name, path, crop, working.scale, whole, blank_page(path, whole, crop), colour)
+
+
+def blank_page(path: Path, box: Box, crop: UInt8Array) -> bool:
+    """True when the page has no drawing. A small working copy (a long series reads each page at `WORK_PX_MIN`) averages a 1-bit
+    scan's thin lines into the paper, so a page that looks blank there is looked at again, its content box only, at
+    `BLANK_CHECK_PX`, where it is drawn when it holds enough ink or enough separate marks (the 1:500 sheets of 1960-71: 2,140 of
+    4,536 read as blank at 320 px; M20 §19.16)."""
+    if not is_blank(crop) or max(crop.shape[:2]) >= BLANK_CHECK_PX:
+        return is_blank(crop)
+    width, height = box[2] - box[0], box[3] - box[1]
+    factor = min(1.0, BLANK_CHECK_PX / max(1, width, height))
+    size = (max(1, round(width * factor)), max(1, round(height * factor)))
+    sharp = grey_of(read_box(path, box, size))
+    return is_blank(sharp) and marks(sharp) < BLANK_MAX_MARKS
 
 
 def read_parts(named: Sequence[tuple[str, Path]]) -> list[Part]:

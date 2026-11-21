@@ -20415,6 +20415,28 @@
             "notes": "M20 §19.15 (2026-11-21). Tests: pipeline/tests/unit/test_placing_jigsaw.py."
         },
         {
+            "id": "S-P20-HAPPY-STITCH-CITY-GRID",
+            "behaviour": "P20",
+            "area": "pipeline",
+            "path": "happy",
+            "title": "The 1:500 sheets lie on their Seria/Coloana grid, sparse line-art sheets included",
+            "asserts": "city grid names 19A'1-4, 19B'1, 20A'1 -> cells two per city cell in each quarter order, the seams choosing the order; a 4000 px sheet of ten thin lines read at 320 px -> not a blank page (checked again at 1024 px)",
+            "tier": "e2e-pipeline",
+            "status": "exists",
+            "notes": "M20 §19.16 (2026-11-21). Tests: pipeline/tests/unit/test_placing_city_grid.py."
+        },
+        {
+            "id": "S-P20-BAD-STITCH-CITY-GRID",
+            "behaviour": "P20",
+            "area": "pipeline",
+            "path": "bad",
+            "title": "Names off the city grid make no city grid, and a blank back stays blank",
+            "asserts": "plain names, two names on one cell, letters J and Q -> no city grid; an empty sheet -> blank at 320 and at 1024 px",
+            "tier": "e2e-pipeline",
+            "status": "exists",
+            "notes": "M20 §19.16 (2026-11-21). Tests: pipeline/tests/unit/test_placing_city_grid.py."
+        },
+        {
             "id": "S-P20-BAD-STITCH-FOREIGN-SHEET",
             "behaviour": "P20",
             "area": "pipeline",

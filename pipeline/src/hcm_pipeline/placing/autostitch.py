@@ -23,6 +23,7 @@ import numpy
 
 from hcm_pipeline.placing import bundle, featured, jigsaw, sheetnames
 from hcm_pipeline.placing.canvas_window import Tile
+from hcm_pipeline.placing.gridscheme import QUARTER_ORDERS
 from hcm_pipeline.placing.quality import Measures, Quality, judged
 from hcm_pipeline.placing.seams import ABUT_RMS_PX, STRONG_SCORE, Seam, seam_of
 from hcm_pipeline.placing.sheetwork import Part, allowed, cell_of, on_cell, read_parts
@@ -31,6 +32,8 @@ from hcm_pipeline.placing.streets import UInt8Array
 ORIENT_GAIN: Final = 0.2
 ORIENT_PASSES: Final = 2
 CANVAS_MAX_PX: Final = 20_000
+# The features and the edge jigsaw compare every pair of sheets: a longer series (the 4,534 sheets of the 1:500) keeps its names' grid.
+PAIRWISE_MAX: Final = 400
 SIDES: Final = (("right", 0, 1), ("below", 1, 0))
 Cell = tuple[int, int]
 
@@ -240,13 +243,32 @@ def propose(named: Sequence[tuple[str, Path]]) -> Proposal:
     names = [name for name, _path in named]
     grid = sheetnames.grid_of(names, cell[0] / cell[1])
     plan = Plan(parts, dict(grid.cells), _initial(parts, cell), cell, initial_out(parts, grid))
-    if grid.source == "order":
-        grid = _best_order(plan, names)
+    grid = _chosen(plan, names, grid)
     orient(plan, set(plan.cells))
     by_names = solved(plan, grid)
-    if by_names.quality.verdict == "good":
+    if by_names.quality.verdict == "good" or len(parts) > PAIRWISE_MAX:
         return by_names
     return best_of([by_names, from_features(parts, cell, by_names.plan.out), from_edges(parts, cell, by_names.plan.out, names)])
+
+
+def _chosen(plan: Plan, names: Sequence[str], grid: sheetnames.NameGrid) -> sheetnames.NameGrid:
+    """The names' grid with what the seams decide: the column count of names in order, the quarter order of a city grid."""
+    if grid.source == "order":
+        return _best_order(plan, names)
+    return _best_quarters(plan, names) if sheetnames.city(names) is not None else grid
+
+
+def _best_quarters(plan: Plan, names: Sequence[str]) -> sheetnames.NameGrid:
+    """Of the eight ways a city grid's quarters 1-4 may run (`gridscheme.QUARTER_ORDERS`), the one whose seams join best."""
+    tried = []
+    for order in range(len(QUARTER_ORDERS)):
+        grid = sheetnames.city(names, order)
+        if grid is not None:
+            plan.cells = grid.cells
+            tried.append((_support(seams_of(plan)), -order, grid))
+    best = max(tried, key=lambda item: (item[0], item[1]))[2]
+    plan.cells = best.cells
+    return best
 
 
 def best_of(found: Sequence[Proposal | None]) -> Proposal:

@@ -2,6 +2,7 @@
 
 The schemes, tried on each name's stem, the first one most names agree on wins:
 
+- a city's Seria/Coloana grid (`17A'3`: row 17, column A', quarter 3; `archive.grammar`), its quarter order chosen by the seams;
 - `r1c2` (row 1, column 2), `3_7` or `03-07` (row, column), `C12` (a letter row and a number column), all counted from 1;
 - a sheet number with a quadrant letter `A` to `D` (`12A`, `12-b`): sheet 12's top left, top right, bottom left and bottom right quarter,
   on a grid twice as fine;
@@ -20,6 +21,9 @@ from collections.abc import Callable, Sequence
 from dataclasses import dataclass
 from pathlib import PurePosixPath
 from typing import Final
+
+from hcm_pipeline.archive import grammar
+from hcm_pipeline.placing.gridscheme import QUARTER_ORDERS
 
 # A scheme must read at least this share of the names (the rest are foreign sheets, an index, a legend).
 AGREE_SHARE: Final = 0.8
@@ -221,10 +225,40 @@ def _ranked(count: int, aspect: float) -> list[tuple[bool, float, int]]:
     return sorted(rank for rank in found if rank is not None)
 
 
-def grid_of(names: Sequence[str], aspect: float = 1.0) -> NameGrid:
-    """The grid the names give: an explicit scheme, quadrants, folders as rows; else the natural order on the likeliest columns."""
+def _city_cell(stem: str, order: int) -> Cell | None:
+    """A city grid sheet's cell (`17A'3`: row 17, column A', quarter 3; `archive.grammar`), its quarter read in `order`
+    (`gridscheme.QUARTER_ORDERS`): two grid rows and columns per city cell."""
+    cell = grammar.parse_quarter(stem)
+    if cell is None or not cell.quarter or cell.odd:
+        return None
+    dx, dy = QUARTER_ORDERS[order][cell.quarter - 1]
+    return cell.row * 2 + dy, cell.col * 2 + dx
+
+
+def city(names: Sequence[str], order: int = 0) -> NameGrid | None:
+    """The sheets on a city's Seria/Coloana grid by their names (the IPB 1:500 of 1960-71: `0B'3`, `19A2`), the quarters read in
+    `order`; None unless most names read and no two share a cell. `autostitch` tries every order and keeps the one whose seams join
+    best (M20 §19.16)."""
     stems = [_stem(name) for name in names]
-    for found in (_explicit(stems), _quadrants(stems), _folders(names)):
+    found = _read_by(lambda stem: _city_cell(stem, order), stems)
+    return _grid(_from_zero(found), len(stems), "name") if _agreed_cells(found, len(stems)) else None
+
+
+def _from_zero(found: dict[int, Cell]) -> dict[int, Cell]:
+    top, left = min(row for row, _col in found.values()), min(col for _row, col in found.values())
+    return {index: (row - top, col - left) for index, (row, col) in found.items()}
+
+
+def _agreed_cells(found: dict[int, Cell], count: int) -> bool:
+    """Most names read and no two on one cell (negative places allowed: a city grid runs both ways from its zero row)."""
+    return len(set(found.values())) == len(found) and len(found) >= AGREE_SHARE * count
+
+
+def grid_of(names: Sequence[str], aspect: float = 1.0) -> NameGrid:
+    """The grid the names give: a city's Seria/Coloana grid, an explicit scheme, quadrants, folders as rows; else the natural order on
+    the likeliest columns."""
+    stems = [_stem(name) for name in names]
+    for found in (city(names), _explicit(stems), _quadrants(stems), _folders(names)):
         if found is not None:
             return found
     return ordered(names, col_candidates(order_count(names), aspect)[0])
