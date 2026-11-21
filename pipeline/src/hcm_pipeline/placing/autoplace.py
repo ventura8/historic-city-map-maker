@@ -33,8 +33,9 @@ def proposed(ctx: JobContext, series: SeriesJob) -> Proposal:
     proposal = propose(named_of(series.sheets))
     quality = proposal.quality
     ctx.log.info(
-        f"laid out by {proposal.grid.source} and seams: {len(proposal.solved.positions)} of {len(series.sheets)} placed, "
-        f"seams {quality.seam_median:.2f}, rms {quality.seam_rms_px:.1f} px: {quality.verdict}",
+        f"laid out by {proposal.grid.source} and seams: {len(proposal.solved.positions)} of {len(series.sheets)} on the grid, "
+        f"{quality.placed_pct:.0f} % joined by a seam (the verdict's 'placed'), seams {quality.seam_median:.2f}, "
+        f"rms {quality.seam_rms_px:.1f} px: {quality.verdict}",
         ctx.step,
     )
     return proposal

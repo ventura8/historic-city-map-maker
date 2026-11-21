@@ -20,7 +20,7 @@ import cv2
 import numpy
 
 from hcm_pipeline.heap import give_back
-from hcm_pipeline.placing.raster_io import RGB, read_box
+from hcm_pipeline.placing.raster_io import RGB, read_box, read_box_inked
 from hcm_pipeline.placing.sheetwork import Box, oriented, swaps
 from hcm_pipeline.placing.streets import UInt8Array, grey_of
 from hcm_pipeline.raster import gdal
@@ -62,9 +62,11 @@ def _read_size(tile: Tile) -> tuple[int, int]:
 
 def picture(tile: Tile, colour: bool) -> UInt8Array:
     """The tile's pixels on the canvas: only its content box read, by GDAL straight at the tile's size, then turned (a colour sheet
-    costs one copy of itself at the canvas's scale and one band, never its whole scan; M20 §19.6)."""
-    image = read_box(tile.path, tile.box, _read_size(tile))
-    image = _colour(image) if colour else grey_of(image)
+    costs one copy of itself at the canvas's scale and one band, never its whole scan; M20 §19.6). A grey sheet keeps its ink: each
+    canvas pixel is the darkest of the scan pixels it covers (`read_box_inked`), so thin lines stay lines (M20 §19.16)."""
+    if colour:
+        return oriented(_colour(read_box(tile.path, tile.box, _read_size(tile))), tile.variant)
+    image = grey_of(read_box_inked(tile.path, tile.box, _read_size(tile)))
     return oriented(image, tile.variant)
 
 

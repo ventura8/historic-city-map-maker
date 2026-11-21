@@ -22,6 +22,8 @@ from hcm_pipeline.rasters import GTIFF_OPTIONS, WEB_MERCATOR, fit_long_side, ope
 
 RGB: Final = 3
 GREY_SPREAD: Final = 8
+# An ink-keeping read goes through the scan this many picture rows at a time.
+INK_ROWS: Final = 64
 UInt8Array = NDArray[numpy.uint8]
 
 
@@ -95,6 +97,46 @@ def read_box(path: Path, box: tuple[int, int, int, int], size: tuple[int, int]) 
     finally:
         gdal.Unlink(vrt)
     return image
+
+
+def ink_factor(box: tuple[int, int, int, int], size: tuple[int, int]) -> int:
+    """How many scan pixels a side each picture pixel of `read_box_inked` covers (at least 1)."""
+    across, down = box[2] - box[0], box[3] - box[1]
+    return int(max(1, min(across // max(1, size[0]), down // max(1, size[1]))))
+
+
+def read_box_inked(path: Path, box: tuple[int, int, int, int], size: tuple[int, int]) -> UInt8Array:
+    """The scan's `box` at `size`, keeping its ink: each picture pixel is the darkest of the scan pixels it covers, read at the scan's
+    own resolution in bands of `INK_ROWS` picture rows (a 1-bit drawing's one-pixel lines survive where an average turns them into
+    paper: the 1:500's thumbnails and preview, M20 §19.16). Memory: one band of rows of the box, never the whole scan."""
+    factor = ink_factor(box, size)
+    if factor == 1:
+        return read_box(path, box, size)
+    vrt = normalised(path)
+    try:
+        dataset = gdal.Open(vrt)
+        image = _min_pooled(dataset, (max(0, box[0]), max(0, box[1])), size, factor)
+        dataset.Close()
+    finally:
+        gdal.Unlink(vrt)
+    return image
+
+
+def _min_pooled(dataset: gdal.Dataset, origin: tuple[int, int], size: tuple[int, int], factor: int) -> UInt8Array:
+    """Every band's blocks of `factor` x `factor` scan pixels from `origin`, each its darkest, `size` blocks."""
+    count = dataset.RasterCount
+    planes = [_band_min(dataset.GetRasterBand(index + 1), origin, size, factor) for index in range(count)]
+    return numpy.asarray(numpy.dstack(planes) if count >= RGB else planes[0], numpy.uint8)
+
+
+def _band_min(band: gdal.Band, origin: tuple[int, int], size: tuple[int, int], factor: int) -> UInt8Array:
+    width = min(size[0], (band.XSize - origin[0]) // factor)
+    out = numpy.full((size[1], size[0]), 255, numpy.uint8)
+    for row in range(0, min(size[1], (band.YSize - origin[1]) // factor), INK_ROWS):
+        rows = min(INK_ROWS, size[1] - row, (band.YSize - origin[1]) // factor - row)
+        pixels = band.ReadAsArray(origin[0], origin[1] + row * factor, width * factor, rows * factor)
+        out[row : row + rows, :width] = pixels.reshape(rows, factor, width, factor).min(axis=(1, 3))
+    return out
 
 
 @dataclass(frozen=True)

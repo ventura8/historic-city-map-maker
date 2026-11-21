@@ -26,9 +26,10 @@ from hcm_pipeline.archive import model
 from hcm_pipeline.images import write_jpeg
 from hcm_pipeline.jobs import JobContext
 from hcm_pipeline.placing.autostitch import Plan, Proposal
+from hcm_pipeline.placing.raster_io import read_box_inked
 from hcm_pipeline.placing.seams import STRIP_SHARE, Seam
-from hcm_pipeline.placing.sheetwork import flip_of, oriented, swaps, turn_of
-from hcm_pipeline.placing.streets import UInt8Array
+from hcm_pipeline.placing.sheetwork import Part, flip_of, oriented, swaps, turn_of
+from hcm_pipeline.placing.streets import UInt8Array, grey_of
 
 THUMB_PX: Final = model.THUMB_CELL_PX
 SPRITE_COLS: Final = model.THUMB_SPRITE_COLS
@@ -202,6 +203,15 @@ def fitted(image: UInt8Array, side: int) -> UInt8Array:
     return box
 
 
+def inked(part: Part) -> UInt8Array:
+    """The sheet's content at its thumbnail's size read again from its scan keeping its ink (`read_box_inked`): a 1-bit sheet's thin
+    lines, averaged away on its working copy, show (M20 §19.16)."""
+    width, height = part.box[2] - part.box[0], part.box[3] - part.box[1]
+    scale = THUMB_PX / max(1, width, height)
+    size = (max(1, round(width * scale)), max(1, round(height * scale)))
+    return grey_of(read_box_inked(part.path, part.box, size))
+
+
 def thumbs(plan: Plan) -> UInt8Array:
     """The sprite: every sheet's content in its square, `THUMB_SPRITE_COLS` a row."""
     cols = min(SPRITE_COLS, max(1, len(plan.parts)))
@@ -209,7 +219,7 @@ def thumbs(plan: Plan) -> UInt8Array:
     sprite = numpy.full((rows * THUMB_PX, cols * THUMB_PX), 255, numpy.uint8)
     for position, part in enumerate(plan.parts):
         row, col = divmod(position, cols)
-        sprite[row * THUMB_PX : (row + 1) * THUMB_PX, col * THUMB_PX : (col + 1) * THUMB_PX] = fitted(part.image, THUMB_PX)
+        sprite[row * THUMB_PX : (row + 1) * THUMB_PX, col * THUMB_PX : (col + 1) * THUMB_PX] = fitted(inked(part), THUMB_PX)
     return sprite
 
 

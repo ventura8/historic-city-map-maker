@@ -159,7 +159,7 @@ describe('<hcm-tiles-page>: step 3, the preview @S-A-HAPPY-TILE-WIZARD-PREVIEW',
         await settled(host);
         const meters = deepAll(host, '[role="meter"]').map((meter) => meter.getAttribute('aria-valuetext'));
         expect(meters).toEqual([
-            'Sheets placed: 75 %: needs a look',
+            'Sheets joined by a seam: 75 %: needs a look',
             'Seams agree: 0.31: needs a look',
             'Seam error: 6.5 px: needs a look',
         ]);
@@ -175,7 +175,7 @@ describe('<hcm-tiles-page>: step 3, the preview @S-A-HAPPY-TILE-WIZARD-PREVIEW',
         const { host } = await page(tilesView({ step: 'preview', quality }));
         await settled(host);
         expect(deepAll(host, '[role="meter"]').map((meter) => meter.getAttribute('aria-valuetext'))).toEqual([
-            'Sheets placed: 100 %: good',
+            'Sheets joined by a seam: 100 %: good',
             'Seams agree: 0.80: good',
             'Seam error: 1.2 px: good',
         ]);
