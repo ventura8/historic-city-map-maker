@@ -948,7 +948,20 @@ sheets out as "blank page". Three causes, three fixes (lesson 755):
   grid two rows and columns per city cell, and `autostitch` keeps the quarter order (`gridscheme.QUARTER_ORDERS`) whose seams join best.
   The features and the edge jigsaw compare every pair of sheets; a series of more than 400 (`PAIRWISE_MAX`) keeps its names' grid.
 
-Measured (dry runs on the NUC): see the table below §19.15's in this file's history and the coordinator's report for this commit.
+Measured on the six dry runs (NUC, `hcm-pipeline` image), against §19.15:
+
+| Series | Sheets | Placed: §19.15 → §19.16 | Seams kept | Seam p95 px | Verdict |
+| --- | --- | --- | --- | --- | --- |
+| 1844–46 Borroczyn | 99 | 53 → 53 | 39 → 39 | 4.43 | poor |
+| 1846 atlas | 100 | 6 → 16 | 3 → 8 | 4.2 → 1.92 | poor |
+| Harta 1969 | 144 | 102 → 102 | 75 | 7.26 | poor |
+| Plan cadastral 1911–14 | 128 | 128 (28 % held) | 19 | 2.12 | poor |
+| Actual 1:500, folder 19 | 131 | 67 → 130 (on the city grid) | 37 → 46 | 79.17 → 116.47 | poor |
+| 1895 pieces | 64 | 64 (56 % held) | 21 | 7.14 | poor |
+
+The 1:500's sheets now sit on their own cells, but their seams still say almost nothing: at 320 px a 1-bit sheet's lines are gone
+before any strip is compared, so the seam median stays 0 and the verdict `poor` (the owner arranges and checks them; the sheets are no
+longer left out). Seams read from the scans at a sharper scale for the city grid's neighbours are the next step.
 
 ## 20. Any computer runs an archive series: copies through the bucket (live report of 2026-11-13; DECISIONS §204)
 
