@@ -211,8 +211,8 @@ describe('the deployment', () => {
         // archive's `worker.archiveReport`, `imagery.archiveImport` and `imagery.confirmRights`;
         // `imagery.deleteVersion`. The tab icon's `cities.setIcon`. M20 §19.10: the tile wizard's `imagery.saveLayout` and
         // `imagery.acceptLayout`. The owner's not-useful mark `imagery.markScene`. M20 (2026-11-13): `worker.archiveCopy`.
-        // Household computers' `worker.manage`; Pause's `imagery.pause` (2026-11-13).
-        expect(expected).toHaveLength(104);
+        // Household computers' `worker.manage`; Pause's `imagery.pause` (2026-11-13). M20 §19.13: Fix the tiles' `imagery.relayout`.
+        expect(expected).toHaveLength(105);
         expect(expected).toEqual(
             expect.arrayContaining([
                 'worker-hello',
@@ -235,7 +235,7 @@ describe('the deployment', () => {
                 'imagery-markScene',
             ]),
         );
-        expect(deploymentStatus(active)).toEqual({ state: 'ok', ready: 104, total: 104, failed: [] });
+        expect(deploymentStatus(active)).toEqual({ state: 'ok', ready: 105, total: 105, failed: [] });
     });
 
     it('badPath_someMissingIsPendingAndOneFailedIsInvalid', () => {
