@@ -19,7 +19,7 @@ Claude Code and every other agent read the same contract.
   the M7 local worker and cheap cloud defaults `docs/research/M7-local-worker.md`, the M12 own tiles and approval view `docs/research/M12-own-tiles.md`, the M8 join of one date's frames
   `docs/research/M8-join-interfaces.md`, the M9 import and calibration for any place on Earth `docs/research/M9-calibration.md`,
   the M14 start page `docs/research/M14-start-your-map.md`, the M17 stories `docs/research/M17-stories.md`, the M20 import of local files `docs/research/M20-import-local.md`,
-  the M25 Landsat source `docs/research/M25-landsat.md`, the M26 hardware governor `docs/research/M26-governor.md`, the M27 disappeared streets `docs/research/M27-lost-streets.md`, the M28 Platform and Sources steps `docs/research/M28-sources.md`, the M29 imagery census `docs/research/M29-imagery-census.md`.
+  the M25 Landsat source `docs/research/M25-landsat.md`, the M26 hardware governor `docs/research/M26-governor.md`, the M27 disappeared streets `docs/research/M27-lost-streets.md`, the M28 Platform and Sources steps `docs/research/M28-sources.md`, the M29 imagery census `docs/research/M29-imagery-census.md`, the M30 historic overlays from open data `docs/research/M30-historic-overlays.md`.
 - Run the pipeline before claiming anything is done: `PIPELINE_STAGE=static bash scripts/ci/run-all-checks.sh`
   for docs and tooling, `tests` and `build` for code, the default `all` before a push. It builds
   and uses the quality image `hcm-quality:local`; every gate runs inside it, never on the host.

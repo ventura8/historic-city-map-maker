@@ -65,7 +65,7 @@ Nearly every OpenHistoricalMap street is dated 1900–1983: 1983 matches the Cen
 mapper's placeholder rather than a founding year. The owner corrects the years in the editor, street by street, against
 our own plans.
 
-The first batch is `scripts/seed/lost-streets-bucharest.geojson` (211 features). To load it into the live city:
+The first batch is `scripts/seed/lost-streets-bucharest.geojson` (211 features). To load it into the live city: The same route carries the railways, the old Dâmbovița and the 1977–1989 demolitions: `docs/research/M30-historic-overlays.md`.
 Settings → Categories → New category **Străzi dispărute** (icon `add_road`, switch **Arată pe hartă la deschidere** off,
 **Fixează sus** on, credit `OpenHistoricalMap (CC0)`), then Places → Import → the file, choosing that category for the
 features, then **Update the map**.

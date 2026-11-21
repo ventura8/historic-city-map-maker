@@ -1,0 +1,1014 @@
+{
+ "type": "FeatureCollection",
+ "sources": [
+  {
+   "name": "OpenHistoricalMap",
+   "url": "https://overpass-api.openhistoricalmap.org/api/interpreter",
+   "licence": "CC0-1.0",
+   "attribution": "OpenHistoricalMap contributors (CC0)",
+   "features": 9
+  }
+ ],
+ "features": [
+  {
+   "type": "Feature",
+   "id": "rv-ohm-199938035",
+   "properties": {
+    "category": "old-rivers",
+    "title": {
+     "ro": "Cursul vechi al râului Dâmbovița",
+     "en": "Old course of the Dâmbovița"
+    },
+    "description": {
+     "ro": "Cursul de dinaintea regularizării. Sursa: OpenHistoricalMap contributors (CC0).",
+     "en": "The course before the river was channelled. Source: OpenHistoricalMap contributors (CC0)."
+    },
+    "yearEnd": 1983,
+    "links": [
+     {
+      "url": "https://www.openhistoricalmap.org/way/199938035",
+      "label": "OpenHistoricalMap"
+     }
+    ],
+    "published": true
+   },
+   "geometry": {
+    "type": "LineString",
+    "coordinates": [
+     [
+      26.091813,
+      44.433138
+     ],
+     [
+      26.092181,
+      44.433065
+     ],
+     [
+      26.092572,
+      44.432962
+     ],
+     [
+      26.09291,
+      44.432834
+     ],
+     [
+      26.093162,
+      44.432707
+     ],
+     [
+      26.093463,
+      44.432522
+     ],
+     [
+      26.093758,
+      44.432282
+     ],
+     [
+      26.094522,
+      44.431575
+     ],
+     [
+      26.096105,
+      44.430104
+     ],
+     [
+      26.09622,
+      44.429997
+     ],
+     [
+      26.096577,
+      44.429761
+     ],
+     [
+      26.096976,
+      44.429624
+     ],
+     [
+      26.097435,
+      44.429537
+     ],
+     [
+      26.098865,
+      44.429456
+     ],
+     [
+      26.099317,
+      44.429425
+     ],
+     [
+      26.099646,
+      44.429394
+     ],
+     [
+      26.100014,
+      44.429329
+     ],
+     [
+      26.100257,
+      44.429259
+     ],
+     [
+      26.100651,
+      44.429085
+     ],
+     [
+      26.100938,
+      44.428923
+     ],
+     [
+      26.10122,
+      44.428687
+     ],
+     [
+      26.101587,
+      44.428338
+     ],
+     [
+      26.102577,
+      44.42739
+     ],
+     [
+      26.10328,
+      44.426712
+     ],
+     [
+      26.103542,
+      44.426473
+     ],
+     [
+      26.10373,
+      44.426333
+     ],
+     [
+      26.103996,
+      44.426189
+     ],
+     [
+      26.104169,
+      44.426117
+     ],
+     [
+      26.104418,
+      44.426033
+     ],
+     [
+      26.104688,
+      44.425973
+     ],
+     [
+      26.105066,
+      44.42591
+     ],
+     [
+      26.105632,
+      44.425881
+     ],
+     [
+      26.10631,
+      44.425852
+     ],
+     [
+      26.106541,
+      44.425839
+     ],
+     [
+      26.106943,
+      44.425812
+     ],
+     [
+      26.107323,
+      44.425764
+     ],
+     [
+      26.107693,
+      44.425671
+     ],
+     [
+      26.108031,
+      44.425547
+     ],
+     [
+      26.108412,
+      44.425353
+     ],
+     [
+      26.108616,
+      44.42521
+     ],
+     [
+      26.108787,
+      44.425054
+     ],
+     [
+      26.108973,
+      44.424817
+     ],
+     [
+      26.109174,
+      44.424435
+     ],
+     [
+      26.110028,
+      44.422308
+     ]
+    ]
+   }
+  },
+  {
+   "type": "Feature",
+   "id": "rv-ohm-199938478",
+   "properties": {
+    "category": "old-rivers",
+    "title": {
+     "ro": "Albia veche a râului Dâmbovița (luciu de apă)",
+     "en": "Old bed of the Dâmbovița (water surface)"
+    },
+    "description": {
+     "ro": "Cursul de dinaintea regularizării. Sursa: OpenHistoricalMap contributors (CC0).",
+     "en": "The course before the river was channelled. Source: OpenHistoricalMap contributors (CC0)."
+    },
+    "yearEnd": 1983,
+    "links": [
+     {
+      "url": "https://www.openhistoricalmap.org/way/199938478",
+      "label": "OpenHistoricalMap"
+     }
+    ],
+    "published": true
+   },
+   "geometry": {
+    "type": "Polygon",
+    "coordinates": [
+     [
+      [
+       26.093292,
+       44.437399
+      ],
+      [
+       26.093297,
+       44.43741
+      ],
+      [
+       26.093294,
+       44.437422
+      ],
+      [
+       26.093286,
+       44.437432
+      ],
+      [
+       26.093273,
+       44.43744
+      ],
+      [
+       26.093257,
+       44.437443
+      ],
+      [
+       26.093241,
+       44.437441
+      ],
+      [
+       26.093226,
+       44.437435
+      ],
+      [
+       26.093216,
+       44.437426
+      ],
+      [
+       26.093212,
+       44.437415
+      ],
+      [
+       26.093214,
+       44.437403
+      ],
+      [
+       26.093222,
+       44.437393
+      ],
+      [
+       26.093235,
+       44.437385
+      ],
+      [
+       26.093251,
+       44.437382
+      ],
+      [
+       26.093267,
+       44.437384
+      ],
+      [
+       26.093282,
+       44.437389
+      ],
+      [
+       26.093292,
+       44.437399
+      ]
+     ]
+    ]
+   }
+  },
+  {
+   "type": "Feature",
+   "id": "rv-ohm-199938775",
+   "properties": {
+    "category": "old-rivers",
+    "title": {
+     "ro": "Albia veche a râului Dâmbovița (luciu de apă)",
+     "en": "Old bed of the Dâmbovița (water surface)"
+    },
+    "description": {
+     "ro": "Cursul de dinaintea regularizării. Sursa: OpenHistoricalMap contributors (CC0).",
+     "en": "The course before the river was channelled. Source: OpenHistoricalMap contributors (CC0)."
+    },
+    "yearEnd": 1983,
+    "links": [
+     {
+      "url": "https://www.openhistoricalmap.org/way/199938775",
+      "label": "OpenHistoricalMap"
+     }
+    ],
+    "published": true
+   },
+   "geometry": {
+    "type": "Polygon",
+    "coordinates": [
+     [
+      [
+       26.105271,
+       44.425845
+      ],
+      [
+       26.105873,
+       44.425817
+      ],
+      [
+       26.106817,
+       44.425768
+      ],
+      [
+       26.107057,
+       44.425752
+      ],
+      [
+       26.107404,
+       44.425698
+      ],
+      [
+       26.107763,
+       44.425597
+      ],
+      [
+       26.108014,
+       44.425497
+      ],
+      [
+       26.108189,
+       44.425412
+      ],
+      [
+       26.108412,
+       44.425292
+      ],
+      [
+       26.108573,
+       44.425172
+      ],
+      [
+       26.108732,
+       44.425023
+      ],
+      [
+       26.108872,
+       44.424861
+      ],
+      [
+       26.108981,
+       44.424689
+      ],
+      [
+       26.109067,
+       44.424522
+      ],
+      [
+       26.109159,
+       44.424313
+      ],
+      [
+       26.109375,
+       44.423763
+      ],
+      [
+       26.109683,
+       44.422992
+      ],
+      [
+       26.109804,
+       44.42302
+      ],
+      [
+       26.109517,
+       44.423727
+      ],
+      [
+       26.109276,
+       44.42432
+      ],
+      [
+       26.109152,
+       44.42462
+      ],
+      [
+       26.10908,
+       44.424773
+      ],
+      [
+       26.108979,
+       44.424923
+      ],
+      [
+       26.108859,
+       44.425068
+      ],
+      [
+       26.108617,
+       44.425289
+      ],
+      [
+       26.108438,
+       44.425402
+      ],
+      [
+       26.108177,
+       44.425536
+      ],
+      [
+       26.107937,
+       44.425634
+      ],
+      [
+       26.107703,
+       44.425717
+      ],
+      [
+       26.107445,
+       44.425786
+      ],
+      [
+       26.107185,
+       44.425834
+      ],
+      [
+       26.106933,
+       44.425858
+      ],
+      [
+       26.10528,
+       44.425944
+      ],
+      [
+       26.105079,
+       44.425956
+      ],
+      [
+       26.104813,
+       44.425993
+      ],
+      [
+       26.104595,
+       44.426037
+      ],
+      [
+       26.104318,
+       44.426121
+      ],
+      [
+       26.104127,
+       44.426192
+      ],
+      [
+       26.103996,
+       44.426248
+      ],
+      [
+       26.103934,
+       44.426172
+      ],
+      [
+       26.104137,
+       44.426086
+      ],
+      [
+       26.1043,
+       44.426024
+      ],
+      [
+       26.104462,
+       44.425973
+      ],
+      [
+       26.104681,
+       44.425915
+      ],
+      [
+       26.104925,
+       44.425874
+      ],
+      [
+       26.105271,
+       44.425845
+      ]
+     ]
+    ]
+   }
+  },
+  {
+   "type": "Feature",
+   "id": "rv-ohm-199940066",
+   "properties": {
+    "category": "old-rivers",
+    "title": {
+     "ro": "Albia veche a râului Dâmbovița (luciu de apă)",
+     "en": "Old bed of the Dâmbovița (water surface)"
+    },
+    "description": {
+     "ro": "Cursul de dinaintea regularizării. Sursa: OpenHistoricalMap contributors (CC0).",
+     "en": "The course before the river was channelled. Source: OpenHistoricalMap contributors (CC0)."
+    },
+    "yearEnd": 1983,
+    "links": [
+     {
+      "url": "https://www.openhistoricalmap.org/way/199940066",
+      "label": "OpenHistoricalMap"
+     }
+    ],
+    "published": true
+   },
+   "geometry": {
+    "type": "Polygon",
+    "coordinates": [
+     [
+      [
+       26.098208,
+       44.429447
+      ],
+      [
+       26.098984,
+       44.4294
+      ],
+      [
+       26.099249,
+       44.429383
+      ],
+      [
+       26.099524,
+       44.429364
+      ],
+      [
+       26.099715,
+       44.429341
+      ],
+      [
+       26.099875,
+       44.429314
+      ],
+      [
+       26.099978,
+       44.429292
+      ],
+      [
+       26.100022,
+       44.429381
+      ],
+      [
+       26.09977,
+       44.429425
+      ],
+      [
+       26.099555,
+       44.429455
+      ],
+      [
+       26.099337,
+       44.429473
+      ],
+      [
+       26.09904,
+       44.429492
+      ],
+      [
+       26.098206,
+       44.429546
+      ],
+      [
+       26.097481,
+       44.429591
+      ],
+      [
+       26.09747,
+       44.429479
+      ],
+      [
+       26.098208,
+       44.429447
+      ]
+     ]
+    ]
+   }
+  },
+  {
+   "type": "Feature",
+   "id": "rv-ohm-199940676",
+   "properties": {
+    "category": "old-rivers",
+    "title": {
+     "ro": "Albia veche a râului Dâmbovița (luciu de apă)",
+     "en": "Old bed of the Dâmbovița (water surface)"
+    },
+    "description": {
+     "ro": "Cursul de dinaintea regularizării. Sursa: OpenHistoricalMap contributors (CC0).",
+     "en": "The course before the river was channelled. Source: OpenHistoricalMap contributors (CC0)."
+    },
+    "yearEnd": 1983,
+    "links": [
+     {
+      "url": "https://www.openhistoricalmap.org/way/199940676",
+      "label": "OpenHistoricalMap"
+     }
+    ],
+    "published": true
+   },
+   "geometry": {
+    "type": "Polygon",
+    "coordinates": [
+     [
+      [
+       26.109724,
+       44.422894
+      ],
+      [
+       26.109843,
+       44.42292
+      ],
+      [
+       26.110025,
+       44.422463
+      ],
+      [
+       26.109897,
+       44.422465
+      ],
+      [
+       26.109724,
+       44.422894
+      ]
+     ]
+    ]
+   }
+  },
+  {
+   "type": "Feature",
+   "id": "rv-ohm-199944176",
+   "properties": {
+    "category": "old-rivers",
+    "title": {
+     "ro": "Albia veche a râului Dâmbovița (luciu de apă)",
+     "en": "Old bed of the Dâmbovița (water surface)"
+    },
+    "description": {
+     "ro": "Cursul de dinaintea regularizării. Sursa: OpenHistoricalMap contributors (CC0).",
+     "en": "The course before the river was channelled. Source: OpenHistoricalMap contributors (CC0)."
+    },
+    "yearEnd": 1983,
+    "links": [
+     {
+      "url": "https://www.openhistoricalmap.org/way/199944176",
+      "label": "OpenHistoricalMap"
+     }
+    ],
+    "published": true
+   },
+   "geometry": {
+    "type": "Polygon",
+    "coordinates": [
+     [
+      [
+       26.101157,
+       44.428821
+      ],
+      [
+       26.101076,
+       44.428886
+      ],
+      [
+       26.100972,
+       44.428966
+      ],
+      [
+       26.100842,
+       44.42905
+      ],
+      [
+       26.100668,
+       44.429138
+      ],
+      [
+       26.100502,
+       44.429215
+      ],
+      [
+       26.100351,
+       44.429279
+      ],
+      [
+       26.100198,
+       44.429332
+      ],
+      [
+       26.100155,
+       44.429242
+      ],
+      [
+       26.100341,
+       44.429175
+      ],
+      [
+       26.100536,
+       44.429088
+      ],
+      [
+       26.100767,
+       44.428966
+      ],
+      [
+       26.100945,
+       44.428848
+      ],
+      [
+       26.101106,
+       44.428723
+      ],
+      [
+       26.101284,
+       44.428551
+      ],
+      [
+       26.101953,
+       44.427906
+      ],
+      [
+       26.102061,
+       44.427965
+      ],
+      [
+       26.101219,
+       44.428768
+      ],
+      [
+       26.101157,
+       44.428821
+      ]
+     ]
+    ]
+   }
+  },
+  {
+   "type": "Feature",
+   "id": "rv-ohm-199944324",
+   "properties": {
+    "category": "old-rivers",
+    "title": {
+     "ro": "Albia veche a râului Dâmbovița (luciu de apă)",
+     "en": "Old bed of the Dâmbovița (water surface)"
+    },
+    "description": {
+     "ro": "Cursul de dinaintea regularizării. Sursa: OpenHistoricalMap contributors (CC0).",
+     "en": "The course before the river was channelled. Source: OpenHistoricalMap contributors (CC0)."
+    },
+    "yearEnd": 1983,
+    "links": [
+     {
+      "url": "https://www.openhistoricalmap.org/way/199944324",
+      "label": "OpenHistoricalMap"
+     }
+    ],
+    "published": true
+   },
+   "geometry": {
+    "type": "Polygon",
+    "coordinates": [
+     [
+      [
+       26.093698,
+       44.432249
+      ],
+      [
+       26.094462,
+       44.431542
+      ],
+      [
+       26.096045,
+       44.430071
+      ],
+      [
+       26.09617,
+       44.43014
+      ],
+      [
+       26.094587,
+       44.431611
+      ],
+      [
+       26.093822,
+       44.432318
+      ],
+      [
+       26.093804,
+       44.43232
+      ],
+      [
+       26.093698,
+       44.432249
+      ]
+     ]
+    ]
+   }
+  },
+  {
+   "type": "Feature",
+   "id": "rv-ohm-199944353",
+   "properties": {
+    "category": "old-rivers",
+    "title": {
+     "ro": "Albia veche a râului Dâmbovița (luciu de apă)",
+     "en": "Old bed of the Dâmbovița (water surface)"
+    },
+    "description": {
+     "ro": "Cursul de dinaintea regularizării. Sursa: OpenHistoricalMap contributors (CC0).",
+     "en": "The course before the river was channelled. Source: OpenHistoricalMap contributors (CC0)."
+    },
+    "yearEnd": 1983,
+    "links": [
+     {
+      "url": "https://www.openhistoricalmap.org/way/199944353",
+      "label": "OpenHistoricalMap"
+     }
+    ],
+    "published": true
+   },
+   "geometry": {
+    "type": "Polygon",
+    "coordinates": [
+     [
+      [
+       26.103802,
+       44.426238
+      ],
+      [
+       26.103869,
+       44.426314
+      ],
+      [
+       26.103731,
+       44.426406
+      ],
+      [
+       26.103608,
+       44.426491
+      ],
+      [
+       26.103512,
+       44.42657
+      ],
+      [
+       26.103338,
+       44.426739
+      ],
+      [
+       26.102858,
+       44.427202
+      ],
+      [
+       26.102382,
+       44.427658
+      ],
+      [
+       26.10217,
+       44.427856
+      ],
+      [
+       26.102065,
+       44.427801
+      ],
+      [
+       26.102508,
+       44.427382
+      ],
+      [
+       26.103024,
+       44.426891
+      ],
+      [
+       26.103382,
+       44.426546
+      ],
+      [
+       26.103469,
+       44.426464
+      ],
+      [
+       26.103566,
+       44.426393
+      ],
+      [
+       26.103682,
+       44.426315
+      ],
+      [
+       26.103802,
+       44.426238
+      ]
+     ]
+    ]
+   }
+  },
+  {
+   "type": "Feature",
+   "id": "rv-ohm-199944796",
+   "properties": {
+    "category": "old-rivers",
+    "title": {
+     "ro": "Albia veche a râului Dâmbovița (luciu de apă)",
+     "en": "Old bed of the Dâmbovița (water surface)"
+    },
+    "description": {
+     "ro": "Cursul de dinaintea regularizării. Sursa: OpenHistoricalMap contributors (CC0).",
+     "en": "The course before the river was channelled. Source: OpenHistoricalMap contributors (CC0)."
+    },
+    "yearEnd": 1983,
+    "links": [
+     {
+      "url": "https://www.openhistoricalmap.org/way/199944796",
+      "label": "OpenHistoricalMap"
+     }
+    ],
+    "published": true
+   },
+   "geometry": {
+    "type": "Polygon",
+    "coordinates": [
+     [
+      [
+       26.096714,
+       44.438659
+      ],
+      [
+       26.096725,
+       44.438649
+      ],
+      [
+       26.09674,
+       44.438646
+      ],
+      [
+       26.096756,
+       44.43865
+      ],
+      [
+       26.096765,
+       44.43866
+      ],
+      [
+       26.096765,
+       44.438672
+      ],
+      [
+       26.096754,
+       44.438681
+      ],
+      [
+       26.096739,
+       44.438684
+      ],
+      [
+       26.096723,
+       44.43868
+      ],
+      [
+       26.096714,
+       44.438671
+      ],
+      [
+       26.096714,
+       44.438659
+      ]
+     ]
+    ]
+   }
+  }
+ ]
+}
