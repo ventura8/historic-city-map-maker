@@ -19,7 +19,7 @@ describe('the cells with no sheet', () => {
         const host = shown(view);
         expect(host.querySelector('h3')?.textContent).toBe('Cells with no sheet (1)');
         expect(host.querySelector('li')?.textContent).toBe('Row 2, column 2');
-        expect(host.textContent).toContain('the archive has no sheet for them');
+        expect(host.textContent).toContain('The archive has no sheet for these cells');
     });
 
     it('badPath_aFullGridSaysNothing @S-A-BAD-FIX-TILES-STATE', () => {

@@ -44,8 +44,7 @@ export const ro = {
     'adminTiles.out.not-part': 'nu face parte din hartă',
     'adminTiles.out.no-seam': 'nicio îmbinare găsită',
     'adminTiles.emptyLabel': 'Celule fără foaie ({count})',
-    'adminTiles.emptyWhy':
-        'Nicio foaie din arhivă nu stă în aceste celule: arhiva nu are foi pentru ele sau una dintre foile lăsate deoparte le aparține. Pune foaia înapoi și mut-o în celula ei, sau lasă golul.',
+    'adminTiles.emptyWhy': 'Arhiva nu are foi pentru aceste celule sau una lăsată deoparte e de aici: pune-o înapoi sau lasă golul.',
     'adminTiles.emptyCell': 'Rândul {row}, coloana {col}',
     'adminTiles.allOut': 'Păstrează cel puțin o foaie în grilă.',
     'adminTiles.seamsLabel': 'Îmbinările îndoielnice',
@@ -80,8 +79,7 @@ export const ro = {
     'adminTiles.handOffHelp': 'Imaginea îmbinată merge în georeferențiator, unde adaugi punctele.',
     'adminTiles.handedOff': 'Trimisă mai departe: aplicația îmbină foile pentru puncte.',
     'adminTiles.openGeoref': 'Deschide georeferențiatorul',
-    'adminTiles.notWaiting':
-        'Această serie nu mai așteaptă așezarea foilor. Dacă foile ei stau greșit pe hartă, deschide seria în Imagini și alege Repară foile.',
+    'adminTiles.notWaiting': 'Seria nu mai așteaptă foile. Dacă foile stau greșit, alege Repară foile pe serie.',
     'adminTiles.notFound': 'Nicio serie la această adresă.',
     'adminTiles.loadFailed': 'Așezarea foilor nu a putut fi citită.',
     'adminTiles.retry': 'Reîncearcă',

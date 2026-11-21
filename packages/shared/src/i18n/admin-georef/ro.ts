@@ -53,11 +53,9 @@ export const ro = {
     'adminContent.georef.scanLabel': 'Scanarea, cu perechile numerotate',
     'adminContent.georef.scanKeys': 'Săgeți: perechea aleasă (Shift ×10) sau scanarea; Esc o lasă; +/- zoom; Enter adaugă; Delete șterge.',
     'adminContent.georef.noScan': 'Scanarea nu poate fi afișată.',
-    'adminContent.georef.noScanSeries':
-        'Această serie a fost pusă pe hartă foaie cu foaie, deci nu are o singură imagine pe care să pui puncte. Deschide seria în Imagini și alege Repară foile: versiunea ei nouă arată aici foile îmbinate.',
+    'adminContent.georef.noScanSeries': 'Pusă foaie cu foaie, deci fără o singură imagine. Alege Repară foile pe serie.',
     'adminContent.georef.openSeries': 'Deschide seria',
-    'adminContent.georef.stitchedOnly':
-        'Aceasta este imaginea îmbinată a seriei, arătată ca să verifici foile. Pe ea nu se pot salva puncte: alege Repară foile pe serie în Imagini ca să așezi foile din nou.',
+    'adminContent.georef.stitchedOnly': 'Foi îmbinate, doar de verificat: fără puncte aici. Alege Repară foile pe serie.',
     'adminContent.georef.shows.map': 'Harta arată',
     'adminContent.georef.shows.layer': '{name} ({year})',
     'adminContent.georef.shows.layerNote': 'Sub perechi: stratul publicat {name} ({year}). Pașii automați folosesc tot Sentinel-2.',

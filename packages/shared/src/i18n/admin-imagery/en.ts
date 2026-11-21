@@ -302,8 +302,7 @@ export const en: Readonly<Record<AdminImageryKey, string>> = {
     'adminContent.imagery.notice.studioLinked': 'The layer now uses the tileset from Mapbox Studio.',
     'adminContent.imagery.notice.retrying': 'The processing starts again.',
     'adminContent.imagery.notice.locating': 'The frame is being located again. This is not a new import.',
-    'adminContent.imagery.notice.fixingTiles':
-        'A new version of this series was started. Once your computer has laid out its sheets, open it from Work to move, turn or put back the sheets. The version on the map stays until you approve the new one.',
+    'adminContent.imagery.notice.fixingTiles': 'New version started; the one on the map stays until you approve it. Open it from Work.',
     'adminContent.imagery.notice.cancelRefused': 'The processing could not be stopped.',
     'adminContent.imagery.notice.dismissed': 'The image was deleted.',
     'adminContent.imagery.notice.versionDeleted': 'The version was deleted.',

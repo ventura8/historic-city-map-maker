@@ -52,11 +52,9 @@ export const en: Readonly<Record<AdminGeorefKey, string>> = {
     'adminContent.georef.scanLabel': 'The scan, with the numbered pairs',
     'adminContent.georef.scanKeys': 'Arrows: the chosen pair (Shift ×10) or the scan; Esc lets go; +/- zoom; Enter adds; Delete removes.',
     'adminContent.georef.noScan': 'The scan cannot be shown.',
-    'adminContent.georef.noScanSeries':
-        'This series was put on the map sheet by sheet, so it has no single picture to place points on. Open the series in Imagery and choose Fix the tiles: its new version shows the joined sheets here.',
+    'adminContent.georef.noScanSeries': 'Placed sheet by sheet, so no single picture. Choose Fix the tiles on the series.',
     'adminContent.georef.openSeries': 'Open the series',
-    'adminContent.georef.stitchedOnly':
-        'This is the joined picture of the series, shown to check the sheets. Points cannot be saved on it: choose Fix the tiles on the series in Imagery to lay out the sheets again.',
+    'adminContent.georef.stitchedOnly': 'Joined sheets, to check only: no points here. Choose Fix the tiles on the series.',
     'adminContent.georef.shows.map': 'The map shows',
     'adminContent.georef.shows.layer': '{name} ({year})',
     'adminContent.georef.shows.layerNote': 'Under the pairs: the published layer {name} ({year}). Automatic steps still use Sentinel-2.',

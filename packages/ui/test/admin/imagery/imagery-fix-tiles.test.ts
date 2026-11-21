@@ -70,7 +70,7 @@ describe('the georeferencer of an archive series', () => {
         const { element } = await georefPage(georefState({ versionId: VERSION.id, version, pairs: [] }));
 
         const note = deep(element, '[data-state="stitched-only"]');
-        expect(note.textContent).toContain('Points cannot be saved on it');
+        expect(note.textContent).toContain('no points here');
         expect(note.querySelector('a')?.getAttribute('href')).toBe(`#/imagery/version/${VERSION.id}`);
         expect(deep(element, 'hcm-scan-viewer')).toBeDefined();
     });

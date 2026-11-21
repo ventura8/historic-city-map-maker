@@ -43,8 +43,7 @@ export const en: Readonly<Record<AdminTilesKey, string>> = {
     'adminTiles.out.not-part': 'not part of this map',
     'adminTiles.out.no-seam': 'no seam found',
     'adminTiles.emptyLabel': 'Cells with no sheet ({count})',
-    'adminTiles.emptyWhy':
-        'No sheet of the archive sits in these cells: the archive has no sheet for them, or one of the sheets left out belongs there. Put that sheet back and move it into its cell, or leave the gap.',
+    'adminTiles.emptyWhy': 'The archive has no sheet for these cells, or a sheet left out belongs here: put it back, or leave the gap.',
     'adminTiles.emptyCell': 'Row {row}, column {col}',
     'adminTiles.allOut': 'Keep at least one sheet in the grid.',
     'adminTiles.seamsLabel': 'Doubtful seams',
@@ -79,8 +78,7 @@ export const en: Readonly<Record<AdminTilesKey, string>> = {
     'adminTiles.handOffHelp': 'The joined picture goes to the georeferencer, where you add points.',
     'adminTiles.handedOff': 'Sent on: the app is joining the sheets for the points.',
     'adminTiles.openGeoref': 'Open the georeferencer',
-    'adminTiles.notWaiting':
-        'This series no longer waits for its tiles. If its sheets are wrong on the map, open the series in Imagery and choose Fix the tiles.',
+    'adminTiles.notWaiting': 'This series no longer waits for its tiles. If its sheets are wrong, choose Fix the tiles on the series.',
     'adminTiles.notFound': 'No series at this address.',
     'adminTiles.loadFailed': 'The tile layout could not be read.',
     'adminTiles.retry': 'Try again',
