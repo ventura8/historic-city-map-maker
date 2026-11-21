@@ -947,6 +947,13 @@ sheets out as "blank page". Three causes, three fixes (lesson 755):
   `sheetnames` scheme read: the cells were not the sheets' neighbours, so no seam could join. `sheetnames.city` puts each sheet on a
   grid two rows and columns per city cell, and `autostitch` keeps the quarter order (`gridscheme.QUARTER_ORDERS`) whose seams join best.
   The features and the edge jigsaw compare every pair of sheets; a series of more than 400 (`PAIRWISE_MAX`) keeps its names' grid.
+- **Live follow-up (lesson 756).** Six cells of the whole folder held two files (editions, a sheet filed twice), which made the city grid
+  refuse the series: one sheet a cell now (`sheetnames._one_a_cell`). Seams read at 320 px are noise, so they no longer choose the
+  quarter order, turn sheets or move them: the quarters are read as printed (1 2 / 3 4: on 14C1-4 the old City Hall, the Hotel
+  Capitol east of it, the CEC south of it, the Dâmbovița in the fourth), every sheet sits at its named cell and the seams only confirm
+  it (`bundle.confirmed`). The log and the wizard's meter both count sheets "joined by a seam". Thumbnails and grey preview tiles are
+  read from the scans at their own resolution a band at a time, each pixel the block's darkness amplified up to six times
+  (`raster_io.read_box_inked`), so a 1-bit sheet's thin lines show instead of white.
 
 Measured on the six dry runs (NUC, `hcm-pipeline` image), against §19.15:
 
