@@ -1,10 +1,12 @@
 import { translateAdminContent } from '@hcm/shared';
 import { readFileSync } from 'node:fs';
 import { resolve } from 'node:path';
+import sharp from 'sharp';
 
 import type { ContentWorld } from '../../support/content.js';
 import { expect, test } from '../../support/content-test.js';
 import { FUNCTIONS_TIMEOUT_MS } from '../../support/emulators.js';
+import { uploadObject } from '../../support/imagery-store.js';
 import { seedCity, seedJob } from '../../support/ops.js';
 
 /**
@@ -26,7 +28,14 @@ function text(lang: Lang, key: Parameters<typeof translateAdminContent>[1]): str
 
 /** The series waiting for approval as the worker leaves it; `origin` usgs for a frame, which Fix the tiles passes over. */
 async function seedSeries(world: ContentWorld, origin: 'archive' | 'usgs', scan = true): Promise<void> {
-    const golden = JSON.parse(readFileSync(GOLDEN, 'utf8')) as Record<string, unknown>;
+    const folder = `rasters/${world.city}/${LAYER}/${SERIES}`;
+    const golden = JSON.parse(
+        readFileSync(GOLDEN, 'utf8').replaceAll('rasters/bucharest/kh-4a-corona-1966/job-1966-0712', folder),
+    ) as Record<string, unknown>;
+    const png = await sharp({ create: { width: 64, height: 64, channels: 3, background: { r: 180, g: 180, b: 170 } } })
+        .png()
+        .toBuffer();
+    await uploadObject(`${folder}/preview.png`, new Uint8Array(png), 'image/png');
     await seedCity(world, AT);
     await seedJob(
         world,
