@@ -131,12 +131,24 @@ function scanViewer(context: GeorefContext, scan: NonNullable<NonNullable<Georef
         <p class="note">${contentText(locale, 'adminContent.georef.scanKeys')} ${contentText(locale, 'adminContent.georef.turn.keys')}</p>`;
 }
 
+/** M20 §19.12: what an archive series' scan pane says when it has no picture of its own, and the way to Fix the tiles. */
+function seriesNote(context: GeorefContext, key: 'adminContent.georef.noScanSeries' | 'adminContent.georef.stitchedOnly'): TemplateResult {
+    const id = context.view.version?.id ?? '';
+    return html`<p class="note" data-state=${key === 'adminContent.georef.stitchedOnly' ? 'stitched-only' : 'no-scan-series'}>
+        ${contentText(context.locale, key)}
+        <a href=${`#/imagery/version/${id}`}>${contentText(context.locale, 'adminContent.georef.openSeries')}</a>
+    </p>`;
+}
+
 function scanPane(context: GeorefContext): TemplateResult {
-    const scan = context.view.version?.scan ?? null;
+    const version = context.view.version;
+    const scan = version?.scan ?? null;
     if (scan === null || context.view.scan.status === 'failed') {
-        return html`<p class="note" data-state="no-scan">${contentText(context.locale, 'adminContent.georef.noScan')}</p>`;
+        return version?.series === undefined
+            ? html`<p class="note" data-state="no-scan">${contentText(context.locale, 'adminContent.georef.noScan')}</p>`
+            : seriesNote(context, 'adminContent.georef.noScanSeries');
     }
-    return scanViewer(context, scan);
+    return html`${version?.series?.stitchedOnly === true ? seriesNote(context, 'adminContent.georef.stitchedOnly') : ''}${scanViewer(context, scan)}`;
 }
 
 /** The references the version has. */

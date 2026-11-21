@@ -207,6 +207,7 @@ export const en: Readonly<Record<AdminImageryKey, string>> = {
     'adminContent.imagery.reject': 'Delete',
     'adminContent.imagery.deleteVersion': 'Delete this version',
     'adminContent.imagery.locateAgain': 'Locate again',
+    'adminContent.imagery.fixTiles': 'Fix the tiles',
     // M9 (docs/research/M9-calibration.md §8)
     'adminContent.imagery.calibration.how.votes': 'Found automatically',
     'adminContent.imagery.calibration.how.pass': 'Found from a neighbouring frame',
@@ -301,6 +302,8 @@ export const en: Readonly<Record<AdminImageryKey, string>> = {
     'adminContent.imagery.notice.studioLinked': 'The layer now uses the tileset from Mapbox Studio.',
     'adminContent.imagery.notice.retrying': 'The processing starts again.',
     'adminContent.imagery.notice.locating': 'The frame is being located again. This is not a new import.',
+    'adminContent.imagery.notice.fixingTiles':
+        'A new version of this series was started. Once your computer has laid out its sheets, open it from Work to move, turn or put back the sheets. The version on the map stays until you approve the new one.',
     'adminContent.imagery.notice.cancelRefused': 'The processing could not be stopped.',
     'adminContent.imagery.notice.dismissed': 'The image was deleted.',
     'adminContent.imagery.notice.versionDeleted': 'The version was deleted.',

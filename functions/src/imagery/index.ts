@@ -29,6 +29,7 @@ import { runOnFunction } from './run-on.js';
 import { saveGcpsFunction } from './save-gcps.js';
 import { saveLayoutFunction } from './save-layout.js';
 import { acceptLayoutFunction } from './accept-layout.js';
+import { relayoutFunction } from './relayout.js';
 import { markSceneFunction } from './mark-scene.js';
 import { searchFunction } from './search.js';
 import { chooseFunction, studioDoneFunction } from './studio.js';
@@ -56,6 +57,7 @@ export function imageryFunctions(getDeps: () => ImageryFamilyDeps, bucket?: stri
         locateAgain: locateAgainFunction(getDeps),
         saveLayout: saveLayoutFunction(getDeps),
         acceptLayout: acceptLayoutFunction(getDeps),
+        relayout: relayoutFunction(getDeps),
         previewUrl: previewUrlFunction(getDeps),
         recalibrate: recalibrateFunction(getDeps),
         runOn: runOnFunction(getDeps),

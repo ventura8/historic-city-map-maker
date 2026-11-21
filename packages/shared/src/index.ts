@@ -315,10 +315,12 @@ export { layerRightsSchema, mapThresholdM, opsDailyDocSchema, rightsAllowPublish
 export type * from './schemas/imagery-archive.js';
 export {
     helpFlagsOf,
+    relayoutable,
     restitchable,
     STITCH_METHODS,
     STITCHED_PREVIEW_MAX_PX,
     stitchedSchema,
+    type HelpFlags,
     type RestitchInput,
     type Stitched,
 } from './schemas/imagery-help.js';

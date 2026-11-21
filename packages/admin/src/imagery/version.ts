@@ -41,6 +41,7 @@ export type VersionAction =
     | 'download'
     | 'retry'
     | 'locate'
+    | 'fixTiles'
     | 'cancel'
     | 'recalibrate';
 
@@ -287,6 +288,13 @@ export class VersionPage {
     locateAgain(): Promise<boolean> {
         return this.#act('locate', 'imagery.locateAgain', (id) => ({ cityId: this.#services.cityId, versionId: id }), {
             key: 'adminContent.imagery.notice.locating',
+        });
+    }
+
+    /** M20 §19.12: Fix the tiles, a new version of the series reopened at its tile layout; the version on the map stays. */
+    fixTiles(): Promise<boolean> {
+        return this.#act('fixTiles', 'imagery.relayout', (id) => ({ cityId: this.#services.cityId, versionId: id }), {
+            key: 'adminContent.imagery.notice.fixingTiles',
         });
     }
 

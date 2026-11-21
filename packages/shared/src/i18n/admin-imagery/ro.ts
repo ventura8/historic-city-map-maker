@@ -209,6 +209,7 @@ export const ro = {
     'adminContent.imagery.reject': 'Șterge',
     'adminContent.imagery.deleteVersion': 'Șterge această versiune',
     'adminContent.imagery.locateAgain': 'Localizează din nou',
+    'adminContent.imagery.fixTiles': 'Repară foile',
     // M9 (docs/research/M9-calibration.md §8)
     'adminContent.imagery.calibration.how.votes': 'Găsită automat',
     'adminContent.imagery.calibration.how.pass': 'Găsită după un cadru vecin',
@@ -303,6 +304,8 @@ export const ro = {
     'adminContent.imagery.notice.studioLinked': 'Stratul folosește acum setul de dale din Mapbox Studio.',
     'adminContent.imagery.notice.retrying': 'Procesarea reîncepe.',
     'adminContent.imagery.notice.locating': 'Cadrul este localizat din nou. Nu se socotește ca un import nou.',
+    'adminContent.imagery.notice.fixingTiles':
+        'A pornit o versiune nouă a acestei serii. După ce calculatorul tău îi așază foile, deschide-o din Lucru ca să muți, să rotești sau să pui înapoi foile. Versiunea de pe hartă rămâne până aprobi versiunea nouă.',
     'adminContent.imagery.notice.cancelRefused': 'Procesarea nu a putut fi oprită.',
     'adminContent.imagery.notice.dismissed': 'Imaginea a fost ștearsă.',
     'adminContent.imagery.notice.versionDeleted': 'Versiunea a fost ștearsă.',

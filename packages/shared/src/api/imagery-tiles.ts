@@ -20,5 +20,11 @@ export const imagerySaveLayoutRequestSchema = z.strictObject({ ...versionIdField
 /** `imagery.acceptLayout` (a city editor): the layout of `revision` as it stands, accepted; the series goes on to points. */
 export const imageryAcceptLayoutRequestSchema = z.strictObject({ ...versionIdField, revision: layoutAnswerFields.revision });
 
-/** Both answer with the job that runs again. */
+/**
+ * `imagery.relayout` (a city editor; M20 §19.12): **Fix the tiles** of an archive series on the map or waiting for approval: a new
+ * version of the same layer, reopened at the tile layout with the current one, while the version on the map stays until it is approved.
+ */
+export const imageryRelayoutRequestSchema = z.strictObject(versionIdField);
+
+/** All three answer with the job that runs (the new version's, for `imagery.relayout`). */
 export const imageryLayoutResponseSchema = z.strictObject({ jobId: idSchema, versionId: idSchema });

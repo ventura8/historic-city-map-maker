@@ -59,6 +59,8 @@ export interface GeorefVersionPort {
     readonly editable: boolean;
     /** Where the city likely lies in the scan (its pixels): the scan pane opens there (null: on the whole scan). */
     readonly opening?: { readonly x: number; readonly y: number; readonly width: number; readonly height: number } | null;
+    /** M20 §19.12: an archive series; `stitchedOnly`, the picture shown is its joined sheets, to check (no points saved on it). */
+    readonly series?: { readonly stitchedOnly: boolean };
 }
 
 interface FitViewPort {

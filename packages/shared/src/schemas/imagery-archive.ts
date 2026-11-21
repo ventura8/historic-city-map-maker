@@ -217,6 +217,11 @@ export const archiveSeriesParamsSchema = z.strictObject({
      * DECISIONS §216e): the pipeline lays it on the overview again (`placing/restitch.py`). Only this job type may carry it.
      */
     restitch: z.boolean().optional(),
+    /**
+     * Fix the tiles (M20 §19.12, `functions/src/imagery/relayout.ts`): the series is laid out again from its sheets and waits for its
+     * owner's check in the tile wizard (`layout-check`), seeded with the base's layout, whatever its class placed it by.
+     */
+    relayout: z.boolean().optional(),
 });
 
 export type ArchiveSeriesParams = z.infer<typeof archiveSeriesParamsSchema>;

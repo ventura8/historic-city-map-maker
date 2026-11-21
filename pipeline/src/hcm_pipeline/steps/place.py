@@ -7,7 +7,9 @@ A class with no placer yet, or a placer that cannot prove a placement, never fai
 waits for points (`awaiting_gcps`). A low-confidence placer leaves its correspondences as suggested pairs first. Once the owner saved
 pairs on the parked series (`imagery.saveGcps`: the version's `georef`, `method: 'gcps'`), `place` warps it through them
 (`placing/owner.py`) and never runs the class's placer again: it only parked the series once more (2026-11-10). A series stitched
-again (`restitch` in its job's parameters, DECISIONS §216) is first laid on its overview again (`placing/restitch.py`).
+again (`restitch` in its job's parameters, DECISIONS §216) is first laid on its overview again (`placing/restitch.py`). **Fix the tiles**
+(`relayout`, M20 §19.12, `functions/src/imagery/relayout.ts`) lays a placed series out again from its sheets, whatever its class, and
+waits for its owner in the tile wizard (`layout-check`), with the owner's earlier layout as its first preview when it had one.
 """
 
 from collections.abc import Mapping
@@ -15,14 +17,17 @@ from typing import Final, Protocol
 
 from hcm_pipeline.documents import GeorefInfo
 from hcm_pipeline.jobs import JobContext, StepResult
-from hcm_pipeline.placing import restitch
+from hcm_pipeline.placing import autoplace, owner_layout, restitch
 from hcm_pipeline.placing.embedded import EmbeddedPlacer
 from hcm_pipeline.placing.grid import GridPlacer
 from hcm_pipeline.placing.maps import AtlasPlacer, PiecesPlacer, SinglePlacer
+from hcm_pipeline.placing.maps import paged
 from hcm_pipeline.placing.output import wait_for_help
 from hcm_pipeline.placing.owner import owner_pairs, place_from_pairs
+from hcm_pipeline.placing.series import series_of
 from hcm_pipeline.steps.gather import text_param
 
+RELAYOUT: Final = "relayout"
 NO_PATH_NOTE: Final = "No automatic placement for this kind of series yet: add about four points, or wait for an update."
 
 
@@ -50,6 +55,8 @@ class PlaceStep:
         self._placers = PLACERS if placers is None else placers
 
     def run(self, ctx: JobContext) -> StepResult:
+        if ctx.job.params.get(RELAYOUT) is True:
+            return relaid(ctx)
         pairs = owner_pairs(ctx.version.georef)
         if pairs is not None:
             return self._from_pairs(ctx, pairs)
@@ -64,3 +71,15 @@ class PlaceStep:
         if restitch.asked(ctx) and not restitch.restitched(ctx):
             return wait_for_help(ctx, "low-confidence", restitch.NO_OVERVIEW)
         return place_from_pairs(ctx, pairs)
+
+
+def relaid(ctx: JobContext) -> StepResult:
+    """Fix the tiles: the owner's layout (their earlier one is seeded as a preview, their next answer mosaics it), else the automatic
+    proposal kept for their check; never mosaicked before they answered."""
+    series = paged(ctx, series_of(ctx))
+    if isinstance(series, str):
+        return wait_for_help(ctx, "low-confidence", series)
+    answer = owner_layout.answer_of(ctx)
+    if answer is not None:
+        return owner_layout.place(ctx, series, answer, "atlas")
+    return autoplace.wait_layout(ctx, series, autoplace.proposed(ctx, series))

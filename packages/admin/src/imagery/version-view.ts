@@ -105,6 +105,8 @@ export interface VersionView {
     readonly layoutCheck: boolean;
     /** M20 (§216): published with pieces left out of its overview mosaic: Locate again lays it on it again. */
     readonly restitchable: boolean;
+    /** M20 §19.12: on the map or waiting for approval: Fix the tiles lays its sheets out again in a new version. */
+    readonly relayoutable: boolean;
     /**
      * M20 (§7): the series' rights as the approval card shows them (null: no rights, USGS and uploads). Approve waits
      * until `allowPublish` (Confirm the rights when `state` is `needs-confirmation`).

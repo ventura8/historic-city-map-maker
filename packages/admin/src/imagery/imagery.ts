@@ -236,6 +236,7 @@ class ImageryStore implements AreaStore<ImageryState, ImageryIntents> {
         | 'download'
         | 'retryJob'
         | 'locateAgain'
+        | 'fixTiles'
         | 'cancelJob'
         | 'setPreviewOpacity'
         | 'actualPixels'
@@ -257,7 +258,7 @@ class ImageryStore implements AreaStore<ImageryState, ImageryIntents> {
                 choose: (choice: PublishChoice) => version.choose(choice),
             },
             ...{ studioDone: () => version.studioDone(), download: () => version.download(), retryJob: () => version.retry() },
-            ...{ locateAgain: () => version.locateAgain(), cancelJob: () => version.cancel() },
+            ...{ locateAgain: () => version.locateAgain(), fixTiles: () => version.fixTiles(), cancelJob: () => version.cancel() },
             setPreviewOpacity: (percent) => {
                 this.#setOpacity(percent);
             },

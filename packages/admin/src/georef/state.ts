@@ -51,6 +51,11 @@ export interface GeorefVersion {
     readonly editable: boolean;
     /** Where the city likely lies in the scan (its pixels), for the scan pane to open on; null: the whole scan (admin sweep 2026-11-14). */
     readonly opening: { readonly x: number; readonly y: number; readonly width: number; readonly height: number } | null;
+    /**
+     * M20 §19.12: an archive series (its scan pane says what to do when it has no picture), and whether the picture shown is only its
+     * joined sheets (`help.stitched`, shown to check, no points saved on it: Fix the tiles makes a version with a scan).
+     */
+    readonly series?: { readonly stitchedOnly: boolean };
 }
 
 function referenceOf(reference: LayerVersionDoc['reference']): GeorefVersion['reference'] {
@@ -70,11 +75,31 @@ function scanOf(scan: LayerVersionDoc['scan']): GeorefVersion['scan'] {
     return { width, height, previewScale, previewPath, detail };
 }
 
+/** M20 §19.12: an archive series with no scan shows its joined sheets (`help.stitched`), when it has them, to check by eye. */
+function stitchedScanOf(version: LayerVersionDoc): GeorefVersion['scan'] {
+    const stitched = version.help?.stitched;
+    if (stitched === undefined) {
+        return null;
+    }
+    const { width, height, previewScale, previewPath } = stitched;
+    return { width, height, previewScale, previewPath, detail: null };
+}
+
+/** An archive series' flags, or none for any other version. */
+function seriesOf(version: LayerVersionDoc): Pick<GeorefVersion, 'series'> {
+    return version.origin === 'archive' ? { series: { stitchedOnly: version.scan === undefined && version.help?.stitched !== undefined } } : {};
+}
+
 export function georefVersionOf(id: string, version: LayerVersionDoc): GeorefVersion {
+    const series = seriesOf(version);
+    const stitchedOnly = series.series?.stitchedOnly === true;
+    const scan = stitchedOnly ? stitchedScanOf(version) : scanOf(version.scan);
+    const editable = EDITABLE_STATES.includes(version.state) && !stitchedOnly;
     return {
-        ...{ id, layerId: version.layerId, label: version.label, state: version.state, scan: scanOf(version.scan) },
-        ...{ reference: referenceOf(version.reference), crop: version.crop ?? null, editable: EDITABLE_STATES.includes(version.state) },
+        ...{ id, layerId: version.layerId, label: version.label, state: version.state, scan },
+        ...{ reference: referenceOf(version.reference), crop: version.crop ?? null, editable },
         opening: version.calibration?.expected?.[0] ?? null,
+        ...series,
     };
 }
 

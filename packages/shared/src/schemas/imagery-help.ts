@@ -62,10 +62,30 @@ export function restitchable(version: RestitchInput): boolean {
     return version.origin === 'archive' && version.state === 'published' && leftOutOfOverview(version.help?.stitched);
 }
 
+/** The states of an archive series that **Fix the tiles** reopens: on the map, or waiting for its approval. */
+const RELAYOUT_STATES: ReadonlySet<string> = new Set(['published', 'awaiting_approval']);
+
 /**
- * What a version's page offers from its `help`: the tile-import wizard for a series waiting with `layout-check` (M20 §19), and Locate
- * again for a series to stitch again (`restitchable`). Kept here, out of the admin's Imagery chunk (its 18 KB budget).
+ * M20 §19.12 (2026-11-21, the 1:500 of 1960-71 published with gaps and sheets off): an archive series on the map or waiting for its
+ * approval, which **Fix the tiles** lays out again in a new version of its layer (`functions/src/imagery/relayout.ts`).
  */
-export function helpFlagsOf(version: RestitchInput): { readonly layoutCheck: boolean; readonly restitchable: boolean } {
-    return { layoutCheck: version.state === 'needs_gcps' && version.help?.reason === 'layout-check', restitchable: restitchable(version) };
+export function relayoutable(version: Pick<RestitchInput, 'origin' | 'state'>): boolean {
+    return version.origin === 'archive' && RELAYOUT_STATES.has(version.state);
+}
+
+/** What `helpFlagsOf` answers. */
+export interface HelpFlags {
+    readonly layoutCheck: boolean;
+    readonly restitchable: boolean;
+    readonly relayoutable: boolean;
+}
+
+/**
+ * What a version's page offers from its `help`: the tile-import wizard for a series waiting with `layout-check` (M20 §19), Locate
+ * again for a series to stitch again (`restitchable`) and Fix the tiles (`relayoutable`). Kept here, out of the admin's Imagery chunk
+ * (its 18 KB budget).
+ */
+export function helpFlagsOf(version: RestitchInput): HelpFlags {
+    const layoutCheck = version.state === 'needs_gcps' && version.help?.reason === 'layout-check';
+    return { layoutCheck, restitchable: restitchable(version), relayoutable: relayoutable(version) };
 }

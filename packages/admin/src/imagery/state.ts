@@ -141,6 +141,8 @@ export interface ImageryIntents {
     retryJob(): Promise<boolean>;
     /** `imagery.locateAgain` of the open version, a frame waiting for points. */
     locateAgain(): Promise<boolean>;
+    /** `imagery.relayout` of the open version (Fix the tiles). */
+    fixTiles(): Promise<boolean>;
     /** Turns the budget guard green again (`imagery.resumeGuard`); true once it is. */
     resumeGuard(): Promise<boolean>;
     cancelJob(): Promise<boolean>;
