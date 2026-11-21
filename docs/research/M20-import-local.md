@@ -720,7 +720,7 @@ Atlas and pieces alike: (1) the owner's layout (`help.layoutAnswer`), (2) the ov
 (4) the older edges or SIFT joins when they place at least 90 % of the parts and something vouches for them: their matches' residual
 within `STITCH_GOOD_RMS_PX` with at least 24 agreeing matches a join on average, or, for pages joined by their edges alone (nothing
 measured), a proposal that was only `check`, never `poor` (S-P20-BAD-STITCH-LEGACY-LOOSE), (5) else no mosaic: a preview of the proposal
-and the version waits with `layout-check`. A series of more than `LAYOUT_SHEETS_MAX` (2000) files waits with `no-path` before any layout
+and the version waits with `layout-check`. A series of more than `LAYOUT_SHEETS_MAX` (10,000; 2,000 until 2026-11-21, when the 4,534-sheet 1:500 grid failed its Fix the tiles run on a weak seam naming sheet 2,000 or more) files waits with `no-path` before any layout
 ("import it as smaller series"): the wizard could not open its `layout.json` (S-P20-BAD-STITCH-TOO-MANY). The mosaic is a tiled GTiff
 written in 2048 px windows, one sheet at a time: only its content box is read, by GDAL straight at its size on the canvas, one band at a
 time into one array, then turned; each pixel is owned by the covering sheet whose centre is nearest (a hard seam: blending line art doubles

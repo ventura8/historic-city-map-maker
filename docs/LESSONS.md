@@ -4396,3 +4396,9 @@ Append a numbered entry to *Lessons from this repository* in the task that finds
     - Found by: the owner on the live map; every tier tested the wizard only on a series parked with `layout-check`, and nothing modelled what happens after approval.
     - Fix and pin: **Fix the tiles** (`imagery.relayout`, `functions/src/imagery/relayout.ts`) starts a new version of the same layer at the tile layout, seeded with the earlier layout, the published version kept; the georeferencer of a series shows its joined sheets or says what to do (`S-A-HAPPY-FIX-TILES`, `S-A-BAD-FIX-TILES-STATE`).
     - **Every automatic result a person approves needs a way back to the step that made it, without taking the old result off the map first.**
+
+752. **Fix the tiles failed at once on the largest series: its sheet numbers were over the schema's ceiling.**
+    - Seen: 2026-11-21, live Bucharest: Fix the tiles on the 1:500 grid (4,534 sheets) failed at `place` with `help.stitched.layout.weakSeams[n].a/b (validation.tooBig)`.
+    - Cause: `LAYOUT_SHEETS_MAX` was 2,000 (`@hcm/shared` and `archive/model.py`), set from the atlases; the 1:500 grid was larger and a weak seam named a sheet past it.
+    - Fix and pin: the ceiling is 10,000 sheets and 40,000 seams on both sides; a weak seam naming sheet 4,533 validates (`imagery-tiles.test.ts`).
+    - **Size a limit from the largest real input you hold, not from the case you were building for.**

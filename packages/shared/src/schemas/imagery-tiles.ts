@@ -55,10 +55,11 @@ export const STITCH_GOOD_RMS_PX = 3;
 /** A sheet the bundle moved more than this share of a cell from its prior makes the series `check`. */
 export const STITCH_MAX_MOVE_CELL = 0.25;
 
-/** At most this many weak seams are named in Firestore; at most this many sheets and seams in `layout.json` and in an answer. */
+/** At most this many weak seams are named in Firestore; at most this many sheets and seams in `layout.json` and in an answer
+ * (10,000 sheets: the harti.zip "Bucuresti actual 1:500" series has 4,534; 2,000 failed its Fix the tiles run, 2026-11-21). */
 export const LAYOUT_WEAK_SEAMS_MAX = 200;
-export const LAYOUT_SHEETS_MAX = 2000;
-export const LAYOUT_SEAMS_MAX = 8000;
+export const LAYOUT_SHEETS_MAX = 10000;
+export const LAYOUT_SEAMS_MAX = 40000;
 
 /**
  * `thumbs.jpg`: square cells of this many pixels (a sheet's long side, the thumbnail in its cell's top left), this many a row: the

@@ -79,6 +79,13 @@ describe('help.stitched.layout', () => {
 
         expect(validate(stitchLayoutSchema, { ...summary, weakSeams }).ok).toBe(false);
     });
+
+    it('happyPath_aWeakSeamOfTheLargestRealSeriesPasses', () => {
+        // The harti.zip 1:500 grid has 4,534 sheets; its Fix the tiles run failed at 2,000 (LESSONS 752).
+        const weakSeams = [{ a: 4532, b: 4533, side: 'right', score: 0.1 }];
+
+        expect(validate(stitchLayoutSchema, { ...summary, weakSeams }).ok).toBe(true);
+    });
 });
 
 describe('the owner answer', () => {
