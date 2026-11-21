@@ -646,6 +646,7 @@ export const EDITS: Readonly<Record<ClientCollection, Readonly<Data>>> = {
         label: { ro: 'București, 1966' },
         description: { ro: 'Corona KH-4A.' },
         attribution: 'USGS',
+        rights: { licence: 'CC-BY-SA-4.0', author: 'Institutul Geografic', source: { label: 'Biblioteca Națională' } },
         year: 1967,
         date: '1967-05-31',
         order: 2,

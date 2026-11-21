@@ -417,6 +417,22 @@ service cloud.firestore {
                 && value.get('saturation', 0) >= -1 && value.get('saturation', 0) <= 1;
         }
 
+        // A drawn map's licence, author and source (layerRightsSchema), editable after the import.
+        function validLayerRights(rights) {
+            return rights is map
+                && rights.keys().hasOnly(['licence', 'author', 'source'])
+                && rights.licence in ['PD', 'CC0', 'CC-BY-4.0', 'CC-BY-SA-4.0', 'permission']
+                && rights.get('author', 'x').matches('[\\s\\S]{1,200}')
+                && validRightsSource(rights.get('source', {'label': 'x'}));
+        }
+
+        function validRightsSource(source) {
+            return source is map
+                && source.keys().hasOnly(['label', 'url'])
+                && source.label.matches('[\\s\\S]{1,200}')
+                && source.get('url', 'https://x').matches(httpsUrl());
+        }
+
         // The presentation an admin edits; the pipeline owns the source, zooms, bounds, status,
         // provenance and Mapbox ids.
         function validLayer(data) {
@@ -426,6 +442,7 @@ service cloud.firestore {
                 && titled(data.label, '[\\s\\S]{1,200}')
                 && localized(data.get('description', {'ro': 'x'}), upTo5000())
                 && data.get('attribution', 'x').matches('[\\s\\S]{1,500}')
+                && validLayerRights(data.get('rights', {'licence': 'PD'}))
                 && data.order is int
                 && data.opacity >= 0 && data.opacity <= 1
                 && data.defaultVisible is bool
@@ -725,8 +742,8 @@ service cloud.firestore {
             match /layers/{layer} {
                 allow read: if isCityMember(city);
                 allow update: if isCityMember(city)
-                    && changedKeys().hasOnly(['label', 'description', 'attribution', 'year', 'date', 'order', 'opacity', 'defaultVisible',
-                        'adjustments', 'published', 'updatedBy', 'updatedAt'])
+                    && changedKeys().hasOnly(['label', 'description', 'attribution', 'rights', 'year', 'date', 'order', 'opacity',
+                        'defaultVisible', 'adjustments', 'published', 'updatedBy', 'updatedAt'])
                     && validLayer(request.resource.data);
 
                 match /history/{entry} {

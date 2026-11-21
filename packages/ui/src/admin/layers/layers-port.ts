@@ -126,7 +126,8 @@ export interface LayersViewState {
     readonly assist: AssistViewPort;
 }
 
-export type LayerTextFieldPort = 'label.ro' | 'label.en' | 'description.ro' | 'description.en' | 'attribution' | 'year' | 'date';
+export type LayerTextFieldPort =
+    'label.ro' | 'label.en' | 'description.ro' | 'description.en' | 'attribution' | 'rights.licence' | 'rights.author' | 'year' | 'date';
 
 /** M4 (CR-M4-4): the draft buttons beside the name and the description ride with the area's intents. */
 export interface LayersIntentsPort extends AssistActionsPort {
