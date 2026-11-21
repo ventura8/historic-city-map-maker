@@ -87,7 +87,7 @@ def test_bad_path_a_link_that_disagrees_is_dropped() -> None:
 
 def test_bad_path_matches_too_few_or_at_another_scale_make_no_link() -> None:
     rng = numpy.random.default_rng(1)
-    texture = cv2.GaussianBlur(numpy.asarray(rng.integers(0, 256, (300, 300)), numpy.uint8), (0, 0), 1.5)
+    texture = numpy.asarray(cv2.GaussianBlur(numpy.asarray(rng.integers(0, 256, (300, 300)), numpy.uint8), (0, 0), 1.5), numpy.uint8)
     small = numpy.asarray(cv2.resize(texture, (150, 150)), numpy.uint8)
     blank = numpy.full((100, 100), 255, numpy.uint8)
 

@@ -176,10 +176,14 @@ def titled(names: Sequence[str]) -> tuple[int, ...]:
     """The names that carry words the others do not (`1_Autor`, `10_Registru`, `99_Scara` among `12`, `13`): an atlas's title, index
     and legend pages, never part of the order. Only when most names share one pattern once their numbers are taken out."""
     patterns = [_NUMBER.sub("#", _stem(name)).lower() for name in names]
-    common, count = Counter(patterns).most_common(1)[0] if patterns else ("", 0)
+    common, count = _most_common(patterns)
     if count < AGREE_SHARE * len(names):
         return ()
     return tuple(index for index, pattern in enumerate(patterns) if pattern != common)
+
+
+def _most_common(patterns: Sequence[str]) -> tuple[str, int]:
+    return Counter(patterns).most_common(1)[0] if patterns else ("", 0)
 
 
 def order_count(names: Sequence[str]) -> int:
