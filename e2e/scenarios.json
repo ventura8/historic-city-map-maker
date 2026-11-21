@@ -20371,6 +20371,28 @@
             "notes": "M20 §19 (track/autostitch, 2026-11-12). Tests: pipeline/tests/unit/test_placing_autostitch.py, pipeline/tests/unit/test_placing_autoplace.py, pipeline/tests/unit/test_placing_bundle.py, pipeline/tests/unit/test_placing_assemble.py."
         },
         {
+            "id": "S-P20-HAPPY-STITCH-FEATURES",
+            "behaviour": "P20",
+            "area": "pipeline",
+            "path": "happy",
+            "title": "Overlapping pieces whose names say nothing are laid out by what they show twice",
+            "asserts": "six colour pieces overlapping by 28 %, named in no order, one turned upside down and one by 6 degrees -> every piece placed, the half turn read as the variant and the 6 degrees as its small turn, seams proved by their pixels at 0.6 or more; tiles within the canvas limit, a turned tile setting only its own pixels",
+            "tier": "e2e-pipeline",
+            "status": "exists",
+            "notes": "M20 §19.14 (2026-11-21). Tests: pipeline/tests/unit/test_placing_featured.py."
+        },
+        {
+            "id": "S-P20-BAD-STITCH-FEATURES-NOISE",
+            "behaviour": "P20",
+            "area": "pipeline",
+            "path": "bad",
+            "title": "Feature links nothing proves never place a sheet",
+            "asserts": "noise sheets -> no feature layout, verdict poor; a link whose turn or shift disagrees with the others is dropped; too few matches or another scale make no link; on the real 1969 atlas 99 links whose pixels do not agree (its printed grid repeats on every page) place nothing",
+            "tier": "e2e-pipeline",
+            "status": "exists",
+            "notes": "M20 §19.14 (2026-11-21). Tests: pipeline/tests/unit/test_placing_featured.py."
+        },
+        {
             "id": "S-P20-BAD-STITCH-FOREIGN-SHEET",
             "behaviour": "P20",
             "area": "pipeline",

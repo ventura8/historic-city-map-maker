@@ -44,6 +44,7 @@ class Tile:
     top: int
     width: int
     height: int
+    angle: float = 0.0
 
     @property
     def centre(self) -> tuple[float, float]:
@@ -65,6 +66,16 @@ def picture(tile: Tile, colour: bool) -> UInt8Array:
     image = read_box(tile.path, tile.box, _read_size(tile))
     image = _colour(image) if colour else grey_of(image)
     return oriented(image, tile.variant)
+
+
+def turned(image: UInt8Array, angle: float) -> tuple[UInt8Array, numpy.ndarray]:
+    """The picture turned by a small `angle` (degrees, clockwise) about its centre, on paper, and where it has pixels of its own."""
+    height, width = image.shape[:2]
+    matrix = cv2.getRotationMatrix2D((width / 2.0, height / 2.0), -angle, 1.0)
+    border = (PAPER,) * (image.shape[2] if image.ndim == RGB else 1)
+    moved = cv2.warpAffine(image, matrix, (width, height), flags=cv2.INTER_LINEAR, borderValue=border)
+    inside = cv2.warpAffine(numpy.ones((height, width), numpy.uint8), matrix, (width, height), flags=cv2.INTER_NEAREST) > 0
+    return numpy.asarray(moved, numpy.uint8), inside
 
 
 def _colour(image: UInt8Array) -> UInt8Array:
@@ -117,14 +128,27 @@ class Canvas:
 
 
 def _paste(dataset: gdal.Dataset, tiles: Sequence[Tile], index: int, pixels: UInt8Array, size: tuple[int, int]) -> None:
+    """The tile's pixels where it owns the canvas. A turned tile (`angle`) sets only its own pixels, and also takes the canvas still
+    paper where a neighbour's turned corner left it bare (its box's corners are not the neighbour's pixels)."""
     tile = tiles[index]
+    pixels, inside = turned(pixels, tile.angle) if tile.angle else (pixels, None)
     for window in windows(tile, size):
-        mine = owners(tiles, window) == index
         region = _read(dataset, window)
         x0, y0, x1, y1 = window
         piece = pixels[y0 - tile.top : y1 - tile.top, x0 - tile.left : x1 - tile.left]
+        mine = _mine(owners(tiles, window) == index, region, inside, (x0 - tile.left, y0 - tile.top))
         region[mine] = piece[mine]
         _write(dataset, window, region)
+
+
+def _mine(owned: numpy.ndarray, region: UInt8Array, inside: numpy.ndarray | None, at: tuple[int, int]) -> numpy.ndarray:
+    """The window pixels the tile sets: those it owns, or for a turned tile those of its own pixels it owns or finds still paper."""
+    if inside is None:
+        return owned
+    height, width = owned.shape
+    own = inside[at[1] : at[1] + height, at[0] : at[0] + width]
+    bare = numpy.all(region == PAPER, axis=2) if region.ndim == RGB else region == PAPER
+    return numpy.asarray(own & (owned | bare), bool)
 
 
 def render(tiles: Sequence[Tile], canvas: Canvas) -> Path:

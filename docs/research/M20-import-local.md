@@ -851,6 +851,46 @@ on the computer that holds `harti.zip`; when the new version waits, open it from
 an empty cell), **Make the preview**, then **Place it on the map**; add points on the joined mosaic in the georeferencer if it asks,
 and approve the new version, which replaces the old one on the map.
 
+### 19.14 Layout by common features, and the harti.zip measurements (2026-11-21)
+
+When the names' layout (§19.1–19.5) is not `good`, `autostitch.propose` lays the series out a second time by what its sheets show
+twice, and keeps the better verdict (`better`: verdict, then sheets placed, then seam median):
+
+1. `overlaps.py`: each working copy's ORB features (3000, on a CLAHE copy); every pair matched (Lowe's ratio 0.75) and a
+   similarity fitted by RANSAC (`estimateAffinePartial2D`, 4 px). A pair links with at least 20 agreeing matches, 10 % of the
+   matches, and a scale within 0.8–1.25 (the sheets share one cell). The turns are walked out along a maximum spanning tree from
+   the largest linked group; a link off the tree's turns by more than 3° is dropped. The centres are one Huber IRLS solve; a
+   link still off by more than 12 px is dropped.
+2. `featured.py`: each sheet's quarter turn becomes its variant (the quarter most sheets share is upright; a variant the sheet's
+   shape does not allow on the cell leaves it out); the sheets are matched again on the cell in that variant, and what is left is a
+   small turn (`Plan.angles`, degrees clockwise about the cell's centre, their median taken as straight) and a shift.
+3. Every kept link is proved by its pixels: the two sheets' matched images (`seams.prepared`) correlated over their common area
+   once placed. That correlation is the seam's score the verdict reads; a link it does not prove (`missing`) is dropped, and only
+   the sheets a proved seam holds are placed. Feature counts never vouch for a layout.
+4. The mosaic: `Tile.angle` (default 0) turns a tile's picture about its centre on paper in `canvas_window`; a turned tile sets
+   only its own pixels, and takes canvas still paper where a neighbour's turned corner left it bare. Memory is unchanged (one tile
+   at the canvas's scale). `layout.json` keeps its axis-aligned `matrix` and the source `seam` (the shared schema is unchanged);
+   the small turn is not in it yet.
+
+The natural order also leaves out names with words the others lack (`sheetnames.titled`: `1_Autor`, `10_Registru`, `99_Scara`
+among `12`, `13`), an atlas's title, index and legend pages, as `no-join`; the column candidates count only the rest.
+
+Measured on harti.zip (dry runs of `propose` on the NUC, `hcm-pipeline` image, the same grouping before and after; scenarios
+S-P20-HAPPY-STITCH-FEATURES and S-P20-BAD-STITCH-FEATURES-NOISE):
+
+| Series | Sheets | Placed before → after | Seam median | Seam p95 px | Verdict | Feature links (proved) |
+| --- | --- | --- | --- | --- | --- | --- |
+| 1844–46 Borroczyn atlas | 99 | 38 → 38 | 0.0 | 3.48 | poor → poor | 0 |
+| 1846 atlas | 100 | 6 → 6 | 0.0 | 4.2 | poor → poor | tried, not better |
+| Bucuresti harta 1969 atlas | 144 | 102 → 102 | 0.0 | 7.26 | poor → poor | 99 (19 kept, 14 sheets) |
+| Plan cadastral 1911–14 | 128 | 128 → 128 (28 % held) | 0.0 | 2.12 | poor → poor | tried, not better |
+| Bucuresti 1895–99 pieces | 64 | 64 → 64 (56 % held) | 0.0 | 7.14 | poor → poor | 9 (1 kept, 2 sheets) |
+
+What it shows: every one of these series is cut on its plate's or fold's lines, so its sheets abut and show no strip twice. The
+features find almost nothing there (1895: 9 links among 64 pieces; the 1844–46 atlas none), and on the 1969 atlas 99 links whose
+pixels prove almost none (its red grid and letters a–f repeat on every page; lesson 753). The verdicts stay `poor` and nothing
+garbage is mosaicked, but no series is publishable yet. Abutting atlases need what this section does not do yet: a jigsaw of the pages' edges, or the atlas's own index page read as the grid.
+
 ## 20. Any computer runs an archive series: copies through the bucket (live report of 2026-11-13; DECISIONS §204)
 
 **What happened.** The owner connected two more workers for Bucharest (the NUC and the PC's WSL) beside the laptop that imported

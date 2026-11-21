@@ -4402,3 +4402,8 @@ Append a numbered entry to *Lessons from this repository* in the task that finds
     - Cause: `LAYOUT_SHEETS_MAX` was 2,000 (`@hcm/shared` and `archive/model.py`), set from the atlases; the 1:500 grid was larger and a weak seam named a sheet past it.
     - Fix and pin: the ceiling is 10,000 sheets and 40,000 seams on both sides; a weak seam naming sheet 4,533 validates (`imagery-tiles.test.ts`).
     - **Size a limit from the largest real input you hold, not from the case you were building for.**
+753. **Feature matches between atlas pages looked like a layout and were not one.**
+    - Seen: 2026-11-21, dry runs of `autostitch.propose` on harti.zip's Bucuresti harta 1969 atlas: ORB + RANSAC found 99 links between its 144 pages, yet laid out by them only 14 pages were held by a seam the pixels proved; the rest matched the red grid and the letters a–f printed the same on every page.
+    - Found by: the pixel proof added with the features layout (`featured.proof`); the feature counts alone would have passed it.
+    - Fix and pin: a feature link counts only once the two placed sheets correlate over their common area (`seams.prepared`), the verdict reads that score, and only sheets a proved seam holds are placed (M20 §19.13; S-P20-BAD-STITCH-FEATURES-NOISE, `pipeline/tests/unit/test_placing_featured.py`).
+    - **A match count says two pictures share features, not that they share ground: prove a stitch by its pixels before a verdict trusts it.**

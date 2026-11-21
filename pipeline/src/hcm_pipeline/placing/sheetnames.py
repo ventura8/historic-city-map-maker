@@ -6,7 +6,8 @@ The schemes, tried on each name's stem, the first one most names agree on wins:
 - a sheet number with a quadrant letter `A` to `D` (`12A`, `12-b`): sheet 12's top left, top right, bottom left and bottom right quarter,
   on a grid twice as fine;
 - folders as rows (`row1/…`, `row2/…`), each folder's files in natural order its columns;
-- else the natural order (`img003`, a PDF's page numbers): each name's index, its columns not known (`col_candidates`).
+- else the natural order (`img003`, a PDF's page numbers): each name's index, its columns not known (`col_candidates`); a name with
+  words the others lack (`10_Registru` among `12`, `13`) is a title, index or legend page and is left unread (`titled`).
 
 The order is the fallback the seams check (`autostitch`): a numbered atlas whose page count factors several ways gets its columns from the
 seams that join best. `cell_of` is the one parser of a single name against a known grid (the overview's hint, `overview.grid_hint`).
@@ -14,6 +15,7 @@ seams that join best. `cell_of` is the one parser of a single name against a kno
 
 import math
 import re
+from collections import Counter
 from collections.abc import Callable, Sequence
 from dataclasses import dataclass
 from pathlib import PurePosixPath
@@ -170,11 +172,27 @@ def _folder_cells(rows: Sequence[Sequence[int]]) -> dict[int, Cell]:
     return found
 
 
+def titled(names: Sequence[str]) -> tuple[int, ...]:
+    """The names that carry words the others do not (`1_Autor`, `10_Registru`, `99_Scara` among `12`, `13`): an atlas's title, index
+    and legend pages, never part of the order. Only when most names share one pattern once their numbers are taken out."""
+    patterns = [_NUMBER.sub("#", _stem(name)).lower() for name in names]
+    common, count = Counter(patterns).most_common(1)[0] if patterns else ("", 0)
+    if count < AGREE_SHARE * len(names):
+        return ()
+    return tuple(index for index, pattern in enumerate(patterns) if pattern != common)
+
+
+def order_count(names: Sequence[str]) -> int:
+    """How many names the order lays out (all but the titled ones)."""
+    return len(names) - len(titled(names))
+
+
 def ordered(names: Sequence[str], cols: int) -> NameGrid:
-    """The names in natural order laid row-major on `cols` columns."""
-    order = sorted(range(len(names)), key=lambda index: _natural_key(names[index]))
+    """The names in natural order laid row-major on `cols` columns, the titled ones left unread."""
+    unread = titled(names)
+    order = sorted((index for index in range(len(names)) if index not in unread), key=lambda index: _natural_key(names[index]))
     found = {index: divmod(position, cols) for position, index in enumerate(order)}
-    return NameGrid(found, math.ceil(len(names) / cols), cols, "order")
+    return NameGrid(found, math.ceil(len(order) / cols), cols, "order", unread)
 
 
 def _plausible(count: int, cols: int, aspect: float) -> tuple[bool, float, int] | None:
@@ -205,4 +223,4 @@ def grid_of(names: Sequence[str], aspect: float = 1.0) -> NameGrid:
     for found in (_explicit(stems), _quadrants(stems), _folders(names)):
         if found is not None:
             return found
-    return ordered(names, col_candidates(len(names), aspect)[0])
+    return ordered(names, col_candidates(order_count(names), aspect)[0])
