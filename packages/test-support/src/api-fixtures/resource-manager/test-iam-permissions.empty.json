@@ -1,0 +1,6 @@
+{
+    "call": "POST https://cloudresourcemanager.googleapis.com/v3/projects/<project>:testIamPermissions",
+    "note": "Google leaves `permissions` out when the caller holds none of them.",
+    "status": 200,
+    "body": {}
+}

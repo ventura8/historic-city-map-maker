@@ -1,0 +1,269 @@
+{
+    "call": "POST https://m2m.cr.usgs.gov/api/api/json/stable/scene-search (landsat_tm_c2_l1, metadataType full)",
+    "note": "M25 (docs/research/M25-landsat.md §8): Landsat 5 TM Collection 2 Level-1 over Bucharest (WRS-2 path 183, row 029), the whole e2e city in each footprint: a clear 1989 scene, a 35 % cloudy one of the same summer, and a clear 1990 scene; browse on LandsatLook. UNVERIFIED field names and the browse address' shape (§7: the first real search proves them).",
+    "status": 200,
+    "body": {
+        "requestId": 1000041,
+        "version": "stable",
+        "sessionId": 2000041,
+        "data": {
+            "results": [
+                {
+                    "browse": [
+                        {
+                            "id": "e2e-browse-LT51830291989193MTI00",
+                            "browseName": "Reflective Browse",
+                            "browsePath": "https://landsatlook.usgs.gov/gen-browse?size=rrb&type=refl&product_id=LT05_L1TP_183029_19890712_20200916_02_T1",
+                            "overlayPath": "",
+                            "thumbnailPath": "https://landsatlook.usgs.gov/gen-browse?size=thumb&type=refl&product_id=LT05_L1TP_183029_19890712_20200916_02_T1"
+                        }
+                    ],
+                    "cloudCover": "2",
+                    "entityId": "LT51830291989193MTI00",
+                    "displayId": "LT05_L1TP_183029_19890712_20200916_02_T1",
+                    "metadata": [
+                        {
+                            "id": "e2e-field-01",
+                            "fieldName": "Landsat Product Identifier L1",
+                            "value": "LT05_L1TP_183029_19890712_20200916_02_T1"
+                        },
+                        {
+                            "id": "e2e-field-02",
+                            "fieldName": "Landsat Scene Identifier",
+                            "value": "LT51830291989193MTI00"
+                        },
+                        {
+                            "id": "e2e-field-03",
+                            "fieldName": "Date Acquired",
+                            "value": "1989/07/12"
+                        },
+                        {
+                            "id": "e2e-field-04",
+                            "fieldName": "Land Cloud Cover",
+                            "value": "2.00"
+                        },
+                        {
+                            "id": "e2e-field-05",
+                            "fieldName": "WRS Path",
+                            "value": " 183"
+                        },
+                        {
+                            "id": "e2e-field-06",
+                            "fieldName": "WRS Row",
+                            "value": " 029"
+                        }
+                    ],
+                    "options": {
+                        "bulk": true,
+                        "download": true,
+                        "order": false,
+                        "secondary": true
+                    },
+                    "selected": null,
+                    "spatialBounds": {
+                        "type": "Polygon",
+                        "coordinates": [
+                            [
+                                [25.1, 43.75],
+                                [27.2, 43.75],
+                                [27.2, 45.35],
+                                [25.1, 45.35],
+                                [25.1, 43.75]
+                            ]
+                        ]
+                    },
+                    "spatialCoverage": {
+                        "type": "Polygon",
+                        "coordinates": [
+                            [
+                                [25.1, 43.75],
+                                [27.2, 43.75],
+                                [27.2, 45.35],
+                                [25.1, 45.35],
+                                [25.1, 43.75]
+                            ]
+                        ]
+                    },
+                    "temporalCoverage": {
+                        "endDate": "1989-07-12 00:00:00",
+                        "startDate": "1989-07-12 00:00:00"
+                    },
+                    "publishDate": "2020-09-16 00:00:00"
+                },
+                {
+                    "browse": [
+                        {
+                            "id": "e2e-browse-LT51830291989209MTI00",
+                            "browseName": "Reflective Browse",
+                            "browsePath": "https://landsatlook.usgs.gov/gen-browse?size=rrb&type=refl&product_id=LT05_L1TP_183029_19890728_20200916_02_T1",
+                            "overlayPath": "",
+                            "thumbnailPath": "https://landsatlook.usgs.gov/gen-browse?size=thumb&type=refl&product_id=LT05_L1TP_183029_19890728_20200916_02_T1"
+                        }
+                    ],
+                    "cloudCover": "35",
+                    "entityId": "LT51830291989209MTI00",
+                    "displayId": "LT05_L1TP_183029_19890728_20200916_02_T1",
+                    "metadata": [
+                        {
+                            "id": "e2e-field-01",
+                            "fieldName": "Landsat Product Identifier L1",
+                            "value": "LT05_L1TP_183029_19890728_20200916_02_T1"
+                        },
+                        {
+                            "id": "e2e-field-02",
+                            "fieldName": "Landsat Scene Identifier",
+                            "value": "LT51830291989209MTI00"
+                        },
+                        {
+                            "id": "e2e-field-03",
+                            "fieldName": "Date Acquired",
+                            "value": "1989/07/28"
+                        },
+                        {
+                            "id": "e2e-field-04",
+                            "fieldName": "Land Cloud Cover",
+                            "value": "35.00"
+                        },
+                        {
+                            "id": "e2e-field-05",
+                            "fieldName": "WRS Path",
+                            "value": " 183"
+                        },
+                        {
+                            "id": "e2e-field-06",
+                            "fieldName": "WRS Row",
+                            "value": " 029"
+                        }
+                    ],
+                    "options": {
+                        "bulk": true,
+                        "download": true,
+                        "order": false,
+                        "secondary": true
+                    },
+                    "selected": null,
+                    "spatialBounds": {
+                        "type": "Polygon",
+                        "coordinates": [
+                            [
+                                [25.1, 43.75],
+                                [27.2, 43.75],
+                                [27.2, 45.35],
+                                [25.1, 45.35],
+                                [25.1, 43.75]
+                            ]
+                        ]
+                    },
+                    "spatialCoverage": {
+                        "type": "Polygon",
+                        "coordinates": [
+                            [
+                                [25.1, 43.75],
+                                [27.2, 43.75],
+                                [27.2, 45.35],
+                                [25.1, 45.35],
+                                [25.1, 43.75]
+                            ]
+                        ]
+                    },
+                    "temporalCoverage": {
+                        "endDate": "1989-07-28 00:00:00",
+                        "startDate": "1989-07-28 00:00:00"
+                    },
+                    "publishDate": "2020-09-16 00:00:00"
+                },
+                {
+                    "browse": [
+                        {
+                            "id": "e2e-browse-LT51830291990180MTI00",
+                            "browseName": "Reflective Browse",
+                            "browsePath": "https://landsatlook.usgs.gov/gen-browse?size=rrb&type=refl&product_id=LT05_L1TP_183029_19900629_20200916_02_T1",
+                            "overlayPath": "",
+                            "thumbnailPath": "https://landsatlook.usgs.gov/gen-browse?size=thumb&type=refl&product_id=LT05_L1TP_183029_19900629_20200916_02_T1"
+                        }
+                    ],
+                    "cloudCover": "4",
+                    "entityId": "LT51830291990180MTI00",
+                    "displayId": "LT05_L1TP_183029_19900629_20200916_02_T1",
+                    "metadata": [
+                        {
+                            "id": "e2e-field-01",
+                            "fieldName": "Landsat Product Identifier L1",
+                            "value": "LT05_L1TP_183029_19900629_20200916_02_T1"
+                        },
+                        {
+                            "id": "e2e-field-02",
+                            "fieldName": "Landsat Scene Identifier",
+                            "value": "LT51830291990180MTI00"
+                        },
+                        {
+                            "id": "e2e-field-03",
+                            "fieldName": "Date Acquired",
+                            "value": "1990/06/29"
+                        },
+                        {
+                            "id": "e2e-field-04",
+                            "fieldName": "Land Cloud Cover",
+                            "value": "4.00"
+                        },
+                        {
+                            "id": "e2e-field-05",
+                            "fieldName": "WRS Path",
+                            "value": " 183"
+                        },
+                        {
+                            "id": "e2e-field-06",
+                            "fieldName": "WRS Row",
+                            "value": " 029"
+                        }
+                    ],
+                    "options": {
+                        "bulk": true,
+                        "download": true,
+                        "order": false,
+                        "secondary": true
+                    },
+                    "selected": null,
+                    "spatialBounds": {
+                        "type": "Polygon",
+                        "coordinates": [
+                            [
+                                [25.1, 43.75],
+                                [27.2, 43.75],
+                                [27.2, 45.35],
+                                [25.1, 45.35],
+                                [25.1, 43.75]
+                            ]
+                        ]
+                    },
+                    "spatialCoverage": {
+                        "type": "Polygon",
+                        "coordinates": [
+                            [
+                                [25.1, 43.75],
+                                [27.2, 43.75],
+                                [27.2, 45.35],
+                                [25.1, 45.35],
+                                [25.1, 43.75]
+                            ]
+                        ]
+                    },
+                    "temporalCoverage": {
+                        "endDate": "1990-06-29 00:00:00",
+                        "startDate": "1990-06-29 00:00:00"
+                    },
+                    "publishDate": "2020-09-16 00:00:00"
+                }
+            ],
+            "recordsReturned": 3,
+            "totalHits": 3,
+            "totalHitsAccuracy": "exact",
+            "isCustomized": false,
+            "numExcluded": 0,
+            "startingNumber": 1,
+            "nextRecord": 4
+        },
+        "errorCode": null,
+        "errorMessage": null
+    }
+}

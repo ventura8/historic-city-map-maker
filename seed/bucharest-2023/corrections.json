@@ -1,0 +1,17 @@
+{
+    "parcul-ferdinand-1930": {
+        "location": {
+            "lat": 44.448183,
+            "lng": 26.139431
+        },
+        "bearing": 219.1,
+        "fov": 50,
+        "migrated": {
+            "location": {
+                "lat": 44.448214,
+                "lng": 26.139544
+            }
+        },
+        "source": "https://bucurestiuldisparut.github.io/photos/parcul ferdinand 1930.jpg"
+    }
+}

@@ -1,0 +1,11 @@
+{
+    "call": "GET https://secretmanager.googleapis.com/v1/projects/<project>/secrets/<secret>/versions/latest:access",
+    "note": "`payload.data` is the base64 of the value.",
+    "status": 200,
+    "body": {
+        "name": "projects/{{projectNumber}}/secrets/{{secretId}}/versions/{{version}}",
+        "payload": {
+            "data": "{{payload}}"
+        }
+    }
+}

@@ -1,0 +1,16 @@
+{
+    "call": "PATCH https://api.mapbox.com/tokens/v2/<user>/<tokenId>?access_token=<sk>",
+    "status": 200,
+    "body": {
+        "client": "api",
+        "usage": "pk",
+        "id": "{{tokenId}}",
+        "default": false,
+        "note": "{{note}}",
+        "scopes": ["styles:read", "styles:tiles", "fonts:read"],
+        "created": "2026-10-12T08:30:00.000Z",
+        "modified": "2026-10-12T08:30:00.000Z",
+        "allowedUrls": ["https://ventura8.github.io"],
+        "token": "{{token}}"
+    }
+}

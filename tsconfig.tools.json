@@ -1,0 +1,14 @@
+// Node-side tool configuration written in TypeScript (Vitest and the per-package Vite configs).
+// Kept out of the package projects so browser sources never see Node globals.
+{
+    "extends": "./tsconfig.base.json",
+    "compilerOptions": {
+        "lib": ["es2023", "dom"],
+        "types": ["node"],
+        "outDir": "${configDir}/.tsbuild/tools"
+    },
+    "include": ["vitest.config.ts", "packages/*/vite.config.ts", "packages/*/vite.*.config.ts"],
+    // The Vite configs import the site build's plugins (scripts/site/src: the admin's CSS-literal minifier, both builds'
+    // third-party notices) and the kit's font table (packages/ui/src/fonts/font-files.ts) for the notices of the fonts.
+    "references": [{ "path": "scripts/site" }, { "path": "packages/ui" }]
+}

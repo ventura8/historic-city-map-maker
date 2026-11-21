@@ -1,0 +1,27 @@
+{
+    "globs": ["**/*.md"],
+    "ignores": [
+        "**/node_modules/**",
+        "**/dist/**",
+        "reports/**",
+        "coverage/**",
+        "playwright-report/**",
+        "test-results/**",
+        ".venv/**",
+        // Third-party code vendored only to patch an advisory (vendor/npm/braces/README.md).
+        "vendor/**",
+        ".claude/worktrees/**",
+    ],
+    "config": {
+        "default": true,
+        // Line length: prose wraps at whatever width the editor shows; tables and long URLs cannot
+        // wrap at all. The 140-column limit is enforced for code instead (.editorconfig, linters).
+        "MD013": false,
+        // Inline HTML is used for badges and <details> sections.
+        "MD033": false,
+        // The first line need not be a top-level heading (YAML front matter in agent assets).
+        "MD041": false,
+        // Duplicate headings are normal across sibling sections ("Happy path" / "Bad path").
+        "MD024": { "siblings_only": true },
+    },
+}

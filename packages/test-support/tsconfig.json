@@ -1,0 +1,12 @@
+// Test-only helpers. Sonar treats this package as tests; it is outside coverage.include. Node types for the fake
+// upstreams' HTTP server (src/fakes/http-server.ts); JSON modules for the API fixtures (src/api-fixtures/), which a
+// composite project must list in `include`.
+{
+    "extends": "../../tsconfig.base.json",
+    "compilerOptions": {
+        "types": ["node"],
+        "resolveJsonModule": true
+    },
+    "include": ["src", "src/**/*.json"],
+    "references": [{ "path": "../shared" }, { "path": "../ui" }]
+}

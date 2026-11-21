@@ -1,0 +1,105 @@
+#!/usr/bin/env bash
+# ==============================================================================
+# git pre-commit hook: the checks every commit must pass, whichever agent or human makes it.
+#
+#   1. no secret-bearing file is staged (.env*, .sonar-token, *.secret.local, service-account JSON, *.p12);
+#   2. the zero-inline-suppression scan (scripts/ci/check_no_inline_suppressions.py) on the STAGED
+#      contents (the index, exported to a temporary directory), not on the working tree;
+#   3. gitleaks on the staged changes.
+#
+# Install once per clone: git config core.hooksPath scripts/git-hooks (docs/SETUP.md).
+# The tools run inside the quality image (HCM_IMAGE, default hcm-quality:local; build it with
+# bash scripts/ci/build-and-test.sh), never with the host's Python, like every pipeline gate.
+# Inside the image itself (HCM_TEST_IMAGE=1, as in scripts/ci/tests/test_git_hooks.py) they run
+# directly. The full pipeline stays the gate before a push (pre-push); this hook only stops the
+# mistakes a later commit cannot undo: a secret in history and a suppression.
+# ==============================================================================
+set -euo pipefail
+
+ROOT_DIR="$(git rev-parse --show-toplevel)"
+cd "$ROOT_DIR"
+IMAGE="${HCM_IMAGE:-hcm-quality:local}"
+INDEX_COPY=""
+
+fail() {
+	echo "[pre-commit] refused: $1" >&2
+	exit 1
+}
+
+cleanup() {
+	if [[ -n "$INDEX_COPY" ]]; then
+		rm -rf "$INDEX_COPY"
+	fi
+	return 0
+}
+
+# Secret-bearing files are git-ignored, and some are allowlisted by path in .gitleaks.toml (the
+# directory scan must not report the local copies), so a force-added one would pass gitleaks.
+refuse_secret_files() {
+	local path name
+	for path in "$@"; do
+		name="${path##*/}"
+		case "$name" in
+		.env.example) ;;
+		.env | .env.* | .sonar-token | .secret.local | *.secret.local | *service-account*.json | *.p12)
+			fail "${path} holds secrets and is never committed (AGENTS.md -> Secrets); run: git rm --cached -- '${path}'"
+			;;
+		*) ;;
+		esac
+	done
+	return 0
+}
+
+# The git directory a container needs besides the work tree (a linked worktree keeps it elsewhere).
+git_dir_mount() {
+	local common
+	common="$(git rev-parse --path-format=absolute --git-common-dir)"
+	if [[ "$common" != "$ROOT_DIR"/* ]]; then
+		printf '%s\n' "--volume=${common}:${common}"
+	fi
+	return 0
+}
+
+# Runs a tool from the quality image, with the repository and the index copy at their own paths.
+in_image() {
+	if [[ "${HCM_TEST_IMAGE:-}" == "1" ]]; then
+		"$@"
+		return
+	fi
+	if ! command -v docker >/dev/null 2>&1; then
+		fail "docker is required: the hook runs its tools inside the quality image (docs/SETUP.md)"
+	fi
+	if ! docker image inspect "$IMAGE" >/dev/null 2>&1; then
+		fail "the quality image ${IMAGE} is missing; build it once with: bash scripts/ci/build-and-test.sh"
+	fi
+	local -a mounts=("--volume=${ROOT_DIR}:${ROOT_DIR}" "--volume=${INDEX_COPY}:${INDEX_COPY}")
+	mapfile -t -O "${#mounts[@]}" mounts < <(git_dir_mount)
+	docker run --rm --network none --user "$(id -u):$(id -g)" --env HOME=/tmp/hcm-home \
+		"${mounts[@]}" --workdir "$ROOT_DIR" "$IMAGE" "$@"
+}
+
+main() {
+	local -a staged=()
+	mapfile -d '' -t staged < <(git diff --cached --name-only -z --diff-filter=ACMR)
+	if [[ "${#staged[@]}" -eq 0 ]]; then
+		return 0
+	fi
+	refuse_secret_files "${staged[@]}"
+
+	# The staged contents, not the working tree: a suppression staged and then removed from the
+	# working tree alone must still be caught, and an unstaged one must not block a clean commit.
+	INDEX_COPY="$(mktemp -d)"
+	trap cleanup EXIT
+	printf '%s\0' "${staged[@]}" | git checkout-index --prefix="${INDEX_COPY}/" -z --stdin
+
+	echo "[pre-commit] inline-suppression scan on ${#staged[@]} staged file(s)"
+	in_image python3 scripts/ci/check_no_inline_suppressions.py --root "$INDEX_COPY" "${staged[@]}" ||
+		fail "inline suppressions are banned: fix the finding (AGENTS.md -> No inline suppressions)"
+
+	echo "[pre-commit] gitleaks on the staged changes"
+	in_image gitleaks git --pre-commit --staged --redact --no-banner --config .gitleaks.toml "$ROOT_DIR" ||
+		fail "gitleaks found a secret in the staged changes: unstage it and rotate the credential"
+	return 0
+}
+
+main "$@"

@@ -1,0 +1,42 @@
+{
+    "call": "POST https://billingbudgets.googleapis.com/v1/billingAccounts/<account>/budgets",
+    "status": 200,
+    "body": {
+        "name": "billingAccounts/{{billingAccountId}}/budgets/{{budgetId}}",
+        "displayName": "Historic City Map $5",
+        "budgetFilter": {
+            "projects": ["projects/{{projectNumber}}"],
+            "calendarPeriod": "MONTH",
+            "creditTypesTreatment": "INCLUDE_ALL_CREDITS"
+        },
+        "amount": {
+            "specifiedAmount": {
+                "currencyCode": "USD",
+                "units": "5"
+            }
+        },
+        "thresholdRules": [
+            {
+                "thresholdPercent": 0.5,
+                "spendBasis": "CURRENT_SPEND"
+            },
+            {
+                "thresholdPercent": 0.9,
+                "spendBasis": "CURRENT_SPEND"
+            },
+            {
+                "thresholdPercent": 1,
+                "spendBasis": "CURRENT_SPEND"
+            },
+            {
+                "thresholdPercent": 1,
+                "spendBasis": "FORECASTED_SPEND"
+            }
+        ],
+        "notificationsRule": {
+            "pubsubTopic": "projects/{{projectId}}/topics/budget",
+            "schemaVersion": "1.0"
+        },
+        "etag": "e2e-budget-etag-1"
+    }
+}

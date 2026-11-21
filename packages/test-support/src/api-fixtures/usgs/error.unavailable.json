@@ -1,0 +1,9 @@
+{
+    "call": "POST https://m2m.cr.usgs.gov/api/api/json/stable/<any endpoint>",
+    "note": "A gateway failure in front of M2M (not the maintenance page).",
+    "status": 502,
+    "headers": {
+        "content-type": "text/html"
+    },
+    "text": "<html>\n<head><title>502 Bad Gateway</title></head>\n<body>\n<center><h1>502 Bad Gateway</h1></center>\n</body>\n</html>\n"
+}

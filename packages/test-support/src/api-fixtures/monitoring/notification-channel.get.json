@@ -1,0 +1,14 @@
+{
+    "call": "GET https://monitoring.googleapis.com/v3/projects/<project>/notificationChannels (each entry; the answer of POST)",
+    "status": 200,
+    "body": {
+        "name": "projects/{{projectId}}/notificationChannels/{{channelId}}",
+        "type": "email",
+        "displayName": "{{displayName}}",
+        "labels": {
+            "email_address": "{{ownerEmail}}"
+        },
+        "enabled": true,
+        "verificationStatus": "VERIFICATION_STATUS_UNSPECIFIED"
+    }
+}

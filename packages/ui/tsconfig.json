@@ -1,0 +1,6 @@
+// Browser-only Lit package. Tests run in Vitest browser mode (Chromium via @vitest/browser-playwright).
+{
+    "extends": "../../tsconfig.base.json",
+    "include": ["src"],
+    "references": [{ "path": "../shared" }]
+}

@@ -1,0 +1,7 @@
+{
+    "call": "GET https://pubsub.googleapis.com/v1/projects/<project>/topics/<topic> (and the answer of PUT)",
+    "status": 200,
+    "body": {
+        "name": "projects/{{projectId}}/topics/{{topic}}"
+    }
+}

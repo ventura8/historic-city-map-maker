@@ -1,0 +1,13 @@
+{
+    "call": "GET https://firebasestorage.googleapis.com/v1alpha/projects/<project>/defaultBucket (and the answer of POST)",
+    "note": "UNVERIFIED shape until the first real project (docs/research/M2b-interfaces.md section 3.4 item buckets).",
+    "status": 200,
+    "body": {
+        "name": "projects/{{projectNumber}}/defaultBucket",
+        "location": "{{region}}",
+        "bucket": {
+            "name": "projects/{{projectNumber}}/buckets/{{bucket}}"
+        },
+        "storageClass": "STANDARD"
+    }
+}

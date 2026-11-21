@@ -1,0 +1,46 @@
+{
+    "layerId": "planul-bucurestilor-1911",
+    "jobId": "up-plan1911",
+    "origin": "upload",
+    "state": "needs_gcps",
+    "source": {
+        "kind": "upload",
+        "uploadPath": "uploads/rasters/bucharest/uid-owner/up-plan1911/Qx7mP2rT9w.tif",
+        "originalName": "Planul Bucureștilor 1911.tif",
+        "bytes": 104857600
+    },
+    "label": {
+        "ro": "Planul Bucureștilor 1911"
+    },
+    "year": 1911,
+    "scan": {
+        "path": "rasters/bucharest/planul-bucurestilor-1911/up-plan1911/scan.tif",
+        "width": 8192,
+        "height": 6144,
+        "sha256": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+        "previewPath": "rasters/bucharest/planul-bucurestilor-1911/up-plan1911/scan-preview.jpg",
+        "previewScale": 0.5,
+        "detailPath": "rasters/bucharest/planul-bucurestilor-1911/up-plan1911/scan-tiles.bin",
+        "detailScale": 1
+    },
+    "reference": {
+        "bounds": {
+            "west": 25.95,
+            "south": 44.33,
+            "east": 26.25,
+            "north": 44.55
+        },
+        "osmPath": "rasters/bucharest/planul-bucurestilor-1911/up-plan1911/reference-osm.png",
+        "s2Path": "rasters/bucharest/planul-bucurestilor-1911/up-plan1911/reference-s2.jpg"
+    },
+    "createdBy": "uid-owner",
+    "createdAt": {
+        "seconds": 1792100000,
+        "nanoseconds": 0
+    },
+    "updatedBy": "system:pipeline",
+    "updatedAt": {
+        "seconds": 1792100600,
+        "nanoseconds": 0
+    }
+}

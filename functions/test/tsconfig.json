@@ -1,0 +1,12 @@
+// Unit and emulator tests of @hcm/functions, type-checked apart from src/ (same Node settings).
+{
+    "extends": "../../tsconfig.base.json",
+    "compilerOptions": {
+        "module": "nodenext",
+        "moduleResolution": "nodenext",
+        "lib": ["es2023"],
+        "types": ["node"]
+    },
+    "include": ["."],
+    "references": [{ "path": ".." }, { "path": "../../packages/test-support" }]
+}

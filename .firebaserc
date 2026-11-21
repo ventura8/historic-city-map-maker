@@ -1,0 +1,6 @@
+{
+    "projects": {
+        "default": "bucurestiul-disparut",
+        "e2e": "demo-hcm"
+    }
+}

@@ -1,0 +1,57 @@
+name: Landing page
+
+# Publishes the project's landing page on GitHub Pages (https://ventura8.github.io/historic-city-map-maker/,
+# DECISIONS-for-review.md §162): the committed sites/landing/ folder, as it is. The static stage's `landing` gate holds
+# that folder to exactly what `npm run build:landing` writes, so this workflow builds nothing and runs no repository
+# code: it uploads the folder and deploys it. Needs the repository's Pages source set to GitHub Actions.
+
+on:
+    push:
+        branches: [master]
+        paths:
+            - 'sites/landing/**'
+            - '.github/workflows/pages.yml'
+    workflow_dispatch:
+
+concurrency:
+    group: ${{ github.workflow }}
+    cancel-in-progress: false
+
+permissions:
+    contents: read
+
+jobs:
+    upload:
+        name: Upload the landing page
+        runs-on: ubuntu-24.04
+        timeout-minutes: 10
+        permissions:
+            contents: read
+        steps:
+            - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+              with:
+                  persist-credentials: false
+
+            - name: Upload the GitHub Pages artifact
+              uses: actions/upload-pages-artifact@fc324d3547104276b827a68afc52ff2a11cc49c9 # v5.0.0
+              with:
+                  path: sites/landing
+
+    deploy:
+        name: Deploy to GitHub Pages
+        needs: upload
+        runs-on: ubuntu-24.04
+        timeout-minutes: 10
+        permissions:
+            pages: write
+            id-token: write
+        environment:
+            name: github-pages
+            url: ${{ steps.deployment.outputs.page_url }}
+        steps:
+            - name: Configure GitHub Pages
+              uses: actions/configure-pages@45bfe0192ca1faeb007ade9deae92b16b8254a0d # v6.0.0
+
+            - name: Deploy
+              id: deployment
+              uses: actions/deploy-pages@368f82528645a54fb793d4d04e342629a3f51346 # v5.0.1

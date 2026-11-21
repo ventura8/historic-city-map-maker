@@ -1,0 +1,15 @@
+{
+    "call": "POST https://secretmanager.googleapis.com/v1/projects/<project>/secrets/<secret>/versions/<version>:destroy",
+    "status": 200,
+    "body": {
+        "name": "projects/{{projectNumber}}/secrets/{{secretId}}/versions/{{version}}",
+        "createTime": "2026-10-12T08:30:00.000000Z",
+        "state": "DESTROYED",
+        "replicationStatus": {
+            "automatic": {}
+        },
+        "etag": "\"1760257800000001\"",
+        "clientSpecifiedPayloadChecksum": false,
+        "destroyTime": "2026-10-12T08:31:00.000000Z"
+    }
+}

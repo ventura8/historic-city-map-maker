@@ -1,0 +1,8 @@
+{
+    "call": "GET https://nominatim.openstreetmap.org/reverse?format=jsonv2&lat=<lat>&lon=<lon>",
+    "note": "Nominatim answers HTTP 200 when nothing is near (the open sea).",
+    "status": 200,
+    "body": {
+        "error": "Unable to geocode"
+    }
+}

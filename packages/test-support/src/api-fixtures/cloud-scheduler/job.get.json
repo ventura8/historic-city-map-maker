@@ -1,0 +1,15 @@
+{
+    "call": "GET https://cloudscheduler.googleapis.com/v1/projects/<project>/locations/<region>/jobs (each entry)",
+    "note": "The job firebase-tools creates for the ops.tick scheduled function (M2b item scheduler).",
+    "status": 200,
+    "body": {
+        "name": "projects/{{projectId}}/locations/{{region}}/jobs/firebase-schedule-ops-tick-{{region}}",
+        "schedule": "every 15 minutes",
+        "timeZone": "UTC",
+        "state": "ENABLED",
+        "httpTarget": {
+            "uri": "https://ops-tick-e2e.a.run.app/",
+            "httpMethod": "POST"
+        }
+    }
+}

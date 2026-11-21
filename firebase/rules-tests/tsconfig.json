@@ -1,0 +1,14 @@
+// Rules tests (@hcm/rules-tests): there is no product code here, only the allow/deny matrix that runs
+// against the Firebase emulators (firebase emulators:exec, scripts/ci/run-emulated-tests.sh). They import
+// CLIENT_WRITES, the document schemas and the paths from @hcm/shared, so a schema change fails them.
+{
+    "extends": "../../tsconfig.base.json",
+    "compilerOptions": {
+        // Node runtime (fs for firebase.json) and Vitest's declarations, which reference Node types.
+        "types": ["node"],
+        // firebase@13's Firestore declarations reference Temporal.Instant (types only; never called here).
+        "lib": ["es2023", "dom", "dom.iterable", "esnext.temporal"]
+    },
+    "include": ["test"],
+    "references": [{ "path": "../../packages/shared" }]
+}

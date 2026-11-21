@@ -1,0 +1,11 @@
+// Unit tests of create-historic-city, type-checked apart from src/.
+{
+    "extends": "../../../tsconfig.base.json",
+    "compilerOptions": {
+        "lib": ["es2023", "dom"],
+        "types": ["node"],
+        "resolveJsonModule": true
+    },
+    "include": ["."],
+    "references": [{ "path": ".." }, { "path": "../../shared" }, { "path": "../../ui" }]
+}

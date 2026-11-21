@@ -1,0 +1,40 @@
+{
+    "call": "POST https://run.googleapis.com/v2/projects/<project>/locations/<region>/jobs?jobId=<job>",
+    "note": "Finding 47 of 2026-11-01: the live answer was a 429 whose body the step did not print. A quota (not a request rate) as Google's error model writes one: google.rpc.QuotaFailure with the newer violation fields and the ErrorInfo of a quota. UNVERIFIED shape and names for Cloud Run: the first live answer the step now prints replaces them.",
+    "status": 429,
+    "body": {
+        "error": {
+            "code": 429,
+            "message": "Quota exceeded for quota metric 'run.googleapis.com/cpu_allocation' and limit 'CpuAllocPerProjectRegion' of service 'run.googleapis.com' for consumer 'project_number:{{projectNumber}}'.",
+            "status": "RESOURCE_EXHAUSTED",
+            "details": [
+                {
+                    "@type": "type.googleapis.com/google.rpc.ErrorInfo",
+                    "reason": "RESOURCE_QUOTA_EXCEEDED",
+                    "domain": "googleapis.com",
+                    "metadata": {
+                        "service": "run.googleapis.com",
+                        "consumer": "projects/{{projectNumber}}",
+                        "quota_metric": "run.googleapis.com/cpu_allocation",
+                        "quota_limit": "CpuAllocPerProjectRegion",
+                        "quota_limit_value": "4",
+                        "quota_location": "{{region}}"
+                    }
+                },
+                {
+                    "@type": "type.googleapis.com/google.rpc.QuotaFailure",
+                    "violations": [
+                        {
+                            "subject": "projects/{{projectNumber}}/locations/{{region}}",
+                            "description": "The request needs more than the project's quota allows.",
+                            "apiService": "run.googleapis.com",
+                            "quotaMetric": "run.googleapis.com/cpu_allocation",
+                            "quotaId": "CpuAllocPerProjectRegion",
+                            "quotaValue": "4"
+                        }
+                    ]
+                }
+            ]
+        }
+    }
+}

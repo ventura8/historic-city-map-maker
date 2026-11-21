@@ -1,0 +1,8 @@
+{
+    "call": "POST https://api.mapbox.com/tokens/v2/<user>?access_token=<sk>",
+    "note": "UNVERIFIED wording: an account blocked on 'confirm billing information'.",
+    "status": 422,
+    "body": {
+        "message": "Please confirm your billing information before creating tokens."
+    }
+}

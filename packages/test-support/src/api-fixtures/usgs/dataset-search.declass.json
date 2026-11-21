@@ -1,0 +1,35 @@
+{
+    "call": "POST https://m2m.cr.usgs.gov/api/api/json/stable/dataset-search",
+    "status": 200,
+    "body": {
+        "requestId": 1000001,
+        "version": "stable",
+        "sessionId": 2000001,
+        "data": [
+            {
+                "abstractText": "Declassified CORONA satellite photographs (1960-1972).",
+                "acquisitionStart": "1960-08-18",
+                "acquisitionEnd": "1972-05-31",
+                "collectionName": "Declass 1 (1996)",
+                "datasetAlias": "corona2",
+                "datasetId": "5e839febdccb64b3",
+                "datasetCategoryId": "64",
+                "supportCloudCover": false,
+                "supportDeletionSearch": false
+            },
+            {
+                "abstractText": "Declassified KH-7 and KH-9 satellite photographs.",
+                "acquisitionStart": "1963-07-01",
+                "acquisitionEnd": "1980-10-31",
+                "collectionName": "Declass 2 (2002)",
+                "datasetAlias": "declassii",
+                "datasetId": "5e839ff7d71d4811",
+                "datasetCategoryId": "64",
+                "supportCloudCover": false,
+                "supportDeletionSearch": false
+            }
+        ],
+        "errorCode": null,
+        "errorMessage": null
+    }
+}

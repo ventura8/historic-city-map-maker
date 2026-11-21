@@ -1,0 +1,124 @@
+{
+    "call": "POST https://m2m.cr.usgs.gov/api/api/json/stable/scene-search",
+    "status": 200,
+    "body": {
+        "requestId": 1000001,
+        "version": "stable",
+        "sessionId": 2000001,
+        "data": {
+            "results": [
+                {
+                    "browse": [
+                        {
+                            "id": "e2e-browse",
+                            "browseName": "Standard Browse",
+                            "browsePath": "https://ims.cr.usgs.gov/browse/declass1/DS1105-1071DF075.jpg",
+                            "overlayPath": "",
+                            "thumbnailPath": "https://ims.cr.usgs.gov/thumbnail/declass1/DS1105-1071DF075.jpg"
+                        }
+                    ],
+                    "cloudCover": "-1",
+                    "entityId": "DS1105-1071DF075",
+                    "displayId": "DS1105-1071DF075",
+                    "metadata": [],
+                    "options": {
+                        "bulk": true,
+                        "download": true,
+                        "order": true,
+                        "secondary": false
+                    },
+                    "selected": null,
+                    "spatialBounds": {
+                        "type": "Polygon",
+                        "coordinates": [
+                            [
+                                [25.95, 44.35],
+                                [26.25, 44.35],
+                                [26.25, 44.52],
+                                [25.95, 44.52],
+                                [25.95, 44.35]
+                            ]
+                        ]
+                    },
+                    "spatialCoverage": {
+                        "type": "Polygon",
+                        "coordinates": [
+                            [
+                                [25.95, 44.35],
+                                [26.25, 44.35],
+                                [26.25, 44.52],
+                                [25.95, 44.52],
+                                [25.95, 44.35]
+                            ]
+                        ]
+                    },
+                    "temporalCoverage": {
+                        "endDate": "1968-12-11 00:00:00",
+                        "startDate": "1968-12-11 00:00:00"
+                    },
+                    "publishDate": "2014-02-01 00:00:00"
+                },
+                {
+                    "browse": [
+                        {
+                            "id": "e2e-browse",
+                            "browseName": "Standard Browse",
+                            "browsePath": "https://ims.cr.usgs.gov/browse/declass1/DS1105-1071DF076.jpg",
+                            "overlayPath": "",
+                            "thumbnailPath": "https://ims.cr.usgs.gov/thumbnail/declass1/DS1105-1071DF076.jpg"
+                        }
+                    ],
+                    "cloudCover": "-1",
+                    "entityId": "DS1105-1071DF076",
+                    "displayId": "DS1105-1071DF076",
+                    "metadata": [],
+                    "options": {
+                        "bulk": true,
+                        "download": true,
+                        "order": true,
+                        "secondary": false
+                    },
+                    "selected": null,
+                    "spatialBounds": {
+                        "type": "Polygon",
+                        "coordinates": [
+                            [
+                                [25.95, 44.35],
+                                [26.25, 44.35],
+                                [26.25, 44.52],
+                                [25.95, 44.52],
+                                [25.95, 44.35]
+                            ]
+                        ]
+                    },
+                    "spatialCoverage": {
+                        "type": "Polygon",
+                        "coordinates": [
+                            [
+                                [25.95, 44.35],
+                                [26.25, 44.35],
+                                [26.25, 44.52],
+                                [25.95, 44.52],
+                                [25.95, 44.35]
+                            ]
+                        ]
+                    },
+                    "temporalCoverage": {
+                        "endDate": "1968-12-11 00:00:00",
+                        "startDate": "1968-12-11 00:00:00"
+                    },
+                    "publishDate": "2014-02-01 00:00:00"
+                }
+            ],
+            "recordsReturned": 2,
+            "totalHits": 2,
+            "totalHitsAccuracy": "exact",
+            "isCustomized": false,
+            "numExcluded": 0,
+            "startingNumber": 1,
+            "nextRecord": 3
+        },
+        "errorCode": null,
+        "errorMessage": null
+    }
+}

@@ -1,0 +1,8 @@
+{
+    "call": "GET https://oauth2.googleapis.com/tokeninfo?access_token=<token>",
+    "status": 400,
+    "body": {
+        "error": "invalid_token",
+        "error_description": "Invalid Value"
+    }
+}

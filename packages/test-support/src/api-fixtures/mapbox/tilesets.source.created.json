@@ -1,0 +1,10 @@
+{
+    "call": "POST https://api.mapbox.com/tilesets/v1/sources/<user>/<source>?access_token=<sk>",
+    "status": 200,
+    "body": {
+        "file_size": 10485760,
+        "files": 1,
+        "id": "mapbox://tileset-source/{{mapboxUser}}/{{sourceId}}",
+        "source_size": 10485760
+    }
+}

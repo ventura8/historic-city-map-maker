@@ -1,0 +1,32 @@
+{
+    "call": "POST https://serviceusage.googleapis.com/v1/projects/<project>/services:batchEnable",
+    "status": 400,
+    "body": {
+        "error": {
+            "code": 400,
+            "message": "Billing account for project '{{projectNumber}}' is not found. Billing must be enabled for activation of service(s) '{{service}}' to proceed.",
+            "status": "FAILED_PRECONDITION",
+            "details": [
+                {
+                    "@type": "type.googleapis.com/google.rpc.PreconditionFailure",
+                    "violations": [
+                        {
+                            "type": "googleapis.com/billing-enabled",
+                            "subject": "?error_code=390001&project={{projectNumber}}&services={{service}}",
+                            "description": "Billing must be enabled for activation of service '{{service}}'."
+                        }
+                    ]
+                },
+                {
+                    "@type": "type.googleapis.com/google.rpc.ErrorInfo",
+                    "reason": "UREQ_PROJECT_BILLING_NOT_FOUND",
+                    "domain": "serviceusage.googleapis.com",
+                    "metadata": {
+                        "services": "{{service}}",
+                        "project": "{{projectNumber}}"
+                    }
+                }
+            ]
+        }
+    }
+}

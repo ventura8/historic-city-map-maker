@@ -1,0 +1,8 @@
+{
+    "call": "GET https://clouderrorreporting.googleapis.com/v1beta1/projects/<project>/groupStats?timeRange.period=PERIOD_1_DAY",
+    "note": "No group in the window: `errorGroupStats` is left out.",
+    "status": 200,
+    "body": {
+        "timeRangeBegin": "2026-10-11T08:30:00Z"
+    }
+}

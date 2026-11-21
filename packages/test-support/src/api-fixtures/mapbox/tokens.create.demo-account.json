@@ -1,0 +1,8 @@
+{
+    "call": "POST https://api.mapbox.com/tokens/v2/<user>?access_token=<sk>",
+    "note": "UNVERIFIED wording: a demo (trial) account cannot create tokens (onboarding review section 2B).",
+    "status": 403,
+    "body": {
+        "message": "Your account must have a valid payment method to create tokens."
+    }
+}

@@ -1,0 +1,6 @@
+{
+    "call": "GET https://cloudbilling.googleapis.com/v1/billingAccounts",
+    "note": "Google leaves `billingAccounts` out when the caller sees none.",
+    "status": 200,
+    "body": {}
+}

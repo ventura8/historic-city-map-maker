@@ -1,0 +1,9 @@
+// Viewer engine. `vite/client` types the CSS side-effect import of the engine stylesheet.
+{
+    "extends": "../../tsconfig.base.json",
+    "compilerOptions": {
+        "types": ["vite/client"]
+    },
+    "include": ["src"],
+    "references": [{ "path": "../shared" }, { "path": "../ui" }]
+}

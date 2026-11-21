@@ -1,0 +1,12 @@
+{
+    "call": "POST https://firebasestorage.googleapis.com/v1alpha/projects/<project>/defaultBucket",
+    "note": "A new default bucket needs the Blaze plan since October 2024.",
+    "status": 400,
+    "body": {
+        "error": {
+            "code": 400,
+            "message": "Project {{projectNumber}} must be on the Blaze pricing plan to create a default bucket.",
+            "status": "FAILED_PRECONDITION"
+        }
+    }
+}

@@ -1,0 +1,9 @@
+{
+    "call": "GET https://nominatim.openstreetmap.org/reverse",
+    "note": "The usage policy allows one request per second per application.",
+    "status": 429,
+    "headers": {
+        "content-type": "text/plain; charset=utf-8"
+    },
+    "text": "Too Many Requests\n"
+}

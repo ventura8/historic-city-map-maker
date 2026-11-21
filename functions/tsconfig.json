@@ -1,0 +1,14 @@
+// Cloud Functions (Node 24, ESM). Node module resolution instead of the bundler's: the deployed code
+// runs on Node, and every relative import already carries its `.js` extension. No DOM types.
+// Tests are a separate project (test/tsconfig.json) so test-only types never reach src/.
+{
+    "extends": "../tsconfig.base.json",
+    "compilerOptions": {
+        "module": "nodenext",
+        "moduleResolution": "nodenext",
+        "lib": ["es2023"],
+        "types": ["node"]
+    },
+    "include": ["src"],
+    "references": [{ "path": "../packages/shared" }]
+}

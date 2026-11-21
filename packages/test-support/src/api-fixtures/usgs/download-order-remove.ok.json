@@ -1,0 +1,13 @@
+{
+    "call": "POST https://m2m.cr.usgs.gov/api/api/json/stable/download-order-remove",
+    "note": "Removes a label's downloads from the user's queue once fetched (best effort).",
+    "status": 200,
+    "body": {
+        "requestId": 1000001,
+        "version": "stable",
+        "sessionId": 2000001,
+        "data": null,
+        "errorCode": null,
+        "errorMessage": null
+    }
+}

@@ -1,0 +1,21 @@
+{
+    "call": "POST https://earth-search.aws.element84.com/v1/search",
+    "note": "No Sentinel-2 L2A item under 20 % clouds over the window: the reference step fails with apiError.imagery.referenceUnavailable.",
+    "status": 200,
+    "headers": {
+        "content-type": "application/geo+json"
+    },
+    "body": {
+        "type": "FeatureCollection",
+        "stac_version": "1.0.0",
+        "context": {
+            "returned": 0,
+            "limit": 10,
+            "matched": 0
+        },
+        "numberMatched": 0,
+        "numberReturned": 0,
+        "features": [],
+        "links": []
+    }
+}

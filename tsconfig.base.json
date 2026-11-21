@@ -1,0 +1,38 @@
+// Shared compiler options for every TypeScript project in the monorepo (TypeScript 6.0.3, HELD:
+// typescript-eslint 8.72.1 peers typescript <6.1.0). Flags follow docs/research/design-review-testability.md §1.3.
+{
+    "compilerOptions": {
+        "target": "es2023",
+        "lib": ["es2023", "dom", "dom.iterable"],
+        "module": "preserve",
+        "moduleResolution": "bundler",
+        "types": [],
+
+        "strict": true,
+        "noUncheckedIndexedAccess": true,
+        "exactOptionalPropertyTypes": true,
+        "noImplicitOverride": true,
+        "noImplicitReturns": true,
+        "noPropertyAccessFromIndexSignature": true,
+        "noFallthroughCasesInSwitch": true,
+        "noUnusedLocals": true,
+        "noUnusedParameters": true,
+        "allowUnreachableCode": false,
+        "allowUnusedLabels": false,
+        "useUnknownInCatchVariables": true,
+        "forceConsistentCasingInFileNames": true,
+
+        "verbatimModuleSyntax": true,
+        "isolatedModules": true,
+        "composite": true,
+        "declaration": true,
+        "emitDeclarationOnly": true,
+        "outDir": "${configDir}/.tsbuild",
+        "skipLibCheck": false,
+
+        // Lit elements use `static properties` + customElements.define: decorators are banned
+        // (eslint no-restricted-syntax) because their emitted helpers show up as uncovered branches.
+        "experimentalDecorators": false,
+        "useDefineForClassFields": true
+    }
+}

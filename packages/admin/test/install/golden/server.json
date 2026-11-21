@@ -1,0 +1,79 @@
+{
+    "serviceAccount": "projects/demo-hcm/serviceAccounts/hcm-installer@demo-hcm.iam.gserviceaccount.com",
+    "options": {
+        "logging": "CLOUD_LOGGING_ONLY"
+    },
+    "timeout": "3600s",
+    "queueTtl": "3600s",
+    "tags": ["hcm-install", "hcm-server", "hcm-r-1-0-0-abc1234"],
+    "substitutions": {
+        "_ORIGIN": "https://demo-hcm.web.app",
+        "_BASE": "/admin/",
+        "_SLUG": "1-0-0-abc1234",
+        "_RELEASE": "1.0.0+abc1234",
+        "_RELEASE_TIME": "1761955200",
+        "_MANIFEST_SHA256": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+        "_FILE_SHA256": "bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb"
+    },
+    "steps": [
+        {
+            "id": "fetch",
+            "name": "node:24-bookworm-slim@sha256:dddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddd",
+            "entrypoint": "node",
+            "args": ["--input-type=module", "--eval", "<FETCH_BUNDLE_SCRIPT>"],
+            "env": [
+                "HCM_BUNDLE_URL=${_ORIGIN}${_BASE}install/${_SLUG}/",
+                "HCM_MANIFEST_SHA256=${_MANIFEST_SHA256}",
+                "HCM_FILE_SHA256=${_FILE_SHA256}",
+                "HCM_RELEASE=${_RELEASE}",
+                "HCM_RELEASE_TIME=${_RELEASE_TIME}",
+                "HCM_FILES=server",
+                "HCM_OUT=/workspace/server",
+                "HCM_REDIRECT_ORIGIN=https://demo-hcm-admin.web.app"
+            ]
+        },
+        {
+            "id": "tools",
+            "name": "node:24-bookworm-slim@sha256:dddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddd",
+            "entrypoint": "npm",
+            "dir": "server/tools",
+            "args": ["ci", "--ignore-scripts", "--no-audit", "--no-fund"]
+        },
+        {
+            "id": "packages",
+            "name": "node:24-bookworm-slim@sha256:dddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddd",
+            "entrypoint": "npm",
+            "dir": "server/functions/dist",
+            "args": ["ci", "--omit=dev", "--ignore-scripts", "--no-audit", "--no-fund"]
+        },
+        {
+            "id": "rules",
+            "name": "node:24-bookworm-slim@sha256:dddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddd",
+            "entrypoint": "node",
+            "dir": "server",
+            "args": [
+                "tools/node_modules/firebase-tools/lib/bin/firebase.js",
+                "deploy",
+                "--only",
+                "firestore,storage",
+                "--project",
+                "$PROJECT_ID",
+                "--non-interactive"
+            ]
+        },
+        {
+            "id": "functions",
+            "name": "node:24-bookworm-slim@sha256:dddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddd",
+            "entrypoint": "node",
+            "dir": "server",
+            "args": ["steps/deploy-with-retry.mjs", "--project", "$PROJECT_ID", "--force"]
+        },
+        {
+            "id": "verify",
+            "name": "node:24-bookworm-slim@sha256:dddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddd",
+            "entrypoint": "node",
+            "dir": "server",
+            "args": ["steps/verify-server.mjs", "--project", "$PROJECT_ID", "--region", "us-central1", "--release", "${_RELEASE}"]
+        }
+    ]
+}

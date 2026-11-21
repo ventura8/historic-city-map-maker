@@ -1,0 +1,37 @@
+{
+    "call": "GET https://nominatim.openstreetmap.org/reverse?format=jsonv2&lat=<lat>&lon=<lon>&zoom=18&addressdetails=1&namedetails=1",
+    "note": "A named building (zoom 18): its name, its English name in namedetails, its road and quarter. Recorded shape, test values.",
+    "status": 200,
+    "body": {
+        "place_id": 100000002,
+        "licence": "Data © OpenStreetMap contributors, ODbL 1.0. http://osm.org/copyright",
+        "osm_type": "way",
+        "osm_id": 200000002,
+        "lat": "44.4413",
+        "lon": "26.0973",
+        "category": "amenity",
+        "type": "theatre",
+        "place_rank": 30,
+        "importance": 0.5,
+        "addresstype": "amenity",
+        "name": "Ateneul Român",
+        "display_name": "Ateneul Român, 1-3, Strada Benjamin Franklin, Sector 1, București, 010292, România",
+        "address": {
+            "amenity": "Ateneul Român",
+            "house_number": "1-3",
+            "road": "Strada Benjamin Franklin",
+            "suburb": "Sector 1",
+            "city": "București",
+            "ISO3166-2-lvl4": "RO-B",
+            "postcode": "010292",
+            "country": "România",
+            "country_code": "ro"
+        },
+        "namedetails": {
+            "name": "Ateneul Român",
+            "name:en": "Romanian Athenaeum",
+            "name:ro": "Ateneul Român"
+        },
+        "boundingbox": ["44.4410", "44.4416", "26.0969", "26.0977"]
+    }
+}

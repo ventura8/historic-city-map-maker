@@ -1,0 +1,21 @@
+{
+    "call": "any Google REST call without a valid bearer token",
+    "status": 401,
+    "body": {
+        "error": {
+            "code": 401,
+            "message": "Request had invalid authentication credentials. Expected OAuth 2 access token, login cookie or other valid authentication credential.",
+            "status": "UNAUTHENTICATED",
+            "details": [
+                {
+                    "@type": "type.googleapis.com/google.rpc.ErrorInfo",
+                    "reason": "ACCESS_TOKEN_TYPE_UNSUPPORTED",
+                    "domain": "googleapis.com",
+                    "metadata": {
+                        "service": "{{service}}"
+                    }
+                }
+            ]
+        }
+    }
+}

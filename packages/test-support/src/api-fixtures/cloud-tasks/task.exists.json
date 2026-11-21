@@ -1,0 +1,12 @@
+{
+    "call": "POST https://cloudtasks.googleapis.com/v2/projects/<project>/locations/<region>/queues/<queue>/tasks",
+    "note": "A task name used in the last hour (deduplication) is refused the same way.",
+    "status": 409,
+    "body": {
+        "error": {
+            "code": 409,
+            "message": "Requested entity already exists",
+            "status": "ALREADY_EXISTS"
+        }
+    }
+}

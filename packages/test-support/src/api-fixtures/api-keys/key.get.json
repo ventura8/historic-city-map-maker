@@ -1,0 +1,18 @@
+{
+    "call": "GET https://apikeys.googleapis.com/v2/projects/<project>/locations/global/keys (each entry)",
+    "note": "The browser key Firebase creates with the web app: API targets only, no referrer restriction yet.",
+    "status": 200,
+    "body": {
+        "name": "projects/{{projectNumber}}/locations/global/keys/{{keyId}}",
+        "uid": "{{keyId}}",
+        "displayName": "Browser key (auto created by Firebase)",
+        "restrictions": {
+            "apiTargets": [
+                { "service": "identitytoolkit.googleapis.com" },
+                { "service": "firebaseinstallations.googleapis.com" },
+                { "service": "firebaseappcheck.googleapis.com" }
+            ]
+        },
+        "etag": "W/\"e2e-key-etag\""
+    }
+}

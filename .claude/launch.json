@@ -1,0 +1,23 @@
+{
+    "version": "0.0.1",
+    "configurations": [
+        {
+            "name": "dev-stack",
+            "runtimeExecutable": "bash",
+            "runtimeArgs": ["scripts/dev/dev-stack.sh", "serve"],
+            "port": 4312,
+            "autoPort": false,
+            "url": "http://127.0.0.1:4312"
+        },
+        {
+            "name": "dev-stack-admin",
+            "port": 4312,
+            "url": "http://127.0.0.1:4312"
+        },
+        {
+            "name": "dev-stack-viewer",
+            "port": 4310,
+            "url": "http://127.0.0.1:4310"
+        }
+    ]
+}

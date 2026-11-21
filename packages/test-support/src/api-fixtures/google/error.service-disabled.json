@@ -1,0 +1,23 @@
+{
+    "call": "any Google REST call to an API the project has not enabled",
+    "status": 403,
+    "body": {
+        "error": {
+            "code": 403,
+            "message": "{{serviceTitle}} has not been used in project {{projectNumber}} before or it is disabled. Enable it by visiting https://console.developers.google.com/apis/api/{{service}}/overview?project={{projectNumber}} then retry.",
+            "status": "PERMISSION_DENIED",
+            "details": [
+                {
+                    "@type": "type.googleapis.com/google.rpc.ErrorInfo",
+                    "reason": "SERVICE_DISABLED",
+                    "domain": "googleapis.com",
+                    "metadata": {
+                        "service": "{{service}}",
+                        "consumer": "projects/{{projectNumber}}",
+                        "serviceTitle": "{{serviceTitle}}"
+                    }
+                }
+            ]
+        }
+    }
+}

@@ -1,0 +1,76 @@
+name: Dependency updates
+
+# Weekly reminder that a dependency is behind its latest stable release (AGENTS.md -> Latest stable
+# dependencies). It runs the pipeline's `deps` stage, the same check a developer runs locally, and
+# opens (or updates) one issue listing what is behind. It never bumps anything itself: a bump is a
+# normal change that passes PIPELINE_STAGE=all locally before it is pushed. Deliberate holds are
+# HELD entries with their reason and are reported, not flagged.
+
+on:
+    schedule:
+        # Mondays 06:00 UTC.
+        - cron: '0 6 * * 1'
+    workflow_dispatch:
+
+concurrency:
+    group: ${{ github.workflow }}
+    cancel-in-progress: true
+
+permissions:
+    contents: read
+
+jobs:
+    deps:
+        name: Latest stable dependencies
+        runs-on: ubuntu-24.04
+        timeout-minutes: 30
+        permissions:
+            contents: read
+            issues: write
+        steps:
+            - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+              with:
+                  persist-credentials: false
+
+            - uses: ./.github/actions/quality-image
+
+            - name: Deps stage
+              id: check
+              env:
+                  PIPELINE_STAGE: deps
+                  HCM_DOCKER_BUILD_FLAGS: --load --cache-from type=gha,scope=hcm-quality
+              run: |
+                  set +e
+                  bash scripts/ci/run-all-checks.sh >deps.log 2>&1
+                  status=$?
+                  set -e
+                  cat deps.log
+                  echo "status=${status}" >>"$GITHUB_OUTPUT"
+
+            # Exit 1 (behind, stale hold) and exit 2 (a registry could not be read) both fail the stage;
+            # only real findings belong in the reminder issue.
+            - name: Updates found?
+              id: found
+              if: steps.check.outputs.status != '0'
+              run: |
+                  if grep -Eq '^  - (.* -> |HELD )' deps.log; then
+                      echo "updates=true" >>"$GITHUB_OUTPUT"
+                  else
+                      echo "updates=false" >>"$GITHUB_OUTPUT"
+                  fi
+
+            - name: Open or update the reminder issue
+              if: steps.found.outputs.updates == 'true'
+              uses: ./.github/actions/upsert-issue
+              with:
+                  title: Dependency updates available
+                  log: deps.log
+                  token: ${{ github.token }}
+                  advice: >-
+                      Bump what is behind, run `PIPELINE_STAGE=all bash scripts/ci/run-all-checks.sh`
+                      locally and update the version tables in docs/CI_PIPELINE.md. A deliberate hold
+                      becomes a HELD entry with its reason.
+
+            - name: Fail the run while something is behind
+              if: steps.check.outputs.status != '0'
+              run: exit 1

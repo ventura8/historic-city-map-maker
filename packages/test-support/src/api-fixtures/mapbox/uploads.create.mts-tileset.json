@@ -1,0 +1,8 @@
+{
+    "call": "POST https://api.mapbox.com/uploads/v1/<user>?access_token=<sk> for a tileset MTS made",
+    "note": "UNVERIFIED wording: Mapbox refuses to replace an MTS tileset through the Uploads API.",
+    "status": 422,
+    "body": {
+        "message": "Tileset {{tilesetId}} was created with the Mapbox Tiling Service and cannot be replaced by an upload."
+    }
+}

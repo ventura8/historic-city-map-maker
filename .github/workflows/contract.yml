@@ -1,0 +1,63 @@
+name: Third-party contracts
+
+# Weekly drift check of what the product relies on outside this repository (design-review-testability.md
+# §3.7): the Setup Assistant deep links (packages/admin/src/setup/links.json) and the shapes of the
+# USGS M2M, Mapbox GL JS CDN and Earth Search endpoints. It runs the pipeline's `contract` stage
+# (scripts/ci/check_contracts.py), needs no secret, and opens or updates one issue on drift.
+
+on:
+    schedule:
+        # Mondays 05:17 UTC.
+        - cron: '17 5 * * 1'
+    workflow_dispatch:
+
+concurrency:
+    group: ${{ github.workflow }}
+    cancel-in-progress: true
+
+permissions:
+    contents: read
+
+jobs:
+    contract:
+        name: Deep links & API shapes
+        runs-on: ubuntu-24.04
+        timeout-minutes: 30
+        permissions:
+            contents: read
+            issues: write
+        steps:
+            - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+              with:
+                  persist-credentials: false
+
+            - uses: ./.github/actions/quality-image
+
+            - name: Contract stage
+              id: check
+              env:
+                  PIPELINE_STAGE: contract
+                  HCM_DOCKER_BUILD_FLAGS: --load --cache-from type=gha,scope=hcm-quality
+              run: |
+                  set +e
+                  bash scripts/ci/run-all-checks.sh >contract.log 2>&1
+                  status=$?
+                  set -e
+                  cat contract.log
+                  echo "status=${status}" >>"$GITHUB_OUTPUT"
+
+            - name: Open or update the drift issue
+              if: steps.check.outputs.status != '0'
+              uses: ./.github/actions/upsert-issue
+              with:
+                  title: Third-party contract drift
+                  log: contract.log
+                  token: ${{ github.token }}
+                  advice: >-
+                      A deep link or an API shape changed. Update packages/admin/src/setup/links.json (or
+                      the probe in scripts/ci/check_contracts.py) together with the code that depends on
+                      it, then run `PIPELINE_STAGE=contract bash scripts/ci/run-all-checks.sh` locally.
+
+            - name: Fail the run while a contract drifted
+              if: steps.check.outputs.status != '0'
+              run: exit 1

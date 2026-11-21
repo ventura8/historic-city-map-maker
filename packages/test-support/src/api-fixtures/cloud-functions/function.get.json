@@ -1,0 +1,18 @@
+{
+    "call": "GET https://cloudfunctions.googleapis.com/v2/projects/<project>/locations/<region>/functions/<function> (also each entry of functions.list)",
+    "note": "A 2nd-generation function as firebase-tools deploys it; state is ACTIVE, DEPLOYING or FAILED (M2b step d).",
+    "status": 200,
+    "body": {
+        "name": "projects/{{projectId}}/locations/{{region}}/functions/{{functionId}}",
+        "state": "{{functionState}}",
+        "environment": "GEN_2",
+        "buildConfig": {
+            "runtime": "nodejs24",
+            "entryPoint": "{{functionId}}"
+        },
+        "serviceConfig": {
+            "uri": "https://{{functionId}}-e2e.a.run.app"
+        },
+        "updateTime": "2026-10-12T09:00:00.000Z"
+    }
+}

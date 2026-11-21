@@ -1,0 +1,9 @@
+{
+    "call": "GET https://cloudbilling.googleapis.com/v1/projects/<project>/billingInfo",
+    "note": "No billing account: `billingAccountName` and `billingEnabled` are left out.",
+    "status": 200,
+    "body": {
+        "name": "projects/{{projectId}}/billingInfo",
+        "projectId": "{{projectId}}"
+    }
+}

@@ -1,0 +1,11 @@
+{
+    "call": "any Google REST call naming a resource that does not exist",
+    "status": 404,
+    "body": {
+        "error": {
+            "code": 404,
+            "message": "Requested entity was not found.",
+            "status": "NOT_FOUND"
+        }
+    }
+}

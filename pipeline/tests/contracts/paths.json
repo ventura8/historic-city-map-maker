@@ -1,0 +1,89 @@
+{
+    "comment": "Golden object paths (docs/research/M3-interfaces.md §4.6): RASTER_PATHS of @hcm/shared (packages/shared/src/schemas/imagery-paths.ts) and hcm_pipeline.paths must build exactly these, and refuse the refused ones.",
+    "built": [
+        {
+            "builder": "upload",
+            "args": ["bucharest", "uid-owner", "up-plan1911", "Qx7mP2rT9w.tif"],
+            "path": "uploads/rasters/bucharest/uid-owner/up-plan1911/Qx7mP2rT9w.tif"
+        },
+        {
+            "builder": "usgsRaw",
+            "args": ["corona2", "DS1035-1057DA023", "DS1035-1057DA023.tgz"],
+            "path": "usgs-raw/corona2/DS1035-1057DA023/DS1035-1057DA023.tgz"
+        },
+        {
+            "builder": "browse",
+            "args": ["declassiii", "D3C1213-200346A003"],
+            "path": "usgs-browse/declassiii/D3C1213-200346A003.jpg"
+        },
+        {
+            "builder": "work",
+            "args": ["bucharest", "job-1966-0712", "segments/a.tif"],
+            "path": "work/bucharest/job-1966-0712/segments/a.tif"
+        },
+        {
+            "builder": "work",
+            "args": ["bucharest", "job-1966-0712", "fetch.checkpoint.json"],
+            "path": "work/bucharest/job-1966-0712/fetch.checkpoint.json"
+        },
+        {
+            "builder": "version",
+            "args": ["bucharest", "kh-4a-corona-1966", "job-1966-0712", "cog.tif"],
+            "path": "rasters/bucharest/kh-4a-corona-1966/job-1966-0712/cog.tif"
+        },
+        {
+            "builder": "version",
+            "args": ["bucharest", "kh-4a-corona-1966", "job-1966-0712", "scan-preview.jpg"],
+            "path": "rasters/bucharest/kh-4a-corona-1966/job-1966-0712/scan-preview.jpg"
+        },
+        {
+            "builder": "reference",
+            "args": ["bucharest", "s2", "0f3c9a2e"],
+            "path": "reference/bucharest/s2/0f3c9a2e.tif"
+        },
+        {
+            "builder": "reference",
+            "args": ["bucharest", "osm", "0f3c9a2e"],
+            "path": "reference/bucharest/osm/0f3c9a2e.geojson"
+        },
+        {
+            "builder": "reference",
+            "args": ["bucharest", "dem", "0f3c9a2e"],
+            "path": "reference/bucharest/dem/0f3c9a2e.tif"
+        }
+    ],
+    "refused": [
+        {
+            "builder": "upload",
+            "args": ["bucharest", "uid-owner", "up-plan1911", "plan.png"]
+        },
+        {
+            "builder": "upload",
+            "args": ["Bucharest", "uid-owner", "up-plan1911", "Qx7mP2rT9w.tif"]
+        },
+        {
+            "builder": "usgsRaw",
+            "args": ["declass1", "DS1035-1057DA023", "DS1035-1057DA023.tgz"]
+        },
+        {
+            "builder": "usgsRaw",
+            "args": ["corona2", "DS1035-1057DA023", "../DS1035.tgz"]
+        },
+        {
+            "builder": "work",
+            "args": ["bucharest", "job-1966-0712", "../../secrets.json"]
+        },
+        {
+            "builder": "work",
+            "args": ["bucharest", "job-1966-0712", "a/b/c.tif"]
+        },
+        {
+            "builder": "version",
+            "args": ["bucharest", "../layer", "job-1966-0712", "cog.tif"]
+        },
+        {
+            "builder": "reference",
+            "args": ["bucharest", "s2", "NOT-HEX"]
+        }
+    ]
+}

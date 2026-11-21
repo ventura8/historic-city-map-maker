@@ -1,0 +1,255 @@
+{
+    "indexes": [
+        {
+            "collectionGroup": "photos",
+            "queryScope": "COLLECTION",
+            "fields": [
+                { "fieldPath": "reviewStatus", "order": "ASCENDING" },
+                { "fieldPath": "updatedAt", "order": "DESCENDING" }
+            ]
+        },
+        {
+            "collectionGroup": "pois",
+            "queryScope": "COLLECTION",
+            "fields": [
+                { "fieldPath": "reviewStatus", "order": "ASCENDING" },
+                { "fieldPath": "updatedAt", "order": "DESCENDING" }
+            ]
+        },
+        {
+            "collectionGroup": "photos",
+            "queryScope": "COLLECTION",
+            "fields": [
+                { "fieldPath": "createdBy", "order": "ASCENDING" },
+                { "fieldPath": "updatedAt", "order": "DESCENDING" }
+            ]
+        },
+        {
+            "collectionGroup": "pois",
+            "queryScope": "COLLECTION",
+            "fields": [
+                { "fieldPath": "createdBy", "order": "ASCENDING" },
+                { "fieldPath": "updatedAt", "order": "DESCENDING" }
+            ]
+        },
+        {
+            "collectionGroup": "suggestions",
+            "queryScope": "COLLECTION",
+            "fields": [
+                { "fieldPath": "status", "order": "ASCENDING" },
+                { "fieldPath": "updatedAt", "order": "DESCENDING" }
+            ]
+        },
+        {
+            "collectionGroup": "roleRequests",
+            "queryScope": "COLLECTION",
+            "fields": [
+                { "fieldPath": "status", "order": "ASCENDING" },
+                { "fieldPath": "updatedAt", "order": "DESCENDING" }
+            ]
+        },
+        {
+            "collectionGroup": "photos",
+            "queryScope": "COLLECTION",
+            "fields": [
+                { "fieldPath": "published", "order": "ASCENDING" },
+                { "fieldPath": "updatedAt", "order": "DESCENDING" }
+            ]
+        },
+        {
+            "collectionGroup": "photos",
+            "queryScope": "COLLECTION",
+            "fields": [
+                { "fieldPath": "processing", "order": "ASCENDING" },
+                { "fieldPath": "updatedAt", "order": "DESCENDING" }
+            ]
+        },
+        {
+            "collectionGroup": "photos",
+            "queryScope": "COLLECTION",
+            "fields": [
+                { "fieldPath": "license", "order": "ASCENDING" },
+                { "fieldPath": "updatedAt", "order": "DESCENDING" }
+            ]
+        },
+        {
+            "collectionGroup": "photos",
+            "queryScope": "COLLECTION",
+            "fields": [
+                { "fieldPath": "rightsReview", "order": "ASCENDING" },
+                { "fieldPath": "updatedAt", "order": "DESCENDING" }
+            ]
+        },
+        {
+            "collectionGroup": "pois",
+            "queryScope": "COLLECTION",
+            "fields": [
+                { "fieldPath": "category", "order": "ASCENDING" },
+                { "fieldPath": "updatedAt", "order": "DESCENDING" }
+            ]
+        },
+        {
+            "collectionGroup": "pois",
+            "queryScope": "COLLECTION",
+            "fields": [
+                { "fieldPath": "published", "order": "ASCENDING" },
+                { "fieldPath": "updatedAt", "order": "DESCENDING" }
+            ]
+        },
+        {
+            "collectionGroup": "layers",
+            "queryScope": "COLLECTION",
+            "fields": [
+                { "fieldPath": "published", "order": "ASCENDING" },
+                { "fieldPath": "order", "order": "ASCENDING" }
+            ]
+        },
+        {
+            "collectionGroup": "jobs",
+            "queryScope": "COLLECTION",
+            "fields": [
+                { "fieldPath": "status", "order": "ASCENDING" },
+                { "fieldPath": "createdAt", "order": "DESCENDING" }
+            ]
+        },
+        {
+            "collectionGroup": "jobs",
+            "queryScope": "COLLECTION",
+            "fields": [
+                { "fieldPath": "status", "order": "ASCENDING" },
+                { "fieldPath": "createdAt", "order": "ASCENDING" }
+            ]
+        },
+        {
+            "collectionGroup": "jobs",
+            "queryScope": "COLLECTION",
+            "fields": [
+                { "fieldPath": "status", "order": "ASCENDING" },
+                { "fieldPath": "retryAt", "order": "ASCENDING" }
+            ]
+        },
+        {
+            "collectionGroup": "jobs",
+            "queryScope": "COLLECTION",
+            "fields": [
+                { "fieldPath": "layerId", "order": "ASCENDING" },
+                { "fieldPath": "createdAt", "order": "DESCENDING" }
+            ]
+        },
+        {
+            "collectionGroup": "jobs",
+            "queryScope": "COLLECTION",
+            "fields": [
+                { "fieldPath": "runOn", "order": "ASCENDING" },
+                { "fieldPath": "status", "order": "ASCENDING" },
+                { "fieldPath": "createdAt", "order": "ASCENDING" }
+            ]
+        },
+        {
+            "collectionGroup": "layerVersions",
+            "queryScope": "COLLECTION",
+            "fields": [
+                { "fieldPath": "layerId", "order": "ASCENDING" },
+                { "fieldPath": "createdAt", "order": "DESCENDING" }
+            ]
+        },
+        {
+            "collectionGroup": "layerVersions",
+            "queryScope": "COLLECTION",
+            "fields": [
+                { "fieldPath": "state", "order": "ASCENDING" },
+                { "fieldPath": "updatedAt", "order": "DESCENDING" }
+            ]
+        },
+        {
+            "collectionGroup": "usgsScenes",
+            "queryScope": "COLLECTION",
+            "fields": [
+                { "fieldPath": "downloadAvailable", "order": "ASCENDING" },
+                { "fieldPath": "rank.score", "order": "DESCENDING" }
+            ]
+        },
+        {
+            "collectionGroup": "usgsScenes",
+            "queryScope": "COLLECTION",
+            "fields": [
+                { "fieldPath": "status", "order": "ASCENDING" },
+                { "fieldPath": "rank.score", "order": "DESCENDING" }
+            ]
+        },
+        {
+            "collectionGroup": "history",
+            "queryScope": "COLLECTION",
+            "fields": [
+                { "fieldPath": "action", "order": "ASCENDING" },
+                { "fieldPath": "updatedAt", "order": "DESCENDING" }
+            ]
+        },
+        {
+            "collectionGroup": "history",
+            "queryScope": "COLLECTION_GROUP",
+            "fields": [
+                { "fieldPath": "cityId", "order": "ASCENDING" },
+                { "fieldPath": "updatedAt", "order": "DESCENDING" }
+            ]
+        },
+        {
+            "collectionGroup": "history",
+            "queryScope": "COLLECTION_GROUP",
+            "fields": [
+                { "fieldPath": "cityId", "order": "ASCENDING" },
+                { "fieldPath": "action", "order": "ASCENDING" },
+                { "fieldPath": "updatedAt", "order": "DESCENDING" }
+            ]
+        },
+        {
+            "collectionGroup": "history",
+            "queryScope": "COLLECTION_GROUP",
+            "fields": [
+                { "fieldPath": "cityId", "order": "ASCENDING" },
+                { "fieldPath": "entity", "order": "ASCENDING" },
+                { "fieldPath": "updatedAt", "order": "DESCENDING" }
+            ]
+        },
+        {
+            "collectionGroup": "history",
+            "queryScope": "COLLECTION_GROUP",
+            "fields": [
+                { "fieldPath": "cityId", "order": "ASCENDING" },
+                { "fieldPath": "entity", "order": "ASCENDING" },
+                { "fieldPath": "action", "order": "ASCENDING" },
+                { "fieldPath": "updatedAt", "order": "DESCENDING" }
+            ]
+        },
+        {
+            "collectionGroup": "inbox",
+            "queryScope": "COLLECTION",
+            "fields": [
+                { "fieldPath": "read", "order": "ASCENDING" },
+                { "fieldPath": "createdAt", "order": "DESCENDING" }
+            ]
+        }
+    ],
+    "fieldOverrides": [
+        { "collectionGroup": "cities", "fieldPath": "about", "indexes": [] },
+        { "collectionGroup": "cities", "fieldPath": "privacy", "indexes": [] },
+        { "collectionGroup": "cities", "fieldPath": "credits", "indexes": [] },
+        { "collectionGroup": "cities", "fieldPath": "theme", "indexes": [] },
+        { "collectionGroup": "photos", "fieldPath": "description", "indexes": [] },
+        { "collectionGroup": "photos", "fieldPath": "permissionNote", "indexes": [] },
+        { "collectionGroup": "photos", "fieldPath": "links", "indexes": [] },
+        { "collectionGroup": "photos", "fieldPath": "exif", "indexes": [] },
+        { "collectionGroup": "layers", "fieldPath": "description", "indexes": [] },
+        { "collectionGroup": "pois", "fieldPath": "geometry", "indexes": [] },
+        { "collectionGroup": "pois", "fieldPath": "description", "indexes": [] },
+        { "collectionGroup": "pois", "fieldPath": "links", "indexes": [] },
+        { "collectionGroup": "history", "fieldPath": "previous", "indexes": [] },
+        { "collectionGroup": "jobs", "fieldPath": "params", "indexes": [] },
+        { "collectionGroup": "jobs", "fieldPath": "steps", "indexes": [] },
+        { "collectionGroup": "logs", "fieldPath": "message", "indexes": [] },
+        { "collectionGroup": "layerVersions", "fieldPath": "georef", "indexes": [] },
+        { "collectionGroup": "layerVersions", "fieldPath": "crop", "indexes": [] },
+        { "collectionGroup": "usgsScenes", "fieldPath": "footprint", "indexes": [] },
+        { "collectionGroup": "manifests", "fieldPath": "skipped", "indexes": [] }
+    ]
+}

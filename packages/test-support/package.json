@@ -1,0 +1,51 @@
+{
+    "name": "@hcm/test-support",
+    "version": "1.0.0-beta.1",
+    "private": true,
+    "description": "Test-only helpers shared by every TS test project: the recording log sink, FakeMap, FakeMapDraw, axe, the upstream API fixtures (Google, Mapbox, USGS M2M, Nominatim) and the fake upstreams with their HTTP server. Never imported by product code.",
+    "license": "UNLICENSED",
+    "type": "module",
+    "sideEffects": false,
+    "exports": {
+        ".": {
+            "types": "./src/index.ts",
+            "default": "./src/index.ts"
+        },
+        "./axe": {
+            "types": "./src/axe.ts",
+            "default": "./src/axe.ts"
+        },
+        "./fake-map": {
+            "types": "./src/fake-map.ts",
+            "default": "./src/fake-map.ts"
+        },
+        "./fake-map-draw": {
+            "types": "./src/fake-map-draw.ts",
+            "default": "./src/fake-map-draw.ts"
+        },
+        "./fake-content-store": {
+            "types": "./src/fake-content-store.ts",
+            "default": "./src/fake-content-store.ts"
+        },
+        "./api-fixtures": {
+            "types": "./src/api-fixtures/index.ts",
+            "default": "./src/api-fixtures/index.ts"
+        },
+        "./pmtiles": {
+            "types": "./src/pmtiles.ts",
+            "default": "./src/pmtiles.ts"
+        },
+        "./fakes": {
+            "types": "./src/fakes/index.ts",
+            "default": "./src/fakes/index.ts"
+        },
+        "./fakes/http": {
+            "types": "./src/fakes/http-server.ts",
+            "default": "./src/fakes/http-server.ts"
+        }
+    },
+    "dependencies": {
+        "@hcm/shared": "1.0.0-beta.1",
+        "axe-core": "4.14.0"
+    }
+}

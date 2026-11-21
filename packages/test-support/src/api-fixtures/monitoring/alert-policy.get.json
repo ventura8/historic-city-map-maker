@@ -1,0 +1,13 @@
+{
+    "call": "GET https://monitoring.googleapis.com/v3/projects/<project>/alertPolicies (each entry; the answer of POST and PATCH)",
+    "status": 200,
+    "body": {
+        "name": "projects/{{projectId}}/alertPolicies/{{alertPolicyId}}",
+        "displayName": "{{displayName}}",
+        "combiner": "OR",
+        "enabled": true,
+        "creationRecord": {
+            "mutateTime": "2026-10-12T09:00:00.000Z"
+        }
+    }
+}

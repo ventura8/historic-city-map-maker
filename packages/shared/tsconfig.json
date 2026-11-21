@@ -1,0 +1,7 @@
+// Environment-neutral package. The DOM lib is there only for the `console` type of the default
+// log sink; dependency-cruiser forbids imports of UI or browser-only packages.
+// Tests are a separate project (test/tsconfig.json) so test-only types never reach src/.
+{
+    "extends": "../../tsconfig.base.json",
+    "include": ["src"]
+}

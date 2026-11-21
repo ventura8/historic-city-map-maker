@@ -1,0 +1,154 @@
+rules_version = '2';
+
+// Cloud Storage security rules for the PRIVATE bucket <project>.firebasestorage.app
+// (docs/research/design-review-security-cost.md §1.5, docs/research/M2-interfaces.md §2.4): admin
+// uploads, photo originals, rasters, USGS raw files, browse copies and derived artifacts. Nothing
+// here is public: published derivatives (manifest.json, web.webp, thumb.webp) live in the separate
+// <project>-public bucket, which only service accounts write, so a wrong rule here can never
+// publish an upload.
+//
+// Clients only create uploads under their own uid and never overwrite them; Cloud Functions and the
+// Cloud Run job (service accounts, which bypass rules) write everything else. Never trust the client
+// contentType: photos.onUpload sniffs magic bytes before processing.
+//
+// Tests: firebase/rules-tests/test/storage.test.ts. The Storage emulator reports no rule coverage, so
+// the matrix covers every condition explicitly.
+service firebase.storage {
+    match /b/{bucket}/o {
+
+        // Same identity rules as firestore.rules: a verified Google account with the `admin` claim
+        // and an admins/{uid} document (removing the document revokes access immediately). Reading
+        // Firestore from Storage rules needs roles/firebaserules.firestoreServiceAgent on the
+        // Storage service agent (granted by the bootstrap).
+        function authed() {
+            return request.auth != null
+                && request.auth.token.get('email_verified', false) == true
+                && request.auth.token.firebase.sign_in_provider == 'google.com';
+        }
+
+        function isAdmin() {
+            return authed()
+                && request.auth.token.get('admin', false) == true
+                && firestore.exists(/databases/(default)/documents/admins/$(request.auth.uid));
+        }
+
+        // M5 (docs/research/M5-interfaces.md §1.4; owner: multi-city): a role in the path's city, read from the same
+        // admins/{uid} document (`cities`, written by the functions only; a document without it belongs to no city).
+        function memberships() {
+            return firestore.get(/databases/(default)/documents/admins/$(request.auth.uid)).data.get('cities', {});
+        }
+
+        function isCityMember(city) {
+            return isAdmin() && memberships().get(city, '') in ['owner', 'editor'];
+        }
+
+        // M13 (docs/research/M13-roles.md §1): reviews, edits or unpublishes any photo or place of the city.
+        function isCityReviewer(city) {
+            return isAdmin() && memberships().get(city, '') in ['owner', 'editor', 'moderator'];
+        }
+
+        function isCityUploader(city) {
+            return isAdmin() && memberships().get(city, '') == 'uploader';
+        }
+
+        // M13 §1: the project's USGS copies are staff's: an account with cities and none as staff reads none of them.
+        function isStaff() {
+            return isAdmin() && (memberships().size() == 0 || memberships().values().hasAny(['owner', 'editor']));
+        }
+
+        // The photo a path names, as Firestore has it (an error, so a denial, when it does not exist).
+        function photoOf(city, photo) {
+            return firestore.get(/databases/(default)/documents/cities/$(city)/photos/$(photo)).data;
+        }
+
+        // M13 §2: an uploader's own photo while it waits: never a published photo's picture, never someone else's.
+        function ownPendingPhoto(city, photo) {
+            return isCityUploader(city)
+                && photoOf(city, photo).get('createdBy', '') == request.auth.uid
+                && photoOf(city, photo).get('reviewStatus', '') == 'pending';
+        }
+
+        // Uploading a NEW, non-empty object into the caller's own folder of a well-formed city id
+        // (CITY_ID_PATTERN) and upload id (ID_PATTERN). Storage treats overwriting an existing object
+        // as `create` too, hence `resource == null`: every upload gets its own name, and
+        // photos.onUpload never sees an object change under it. Each match asks for the role it wants.
+        function ownUpload(city, uid, upload) {
+            return request.auth.uid == uid
+                && city.matches('[a-z0-9-]{2,32}')
+                && upload.matches('[A-Za-z0-9_-]{1,40}')
+                && resource == null
+                && request.resource.size > 0;
+        }
+
+        // Photos (STORAGE_PATHS.photoUpload): `{photo}` is the photo document the admin created just
+        // before, `{file}` a fresh nonce with an image extension (UPLOAD_FILE_PATTERN). Raster formats
+        // only, under 60 MiB. SVG is never accepted (it can carry script). HEIC/HEIF uploads are let
+        // through so photos.onUpload can refuse them with an actionable message (it cannot decode them:
+        // apiError.photo.heicUnsupported, DECISIONS-for-review.md §20b). The original file name travels as
+        // the custom metadata `originalName`.
+        match /uploads/photos/{city}/{uid}/{photo}/{file} {
+            allow create: if (isCityReviewer(city) || ownPendingPhoto(city, photo))
+                && ownUpload(city, uid, photo)
+                && file.matches('[A-Za-z0-9_-]{8,64}[.](jpe?g|png|webp|tiff?|heic|heif)')
+                && request.resource.size < 60 * 1024 * 1024
+                && request.resource.contentType.matches('image/(jpeg|png|webp|tiff|heic|heif)')
+                && request.resource.metadata.get('originalName', '').size() <= 255
+                // The owner 2026-11-09: an improved or colorized version of the photo is a reviewer's (photos.onUpload reads it).
+                && (request.resource.metadata.get('version', '') == ''
+                    || (isCityReviewer(city) && request.resource.metadata.version in ['improved', 'colorized']))
+                && firestore.exists(/databases/(default)/documents/cities/$(city)/photos/$(photo));
+            allow read, delete: if isCityReviewer(city) || (isCityUploader(city) && request.auth.uid == uid);
+        }
+
+        // Historical rasters (GeoTIFF) for the georeferencing pipeline (M3, RASTER_PATHS.upload), under 8 GiB:
+        // `{upload}` becomes the `geotiff-import` job's id, `{file}` a fresh nonce with a TIFF extension
+        // (RASTER_UPLOAD_FILE_PATTERN). The custom metadata is exactly `rasterUploadMetadataSchema`: the original
+        // name (at most 255 characters), the year it shows and, for Replace image, the layer it replaces.
+        // imagery.onRasterUpload sniffs the bytes; a file that is not a TIFF fails its job.
+        match /uploads/rasters/{city}/{uid}/{upload}/{file} {
+            allow create: if isCityMember(city)
+                && ownUpload(city, uid, upload)
+                && file.matches('[A-Za-z0-9_-]{8,64}[.]tiff?')
+                && request.resource.size < 8 * 1024 * 1024 * 1024
+                && request.resource.contentType.matches('image/tiff|application/octet-stream')
+                && request.resource.metadata.keys().hasOnly(['originalName', 'year', 'layerId'])
+                && request.resource.metadata.get('originalName', '').size() <= 255
+                && request.resource.metadata.get('year', '1900').matches('(18|19|20)[0-9][0-9]')
+                && request.resource.metadata.get('layerId', 'x').matches('[A-Za-z0-9_-]{1,40}');
+            allow read, delete: if isCityMember(city);
+        }
+
+        // M5: what the functions and the pipeline write under a city (photo originals, a job's scratch files, the layer
+        // versions' files, the reference cache) is read by that city's admins only (the georeferencer, the Imagery area).
+        match /originals/photos/{city}/{path=**} {
+            allow read: if isCityReviewer(city);
+        }
+
+        // M13 §2: a pending photo's derivatives, written by photos.onUpload until review.decide moves or deletes them: the
+        // reviewers see them, and so does the uploader who sent them.
+        match /review-held/{city}/{photo}/{file} {
+            allow read: if isCityReviewer(city)
+                || (isCityUploader(city) && photoOf(city, photo).get('createdBy', '') == request.auth.uid);
+        }
+
+        match /work/{city}/{path=**} {
+            allow read: if isCityMember(city);
+        }
+
+        match /rasters/{city}/{path=**} {
+            allow read: if isCityMember(city);
+        }
+
+        match /reference/{city}/{path=**} {
+            allow read: if isCityMember(city);
+        }
+
+        // A USGS scene's browse copy is the project's (every city that has the scene shares it, and it is public domain).
+        match /usgs-browse/{path=**} {
+            allow read: if isStaff();
+        }
+
+        // Everything else (usgs-raw/, exports/, tmp/, any path with no city): only service accounts read or write it;
+        // an export leaves through its signed address alone (§5.5). No path is readable without signing in.
+    }
+}

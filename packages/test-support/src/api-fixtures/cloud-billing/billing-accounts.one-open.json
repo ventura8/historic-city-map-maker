@@ -1,0 +1,15 @@
+{
+    "call": "GET https://cloudbilling.googleapis.com/v1/billingAccounts",
+    "status": 200,
+    "body": {
+        "billingAccounts": [
+            {
+                "name": "billingAccounts/{{billingAccountId}}",
+                "open": true,
+                "displayName": "My Billing Account",
+                "masterBillingAccount": "",
+                "currencyCode": "USD"
+            }
+        ]
+    }
+}

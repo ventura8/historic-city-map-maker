@@ -1,0 +1,23 @@
+{
+    "call": "POST https://cloudresourcemanager.googleapis.com/v3/projects/<project>:setIamPolicy",
+    "status": 400,
+    "body": {
+        "error": {
+            "code": 400,
+            "message": "One or more users named in the policy do not belong to a permitted customer, perhaps due to an organization policy.",
+            "status": "FAILED_PRECONDITION",
+            "details": [
+                {
+                    "@type": "type.googleapis.com/google.rpc.PreconditionFailure",
+                    "violations": [
+                        {
+                            "type": "constraints/iam.allowedPolicyMemberDomains",
+                            "subject": "{{member}}",
+                            "description": "User {{member}} is not in permitted organization."
+                        }
+                    ]
+                }
+            ]
+        }
+    }
+}

@@ -1,0 +1,16 @@
+# The quality image needs only dependency manifests: the repository is bind-mounted at run time.
+# Allowlist, so the build context stays tiny and layer caches change only with the manifests.
+*
+!package.json
+!package-lock.json
+!.npmrc
+!packages/*/package.json
+!functions/package.json
+!firebase/rules-tests/package.json
+!e2e/package.json
+!vendor/npm/braces/**
+!vendor/npm/minimatch/**
+!scripts/ci/requirements.txt
+!pipeline/requirements-poetry.txt
+!pipeline/pyproject.toml
+!pipeline/poetry.lock

@@ -1,0 +1,22 @@
+{
+    "call": "POST https://run.googleapis.com/v2/projects/{{projectId}}/locations/{{region}}/jobs/{{job}}/executions/<execution>:cancel",
+    "status": 200,
+    "body": {
+        "name": "projects/{{projectId}}/locations/{{region}}/operations/{{operationId}}",
+        "metadata": {
+            "@type": "type.googleapis.com/google.cloud.run.v2.Execution",
+            "name": "projects/{{projectId}}/locations/{{region}}/jobs/{{job}}/executions/{{execution}}",
+            "uid": "0e2e0000-0000-4000-8000-000000000101",
+            "generation": "1",
+            "createTime": "2026-10-12T08:30:00Z",
+            "startTime": "2026-10-12T08:30:00Z",
+            "job": "{{job}}",
+            "parallelism": 1,
+            "taskCount": 1,
+            "launchStage": "GA",
+            "logUri": "https://console.cloud.google.com/logs/viewer?project={{projectId}}",
+            "etag": "\"e2e-execution\""
+        },
+        "done": false
+    }
+}

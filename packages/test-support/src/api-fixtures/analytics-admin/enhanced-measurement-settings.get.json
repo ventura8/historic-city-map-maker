@@ -1,0 +1,16 @@
+{
+    "call": "GET https://analyticsadmin.googleapis.com/v1alpha/properties/<property>/dataStreams/<stream>/enhancedMeasurementSettings (and the answer of PATCH)",
+    "note": "UNVERIFIED API version (v1alpha documents enhancedMeasurementSettings); CR-M2-37.",
+    "status": 200,
+    "body": {
+        "name": "properties/{{analyticsPropertyId}}/dataStreams/{{streamId}}/enhancedMeasurementSettings",
+        "streamEnabled": true,
+        "scrollsEnabled": true,
+        "outboundClicksEnabled": true,
+        "siteSearchEnabled": true,
+        "videoEngagementEnabled": true,
+        "fileDownloadsEnabled": true,
+        "pageChangesEnabled": true,
+        "formInteractionsEnabled": true
+    }
+}

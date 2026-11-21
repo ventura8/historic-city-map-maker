@@ -1,0 +1,14 @@
+{
+    "call": "GET https://firebase.googleapis.com/v1beta1/projects/<project>/webApps/<appId>/config",
+    "status": 200,
+    "body": {
+        "projectId": "{{projectId}}",
+        "appId": "{{appId}}",
+        "storageBucket": "{{projectId}}.firebasestorage.app",
+        "locationId": "nam5",
+        "apiKey": "{{apiKey}}",
+        "authDomain": "{{projectId}}.firebaseapp.com",
+        "messagingSenderId": "{{projectNumber}}",
+        "measurementId": "{{measurementId}}"
+    }
+}

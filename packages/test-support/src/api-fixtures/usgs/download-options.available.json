@@ -1,0 +1,26 @@
+{
+    "call": "POST https://m2m.cr.usgs.gov/api/api/json/stable/download-options",
+    "status": 200,
+    "body": {
+        "requestId": 1000001,
+        "version": "stable",
+        "sessionId": 2000001,
+        "data": [
+            {
+                "id": "5e83a1e6b3d2e5f0",
+                "displayId": "DS1105-1071DF075",
+                "entityId": "DS1105-1071DF075",
+                "datasetId": "5e839febdccb64b3",
+                "available": true,
+                "filesize": 734003200,
+                "productName": "Declass 1 Product",
+                "productCode": "D1P",
+                "bulkAvailable": true,
+                "downloadSystem": "dds",
+                "secondaryDownloads": []
+            }
+        ],
+        "errorCode": null,
+        "errorMessage": null
+    }
+}

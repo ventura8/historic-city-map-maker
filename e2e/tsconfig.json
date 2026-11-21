@@ -1,0 +1,41 @@
+// Playwright end-to-end tests (@hcm/e2e): the config, projects and split, the fixtures, the specs, the setup project, the
+// mock APIs and the e2e site build, the local stack for manual testing (stack/), and the admin tier (admin/: its world,
+// fixtures, harness and specs, which read the admin's contract code in packages/admin/src: the scopes and the setup steps'
+// input budgets). The starter-kit tier runs the static export's planner and zip writer of functions/src/export over the
+// fixture city (docs/research/M5-interfaces.md §5.7), and drives the built create-historic-city CLI, whose catalogue it reads
+// for the prompts it answers (§4.5). They run in Node (process.env, the Playwright runner, the servers
+// started through Node's type stripping, hence erasable syntax only) and pass callbacks into the page (DOM types), so both
+// apply. test/ holds the Vitest unit tests of the e2e suite's own logic (the split, the tour's checkers), run in Chromium
+// by the `e2e-support` project of vitest.config.ts.
+{
+    "extends": "../tsconfig.base.json",
+    "compilerOptions": {
+        "types": ["node"],
+        "erasableSyntaxOnly": true
+    },
+    "include": [
+        "playwright.config.ts",
+        "projects.ts",
+        "split.ts",
+        "split-reporter.ts",
+        "test",
+        "support",
+        "specs",
+        "tour",
+        "a11y",
+        "setup",
+        "fixtures",
+        "mock-apis",
+        "scripts",
+        "admin",
+        "stack"
+    ],
+    "references": [
+        { "path": "../packages/shared" },
+        { "path": "../packages/test-support" },
+        { "path": "../packages/admin" },
+        { "path": "../packages/create-historic-city" },
+        { "path": "../functions" },
+        { "path": "../scripts/site" }
+    ]
+}

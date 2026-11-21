@@ -1,0 +1,103 @@
+{
+    "layerId": "kh-4b-corona-1968",
+    "jobId": "imp-ds1105-075",
+    "origin": "usgs",
+    "state": "needs_gcps",
+    "source": {
+        "kind": "usgs",
+        "entityId": "DS1105-1071DF075",
+        "dataset": "corona2",
+        "sensor": "KH-4B",
+        "acquisitionDate": "1968-12-11"
+    },
+    "label": {
+        "ro": "KH-4B Corona, 11 decembrie 1968",
+        "en": "KH-4B Corona, 11 December 1968"
+    },
+    "year": 1968,
+    "date": "1968-12-11",
+    "sensor": "KH-4B",
+    "scan": {
+        "path": "rasters/bucharest/kh-4b-corona-1968/imp-ds1105-075/scan.tif",
+        "width": 24000,
+        "height": 9000,
+        "sha256": "bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb",
+        "previewPath": "rasters/bucharest/kh-4b-corona-1968/imp-ds1105-075/scan-preview.jpg",
+        "previewScale": 0.170666
+    },
+    "reference": {
+        "bounds": {
+            "west": 25.95,
+            "south": 44.33,
+            "east": 26.25,
+            "north": 44.55
+        },
+        "osmPath": "rasters/bucharest/kh-4b-corona-1968/imp-ds1105-075/reference-osm.png",
+        "s2Path": "rasters/bucharest/kh-4b-corona-1968/imp-ds1105-075/reference-s2.jpg",
+        "s2Item": "S2B_35TMK_20260712_0_L2A",
+        "s2Date": "2026-07-12"
+    },
+    "suggestions": {
+        "method": "orb",
+        "channels": ["s2", "osm"],
+        "generatedAt": {
+            "seconds": 1792100500,
+            "nanoseconds": 0
+        },
+        "minConfidence": 0.6,
+        "tiles": {
+            "matched": 9,
+            "total": 64
+        },
+        "pairs": [
+            {
+                "id": "a001",
+                "pixel": { "x": 10240.5, "y": 4410.25 },
+                "geo": { "lat": 44.43252, "lng": 26.10387 },
+                "enabled": true,
+                "origin": "auto",
+                "score": 0.58
+            },
+            {
+                "id": "a002",
+                "pixel": { "x": 15880, "y": 6120.75 },
+                "geo": { "lat": 44.41105, "lng": 26.15612 },
+                "enabled": true,
+                "origin": "auto",
+                "score": 0.52
+            },
+            {
+                "id": "a003",
+                "pixel": { "x": 6020.25, "y": 2215 },
+                "geo": { "lat": 44.46811, "lng": 26.04298 },
+                "enabled": true,
+                "origin": "auto",
+                "score": 0.41
+            },
+            {
+                "id": "a004",
+                "pixel": { "x": 20310, "y": 7790.5 },
+                "geo": { "lat": 44.38972, "lng": 26.20341 },
+                "enabled": true,
+                "origin": "auto",
+                "score": 0.33
+            }
+        ]
+    },
+    "error": {
+        "code": "apiError.imagery.noMatch",
+        "params": {
+            "pairs": "4"
+        }
+    },
+    "createdBy": "uid-owner",
+    "createdAt": {
+        "seconds": 1792100000,
+        "nanoseconds": 0
+    },
+    "updatedBy": "system:pipeline",
+    "updatedAt": {
+        "seconds": 1792100600,
+        "nanoseconds": 0
+    }
+}

@@ -1,0 +1,12 @@
+{
+    "call": "PUT https://cloudbilling.googleapis.com/v1/projects/<project>/billingInfo",
+    "note": "The caller lacks billing.resourceAssociations.create on the account (not a Billing Account User).",
+    "status": 403,
+    "body": {
+        "error": {
+            "code": 403,
+            "message": "The caller does not have permission",
+            "status": "PERMISSION_DENIED"
+        }
+    }
+}

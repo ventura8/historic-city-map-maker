@@ -1,0 +1,63 @@
+# Dependencies and build output
+node_modules/
+dist/
+.tsbuild/
+*.tsbuildinfo
+
+# Pipeline output (coverage, junit, green markers, gitleaks report, tool caches)
+reports/
+coverage/
+playwright-report/
+test-results/
+.docker-build-cache*/
+
+# SonarQube scanner state and the local token (scripts/ci, docs/research/M0-handoff.md)
+.scannerwork/
+.sonar/
+.sonar-token
+
+# Secrets and local environment: only the placeholder file is tracked
+.env*
+!.env.example
+*.secret.local
+.secret.local
+
+# Firebase CLI / emulator logs and state
+.firebase/
+# The temporary deploy configuration without predeploy steps (docs/MANUAL_TEST_PLAN.md → "The deploys")
+firebase.deploy.json
+firebase-debug.log
+firebase-debug.*.log
+firestore-debug.log
+database-debug.log
+pubsub-debug.log
+storage-debug.log
+ui-debug.log
+
+# Python
+__pycache__/
+*.py[cod]
+.venv/
+.mypy_cache/
+.ruff_cache/
+.pytest_cache/
+# Hypothesis's example database and constants cache (the pipeline's tests). Hypothesis writes a .gitignore into the
+# folder only when it creates the folder; rsync with the .gitignore filter (scripts/ci/e2e-split.sh) copies the folder
+# but not that file, and in such a copy its cache files were untracked and failed the editorconfig gate.
+.hypothesis/
+.coverage
+.coverage.*
+
+# Core dumps of crashed processes (e.g. a browser in a test run); never source
+core.[0-9]*
+
+# Editors and OS
+.idea/
+.vscode/
+*.swp
+.DS_Store
+
+# Agent scratch space
+.claude/worktrees/
+# Claude Code's local lock of its scheduled tasks (a tool file, never committed; the EditorConfig gate reads git's file list)
+.claude/scheduled_tasks.lock

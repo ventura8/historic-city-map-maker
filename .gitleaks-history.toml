@@ -1,0 +1,8 @@
+# gitleaks in history mode (`gitleaks git`, the static gate `gitleaks-history` over the commits a CI run introduces,
+# GITLEAKS_LOG_OPTS). Unlike .gitleaks.toml (dir mode over the working tree, which must skip gitignored caches and the
+# developer's local secret files), this config has NO path allowlist: every path a commit touches is scanned, the
+# local secret files (.sonar-token, .env.local) included, should one ever be committed. A reviewed false positive is
+# tolerated only by its exact fingerprint in .gitleaksignore (docs/research/DECISIONS-for-review.md §6).
+
+[extend]
+useDefault = true

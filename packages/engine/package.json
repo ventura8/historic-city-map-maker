@@ -1,0 +1,28 @@
+{
+    "name": "@hcm/engine",
+    "version": "1.0.0-beta.1",
+    "private": true,
+    "description": "Public viewer engine: builds dist/engine.{iife.js,mjs,css} (global window.HistoricCityMap; the IIFE loads its extras dist/extra-<name>-<hash>.js with their integrity) and copies the kit's self-hosted fonts to dist/fonts/. Mapbox GL is external (global mapboxgl from api.mapbox.com v3.34.1).",
+    "license": "UNLICENSED",
+    "type": "module",
+    "exports": {
+        ".": {
+            "types": "./src/index.ts",
+            "default": "./src/index.ts"
+        }
+    },
+    "scripts": {
+        "build": "vite build -c vite.part.config.ts && vite build && vite build --mode iife && npm run fonts:copy",
+        "fonts:copy": "mkdir -p dist/fonts && cp ../ui/fonts/*.woff2 ../ui/fonts/LICENSES.md dist/fonts/"
+    },
+    "dependencies": {
+        "@hcm/shared": "1.0.0-beta.1",
+        "@hcm/ui": "1.0.0-beta.1",
+        "firebase": "13.3.0",
+        "lit": "3.3.3",
+        "web-vitals": "6.2.3"
+    },
+    "devDependencies": {
+        "@hcm/test-support": "1.0.0-beta.1"
+    }
+}

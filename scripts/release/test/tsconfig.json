@@ -1,0 +1,10 @@
+// Unit tests of the release scripts (the `tools` project of vitest.config.ts), type-checked apart from src/.
+{
+    "extends": "../../../tsconfig.base.json",
+    "compilerOptions": {
+        "types": ["node"],
+        "rootDir": ".."
+    },
+    "include": ["."],
+    "references": [{ "path": ".." }, { "path": "../../../packages/shared" }, { "path": "../../site" }]
+}

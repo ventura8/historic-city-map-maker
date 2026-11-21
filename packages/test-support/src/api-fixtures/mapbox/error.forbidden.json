@@ -1,0 +1,7 @@
+{
+    "call": "any https://api.mapbox.com call the token lacks a scope for",
+    "status": 403,
+    "body": {
+        "message": "Forbidden"
+    }
+}

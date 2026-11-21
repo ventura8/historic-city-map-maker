@@ -1,0 +1,72 @@
+<!doctype html>
+<html lang="ro">
+    <head>
+        <meta charset="utf-8" />
+        <meta
+            http-equiv="Content-Security-Policy"
+            content="default-src 'none'; script-src https://cdn.jsdelivr.net/gh/ventura8/historic-city-map-maker@v1.0.0-beta.1/cdn/engine/ https://api.mapbox.com/mapbox-gl-js/ 'wasm-unsafe-eval' https://www.googletagmanager.com; style-src https://cdn.jsdelivr.net/gh/ventura8/historic-city-map-maker@v1.0.0-beta.1/cdn/engine/ https://api.mapbox.com/mapbox-gl-js/; img-src 'self' data: blob: https://api.mapbox.com https://*.google-analytics.com https://*.googletagmanager.com; connect-src 'self' https://cdn.jsdelivr.net/gh/ventura8/historic-city-map-maker@v1.0.0-beta.1/cdn/engine/ https://api.mapbox.com https://events.mapbox.com https://*.tiles.mapbox.com https://*.google-analytics.com https://*.analytics.google.com https://*.googletagmanager.com https://firebase.googleapis.com https://firebaseinstallations.googleapis.com https://firebaseremoteconfig.googleapis.com; font-src https://cdn.jsdelivr.net/gh/ventura8/historic-city-map-maker@v1.0.0-beta.1/cdn/engine/; worker-src blob: 'self'; child-src blob:; manifest-src 'self'; base-uri 'none'; form-action 'none'; object-src 'none'"
+        />
+        <meta name="referrer" content="strict-origin-when-cross-origin" />
+        <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+        <meta name="description" content="O hartă istorică a orașului meu: fotografii vechi și locuri dispărute pe harta de azi." />
+        <meta name="color-scheme" content="light dark" />
+        <meta name="theme-color" content="#8B5E3C" />
+        <title>Orașul meu</title>
+        <link
+            rel="icon"
+            type="image/png"
+            sizes="32x32"
+            href="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAACAAAAAgCAYAAABzenr0AAAACXBIWXMAAAsTAAALEwEAmpwYAAACTUlEQVRYw+1XTWsTQRje36D+lYK4G+vNU6tHi9ltxYMU9WYQPKit1EN2g1AIWEypFNoeWj/x4xBF0dIQqg1FIbdEtGJpl7SbhNo2bt/OM7XrpG5CY9JdkH1gGJiv99mZ2XmeV5IEGF3tR6Ka3Kdr8kdWl3RNoVYUrBVVlQ+6Kt+8rbYdltxghJXTbMBqq4LWLCxGVA2dcgmu2Ace3CGh2A4JbLsnX773WFR5hR8HzsXr4H/uhnJDYhdkzjcC7GJK+73tI9c0mnk8Ql+zGfr8/gU9iEUodu5E3Tnjt3ppLjlFz+/219oBS6q3wPDVszT9MEHmQp7csFZcpczrRzQxcJH07hCfE7/UQW8n4mR+/+KMK6+YNWPUJDD/5slfAX+WLV5XNtapsrlR1WeZi5SbT5H9q+JKtGECmAQsL+To3eQQJSJnKHnf4G0/clkavHCSXt4boPynNG3ZdlXAUmGJUk9H6dXoneYJTBlXnDaRgDg2frmTCovfeF/62RgZPcd5O+Z6QgAFbQDG7LYFBAICAYGAwP9FAM8rnlkAzy6eX08IQFAgLBAYERAgCBEECcIkEoBwQcAgZE0TEAGpheRCekVAmiHRomSLgLQ3TAAmYhcwFzAZMBu8n5kPmBCYETeifA4zMTAzMDX1TA8zpUrRrQM2CnYKtqreArBlsGewabBrsG2wb/vNEfw3pX7acrb71yUkB34kJqwUYuePHuLZEdIkr1MzQzvWWZUfggTSJS++XA/LHa4ZMo4D6dJOKu3+d/xjCmaxehZrO9v+G9tIuMRFoT7ILgAAAABJRU5ErkJggg=="
+        />
+        <link
+            rel="stylesheet"
+            href="https://api.mapbox.com/mapbox-gl-js/v3.34.1/mapbox-gl.css"
+            integrity="sha384-QWCpuitI3tz8lJHSbcFQpEAx5BkQcYir4RLGZBb8zOIH0es6XDO8Kv6Gat+wOJRN"
+            crossorigin="anonymous"
+        />
+        <script
+            src="https://api.mapbox.com/mapbox-gl-js/v3.34.1/mapbox-gl.js"
+            integrity="sha384-bRGpP2/mvLNdh4nRXgIf97xnGmUJRpB58iFa5NaGLEFu8v+0T/Bc0c+iX+AvMgVP"
+            crossorigin="anonymous"
+            defer
+        ></script>
+        <!-- hcm:engine -->
+        <link
+            rel="stylesheet"
+            href="https://cdn.jsdelivr.net/gh/ventura8/historic-city-map-maker@v1.0.0-beta.1/cdn/engine/engine.css"
+            integrity="sha384-CRpPdjzXaxayEUJd7QaGGTEpbrbi1+l7GzlfuObh0Ff16aumTb6HWXwBM5Z/LXEO"
+            crossorigin="anonymous"
+        />
+        <script
+            src="https://cdn.jsdelivr.net/gh/ventura8/historic-city-map-maker@v1.0.0-beta.1/cdn/engine/engine.iife.js"
+            integrity="sha384-F4zXtD8iN6Lf2pjmK8Bk18FogMExOdkL4fkYif5t+GtLBvo2TC4B8gd+fY0/U5tm"
+            crossorigin="anonymous"
+            defer
+        ></script>
+        <!-- /hcm:engine -->
+    </head>
+    <body class="hcm-fullpage">
+        <main>
+            <h1 class="hcm-visually-hidden">Orașul meu</h1>
+            <!-- If the late note shows, the engine was refused: check its version and integrity above (README.md). -->
+            <hcm-map-viewer manifest-url="city.json" lang="ro">
+                <p class="hcm-note" lang="ro">
+                    Harta se încarcă.
+                    <span class="hcm-note-late">Dacă mesajul rămâne, harta nu s-a putut încărca. Reîncarcă pagina.</span>
+                </p>
+                <p class="hcm-note" lang="en">
+                    The map is loading.
+                    <span class="hcm-note-late">If this stays, the map could not load. Reload the page.</span>
+                </p>
+            </hcm-map-viewer>
+            <noscript>
+                <p class="hcm-note" lang="ro">
+                    Harta are nevoie de JavaScript. Activează JavaScript în browser ca să vezi harta istorică a orașului.
+                </p>
+                <p class="hcm-note" lang="en">
+                    The map needs JavaScript. Turn JavaScript on in your browser to see the historical map of the city.
+                </p>
+            </noscript>
+        </main>
+    </body>
+</html>

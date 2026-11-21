@@ -1,0 +1,7 @@
+{
+    "call": "any https://api.mapbox.com call with a bad access_token",
+    "status": 401,
+    "body": {
+        "message": "Not Authorized - Invalid Token"
+    }
+}

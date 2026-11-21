@@ -1,0 +1,15 @@
+{
+    "call": "POST https://api.mapbox.com/uploads/v1/<user>?access_token=<sk> {tileset, url, name}",
+    "status": 201,
+    "body": {
+        "complete": false,
+        "tileset": "{{tilesetId}}",
+        "error": null,
+        "id": "{{uploadId}}",
+        "name": "{{sourceId}}",
+        "modified": "2026-10-12T08:31:00.000Z",
+        "created": "2026-10-12T08:30:00.000Z",
+        "owner": "{{mapboxUser}}",
+        "progress": 0
+    }
+}

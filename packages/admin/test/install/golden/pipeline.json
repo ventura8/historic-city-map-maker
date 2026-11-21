@@ -1,0 +1,83 @@
+{
+    "serviceAccount": "projects/demo-hcm/serviceAccounts/hcm-installer@demo-hcm.iam.gserviceaccount.com",
+    "options": {
+        "logging": "CLOUD_LOGGING_ONLY"
+    },
+    "timeout": "5400s",
+    "queueTtl": "3600s",
+    "tags": ["hcm-install", "hcm-pipeline", "hcm-r-1-0-0-abc1234"],
+    "substitutions": {
+        "_ORIGIN": "https://demo-hcm.web.app",
+        "_BASE": "/admin/",
+        "_SLUG": "1-0-0-abc1234",
+        "_RELEASE": "1.0.0+abc1234",
+        "_RELEASE_TIME": "1761955200",
+        "_MANIFEST_SHA256": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+        "_FILE_SHA256": "bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb"
+    },
+    "steps": [
+        {
+            "id": "fetch",
+            "name": "node:24-bookworm-slim@sha256:dddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddd",
+            "entrypoint": "node",
+            "args": ["--input-type=module", "--eval", "<FETCH_BUNDLE_SCRIPT>"],
+            "env": [
+                "HCM_BUNDLE_URL=${_ORIGIN}${_BASE}install/${_SLUG}/",
+                "HCM_MANIFEST_SHA256=${_MANIFEST_SHA256}",
+                "HCM_FILE_SHA256=${_FILE_SHA256}",
+                "HCM_RELEASE=${_RELEASE}",
+                "HCM_RELEASE_TIME=${_RELEASE_TIME}",
+                "HCM_FILES=pipeline",
+                "HCM_OUT=/workspace/pipeline",
+                "HCM_REDIRECT_ORIGIN=https://demo-hcm-admin.web.app"
+            ]
+        },
+        {
+            "id": "build",
+            "name": "gcr.io/cloud-builders/docker@sha256:6a6635024a23c8ed596c26fefc744bd3c5dbe269e8d8d541f2fda2beb0664ea5",
+            "dir": "pipeline",
+            "env": ["DOCKER_BUILDKIT=1"],
+            "args": [
+                "build",
+                "-f",
+                "Dockerfile",
+                "--target",
+                "runtime",
+                "--build-arg",
+                "HCM_RELEASE=${_RELEASE}",
+                "-t",
+                "us-central1-docker.pkg.dev/$PROJECT_ID/hcm/pipeline:${_SLUG}",
+                "."
+            ]
+        },
+        {
+            "id": "push",
+            "name": "gcr.io/cloud-builders/docker@sha256:6a6635024a23c8ed596c26fefc744bd3c5dbe269e8d8d541f2fda2beb0664ea5",
+            "entrypoint": "bash",
+            "dir": "pipeline",
+            "args": [
+                "-c",
+                "docker push us-central1-docker.pkg.dev/$PROJECT_ID/hcm/pipeline:${_SLUG} && docker inspect --format='{{index .RepoDigests 0}}' us-central1-docker.pkg.dev/$PROJECT_ID/hcm/pipeline:${_SLUG} > /workspace/digest"
+            ]
+        },
+        {
+            "id": "jobs",
+            "name": "node:24-bookworm-slim@sha256:dddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddd",
+            "entrypoint": "node",
+            "dir": "pipeline",
+            "args": [
+                "steps/run-jobs.mjs",
+                "--project",
+                "$PROJECT_ID",
+                "--region",
+                "us-central1",
+                "--image-file",
+                "/workspace/digest",
+                "--slug",
+                "${_SLUG}",
+                "--release-time",
+                "${_RELEASE_TIME}"
+            ]
+        }
+    ]
+}

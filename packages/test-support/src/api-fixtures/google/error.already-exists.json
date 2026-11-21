@@ -1,0 +1,11 @@
+{
+    "call": "any Google REST create of a resource that exists",
+    "status": 409,
+    "body": {
+        "error": {
+            "code": 409,
+            "message": "Requested entity already exists",
+            "status": "ALREADY_EXISTS"
+        }
+    }
+}

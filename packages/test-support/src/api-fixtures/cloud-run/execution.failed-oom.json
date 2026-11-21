@@ -1,0 +1,29 @@
+{
+    "call": "GET https://run.googleapis.com/v2/projects/{{projectId}}/locations/{{region}}/jobs/{{job}}/executions/<execution>",
+    "note": "The task killed for exceeding its memory (exit 137, no SIGTERM handler ran): the dispatcher runs it again on the xl job.",
+    "status": 200,
+    "body": {
+        "name": "projects/{{projectId}}/locations/{{region}}/jobs/{{job}}/executions/{{execution}}",
+        "uid": "0e2e0000-0000-4000-8000-000000000101",
+        "generation": "1",
+        "createTime": "2026-10-12T08:30:00Z",
+        "startTime": "2026-10-12T08:30:00Z",
+        "job": "{{job}}",
+        "parallelism": 1,
+        "taskCount": 1,
+        "launchStage": "GA",
+        "logUri": "https://console.cloud.google.com/logs/viewer?project={{projectId}}",
+        "etag": "\"e2e-execution\"",
+        "completionTime": "2026-10-12T08:31:00Z",
+        "failedCount": 1,
+        "conditions": [
+            {
+                "type": "Completed",
+                "state": "CONDITION_FAILED",
+                "lastTransitionTime": "2026-10-12T08:31:00Z",
+                "message": "Task {{execution}}-task0 failed with exit code 137. Memory limit of 16384 MiB exceeded with 16391 MiB used.",
+                "reason": "NonZeroExitCode"
+            }
+        ]
+    }
+}

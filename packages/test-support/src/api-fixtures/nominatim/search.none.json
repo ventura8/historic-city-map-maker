@@ -1,0 +1,6 @@
+{
+    "call": "GET https://nominatim.openstreetmap.org/search?q=<name>&format=jsonv2&limit=1&accept-language=ro",
+    "note": "Nothing has that name: Nominatim answers HTTP 200 with an empty list.",
+    "status": 200,
+    "body": []
+}

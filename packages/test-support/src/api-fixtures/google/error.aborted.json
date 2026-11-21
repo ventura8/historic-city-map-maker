@@ -1,0 +1,11 @@
+{
+    "call": "any Google REST read-modify-write (setIamPolicy) with a stale etag",
+    "status": 409,
+    "body": {
+        "error": {
+            "code": 409,
+            "message": "There were concurrent policy changes. Please retry the whole read-modify-write with exponential backoff.",
+            "status": "ABORTED"
+        }
+    }
+}

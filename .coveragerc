@@ -1,0 +1,18 @@
+# Python coverage for scripts/ci (branch coverage, >=90%). There is no exclusion pragma or
+# exclude list: every line of product code is measured, including `if __name__ == "__main__":`
+# (tests run the scripts through runpy).
+[run]
+branch = True
+source = scripts/ci
+# The test suite is not product code (Sonar indexes it as tests); only it is left out.
+omit = scripts/ci/tests/*
+data_file = reports/.coverage
+relative_files = True
+
+[report]
+fail_under = 90
+show_missing = True
+skip_covered = True
+
+[xml]
+output = reports/coverage/scripts.xml

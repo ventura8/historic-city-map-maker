@@ -1,0 +1,9 @@
+{
+    "call": "GET https://storage.googleapis.com/storage/v1/projects/<project>/serviceAccount",
+    "note": "Cloud Storage's service agent of the project, created on first read (M2b item iam).",
+    "status": 200,
+    "body": {
+        "kind": "storage#serviceAccount",
+        "email_address": "service-{{projectNumber}}@gs-project-accounts.iam.gserviceaccount.com"
+    }
+}

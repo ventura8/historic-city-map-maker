@@ -1,0 +1,37 @@
+{
+    "call": "GET https://api.mapbox.com/tokens/v2/<user>?access_token=<sk>",
+    "note": "Secret tokens are listed without their value.",
+    "status": 200,
+    "body": [
+        {
+            "client": "api",
+            "usage": "pk",
+            "id": "cle2e0000default0000000001",
+            "default": true,
+            "note": "Default public token",
+            "scopes": ["styles:tiles", "styles:read", "fonts:read", "datasets:read", "vision:read"],
+            "created": "2026-10-12T08:30:00.000Z",
+            "modified": "2026-10-12T08:30:00.000Z",
+            "token": "pk.e2e-default-public-token"
+        },
+        {
+            "client": "api",
+            "usage": "sk",
+            "id": "{{tokenId}}",
+            "default": false,
+            "note": "historic-map-server",
+            "scopes": [
+                "styles:read",
+                "styles:tiles",
+                "fonts:read",
+                "tilesets:read",
+                "tilesets:write",
+                "tilesets:list",
+                "tokens:read",
+                "tokens:write"
+            ],
+            "created": "2026-10-12T08:30:00.000Z",
+            "modified": "2026-10-12T08:30:00.000Z"
+        }
+    ]
+}
