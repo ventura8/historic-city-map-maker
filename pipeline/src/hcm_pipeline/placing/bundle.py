@@ -138,3 +138,19 @@ def solve(cells: Mapping[int, Cell], seams: Sequence[Seam], cell: tuple[int, int
 def _moved(position: FloatArray, prior: FloatArray, cell: tuple[int, int]) -> float:
     """How far a sheet lies from its prior, in cells (the larger of the two axes)."""
     return float(max(abs(position[0] - prior[0]) / cell[0], abs(position[1] - prior[1]) / cell[1]))
+
+
+def confirmed(cells: Mapping[int, Cell], seams: Sequence[Seam], cell: tuple[int, int]) -> Solved:
+    """Every sheet at its named cell (a city grid's names are its places, M20 §19.16), the seams only confirming them: a seam is kept
+    when it says what the grid says (its step within `OUTLIER_PX` of the cell's), dropped otherwise; nothing moves."""
+    system = _system(cells, seams, (float(cell[0]), float(cell[1])))
+    found = numpy.array([_off_grid(seam, cell) for seam in system.seams], numpy.float64)
+    kept, residuals, dropped = _split(system, found)
+    positions = {sheet: (float(system.prior[at][0]), float(system.prior[at][1])) for sheet, at in system.index.items()}
+    return Solved(positions, kept, residuals, dropped, (), dict.fromkeys(positions, 0.0))
+
+
+def _off_grid(seam: Seam, cell: tuple[int, int]) -> float:
+    """How far a seam's step lies from the grid's (pixels)."""
+    expected = (float(cell[0]), 0.0) if seam.side == "right" else (0.0, float(cell[1]))
+    return float(numpy.hypot(seam.dx - expected[0], seam.dy - expected[1]))

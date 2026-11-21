@@ -24,6 +24,8 @@ RGB: Final = 3
 GREY_SPREAD: Final = 8
 # An ink-keeping read goes through the scan this many picture rows at a time.
 INK_ROWS: Final = 64
+# How far an ink-keeping read amplifies a block's darkness at most.
+INK_GAIN: Final = 6
 UInt8Array = NDArray[numpy.uint8]
 
 
@@ -106,9 +108,10 @@ def ink_factor(box: tuple[int, int, int, int], size: tuple[int, int]) -> int:
 
 
 def read_box_inked(path: Path, box: tuple[int, int, int, int], size: tuple[int, int]) -> UInt8Array:
-    """The scan's `box` at `size`, keeping its ink: each picture pixel is the darkest of the scan pixels it covers, read at the scan's
-    own resolution in bands of `INK_ROWS` picture rows (a 1-bit drawing's one-pixel lines survive where an average turns them into
-    paper: the 1:500's thumbnails and preview, M20 §19.16). Memory: one band of rows of the box, never the whole scan."""
+    """The scan's `box` at `size`, keeping its ink: each picture pixel is the darkness of the scan pixels it covers, amplified
+    (`_inked_blocks`), read at the scan's own resolution in bands of `INK_ROWS` picture rows: a 1-bit drawing's one-pixel lines
+    survive where an average turns them into paper (the 1:500's thumbnails and preview, M20 §19.16). Memory: one band of rows of the
+    box, never the whole scan."""
     factor = ink_factor(box, size)
     if factor == 1:
         return read_box(path, box, size)
@@ -123,19 +126,26 @@ def read_box_inked(path: Path, box: tuple[int, int, int, int], size: tuple[int, 
 
 
 def _min_pooled(dataset: gdal.Dataset, origin: tuple[int, int], size: tuple[int, int], factor: int) -> UInt8Array:
-    """Every band's blocks of `factor` x `factor` scan pixels from `origin`, each its darkest, `size` blocks."""
+    """Every band's blocks of `factor` x `factor` scan pixels from `origin`, each inked (`_inked_blocks`), `size` blocks."""
     count = dataset.RasterCount
-    planes = [_band_min(dataset.GetRasterBand(index + 1), origin, size, factor) for index in range(count)]
+    planes = [_band_inked(dataset.GetRasterBand(index + 1), origin, size, factor) for index in range(count)]
     return numpy.asarray(numpy.dstack(planes) if count >= RGB else planes[0], numpy.uint8)
 
 
-def _band_min(band: gdal.Band, origin: tuple[int, int], size: tuple[int, int], factor: int) -> UInt8Array:
+def _inked_blocks(blocks: numpy.ndarray, factor: int) -> UInt8Array:
+    """Each block's darkness (its mean distance from white) amplified by `factor`, at most `INK_GAIN`: a one-pixel line across a
+    block of `factor` pixels keeps its full darkness, a dense block saturates to black instead of every block turning black."""
+    darkness = 255.0 - blocks.mean(axis=(1, 3), dtype=numpy.float64)
+    return numpy.asarray(numpy.clip(255.0 - darkness * min(factor, INK_GAIN), 0, 255), numpy.uint8)
+
+
+def _band_inked(band: gdal.Band, origin: tuple[int, int], size: tuple[int, int], factor: int) -> UInt8Array:
     width = min(size[0], (band.XSize - origin[0]) // factor)
     out = numpy.full((size[1], size[0]), 255, numpy.uint8)
     for row in range(0, min(size[1], (band.YSize - origin[1]) // factor), INK_ROWS):
         rows = min(INK_ROWS, size[1] - row, (band.YSize - origin[1]) // factor - row)
         pixels = band.ReadAsArray(origin[0], origin[1] + row * factor, width * factor, rows * factor)
-        out[row : row + rows, :width] = pixels.reshape(rows, factor, width, factor).min(axis=(1, 3))
+        out[row : row + rows, :width] = _inked_blocks(pixels.reshape(rows, factor, width, factor), factor)
     return out
 
 

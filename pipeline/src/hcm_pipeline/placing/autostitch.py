@@ -23,7 +23,6 @@ import numpy
 
 from hcm_pipeline.placing import bundle, featured, jigsaw, sheetnames
 from hcm_pipeline.placing.canvas_window import Tile
-from hcm_pipeline.placing.gridscheme import QUARTER_ORDERS
 from hcm_pipeline.placing.quality import Measures, Quality, judged
 from hcm_pipeline.placing.seams import ABUT_RMS_PX, STRONG_SCORE, Seam, seam_of
 from hcm_pipeline.placing.sheetwork import Part, allowed, cell_of, on_cell, read_parts
@@ -34,6 +33,9 @@ ORIENT_PASSES: Final = 2
 CANVAS_MAX_PX: Final = 20_000
 # The features and the edge jigsaw compare every pair of sheets: a longer series (the 4,534 sheets of the 1:500) keeps its names' grid.
 PAIRWISE_MAX: Final = 400
+# A city grid's quarters 1-4 as printed: along the rows from the top left (checked on the 1:500's 14C1-4: Hotel Capitol east of the
+# old City Hall, the CEC south of it, the Dâmbovița in the south-east quarter).
+PRINTED_ORDER: Final = 0
 SIDES: Final = (("right", 0, 1), ("below", 1, 0))
 Cell = tuple[int, int]
 
@@ -221,12 +223,13 @@ def _marked(seams: Sequence[Seam], dropped: Sequence[Seam]) -> tuple[Seam, ...]:
     return tuple(replace(seam, state="weak") if (seam.a, seam.b) in pairs else seam for seam in seams)
 
 
-def solved(plan: Plan, grid: sheetnames.NameGrid) -> Proposal:
-    """The seams measured and the bundle solved on a plan whose cells and variants are set; with its verdict."""
+def solved(plan: Plan, grid: sheetnames.NameGrid, named_places: bool = False) -> Proposal:
+    """The seams measured and the bundle solved on a plan whose cells and variants are set; with its verdict. With `named_places` (a
+    city grid) the names place every sheet and the seams only confirm them (`bundle.confirmed`)."""
     seams = seams_of(plan)
     cells = {index: cell for index, cell in plan.cells.items() if index not in plan.out}
     from_order = set(cells) if grid.source == "order" else set()
-    answer = bundle.solve(cells, seams, plan.cell, from_order)
+    answer = bundle.confirmed(cells, seams, plan.cell) if named_places else bundle.solve(cells, seams, plan.cell, from_order)
     return Proposal(plan, grid, _marked(seams, answer.dropped), answer, judged(_measures(plan, seams, answer)))
 
 
@@ -244,31 +247,24 @@ def propose(named: Sequence[tuple[str, Path]]) -> Proposal:
     grid = sheetnames.grid_of(names, cell[0] / cell[1])
     plan = Plan(parts, dict(grid.cells), _initial(parts, cell), cell, initial_out(parts, grid))
     grid = _chosen(plan, names, grid)
-    orient(plan, set(plan.cells))
-    by_names = solved(plan, grid)
+    city = sheetnames.city(names, PRINTED_ORDER) is not None
+    if not city:
+        orient(plan, set(plan.cells))
+    by_names = solved(plan, grid, city)
     if by_names.quality.verdict == "good" or len(parts) > PAIRWISE_MAX:
         return by_names
     return best_of([by_names, from_features(parts, cell, by_names.plan.out), from_edges(parts, cell, by_names.plan.out, names)])
 
 
 def _chosen(plan: Plan, names: Sequence[str], grid: sheetnames.NameGrid) -> sheetnames.NameGrid:
-    """The names' grid with what the seams decide: the column count of names in order, the quarter order of a city grid."""
+    """The names' grid with what the seams decide (the column count of names in order); a city grid's quarters as printed."""
     if grid.source == "order":
         return _best_order(plan, names)
-    return _best_quarters(plan, names) if sheetnames.city(names) is not None else grid
-
-
-def _best_quarters(plan: Plan, names: Sequence[str]) -> sheetnames.NameGrid:
-    """Of the eight ways a city grid's quarters 1-4 may run (`gridscheme.QUARTER_ORDERS`), the one whose seams join best."""
-    tried = []
-    for order in range(len(QUARTER_ORDERS)):
-        grid = sheetnames.city(names, order)
-        if grid is not None:
-            plan.cells = grid.cells
-            tried.append((_support(seams_of(plan)), -order, grid))
-    best = max(tried, key=lambda item: (item[0], item[1]))[2]
-    plan.cells = best.cells
-    return best
+    printed = sheetnames.city(names, PRINTED_ORDER)
+    if printed is None:
+        return grid
+    plan.cells = printed.cells
+    return printed
 
 
 def best_of(found: Sequence[Proposal | None]) -> Proposal:

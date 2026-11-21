@@ -6,7 +6,8 @@ from pathlib import Path
 
 import cv2
 import numpy
-from hcm_pipeline.placing import raster_io, sheetnames, sheetwork
+from hcm_pipeline.placing import bundle, raster_io, sheetnames, sheetwork
+from hcm_pipeline.placing.seams import Seam
 
 from tests.synthetic.town import write_map
 
@@ -69,9 +70,24 @@ def test_happy_path_an_ink_keeping_read_keeps_a_one_pixel_line(tmp_path: Path) -
     inked = raster_io.read_box_inked(path, (0, 0, 800, 800), (100, 100))
     averaged = raster_io.read_box(path, (0, 0, 800, 800), (100, 100))
 
-    assert int(inked.min()) == 0
+    assert int(inked.min()) < 100
     assert int(averaged.min()) > 200
     assert raster_io.ink_factor((0, 0, 50, 50), (100, 100)) == 1
     colour = write_map(tmp_path / "colour.tif", page, grey=False)
     assert raster_io.read_box_inked(colour, (0, 0, 800, 800), (100, 100)).shape == (100, 100, 3)
     assert raster_io.read_box_inked(path, (0, 0, 50, 50), (100, 100)).shape[:2] == (100, 100)
+
+
+def test_happy_path_a_city_grid_keeps_its_named_places_and_seams_only_confirm_them() -> None:
+    """Scenarios: S-P20-HAPPY-STITCH-CITY-GRID"""
+    cells = {0: (0, 0), 1: (0, 1), 2: (1, 0)}
+    seams = [
+        Seam(0, 1, "right", 100.0, 2.0, 0.7, 1.0, "strong"),
+        Seam(0, 2, "below", 40.0, 90.0, 0.7, 1.0, "strong"),
+    ]
+
+    answer = bundle.confirmed(cells, seams, (100, 80))
+
+    assert answer.positions == {0: (0.0, 0.0), 1: (100.0, 0.0), 2: (0.0, 80.0)}
+    assert [seam.b for seam in answer.kept] == [1]
+    assert [seam.b for seam in answer.dropped] == [2]
