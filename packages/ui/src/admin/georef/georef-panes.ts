@@ -131,7 +131,7 @@ function scanViewer(context: GeorefContext, scan: NonNullable<NonNullable<Georef
         <p class="note">${contentText(locale, 'adminContent.georef.scanKeys')} ${contentText(locale, 'adminContent.georef.turn.keys')}</p>`;
 }
 
-/** M20 §19.12: what an archive series' scan pane says when it has no picture of its own, and the way to Fix the tiles. */
+/** M20 §19.13: what an archive series' scan pane says when it has no picture of its own, and the way to Fix the tiles. */
 function seriesNote(context: GeorefContext, key: 'adminContent.georef.noScanSeries' | 'adminContent.georef.stitchedOnly'): TemplateResult {
     const id = context.view.version?.id ?? '';
     return html`<p class="note" data-state=${key === 'adminContent.georef.stitchedOnly' ? 'stitched-only' : 'no-scan-series'}>
@@ -140,15 +140,24 @@ function seriesNote(context: GeorefContext, key: 'adminContent.georef.noScanSeri
     </p>`;
 }
 
+/** No picture to show: the plain note, or, for an archive series, the way to Fix the tiles. */
+function noScanNote(context: GeorefContext): TemplateResult {
+    return context.view.version?.series === undefined
+        ? html`<p class="note" data-state="no-scan">${contentText(context.locale, 'adminContent.georef.noScan')}</p>`
+        : seriesNote(context, 'adminContent.georef.noScanSeries');
+}
+
+/** Over a series' joined sheets: they are only to check. */
+function stitchedNote(context: GeorefContext): TemplateResult | string {
+    return context.view.version?.series?.stitchedOnly === true ? seriesNote(context, 'adminContent.georef.stitchedOnly') : '';
+}
+
 function scanPane(context: GeorefContext): TemplateResult {
-    const version = context.view.version;
-    const scan = version?.scan ?? null;
+    const scan = context.view.version?.scan ?? null;
     if (scan === null || context.view.scan.status === 'failed') {
-        return version?.series === undefined
-            ? html`<p class="note" data-state="no-scan">${contentText(context.locale, 'adminContent.georef.noScan')}</p>`
-            : seriesNote(context, 'adminContent.georef.noScanSeries');
+        return noScanNote(context);
     }
-    return html`${version?.series?.stitchedOnly === true ? seriesNote(context, 'adminContent.georef.stitchedOnly') : ''}${scanViewer(context, scan)}`;
+    return html`${stitchedNote(context)}${scanViewer(context, scan)}`;
 }
 
 /** The references the version has. */

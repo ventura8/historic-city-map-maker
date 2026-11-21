@@ -80,7 +80,8 @@ export const ro = {
     'adminTiles.handOffHelp': 'Imaginea îmbinată merge în georeferențiator, unde adaugi punctele.',
     'adminTiles.handedOff': 'Trimisă mai departe: aplicația îmbină foile pentru puncte.',
     'adminTiles.openGeoref': 'Deschide georeferențiatorul',
-    'adminTiles.notWaiting': 'Această serie nu mai așteaptă așezarea foilor. Dacă foile ei stau greșit pe hartă, deschide seria în Imagini și alege Repară foile.',
+    'adminTiles.notWaiting':
+        'Această serie nu mai așteaptă așezarea foilor. Dacă foile ei stau greșit pe hartă, deschide seria în Imagini și alege Repară foile.',
     'adminTiles.notFound': 'Nicio serie la această adresă.',
     'adminTiles.loadFailed': 'Așezarea foilor nu a putut fi citită.',
     'adminTiles.retry': 'Reîncearcă',

@@ -1,5 +1,5 @@
 /**
- * `imagery.relayout` (`functions/src/imagery/relayout.ts`, M20 §19.12): Fix the tiles of an archive series on the map or waiting for
+ * `imagery.relayout` (`functions/src/imagery/relayout.ts`, M20 §19.13): Fix the tiles of an archive series on the map or waiting for
  * approval, a new version of the same layer reopened at its tile layout, the version on the map left there.
  */
 import type { JobDoc, LayerVersionDoc } from '@hcm/shared';
@@ -63,6 +63,12 @@ function placedVersion(overrides: Partial<LayerVersionDoc> = {}): LayerVersionDo
         jobId: BASE,
         state: 'published',
         origin: 'archive',
+        own: {
+            path: `tiles/${CITY}/${LAYER}/${BASE}.pmtiles`,
+            url: 'https://example.test/t.pmtiles',
+            bytes: 26678170,
+            publishedAt: at(NOW),
+        },
         source: { kind: 'archive', archiveId: PARAMS.archiveId, seriesId: PARAMS.seriesId, sheetCount: 120, placedCount: 96 },
         rights: { state: 'clear', licence: 'PD', year: '1960' },
         georef: { ...goldenGeoref(), method: 'gcps' },
@@ -120,7 +126,7 @@ describe('imagery.relayout: Fix the tiles', () => {
 
     it('badPath_aVersionNotOnTheMapOrNotASeriesIsRefused @S-A-BAD-FIX-TILES-STATE', async () => {
         const cases: [Partial<LayerVersionDoc>, Partial<JobDoc>][] = [
-            [{ state: 'needs_gcps' }, {}],
+            [{ state: 'needs_gcps', help: { reason: 'no-scale', note: 'n', at: at(NOW) } }, {}],
             [{ origin: 'usgs' }, {}],
             [{}, { type: 'regeoref' }],
         ];

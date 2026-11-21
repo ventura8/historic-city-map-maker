@@ -79,7 +79,8 @@ export const en: Readonly<Record<AdminTilesKey, string>> = {
     'adminTiles.handOffHelp': 'The joined picture goes to the georeferencer, where you add points.',
     'adminTiles.handedOff': 'Sent on: the app is joining the sheets for the points.',
     'adminTiles.openGeoref': 'Open the georeferencer',
-    'adminTiles.notWaiting': 'This series no longer waits for its tiles. If its sheets are wrong on the map, open the series in Imagery and choose Fix the tiles.',
+    'adminTiles.notWaiting':
+        'This series no longer waits for its tiles. If its sheets are wrong on the map, open the series in Imagery and choose Fix the tiles.',
     'adminTiles.notFound': 'No series at this address.',
     'adminTiles.loadFailed': 'The tile layout could not be read.',
     'adminTiles.retry': 'Try again',

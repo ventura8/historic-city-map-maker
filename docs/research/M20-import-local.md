@@ -831,6 +831,26 @@ Left to the pipeline track: a test that serialises `layout_record()` of a synthe
 `layoutFileSchema` to parse (the sample is hand-written), and a sheet cap that waits with `no-path` above `LAYOUT_SHEETS_MAX`; the
 golden sample now has a missing seam with a strip and no guess, the shape the wizard asks.
 
+### 19.13 Fix the tiles: a placed series laid out again (live report of 2026-11-21)
+
+The 1:500 of 1960-71 (`ar-mwgcdw8s-s-b250f2e03a5f`, `harti.zip`) was published with chequerboard gaps, sheets 80-300 m off and two
+sheets turned against each other (seam score 0.01). Once published nothing reopened it: the tile wizard said "This series no longer
+waits for its tiles", the georeferencer "The scan cannot be shown" (the grid path renders each sheet straight into `warped.tif` and
+keeps no stitched picture or `scan`), and no Run again existed.
+
+| Part | Where | Contract |
+| --- | --- | --- |
+| Callable | `functions/src/imagery/relayout.ts`; `imageryRelayoutRequestSchema` of `packages/shared/src/api/imagery-tiles.ts` | `imagery.relayout({cityId, versionId})` (a city editor) on an archive series on the map or waiting for approval (`relayoutable` of `imagery-help.ts`) whose job is `archive-series`; else `apiError.imagery.versionState`. The budget guard and the busy layer refuse as for any re-run (`apiError.guardPaused`, `apiError.layers.busy`). It creates a new `archive-series` job and `processing` version on the **same layer** (`params.relayout: true`, `restitch` dropped, `runOn: 'local'`, `localOnly`), with the base's label, year, source, date, reference and rights, **no `georef`** (its pairs name pixels of the old mosaic) and no `scan`; `help.layoutAnswer` is the owner's earlier answer again as a preview (`accepted` dropped, `preview: true`), or no `help` when the layout was never answered. The layer's `pendingVersion` becomes the new job; `currentVersion` and the published tiles stay until the new version is approved. A base still waiting for approval is cancelled (version and job), as a new rendition replaces it. Nothing is unpublished and no `layer-delete` is queued. Answer: `{jobId, versionId}` (the same id). |
+| Pipeline entry | `pipeline/src/hcm_pipeline/steps/place.py` (`relaid`), `model.py` | A job with `relayout` skips the class placer and the owner's pairs: with a `help.layoutAnswer` it runs `owner_layout.place` (a preview waits with `layout-check`; an accepted answer mosaics); without one it waits with the automatic proposal (`autoplace.wait_layout`). The stitching algorithm itself is untouched. From there the wizard, `imagery.saveLayout` and `imagery.acceptLayout` work as in §19.10, and the accepted mosaic is the new version's `scan` (with `scan-tiles.bin`) for points. |
+| Version page | `packages/ui/src/admin/imagery/version-detail.ts` | **Fix the tiles** on a version flagged `relayoutable`; the notice says the new version opens from Work once the computer has laid out its sheets and that the version on the map stays until the new one is approved. |
+| Wizard | `packages/ui/src/admin/tiles/empty-cells.ts` | Below **Sheets left out** (dropped by the layout, with their reasons), **Cells with no sheet** names each empty cell of the grid by row and column: no sheet of the archive for it, or one of the sheets left out belongs there. |
+| Georeferencer | `packages/admin/src/georef/state.ts`, `packages/ui/src/admin/georef/georef-panes.ts` | An archive series with no `scan` but a `help.stitched` shows the joined picture to check (`series.stitchedOnly`, not editable, a note with **Open the series**); with neither, the pane says the series was put on the map sheet by sheet and points to Fix the tiles instead of "The scan cannot be shown". The tile wizard's "no longer waits" text points there too. |
+
+To fix the live 1:500: open Imagery, the series' version `ar-mwgcdw8s-s-b250f2e03a5f`, **Fix the tiles**; keep "Run on my computer"
+on the computer that holds `harti.zip`; when the new version waits, open it from Work, arrange the sheets (put back what belongs in
+an empty cell), **Make the preview**, then **Place it on the map**; add points on the joined mosaic in the georeferencer if it asks,
+and approve the new version, which replaces the old one on the map.
+
 ## 20. Any computer runs an archive series: copies through the bucket (live report of 2026-11-13; DECISIONS §204)
 
 **What happened.** The owner connected two more workers for Bucharest (the NUC and the PC's WSL) beside the laptop that imported

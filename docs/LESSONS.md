@@ -4390,3 +4390,9 @@ Append a numbered entry to *Lessons from this repository* in the task that finds
     - Cause: Home counted every `status == failed` job and the Jobs list showed each failure on its own; nothing related a failure to a later run of the same work.
     - Fix and pin: `replacedJobIds` (`packages/admin/src/jobs/replaced.ts`: same type, same target, a later `succeeded`); Home subtracts them, Jobs marks them "Replaced by a later run that worked" with no Retry (`S-A195-HAPPY-REPLACED-JOB`, `S-A195-BAD-NOT-REPLACED`).
     - **A count of work for a person must leave out what later work already settled.**
+
+751. **A published archive series that was stitched wrong could not be fixed at all.**
+    - Seen: 2026-11-21, live Bucharest: the 1:500 of 1960-71 was on the map with gaps, sheets 80-300 m off and two turned; the tile wizard said the series no longer waited, the georeferencer said "The scan cannot be shown" with no pairs, and no version action reopened it.
+    - Found by: the owner on the live map; every tier tested the wizard only on a series parked with `layout-check`, and nothing modelled what happens after approval.
+    - Fix and pin: **Fix the tiles** (`imagery.relayout`, `functions/src/imagery/relayout.ts`) starts a new version of the same layer at the tile layout, seeded with the earlier layout, the published version kept; the georeferencer of a series shows its joined sheets or says what to do (`S-A-HAPPY-FIX-TILES`, `S-A-BAD-FIX-TILES-STATE`).
+    - **Every automatic result a person approves needs a way back to the step that made it, without taking the old result off the map first.**

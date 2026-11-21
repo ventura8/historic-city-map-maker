@@ -218,7 +218,7 @@ export const archiveSeriesParamsSchema = z.strictObject({
      */
     restitch: z.boolean().optional(),
     /**
-     * Fix the tiles (M20 §19.12, `functions/src/imagery/relayout.ts`): the series is laid out again from its sheets and waits for its
+     * Fix the tiles (M20 §19.13, `functions/src/imagery/relayout.ts`): the series is laid out again from its sheets and waits for its
      * owner's check in the tile wizard (`layout-check`), seeded with the base's layout, whatever its class placed it by.
      */
     relayout: z.boolean().optional(),

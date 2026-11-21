@@ -1,4 +1,4 @@
-"""Fix the tiles (`relayout`, M20 §19.12): `place` lays a placed series out again and waits for its owner in the tile wizard."""
+"""Fix the tiles (`relayout`, M20 §19.13): `place` lays a placed series out again and waits for its owner in the tile wizard."""
 
 from types import SimpleNamespace
 from typing import Any
@@ -22,7 +22,7 @@ def _ctx(relayout: object = True) -> Any:
 @pytest.fixture
 def calls(monkeypatch: pytest.MonkeyPatch) -> dict[str, object]:
     seen: dict[str, object] = {}
-    monkeypatch.setattr(place, "series_of", lambda ctx: "series")
+    monkeypatch.setattr(place, "series_of", lambda ctx: SimpleNamespace(sheets=()))
     monkeypatch.setattr(place, "paged", lambda ctx, series: seen.get("paged", series))
     monkeypatch.setattr(place.owner_layout, "answer_of", lambda ctx: seen.get("answer"))
     monkeypatch.setattr(place.owner_layout, "place", lambda ctx, series, answer, method: ("owner", answer, method))

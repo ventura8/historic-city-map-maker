@@ -25,7 +25,7 @@ import type { RegeorefDeps } from './regeoref.js';
 import { createWork, jobIdFor, type NewWork } from './versions.js';
 
 /**
- * `imagery.relayout` (a city editor; `docs/research/M20-import-local.md` §19.12, S-A-HAPPY-FIX-TILES): **Fix the tiles**. Live
+ * `imagery.relayout` (a city editor; `docs/research/M20-import-local.md` §19.13, S-A-HAPPY-FIX-TILES): **Fix the tiles**. Live
  * 2026-11-21: the 1:500 of 1960-71 was published with gaps, sheets 80-300 m off and two turned, and once published nothing reopened it
  * (the tile wizard said it no longer waited). An archive series on the map or waiting for approval gets a **new version of the same
  * layer** whose job asks `relayout`: its `place` lays the sheets out again and waits for the owner in the tile wizard (`layout-check`),
@@ -83,7 +83,11 @@ async function endWaitingBase(transaction: DocumentTransaction, work: NewWork, b
     const stamp = stampOf(work.createdBy, work.now);
     const cancelled: JobDoc = { ...omit(job, ['waitReason']), status: 'cancelled', finishedAt: stamp.updatedAt, ...stamp };
     await transaction.set(FIRESTORE_PATHS.job(work.cityId, base.jobId), jobDocSchema, cancelled);
-    await transaction.set(FIRESTORE_PATHS.layerVersion(work.cityId, base.jobId), layerVersionDocSchema, { ...base, state: 'cancelled', ...stamp });
+    await transaction.set(FIRESTORE_PATHS.layerVersion(work.cityId, base.jobId), layerVersionDocSchema, {
+        ...base,
+        state: 'cancelled',
+        ...stamp,
+    });
 }
 
 /** The layer, read again: another version on its way to it refuses (`apiError.layers.busy`). */
@@ -104,7 +108,8 @@ async function markPending(transaction: DocumentTransaction, work: NewWork, laye
 }
 
 /** The new work for the base: an `archive-series` job on the base's layer that asks `relayout`, on the owner's computer. */
-function workFor(cityId: string, base: LayerVersionDoc, job: JobDoc, uid: string, now: Date): NewWork {
+function workFor(base: LayerVersionDoc, job: JobDoc, ask: { cityId: string; uid: string; now: Date }): NewWork {
+    const { cityId, uid, now } = ask;
     return {
         cityId,
         jobId: jobIdFor('ar', now, base.layerId),
@@ -123,7 +128,7 @@ function workFor(cityId: string, base: LayerVersionDoc, job: JobDoc, uid: string
 async function relayoutIn(transaction: DocumentTransaction, request: Request, uid: string, now: Date): Promise<string> {
     const [base, job] = await readBase(transaction, request.cityId, request.versionId);
     const layer = await freeLayer(transaction, request.cityId, base);
-    const work = workFor(request.cityId, base, job, uid, now);
+    const work = workFor(base, job, { cityId: request.cityId, uid, now });
     await createWork(transaction, work, fieldsOf(base, seededHelp(base, uid, stampOf(uid, now).updatedAt)));
     await markPending(transaction, work, layer);
     await endWaitingBase(transaction, work, base, job);

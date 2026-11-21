@@ -1352,6 +1352,13 @@
             "name": "Visitor numbers on the dashboard",
             "milestone": "M18",
             "source": "the owner, 2026-11-16: Home shows the map's Google Analytics statistics (visitors, trend, countries, languages, devices, most viewed years, layers, photos)"
+        },
+        {
+            "id": "A196",
+            "area": "admin",
+            "name": "Fix the tiles: a placed archive series laid out again in a new version, the version on the map kept",
+            "milestone": "M20",
+            "source": "the owner, 2026-11-21: the 1:500 of 1960-71 was published with gaps and sheets off, and nothing reopened it (docs/research/M20-import-local.md §19.12)"
         }
     ],
     "scenarios": [
@@ -19966,6 +19973,28 @@
             "tier": "e2e-admin",
             "status": "exists",
             "notes": "M22 §13.2. Tests: functions/test/imagery/locate-again-archive.test.ts, packages/ui/test/admin/imagery/imagery-detail.test.ts."
+        },
+        {
+            "id": "S-A-HAPPY-FIX-TILES",
+            "behaviour": "A196",
+            "area": "admin",
+            "path": "happy",
+            "title": "Fix the tiles starts a new version of a placed archive series that waits at its tile layout",
+            "asserts": "the version page of an archive series on the map or waiting for approval offers Fix the tiles; imagery.relayout creates an archive-series job (relayout, runOn local) and a processing version on the same layer seeded with the owner's earlier layout as a preview, no pairs; the layer marks it pending and keeps the published version (a waiting base is cancelled); place lays the sheets out again and waits with layout-check; the wizard names the cells with no sheet apart from the sheets left out; the georeferencer shows a series' joined sheets to check, with the way to Fix the tiles",
+            "tier": "e2e-admin",
+            "status": "exists",
+            "notes": "Tests: e2e/admin/specs/imagery/fix-tiles.spec.ts, functions/test/imagery/relayout.test.ts, packages/shared/test/restitchable.test.ts, packages/admin/test/imagery/version.test.ts, packages/admin/test/georef/series-scan.test.ts, packages/ui/test/admin/imagery/imagery-fix-tiles.test.ts, packages/ui/test/admin/tiles/empty-cells.test.ts, pipeline/tests/unit/test_place_relayout.py."
+        },
+        {
+            "id": "S-A-BAD-FIX-TILES-STATE",
+            "behaviour": "A196",
+            "area": "admin",
+            "path": "bad",
+            "title": "A frame, a series not placed yet or a busy layer is not laid out again; a series with no picture says what to do",
+            "asserts": "no Fix the tiles button for a USGS frame; imagery.relayout answers apiError.imagery.versionState (not an archive series on the map or waiting for approval), apiError.layers.busy (another version on its way) or apiError.guardPaused, and writes nothing; the georeferencer of a series with no scan says why and links the series instead of The scan cannot be shown; a full grid names no empty cell",
+            "tier": "e2e-admin",
+            "status": "exists",
+            "notes": "Tests: e2e/admin/specs/imagery/fix-tiles.spec.ts, functions/test/imagery/relayout.test.ts, packages/ui/test/admin/imagery/imagery-fix-tiles.test.ts, packages/ui/test/admin/tiles/empty-cells.test.ts, pipeline/tests/unit/test_place_relayout.py."
         },
         {
             "id": "S-A122-HAPPY-RESTITCH",

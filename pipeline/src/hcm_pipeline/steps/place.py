@@ -8,7 +8,7 @@ waits for points (`awaiting_gcps`). A low-confidence placer leaves its correspon
 pairs on the parked series (`imagery.saveGcps`: the version's `georef`, `method: 'gcps'`), `place` warps it through them
 (`placing/owner.py`) and never runs the class's placer again: it only parked the series once more (2026-11-10). A series stitched
 again (`restitch` in its job's parameters, DECISIONS §216) is first laid on its overview again (`placing/restitch.py`). **Fix the tiles**
-(`relayout`, M20 §19.12, `functions/src/imagery/relayout.ts`) lays a placed series out again from its sheets, whatever its class, and
+(`relayout`, M20 §19.13, `functions/src/imagery/relayout.ts`) lays a placed series out again from its sheets, whatever its class, and
 waits for its owner in the tile wizard (`layout-check`), with the owner's earlier layout as its first preview when it had one.
 """
 
@@ -20,8 +20,7 @@ from hcm_pipeline.jobs import JobContext, StepResult
 from hcm_pipeline.placing import autoplace, owner_layout, restitch
 from hcm_pipeline.placing.embedded import EmbeddedPlacer
 from hcm_pipeline.placing.grid import GridPlacer
-from hcm_pipeline.placing.maps import AtlasPlacer, PiecesPlacer, SinglePlacer
-from hcm_pipeline.placing.maps import paged
+from hcm_pipeline.placing.maps import AtlasPlacer, PiecesPlacer, SinglePlacer, paged
 from hcm_pipeline.placing.output import wait_for_help
 from hcm_pipeline.placing.owner import owner_pairs, place_from_pairs
 from hcm_pipeline.placing.series import series_of

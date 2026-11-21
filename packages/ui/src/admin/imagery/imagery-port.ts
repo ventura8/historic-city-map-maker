@@ -229,7 +229,7 @@ export interface VersionViewPort {
     readonly layoutCheck?: boolean;
     /** M20 (§216): published with pieces left out of its overview mosaic: offered Locate again (a new version). */
     readonly restitchable?: boolean;
-    /** M20 §19.12: an archive series on the map or waiting for approval: offered **Fix the tiles** (a new version at its tile layout). */
+    /** M20 §19.13: an archive series on the map or waiting for approval: offered **Fix the tiles** (a new version at its tile layout). */
     readonly relayoutable?: boolean;
     /** Finding of 2026-11-14: an archive map (its source is an archive), offered **Join with…** (`join/hcm-archive-join.ts`). */
     readonly archiveMap?: boolean;
@@ -406,7 +406,7 @@ export interface ImageryIntentsPort {
     download(): Promise<boolean>;
     retryJob(): Promise<boolean>;
     locateAgain(): Promise<boolean>;
-    /** M20 §19.12: `imagery.relayout` of the open version, an archive series on the map or waiting for approval. */
+    /** M20 §19.13: `imagery.relayout` of the open version, an archive series on the map or waiting for approval. */
     fixTiles?(): Promise<boolean>;
     cancelJob(): Promise<boolean>;
     resumeGuard(): Promise<boolean>;

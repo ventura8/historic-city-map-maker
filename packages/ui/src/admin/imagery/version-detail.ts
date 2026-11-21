@@ -194,7 +194,7 @@ function locateButton(shown: Shown): TemplateResult {
     return action(shown, { offered, icon: 'replay', label: 'adminContent.imagery.locateAgain' }, () => context.intents?.locateAgain());
 }
 
-/** M20 §19.12: an archive series on the map or waiting for approval lays its sheets out again in a new version (`imagery.relayout`). */
+/** M20 §19.13: an archive series on the map or waiting for approval lays its sheets out again in a new version (`imagery.relayout`). */
 function fixTilesButton(shown: Shown): TemplateResult {
     const offered = shown.version?.relayoutable === true;
     return action(shown, { offered, icon: 'tune', label: 'adminContent.imagery.fixTiles' }, () => shown.context.intents?.fixTiles?.());
@@ -466,8 +466,8 @@ function body(shown: Shown): TemplateResult {
     return html`<div class="pane" data-version=${page.id} data-state=${stateOf(version, job)}>
         ${heading(shown)} ${reconnectingStatus(locale, reconnecting)} ${progress(locale, job)} ${failure(shown)}
         <div class="actions">
-            ${retryButton(shown)} ${locateButton(shown)} ${fixTilesButton(shown)} ${uploadAnother(shown)} ${mapboxSetupLink(shown)} ${tilesLink(shown)}
-            ${georefLink(shown)} ${deleteVersionButton(shown)}
+            ${retryButton(shown)} ${locateButton(shown)} ${fixTilesButton(shown)} ${uploadAnother(shown)} ${mapboxSetupLink(shown)}
+            ${tilesLink(shown)} ${georefLink(shown)} ${deleteVersionButton(shown)}
         </div>
         ${versionRunAgain(context, version)} ${runPlace(shown)} ${refusal(shown)}
         ${withValue(version, (known) => lazyJoin(context, known, (chunk) => chunk.versionJoin(context, known, job)))} ${imageView(shown)}

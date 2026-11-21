@@ -291,7 +291,7 @@ export class VersionPage {
         });
     }
 
-    /** M20 §19.12: Fix the tiles, a new version of the series reopened at its tile layout; the version on the map stays. */
+    /** M20 §19.13: Fix the tiles, a new version of the series reopened at its tile layout; the version on the map stays. */
     fixTiles(): Promise<boolean> {
         return this.#act('fixTiles', 'imagery.relayout', (id) => ({ cityId: this.#services.cityId, versionId: id }), {
             key: 'adminContent.imagery.notice.fixingTiles',

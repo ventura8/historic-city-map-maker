@@ -303,7 +303,7 @@ export const ADMIN_CALLABLES = {
     // The tile-import wizard (docs/research/M20-import-local.md §19.10): the owner's layout of a series waiting with `layout-check`.
     'imagery.saveLayout': cityEditor('fn-imagery', imagerySaveLayoutRequestSchema, imageryLayoutResponseSchema),
     'imagery.acceptLayout': cityEditor('fn-imagery', imageryAcceptLayoutRequestSchema, imageryLayoutResponseSchema),
-    // M20 §19.12: Fix the tiles, a new version of a placed archive series reopened at its tile layout.
+    // M20 §19.13: Fix the tiles, a new version of a placed archive series reopened at its tile layout.
     'imagery.relayout': cityEditor('fn-imagery', imageryRelayoutRequestSchema, imageryLayoutResponseSchema),
     // M12 (docs/research/M12-own-tiles.md): the private archive, signed for an hour, so an image is seen before it is approved.
     'imagery.previewUrl': cityEditor('fn-imagery', imageryVersionRequestSchema, imageryPreviewUrlResponseSchema),

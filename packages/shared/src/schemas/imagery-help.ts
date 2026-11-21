@@ -66,7 +66,7 @@ export function restitchable(version: RestitchInput): boolean {
 const RELAYOUT_STATES: ReadonlySet<string> = new Set(['published', 'awaiting_approval']);
 
 /**
- * M20 §19.12 (2026-11-21, the 1:500 of 1960-71 published with gaps and sheets off): an archive series on the map or waiting for its
+ * M20 §19.13 (2026-11-21, the 1:500 of 1960-71 published with gaps and sheets off): an archive series on the map or waiting for its
  * approval, which **Fix the tiles** lays out again in a new version of its layer (`functions/src/imagery/relayout.ts`).
  */
 export function relayoutable(version: Pick<RestitchInput, 'origin' | 'state'>): boolean {

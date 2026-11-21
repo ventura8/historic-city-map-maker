@@ -21,7 +21,7 @@ export const imagerySaveLayoutRequestSchema = z.strictObject({ ...versionIdField
 export const imageryAcceptLayoutRequestSchema = z.strictObject({ ...versionIdField, revision: layoutAnswerFields.revision });
 
 /**
- * `imagery.relayout` (a city editor; M20 §19.12): **Fix the tiles** of an archive series on the map or waiting for approval: a new
+ * `imagery.relayout` (a city editor; M20 §19.13): **Fix the tiles** of an archive series on the map or waiting for approval: a new
  * version of the same layer, reopened at the tile layout with the current one, while the version on the map stays until it is approved.
  */
 export const imageryRelayoutRequestSchema = z.strictObject(versionIdField);

@@ -249,9 +249,7 @@ class ImageryStore implements AreaStore<ImageryState, ImageryIntents> {
             ...{
                 approve: (acceptWorse?: boolean) => version.approve(acceptWorse),
                 recalibrate: () => version.recalibrate(),
-                toggleCurrent: () => {
-                    version.toggleCurrent();
-                },
+                toggleCurrent: version.toggleCurrent.bind(version),
                 reject: () => version.reject(),
                 confirmRights: (confirmedBy: string) => version.confirmRights(confirmedBy),
                 deleteVersion: () => version.deleteVersion(),

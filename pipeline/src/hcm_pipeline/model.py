@@ -360,7 +360,7 @@ _ARCHIVE_SERIES_KEYS: Final = frozenset(
         "maxzoom",
         # Locate again for overview-hole restitching (`placing/restitch.py`, DECISIONS §216e); only this job type.
         "restitch",
-        # Fix the tiles: the series laid out again for its owner's check (`steps/place.py`, M20 §19.12); only this job type.
+        # Fix the tiles: the series laid out again for its owner's check (`steps/place.py`, M20 §19.13); only this job type.
         "relayout",
     }
 )
