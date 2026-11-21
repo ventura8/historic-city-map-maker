@@ -891,9 +891,9 @@ features find almost nothing there (1895: 9 links among 64 pieces; the 1844–46
 pixels prove almost none (its red grid and letters a–f repeat on every page; lesson 753). The verdicts stay `poor` and nothing
 garbage is mosaicked, but no series is publishable yet. Abutting atlases need what this section does not do yet: a jigsaw of the pages' edges, or the atlas's own index page read as the grid.
 
-### 19.14 Pages that only touch: the edge jigsaw (2026-11-21)
+### 19.15 Pages that only touch: the edge jigsaw (2026-11-21)
 
-Every harti.zip series is cut on its plate's or fold's lines (§19.13), so `autostitch.propose` also tries `from_edges`
+Every harti.zip series is cut on its plate's or fold's lines (§19.14), so `autostitch.propose` also tries `from_edges`
 (`placing/jigsaw.py`) and keeps the best of the three layouts:
 
 1. Each page on the cell, cropped as before (`frame.content_box`: inside its printed frame, else its paper margins trimmed). Along
@@ -914,7 +914,7 @@ Every harti.zip series is cut on its plate's or fold's lines (§19.13), so `auto
 Not done: quarter turns per page (all pages are taken upright), OCR of index pages and of the 1:500 nomenclature (`tesseract` is
 not in the pipeline image), printed grid ticks in the margins.
 
-Measured on the same six dry runs (NUC, `hcm-pipeline` image; before = the branch point, after = with §19.13 and §19.14):
+Measured on the same six dry runs (NUC, `hcm-pipeline` image; before = the branch point, after = with §19.14 and §19.15):
 
 | Series | Sheets | Placed before → after | Seams kept | Seam median | Verdict |
 | --- | --- | --- | --- | --- | --- |
