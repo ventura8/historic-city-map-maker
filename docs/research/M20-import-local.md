@@ -891,6 +891,44 @@ features find almost nothing there (1895: 9 links among 64 pieces; the 1844–46
 pixels prove almost none (its red grid and letters a–f repeat on every page; lesson 753). The verdicts stay `poor` and nothing
 garbage is mosaicked, but no series is publishable yet. Abutting atlases need what this section does not do yet: a jigsaw of the pages' edges, or the atlas's own index page read as the grid.
 
+### 19.14 Pages that only touch: the edge jigsaw (2026-11-21)
+
+Every harti.zip series is cut on its plate's or fold's lines (§19.13), so `autostitch.propose` also tries `from_edges`
+(`placing/jigsaw.py`) and keeps the best of the three layouts:
+
+1. Each page on the cell, cropped as before (`frame.content_box`: inside its printed frame, else its paper margins trimmed). Along
+   each edge a band 40 px deep gives two profiles: where a long line (a connected ink piece at least 22 px into the page, not a
+   tree mark or a letter) meets the column 6 px in, and the ink's tone there; both smoothed and normalised. A band over 35 % ink
+   (a filled area, noise) or with fewer than three lines has no profile.
+2. Every ordered pair's continuity on the right and below: the profiles' mean correlation at the best shift within 3 % of the edge.
+3. **Shuffled-pair baseline**: each page's pairs without its two best candidates; a continuity counts only above that
+   distribution's 99th percentile plus 0.05 (at least 0.4), and only as a mutual best match. A pair numbered in sequence (the next
+   number on the right, the stride below) needs only the baseline minus 0.15: the numbers are evidence, never on their own.
+4. **Grid from evidence**: the number steps of the joins below that count; when one step has at least two votes and more than any
+   other, it is the atlas's stride and the pages go on a grid that wide, row-major by number, its first column where the right
+   joins wrap least. Otherwise the mutual joins, strongest first, merge groups of pages when no two would share a cell and no
+   pair they make neighbours contradicts (both edges have lines and continue less than the series' 75th percentile pair).
+5. **Verdict**: every grid-neighbour pair's seam is its continuity when it counts, else missing (0); the bundle keeps only pages a
+   counted seam holds, and `quality` judges as before. A page beside no counted seam is never placed.
+
+Not done: quarter turns per page (all pages are taken upright), OCR of index pages and of the 1:500 nomenclature (`tesseract` is
+not in the pipeline image), printed grid ticks in the margins.
+
+Measured on the same six dry runs (NUC, `hcm-pipeline` image; before = the branch point, after = with §19.13 and §19.14):
+
+| Series | Sheets | Placed before → after | Seams kept | Seam median | Verdict |
+| --- | --- | --- | --- | --- | --- |
+| 1844–46 Borroczyn atlas | 99 | 38 → 53 (stride 11 found; layout from the edges) | 21 → 39 | 0.0 | poor → poor |
+| 1846 atlas | 100 | 6 → 6 | 3 → 3 | 0.0 | poor → poor |
+| Bucuresti harta 1969 atlas | 144 | 102 → 102 | 75 → 75 | 0.0 | poor → poor |
+| Plan cadastral 1911–14 | 128 | 128 → 128 (28 % held) | 19 → 19 | 0.0 | poor → poor |
+| Bucuresti actual 1:500, folder 19 | 131 | 67 → 67 | 37 → 37 | 0.0 | poor → poor |
+| Bucuresti 1895–99 pieces | 64 | 64 → 64 (56 % held) | 21 → 21 | 0.0 | poor → poor |
+
+The 1844–46 atlas is now on an 11-wide grid its edges vouch for (the Dâmbovița continues across the bottom rows of the preview);
+its other pages have no counted seam and wait for the owner. The 1969 atlas's joins below disagree (14 and 18 twice each), so it
+has no stride, and its edges alone join too few pages to beat the names' layout. No verdict is `good`: no series is publishable yet.
+
 ## 20. Any computer runs an archive series: copies through the bucket (live report of 2026-11-13; DECISIONS §204)
 
 **What happened.** The owner connected two more workers for Bucharest (the NUC and the PC's WSL) beside the laptop that imported
