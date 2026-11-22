@@ -151,9 +151,18 @@ def scaled(georef: GeorefInfo, sx: float, sy: float) -> GeorefInfo:
     return replace(georef, gcps=gcps, lattice=lattice)
 
 
+def _original(ctx: JobContext) -> Path | None:
+    """`based_original`, or None when copying it fails: the job then warps the scan as before, never fails on the original."""
+    try:
+        return based_original(ctx)
+    except (StepFailedError, RuntimeError) as error:
+        ctx.log.warn(f"the original could not be read ({error}): the scan is warped", ctx.step)
+        return None
+
+
 def full_resolution(ctx: JobContext, scan: Path, georef: GeorefInfo) -> tuple[Path, GeorefInfo]:
     """A `regeoref` of an archive single map warps its original with the points scaled to it (`placing/original.py`), else the scan."""
-    original = gdal_step(ctx, lambda: based_original(ctx), "copy the original") if georef.method == "gcps" else None
+    original = _original(ctx) if georef.method == "gcps" else None
     if original is None:
         return scan, georef
     (width, height), (scan_w, scan_h) = scan_size(original), scan_size(scan)
