@@ -36,15 +36,28 @@ def single_original(ctx: JobContext) -> Path | None:
     return tiled_copy(sheets[0].path, ctx.local(ORIGINAL)) if sheets and _raster(sheets[0].path) else None
 
 
-def _base_params(ctx: JobContext, based_on: str) -> dict[str, object] | None:
-    """The base job's parameters when it is an archive series' job."""
-    base = ctx.services.store.get(f"cities/{ctx.city}/jobs/{based_on}") or {}
+# A regeoref of a regeoref (points saved again on a version awaiting approval) reaches the archive job through at most this many.
+CHAIN_MAX: Final = 8
+
+
+def _job(ctx: JobContext, job_id: str) -> tuple[object, dict[str, object]]:
+    """A job's type and parameters (empty when it has none)."""
+    base = ctx.services.store.get(f"cities/{ctx.city}/jobs/{job_id}") or {}
     params = base.get("params")
-    return params if base.get("type") == ARCHIVE_JOB and isinstance(params, dict) else None
+    return base.get("type"), params if isinstance(params, dict) else {}
+
+
+def _archive_base(ctx: JobContext, job_id: str, depth: int = CHAIN_MAX) -> tuple[str, dict[str, object]] | None:
+    """The archive series' job a chain of `regeoref` jobs starts from, with its parameters; None when it starts elsewhere."""
+    kind, params = _job(ctx, job_id)
+    if kind == ARCHIVE_JOB:
+        return job_id, params
+    following = params.get("basedOn") if kind == "regeoref" and depth > 1 else None
+    return _archive_base(ctx, following, depth - 1) if isinstance(following, str) else None
 
 
 def based_original(ctx: JobContext) -> Path | None:
     """A `regeoref` job's base archive single map's original, else None: the base job's parameters and sheets are its own."""
     based_on = ctx.job.params.get("basedOn") if ctx.job.type == "regeoref" else None
-    params = _base_params(ctx, based_on) if isinstance(based_on, str) and ctx.services.archive_root is not None else None
-    return None if params is None else single_original(replace(ctx, job=replace(ctx.job, id=str(based_on), params=params)))
+    found = _archive_base(ctx, based_on) if isinstance(based_on, str) and ctx.services.archive_root is not None else None
+    return None if found is None else single_original(replace(ctx, job=replace(ctx.job, id=found[0], params=found[1])))

@@ -42,6 +42,20 @@ def test_happy_path_a_regeoref_warps_the_single_maps_original(world: PipelineWor
     assert [(gcp.x, gcp.y) for gcp in georef.gcps] == [(20.0, 40.0), (200.0, 300.0)]
 
 
+def test_happy_path_a_regeoref_of_a_regeoref_reaches_the_archive_job(world: PipelineWorld, tmp_path: Path) -> None:
+    """Scenarios: S-P20-HAPPY-SINGLE-FULLRES"""
+    ctx, scan = regeoref(world, tmp_path)
+    world.store.create(f"cities/{ctx.city}/jobs/rg-1", {"type": "regeoref", "params": {"basedOn": ctx.job.params["basedOn"]}})
+    world.store.create(f"cities/{ctx.city}/jobs/rg-loop", {"type": "regeoref", "params": {"basedOn": "rg-loop"}})
+    world.store.create(f"cities/{ctx.city}/jobs/rg-none", {"type": "regeoref", "params": {}})
+    again = replace(ctx, job=replace(ctx.job, id="rg-2", params={"basedOn": "rg-1"}))
+
+    assert full_resolution(again, scan, GEOREF)[0] == tmp_path / "scratch" / ORIGINAL
+    assert based_original(replace(ctx, job=replace(ctx.job, params={"basedOn": "rg-loop"}))) is None
+    assert based_original(replace(ctx, job=replace(ctx.job, params={"basedOn": "rg-none"}))) is None
+    assert based_original(replace(ctx, job=replace(ctx.job, params={"basedOn": "missing"}))) is None
+
+
 def test_bad_path_another_class_or_no_original_or_another_job_keeps_the_scan(world: PipelineWorld, tmp_path: Path) -> None:
     """Scenarios: S-P20-BAD-SINGLE-FULLRES-GONE"""
     ctx, scan = regeoref(world, tmp_path, kind="atlas")
