@@ -32,7 +32,11 @@ describe('layer bounds', () => {
         const world = await readyWorld();
         const own = { west: 26.0, south: 44.4, east: 26.1, north: 44.5 };
         await seedLayer(world, 'own', { currentVersion: 'v-own', bounds: own });
-        await seedVersion(world, 'v-bare', renderedVersion({ layerId: 'bare', output: { ...goldenOutput(), bounds: BOUNDS, outline: undefined } }));
+        await seedVersion(
+            world,
+            'v-bare',
+            renderedVersion({ layerId: 'bare', output: { ...goldenOutput(), bounds: BOUNDS, outline: undefined } }),
+        );
         await seedLayer(world, 'bare', { currentVersion: 'v-bare', bounds: BOUNDS });
         await seedLayer(world, 'none', { currentVersion: undefined, bounds: BOUNDS });
 

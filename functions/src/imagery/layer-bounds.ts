@@ -4,14 +4,7 @@
  * alpha's extent (`steps/export.py`, `valid_bounds`); a version written before that is read through its measured `outline`
  * (the alpha's edge over the city), and `imagery.tick` corrects the layers published with the city's window, once each.
  */
-import {
-    FIRESTORE_PATHS,
-    cityDocSchema,
-    layerDocSchema,
-    layerVersionDocSchema,
-    type LayerDoc,
-    type LayerVersionDoc,
-} from '@hcm/shared';
+import { FIRESTORE_PATHS, cityDocSchema, layerDocSchema, layerVersionDocSchema, type LayerDoc, type LayerVersionDoc } from '@hcm/shared';
 
 import type { Ports } from '../ports/index.js';
 
@@ -34,7 +27,7 @@ export function dataBoundsOf(output: Output): Bounds {
 }
 
 function same(one: Bounds | undefined, other: Bounds): boolean {
-    return one !== undefined && one.west === other.west && one.south === other.south && one.east === other.east && one.north === other.north;
+    return one?.west === other.west && one.south === other.south && one.east === other.east && one.north === other.north;
 }
 
 export type LayerBoundsDeps = Pick<Ports, 'documents' | 'log'>;
