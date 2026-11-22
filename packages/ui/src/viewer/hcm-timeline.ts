@@ -225,6 +225,7 @@ export class HcmTimeline extends LitElement {
         if (moves(changed) && !this.dragging && this.value !== this.#pointerStop) {
             this.#scroll.want();
         }
+        this.#scroll.keepInView(changed.has('value'));
         this.#scroll.fadeEdges();
         this.#scroll.crowd();
         this.#placeTip();

@@ -22,6 +22,12 @@ export interface SideRoom {
     readonly width: number;
     readonly height: number;
     readonly floor?: number;
+    /** Boxes the sliders never cover (the timeline, the floating controls), in the same px. */
+    readonly blocked?: readonly SideBox[];
+}
+
+function overlaps(a: SideBox, b: SideBox): boolean {
+    return a.x < b.x + b.width && b.x < a.x + a.width && a.y < b.y + b.height && b.y < a.y + a.height;
 }
 
 function within(at: number, length: number, low: number, high: number): number {
@@ -44,8 +50,10 @@ export function sideOrigin(
     // Above the dates: a short or narrow window (a phone lying, 800 x 360) has no room under the menu nor beside it.
     const over = { x: within(menu.x, side.width, GAP, room.width - GAP), y: menu.y - GAP - side.height };
     const order = stacked ? [under, after, before, over] : [after, before, over, under];
-    const fits = (at: { x: number; y: number }): boolean =>
+    const inside = (at: { x: number; y: number }): boolean =>
         at.x >= GAP && at.x + side.width <= room.width - GAP && at.y >= GAP && at.y + side.height <= bottom;
+    const fits = (at: { x: number; y: number }): boolean =>
+        inside(at) && !(room.blocked ?? []).some((box) => overlaps({ ...at, ...side }, box));
     const chosen = order.find(fits);
     if (chosen !== undefined) {
         return chosen;

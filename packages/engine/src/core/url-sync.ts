@@ -53,9 +53,16 @@ export function unknownToast(applied: AppliedHash): 'error.unknownPhoto' | 'erro
     return applied.unknownLayer === undefined ? null : 'error.unknownLayer';
 }
 
+/** The ids `layers=` may name: the historical layers and the place categories. */
+function knownLayerIds(manifest: ViewerState['manifest']): ReadonlySet<string> {
+    const entries = manifest === null ? [] : [...manifest.layers, ...(manifest.poiCategories ?? [])];
+    return new Set(entries.map((entry) => entry.id));
+}
+
 /** The first `layers=` id the manifest does not have. */
 function unknownLayerOf(state: ViewerState, layers: DecodedHash['layers']): string | undefined {
-    const known = new Set(state.manifest?.layers.map((layer) => layer.id) ?? []);
+    // Place categories are named in `layers=` too (2026-11-22: `layers=…,railways` read as a missing layer).
+    const known = knownLayerIds(state.manifest);
     return layers?.find((id) => !known.has(id));
 }
 

@@ -75,6 +75,14 @@ function layerSlider(host: EventTarget, layer: YearLayer, locale: ViewerLocale):
     return slider(host, { ids: [layer.id], percent: Math.round(layer.opacity * 100), name: layer.name }, locale);
 }
 
+/**
+ * A row's visible label: the layer's name, shortened by CSS, with its date when that says more than the year (the owner,
+ * 2026-11-22: two rows both read "1943").
+ */
+function rowLabel(layer: YearLayer, year: number): string {
+    return layer.date === String(year) ? layer.name : `${layer.name} · ${layer.date}`;
+}
+
 /** The card's sliders: one for a single layer; "all" and one row per layer for several. */
 export function opacitySliders(year: YearOpacity, locale: ViewerLocale, host: EventTarget): TemplateResult {
     const [only] = year.layers;
@@ -86,5 +94,5 @@ export function opacitySliders(year: YearOpacity, locale: ViewerLocale, host: Ev
     const row = (label: string, input: TemplateResult): TemplateResult =>
         html`<div class="opacity-row"><span class="opacity-name" aria-hidden="true">${label}</span>${input}</div>`;
     return html`${row(all, slider(host, { ids, percent: meanPercent(year.layers), name: all }, locale))}
-    ${year.layers.map((layer) => row(layer.date, layerSlider(host, layer, locale)))}`;
+    ${year.layers.map((layer) => row(rowLabel(layer, year.year), layerSlider(host, layer, locale)))}`;
 }

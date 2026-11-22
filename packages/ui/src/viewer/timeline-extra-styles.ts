@@ -204,6 +204,11 @@ export const timelineExtraStyles = css`
     .opacity-name {
         font-size: var(--md-sys-typescale-body-small-size, 12px);
         line-height: var(--md-sys-typescale-body-small-line-height, 16px);
+
+        /* A layer's name can be long: one line, shortened (its full name is the slider's accessible name). */
+        overflow: hidden;
+        white-space: nowrap;
+        text-overflow: ellipsis;
     }
 
     /* The open phone card's Opacity button (timeline-opacity.ts opacityOpener): just past the card, beside a standing one at

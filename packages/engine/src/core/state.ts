@@ -212,8 +212,10 @@ export function withManifest(state: ViewerState, manifest: Manifest): ViewerStat
 
 /** Shows exactly the historical layers in `ids` (unknown ids ignored); other overlays keep their visibility. */
 export function withVisibleLayers(overlays: readonly Overlay[], ids: ReadonlySet<string>): readonly Overlay[] {
+    // A link that names a place category sets every category (named: on, else off); one that names none keeps their defaults.
+    const placesNamed = overlays.some((overlay) => overlay.kind === 'poi' && ids.has(overlay.id));
     return overlays
-        .filter((overlay) => overlay.kind === 'raster')
+        .filter((overlay) => overlay.kind === 'raster' || (placesNamed && overlay.kind === 'poi'))
         .reduce((list, overlay) => withOverlayVisibility(list, overlay.id, ids.has(overlay.id)), overlays);
 }
 

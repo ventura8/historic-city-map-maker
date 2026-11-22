@@ -14,12 +14,16 @@ export interface ScrollView {
     readonly shadowRoot: ShadowRoot | null;
     readonly orientation: string;
     readonly collapsed: boolean;
+    readonly dragging: boolean;
     readonly density: TimelineDensity;
     fade: Edges;
     crowded: ReadonlySet<number>;
     focus(options?: FocusOptions): void;
     matches(selectors: string): boolean;
 }
+
+/** How long after a year is chosen the bar keeps it in view: the date menu and the opacity card open in that time. */
+const KEEP_MS = 1500;
 
 export class TimelineScroll {
     readonly #view: ScrollView;
@@ -45,6 +49,7 @@ export class TimelineScroll {
     want(): void {
         this.#pending = true;
         this.reveal();
+        this.keepInView();
     }
 
     /** Centres the selected stop in a scrolling card once it has a size (the scroller only: the page never moves). */
@@ -58,6 +63,37 @@ export class TimelineScroll {
         if (this.#view.density === 'scroll') {
             this.#centre(scroller, stop);
         }
+    }
+
+    /**
+     * The selected stop, out of the card's view, is centred again (the owner, 2026-11-22: after a drag and a click on 1943
+     * the bar stood at its far end with no pill in view). A stop in view stays where the visitor put it.
+     */
+    keepInView(chosen = false): void {
+        if (chosen) {
+            this.#chosenAt = performance.now();
+        }
+        if (performance.now() - this.#chosenAt > KEEP_MS) {
+            return;
+        }
+        const scroller = this.#scrolling();
+        const stop = this.#view.renderRoot.querySelector('.stop.selected');
+        if (scroller !== null && stop !== null && !within(stop.getBoundingClientRect(), scroller.getBoundingClientRect())) {
+            this.#centre(scroller, stop);
+        }
+    }
+
+    #chosenAt = Number.NEGATIVE_INFINITY;
+
+    /** The scroller of a scrolling, open, laid-out card that is not being dragged; else null. */
+    #scrolling(): HTMLElement | null {
+        const scroller = this.#still() ? this.scroller() : null;
+        return scroller !== null && scroller.clientWidth > 0 ? scroller : null;
+    }
+
+    /** An open card that scrolls and is not being dragged. */
+    #still(): boolean {
+        return !this.#view.collapsed && !this.#view.dragging && this.#view.density === 'scroll';
     }
 
     #centre(scroller: HTMLElement, stop: Element): void {
@@ -124,4 +160,10 @@ export class TimelineScroll {
     #vertical(): boolean {
         return this.#view.orientation === 'vertical';
     }
+}
+
+/** `box` lies inside `view` (a pixel of rounding either way). */
+function within(box: DOMRect, view: DOMRect): boolean {
+    const across = box.left >= view.left - 1 && box.right <= view.right + 1;
+    return across && box.top >= view.top - 1 && box.bottom <= view.bottom + 1;
 }

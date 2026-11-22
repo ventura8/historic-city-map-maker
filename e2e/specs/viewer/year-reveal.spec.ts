@@ -11,7 +11,7 @@ import { callController, viewer, waitForEngineEvent } from '../../support/viewer
  */
 
 async function bootWide(page: Page): Promise<Locator> {
-    await page.setViewportSize({ width: 1920, height: 1080 });
+    await page.setViewportSize({ width: 1280, height: 720 });
     await page.goto(sitePath('bucharest', { hash: '15/44.42700/26.08530' }));
     await waitForEngineEvent(page, 'hcm-ready');
     await mapIdle(page);

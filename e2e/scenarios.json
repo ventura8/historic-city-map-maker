@@ -2927,6 +2927,28 @@
             "notes": "Owner 2026-11-22. Tests: e2e/specs/viewer/date-menu-side.spec.ts, packages/ui/test/viewer/date-menu-side.test.ts, packages/ui/test/viewer/hcm-date-menu.test.ts; tour state timeline-opacity-several (occlusion)."
         },
         {
+            "id": "S-V13-HAPPY-PICKED-YEAR-IN-VIEW",
+            "behaviour": "V13",
+            "area": "viewer",
+            "path": "happy",
+            "title": "A year picked after a pan stays in view on the timeline",
+            "asserts": "the bar panned away, a click on a year of two plans -> the timeline's value is that year and its selected stop lies inside the bar's view",
+            "tier": "e2e-viewer",
+            "status": "exists",
+            "notes": "Owner 2026-11-22 (1943: the bar stood at its far end). Tests: e2e/specs/viewer/year-two-plans.spec.ts."
+        },
+        {
+            "id": "S-V13-BAD-ROWS-NAMED-NOT-YEAR",
+            "behaviour": "V13",
+            "area": "viewer",
+            "path": "bad",
+            "title": "Two undated plans of one year are named in the opacity rows, not just by the year",
+            "asserts": "a year of two undated layers -> the date menu's sliders show 'all' then one row per plan with its name, none reading only the year",
+            "tier": "e2e-viewer",
+            "status": "exists",
+            "notes": "Owner 2026-11-22. Tests: e2e/specs/viewer/year-two-plans.spec.ts."
+        },
+        {
             "id": "S-V13-HAPPY",
             "behaviour": "V13",
             "area": "viewer",

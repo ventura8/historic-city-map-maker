@@ -328,7 +328,8 @@ export class HcmDateMenu extends LitElement {
         menu.style.setProperty('top', `${String(origin.y)}px`);
         const sliders = this.renderRoot.querySelector<HTMLElement>('.side');
         if (sliders !== null) {
-            const room = { width: host.width, height: host.height, ...(side === 'above' ? { floor: anchor.y - EDGE } : {}) };
+            const blocked = this.avoid().map(local);
+            const room = { width: host.width, height: host.height, blocked, ...(side === 'above' ? { floor: anchor.y - EDGE } : {}) };
             placeSide(sliders, { ...origin, ...size }, room, this.stacked);
         }
     }
