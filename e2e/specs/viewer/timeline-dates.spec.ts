@@ -43,7 +43,7 @@ async function openOn1980(page: Page, lang: Locale): Promise<void> {
 
 test(
     'Selecting a year with two dates opens them; the date picked comes to the front',
-    { tag: '@S-V68-HAPPY-PICK-DATE' },
+    { tag: ['@S-V68-HAPPY-PICK-DATE', '@S-V13-HAPPY-TICKS-EVERY-SHOWN-PLAN', '@S-V13-BAD-HIDDEN-PLAN-UNTICKED'] },
     async ({ page, lang }) => {
         await openOn1980(page, lang);
         const probe = await mapFraction(page, 0.5, 0.3);
@@ -57,8 +57,8 @@ test(
         await page.mouse.click(at.x, at.y);
 
         await expect(datesMenu(page, lang)).toBeVisible();
-        await expect(page.getByRole('menuitemradio', { checked: true })).toBeFocused();
-        const items = page.getByRole('menuitemradio');
+        await expect(page.locator('hcm-date-menu [data-front]')).toBeFocused();
+        const items = page.getByRole('menuitemcheckbox');
         await expect(items).toHaveCount(2);
         await expect(items.first()).toContainText(CORONA);
         await expect(items.last()).toHaveAttribute('aria-checked', 'true');
@@ -83,7 +83,7 @@ test(
         await slider(page, lang).focus();
         await page.keyboard.press('Enter');
         await expect(datesMenu(page, lang)).toBeVisible();
-        await expect(page.getByRole('menuitemradio', { checked: true })).toBeFocused();
+        await expect(page.locator('hcm-date-menu [data-front]')).toBeFocused();
         await page.keyboard.press('Escape');
 
         await expect(datesMenu(page, lang)).toBeHidden();

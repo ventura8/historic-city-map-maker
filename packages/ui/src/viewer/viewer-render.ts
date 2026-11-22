@@ -312,6 +312,11 @@ function noWebgl(view: ViewerView, manifest: Manifest, handlers: ViewerHandlers)
     </div>`;
 }
 
+/** The historical layers that are on (the date menu ticks them). */
+function shownLayers(state: ViewerState): ReadonlySet<string> {
+    return new Set(state.overlays.filter((overlay) => overlay.kind === 'raster' && overlay.visible).map((overlay) => overlay.id));
+}
+
 /** The photos the near-year chip may offer: none while the photos are switched off (the owner, 2026-11-22). */
 function shownPhotos(state: ViewerState, manifest: Manifest): Manifest['photos'] {
     return state.overlays.some((overlay) => overlay.kind === 'photos' && overlay.visible) ? manifest.photos : [];
@@ -471,7 +476,11 @@ function overlays(view: ViewerView, ready: Ready, handlers: ViewerHandlers): Tem
             @hcm-help-open=${handlers.onHelpOpen}
         ></hcm-about-dialog>
         ${lightbox(state, manifest.photos, view, handlers)}
-        ${dateMenu({ ...view, layers: manifest.layers, orientation: view.layout.timeline, front: state.front }, view.dock, handlers.onDatePick)}`;
+        ${dateMenu(
+            { ...view, layers: manifest.layers, orientation: view.layout.timeline, front: state.front, shown: shownLayers(state) },
+            view.dock,
+            handlers.onDatePick,
+        )}`;
 }
 
 /**

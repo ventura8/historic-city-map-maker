@@ -2949,6 +2949,28 @@
             "notes": "Owner 2026-11-22. Tests: e2e/specs/viewer/year-two-plans.spec.ts."
         },
         {
+            "id": "S-V13-HAPPY-TICKS-EVERY-SHOWN-PLAN",
+            "behaviour": "V13",
+            "area": "viewer",
+            "path": "happy",
+            "title": "The date menu ticks every plan of the year that is on, the one on top in bold",
+            "asserts": "two layers of one year on -> both menu items are checked (menuitemcheckbox), only the front one carries data-front",
+            "tier": "e2e-viewer",
+            "status": "exists",
+            "notes": "Owner 2026-11-22 (1943: one tick for two plans on). Tests: packages/ui/test/viewer/hcm-date-menu.test.ts, e2e/specs/viewer/timeline-dates.spec.ts."
+        },
+        {
+            "id": "S-V13-BAD-HIDDEN-PLAN-UNTICKED",
+            "behaviour": "V13",
+            "area": "viewer",
+            "path": "bad",
+            "title": "A plan of the year that is off has no tick",
+            "asserts": "one of the year's two layers off -> its item is unchecked; picking it turns it on and brings it to the top",
+            "tier": "e2e-viewer",
+            "status": "exists",
+            "notes": "Owner 2026-11-22. Tests: packages/ui/test/viewer/hcm-date-menu.test.ts, e2e/specs/viewer/timeline-dates.spec.ts."
+        },
+        {
             "id": "S-V13-HAPPY",
             "behaviour": "V13",
             "area": "viewer",

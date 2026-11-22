@@ -362,7 +362,7 @@ export function timelineDock(
 
 /** The date picker of the year the dock asked for, else the year's opacity sheet when it is open (`opacity-sheet.ts`). */
 export function dateMenu(
-    view: Pick<DockView, 'locale' | 'layers' | 'orientation'> & { readonly front: string | null },
+    view: Pick<DockView, 'locale' | 'layers' | 'orientation'> & { readonly front: string | null; readonly shown?: ReadonlySet<string> },
     dock: TimelineDock,
     onPick: (event: CustomEvent<{ readonly layerId: string }>) => void,
 ): TemplateResult {
@@ -374,6 +374,7 @@ export function dateMenu(
     return html`<hcm-date-menu
         .items=${dateItems(view.layers, dates.year, view.locale)}
         .selected=${frontOfYear(view.layers, dates.year, view.front)}
+        .shown=${view.shown ?? new Set<string>()}
         .label=${translate(view.locale, 'timeline.dates', { year: String(dates.year) })}
         .anchor=${dates.anchor}
         .avoid=${dock.controls}

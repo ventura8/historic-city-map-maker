@@ -47,8 +47,8 @@ export const TIMELINE_STATES = {
         enter: async ({ page, lang }: TimelineTour) => {
             await openTimelineCard(page);
             await slider(page, lang).hover();
-            await expect(page.getByRole('menuitemradio', { checked: true })).toBeVisible();
-            await expect(page.getByRole('menuitemradio', { checked: true })).not.toBeFocused();
+            await expect(page.locator('hcm-date-menu [data-front]')).toBeVisible();
+            await expect(page.locator('hcm-date-menu [data-front]')).not.toBeFocused();
         },
     },
     'timeline-dates': {
@@ -56,7 +56,7 @@ export const TIMELINE_STATES = {
         enter: async ({ page, lang }: TimelineTour) => {
             await openTimelineCard(page);
             await slider(page, lang).click();
-            await expect(page.getByRole('menuitemradio', { checked: true })).toBeFocused();
+            await expect(page.locator('hcm-date-menu [data-front]')).toBeFocused();
         },
         escape: ({ lang }: TimelineTour) => ({ opener: t(lang, 'timeline.label') }),
     },

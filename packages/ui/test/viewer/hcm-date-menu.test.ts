@@ -37,12 +37,13 @@ describe('<hcm-date-menu>', () => {
         document.body.replaceChildren();
     });
 
-    it('happyPath_theDatesAsRadioItemsTheOneOnTopCheckedAndFocused', async () => {
-        const element = await menu();
+    it('happyPath_everyShownDateTickedTheOneOnTopMarkedAndFocused', async () => {
+        const element = await menu({ shown: new Set(['a', 'c']) });
 
         await expect.element(page.getByRole('menu', { name: 'Datele din 1966' })).toBeVisible();
-        const items = shadowQueryAll(element, '[role="menuitemradio"]');
-        expect(items.map((item) => item.getAttribute('aria-checked'))).toEqual(['false', 'true', 'false']);
+        const items = shadowQueryAll(element, '[role="menuitemcheckbox"]');
+        expect(items.map((item) => item.getAttribute('aria-checked'))).toEqual(['false', 'true', 'true']);
+        expect(items.map((item) => item.hasAttribute('data-front'))).toEqual([false, true, false]);
         expect(items.every((item) => item.getBoundingClientRect().height >= 48)).toBe(true);
         expect(focusedItem(element)).toBe('a');
     });

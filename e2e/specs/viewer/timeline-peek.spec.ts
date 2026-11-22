@@ -44,7 +44,7 @@ async function boxOf(locator: Locator): Promise<Rect> {
 }
 
 async function centreOf(page: Page, name: string): Promise<Point> {
-    const box = await boxOf(page.getByRole('menuitemradio', { name }));
+    const box = await boxOf(page.getByRole('menuitemcheckbox', { name }));
     return { x: box.x + box.width / 2, y: box.y + box.height / 2 };
 }
 
@@ -110,14 +110,14 @@ for (const { name, use } of MOUSE_WINDOWS) {
 
                 await expect(datesMenu(page, lang)).toBeVisible();
                 await expect(slider(page, lang), 'the year is not selected').toHaveAttribute('aria-valuetext', t(lang, 'timeline.present'));
-                await expect(page.getByRole('menuitemradio', { checked: true }), 'the focus stays').not.toBeFocused();
+                await expect(page.locator('hcm-date-menu [data-front]'), 'the focus stays').not.toBeFocused();
                 await expectClear(page, lang);
 
                 const march = await centreOf(page, 'Corona (e2e)');
                 await page.mouse.move(of1980.x, march.y, { steps: 6 });
                 await page.clock.runFor(1000);
                 await expect(datesMenu(page, lang), 'the way into the menu keeps it').toBeVisible();
-                await page.getByRole('menuitemradio', { name: 'Corona (e2e)' }).click();
+                await page.getByRole('menuitemcheckbox', { name: 'Corona (e2e)' }).click();
 
                 await expect(datesMenu(page, lang)).toBeHidden();
                 await expect(slider(page, lang)).toHaveAttribute(
@@ -246,7 +246,7 @@ for (const { name, use } of FINGER_WINDOWS) {
             await lift(cdp);
 
             await expect(datesMenu(page, lang)).toBeVisible();
-            await expect(page.getByRole('menuitemradio', { checked: true })).toBeFocused();
+            await expect(page.locator('hcm-date-menu [data-front]')).toBeFocused();
         });
     });
 }

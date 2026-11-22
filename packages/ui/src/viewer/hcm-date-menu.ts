@@ -3,7 +3,7 @@
  * the badge or the slider that asked for it (`hcm-dates-open`, `timeline-dates.ts`): above a lying timeline, on the
  * trailing side of a standing one, kept inside the viewer and clear of the strip of Mapbox's legal line and of the floating
  * controls it is given (`avoid`, `date-menu-clear.ts`). Each date is a
- * `menuitemradio` (48 px tall), the one on top checked. It is modal: a transparent scrim takes a press anywhere else and
+ * `menuitemcheckbox` (48 px tall), every layer that is on ticked and the one on top in bold (2026-11-22). It is modal: a transparent scrim takes a press anywhere else and
  * closes it, the viewer makes the frame under it inert and gives the focus back to the slider. The arrow keys, Home and End
  * move between the dates, Tab walks them as any button, Esc closes, Enter or a press picks one.
  *
@@ -83,6 +83,7 @@ export class HcmDateMenu extends LitElement {
     static override readonly properties = {
         items: { attribute: false },
         selected: { attribute: false },
+        shown: { attribute: false },
         label: { type: String },
         anchor: { attribute: false },
         side: { type: Boolean },
@@ -172,6 +173,11 @@ export class HcmDateMenu extends LitElement {
                 visibility: hidden;
             }
 
+            /* The layer drawn on top among the ticked ones (the owner, 2026-11-22: a tick for every plan that is on). */
+            .item[data-front] .label {
+                font-weight: var(--md-sys-typescale-label-large-weight-prominent, 700);
+            }
+
             .text {
                 display: grid;
             }
@@ -199,6 +205,8 @@ export class HcmDateMenu extends LitElement {
     declare items: readonly DateItem[];
     /** The layer on top: its date is checked. */
     declare selected: string | null;
+    /** The year's layers that are on: each has its tick (the one on top, `selected`, is also marked). */
+    declare shown: ReadonlySet<string>;
     declare label: string;
     /** The box (client px) the menu opens beside; null: closed. */
     declare anchor: Box | null;
@@ -217,6 +225,7 @@ export class HcmDateMenu extends LitElement {
         super();
         this.items = [];
         this.selected = null;
+        this.shown = new Set();
         this.label = '';
         this.anchor = null;
         this.avoid = () => [];
@@ -310,7 +319,7 @@ export class HcmDateMenu extends LitElement {
     /** A modal menu takes the focus to the checked date, else the first; a peek leaves it where it is. */
     #focusChecked(): void {
         if (!this.peek) {
-            (this.#items().find((item) => item.getAttribute('aria-checked') === 'true') ?? this.#items()[0])?.focus();
+            (this.#items().find((item) => item.hasAttribute('data-front')) ?? this.#items()[0])?.focus();
         }
     }
 
@@ -348,8 +357,9 @@ export class HcmDateMenu extends LitElement {
         return html`<button
             type="button"
             class="item"
-            role="menuitemradio"
-            aria-checked=${String(item.id === this.selected)}
+            role="menuitemcheckbox"
+            aria-checked=${String(this.shown.has(item.id) || item.id === this.selected)}
+            ?data-front=${item.id === this.selected}
             data-item=${item.id}
             @click=${pick}
         >
