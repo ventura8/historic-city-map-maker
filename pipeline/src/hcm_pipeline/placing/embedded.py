@@ -6,8 +6,10 @@
 2. Stereo 70 goes through PROJ's own transformation (1 to 3 m); the official TransDatRO grid is used only if PROJ-data ships it
    (UNVERIFIED).
 3. Warped to EPSG:3857 at the series' resolution (nearest for line art, bilinear otherwise), an alpha band last. No matching.
-4. A ruler, not a fit: its junctions are measured against OpenStreetMap's. A median offset within `RULER_LIMIT_M` behaves as a fit; a
-   larger one waits for a person ("disagrees with OpenStreetMap by N m"), and never publishes on its own. Without OpenStreetMap, the
+4. A ruler, not a fit: its junctions are measured against OpenStreetMap's. Only the shift they agree on counts: the median offset
+   vector, when it is at least `COHERENT_SHARE` of the checks' median distance (junctions found poorly in an aerial photo point every
+   way and are no disagreement), from at least `MIN_CHECKS` checks. Within `RULER_LIMIT_M` it behaves as a fit; a larger one waits for
+   a person ("disagrees with OpenStreetMap by N m") and never publishes on its own. Without OpenStreetMap, the
    report carries no figure (and the approval waits for a look).
 5. Shown in the georeferencer (finding of 2026-11-22, LESSONS 759: it opened with "Placed sheet by sheet, so no single picture"): the
    file's pixels are the version's `scan` (at most `SCAN_MAX_PX` long) beside the city's OpenStreetMap lines, a plain full-size copy
@@ -18,7 +20,7 @@
 import math
 from collections.abc import Sequence
 from pathlib import Path
-from typing import Final
+from typing import Final, NamedTuple
 
 import numpy
 
@@ -42,6 +44,8 @@ RULER_PX: Final = 2000
 NEIGHBOURS: Final = 2
 # The file's own georeference offered to the georeferencer as this many pairs a side.
 LATTICE: Final = 3
+MIN_CHECKS: Final = 8
+COHERENT_SHARE: Final = 0.5
 NO_SYSTEM: Final = "This file's world file has no .prj and its coordinate system could not be told: name it in the report."
 NO_WINDOW: Final = "The city has no bounds to check this file against: set them in Settings, then retry."
 
@@ -241,27 +245,49 @@ def _warped_grid(warped: Path) -> tuple[Grid, numpy.ndarray]:
     return Grid(left, top, size / scale, out_w, out_h), numpy.asarray(grey, numpy.uint8)
 
 
-def ruler(ctx: JobContext, warped: Path) -> Checked:
-    """The warped file's junctions measured against OpenStreetMap's: each clearly nearest one is a check."""
+class Ruled(NamedTuple):
+    """The ruler's checks, and the shift they agree on: the median of their offset vectors, in ground metres."""
+
+    checked: Checked
+    shift_m: float
+
+
+def ruler(ctx: JobContext, warped: Path) -> Ruled:
+    """The warped file's junctions measured against OpenStreetMap's: each clearly nearest one is a check.
+
+    A wrong georeference moves every junction the same way, so only the shift the checks agree on (the median of their offset
+    vectors) counts as disagreement. Junctions found poorly (roofs, trees and fields in an aerial photo) point every way: their
+    distances are large but their shift is small, and they never fail a correct file (the owner's 2017 orthophotos, 2026-11-22).
+    """
     grid, grey = _warped_grid(warped)
     reference = osm_reference(ctx, grid.box(), grid.resolution)
     found = street_network(grey).junctions()
     if reference is None or len(found) == 0 or len(reference.places) < NEIGHBOURS:
-        return Checked(None, 0, 0, 0.0, None)
+        return Ruled(Checked(None, 0, 0, 0.0, None), 0.0)
     mx, my = grid.to_mercator(found[:, 0], found[:, 1])
-    _, gap = nearest(numpy.column_stack((mx, my)), reference.places, NEIGHBOURS)
+    points = numpy.column_stack((mx, my))
+    index, gap = nearest(points, reference.places, NEIGHBOURS)
     clear = gap[:, 0] < CHECK_RATIO * gap[:, 1]
     ground = math.cos(math.radians(grid.box().bounds().middle_lat))
     extent = (0.0, 0.0, float(grid.width), float(grid.height))
-    return checked(gap[clear, 0] * ground, found[clear], ["file"] * int(clear.sum()), extent, float("inf"))
+    result = checked(gap[clear, 0] * ground, found[clear], ["file"] * int(clear.sum()), extent, float("inf"))
+    return Ruled(result, _shift(points[clear], reference.places[index[clear, 0]], gap[clear, 0]) * ground)
+
+
+def _shift(points: numpy.ndarray, matched: numpy.ndarray, distances: numpy.ndarray) -> float:
+    """The shift the checks agree on (Mercator metres), or 0 for too few checks or for ones that point every way."""
+    if len(points) < MIN_CHECKS:
+        return 0.0
+    shift = float(numpy.hypot(*numpy.median(matched - points, axis=0)))
+    # A shift far smaller than the checks' own distances is no shared shift: matches that point every way.
+    return shift if shift >= COHERENT_SHARE * float(numpy.median(distances)) else 0.0
 
 
 def _measured(ctx: JobContext, series: SeriesJob, warped: Path) -> StepResult:
-    """The warped file measured by the ruler: within the limit it is placed, beyond it waits for a person."""
-    result = ruler(ctx, warped)
-    offset = 0.0 if result.residuals is None else result.residuals.median_m
-    if offset > RULER_LIMIT_M:
-        return wait_for_help(ctx, "low-confidence", f"The file's georeference disagrees with OpenStreetMap by {offset:.0f} m: check it.")
+    """The warped file measured by the ruler: a shift within the limit is placed, beyond it waits for a person."""
+    result, shift = ruler(ctx, warped)
+    if shift > RULER_LIMIT_M:
+        return wait_for_help(ctx, "low-confidence", f"The file's georeference disagrees with OpenStreetMap by {shift:.0f} m: check it.")
     placement = Placement("embedded", series.encoding, result, True, series.scale, series.paper_transparent)
     return finish(ctx, placement, warped, 1)
 
