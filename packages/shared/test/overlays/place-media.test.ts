@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest';
 
-import { placeMedia, placeMediaKinds } from '../../src/overlays/place-media.js';
+import { PLACE_MEDIA_CATEGORY, placeMedia, placeMediaKinds, withPlaceMedia } from '../../src/overlays/place-media.js';
 import { manifestSchema, type Layer, type Photo } from '../../src/schemas/manifest.js';
 import { validLayer, validManifest, validPhoto } from '../fixtures/manifest.js';
 
@@ -80,5 +80,31 @@ describe('placeMedia: plans by level (M17 §14)', () => {
         const media = placeMedia({ id: 'p' }, { layers: [], photos: [{ ...photo('x', 'interior', 1940, ['p']), level: 3 }] });
         expect(media.plans).toEqual([]);
         expect(media.interior.map((item) => item.id)).toEqual(['x']);
+    });
+});
+
+describe('withPlaceMedia (M17 §15)', () => {
+    it('happyPath_placesWithMediaJoinThePlaceMediaCategoryOncePerKind @S-V83-HAPPY-PLACE-MEDIA-LAYER', () => {
+        const raw = validManifest() as { layers: Record<string, unknown>[]; photos: Record<string, unknown>[] };
+        raw.layers[0] = { ...raw.layers[0], placeIds: ['casa-uranus'] };
+        raw.photos[0] = { ...raw.photos[0], kind: 'interior', placeIds: ['casa-uranus'] };
+        const manifest = manifestSchema.parse(raw);
+        const shown = withPlaceMedia(manifest);
+
+        expect(shown.poiCategories?.at(-1)).toMatchObject({ id: PLACE_MEDIA_CATEGORY, defaultVisible: false });
+        const entries = (shown.pois ?? []).filter((poi) => poi.category === PLACE_MEDIA_CATEGORY);
+        expect(entries.map((poi) => [poi.id, poi.group, poi.geometry.type])).toEqual([
+            ['casa-uranus', 'media:maps', 'Polygon'],
+            ['casa-uranus', 'media:ground', 'Point'],
+            ['casa-uranus', 'media:interior', 'Point'],
+        ]);
+        expect(withPlaceMedia(shown)).toBe(shown);
+    });
+
+    it('badPath_aCityWithoutMediaKeepsItsManifest @S-V83-BAD-NO-MEDIA', () => {
+        const raw = validManifest() as { pois: Record<string, unknown>[] };
+        raw.pois[0] = { ...raw.pois[0], photoIds: [] };
+        const manifest = manifestSchema.parse(raw);
+        expect(withPlaceMedia(manifest)).toBe(manifest);
     });
 });

@@ -1443,6 +1443,13 @@
             "name": "A plan's level and an interior photo's level",
             "milestone": "M17",
             "source": "the owner, 2026-11-22: building plans per level, a level picker, interior photos on a level"
+        },
+        {
+            "id": "V83",
+            "area": "viewer",
+            "name": "The Layers panel's Place media category with a switch per kind",
+            "milestone": "M17",
+            "source": "the owner, 2026-11-22: a Place media entry in the Layers panel's Places, one sub-entry per kind"
         }
     ],
     "scenarios": [
@@ -25051,6 +25058,28 @@
             "tier": "rules",
             "status": "exists",
             "notes": "Tests: firebase/rules-tests/test/layers.test.ts, firebase/rules-tests/test/photos.test.ts, packages/ui/test/admin/layers/level-row.test.ts."
+        },
+        {
+            "id": "S-V83-HAPPY-PLACE-MEDIA-LAYER",
+            "behaviour": "V83",
+            "area": "viewer",
+            "path": "happy",
+            "title": "Places with media show under Place media, one switch per kind",
+            "asserts": "a place with a map and photos -> the engine adds the Place media category (off at first) with entries per kind (a map's footprint, else the place) keeping the place's id; the panel's chevron shows Maps, Exterior, Interior switches",
+            "tier": "e2e-viewer",
+            "status": "planned",
+            "notes": "Unit: packages/shared/test/overlays/place-media.test.ts, packages/ui/test/viewer/layer-panel-model.test.ts. docs/research/M17-stories.md §15."
+        },
+        {
+            "id": "S-V83-BAD-NO-MEDIA",
+            "behaviour": "V83",
+            "area": "viewer",
+            "path": "bad",
+            "title": "A city without media has no Place media entry",
+            "asserts": "no place with media -> the manifest is unchanged, no category is added",
+            "tier": "e2e-viewer",
+            "status": "planned",
+            "notes": "Unit: packages/shared/test/overlays/place-media.test.ts."
         }
     ]
 }

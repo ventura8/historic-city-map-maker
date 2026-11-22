@@ -10,6 +10,7 @@ import {
     translate,
     validate,
     validateManifest,
+    withPlaceMedia,
     type EngineConfig,
     type ViewerLocale,
     type Manifest,
@@ -91,7 +92,7 @@ function invalidFailure(issues: readonly ValidationIssue[]): Result<Manifest> {
 function matchCity(config: EngineConfig, manifest: Manifest): Result<Manifest> {
     const cityId = config.cityId;
     return cityId === undefined || cityId === manifest.city.id
-        ? { ok: true, value: manifest }
+        ? { ok: true, value: withPlaceMedia(manifest) }
         : fail('error.config.cityMismatch', false, { cityId, manifestCityId: manifest.city.id });
 }
 

@@ -2,7 +2,7 @@
  * The Layers panel's pure parts (`<hcm-layer-panel>`): the list rows, the group headings, the attribution lines, the Map
  * labels note and (M27, `docs/research/M27-lost-streets.md`) the split of the pinned POI categories from the list below.
  */
-import { categoryGroups, overlayLabel, poiIcon, translate, type ViewerLocale, type Manifest, type Overlay } from '@hcm/shared';
+import { categoryGroups, overlayLabel, poiIcon, translate, type ViewerLocale, type Manifest, type MessageKey, type Overlay } from '@hcm/shared';
 import { creditParts } from '@hcm/shared/credits';
 import { translateMapLabels } from '@hcm/shared/map-labels';
 
@@ -33,10 +33,16 @@ export function overlayItems(overlays: readonly Overlay[], manifest: Manifest, l
     });
 }
 
-const GEOMETRY_LABELS: Readonly<Record<string, 'layers.sub.points' | 'layers.sub.lines' | 'layers.sub.areas'>> = {
+const GEOMETRY_LABELS: Readonly<Record<string, MessageKey>> = {
     points: 'layers.sub.points',
     lines: 'layers.sub.lines',
     areas: 'layers.sub.areas',
+    // M17 §15: the "Place media" category's sub-groups, one per kind of media.
+    'media:maps': 'poi.media.maps',
+    'media:plans': 'poi.media.plans',
+    'media:aerial': 'poi.media.aerial',
+    'media:ground': 'poi.media.ground',
+    'media:interior': 'poi.media.interior',
 };
 
 /** A category's sub-groups for its row (the owner, 2026-11-22), with the chevron's name and the switch's mixed state. */

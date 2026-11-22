@@ -5,7 +5,7 @@
  * in `photoIds` (in that order, which the place editor sets) or when the photo names the place in `placeIds` (after them,
  * by year, then id). Unknown ids are skipped; nothing here reads more than the manifest.
  */
-import { photoKindOf, type Layer, type Photo, type PhotoKind, type UnplacedPhoto } from '../schemas/manifest.js';
+import { photoKindOf, type Layer, type Manifest, type Photo, type PhotoKind, type UnplacedPhoto } from '../schemas/manifest.js';
 import type { Poi } from '../schemas/poi.js';
 
 export { MAX_MEDIA_PLACES } from '../schemas/poi.js';
@@ -89,4 +89,67 @@ export function placeMedia(poi: Pick<Poi, 'id' | 'photoIds'>, source: MediaSourc
 /** The kinds that have at least one item, in the sheet's order. */
 export function placeMediaKinds(media: PlaceMedia): PlaceMediaKind[] {
     return PLACE_MEDIA_KINDS.filter((kind) => media[kind].length > 0);
+}
+
+/** M17 §15: the Layers panel's "Place media" category, off at first, one sub-group per kind of media. */
+export const PLACE_MEDIA_CATEGORY = 'place-media';
+
+/** The sub-group of one kind of media in the "Place media" category (`media:maps`). */
+export function placeMediaGroup(kind: PlaceMediaKind): string {
+    return ['media', kind].join(':');
+}
+
+type MediaManifest = Pick<Manifest, 'layers' | 'photos' | 'unplaced' | 'pois' | 'poiCategories'>;
+
+/** A map's footprint: its bounds as a closed ring; none without bounds. */
+function footprint(layer: Layer): Poi['geometry'] | null {
+    const bounds = layer.bounds;
+    if (bounds === undefined) {
+        return null;
+    }
+    const [[west, south], [east, north]] = bounds;
+    const ring: [number, number][] = [
+        [west, south],
+        [east, south],
+        [east, north],
+        [west, north],
+        [west, south],
+    ];
+    return { type: 'Polygon', coordinates: [ring] };
+}
+
+/** The entries of one place in the category: its maps' footprints, else the place itself, once per kind it has. */
+function mediaEntries(poi: Poi, media: PlaceMedia): Poi[] {
+    return placeMediaKinds(media).flatMap((kind) => {
+        const entry = { ...poi, category: PLACE_MEDIA_CATEGORY, group: placeMediaGroup(kind) };
+        const maps = kind === 'maps' ? media.maps : kind === 'plans' ? media.plans.flatMap((level) => level.layers) : [];
+        const shapes = maps.flatMap((layer) => footprint(layer) ?? []);
+        return shapes.length === 0 ? [entry] : shapes.map((geometry) => ({ ...entry, geometry }));
+    });
+}
+
+/**
+ * The manifest with the "Place media" category (M17 §15): every place that has media, once per kind (a map's footprint for
+ * maps and plans), each entry keeping its place's id so a click opens the place. Unchanged when no place has media or the
+ * city already has a category of that id. The engine adds it after validation; it is never written to a manifest.
+ */
+export function withPlaceMedia<M extends MediaManifest>(manifest: M): M {
+    const categories = manifest.poiCategories ?? [];
+    if (categories.some((category) => category.id === PLACE_MEDIA_CATEGORY)) {
+        return manifest;
+    }
+    const source = { layers: manifest.layers, photos: [...manifest.photos, ...(manifest.unplaced ?? [])] };
+    const entries = (manifest.pois ?? []).flatMap((poi) => mediaEntries(poi, placeMedia(poi, source)));
+    if (entries.length === 0) {
+        return manifest;
+    }
+    const category = {
+        id: PLACE_MEDIA_CATEGORY,
+        label: { ro: 'Media locurilor', en: 'Place media' },
+        icon: 'photo_camera',
+        color: '#6750A4',
+        defaultOpacity: 1,
+        defaultVisible: false,
+    };
+    return { ...manifest, poiCategories: [...categories, category], pois: [...(manifest.pois ?? []), ...entries] };
 }
