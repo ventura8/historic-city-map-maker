@@ -139,6 +139,33 @@ describe('imagery.join: archive maps', () => {
         expect((await readVersion(ready, 'ar-west'))?.partOf).toBe(answer.jobId);
     });
 
+    it('happyPath_aJoinRunAgainWithTheSamePartsStaysOnItsOwnLayer @S-A65-HAPPY-ARCHIVE-JOIN-AGAIN', async () => {
+        const ready = await world({ state: 'joined', partOf: 'old-join' });
+        await seedVersion(ready, NORTH, archiveMap('n', 'N', { state: 'joined', partOf: 'old-join' }));
+        await seedVersion(ready, 'old-join', archiveMap('both', 'N + S', { origin: 'join', source: { kind: 'join', parts: [] } }));
+        await seedLayer(ready, 'both', { currentVersion: 'old-join' });
+
+        const answer = await join(ready, [NORTH, SOUTH]);
+
+        expect(answer.layerId).toBe('both');
+        expect((await readLayer(ready, 'both'))?.pendingVersion).toBe(answer.jobId);
+    });
+
+    it('badPath_aJoinStampedByAJoinNotPublishedGetsANewLayer @S-A65-BAD-ARCHIVE-JOIN-AGAIN', async () => {
+        const ready = await readyWorld();
+        await seedVersion(ready, NORTH, archiveMap('n', 'N', { state: 'joined', partOf: 'old-join' }));
+        await seedVersion(ready, SOUTH, archiveMap('s', 'S', { state: 'joined', partOf: 'old-join' }));
+        await seedVersion(
+            ready,
+            'old-join',
+            archiveMap('both', 'N + S', { origin: 'join', state: 'rejected', source: { kind: 'join', parts: [] } }),
+        );
+
+        const answer = await join(ready, [NORTH, SOUTH]);
+
+        expect(answer.layerId).not.toBe('both');
+    });
+
     it('badPath_aSupersededMapNoJoinHeldIsGone @S-A65-BAD-ARCHIVE-ADD-SHEETS', async () => {
         const ready = await world({ state: 'superseded' });
 

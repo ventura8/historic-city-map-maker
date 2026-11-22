@@ -87,8 +87,9 @@ export const en: Readonly<Record<AdminImageryKey, string>> = {
     'adminContent.imagery.join.archiveTitle': 'Join with another map',
     'adminContent.imagery.join.archiveIntro': 'Maps of {year} that may be parts of this one. Each keeps its points; the join checks seams.',
     'adminContent.imagery.join.addTitle': 'Add sheets to this join',
-    'adminContent.imagery.join.addIntro':
-        'Maps of {year} not in this join yet. Picking one rebuilds the join with all its sheets, on the same layer.',
+    'adminContent.imagery.join.addIntro': 'Maps of {year} not in this join. Picking one rebuilds it on the same layer.',
+    'adminContent.imagery.join.again': 'Join again',
+    'adminContent.imagery.join.againNote': 'Rebuilds the join with the same sheets on the same layer, for example after a fix.',
     'adminContent.imagery.join.addWith': 'Add {map}',
     'adminContent.imagery.join.archiveWith': 'Join with {map}',
     'adminContent.imagery.join.archiveStarted': 'The join started. It shows here for approval once it is ready.',

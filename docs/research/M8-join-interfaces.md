@@ -704,3 +704,8 @@ for both the callable and the job's parameters. Scenarios: S-A65-HAPPY/BAD-ARCHI
 
 The layer page also sets a layer's **kind** (map, aerial photo, satellite image; S-A33-HAPPY/BAD-LAYER-KIND): the rules allow `kind`,
 and the manifest follows the layer. An upload finalizes as a map unless its name says it is a photo from above (`finalize.ts`).
+
+**Join again** (live 2026-11-22, the 2017 orthophoto plan): an archive join that ended (published, failed, rejected, cancelled)
+offers the same parts again; parts `joined` still serve, and a join whose parts a published join stamped becomes a version of that
+join's layer (`earlierLayer`, `join-archive.ts`). Parts placed by the file's own georeference (`embedded`) are still refused by the
+pipeline (`join/plan.py`). Scenarios: S-A65-HAPPY/BAD-ARCHIVE-JOIN-AGAIN.

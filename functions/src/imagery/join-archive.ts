@@ -263,17 +263,28 @@ async function writeIn(transaction: DocumentTransaction, plan: Plan): Promise<vo
     }
 }
 
-/** A busy published layer refuses in the join's own words (`apiError.imagery.joinLayerBusy`). */
-async function requireFreeLayer(deps: ArchiveJoinDeps, cityId: string, published: Part | undefined): Promise<void> {
-    if (published === undefined) {
+/** A busy layer the join goes to refuses in the join's own words (`apiError.imagery.joinLayerBusy`). */
+async function requireFreeLayer(deps: ArchiveJoinDeps, cityId: string, layerId: string | undefined): Promise<void> {
+    if (layerId === undefined) {
         return;
     }
-    await refuseBusyLayer(deps.documents, cityId, published.version.layerId).catch(asJoinLayerBusy);
+    await refuseBusyLayer(deps.documents, cityId, layerId).catch(asJoinLayerBusy);
 }
 
-/** The published part's layer, else a new one named after the parts. */
-async function layerFor(deps: ArchiveJoinDeps, cityId: string, parts: readonly Part[], published: Part | undefined): Promise<string> {
-    return published?.version.layerId ?? (await reserveLayerIds(deps.documents, cityId))(labelOf(parts).ro);
+/**
+ * The layer of the published join the parts were joined by (live 2026-11-22: **Join again** of the 2017 orthophoto plan, whose join
+ * had a layer of its own): a join run again with the same parts, or more, stays on it.
+ */
+async function earlierLayer(deps: ArchiveJoinDeps, cityId: string, parts: readonly Part[]): Promise<string | undefined> {
+    const stamped = parts.find(({ version }) => version.partOf !== undefined)?.version.partOf;
+    const join =
+        stamped === undefined ? undefined : await deps.documents.get(FIRESTORE_PATHS.layerVersion(cityId, stamped), layerVersionDocSchema);
+    return join?.source?.kind === 'join' && join.state === 'published' ? join.layerId : undefined;
+}
+
+/** The layer the join becomes a version of: a published part's, else the earlier join's, else none (a new layer). */
+async function existingLayer(deps: ArchiveJoinDeps, cityId: string, parts: readonly Part[]): Promise<string | undefined> {
+    return publishedPart(parts)?.version.layerId ?? (await earlierLayer(deps, cityId, parts));
 }
 
 /** The archive maps' join: every check, then one transaction. */
@@ -286,15 +297,15 @@ export async function joinArchive(
     const parts = await readParts(deps, request);
     const now = deps.clock.now();
     const placement = await refuseRasterJobs(deps.documents, now, request.cityId, 1);
-    const published = publishedPart(parts);
-    await requireFreeLayer(deps, request.cityId, published);
-    const layerId = await layerFor(deps, request.cityId, parts, published);
+    const existing = await existingLayer(deps, request.cityId, parts);
+    await requireFreeLayer(deps, request.cityId, existing);
+    const layerId = existing ?? (await reserveLayerIds(deps.documents, request.cityId))(labelOf(parts).ro);
     const jobId = jobIdFor('jn', now, parts[0]?.version.layerId ?? 'archive');
     const plan: Plan = {
         cityId: request.cityId,
         jobId,
         layerId,
-        joinsLayer: published !== undefined,
+        joinsLayer: existing !== undefined,
         parts,
         by: caller.uid,
         now,

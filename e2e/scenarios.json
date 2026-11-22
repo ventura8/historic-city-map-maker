@@ -14092,6 +14092,28 @@
             "notes": "Live 2026-11-22. Tests: firebase/rules-tests/test/layers.test.ts, functions/test/imagery/finalize.test.ts."
         },
         {
+            "id": "S-A65-HAPPY-ARCHIVE-JOIN-AGAIN",
+            "behaviour": "A65",
+            "area": "admin",
+            "path": "happy",
+            "title": "An ended archive join runs again with the same parts on its own layer",
+            "asserts": "Join again on a published (or failed, rejected, cancelled) archive join -> imagery.join with the same parts, all joined; the new join is a version of the earlier published join's layer",
+            "tier": "functions",
+            "status": "exists",
+            "notes": "Live 2026-11-22, the 2017 orthophoto plan. Tests: functions/test/imagery/join-archive.test.ts, packages/ui/test/admin/imagery/archive-join.test.ts."
+        },
+        {
+            "id": "S-A65-BAD-ARCHIVE-JOIN-AGAIN",
+            "behaviour": "A65",
+            "area": "admin",
+            "path": "bad",
+            "title": "A join on its way offers no Join again; parts of a join never published get a new layer",
+            "asserts": "awaiting approval -> no Join again button; parts stamped by a rejected join -> a new layer",
+            "tier": "functions",
+            "status": "exists",
+            "notes": "Live 2026-11-22, the 2017 orthophoto plan. Tests: functions/test/imagery/join-archive.test.ts, packages/ui/test/admin/imagery/archive-join.test.ts."
+        },
+        {
             "id": "S-A65-BAD-ARCHIVE-CREDIT",
             "behaviour": "A65",
             "area": "admin",

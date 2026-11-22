@@ -6,7 +6,7 @@
  * that is no archive map, has no points of its own, is part of a join already, or has no other map of its year to join.
  */
 import type { LayerVersionState, UiLocale } from '@hcm/shared';
-import { LitElement, html, type PropertyValues, type TemplateResult } from 'lit';
+import { LitElement, html, nothing, type PropertyValues, type TemplateResult } from 'lit';
 
 import { editingStyles } from '../../editing/editing-styles.js';
 import { contentText } from '../../shell/text.js';
@@ -32,9 +32,17 @@ export function archiveJoinOffered(version: VersionViewPort | null, held: boolea
  * a 1990 sheet was missing from the 47 joined): a new join of its parts plus the one picked, on the same layer.
  */
 export function extendable(version: VersionViewPort | null): boolean {
+    return rejoinable(version) && version?.state === 'published';
+}
+
+/** States of an archive join that may be run again with the same parts (live 2026-11-22: the 2017 orthophoto plan). */
+const AGAIN: ReadonlySet<LayerVersionState> = new Set<LayerVersionState>(['published', 'failed', 'rejected', 'cancelled']);
+
+/** A join of archive maps (each part's entity is its own version id) that ended: **Join again** with the same parts. */
+export function rejoinable(version: VersionViewPort | null): boolean {
     return (
         version?.origin === 'join' &&
-        version.state === 'published' &&
+        AGAIN.has(version.state) &&
         version.parts.length > 0 &&
         version.parts.every((part) => part.entityId === part.versionId)
     );
@@ -124,14 +132,14 @@ export class HcmArchiveJoin extends LitElement {
         });
     }
 
-    async #join(candidate: ArchiveJoinCandidatePort): Promise<void> {
+    async #join(candidate: ArchiveJoinCandidatePort | null): Promise<void> {
         const version = this.version;
         if (version === null || this.intents === null) {
             return;
         }
         this.busy = true;
-        const own = extendable(version) ? version.parts.map((part) => part.versionId) : [version.id];
-        this.started = await this.intents.joinArchive([...own, candidate.id]);
+        const own = version.origin === 'join' ? version.parts.map((part) => part.versionId) : [version.id];
+        this.started = await this.intents.joinArchive(candidate === null ? own : [...own, candidate.id]);
         this.busy = false;
     }
 
@@ -141,8 +149,8 @@ export class HcmArchiveJoin extends LitElement {
 
     override render(): TemplateResult {
         const version = this.version;
-        if (!archiveJoinOffered(version, this.held) || this.candidates.length === 0) {
-            return html``;
+        if (this.candidates.length === 0 || !archiveJoinOffered(version, this.held)) {
+            return rejoinable(version) ? this.#again() : html``;
         }
         const adding = extendable(version);
         return html`<section class="choices" data-archive-join=${adding ? 'add' : 'join'}>
@@ -158,6 +166,7 @@ export class HcmArchiveJoin extends LitElement {
 
     #buttons(): TemplateResult {
         return html`<div class="actions">
+            ${rejoinable(this.version) ? this.#againButton() : nothing}
             ${this.candidates.map(
                 (candidate) =>
                     html`<hcm-button
@@ -170,6 +179,20 @@ export class HcmArchiveJoin extends LitElement {
                     >`,
             )}
         </div>`;
+    }
+
+    /** **Join again**: the same parts, on the same layer. */
+    #again(): TemplateResult {
+        return html`<section class="choices" data-archive-join="again">
+            <p class="note">${this.#t('adminContent.imagery.join.againNote')}</p>
+            ${this.started === null ? html`<div class="actions">${this.#againButton()}</div>` : this.#startedLink(this.started)}
+        </section>`;
+    }
+
+    #againButton(): TemplateResult {
+        return html`<hcm-button variant="tonal" icon="layers" data-join-again ?disabled=${this.busy} @click=${() => void this.#join(null)}
+            >${this.#t('adminContent.imagery.join.again')}</hcm-button
+        >`;
     }
 
     #withKey(): 'adminContent.imagery.join.addWith' | 'adminContent.imagery.join.archiveWith' {

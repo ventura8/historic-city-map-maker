@@ -89,8 +89,9 @@ export const ro = {
     'adminContent.imagery.join.archiveTitle': 'Unește cu altă hartă',
     'adminContent.imagery.join.archiveIntro': 'Hărți din {year} ce pot fi părți ale acesteia. Fiecare își ține punctele.',
     'adminContent.imagery.join.addTitle': 'Adaugă foi la această unire',
-    'adminContent.imagery.join.addIntro':
-        'Hărți din {year} ce nu sunt încă în unire. Una aleasă reface unirea cu toate foile ei, pe același strat.',
+    'adminContent.imagery.join.addIntro': 'Hărți din {year} ce nu sunt în unire. Una aleasă reface unirea pe același strat.',
+    'adminContent.imagery.join.again': 'Unește din nou',
+    'adminContent.imagery.join.againNote': 'Reface unirea cu aceleași foi, pe același strat, de exemplu după o reparație.',
     'adminContent.imagery.join.addWith': 'Adaugă {map}',
     'adminContent.imagery.join.archiveWith': 'Unește cu {map}',
     'adminContent.imagery.join.archiveStarted': 'Unirea a pornit. Apare aici pentru aprobare când e gata.',
