@@ -91,4 +91,22 @@ describe('the historic overlays of Bucharest', () => {
         expect(strays.map((feature) => feature.id)).toEqual([]);
         expect(closedSources).toEqual([]);
     });
+
+    it('badPath_noDemolishedAreaIsAnEnvelopeOverWholeNeighbourhoods', () => {
+        // 2026-11-22: 17 areas dissolved from 5,000 buildings kept 19 holes each (the schema's cap) and drew whole districts
+        // red; the areas are now cut into blocks, each within about 600 m and with its courtyards and streets as holes.
+        const areas = collection('demolitions-1977-1989-bucharest').features.flatMap((feature) => {
+            const geometry = feature.geometry as { readonly type: string; readonly coordinates: readonly (readonly (readonly number[])[])[] };
+            return geometry.type === 'Polygon' ? [geometry.coordinates] : [];
+        });
+        const span = (rings: readonly (readonly (readonly number[])[])[]): number => {
+            const outer = rings[0] ?? [];
+            const lngs = outer.map((position) => position[0] ?? 0);
+            const lats = outer.map((position) => position[1] ?? 0);
+            return Math.max((Math.max(...lngs) - Math.min(...lngs)) * 79_000, (Math.max(...lats) - Math.min(...lats)) * 111_000);
+        };
+
+        expect(areas.length).toBeGreaterThan(100);
+        expect(areas.filter((rings) => span(rings) > 1500)).toEqual([]);
+    });
 });

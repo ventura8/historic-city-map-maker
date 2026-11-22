@@ -25,7 +25,7 @@ licence.
 | --- | --- | --- | --- |
 | `railways-bucharest.geojson` | `railways` (**Căi ferate** / **Railways**, `train`) | 215: 45 lines in use, 130 disused, 33 abandoned, 7 removed | OpenStreetMap via Overpass, ODbL ("© OpenStreetMap contributors (ODbL)") |
 | `old-rivers-bucharest.geojson` | `old-rivers` (**Cursuri vechi ale râurilor** / **Old river courses**, `water`) | 9: the Dâmbovița's bed before the 1980s channel (1 line, 8 water areas, ending 1983) | OpenHistoricalMap via Overpass, CC0 |
-| `demolitions-1977-1989-bucharest.geojson` | `demolitions-1977-1989` (**Demolări 1977–1989** / **Demolitions 1977–1989**, `domain_disabled`) | 21: 17 areas dissolved from 5,514 OHM buildings ending 1983, 4 Wikidata buildings demolished 1984–1986 (Văcărești Monastery, Brâncovenesc Hospital, Teatrul Regina Maria, Cahal Cicu synagogue) | OpenHistoricalMap, CC0; Wikidata, CC0 |
+| `demolitions-1977-1989-bucharest.geojson` | `demolitions-1977-1989` (**Demolări 1977–1989** / **Demolitions 1977–1989**, `domain_disabled`) | 253: 249 block areas dissolved from 5,214 OHM buildings ending 1977–1989, 4 Wikidata buildings demolished 1984–1986 (Văcărești Monastery, Brâncovenesc Hospital, Teatrul Regina Maria, Cahal Cicu synagogue) | OpenHistoricalMap, CC0; Wikidata, CC0 |
 
 Queries (bounds `25.93,44.33,26.25,44.55`, User-Agent `HistoricCityMapMaker/1.0` with the repository address):
 
@@ -34,7 +34,7 @@ Queries (bounds `25.93,44.33,26.25,44.55`, User-Agent `HistoricCityMapMaker/1.0`
   dropped, ways of one kind and name are joined end to end, pieces under about 300 m (live) or 100 m (gone) dropped.
 - Rivers: OHM `waterway` and `natural=water` ways with an `end_date`; OHM's `start_date=1900` is its placeholder (M27
   §3) and is not kept.
-- Demolitions: OHM `building` ways ending 1977–1989, buffered about 10 m and back so a block's buildings become one
+- Demolitions: OHM `building` ways and relations ending 1977–1989, buffered 6 m and back so a block's buildings become one
   area; Wikidata items with P576 in those years and coordinates in the bounds (a dissolved institution is left out).
   Nearly all OHM buildings carry `end_date=1983`, a single date for the Centrul Civic clearance, so each area ends 1989
   on the timeline rather than claiming a year per building.
@@ -54,3 +54,12 @@ category; then **Update the map**.
 
 The fetch-and-build scripts are one-offs and live outside the repository; a reusable importer belongs beside
 `pipeline/src/hcm_pipeline/lost_streets.py` once a second city wants these overlays.
+
+**Demolitions rebuilt (2026-11-22).** The first build dissolved the buildings into 17 areas; the two largest held hundreds of
+courtyards and streets as holes, and the schema keeps at most 19 holes and 500 positions a polygon, so the build kept the
+outer ring and 19 holes and the map drew whole districts (Lipscani to Decebal) solid red; 828dcc15 only removed crossing
+vertices, the shapes were the same. The areas are now cut in halves until each fits the schema (at most 19 holes, 480
+positions), simplified to 1 m, every ring valid, outer rings counter-clockwise and holes clockwise (RFC 7946): 249 blocks,
+none wider than about 450 m. `packages/shared/test/seed/historic-overlays.test.ts` refuses an area wider than 1.5 km. In
+the live city the 17 old areas were deleted (History → Deleted can restore them) and the 249 imported.
+
