@@ -13819,6 +13819,28 @@
             "notes": "Finding of 2026-11-14. Test: functions/test/imagery/join-archive.test.ts."
         },
         {
+            "id": "S-A65-HAPPY-ARCHIVE-CREDIT",
+            "behaviour": "A65",
+            "area": "admin",
+            "path": "happy",
+            "title": "A join of archive maps keeps the archive's title and credit",
+            "asserts": "the join version takes the parts' shared series title and rights; finalize credits the archive (its rights' credit line), never USGS",
+            "tier": "functions",
+            "status": "exists",
+            "notes": "Owner bug of 2026-11-22 (Ortofotoplan 2017). Tests: functions/test/imagery/join-archive.test.ts, join-finalize.test.ts."
+        },
+        {
+            "id": "S-A65-BAD-ARCHIVE-CREDIT",
+            "behaviour": "A65",
+            "area": "admin",
+            "path": "bad",
+            "title": "A join of archive maps without rights or a shared title never credits USGS",
+            "asserts": "parts with no shared title join as N + S with no rights; a join of non-USGS parts without rights credits its own name, not USGS",
+            "tier": "functions",
+            "status": "exists",
+            "notes": "Owner bug of 2026-11-22. Tests: functions/test/imagery/join-archive.test.ts, join-finalize.test.ts."
+        },
+        {
             "id": "S-A65-BAD-ARCHIVE-NO-POINTS",
             "behaviour": "A65",
             "area": "admin",

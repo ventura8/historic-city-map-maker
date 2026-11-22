@@ -326,3 +326,48 @@ describe('finalizing a join: the layers of its date (batch 4)', () => {
         expect(layer?.retired).toBeUndefined();
     });
 });
+
+describe('finalizing a join of archive maps', () => {
+    it('happyPath_aJoinOfArchiveMapsCreditsTheArchiveNeverUsgs @S-A65-HAPPY-ARCHIVE-CREDIT', async () => {
+        const world = await readyWorld();
+        const rights = { licence: 'CC-BY-4.0' as const, state: 'clear' as const, author: 'MApN / AIGA', year: '2017' };
+        const archiveParts = [
+            { versionId: 'v-f039', layerId: 'l-a', entityId: 'v-f039' },
+            { versionId: 'v-f040', layerId: 'l-b', entityId: 'v-f040' },
+        ];
+        await seedJoinOfTwo(world, JOIN, {
+            state: 'publishing',
+            approval: { auto: false, by: 'u-admin', at: at(NOW) },
+            label: { ro: 'Ortofotoplan 2017', en: 'Orthophoto 2017' },
+            source: { kind: 'join', parts: archiveParts },
+            rights,
+        });
+
+        await finalize(world);
+
+        const layer = await readLayer(world, 'layer-join');
+        expect(layer?.attribution).toContain('MApN / AIGA');
+        expect(layer?.attribution).not.toContain('USGS');
+        expect(layer?.label.ro).toBe('Ortofotoplan 2017');
+    });
+
+    it('badPath_aJoinOfArchiveMapsWithNoRightsCreditsItsOwnNameNotUsgs @S-A65-BAD-ARCHIVE-CREDIT', async () => {
+        const world = await readyWorld();
+        await seedJoinOfTwo(world, JOIN, {
+            state: 'publishing',
+            approval: { auto: false, by: 'u-admin', at: at(NOW) },
+            label: { ro: 'Ortofotoplan 2017' },
+            source: {
+                kind: 'join',
+                parts: [
+                    { versionId: 'v-f039', layerId: 'l-a', entityId: 'v-f039' },
+                    { versionId: 'v-f040', layerId: 'l-b', entityId: 'v-f040' },
+                ],
+            },
+        });
+
+        await finalize(world);
+
+        expect((await readLayer(world, 'layer-join'))?.attribution).toBe('Ortofotoplan 2017');
+    });
+});

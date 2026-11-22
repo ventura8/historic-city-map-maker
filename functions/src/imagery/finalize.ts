@@ -108,8 +108,20 @@ function attributionOf(version: LayerVersionDoc): string {
 }
 
 function ownAttribution(version: LayerVersionDoc): string {
-    const own = version.source?.kind === 'upload' ? nameOf(version).slice(0, 500) : usgsCredit(version);
+    const own = creditsUsgs(version) ? usgsCredit(version) : nameOf(version).slice(0, 500);
     return version.georef?.terrain === undefined ? own : `${own}; ${DEM_ATTRIBUTION}`.slice(0, 500);
+}
+
+/**
+ * USGS is credited only for its own frames: a USGS import, or a join whose parts are USGS scenes (they carry a `dataset`). An upload
+ * an archive series or a join of archive maps without rights credits its own name until the admin writes one.
+ */
+function creditsUsgs(version: LayerVersionDoc): boolean {
+    const source = version.source;
+    if (source?.kind === 'join') {
+        return source.parts.some((part) => part.dataset !== undefined);
+    }
+    return source === undefined || source.kind === 'usgs';
 }
 
 /** M25: a Landsat scene credits NASA and USGS as they ask; a declassified frame USGS EROS. */

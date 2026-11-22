@@ -6,7 +6,7 @@ import type { LayerVersionDoc } from '@hcm/shared';
 import { describe, expect, it } from 'vitest';
 
 import { omit } from '../../src/api/objects.js';
-import { maxzoomOf } from '../../src/imagery/join-archive.js';
+import { commonTitle, labelOf, maxzoomOf, rightsOf } from '../../src/imagery/join-archive.js';
 import { joinFunction } from '../../src/imagery/join.js';
 import { failureOf } from '../admin/world.js';
 import { adminCall } from '../publish/fakes.js';
@@ -149,5 +149,27 @@ describe('maxzoomOf', () => {
         expect(maxzoomOf([{ version: {} }, { version: {} }])).toBe(17);
         expect(maxzoomOf([{ version: { output: { ...goldenOutput(), maxzoom: 4 } } }])).toBe(10);
         expect(maxzoomOf([{ version: { output: { ...goldenOutput(), maxzoom: 30 } } }])).toBe(22);
+    });
+});
+
+describe('a join of archive maps: its title and credit', () => {
+    const part = (ro: string, rights?: LayerVersionDoc['rights']) => ({ version: archiveMap('x', ro, { rights }) });
+
+    it('happyPath_aSeriesSheetsJoinUnderTheSeriesTitleAndCredit @S-A65-HAPPY-ARCHIVE-CREDIT', () => {
+        const rights = { licence: 'CC-BY-4.0' as const, state: 'clear' as const, author: 'AIGA', year: '2017' };
+        const parts = [part('Ortofotoplan 2017 57_32'), part('Ortofotoplan 2017 57_33', rights)];
+
+        expect(labelOf(parts)).toEqual({ ro: 'Ortofotoplan 2017', en: 'Ortofotoplan 2017' });
+        expect(rightsOf(parts)).toEqual(rights);
+        expect(commonTitle(['Plan (n)', 'Plan (s)'])).toBe('Plan');
+        expect(commonTitle(['Plan -', 'Plan -'])).toBe('Plan');
+    });
+
+    it('badPath_mapsWithNoSharedTitleKeepEveryNameAndNoRights @S-A65-BAD-ARCHIVE-CREDIT', () => {
+        const parts = [part('N'), part('S')];
+
+        expect(labelOf(parts).ro).toBe('N + S');
+        expect(rightsOf(parts)).toBeUndefined();
+        expect(commonTitle([])).toBe('');
     });
 });

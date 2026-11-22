@@ -101,11 +101,44 @@ export function maxzoomOf(parts: readonly { readonly version: Pick<LayerVersionD
     return Math.min(MAX_ZOOM, Math.max(MIN_ZOOM, zoom));
 }
 
-/** Two labels or more as one: "N + S". */
-function labelOf(parts: readonly Part[]): LayerVersionDoc['label'] {
-    const ro = parts.map(({ version }) => version.label.ro).join(' + ');
-    const english = parts.map(({ version }) => version.label.en ?? version.label.ro).join(' + ');
+/** The words every label starts with, without a trailing separator: the series' own title ("Ortofotoplan 2017"), or "". */
+export function commonTitle(labels: readonly string[]): string {
+    const split = labels.map((label) => label.trim().split(/\s+/u));
+    const first = split[0] ?? [];
+    let shared = 0;
+    while (shared < first.length && split.every((words) => words[shared] === first[shared])) {
+        shared += 1;
+    }
+    return withoutTrailing(first.slice(0, shared).join(' '));
+}
+
+/** What separates a title from a part's own name. */
+const SEPARATORS: ReadonlySet<string> = new Set([' ', ',', ';', ':', '+', '(', '–', '-']);
+
+function withoutTrailing(text: string): string {
+    let end = text.length;
+    while (end > 0 && SEPARATORS.has(text.charAt(end - 1))) {
+        end -= 1;
+    }
+    return text.slice(0, end);
+}
+
+/** The parts' own title when they share one (a series' sheets), else "N + S". */
+function titleOf(labels: readonly string[]): string {
+    const shared = commonTitle(labels);
+    return shared === '' ? labels.join(' + ') : shared;
+}
+
+/** Two labels or more as one: the series' shared title, else "N + S". */
+export function labelOf(parts: readonly Pick<Part, 'version'>[]): LayerVersionDoc['label'] {
+    const ro = titleOf(parts.map(({ version }) => version.label.ro));
+    const english = titleOf(parts.map(({ version }) => version.label.en ?? version.label.ro));
     return { ro, en: english };
+}
+
+/** The archive's credit the parts carry (the first part's rights): the joined layer credits it, never USGS. */
+export function rightsOf(parts: readonly Pick<Part, 'version'>[]): LayerVersionDoc['rights'] {
+    return parts.find(({ version }) => version.rights !== undefined)?.version.rights;
 }
 
 /** The part whose layer the join becomes a new version of: the first published, else none (a new layer). */
@@ -166,7 +199,13 @@ async function writeIn(transaction: DocumentTransaction, plan: Plan): Promise<vo
         await transaction.set(FIRESTORE_PATHS.layerVersion(cityId, id), layerVersionDocSchema, { ...version, partOf: jobId, ...stamp });
     }
     const year = parts[0]?.version.year ?? plan.now.getUTCFullYear();
-    await createWork(transaction, workOf(plan), { origin: 'join', source: sourceOf(parts), label: labelOf(parts), year });
+    await createWork(transaction, workOf(plan), {
+        origin: 'join',
+        source: sourceOf(parts),
+        label: labelOf(parts),
+        year,
+        rights: rightsOf(parts),
+    });
     if (layer !== undefined) {
         await transaction.set(FIRESTORE_PATHS.layer(cityId, plan.layerId), layerDocSchema, { ...layer, pendingVersion: jobId, ...stamp });
     }
