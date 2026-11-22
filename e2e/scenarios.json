@@ -7464,6 +7464,28 @@
             "notes": "The owner's 1966 Corona frames, 2026-11-12 (DECISIONS-for-review.md, the section on the georeferencer's ghost and sharper scan). Tests: e2e/admin/specs/imagery/georef-ghost.spec.ts, pipeline/tests/unit/test_publish_scan.py, packages/admin/test/georef/georef-pictures.test.ts, packages/admin/test/georef/georef-ghost.test.ts, packages/ui/test/admin/georef/scan-viewer-keep.test.ts, packages/ui/test/admin/georef/scan-tiles.test.ts."
         },
         {
+            "id": "S-A-HAPPY-GEOREF-RELAYOUT-REFRESH",
+            "behaviour": "A16",
+            "area": "admin",
+            "path": "happy",
+            "title": "The georeferencer shows the new stitched picture after a relayout without a reload",
+            "asserts": "the version's picture (its path, size or layout revision) changes while the page is open -> the old picture and its sharper tiles are released and the new one is loaded",
+            "tier": "e2e-admin",
+            "status": "exists",
+            "notes": "Finding of 2026-11-22 on the live admin (docs/LESSONS.md 759). Tests: packages/admin/test/georef/georef-pictures.test.ts."
+        },
+        {
+            "id": "S-A-BAD-GEOREF-RELAYOUT-SAME",
+            "behaviour": "A16",
+            "area": "admin",
+            "path": "bad",
+            "title": "The same picture is not loaded twice and a late old one is dropped",
+            "asserts": "a version update with the same picture loads nothing again; a load of the older revision still on its way when the newer one arrives is never shown",
+            "tier": "e2e-admin",
+            "status": "exists",
+            "notes": "Finding of 2026-11-22 on the live admin (docs/LESSONS.md 759). Tests: packages/admin/test/georef/georef-pictures.test.ts."
+        },
+        {
             "id": "S-A16-BAD-GEOREF-FULL-RES-NONE",
             "behaviour": "A16",
             "area": "admin",
@@ -17705,6 +17727,17 @@
             "notes": "Finding of 2026-11-14 (1864 and 1871 Pappasoglu lost their points to the 22:11 update). Tests: functions/test/imagery/relocate.test.ts, functions/test/imagery/locate-again-archive.test.ts."
         },
         {
+            "id": "S-A69-BAD-AUTO-RELOCATE-OWNER-LAYOUT",
+            "behaviour": "A69",
+            "area": "admin",
+            "path": "bad",
+            "title": "An update never lays out again a tile series the owner arranged",
+            "asserts": "a parked version whose help holds the owner's saved layout (help.layoutAnswer) and a newer pipeline image -> imagery.tick leaves it waiting with its layout and remembers the image; the series is not laid out again by order and seams",
+            "tier": "functions",
+            "status": "exists",
+            "notes": "Finding of 2026-11-22 on the live admin (docs/LESSONS.md 759). Tests: functions/test/imagery/relocate.test.ts."
+        },
+        {
             "id": "S-A69-BAD-AUTO-RELOCATE-RECORD",
             "behaviour": "A69",
             "area": "admin",
@@ -19498,6 +19531,28 @@
             "notes": "M20 paths (docs/research/M20-import-local.md §3, §15). Tests: pipeline/tests/unit/test_placing_assemble.py."
         },
         {
+            "id": "S-P20-HAPPY-PDF-PAGE-AS-SHOWN",
+            "behaviour": "P20",
+            "area": "pipeline",
+            "path": "happy",
+            "title": "A PDF page whose image is not the page is drawn as it is shown",
+            "asserts": "a page turned by /Rotate, an image placed stretched or a page cut into strips -> the page drawn from its images at the finest one's density with the page's true aspect (a TIFF); an upright image that is the page is still taken out byte for byte",
+            "tier": "e2e-pipeline",
+            "status": "exists",
+            "notes": "Finding of 2026-11-22 on the live admin (docs/LESSONS.md 759). Tests: pipeline/tests/unit/test_placing_pdfcompose.py. M20 §3."
+        },
+        {
+            "id": "S-P20-BAD-PDF-PAGE-AS-SHOWN",
+            "behaviour": "P20",
+            "area": "pipeline",
+            "path": "bad",
+            "title": "A PDF page whose images cannot be drawn gives a blank page, never a crash",
+            "asserts": "an image that cannot be decoded is left out of the drawn page, an unbalanced Q, a short cm and a name that is no image are ignored, a flat placement draws nothing",
+            "tier": "e2e-pipeline",
+            "status": "exists",
+            "notes": "Finding of 2026-11-22 on the live admin (docs/LESSONS.md 759). Tests: pipeline/tests/unit/test_placing_pdfcompose.py. M20 §3."
+        },
+        {
             "id": "S-P20-BAD-PDF-PASSWORD",
             "behaviour": "P20",
             "area": "pipeline",
@@ -19584,6 +19639,28 @@
             "tier": "e2e-pipeline",
             "status": "exists",
             "notes": "M20 paths (docs/research/M20-import-local.md §3, §15). Tests: pipeline/tests/unit/test_placing_embedded.py."
+        },
+        {
+            "id": "S-P20-HAPPY-EMBEDDED-GEOREFERENCER",
+            "behaviour": "P20",
+            "area": "pipeline",
+            "path": "happy",
+            "title": "A georeferenced file opens in the georeferencer with its own places as pairs",
+            "asserts": "the file's pixels become the version's scan, a plain full-size copy the series' stitched.tif, and a 3 x 3 lattice from its own georeference its suggestions, so the owner's points refine or replace it",
+            "tier": "e2e-pipeline",
+            "status": "exists",
+            "notes": "Finding of 2026-11-22 on the live admin (docs/LESSONS.md 759). Tests: pipeline/tests/unit/test_placing_embedded.py. M20 §3 a."
+        },
+        {
+            "id": "S-P20-BAD-EMBEDDED-GEOREFERENCER",
+            "behaviour": "P20",
+            "area": "pipeline",
+            "path": "bad",
+            "title": "A georeferenced file whose system cannot be told still shows its picture",
+            "asserts": "a world file with no .prj that lands in no single system waits with its picture as the scan and no suggested pairs",
+            "tier": "e2e-pipeline",
+            "status": "exists",
+            "notes": "Finding of 2026-11-22 on the live admin (docs/LESSONS.md 759). Tests: pipeline/tests/unit/test_placing_embedded.py. M20 §3 a."
         },
         {
             "id": "S-P20-BAD-EMBEDDED-DISAGREES",
@@ -20035,6 +20112,28 @@
             "tier": "e2e-admin",
             "status": "exists",
             "notes": "Tests: e2e/admin/specs/imagery/tiles-grid.spec.ts, packages/admin/test/tiles/draft.test.ts. M20 §19.17."
+        },
+        {
+            "id": "S-A-HAPPY-TILE-WIZARD-SHIFT-ONE",
+            "behaviour": "A141",
+            "area": "admin",
+            "path": "happy",
+            "title": "Shift and the arrows move only the chosen sheet",
+            "asserts": "a sheet carried two cells by Shift and the arrows ends at the target cell, the sheet that was there takes its first cell, and the sheets it passed stay where they were",
+            "tier": "e2e-admin",
+            "status": "exists",
+            "notes": "Finding of 2026-11-22 on the live admin (docs/LESSONS.md 759). Tests: packages/admin/test/tiles/draft.test.ts. M20 §19.11."
+        },
+        {
+            "id": "S-A-BAD-TILE-WIZARD-SHIFT-STALE",
+            "behaviour": "A141",
+            "area": "admin",
+            "path": "bad",
+            "title": "A Shift move after another edit starts from that edit",
+            "asserts": "a sheet turned between two Shift moves keeps its turn, and the next move swaps only from where it stands, never undoing the edit",
+            "tier": "e2e-admin",
+            "status": "exists",
+            "notes": "Finding of 2026-11-22 on the live admin (docs/LESSONS.md 759). Tests: packages/admin/test/tiles/draft.test.ts. M20 §19.11."
         },
         {
             "id": "S-A-HAPPY-FIX-TILES-PARKED",

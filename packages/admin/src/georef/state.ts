@@ -40,6 +40,8 @@ export interface GeorefVersion {
         readonly previewPath: string;
         /** The sharper scan (`scan-tiles.bin`) and its pixels per scan pixel; null: none (a short scan, or an older version). */
         readonly detail: { readonly path: string; readonly scale: number } | null;
+        /** A series' joined sheets: the layout's revision, which a relayout raises over the same preview path. */
+        readonly revision?: number;
     } | null;
     readonly reference: {
         readonly bounds: BBox;
@@ -81,8 +83,9 @@ function stitchedScanOf(version: LayerVersionDoc): GeorefVersion['scan'] {
     if (stitched === undefined) {
         return null;
     }
-    const { width, height, previewScale, previewPath } = stitched;
-    return { width, height, previewScale, previewPath, detail: null };
+    const { width, height, previewScale, previewPath, layout } = stitched;
+    const revision = layout === undefined ? {} : { revision: layout.revision };
+    return { width, height, previewScale, previewPath, detail: null, ...revision };
 }
 
 /** An archive series' flags, or none for any other version. */

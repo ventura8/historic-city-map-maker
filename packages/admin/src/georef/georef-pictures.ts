@@ -71,6 +71,11 @@ export function referenceOf(version: GeorefVersion, wanted: ReferenceKind | null
     return choices.find((choice) => choice.kind === wanted) ?? choices[0] ?? null;
 }
 
+/** What names the picture a version shows: a change of path, size or layout revision is a new picture. */
+export function pictureKeyOf(version: GeorefVersion): string {
+    return JSON.stringify([version.id, version.scan]);
+}
+
 /** A decoded picture and the port that draws with it. */
 interface Decoded {
     readonly pictures: PicturePort;
@@ -94,6 +99,8 @@ interface ReadyWarp {
 export class GeorefPictures {
     readonly #deps: GeorefPicturesDeps;
     #versionId: string | null = null;
+    /** The picture shown (its version, path, size and layout revision): a new one is loaded when it changes. */
+    #pictureKey: string | null = null;
     #scanUrl: string | null = null;
     /** The sharper scan asked for (once a version). */
     #detailAsked = false;
@@ -120,8 +127,13 @@ export class GeorefPictures {
     /** A version's scan (once per version) and the reference asked for. */
     load(version: GeorefVersion, wanted: ReferenceKind | null): void {
         void this.#warpCode();
-        if (version.id !== this.#versionId) {
+        const key = pictureKeyOf(version);
+        if (key !== this.#pictureKey) {
+            if (version.id === this.#versionId) {
+                this.#dropScan();
+            }
             this.#versionId = version.id;
+            this.#pictureKey = key;
             void this.#loadScan(version.scan);
         }
         const choice = referenceOf(version, wanted);
@@ -196,10 +208,24 @@ export class GeorefPictures {
         this.#scanPicture = null;
         this.#target = null;
         this.#versionId = null;
+        this.#pictureKey = null;
         this.#reference = null;
         this.#choice = null;
         this.#next = null;
         this.#deps.scan({ status: 'none' });
+        this.#deps.detail(null);
+    }
+
+    /**
+     * The same version's picture changed (a series laid out again: finding of 2026-11-22, LESSONS 759, the stale stitched picture
+     * stayed until a reload): the old one and its sharper tiles go, and a load still on its way is dropped.
+     */
+    #dropScan(): void {
+        this.#generation += 1;
+        this.#release(this.#scanUrl);
+        this.#scanUrl = null;
+        this.#detailAsked = false;
+        this.#scanPicture = null;
         this.#deps.detail(null);
     }
 

@@ -84,10 +84,33 @@ export function stepFrom(cell: Cell, rows: number, cols: number, grid: Grid): Ce
     return { row: clamp(cell.row + rows, grid.rows), col: clamp(cell.col + cols, grid.cols) };
 }
 
-/** Moves the sheet at `cell` to the neighbouring cell `rows`, `cols` away (Shift and the arrows). */
-export function shiftFrom(sheets: readonly DraftSheet[], cell: Cell, target: Cell): readonly DraftSheet[] {
+/**
+ * One Shift-arrow journey of one sheet: the sheets before its first step, the cell it started from and the sheets after its last
+ * step. A step that goes on from `after` starts again from `before`, so only the sheet carried and the one at its target change.
+ */
+export interface Carry {
+    readonly index: number;
+    readonly before: readonly DraftSheet[];
+    readonly after: readonly DraftSheet[];
+}
+
+/**
+ * Moves the sheet at `cell` to `target` (Shift and the arrows): it swaps with the sheet there or lands on an empty cell. Finding of
+ * 2026-11-22 (LESSONS 759): each step swapped with the sheet it passed, so a sheet carried along a row shifted the whole row.
+ */
+export function carriedShift(
+    sheets: readonly DraftSheet[],
+    carry: Carry | null,
+    cell: Cell,
+    target: Cell,
+): { readonly sheets: readonly DraftSheet[]; readonly carry: Carry | null } {
     const sheet = sheetAt(sheets, cell);
-    return sheet === undefined ? sheets : placeAt(sheets, sheet.index, target);
+    if (sheet === undefined) {
+        return { sheets, carry: null };
+    }
+    const going = carry?.after === sheets && carry.index === sheet.index ? carry : { index: sheet.index, before: sheets, after: sheets };
+    const moved = placeAt(going.before, sheet.index, target);
+    return { sheets: moved, carry: { ...going, after: moved } };
 }
 
 /** The sheet at `cell` with `change` made of it (a turn, a mirror, out of the map). */

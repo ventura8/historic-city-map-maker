@@ -139,7 +139,7 @@ def publish_stitched(ctx: JobContext, stitched: Stitched, written: Path | None =
     }
     record.update(_measures(stitched))
     ctx.log.info(f"stitched {stitched.joined} of {stitched.parts} parts into one {width} x {height} picture for a person", ctx.step)
-    _for_georeferencer(ctx, stitched.canvas, stitched.pairs_scale)
+    for_georeferencer(ctx, stitched.canvas, stitched.pairs_scale)
     return record
 
 
@@ -181,7 +181,7 @@ def _suggested(ctx: JobContext) -> Mapping[str, object] | None:
     return found if isinstance(found, Mapping) else None
 
 
-def _for_georeferencer(ctx: JobContext, canvas: UInt8Array, pairs_scale: float = 1.0) -> None:
+def for_georeferencer(ctx: JobContext, canvas: UInt8Array, pairs_scale: float = 1.0) -> None:
     """The picture as the version's `scan` and the city window's OpenStreetMap lines as its `reference`: what the georeferencer shows.
     The version's suggested pairs move into the scan's pixels with it (the scan is the canvas shrunk to `SCAN_MAX_PX`)."""
     pixels, scale = _preview(canvas, SCAN_MAX_PX)

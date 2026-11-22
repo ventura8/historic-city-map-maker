@@ -210,6 +210,35 @@ describe('the georeferencer pictures', () => {
     });
 });
 
+describe('a version whose picture changes (LESSONS 759)', () => {
+    it('happyPath_aRelayoutsNewRevisionLoadsThePictureAgainWithoutAReload @S-A-HAPPY-GEOREF-RELAYOUT-REFRESH', async () => {
+        const { shown, files, scans, details } = await setup();
+        const first = { ...SCAN, detail: null, revision: 2 };
+        shown.load(version({ scan: first }), null);
+        await settle();
+        shown.load(version({ scan: { ...first, revision: 3, width: 1200 } }), null);
+        await settle();
+
+        expect(files.released).toEqual([`blob:${SCAN.previewPath}`]);
+        expect(details).toEqual([null]);
+        expect(scans.filter((scan) => scan.status === 'ready')).toHaveLength(2);
+    });
+
+    it('badPath_theSamePictureIsNotLoadedAgainAndAnOldLoadStillOnItsWayIsDropped @S-A-BAD-GEOREF-RELAYOUT-SAME', async () => {
+        const { shown, files, scans } = await setup();
+        files.hold = true;
+        shown.load(version({ scan: { ...SCAN, revision: 1 } }), null);
+        shown.load(version({ scan: { ...SCAN, revision: 2 } }), null);
+        shown.load(version({ scan: { ...SCAN, revision: 2 } }), null);
+        files.hold = false;
+        files.flush();
+        await settle();
+
+        expect(scans.filter((scan) => scan.status === 'loading')).toHaveLength(2);
+        expect(scans.filter((scan) => scan.status === 'ready')).toHaveLength(1);
+    });
+});
+
 describe('the warped preview on a small window', () => {
     it('happyPath_onAPhoneSizedWindowTheWarpedPreviewIsHalfAsLong', async () => {
         const { shown, clock, pictures } = await setup();

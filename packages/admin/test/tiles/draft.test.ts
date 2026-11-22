@@ -3,6 +3,7 @@ import { layoutFileSchema, validate, type LayerVersionDoc, type LayoutFile } fro
 import { describe, expect, it } from 'vitest';
 
 import {
+    carriedShift,
     changeAt,
     firstEmpty,
     mirrored,
@@ -13,7 +14,6 @@ import {
     putBack,
     sheetAt,
     sheetsOf,
-    shiftFrom,
     stepFrom,
     thumbOf,
     thumbSpriteOf,
@@ -52,9 +52,9 @@ describe('the draft of the sheets', () => {
         const start = sheetsOf(sample());
         const target = stepFrom({ row: 0, col: 0 }, 5, -3, GRID);
         expect(target).toEqual({ row: 1, col: 0 });
-        const shifted = shiftFrom(start, { row: 0, col: 0 }, target);
+        const shifted = carriedShift(start, null, { row: 0, col: 0 }, target).sheets;
         expect(sheetAt(shifted, target)?.index).toBe(0);
-        expect(shiftFrom(start, { row: 5, col: 5 }, target)).toBe(start);
+        expect(carriedShift(start, null, { row: 5, col: 5 }, target)).toEqual({ sheets: start, carry: null });
         const turnedOnce = changeAt(start, { row: 0, col: 0 }, turned);
         expect(sheetAt(turnedOnce, { row: 0, col: 0 })).toMatchObject({ turn: 90, width: 2000, height: 3000 });
         const turnedBack = changeAt(start, { row: 1, col: 0 }, turned);
@@ -64,6 +64,25 @@ describe('the draft of the sheets', () => {
         expect(sheetAt(out, { row: 0, col: 0 })).toBeUndefined();
         expect(placedCount(out)).toBe(3);
         expect(changeAt(start, { row: 9, col: 9 }, notPart)).toBe(start);
+    });
+
+    // Finding of 2026-11-22 (LESSONS 759): a sheet carried two cells along a row swapped with each sheet it passed.
+    it('happyPath_aSheetCarriedAlongARowSwapsOnlyWithItsTarget @S-A-HAPPY-TILE-WIZARD-SHIFT-ONE', () => {
+        const start = sheetsOf(sample());
+        const first = carriedShift(start, null, { row: 0, col: 0 }, { row: 0, col: 1 });
+        const second = carriedShift(first.sheets, first.carry, { row: 0, col: 1 }, { row: 1, col: 1 });
+        expect(sheetAt(second.sheets, { row: 1, col: 1 })?.index).toBe(0);
+        expect(sheetAt(second.sheets, { row: 0, col: 1 })?.index).toBe(sheetAt(start, { row: 0, col: 1 })?.index);
+        expect(sheetAt(second.sheets, { row: 0, col: 0 })?.index).toBe(sheetAt(start, { row: 1, col: 1 })?.index);
+    });
+
+    it('badPath_aJourneyAfterAnotherEditStartsAgainFromThatEdit @S-A-BAD-TILE-WIZARD-SHIFT-STALE', () => {
+        const start = sheetsOf(sample());
+        const first = carriedShift(start, null, { row: 0, col: 0 }, { row: 0, col: 1 });
+        const turnedThere = changeAt(first.sheets, { row: 0, col: 1 }, turned);
+        const next = carriedShift(turnedThere, first.carry, { row: 0, col: 1 }, { row: 1, col: 1 });
+        expect(sheetAt(next.sheets, { row: 1, col: 1 })).toMatchObject({ index: 0, turn: 90 });
+        expect(sheetAt(next.sheets, { row: 0, col: 0 })?.index).toBe(sheetAt(start, { row: 0, col: 1 })?.index);
     });
 
     it('happyPath_putBackFillsTheFirstEmptyCell', () => {

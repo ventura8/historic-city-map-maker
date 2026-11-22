@@ -7,6 +7,8 @@ file and is counted. An image stored in a form that cannot be written as is (JBI
 as a TIFF instead, so GDAL can read every page. A file pikepdf cannot open at all (truncated, not a PDF) fails the job with one clear
 line (`apiError.imagery.archiveCorrupt`), never a crash. The pages are written to the job's scratch folder, never beside the originals:
 every placer reads the pages, never the PDF itself (GDAL's PDF driver in the pipeline image can write, not read, 2026-11-12).
+A page whose image is not the page as shown (turned by `/Rotate`, placed stretched, cut into strips) is drawn from its images at full
+resolution with its true aspect instead (`pdfcompose.py`, LESSONS 759).
 """
 
 from dataclasses import dataclass
@@ -16,6 +18,7 @@ from typing import Final
 import pikepdf
 
 from hcm_pipeline.contract import Errors
+from hcm_pipeline.placing.pdfcompose import compose, is_as_stored, placements
 from hcm_pipeline.jobs import StepFailedError
 
 LOCKED_REASON: Final = "pdf-password"
@@ -48,6 +51,15 @@ def _written(image: pikepdf.PdfImage, prefix: Path) -> Path | None:
     return target
 
 
+def _page_file(page: pikepdf.Page, prefix: Path) -> Path | None:
+    """The page's picture: its one image as stored when that is the page, else the page drawn from its images."""
+    drawn = placements(page)
+    if not is_as_stored(page, drawn):
+        return compose(page, drawn, prefix)
+    image = _largest(page)
+    return None if image is None else _written(image, prefix)
+
+
 def _opened(source: Path) -> pikepdf.Pdf | None:
     try:
         return pikepdf.open(source)
@@ -67,8 +79,7 @@ def extract_pages(source: Path, target: Path) -> Pages | None:
     files, missing = [], 0
     with document:
         for number, page in enumerate(document.pages, start=1):
-            image = _largest(page)
-            written = None if image is None else _written(image, target / f"page-{number:04d}")
+            written = _page_file(page, target / f"page-{number:04d}")
             if written is None:
                 missing += 1
                 continue

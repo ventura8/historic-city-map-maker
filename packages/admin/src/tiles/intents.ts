@@ -4,7 +4,19 @@
  */
 import type { TilePointPort, TilesIntentsPort, TilesViewState, TileStepPort } from '@hcm/ui/admin';
 
-import { changeAt, mirrored, notPart, placeAt, putBack, shiftFrom, stepFrom, turned, type DraftSheet, type Grid } from './draft.js';
+import {
+    carriedShift,
+    changeAt,
+    mirrored,
+    notPart,
+    placeAt,
+    putBack,
+    stepFrom,
+    turned,
+    type Carry,
+    type DraftSheet,
+    type Grid,
+} from './draft.js';
 import { canResize, reflowed } from './grid.js';
 import { acceptGuess, pickPoint, type DraftSeam } from './seams.js';
 
@@ -27,6 +39,8 @@ function grid(state: TilesViewState): { readonly rows: number; readonly cols: nu
 }
 
 function sheetEdits(host: TilesHost): Pick<TilesIntentsPort, 'select' | 'shift' | 'place' | 'rotate' | 'flip' | 'takeOut' | 'putBack'> {
+    // The sheet carried by Shift and the arrows, while nothing else changed the sheets.
+    let carry: Carry | null = null;
     const at = (change: (sheet: DraftSheet) => Partial<DraftSheet>): void => {
         host.setSheets(changeAt(host.sheets, host.state.selected, change));
     };
@@ -36,7 +50,9 @@ function sheetEdits(host: TilesHost): Pick<TilesIntentsPort, 'select' | 'shift' 
         },
         shift: (rows, cols) => {
             const target = stepFrom(host.state.selected, rows, cols, grid(host.state));
-            host.setSheets(shiftFrom(host.sheets, host.state.selected, target), target);
+            const shifted = carriedShift(host.sheets, carry, host.state.selected, target);
+            carry = shifted.carry;
+            host.setSheets(shifted.sheets, target);
         },
         place: (index, row, col) => {
             const target = stepFrom({ row, col }, 0, 0, grid(host.state));

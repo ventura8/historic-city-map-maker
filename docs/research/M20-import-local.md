@@ -123,7 +123,8 @@ Per-file rows stay local. A skipped list of up to 500 sample relative paths goes
 2. **Stereo 70 datum.** EPSG:3844 goes through PROJ's Helmert transformation. That is 1–3 m, under the threshold. The official TransDatRO grid is used if PROJ-data ships it (**UNVERIFIED**).
 3. **Output.** `gdalwarp` to EPSG:3857 (bilinear for grey and RGB, nearest then a box pyramid for 1-bit), then the COG, `tiles` and `register`. No matching is needed.
 4. **Verification against OSM.** `check` runs the checkpoint machinery as a *ruler only* (§4). A median offset under the threshold behaves like a normal fit. A larger one sets `georef.disagreesM` and waits for the admin with the note "the file's georeference disagrees with OpenStreetMap by N m". It never auto-publishes.
-5. **The test case.** None of the 5,703 files is georeferenced. The path is built for other cities and tested on synthetic files.
+5. **In the georeferencer** (LESSONS 759): the file is the version's `scan` beside OpenStreetMap, a plain full-size copy is the series' `stitched.tif`, and a 3 x 3 lattice from its own georeference is the suggested pairs, so the owner's points refine or replace the file's georeference (`placing/owner.py` warps by them). A file whose system cannot be told still shows its picture, with no pairs.
+6. **The test case.** None of the 5,703 files is georeferenced. The path is built for other cities and tested on synthetic files.
 
 ### (b) Sheet series with a known grid or nomenclature
 
@@ -216,6 +217,10 @@ These are skipped with a reason shown in the report and nothing is processed:
   PDF driver in the pipeline image writes but cannot read, to open the PDF). A page stored in a form that cannot be written as is
   (JBIG2, an unusual colour space) is decoded once and written as a TIFF; a PDF pikepdf cannot open fails the series with
   `apiError.imagery.archiveCorrupt` naming the file. A page with no image at all (vector only) is still counted and left out.
+- A page whose image is not the page as shown (turned by `/Rotate`, placed stretched, cut into strips) is drawn from its content
+  stream's images by their matrices, at the finest image's density and the page's true aspect, as a TIFF (`placing/pdfcompose.py`,
+  at most 200 million pixels; the plan-ghid 1923 reduced to one page came out 1029 x 1934 px against a landscape page, LESSONS 759).
+  An upright image that is the page is still taken out byte for byte.
 
 ### Atlases and pieces (the two assembly cases)
 
@@ -755,7 +760,8 @@ moved or turned, or a malformed point, is ignored (S-P20-BAD-STITCH-OWNER-MALFOR
 renders the layout and waits again (revision + 1); an accepted or final one is mosaicked and placed whatever its verdict
 (S-P20-HAPPY-STITCH-OWNER). The answer stays in `help` through every later wait: `output.wait_for_help` carries `help.layoutAnswer` into
 the new `help` in the same write, so a retry of `place` or Locate again lays the series out the owner's way again, and no crash between
-two writes drops it.
+two writes drops it. Nor does an update: `imagery.tick`'s relocate never searches again a version holding `help.layoutAnswer`
+(S-A69-BAD-AUTO-RELOCATE-OWNER-LAYOUT, LESSONS 759).
 
 ### 19.9 Targets and measurements
 
@@ -802,7 +808,7 @@ version live, `layout.json` and the three pictures from the private bucket (`pac
 
 | Step | Element | Behaviour |
 | --- | --- | --- |
-| 1 Order | `packages/ui/src/admin/tiles/tile-grid.ts` | The thumbnails in the grid, each with its source as a badge; drag a sheet onto a cell with a mouse or a pen (the sheet there swaps), or choose it, press **Move** and tap the cell (one pointer, no drag), or a roving tabindex: the arrows choose a cell, Shift and the arrows move its sheet, R turns, F mirrors, X takes it out of the map; the left-out sheets with **Put back**. Each change is said in a live region. The grid pans in its own frame on a phone: a touch never starts a drag (`touch-action: pan-x pan-y`). |
+| 1 Order | `packages/ui/src/admin/tiles/tile-grid.ts` | The thumbnails in the grid, each with its source as a badge; drag a sheet onto a cell with a mouse or a pen (the sheet there swaps), or choose it, press **Move** and tap the cell (one pointer, no drag), or a roving tabindex: the arrows choose a cell, Shift and the arrows move its sheet (only it: each step swaps with the target cell's sheet from where the journey began, the sheets passed stay put, LESSONS 759), R turns, F mirrors, X takes it out of the map; the left-out sheets with **Put back**. Each change is said in a live region. The grid pans in its own frame on a phone: a touch never starts a drag (`touch-action: pan-x pan-y`). |
 | 2 Seams | `seam-pair.ts` | Each weak or missing seam's two strips with the guess as a dot (a missing seam may have none, and says so); **Accept the guess** (Enter on the pair) or one point on each strip: a click, or the strip focused, a cross moved with the arrows (Shift: farther) and Space or Enter, said in a live region; **Next seam** (N). A seam whose sheet the owner then moves, turns, mirrors or takes out is dropped (the next preview asks it again). |
 | 3 Preview | `tile-preview.ts` | The layout from the thumbnails at once; **Make the real preview** sends the answer with `preview` and waits for the next revision; the joined picture and the meter (`role="meter"` per figure the verdict reads, with its words) and an alert on a poor layout. |
 | 4 Points | `hcm-tiles-page.ts` | **Place it on the map**: `imagery.acceptLayout` when nothing changed, `imagery.saveLayout` without `preview` otherwise; then **Open the georeferencer**. Off while every sheet is out. |
@@ -848,7 +854,7 @@ keeps no stitched picture or `scan`), and no Run again existed.
 | Pipeline entry | `pipeline/src/hcm_pipeline/steps/place.py` (`relaid`), `model.py` | A job with `relayout` skips the class placer and the owner's pairs: with a `help.layoutAnswer` it runs `owner_layout.place` (a preview waits with `layout-check`; an accepted answer mosaics); without one it waits with the automatic proposal (`autoplace.wait_layout`). The stitching algorithm itself is untouched. From there the wizard, `imagery.saveLayout` and `imagery.acceptLayout` work as in §19.10, and the accepted mosaic is the new version's `scan` (with `scan-tiles.bin`) for points. |
 | Version page | `packages/ui/src/admin/imagery/version-detail.ts` | **Fix the tiles** on a version flagged `relayoutable` (also a series parked for points, §19.17); the notice says the new version opens from Work once the computer has laid out its sheets and that the version on the map stays until the new one is approved. |
 | Wizard | `packages/ui/src/admin/tiles/empty-cells.ts` | Below **Sheets left out** (dropped by the layout, with their reasons), **Cells with no sheet** names each empty cell of the grid by row and column: no sheet of the archive for it, or one of the sheets left out belongs there. |
-| Georeferencer | `packages/admin/src/georef/state.ts`, `packages/ui/src/admin/georef/georef-panes.ts` | An archive series with no `scan` but a `help.stitched` shows the joined picture to check (`series.stitchedOnly`, not editable, a note with **Open the series**); with neither, the pane says the series was put on the map sheet by sheet and points to Fix the tiles instead of "The scan cannot be shown". The tile wizard's "no longer waits" text points there too. |
+| Georeferencer | `packages/admin/src/georef/state.ts`, `packages/ui/src/admin/georef/georef-panes.ts` | An archive series with no `scan` but a `help.stitched` shows the joined picture to check, loaded again whenever its path, size or layout revision changes, so a relayout shows without a reload (`georef-pictures.ts`, LESSONS 759) (`series.stitchedOnly`, not editable, a note with **Open the series**); with neither, the pane says the series was put on the map sheet by sheet and points to Fix the tiles instead of "The scan cannot be shown". The tile wizard's "no longer waits" text points there too. |
 
 To fix the live 1:500: open Imagery, the series' version `ar-mwgcdw8s-s-b250f2e03a5f`, **Fix the tiles**; keep "Run on my computer"
 on the computer that holds `harti.zip`; when the new version waits, open it from Work, arrange the sheets (put back what belongs in

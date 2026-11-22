@@ -13,6 +13,8 @@
  * (`JobDoc.placingPoints`, whatever its age) keeps waiting: a search would refuse their Save and reload the page under them.
  * Finding of 2026-11-14 (1864 and 1871 Pappasoglu, `docs/LESSONS.md`): a version that holds the owner's saved pairs is never
  * searched again by an update either; the update re-ran those series and their points were gone. Only **Locate again** asks it.
+ * Finding of 2026-11-22 (1846 atlas, plan-ghid 1923, `docs/LESSONS.md` 759): nor is a tile series that holds the owner's saved
+ * layout (`help.layoutAnswer`): the search dropped `help` and laid the series out again by order and seams.
  */
 import { FIRESTORE_PATHS, jobDocSchema, layerVersionDocSchema, type JobDoc } from '@hcm/shared';
 
@@ -57,6 +59,8 @@ async function relocateOne(deps: RelocateDeps, cityId: string, frame: StoredDocu
         const version = await deps.documents.get(FIRESTORE_PATHS.layerVersion(cityId, versionId), layerVersionDocSchema);
         if (holdsOwnerPairs(version)) {
             deps.log.info("a parked version keeps the owner's pairs: not searched again", { cityId, versionId });
+        } else if (version?.help?.layoutAnswer !== undefined) {
+            deps.log.info("a parked version keeps the owner's tile layout: not searched again", { cityId, versionId });
         } else {
             await locateAgain(deps, { cityId, versionId, uid: IMAGERY_WRITER, message: MESSAGE });
         }

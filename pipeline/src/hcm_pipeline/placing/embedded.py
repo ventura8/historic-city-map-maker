@@ -9,6 +9,10 @@
 4. A ruler, not a fit: its junctions are measured against OpenStreetMap's. A median offset within `RULER_LIMIT_M` behaves as a fit; a
    larger one waits for a person ("disagrees with OpenStreetMap by N m"), and never publishes on its own. Without OpenStreetMap, the
    report carries no figure (and the approval waits for a look).
+5. Shown in the georeferencer (finding of 2026-11-22, LESSONS 759: it opened with "Placed sheet by sheet, so no single picture"): the
+   file's pixels are the version's `scan` (at most `SCAN_MAX_PX` long) beside the city's OpenStreetMap lines, a plain full-size copy
+   is the series' `stitched.tif`, and a lattice of `LATTICE` x `LATTICE` pairs from the file's own georeference are its suggestions,
+   so the owner's points refine or replace it (`placing/owner.py` warps by them instead).
 """
 
 import math
@@ -21,10 +25,11 @@ from hcm_pipeline.geo import Grid, MercatorBox
 from hcm_pipeline.jobs import JobContext, StepResult
 from hcm_pipeline.placing.checks import Checked, checked
 from hcm_pipeline.placing.fine import CHECK_RATIO, nearest
-from hcm_pipeline.placing.output import Placement, finish, resolution_of, wait_for_help
-from hcm_pipeline.placing.raster_io import normalised
+from hcm_pipeline.placing.output import Placement, finish, resolution_of, suggestions, wait_for_help
+from hcm_pipeline.placing.raster_io import Pair, normalised, read_working
 from hcm_pipeline.placing.reference import city_window, osm_reference
 from hcm_pipeline.placing.series import SeriesJob, series_of
+from hcm_pipeline.placing.stitched import SCAN_MAX_PX, STITCHED, for_georeferencer
 from hcm_pipeline.placing.streets import street_network
 from hcm_pipeline.raster import gdal, osr
 from hcm_pipeline.rasters import GTIFF_OPTIONS, WEB_MERCATOR, WGS84, open_raster, srs_wkt
@@ -34,6 +39,8 @@ UTM_NORTH: Final = 32600
 RULER_LIMIT_M: Final = 15.0
 RULER_PX: Final = 2000
 NEIGHBOURS: Final = 2
+# The file's own georeference offered to the georeferencer as this many pairs a side.
+LATTICE: Final = 3
 NO_SYSTEM: Final = "This file's world file has no .prj and its coordinate system could not be told: name it in the report."
 NO_WINDOW: Final = "The city has no bounds to check this file against: set them in Settings, then retry."
 
@@ -138,13 +145,19 @@ def _corner_gcps(path: Path) -> list[gdal.GCP]:
     return [] if transform is None else [gdal.GCP(*_at(transform, x, y), 0.0, x, y) for x, y in corners]
 
 
-def warp_embedded(path: Path, system: str, target: Path, resolution: float, nearest_pixels: bool) -> Path:
-    """The file warped from its own system to EPSG:3857 (by its world file's corners when its tags have no placement)."""
+def _placed(path: Path, system: str) -> tuple[str, str]:
+    """The file as an 8-bit VRT and that VRT placed by its world file's corners when its tags have none; the caller unlinks both."""
     vrt = normalised(path)
     placed = vrt.replace(".vrt", "-placed.vrt")
+    gcps = [] if _own(path) is not None else _corner_gcps(path)
+    gdal.Translate(placed, vrt, format="VRT", **({"GCPs": gcps, "outputSRS": system} if gcps else {})).Close()
+    return vrt, placed
+
+
+def warp_embedded(path: Path, system: str, target: Path, resolution: float, nearest_pixels: bool) -> Path:
+    """The file warped from its own system to EPSG:3857 (by its world file's corners when its tags have no placement)."""
+    vrt, placed = _placed(path, system)
     try:
-        gcps = [] if _own(path) is not None else _corner_gcps(path)
-        gdal.Translate(placed, vrt, format="VRT", **({"GCPs": gcps, "outputSRS": system} if gcps else {})).Close()
         options = {"xRes": resolution, "yRes": resolution, "dstAlpha": True, "creationOptions": list(GTIFF_OPTIONS)}
         resample = "near" if nearest_pixels else "bilinear"
         gdal.Warp(str(target), placed, srcSRS=system, dstSRS=srs_wkt(WEB_MERCATOR), resampleAlg=resample, **options).Close()
@@ -152,6 +165,55 @@ def warp_embedded(path: Path, system: str, target: Path, resolution: float, near
         gdal.Unlink(placed)
         gdal.Unlink(vrt)
     return target
+
+
+def own_pairs(path: Path, system: str, scale: float) -> list[Pair]:
+    """A lattice of the file's own places: each pixel in the scan's pixels (`scale` scan pixels a file pixel) and its EPSG:3857
+    place."""
+    vrt, placed = _placed(path, system)
+    try:
+        dataset = gdal.Open(placed)
+        width, height = dataset.RasterXSize, dataset.RasterYSize
+        transformer = gdal.Transformer(dataset, None, [f"SRC_SRS={system}", f"DST_SRS={srs_wkt(WEB_MERCATOR)}"])
+        steps = [index / (LATTICE - 1) for index in range(LATTICE)]
+        pairs = [_pair(transformer, (fx * width, fy * height), scale) for fy in steps for fx in steps]
+        dataset.Close()
+    finally:
+        gdal.Unlink(placed)
+        gdal.Unlink(vrt)
+    return [pair for pair in pairs if pair is not None]
+
+
+def _pair(transformer: gdal.Transformer, pixel: tuple[float, float], scale: float) -> Pair | None:
+    ok, (mx, my, _) = transformer.TransformPoint(0, pixel[0], pixel[1])
+    return Pair(pixel[0] * scale, pixel[1] * scale, mx, my) if ok else None
+
+
+def _plain_copy(path: Path, target: Path) -> Path:
+    """The file as a plain 8-bit TIFF, its own georeference taken off (the owner's pairs place it)."""
+    vrt = normalised(path)
+    try:
+        gdal.Translate(str(target), vrt, format="GTiff", creationOptions=list(GTIFF_OPTIONS)).Close()
+    finally:
+        gdal.Unlink(vrt)
+    dataset = gdal.Open(str(target), gdal.GA_Update)
+    dataset.SetGeoTransform((0.0, 1.0, 0.0, 0.0, 0.0, 1.0))
+    dataset.SetProjection("")
+    dataset.Close()
+    return target
+
+
+def show_in_georeferencer(ctx: JobContext, path: Path, system: str | None) -> None:
+    """The file as the version's scan, its full-size copy as the series' picture and its own georeference as suggested pairs (none
+    while its coordinate system is unknown: the owner's points place it)."""
+    plain = _plain_copy(path, ctx.local(STITCHED))
+    ctx.publish(plain, ctx.work_file(STITCHED), "image/tiff")
+    working = read_working(plain, SCAN_MAX_PX)
+    for_georeferencer(ctx, working.image)
+    if system is None:
+        return
+    pairs = own_pairs(path, system, 1.0 / working.scale)
+    ctx.update_version(suggestions(ctx, pairs, [1.0] * len(pairs), len(pairs)))
 
 
 def _own(path: Path) -> GeoTransform | None:
@@ -205,6 +267,7 @@ class EmbeddedPlacer:
         series = series_of(ctx)
         window = city_window(ctx)
         system = None if window is None else system_of(series.sheets[0].path, window)
+        show_in_georeferencer(ctx, series.sheets[0].path, system)
         if system is None:
             return wait_for_help(ctx, "low-confidence", NO_WINDOW if window is None else NO_SYSTEM)
         warped = warp_embedded(series.sheets[0].path, system, ctx.local("warped.tif"), resolution_of(ctx.job.params), series.nearest)

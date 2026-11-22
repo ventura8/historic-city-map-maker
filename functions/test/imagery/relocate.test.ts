@@ -173,6 +173,30 @@ describe('relocateParked', () => {
         );
     });
 
+    // Finding of 2026-11-22 (1846 atlas, plan-ghid 1923; LESSONS 759): an update never re-lays out a series the owner arranged.
+    it('badPath_aSeriesHoldingTheOwnersSavedLayoutIsNotSearchedAgainAndKeepsIt @S-A69-BAD-AUTO-RELOCATE-OWNER-LAYOUT', async () => {
+        const w = await world([['f1', OLD]]);
+        const layoutAnswer = {
+            revision: 3,
+            sheets: [{ index: 0, row: 0, col: 1, turn: 90 as const, flip: false }],
+            seams: [],
+            preview: false,
+            accepted: true as const,
+            by: 'u-admin',
+            at: at(NOW),
+        };
+        const help = { reason: 'layout-check' as const, note: 'n', at: at(NOW), layoutAnswer };
+        await seedVersion(w, 'f1', needsGcpsVersion({ origin: 'usgs', layerId: 'layer-f1', help }));
+
+        await relocateParked(w.deps, CITY);
+
+        expect(await readJob(w, 'f1')).toMatchObject({ status: 'awaiting_gcps', searchedWith: NEW });
+        expect((await readVersion(w, 'f1'))?.help?.layoutAnswer).toEqual(layoutAnswer);
+        expect(w.deps.recording.records.map((record) => record.message)).toContain(
+            "a parked version keeps the owner's tile layout: not searched again",
+        );
+    });
+
     // Review of M18 item 3: the record setup/status can lag behind the job; only the job's image sends a frame searching.
     it('badPath_whileOnlyTheRecordNamesAnImageNothingMovesAndNothingIsRemembered @S-A69-BAD-AUTO-RELOCATE-RECORD', async () => {
         const w = await world([['f1', OLD], ['f2']], null);
