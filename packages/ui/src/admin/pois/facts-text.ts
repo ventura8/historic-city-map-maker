@@ -17,12 +17,7 @@ const TODAY = new Set(['azi', 'today']);
 
 /** The years of a span's two parts, an empty part left out. */
 function yearsFrom(start: string | undefined, end: string | undefined): Omit<DatedLine, 'text'> {
-    return Object.fromEntries(
-        [
-            ['yearStart', start],
-            ['yearEnd', end],
-        ].flatMap(([key, value]) => (value === undefined ? [] : [[key, Number(value)]])),
-    );
+    return { ...(start === undefined ? {} : { yearStart: Number(start) }), ...(end === undefined ? {} : { yearEnd: Number(end) }) };
 }
 
 /** The years a head (`1906-1940`, `1906-`, `-1940`, `1950`) names; null when it is not one. */
