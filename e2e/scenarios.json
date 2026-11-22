@@ -24990,9 +24990,9 @@
             "path": "happy",
             "title": "A GeoJSON file's facts are imported and exported",
             "asserts": "properties.facts valid -> the planned place carries them and the export writes them back; the place editor's About the place edits them",
-            "tier": "e2e-admin",
-            "status": "planned",
-            "notes": "Unit: packages/admin/test/pois/geojson.test.ts, packages/ui/test/admin/pois/facts-text.test.ts; rules: firebase/rules-tests/test/pois.test.ts."
+            "tier": "rules",
+            "status": "exists",
+            "notes": "Test: firebase/rules-tests/test/pois.test.ts. Unit: packages/admin/test/pois/geojson.test.ts, packages/ui/test/admin/pois/facts-text.test.ts; rules: firebase/rules-tests/test/pois.test.ts."
         },
         {
             "id": "S-A200-BAD-FACTS-IMPORT",
@@ -25001,9 +25001,9 @@
             "path": "bad",
             "title": "Invalid facts in a file are dropped, the place kept",
             "asserts": "properties.facts with a bad LMI code -> the place is planned without facts; a line the editor cannot read keeps its text",
-            "tier": "e2e-admin",
-            "status": "planned",
-            "notes": "Unit: packages/admin/test/pois/geojson.test.ts, packages/ui/test/admin/pois/facts-text.test.ts."
+            "tier": "rules",
+            "status": "exists",
+            "notes": "Test: firebase/rules-tests/test/pois.test.ts. Unit: packages/admin/test/pois/geojson.test.ts, packages/ui/test/admin/pois/facts-text.test.ts."
         }
     ]
 }

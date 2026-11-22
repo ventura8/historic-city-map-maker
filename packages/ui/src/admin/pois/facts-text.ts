@@ -6,9 +6,9 @@
 
 export interface DatedLine {
     readonly text: string;
-    readonly yearStart?: number;
-    readonly yearEnd?: number;
-    readonly current?: true;
+    readonly yearStart?: number | undefined;
+    readonly yearEnd?: number | undefined;
+    readonly current?: boolean | undefined;
 }
 
 const YEARS = /^\s*(\d{4})?\s*[-–]\s*(\d{4})?\s*:\s*(.+)$/;
