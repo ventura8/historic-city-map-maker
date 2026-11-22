@@ -9,7 +9,7 @@ import { MAX_POI_PHOTOS, MAX_POIS, type UiLocale } from '@hcm/shared';
 import { html, nothing, type TemplateResult } from 'lit';
 
 import type { ListStatePort } from '../area-port.js';
-import { errorTemplate } from '../editing/states.js';
+import { errorTemplate, listWindow } from '../editing/states.js';
 import { localized, poiText, reasonText, SHAPE_KEYS } from './poi-text.js';
 import type { CategoryItemPort, ImportStatePort, PhotoChoicePort, PoiShapePort } from './pois-port.js';
 
@@ -155,7 +155,7 @@ interface PickerHandlers {
 /** The picker's list before its read started. */
 const NOT_READ: ListStatePort<PhotoChoicePort> = { status: 'loading', items: [], hasMore: false, reconnecting: false, failure: null };
 
-/** What the read gave so far: the words when the city has none, and Show more while there are others. */
+/** What the read gave: the words when the city has none, else every photo in a window that grows as the reader scrolls. */
 function pickerList(
     locale: UiLocale,
     photos: ListStatePort<PhotoChoicePort>,
@@ -163,20 +163,17 @@ function pickerList(
     handlers: PickerHandlers,
 ): TemplateResult {
     return html`${
-            photos.status === 'ready' && photos.items.length === 0
-                ? html`<p class="note">${poiText(locale, 'adminContent.pois.photoPicker.empty')}</p>`
-                : nothing
-        }
-        <ul class="picker">
-            ${photos.items.map((photo) => photoOption(locale, photo, chosen, handlers.toggle))}
-        </ul>
-        ${
-            photos.hasMore
-                ? html`<hcm-button class="more-photos" variant="text" @click=${handlers.more}
-                      >${poiText(locale, 'adminContent.common.more')}</hcm-button
-                  >`
-                : nothing
-        }`;
+        photos.status === 'ready' && photos.items.length === 0
+            ? html`<p class="note">${poiText(locale, 'adminContent.pois.photoPicker.empty')}</p>`
+            : nothing
+    }
+    ${listWindow(locale, photos.items, photos.hasMore, {
+        more: handlers.more,
+        items: (shown) =>
+            html`<ul class="picker">
+                ${shown.map((photo) => photoOption(locale, photo, chosen, handlers.toggle))}
+            </ul>`,
+    })}`;
 }
 
 /** The photo picker: the city's photos, newest first, a page at a time, at most `MAX_POI_PHOTOS` chosen. */

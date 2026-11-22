@@ -117,6 +117,7 @@ class InboxStore implements AreaStore<InboxState, InboxIntents> {
         this.#list = new LiveList({
             ...{ store, clock, denied, schema: inboxItemDocSchema, map: rowOf, pageSize: INBOX_PAGE_SIZE },
             collection: FIRESTORE_PATHS.inbox(this.#uid()),
+            whole: true,
             changed: (list) => {
                 this.#cell.update({ list });
             },

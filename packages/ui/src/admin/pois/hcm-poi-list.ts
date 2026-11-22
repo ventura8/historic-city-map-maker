@@ -1,7 +1,7 @@
 /**
  * `<hcm-poi-list>`: the places page's list pane (docs/research/M2c-interfaces.md §1.5, §7.1, §7.4): the title, Add place
  * (it asks which shape: Point, Line, Area), import and export of GeoJSON, the category chips and Unpublished, a search of
- * the loaded page, the selection's bar once a place is selected (`../editing/bulk-bar.ts`), and the rows (a check box,
+ * every place, the count, the selection's bar once a place is selected (`../editing/bulk-bar.ts`), and the rows (a check box,
  * the category's swatch, the title, the years or, for a place stored without one, Year missing, the shape, Unpublished).
  * Fires `hcm-add` with `{shape}`, `hcm-import` with `{file}`, `hcm-export` with
  * `{selection}` and `hcm-bulk` with `{action}`; filters and the selection go to the area's intents.
@@ -47,7 +47,7 @@ function previewOf(
     return { title, category, yearStart, yearEnd, yearSeen, published };
 }
 
-/** The places the filter shows of the loaded page (the store queries one filter; the search and the rest apply here). */
+/** The places the filter shows of every place read (the store queries one filter; the search and the rest apply here). */
 function visiblePlaces(view: PoisViewState): readonly PoiItemPort[] {
     const search = view.filter.search.trim().toLocaleLowerCase('ro');
     return withDraft(view.list.items, view.editor).filter(
@@ -105,11 +105,12 @@ export class HcmPoiList extends LitElement {
             ${listBody(
                 this.locale,
                 view.list,
-                { empty: 'adminContent.pois.empty', icon: 'place' },
+                { empty: 'adminContent.pois.empty', icon: 'place', count: 'adminContent.pois.count' },
                 {
                     retry: () => this.intents?.retry(),
                     more: () => this.intents?.more(),
-                    items: () => this.#rows(view),
+                    shown: () => visiblePlaces(view),
+                    items: (places) => this.#rows(view, places),
                 },
             )}`;
     }
@@ -258,8 +259,7 @@ export class HcmPoiList extends LitElement {
         });
     }
 
-    #rows(view: PoisViewState): TemplateResult {
-        const places = visiblePlaces(view);
+    #rows(view: PoisViewState, places: readonly PoiItemPort[]): TemplateResult {
         if (places.length === 0) {
             return html`<p class="note pane">${poiText(this.locale, 'adminContent.pois.noMatch')}</p>`;
         }

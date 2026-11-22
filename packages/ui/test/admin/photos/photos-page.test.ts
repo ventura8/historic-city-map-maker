@@ -90,15 +90,14 @@ describe('<hcm-photos-page>: the list', () => {
         const from = deep(element, '#search-yearFrom') as HTMLInputElement;
         from.value = '1930';
         from.dispatchEvent(new Event('input'));
-        deep(deepAll(element, '.actions hcm-button').at(-1) ?? element, 'button').click();
 
-        expect(photos.calls.filter((call) => !call.startsWith('open') && !call.startsWith('attachMap'))).toEqual([
+        expect(photos.calls.filter((call) => call !== 'more' && !call.startsWith('open') && !call.startsWith('attachMap'))).toEqual([
             'setFilter "rightsReview"',
             'setFilter "all"',
             'search {"text":"piata","yearFrom":null,"yearTo":null}',
             'search {"text":"piata","yearFrom":1930,"yearTo":null}',
-            'more',
         ]);
+        expect(photos.calls).toContain('more');
         expect((chips[0] as HTMLElement & { selected: boolean }).selected).toBe(true);
     });
 

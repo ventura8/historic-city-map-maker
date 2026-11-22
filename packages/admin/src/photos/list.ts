@@ -36,6 +36,7 @@ export class PhotoList {
             store: deps.store,
             clock: deps.clock,
             collection: FIRESTORE_PATHS.photos(deps.cityId),
+            whole: true,
             schema: photoDocSchema,
             map: (stored) => stored,
             changed: (list) => {

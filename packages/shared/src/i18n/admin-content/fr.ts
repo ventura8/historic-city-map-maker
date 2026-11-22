@@ -18,6 +18,7 @@ export const fr: Readonly<Partial<Record<AdminContentKitKey, string>>> = {
     'adminContent.common.loading': 'Chargement…',
     'adminContent.common.retry': 'Réessayez.',
     'adminContent.common.more': 'Afficher plus',
+    'adminContent.common.count': 'Dans la liste : {count}',
     'adminContent.common.back': 'Retour à la liste',
     'adminContent.common.close': 'Fermer',
     'adminContent.common.cancel': 'Annuler',

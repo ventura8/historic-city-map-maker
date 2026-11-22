@@ -75,7 +75,7 @@ describe('<hcm-pois-page>: the list', () => {
         await updated(element);
 
         expect(deepAll(element, 'a.row')).toEqual([]);
-        expect(deepText(element)).toContain('No loaded place matches the filter.');
+        expect(deepText(element)).toContain('No place matches the filter.');
     });
 
     it('happyPath_addPlaceAsksTheShapeThenOpensTheNewPlace', async () => {
@@ -176,14 +176,14 @@ describe('<hcm-pois-page>: bulk actions and files', () => {
     it('badPath_aListThatFailsOffersTryAgainAndMore', async () => {
         const store = area(poisState({ list: ready([place()], { hasMore: true, reconnecting: true }) }));
         const { element } = await poisPage(store, { locale: 'ro' });
-        press(deep(element, '.more hcm-button'));
         store.set({
             list: { status: 'error', items: [], hasMore: false, reconnecting: false, failure: { kind: 'failed', code: 'internal' } },
         });
         await updated(element);
         press(deep(element, '.alert + .actions hcm-button'));
 
-        expect(asked(store)).toEqual(['more', 'retry']);
+        expect(asked(store).filter((call) => call !== 'more')).toEqual(['retry']);
+        expect(asked(store)).toContain('more');
         expect(deepText(element)).toContain('Încearcă din nou');
     });
 });

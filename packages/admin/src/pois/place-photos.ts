@@ -37,6 +37,7 @@ export class PlacePhotos {
         this.#list = new LiveList({
             ...{ store, clock, denied },
             collection: FIRESTORE_PATHS.photos(cityId),
+            whole: true,
             schema: photoDocSchema,
             map: photoChoiceOf,
             changed: (photos) => {

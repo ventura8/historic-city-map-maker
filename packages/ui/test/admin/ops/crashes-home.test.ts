@@ -38,8 +38,9 @@ describe('<hcm-crashes-list-page>', () => {
             'noopener noreferrer',
         ]);
         rows[1]?.click();
-        deep(deep(element, '.more'), 'hcm-button').click();
-        expect(crashes.calls.filter((call) => !call.startsWith('open'))).toEqual(['select "g2"', 'more']);
+        // The end of the list in view asks for the next page by itself; the button is the same step for a keyboard.
+        expect(crashes.calls.filter((call) => call !== 'more' && !call.startsWith('open'))).toEqual(['select "g2"']);
+        expect(crashes.calls).toContain('more');
         expect(await axeViolations(element)).toEqual([]);
     });
 

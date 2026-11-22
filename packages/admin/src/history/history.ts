@@ -137,6 +137,7 @@ class HistoryStore implements AreaStore<HistoryState, HistoryIntents> {
         this.#recent = new LiveList({
             ...common,
             collection: 'history',
+            whole: true,
             changed: (recent) => {
                 this.#recentChanged(recent);
             },
@@ -145,7 +146,7 @@ class HistoryStore implements AreaStore<HistoryState, HistoryIntents> {
             this.#documentChanged();
         };
         this.#current = new LiveDoc({ store, clock, denied, schema: currentDocumentSchema, changed });
-        this.#entries = new LiveList({ ...common, collection: '', changed });
+        this.#entries = new LiveList({ ...common, collection: '', whole: true, changed });
         this.intents = this.#intents();
     }
 

@@ -57,7 +57,7 @@ describe('Find: a narrowing filter reads past the first page', () => {
         imagery.intents.setFilters({ datasets: ['landsat_tm_c2_l1'] });
         await settle();
 
-        expect(firstPage).toBe(100);
+        expect(firstPage).toBe(123);
         expect(imagery.state.visible.map((scene) => [scene.year, scene.status])).toEqual([
             [1984, 'imported'],
             [1991, 'imported'],

@@ -503,7 +503,6 @@ describe('<hcm-layers-page> focus and navigation', () => {
         await updated(element);
 
         expect(element.shadowRoot?.activeElement?.matches('h2[data-detail-heading]')).toBe(true);
-        deep(deep(element, '.more'), 'button').click();
         deep(element, 'hcm-list-detail').dispatchEvent(new CustomEvent('hcm-back'));
         expect(app.named('navigate')).toEqual(['navigate {"id":"layers","params":[]}']);
     });

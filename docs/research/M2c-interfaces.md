@@ -142,6 +142,15 @@ Each is a state of the tour inventory (§12.2), with its own text in both langua
 - **not found** (a routed id with no document: a link to History when the document has a history);
 - **unavailable map** (no `adminToken` in `setup/status`: the map area explains it with a link to `#/setup/mapbox`;
   every field and the vertex list still work).
+- **long lists** (owner, 2026-11-22: the 315 places of "Disappeared streets" needed Show more after Show more): every
+  admin list is read whole. A `LiveList` with `whole: true` answers its first page fast, then asks once for up to
+  `WHOLE_LIMIT` (2,000) documents, so search and filters see every item and nobody presses Show more; the page shows
+  the count ("Locuri: 315", `countLine`, a `+` past what was read) and draws the rows in `<hcm-list-window>` a window of
+  200 at a time, the next window and then the next documents asked as the end scrolls into view (an
+  `IntersectionObserver`). The DOM holds only what the reader scrolled to; the end's Show more button stays only as the
+  keyboard's fallback. Places, Photos, Stories, Jobs, History, the inbox, the Imagery Find and Work lists, their orders
+  and jobs, the photo picker and the crash list all go through it (`packages/ui/src/admin/editing/states.ts`
+  `listBody` / `listWindow`).
 
 ### 1.5 Bulk actions
 

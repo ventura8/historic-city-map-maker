@@ -20,6 +20,7 @@ export const en: Readonly<Record<AdminContentKitKey, string>> = {
     'adminContent.common.loading': 'Loading…',
     'adminContent.common.retry': 'Try again',
     'adminContent.common.more': 'Show more',
+    'adminContent.common.count': 'In the list: {count}',
     'adminContent.common.back': 'Back to the list',
     'adminContent.common.close': 'Close',
     'adminContent.common.cancel': 'Cancel',

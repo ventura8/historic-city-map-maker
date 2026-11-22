@@ -8,7 +8,6 @@ import type { AdminContentKey, UiLocale } from '@hcm/shared';
 import { html, nothing, type TemplateResult } from 'lit';
 
 import type { ListStatePort, StoreFailurePort } from '../content-port.js';
-import { EMPTY } from '../shell/empty.js';
 import { contentText } from '../shell/text.js';
 
 /** A date and time in the admin's language (`17 oct. 2026, 14:02`). */
@@ -67,6 +66,8 @@ export interface ListTexts {
     readonly icon: string;
     /** The empty state's second line: where the items come from (finding 44 of 2026-11-01). */
     readonly emptyHint?: AdminContentKey;
+    /** The count's sentence ("Places: {count}"; "In the list: {count}" when absent). */
+    readonly count?: AdminContentKey;
 }
 
 /** The empty state: its sentence and, when the list has one, the line that says where the items come from. */
@@ -75,15 +76,54 @@ function emptyTemplate(locale: UiLocale, texts: ListTexts): TemplateResult {
     return html`<hcm-empty-state .icon=${texts.icon} .text=${contentText(locale, texts.empty)} .hint=${hint}></hcm-empty-state>`;
 }
 
+/** "Places: 315": how many items the list holds, with a plus while more wait past what was read. */
+export function countLine(
+    locale: UiLocale,
+    count: number,
+    hasMore: boolean,
+    key: AdminContentKey = 'adminContent.common.count',
+): TemplateResult {
+    const shown = hasMore ? `${String(count)}+` : String(count);
+    return html`<p class="note list-count" role="status">${contentText(locale, key, { count: shown })}</p>`;
+}
+
 /**
- * A list's body: loading before the first answer, the error with Try again, the empty state, or the items and More.
- * The items stay on screen while a filter change reloads them.
+ * Every item of a list in a `<hcm-list-window>`: the rows a window at a time, the next window and the next documents
+ * read as the reader scrolls to the end, the "Show more" button only as the keyboard's fallback.
+ */
+export function listWindow<Item>(
+    locale: UiLocale,
+    items: readonly Item[],
+    hasMore: boolean,
+    handlers: { readonly more?: () => void; readonly items: (items: readonly Item[]) => TemplateResult },
+): TemplateResult {
+    const rows = handlers.items as (items: readonly unknown[]) => TemplateResult;
+    return html`<hcm-list-window
+        .items=${items}
+        .rows=${rows}
+        .hasMore=${hasMore}
+        .more=${handlers.more ?? null}
+        .label=${contentText(locale, 'adminContent.common.more')}
+    ></hcm-list-window>`;
+}
+
+export interface ListHandlers<Item> {
+    readonly retry: () => void;
+    readonly more: () => void;
+    readonly items: (items: readonly Item[]) => TemplateResult;
+    /** The items the search and filters keep, out of every item read (all of them when absent). */
+    readonly shown?: (items: readonly Item[]) => readonly Item[];
+}
+
+/**
+ * A list's body: loading before the first answer, the error with Try again, the empty state, or the count and every
+ * item in a window that grows as the reader scrolls. The items stay on screen while a filter change reloads them.
  */
 export function listBody<Item>(
     locale: UiLocale,
     list: ListStatePort<Item>,
     texts: ListTexts,
-    handlers: { readonly retry: () => void; readonly more: () => void; readonly items: (items: readonly Item[]) => TemplateResult },
+    handlers: ListHandlers<Item>,
 ): TemplateResult {
     if (list.status === 'error') {
         return errorTemplate(locale, list.failure, handlers.retry);
@@ -91,15 +131,8 @@ export function listBody<Item>(
     if (list.items.length === 0) {
         return list.status === 'loading' ? loadingTemplate(locale) : emptyTemplate(locale, texts);
     }
-    return html`${handlers.items(list.items)} ${moreButton(locale, list.hasMore, handlers.more)}`;
-}
-
-function moreButton(locale: UiLocale, hasMore: boolean, more: () => void): TemplateResult {
-    return hasMore
-        ? html`<div class="actions more">
-              <hcm-button variant="text" icon="expand_more" @click=${more}>${contentText(locale, 'adminContent.common.more')}</hcm-button>
-          </div>`
-        : EMPTY;
+    const shown = handlers.shown === undefined ? list.items : handlers.shown(list.items);
+    return html`${countLine(locale, shown.length, list.hasMore, texts.count)} ${listWindow(locale, shown, list.hasMore, handlers)}`;
 }
 
 /** `aria-current="page"` on the selected row's link, nothing on the others. */

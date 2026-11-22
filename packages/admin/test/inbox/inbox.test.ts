@@ -84,7 +84,7 @@ function inbox(world: ContentWorld) {
 }
 
 describe('the list', () => {
-    it('happyPath_theAdminsNotificationsNewestFirstWithMore', () => {
+    it('happyPath_theAdminsNotificationsNewestFirstEveryOneRead', () => {
         const world = contentWorld();
         for (let id = 1; id <= INBOX_PAGE_SIZE + 1; id += 1) {
             world.store.put(itemPath(id), item(id % 15, { link: `#/jobs/${String(id)}` }));
@@ -93,8 +93,8 @@ describe('the list', () => {
         const store = inbox(world);
         store.open([]);
 
-        expect(store.state.list).toMatchObject({ status: 'ready', hasMore: true });
-        expect(store.state.list.items).toHaveLength(INBOX_PAGE_SIZE);
+        expect(store.state.list).toMatchObject({ status: 'ready', hasMore: false });
+        expect(store.state.list.items).toHaveLength(INBOX_PAGE_SIZE + 1);
         expect(store.state.list.items[0]).toMatchObject({
             kind: 'job.failed',
             severity: 'error',
@@ -171,7 +171,7 @@ describe('marking read', () => {
             world.store.put(itemPath(id), item(id % 15));
         }
         const store = inbox(world);
-        expect(store.state.list.items).toHaveLength(INBOX_PAGE_SIZE);
+        expect(store.state.list.items).toHaveLength(total);
 
         const marking = store.intents.markAllRead();
         expect(store.state.marking).toBe(true);

@@ -61,11 +61,11 @@ describe('PhotoList', () => {
         expect(list.state.rows.map((row) => row.id)).toEqual(['b']);
     });
 
-    it('happyPath_moreLoadsOnePageMore', () => {
+    it('happyPath_everyPhotoIsReadWithoutMore', () => {
         const { world, list } = listWorld();
         seedMany(world, 60);
         list.open();
-        expect(list.state).toMatchObject({ loaded: 50, hasMore: true });
+        expect(list.state).toMatchObject({ loaded: 60, hasMore: false });
 
         list.more();
 

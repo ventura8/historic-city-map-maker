@@ -265,7 +265,7 @@ describe('<hcm-empty-state>', () => {
         expect(element.shadowRoot?.querySelector('p')?.textContent).toBe('No changes yet.');
         expect(element.querySelector('button')?.textContent).toBe('Act');
         expect(await axeViolations(element)).toEqual([]);
-        expect(EDITING_TAGS).toEqual(['hcm-list-detail', 'hcm-confirm-dialog', 'hcm-empty-state', 'hcm-overflow-menu']);
+        expect(EDITING_TAGS).toEqual(['hcm-list-detail', 'hcm-confirm-dialog', 'hcm-empty-state', 'hcm-overflow-menu', 'hcm-list-window']);
         document.body.replaceChildren();
     });
 

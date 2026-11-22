@@ -280,7 +280,6 @@ describe('<hcm-settings-page> category list edges', () => {
         const { element } = await page('settings', settings, { params: ['categories'] });
 
         expect(deep(element, '.swatch hcm-icon').getAttribute('name')).toBe('location_on');
-        deep(deep(element, '.more'), 'button').click();
         settings.set({ categories: { ...base.categories, status: 'error', failure: { kind: 'failed', code: 'x' } } });
         await updated(element);
         deep(deep(element, '[slot="detail"] .pane .pane'), 'hcm-button').click();

@@ -15,7 +15,7 @@ import type { AreaPort, ContentPort } from '../content-port.js';
 import { visuallyHidden } from '../../components/styles.js';
 import { AreaPage } from '../editing/area-page.js';
 import { editingStyles } from '../editing/editing-styles.js';
-import { formatWhen, loadingTemplate } from '../editing/states.js';
+import { formatWhen, listWindow, loadingTemplate } from '../editing/states.js';
 import { EMPTY } from '../shell/empty.js';
 import { contentText, noticeOf } from '../shell/text.js';
 import type { CrashesIntentsPort, CrashesViewState, CrashGroupPort, CrashPeriodPort } from './crashes-port.js';
@@ -180,24 +180,16 @@ export class HcmCrashesListPage extends AreaPage<CrashesViewState, CrashesIntent
                 ? loadingTemplate(locale)
                 : html`<hcm-empty-state icon="bug_report" .text=${contentText(locale, 'adminContent.crashes.empty')}></hcm-empty-state>`;
         }
-        return html`<ul class="rows">
-                ${view.groups.map((group) => this.#row(locale, group, group.groupId === view.selected))}
-            </ul>
-            ${this.#more(locale, view)}`;
-    }
-
-    #more(locale: UiLocale, view: CrashesViewState): TemplateResult {
-        if (view.nextPageToken === null) {
-            return EMPTY;
-        }
+        const rows = (groups: typeof view.groups): TemplateResult =>
+            html`<ul class="rows">
+                ${groups.map((group) => this.#row(locale, group, group.groupId === view.selected))}
+            </ul>`;
         const more = (): void => {
-            void this.intents?.more();
+            if (!view.loadingMore) {
+                void this.intents?.more();
+            }
         };
-        return html`<div class="actions more">
-            <hcm-button variant="text" icon="expand_more" ?disabled=${view.loadingMore} @click=${more}
-                >${contentText(locale, 'adminContent.common.more')}</hcm-button
-            >
-        </div>`;
+        return listWindow(locale, view.groups, view.nextPageToken !== null, { more, items: rows });
     }
 
     #failure(locale: UiLocale, view: CrashesViewState): TemplateResult {

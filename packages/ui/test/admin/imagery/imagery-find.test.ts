@@ -121,11 +121,11 @@ describe('<hcm-imagery-page>: Find', () => {
     it('happyPath_moreScenesAndTheTabs', async () => {
         const { element, area } = await imageryPage(imageryState({ scenes: ready([scene()], { hasMore: true }), visible: [scene()] }));
 
-        click(deep(deep(element, '.more'), 'hcm-button'));
         const segments = deep(element, 'hcm-segmented-button');
         deepAll(segments, 'button')[1]?.click();
 
-        expect(calls(area)).toEqual(['more', 'setTab "work"']);
+        expect(calls(area).filter((call) => call !== 'more')).toEqual(['setTab "work"']);
+        expect(calls(area)).toContain('more');
         // Work counts what it lists: the version waiting for the admin and the one in progress (finding 54).
         expect(deepAll(segments, 'button').map((segment) => segment.textContent.trim())).toEqual(['Find', 'Work (2)', 'Upload']);
     });

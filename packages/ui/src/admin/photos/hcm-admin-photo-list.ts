@@ -12,7 +12,7 @@ import { LitElement, html, type TemplateResult } from 'lit';
 
 import { emit } from '../../components/internal.js';
 import { bulkBar } from '../editing/bulk-bar.js';
-import { current, errorTemplate, loadingTemplate, reconnectingStatus } from '../editing/states.js';
+import { current, errorTemplate, listWindow, loadingTemplate, reconnectingStatus } from '../editing/states.js';
 import { EMPTY } from '../shell/empty.js';
 import { contentText } from '../shell/text.js';
 import { FILTER_ORDER, bulkActionText, filterText, localized, messageText, partId, photoHref, photoText, yearsText } from './photo-text.js';
@@ -229,19 +229,17 @@ export class HcmAdminPhotoList extends LitElement {
             return this.#none(locale, view);
         }
         const selection = new Set(list.selection);
-        return html`<p class="note">${photoText(locale, 'adminContent.photos.count', { count: String(list.rows.length) })}</p>
-            <ul class="rows" aria-label=${photoText(locale, 'adminContent.photos.list')}>
-                ${list.rows.map((row) => this.#row(locale, row, selection.has(row.id)))}
-            </ul>
-            ${
-                list.hasMore
-                    ? html`<div class="actions">
-                          <hcm-button variant="text" icon="expand_more" @click=${() => this.intents?.more()}
-                              >${photoText(locale, 'adminContent.photos.more')}</hcm-button
-                          >
-                      </div>`
-                    : EMPTY
-            }`;
+        const rows = (shown: readonly PhotoRowPort[]): TemplateResult =>
+            html`<ul class="rows" aria-label=${photoText(locale, 'adminContent.photos.list')}>
+                ${shown.map((row) => this.#row(locale, row, selection.has(row.id)))}
+            </ul>`;
+        const more = (): void => {
+            this.intents?.more();
+        };
+        return html`<p class="note list-count" role="status">
+                ${photoText(locale, 'adminContent.photos.count', { count: list.hasMore ? `${String(list.rows.length)}+` : String(list.rows.length) })}
+            </p>
+            ${listWindow(locale, list.rows, list.hasMore, { more, items: rows })}`;
     }
 
     /** Loading, no photo at all (the drop zone is the action), or no loaded photo matching the search. */

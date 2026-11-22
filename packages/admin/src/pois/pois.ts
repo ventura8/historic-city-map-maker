@@ -1,6 +1,6 @@
 /**
  * The places area (docs/research/M2c-interfaces.md §7; behaviours A32, A33, A34, A38): `#/pois` lists the city's places
- * (category chips, Unpublished, a search of the loaded page) with every one on the map; `#/pois/<id>` opens a place's
+ * (category chips, Unpublished, a search of every place) with every one on the map; `#/pois/<id>` opens a place's
  * editor (`PlaceEditor`), a new one included before its first Save. Places are drawn with the map's tools or entered
  * in the vertex list, saved published by default, deleted with Undo, changed in bulk, and imported from or exported to
  * GeoJSON. The store is DOM-free: the page hands it the map's host and the chosen file.
@@ -78,11 +78,16 @@ class PoisStore implements AreaStore<PoisState, PoisIntents> {
     constructor(services: PoisServices) {
         this.#services = services;
         this.#cell = new Store<PoisState>(INITIAL_POIS_STATE, services.log);
-        this.#list = liveListOf(services, FIRESTORE_PATHS.pois(services.cityId), { schema: poiDocSchema, map: poiItemOf }, (list) => {
-            this.#cell.update({ list });
-            this.#importer.contextChanged();
-            this.#placesChanged();
-        });
+        this.#list = liveListOf(
+            services,
+            FIRESTORE_PATHS.pois(services.cityId),
+            { schema: poiDocSchema, map: poiItemOf, whole: true },
+            (list) => {
+                this.#cell.update({ list });
+                this.#importer.contextChanged();
+                this.#placesChanged();
+            },
+        );
         const categories = { schema: poiCategoryDocSchema, map: categoryItemOf };
         this.#categories = liveListOf(services, FIRESTORE_PATHS.poiCategories(services.cityId), categories, (categories) => {
             this.#cell.update({ categories });

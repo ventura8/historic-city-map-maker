@@ -125,6 +125,19 @@ function namedSceneDoc(
     });
 }
 
+/** The city's jobs, read whole, each new state handed on as the progress of each by its id. */
+function jobsList(
+    base: Omit<LiveListDeps<JobDoc, JobProgress>, 'schema' | 'map' | 'changed'>,
+    changed: (patch: FeedsPatch) => void,
+): LiveList<JobDoc, JobProgress> {
+    return new LiveList({
+        ...{ ...base, schema: jobDocSchema, map: jobProgressOf, pageSize: SCENE_PAGE, whole: true },
+        changed: (list) => {
+            changed({ jobs: Object.fromEntries(list.items.map((job) => [job.id, job])) });
+        },
+    });
+}
+
 /** M8: the plan of the dates, which reports its rows (none without a plan, or one that fails its schema). */
 /** A live list of the city's layer versions, each new state handed on as the patch `patch` makes of it (t130: the cancelled ones apart). */
 function versionList(
@@ -133,7 +146,7 @@ function versionList(
     changed: (patch: FeedsPatch) => void,
 ): LiveList<LayerVersionDoc, VersionItem> {
     return new LiveList({
-        ...{ ...base, schema: layerVersionReadSchema, map: versionItemOf },
+        ...{ ...base, schema: layerVersionReadSchema, map: versionItemOf, whole: true },
         changed: (list) => {
             changed(patch(list));
         },
@@ -201,24 +214,20 @@ export class ImageryFeeds {
         this.#scenes = new LiveList({
             ...scenes,
             pageSize: SCENE_PAGE,
+            whole: true,
             map: sceneItemOf,
             changed: (list) => {
                 changed({ scenes: list });
             },
         });
-        this.#orders = ordersList({ ...scenes, pageSize: SCENE_PAGE }, (orders) => {
+        this.#orders = ordersList({ ...scenes, pageSize: SCENE_PAGE, whole: true }, (orders) => {
             changed({ orders });
         });
         this.#named = namedSceneDoc(base, changed);
         const versions = { ...base, collection: FIRESTORE_PATHS.layerVersions(cityId) };
         this.#versions = versionList(versions, (list) => ({ versions: list }), changed);
         this.#cancelled = versionList(versions, (list) => ({ cancelled: list }), changed);
-        this.#jobs = new LiveList({
-            ...{ ...base, collection: FIRESTORE_PATHS.jobs(cityId), schema: jobDocSchema, map: jobProgressOf, pageSize: SCENE_PAGE },
-            changed: (list) => {
-                changed({ jobs: Object.fromEntries(list.items.map((job) => [job.id, job])) });
-            },
-        });
+        this.#jobs = jobsList({ ...base, collection: FIRESTORE_PATHS.jobs(cityId) }, changed);
         this.#guard = new GuardFeed(services, (guard) => {
             changed({ guard });
         });

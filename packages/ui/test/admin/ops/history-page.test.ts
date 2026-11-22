@@ -152,9 +152,9 @@ describe('<hcm-history-page>: its other states and the values as text', () => {
         deep(element, '.pane .actions hcm-button').click();
         history.set({ document: documentView({ entries: ready([historyItem()], { hasMore: true }) }) });
         await updated(element);
-        deep(deep(element, '.more'), 'hcm-button').click();
 
-        expect(history.calls.filter((call) => !call.startsWith('open'))).toEqual(['retry', 'more']);
+        expect(history.calls.filter((call) => call !== 'more' && !call.startsWith('open'))).toEqual(['retry']);
+        expect(history.calls).toContain('more');
     });
 
     it('badPath_cancellingTheRevertQuestionRevertsNothing', async () => {
@@ -207,9 +207,9 @@ describe('<hcm-history-page>: its other states and the values as text', () => {
         deep(element, '.pane .actions hcm-button').click();
         history.set({ recent: ready([historyItem()], { hasMore: true }) });
         await updated(element);
-        deep(deep(element, '.more'), 'hcm-button').click();
 
-        expect(history.calls.filter((call) => !call.startsWith('open'))).toEqual(['retry', 'more']);
+        expect(history.calls.filter((call) => call !== 'more' && !call.startsWith('open'))).toEqual(['retry']);
+        expect(history.calls).toContain('more');
     });
 
     it('happyPath_aDeletionsEntryOffersRestoreAndANameIsTheDocumentsInTheAdminsLanguage', async () => {

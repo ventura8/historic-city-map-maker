@@ -54,7 +54,15 @@ export interface LiveListDeps<Doc, Item> {
     readonly changed: (list: ListState<Item>) => void;
     /** A `denied` failure: the shell asks who this is again. */
     readonly denied: () => void;
+    /**
+     * Read the whole list (up to `WHOLE_LIMIT`): the first page answers fast, then one read asks for the rest, so the
+     * screen never needs More and search and filters see every item (owner, 2026-11-22: 315 lost streets, More after More).
+     */
+    readonly whole?: boolean;
 }
+
+/** How many documents a whole list reads at once; past it the page asks for more as the reader scrolls to the end. */
+export const WHOLE_LIMIT = 2000;
 
 /** One live query: `show(query)` (re)attaches it, `more()` asks for one page more, `stop()` detaches it. */
 export class LiveList<Doc, Item> {
@@ -128,9 +136,18 @@ export class LiveList<Doc, Item> {
             (page) => {
                 this.#listener.answered();
                 this.#set(listFromPage(page, this.#deps.map));
+                this.#grow(page.hasMore);
             },
             failed,
         );
+    }
+
+    /** A whole list that filled its first page asks once for everything up to `WHOLE_LIMIT`. */
+    #grow(hasMore: boolean): void {
+        if (this.#deps.whole === true && hasMore && this.#limit < WHOLE_LIMIT) {
+            this.#limit = WHOLE_LIMIT;
+            this.#listener.start();
+        }
     }
 
     #failed(status: LiveStatus): void {

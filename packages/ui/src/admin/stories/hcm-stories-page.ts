@@ -13,7 +13,7 @@ import type { AdminRouteIdPort } from '../admin-port.js';
 import type { AreaPort, ContentPort } from '../content-port.js';
 import { AreaPage } from '../editing/area-page.js';
 import { editingStyles } from '../editing/editing-styles.js';
-import { loadingTemplate } from '../editing/states.js';
+import { countLine, listWindow, loadingTemplate } from '../editing/states.js';
 import { conflictBanner, field, issueAt, saveBar, saveStateOf } from '../layers/form-parts.js';
 import { EMPTY } from '../shell/empty.js';
 import { contentText as t } from '../shell/text.js';
@@ -153,10 +153,15 @@ class HcmStoriesPage extends AreaPage<StoriesViewState, StoriesIntentsPort> {
         if (list.items.length === 0) {
             return this.#empty(locale, list);
         }
-        return html`<ul class="rows" aria-label=${t(locale, 'adminContent.stories.listLabel')}>
-                ${list.items.map((item) => this.#row(locale, item, item.id === view.open?.id))}
-            </ul>
-            ${this.#more(locale, list.hasMore)}`;
+        const rows = (items: readonly StoryItemPort[]): TemplateResult =>
+            html`<ul class="rows" aria-label=${t(locale, 'adminContent.stories.listLabel')}>
+                ${items.map((item) => this.#row(locale, item, item.id === view.open?.id))}
+            </ul>`;
+        const more = (): void => {
+            this.intents?.more();
+        };
+        return html`${countLine(locale, list.items.length, list.hasMore)}
+        ${listWindow(locale, list.items, list.hasMore, { more, items: rows })}`;
     }
 
     /** No story yet, or none read yet. */
@@ -164,17 +169,6 @@ class HcmStoriesPage extends AreaPage<StoriesViewState, StoriesIntentsPort> {
         return list.status === 'loading'
             ? loadingTemplate(locale)
             : html`<hcm-empty-state icon="museum" .text=${t(locale, 'adminContent.stories.empty')}></hcm-empty-state>`;
-    }
-
-    #more(locale: UiLocale, hasMore: boolean): TemplateResult {
-        const more = (): void => {
-            this.intents?.more();
-        };
-        return hasMore
-            ? html`<div class="actions more">
-                  <hcm-button variant="text" icon="expand_more" @click=${more}>${t(locale, 'adminContent.common.more')}</hcm-button>
-              </div>`
-            : EMPTY;
     }
 
     #row(locale: UiLocale, item: StoryItemPort, selected: boolean): TemplateResult {

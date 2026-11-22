@@ -22,6 +22,7 @@ export const ro = {
     'adminContent.common.loading': 'Se încarcă…',
     'adminContent.common.retry': 'Încearcă din nou',
     'adminContent.common.more': 'Arată mai multe',
+    'adminContent.common.count': 'În listă: {count}',
     'adminContent.common.back': 'Înapoi la listă',
     'adminContent.common.close': 'Închide',
     'adminContent.common.cancel': 'Anulează',

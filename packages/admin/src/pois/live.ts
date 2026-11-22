@@ -22,7 +22,7 @@ export function livePartsOf(services: ContentServices): LiveParts {
 export function liveListOf<Doc, Item>(
     services: ContentServices,
     collection: string,
-    parts: Pick<LiveListDeps<Doc, Item>, 'schema' | 'map'>,
+    parts: Pick<LiveListDeps<Doc, Item>, 'schema' | 'map' | 'whole'>,
     changed: (list: ListState<Item>) => void,
 ): LiveList<Doc, Item> {
     return new LiveList<Doc, Item>({ ...livePartsOf(services), collection, ...parts, changed });

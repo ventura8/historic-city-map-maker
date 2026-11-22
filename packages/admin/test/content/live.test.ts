@@ -3,7 +3,7 @@ import { describe, expect, it } from 'vitest';
 import { z } from 'zod';
 
 import { LiveDoc } from '../../src/content/doc.js';
-import { isoOf, listAfterFailure, LiveList, LOADING_LIST, type ListState } from '../../src/content/list.js';
+import { isoOf, listAfterFailure, LiveList, LOADING_LIST, WHOLE_LIMIT, type ListState } from '../../src/content/list.js';
 import { LiveListener, RECONNECT_DELAYS_MS, type LiveStatus } from '../../src/content/live.js';
 import { FakeClock } from '../app/fakes.js';
 import { asContentStore, at } from './world.js';
@@ -132,12 +132,13 @@ describe('LiveListener', () => {
 });
 
 describe('LiveList', () => {
-    function list(store: FakeContentStore, clock = new FakeClock(), pageSize?: number) {
+    function list(store: FakeContentStore, clock = new FakeClock(), pageSize?: number, whole?: boolean) {
         const states: ListState<string>[] = [];
         const denials = { count: 0 };
         const live = new LiveList<z.infer<typeof itemSchema>, string>({
             ...{ store: asContentStore(store), clock, collection: 'things', schema: itemSchema, map: (doc) => doc.data.name },
             ...(pageSize === undefined ? {} : { pageSize }),
+            ...(whole === undefined ? {} : { whole }),
             changed: (state) => states.push(state),
             denied: () => {
                 denials.count += 1;
@@ -145,6 +146,32 @@ describe('LiveList', () => {
         });
         return { live, states, denials, clock };
     }
+
+    it('happyPath_aWholeListShowsItsFirstPageThenReadsEveryItemAtOnce', () => {
+        const store = new FakeContentStore();
+        seed(store, 315);
+        const { live, states } = list(store, new FakeClock(), 50, true);
+
+        live.show({ orderBy: [['rank', 'asc']] });
+
+        expect(states.some((state) => state.status === 'ready' && state.items.length === 50)).toBe(true);
+        expect(live.list.items).toHaveLength(315);
+        expect(live.list.hasMore).toBe(false);
+    });
+
+    it('badPath_aWholeListPastItsLimitKeepsMoreForTheScrollAndAPagedListStaysOnePage', () => {
+        const store = new FakeContentStore();
+        seed(store, WHOLE_LIMIT + 1);
+        const { live } = list(store, new FakeClock(), 50, true);
+        const paged = list(store, new FakeClock(), 50);
+
+        live.show({});
+        paged.live.show({});
+
+        expect(live.list.items).toHaveLength(WHOLE_LIMIT);
+        expect(live.list.hasMore).toBe(true);
+        expect(paged.live.list.items).toHaveLength(50);
+    });
 
     it('happyPath_showsAPageThenMoreFollowsChangesAndStops', () => {
         const store = new FakeContentStore();

@@ -110,13 +110,12 @@ describe('<hcm-inbox-page>', () => {
         });
         links[0]?.click();
         deep(deep(element, '.head'), 'hcm-button').click();
-        deep(deep(element, '.more'), 'hcm-button').click();
 
-        expect(area.calls.filter((call) => !call.startsWith('open'))).toEqual([
+        expect(area.calls.filter((call) => call !== 'more' && !call.startsWith('open'))).toEqual([
             'markRead "job.failed~bucharest~job-1~0"',
             'markAllRead',
-            'more',
         ]);
+        expect(area.calls).toContain('more');
         expect(await axeViolations(element)).toEqual([]);
     });
 
@@ -148,7 +147,7 @@ describe('<hcm-inbox-page>', () => {
         deep(deep(element, '[data-push="on"]'), 'hcm-switch').dispatchEvent(new CustomEvent('hcm-change', { detail: { checked: false } }));
         deep(deep(element, '[data-settings] .actions'), 'hcm-button').click();
 
-        expect(area.calls.filter((call) => !call.startsWith('open'))).toEqual([
+        expect(area.calls.filter((call) => call !== 'more' && !call.startsWith('open'))).toEqual([
             'setKind "order.imported" true',
             'turnOnPush',
             'turnOffPush',

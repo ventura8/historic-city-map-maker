@@ -26,8 +26,12 @@ export const POIS_STATES = {
         title: 'Places: the import preview, one new place and five refused with their reasons (a dialog)',
         visit: VISIT,
     },
+    'pois.long-list': {
+        title: 'Places: 315 places in one list, its count, a window drawn at a time as the reader scrolls',
+        visit: 'specs/pois/long-list.spec.ts',
+    },
     'pois.photo-picker': {
-        title: "Places: the photo picker, the city's newest photos with Show more (a dialog)",
+        title: 'Places: the photo picker, every photo of the city (a dialog)',
         visit: 'specs/pois/import-delete.spec.ts',
     },
     'pois.drawing': { title: 'Places: an area being drawn on the map, click by click, its positions listed', visit: DRAWING },

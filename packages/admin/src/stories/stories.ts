@@ -62,6 +62,7 @@ class StoriesStore implements AreaStore<StoriesState, StoriesIntents> {
         this.#list = new LiveList({
             ...{ store, clock, denied, schema: storyDocSchema, map: storyItemOf },
             collection: FIRESTORE_PATHS.stories(services.cityId),
+            whole: true,
             changed: (list) => {
                 this.#cell.update({ list });
             },

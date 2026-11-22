@@ -69,8 +69,8 @@ test(
         await seedPastThePage(content);
         await page.goto(content.address(lang, 'pois', { map: false }));
         await expect(page.getByRole('link', { name: /Loc 50/ })).toBeVisible();
-        // The list holds its first page: the oldest place is not on it.
-        await expect(page.getByRole('link', { name: /Loc 00/ })).toHaveCount(0);
+        // The list reads every place: the oldest, past the first page of the read, is on it too.
+        await expect(page.getByRole('link', { name: /Loc 00/ })).toHaveCount(1);
         const seeded = await content.collection('pois');
 
         const download = page.waitForEvent('download');
@@ -124,7 +124,7 @@ test(
 );
 
 test(
-    "A place's linked photo is named by its title with the picker closed, and the picker's Show more reaches it",
+    "A place's linked photo is named by its title with the picker closed, and the picker reaches it without Show more",
     { tag: ['@S-A32-BAD-LINKED-PHOTO-PAST-PAGE', '@S-A32-HAPPY-PHOTO-PICKER-PAGES'] },
     async ({ page, lang, content }) => {
         test.setTimeout(150_000);
@@ -143,9 +143,8 @@ test(
         await page.getByRole('button', { name: poisText(lang, 'adminContent.pois.field.choosePhotos') }).click();
         const picker = page.locator('hcm-dialog.photo-picker');
         await expect(picker.getByText(/Foto 50/)).toBeVisible();
-        await expect(picker.getByText(/Foto 00/)).toHaveCount(0);
         await expectStateSound(page, adminVisit('pois.photo-picker', lang));
-        await picker.getByRole('button', { name: poisText(lang, 'adminContent.common.more') }).click();
+        await picker.getByText(/Foto 00/).scrollIntoViewIfNeeded();
         await expect(picker.getByText(/Foto 00/)).toBeVisible();
         await expect(picker.getByRole('button', { name: poisText(lang, 'adminContent.common.more') })).toHaveCount(0);
     },

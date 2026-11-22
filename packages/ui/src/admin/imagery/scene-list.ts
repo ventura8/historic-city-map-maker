@@ -8,7 +8,7 @@
 import { USGS_DATASETS, type UiLocale, type UsgsDataset } from '@hcm/shared';
 import { html, type TemplateResult } from 'lit';
 
-import { current, errorTemplate, loadingTemplate } from '../editing/states.js';
+import { countLine, current, errorTemplate, listWindow, loadingTemplate } from '../editing/states.js';
 import { contentText, noticeOf } from '../shell/text.js';
 import type { ImageryContext } from './context.js';
 import type { SceneItemPort } from './imagery-port.js';
@@ -252,18 +252,6 @@ function sceneRow(context: ImageryContext, scene: SceneItemPort): TemplateResult
     </li>`;
 }
 
-function moreButton(context: ImageryContext): TemplateResult {
-    return when(
-        context.view.scenes.hasMore,
-        () =>
-            html`<div class="actions more">
-                <hcm-button variant="text" icon="expand_more" @click=${() => context.intents?.more()}
-                    >${contentText(context.locale, 'adminContent.common.more')}</hcm-button
-                >
-            </div>`,
-    );
-}
-
 /** Every year: the year fields cleared (offered while either holds a year). */
 function everyYear(context: ImageryContext): TemplateResult {
     const { filters } = context.view;
@@ -330,10 +318,15 @@ function sceneRows(context: ImageryContext): TemplateResult {
     if (view.visible.length === 0) {
         return noScenes(context);
     }
-    return html`<ul class="rows" aria-label=${contentText(locale, 'adminContent.imagery.scenesLabel')}>
-            ${view.visible.map((scene) => sceneRow(context, scene))}
-        </ul>
-        ${moreButton(context)}`;
+    const rows = (scenes: readonly SceneItemPort[]): TemplateResult =>
+        html`<ul class="rows" aria-label=${contentText(locale, 'adminContent.imagery.scenesLabel')}>
+            ${scenes.map((scene) => sceneRow(context, scene))}
+        </ul>`;
+    const more = (): void => {
+        intents?.more();
+    };
+    return html`${countLine(locale, view.visible.length, view.scenes.hasMore)}
+    ${listWindow(locale, view.visible, view.scenes.hasMore, { more, items: rows })}`;
 }
 
 /** USGS is not set up (or its token was refused): nothing to search with. */

@@ -500,7 +500,7 @@ describe('places: files and photos', () => {
             seedPlace(world, `loc-${String(place)}`);
         }
         const store = opened(world);
-        expect(store.state.list.items.map((item) => item.id)).not.toContain('stavropoleos');
+        expect(store.state.list.items).toHaveLength(PAGE_SIZE + 2);
         const file = await store.intents.exportPlaces(false);
         const again = file?.text ?? '';
 
@@ -582,7 +582,7 @@ describe('places: importing and the photos', () => {
         const store = opened(world);
 
         store.intents.loadPhotos();
-        expect([store.state.photos?.items.length, store.state.photos?.hasMore]).toEqual([PAGE_SIZE, true]);
+        expect([store.state.photos?.items.length, store.state.photos?.hasMore]).toEqual([PAGE_SIZE + 1, false]);
         store.intents.morePhotos();
 
         expect([store.state.photos?.items.length, store.state.photos?.hasMore]).toEqual([PAGE_SIZE + 1, false]);

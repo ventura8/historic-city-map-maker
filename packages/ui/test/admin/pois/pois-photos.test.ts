@@ -38,12 +38,10 @@ describe('<hcm-pois-page>: Export all and the photos', () => {
         deep(element, 'hcm-poi-editor').dispatchEvent(new CustomEvent('hcm-pick-photos'));
         await updated(element);
 
-        press(deep(deep(element, '.photo-picker'), 'hcm-button.more-photos'));
-
-        expect(store.named('morePhotos')).toEqual(['morePhotos']);
+        expect(store.named('morePhotos').length).toBeGreaterThan(0);
         store.set({ photos: ready([]) });
         await updated(element);
-        expect(deepAll(deep(element, '.photo-picker'), 'hcm-button.more-photos')).toEqual([]);
+        expect(deepAll(deep(element, '.photo-picker'), '.list-end')).toEqual([]);
         expect(deepText(deep(element, '.photo-picker'))).toContain('The city has no photo yet.');
     });
 

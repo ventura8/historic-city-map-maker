@@ -138,6 +138,7 @@ class JobsStore implements AreaStore<JobsState, JobsIntents> {
         };
         this.#list = new LiveList({
             ...{ store, clock, denied, collection: FIRESTORE_PATHS.jobs(cityId), schema: jobDocSchema, map: jobItemOf },
+            whole: true,
             changed: () => {
                 this.#listChanged();
             },

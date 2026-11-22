@@ -9308,11 +9308,33 @@
             "behaviour": "A32",
             "area": "admin",
             "path": "happy",
-            "title": "The photo picker reaches every photo of the city, a page at a time",
-            "asserts": "51 photos -> the picker lists the newest 50 with Show more -> Show more lists the oldest and the button goes",
+            "title": "The photo picker reaches every photo of the city without Show more",
+            "asserts": "51 photos -> the picker lists the newest and the oldest, read whole, with no Show more button",
             "tier": "e2e-admin",
             "status": "exists",
             "notes": "2026-11-06 review of 66b1271; workstream admin. Test: e2e/admin/specs/pois/import-delete.spec.ts; packages/admin/test/pois/pois.test.ts, packages/ui/test/admin/pois/pois-page.test.ts."
+        },
+        {
+            "id": "S-A32-HAPPY-WHOLE-LIST",
+            "behaviour": "A32",
+            "area": "admin",
+            "path": "happy",
+            "title": "A long admin list shows every item without Show more, with its count",
+            "asserts": "315 places -> the list says Places: 315 -> scrolling to the end draws the next window and reaches the oldest place, no Show more button -> the search finds the oldest place past the first page and counts 1",
+            "tier": "e2e-admin",
+            "status": "exists",
+            "notes": "Owner 2026-11-22 (Disappeared streets, 315 places). Test: e2e/admin/specs/pois/long-list.spec.ts; packages/ui/test/admin/editing/list-window.test.ts, packages/admin/test/content/live.test.ts."
+        },
+        {
+            "id": "S-A32-BAD-WHOLE-LIST-NO-MATCH",
+            "behaviour": "A32",
+            "area": "admin",
+            "path": "bad",
+            "title": "A search of a long list that matches nothing says so and counts none",
+            "asserts": "315 places, a search no title holds -> No place matches the filter. and Places: 0; a list past 2,000 documents keeps asking for the rest as the end scrolls into view",
+            "tier": "e2e-admin",
+            "status": "exists",
+            "notes": "Owner 2026-11-22. Test: e2e/admin/specs/pois/long-list.spec.ts; packages/admin/test/content/live.test.ts (past WHOLE_LIMIT), packages/ui/test/admin/editing/list-window.test.ts."
         },
         {
             "id": "S-A32-BAD-LINKED-PHOTO-PAST-PAGE",

@@ -7,7 +7,7 @@
 import { html, type TemplateResult } from 'lit';
 
 import { cancelledGroup } from './cancelled-list.js';
-import { current, errorTemplate, loadingTemplate } from '../editing/states.js';
+import { current, errorTemplate, listWindow, loadingTemplate } from '../editing/states.js';
 import { EMPTY } from '../shell/empty.js';
 import { contentText } from '../shell/text.js';
 import type { ImageryContext } from './context.js';
@@ -69,9 +69,12 @@ function group(context: ImageryContext, heading: Heading, versions: readonly Ver
     return html`<section class="section" aria-labelledby=${id}>
         <h3 id=${id}>${contentText(context.locale, heading)}</h3>
         ${coarseNote(context, heading)}
-        <ul class="rows">
-            ${versions.map((version) => versionRow(context, version))}
-        </ul>
+        ${listWindow(context.locale, versions, false, {
+            items: (shown) =>
+                html`<ul class="rows">
+                    ${shown.map((version) => versionRow(context, version))}
+                </ul>`,
+        })}
     </section>`;
 }
 
