@@ -105,6 +105,12 @@ const QUESTIONS = {
         body: 'adminContent.imagery.confirm.deleteBody',
         confirm: 'adminContent.imagery.deleteVersion',
     },
+    // Lesson 759: the layer shows this version's tiles again; the version live now stays, superseded, and can come back the same way.
+    makeLive: {
+        headline: 'adminContent.imagery.confirm.makeLive',
+        body: 'adminContent.imagery.confirm.makeLiveBody',
+        confirm: 'adminContent.imagery.makeLive',
+    },
 } as const;
 
 class HcmImageryPage extends AreaPage<ImageryViewState, ImageryIntentsPort> {
@@ -387,6 +393,7 @@ function answers(intents: ImageryIntentsPort | null, leave: () => void): Readonl
         approveWorse: () => void intents?.approve(true),
         approveOutside: () => void intents?.approve(),
         deleteVersion: () => void deleteAndLeave(intents, leave),
+        makeLive: () => void intents?.makeLive(),
     };
 }
 

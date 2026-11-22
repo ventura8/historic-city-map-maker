@@ -23,6 +23,7 @@ import type { AdminNoticeInputPort } from '../notice-port.js';
 import type { JobLogLinePort, JobViewPort, VersionPagePort, VersionViewPort } from './imagery-port.js';
 import { labelText, numberText, versionStateText, waitText, wordedWait } from './imagery-text.js';
 import { liveJoin, versionMark } from './join/live-join.js';
+import { makeLiveAction } from './make-live.js';
 import { lazyJoin } from './join/lazy-card.js';
 import { notFoundPane } from './not-found.js';
 import { lazyRecalibrate } from './recalibrate/lazy-recalibrate.js';
@@ -468,6 +469,7 @@ function body(shown: Shown): TemplateResult {
         <div class="actions">
             ${retryButton(shown)} ${locateButton(shown)} ${fixTilesButton(shown)} ${uploadAnother(shown)} ${mapboxSetupLink(shown)}
             ${tilesLink(shown)} ${georefLink(shown)} ${deleteVersionButton(shown)}
+            ${makeLiveAction(shown.context, shown.page, shown.version)}
         </div>
         ${versionRunAgain(context, version)} ${runPlace(shown)} ${refusal(shown)}
         ${withValue(version, (known) => lazyJoin(context, known, (chunk) => chunk.versionJoin(context, known, job)))} ${imageView(shown)}

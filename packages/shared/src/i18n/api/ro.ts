@@ -146,6 +146,8 @@ export const ro = {
     'apiError.imagery.pauseUntil': 'Pauza ține cel mult două zile. Alege Timp de o oră, Până mâine sau Până reiau eu.',
     'apiError.imagery.missingBand': 'Livrarea Landsat nu are banda {band}: nu iese imaginea color. Alege altă scenă din acel an.',
     'apiError.imagery.pipelineOutdated': 'Programul calculatorului e prea vechi: Actualizează harta în Configurare, apoi reîncearcă.',
+    'apiError.imagery.tilesGone':
+        'Plăcile acestei versiuni au fost șterse după ce a fost înlocuită, așa că nu mai poate reveni pe hartă. Deschide-o și alege Calibrează din nou ca să faci plăci noi.',
     'apiError.imagery.deletePublished': 'O versiune de pe hartă sau aprobată pentru ea nu se șterge aici: șterge stratul ei.',
     'apiError.imagery.deleteRunning': 'Versiunea este încă în lucru. Anuleaz-o mai întâi, apoi șterge-o.',
     'apiError.imagery.deleteInUse': 'O altă versiune este făcută pornind de la aceasta. Șterge-o mai întâi pe aceea.',

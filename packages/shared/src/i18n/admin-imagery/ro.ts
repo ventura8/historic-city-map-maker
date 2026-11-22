@@ -212,6 +212,9 @@ export const ro = {
     'adminContent.imagery.previewOpacity': 'Opacitatea previzualizării pe hartă',
     'adminContent.imagery.approve': 'Aprobă și publică',
     'adminContent.imagery.reject': 'Șterge',
+    'adminContent.imagery.makeLive': 'Fă această versiune cea curentă',
+    'adminContent.imagery.makeLiveGone':
+        'Această versiune nu mai poate reveni pe hartă: plăcile ei au fost șterse la câteva zile după ce o versiune mai nouă a înlocuit-o. Ca s-o arăți din nou, alege Calibrează din nou ca să faci plăci noi.',
     'adminContent.imagery.deleteVersion': 'Șterge această versiune',
     'adminContent.imagery.locateAgain': 'Localizează din nou',
     'adminContent.imagery.fixTiles': 'Repară foile',
@@ -296,6 +299,9 @@ export const ro = {
     'adminContent.imagery.confirm.payConfirm': 'Publică pentru circa {usd} USD',
     'adminContent.imagery.confirm.dismissBody': 'Iese din „Așteaptă după tine” nepublicată; stratul rămâne cum este; o poți importa iar.',
     'adminContent.imagery.confirm.deleteVersion': 'Ștergi definitiv această versiune?',
+    'adminContent.imagery.confirm.makeLive': 'Pui această versiune înapoi pe hartă?',
+    'adminContent.imagery.confirm.makeLiveBody':
+        'Stratul va arăta plăcile acestei versiuni. Versiunea de acum de pe hartă rămâne ca înlocuită și o poți aduce înapoi la fel.',
     'adminContent.imagery.confirm.deleteBody': 'Sarcina, jurnalul și fișierele de pe server dispar. Harta și originalele tale rămân.',
     'adminContent.imagery.confirm.resume': 'Reiei procesarea?',
     'adminContent.imagery.confirm.resumeBody': 'Importurile și publicările repornesc și pot costa; alerta lunii viitoare le oprește iar.',
@@ -312,6 +318,8 @@ export const ro = {
     'adminContent.imagery.notice.fixingTiles': 'Versiune nouă pornită; cea de pe hartă rămâne până o aprobi. Deschide-o din Lucru.',
     'adminContent.imagery.notice.cancelRefused': 'Procesarea nu a putut fi oprită.',
     'adminContent.imagery.notice.dismissed': 'Imaginea a fost ștearsă.',
+    'adminContent.imagery.notice.madeLive':
+        'Această versiune e din nou pe hartă. Harta publică o arată după ce se termină următoarea actualizare a fișierelor hărții, într-un minut sau două.',
     'adminContent.imagery.notice.versionDeleted': 'Versiunea a fost ștearsă.',
     'adminContent.imagery.notice.resumed': 'Procesarea reîncepe în cel mult 15 minute.',
     'adminContent.imagery.guard.paused': 'Procesare oprită: Google Cloud a costat luna aceasta {cost} din {budget}. Harta publică merge.',

@@ -123,15 +123,15 @@ describe('createSetupCloud', () => {
         const deployed = await cloud.deployment(ACCESS);
 
         expect(nothing).toMatchObject({ kind: 'forbidden', api: 'cloudfunctions.googleapis.com' });
-        // The registry's 106 functions (M31: wikipedia.manage) (M4: orders' 3, assists' and notifications' 7; M5: the cities' 4, the export's 3; M6:
+        // The registry's 107 functions (M31: wikipedia.manage; lesson 759: imagery.makeLive) (M4: orders' 3, assists' and notifications' 7; M5: the cities' 4, the export's 3; M6:
         // the events probe; M7: the local worker's 5 and imagery.runOn; finding 67: worker.pair, pairCode and revoke;
         // finding 72: worker.image; finding 73: worker.starter; imagery.locateAgain; M12: imagery.previewUrl;
         // M13: the roles' and review's 7; M16: imagery.recalibrate; M17: the stories' 2; M20: the local archive's 4 (with worker.archiveCopy); imagery.deleteVersion;
         // the tab icon's cities.setIcon;
         // M20 §19.10: the tile wizard's imagery.saveLayout and imagery.acceptLayout; the owner's not-useful mark imagery.markScene; household computers' worker.manage; Pause's imagery.pause; M20 §19.13: Fix the tiles' imagery.relayout); the fake deploys a third of them.
-        expect(partial).toEqual({ ready: 35, total: 106, failed: [] });
-        expect(failed).toEqual({ ready: 105, total: 106, failed: ['admin-session'] });
-        expect(deployed).toEqual({ ready: 106, total: 106, failed: [] });
+        expect(partial).toEqual({ ready: 35, total: 107, failed: [] });
+        expect(failed).toEqual({ ready: 106, total: 107, failed: ['admin-session'] });
+        expect(deployed).toEqual({ ready: 107, total: 107, failed: [] });
     });
 
     it('happyPath_theStreamsHistoryPageViewsAreTurnedOff', async () => {

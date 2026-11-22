@@ -231,6 +231,7 @@ class ImageryStore implements AreaStore<ImageryState, ImageryIntents> {
         | 'reject'
         | 'confirmRights'
         | 'deleteVersion'
+        | 'makeLive'
         | 'choose'
         | 'studioDone'
         | 'download'
@@ -253,6 +254,7 @@ class ImageryStore implements AreaStore<ImageryState, ImageryIntents> {
                 reject: () => version.reject(),
                 confirmRights: (confirmedBy: string) => version.confirmRights(confirmedBy),
                 deleteVersion: () => version.deleteVersion(),
+                makeLive: () => version.makeLive(),
                 choose: (choice: PublishChoice) => version.choose(choice),
             },
             ...{ studioDone: () => version.studioDone(), download: () => version.download(), retryJob: () => version.retry() },

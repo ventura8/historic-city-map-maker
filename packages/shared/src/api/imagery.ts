@@ -162,6 +162,13 @@ export const imageryConfirmRightsResponseSchema = z.strictObject({
  */
 export const imageryDeleteVersionResponseSchema = z.strictObject({ deleted: z.literal(true) });
 
+/**
+ * `imagery.makeLive` (an editor or the owner; `docs/research/M12-own-tiles.md` §8; S-A231-*): a superseded version whose own tiles are
+ * still in the public bucket becomes the layer's live version again; the one that was live reads superseded. A version that is not
+ * superseded (`apiError.imagery.versionState`) or whose tiles are gone (`apiError.imagery.tilesGone`) is refused.
+ */
+export const imageryMakeLiveResponseSchema = z.strictObject({ live: z.literal(true) });
+
 /** `imagery.choose` (admin; App Check consume for `pay`): the way out of a publish that does not fit the month. */
 export const imageryChooseRequestSchema = z.strictObject({ ...versionIdField, choice: z.enum(PUBLISH_CHOICES) });
 export const imageryChooseResponseSchema = z.strictObject({

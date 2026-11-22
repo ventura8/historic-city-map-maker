@@ -36,6 +36,7 @@ export type VersionAction =
     | 'reject'
     | 'confirmRights'
     | 'deleteVersion'
+    | 'makeLive'
     | 'choose'
     | 'studioDone'
     | 'download'
@@ -252,6 +253,13 @@ export class VersionPage {
             (id) => ({ cityId: this.#services.cityId, versionId: id, confirmedBy }),
             { key: 'adminContent.imagery.notice.rightsConfirmed' },
         );
+    }
+
+    /** Lesson 759: a superseded version whose own tiles are still public becomes the live one again (`imagery.makeLive`). */
+    makeLive(): Promise<boolean> {
+        return this.#act('makeLive', 'imagery.makeLive', (id) => ({ cityId: this.#services.cityId, versionId: id }), {
+            key: 'adminContent.imagery.notice.madeLive',
+        });
     }
 
     /** A version that never reached the map goes for good, its job, log and own files with it (`imagery.deleteVersion`). */

@@ -129,6 +129,8 @@ export interface ImageryIntents {
     reject(): Promise<boolean>;
     /** M20 (§7): the city's owner confirms who granted the permission (`imagery.confirmRights`). */
     confirmRights(confirmedBy: string): Promise<boolean>;
+    /** Lesson 759: a superseded version made the live one again (`imagery.makeLive`); true once it is. */
+    makeLive(): Promise<boolean>;
     /** A version that never reached the map, deleted for good (`imagery.deleteVersion`); true once it is gone. */
     deleteVersion(): Promise<boolean>;
     /** t131: a cancelled version in Work's folded group, deleted for good by its id (`imagery.deleteVersion`); true once gone. */

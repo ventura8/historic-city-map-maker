@@ -71,6 +71,7 @@ import {
     imageryConfirmRightsRequestSchema,
     imageryConfirmRightsResponseSchema,
     imageryDeleteVersionResponseSchema,
+    imageryMakeLiveResponseSchema,
     imageryCropRequestSchema,
     imageryCropResponseSchema,
     imageryImportRequestSchema,
@@ -295,6 +296,8 @@ export const ADMIN_CALLABLES = {
     'imagery.confirmRights': cityOwner('fn-imagery', imageryConfirmRightsRequestSchema, imageryConfirmRightsResponseSchema),
     // A version that never reached the map, deleted with its job, its log and its own files (S-A125-*).
     'imagery.deleteVersion': cityEditor('fn-imagery', imageryVersionRequestSchema, imageryDeleteVersionResponseSchema),
+    // Lesson 759: a superseded version whose own tiles are still public made the live one again (S-A231-*).
+    'imagery.makeLive': cityEditor('fn-imagery', imageryVersionRequestSchema, imageryMakeLiveResponseSchema),
     'imagery.choose': cityEditor('fn-imagery', imageryChooseRequestSchema, imageryChooseResponseSchema, 'consume'),
     'imagery.studioDone': cityEditor('fn-imagery', imageryVersionRequestSchema, imageryStudioDoneResponseSchema),
     'imagery.saveGcps': cityEditor('fn-imagery', imagerySaveGcpsRequestSchema, imagerySaveGcpsResponseSchema),

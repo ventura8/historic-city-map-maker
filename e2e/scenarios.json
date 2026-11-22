@@ -1449,7 +1449,12 @@
             "area": "viewer",
             "name": "The Layers panel's Place media category with a switch per kind",
             "milestone": "M17",
-            "source": "the owner, 2026-11-22: a Place media entry in the Layers panel's Places, one sub-entry per kind"
+            "source": "the owner, 2026-11-22: a Place media entry in the Layers panel's Places, one sub-entry per kind",
+            "id": "A231",
+            "area": "admin",
+            "name": "Make a superseded version the live one again, while its own tiles are still public",
+            "milestone": "M12",
+            "source": "the owner, 2026-11-22: bring back an earlier version of the Borroczyn 1846 layer without uploading and calibrating it again (lesson 759)"
         }
     ],
     "scenarios": [
@@ -25079,7 +25084,27 @@
             "asserts": "no place with media -> the manifest is unchanged, no category is added",
             "tier": "e2e-viewer",
             "status": "planned",
-            "notes": "Unit: packages/shared/test/overlays/place-media.test.ts."
+            "notes": "Unit: packages/shared/test/overlays/place-media.test.ts.",
+            "id": "S-A231-HAPPY-MAKE-LIVE",
+            "behaviour": "A231",
+            "area": "admin",
+            "path": "happy",
+            "title": "Make this version the live one puts a superseded version back on the map after a question",
+            "asserts": "a superseded version whose own tiles are still in the public bucket offers the button; the question says the version on the map now is kept; imagery.makeLive points the layer's source.url, zooms, bounds and currentVersion at the version's archive, writes the layer as the caller (History records it), marks the version published and the one that was live superseded; the notice says the public map shows it after the next update of the map files",
+            "tier": "functions",
+            "status": "exists",
+            "notes": "M12 (docs/research/M12-own-tiles.md, Make this version the live one). Tests: functions/test/imagery/make-live.test.ts, packages/admin/test/imagery/version-make-live.test.ts, packages/ui/test/admin/imagery/make-live.test.ts."
+        },
+        {
+            "id": "S-A231-BAD-TILES-GONE",
+            "behaviour": "A231",
+            "area": "admin",
+            "path": "bad",
+            "title": "A superseded version whose tiles are gone says so and names Calibrate again",
+            "asserts": "once its own tiles were removed after the grace (or it was published through Mapbox) the page offers no button and says its tiles were removed and to choose Calibrate again; imagery.makeLive refuses it with apiError.imagery.tilesGone, a version not superseded with apiError.imagery.versionState, a moderator or uploader with apiError.city.notEditor, and nothing is written",
+            "tier": "functions",
+            "status": "exists",
+            "notes": "M12 (docs/research/M12-own-tiles.md, Make this version the live one). Tests: functions/test/imagery/make-live.test.ts, packages/admin/test/imagery/version-make-live.test.ts, packages/ui/test/admin/imagery/make-live.test.ts."
         }
     ]
 }

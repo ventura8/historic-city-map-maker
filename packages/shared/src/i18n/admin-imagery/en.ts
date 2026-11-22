@@ -211,6 +211,9 @@ export const en: Readonly<Record<AdminImageryKey, string>> = {
     'adminContent.imagery.approve': 'Approve and publish',
     'adminContent.imagery.reject': 'Delete',
     'adminContent.imagery.deleteVersion': 'Delete this version',
+    'adminContent.imagery.makeLive': 'Make this version the live one',
+    'adminContent.imagery.makeLiveGone':
+        'This version cannot go back on the map: its tiles were removed some days after a newer version replaced it. To show it again, choose Calibrate again to make new tiles.',
     'adminContent.imagery.locateAgain': 'Locate again',
     'adminContent.imagery.fixTiles': 'Fix the tiles',
     // M9 (docs/research/M9-calibration.md §8)
@@ -294,6 +297,9 @@ export const en: Readonly<Record<AdminImageryKey, string>> = {
     'adminContent.imagery.confirm.payConfirm': 'Publish for about {usd} USD',
     'adminContent.imagery.confirm.dismissBody': 'It leaves “Waiting for you” unpublished; the layer stays; you can import it again.',
     'adminContent.imagery.confirm.deleteVersion': 'Delete this version for good?',
+    'adminContent.imagery.confirm.makeLive': 'Put this version back on the map?',
+    'adminContent.imagery.confirm.makeLiveBody':
+        "The layer will show this version's tiles. The version on the map now is kept as replaced, and you can bring it back the same way.",
     'adminContent.imagery.confirm.deleteBody': "Its job, log and server files go for good. The map and your computer's originals stay.",
     'adminContent.imagery.confirm.resume': 'Resume processing?',
     'adminContent.imagery.confirm.resumeBody': 'Imports and publishes start again and may cost more; next month’s alert pauses them again.',
@@ -311,6 +317,8 @@ export const en: Readonly<Record<AdminImageryKey, string>> = {
     'adminContent.imagery.notice.cancelRefused': 'The processing could not be stopped.',
     'adminContent.imagery.notice.dismissed': 'The image was deleted.',
     'adminContent.imagery.notice.versionDeleted': 'The version was deleted.',
+    'adminContent.imagery.notice.madeLive':
+        'This version is on the map again. The public map shows it once the next update of the map files ends, in a minute or two.',
     'adminContent.imagery.notice.resumed': 'Processing starts again within 15 minutes.',
     'adminContent.imagery.guard.paused': 'Processing paused: Google Cloud cost {cost} of {budget} this month. The public map works.',
     'adminContent.imagery.guard.pausedPlain': 'Processing is paused: the monthly budget was reached. The public map keeps working.',

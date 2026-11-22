@@ -181,3 +181,20 @@ The owner's screenshot of the live 1980 layer showed two faults beside a frame t
 ## Full-resolution tiles from a single archive map (2026-11-22)
 
 The own tiles of an archive single map placed from the owner's points come from its original, not the 6000 px working copy the points were placed on (`placing/owner.py`, docs/research/M20-import-local.md §3 c item 5). The level count is still the series' `maxzoom`, so the bucket's tile count and the storage estimate do not change; tiles only carry more detail (a little larger each as WebP).
+
+## Make this version the live one (2026-11-22, lesson 759)
+
+A superseded version keeps its own public archive for `LAYER_DELETE_GRACE_DAYS` (`own-tiles-clean.ts`). While it is there
+(`own.removedAt` unset and the object still in the public bucket), the version's page offers **Make this version the live one**
+(ro: „Fă această versiune cea curentă”), asked first. `imagery.makeLive` (a city editor or the owner; S-A231-*,
+`functions/src/imagery/make-live.ts`) then, in one transaction that reads the version and its layer again:
+
+- points the layer's `source` at `{ type: 'pmtiles', url: own.url }`, sets its zooms and data bounds from the version's output and
+  `currentVersion` to the version, stamped with the caller's uid, so History records the change and `publish.onLayerWrite`
+  rebuilds the manifest;
+- marks the version `published` and the version that was live `superseded` (its tiles then wait out the same grace).
+
+Refusals: a version that is not superseded (`apiError.imagery.versionState`); one whose own tiles are gone, never existed (a Mapbox
+publish) or whose output is missing (`apiError.imagery.tilesGone`, whose text names Calibrate again); a layer gone
+(`apiError.notFound`); a moderator or uploader (`apiError.city.notEditor`). When the tiles are gone the page shows no button and
+says so, with Calibrate again as the fix.

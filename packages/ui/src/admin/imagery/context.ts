@@ -11,7 +11,16 @@ import type { ImageryIntentsPort, ImageryViewState } from './imagery-port.js';
 
 /** The questions the page asks before an action that cannot be taken back or costs money. */
 export type ImageryQuestion =
-    'reject' | 'pay' | 'cancel' | 'resume' | 'drop' | 'approveWorse' | 'approveOutside' | 'rejectRecalibration' | 'deleteVersion';
+    | 'reject'
+    | 'pay'
+    | 'cancel'
+    | 'resume'
+    | 'drop'
+    | 'approveWorse'
+    | 'approveOutside'
+    | 'rejectRecalibration'
+    | 'deleteVersion'
+    | 'makeLive';
 
 export interface ImageryContext {
     readonly locale: UiLocale;

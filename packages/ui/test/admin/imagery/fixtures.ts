@@ -355,6 +355,7 @@ export function imageryPage(
             reject: Promise.resolve(true),
             confirmRights: Promise.resolve(true),
             deleteVersion: Promise.resolve(true),
+            makeLive: Promise.resolve(true),
         },
         ...{
             choose: Promise.resolve(true),
