@@ -5,7 +5,8 @@
  * in `photoIds` (in that order, which the place editor sets) or when the photo names the place in `placeIds` (after them,
  * by year, then id). Unknown ids are skipped; nothing here reads more than the manifest.
  */
-import { photoKindOf, type Layer, type Photo, type PhotoKind, type Poi, type UnplacedPhoto } from '../schemas/manifest.js';
+import { photoKindOf, type Layer, type Photo, type PhotoKind, type UnplacedPhoto } from '../schemas/manifest.js';
+import type { Poi } from '../schemas/poi.js';
 
 export const PLACE_MEDIA_KINDS = ['maps', 'aerial', 'ground', 'interior'] as const;
 export type PlaceMediaKind = (typeof PLACE_MEDIA_KINDS)[number];

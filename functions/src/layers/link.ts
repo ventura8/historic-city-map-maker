@@ -100,6 +100,7 @@ function layerOf(request: Request, order: number, caller: VerifiedCaller, now: D
         opacity: 1,
         defaultVisible: false,
         adjustments: undefined,
+        placeIds: undefined,
         rights: undefined,
         status: 'ready',
         published: false,

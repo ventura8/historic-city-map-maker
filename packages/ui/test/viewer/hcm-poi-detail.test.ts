@@ -146,44 +146,6 @@ describe('<hcm-poi-detail>', () => {
         expect(element.shadowRoot?.querySelector('.sources')).toBeNull();
     });
 
-    it('happyPath_aPlaceShowsItsMediaByKindAndAMapOpensOnTheMap @S-V80-HAPPY-PLACE-MEDIA', async () => {
-        const place = poi('casa-uranus');
-        const [first, second] = MANIFEST.photos;
-        const layer = MANIFEST.layers[0];
-        if (first === undefined || second === undefined || layer === undefined) {
-            throw new Error('fixture');
-        }
-        const element = await detail({
-            poi: { ...place, photoIds: [first.id] },
-            photos: [first, { ...second, kind: 'interior', placeIds: [place.id] }],
-            layers: [{ ...layer, placeIds: [place.id] }],
-            category: category('cladiri'),
-            locale: 'en',
-        });
-
-        expect(shadowText(element)).toContain('Media');
-        const chips = shadowQueryAll(element, '.kinds label').map((label) => label.textContent?.trim());
-        expect(chips).toEqual(['Maps', 'Exterior', 'Interior']);
-        const events = recordEvents(element, 'hcm-layer-show');
-        await page.getByRole('button', { name: `Show the map on the map: ${layer.label.en ?? ''}` }).click();
-        expect(events).toEqual([{ type: 'hcm-layer-show', detail: { layerId: layer.id } }]);
-
-        await page.getByRole('radio', { name: 'Interior' }).click();
-        await element.updateComplete;
-        expect(shadowQueryAll(element, '.thumbs button')).toHaveLength(1);
-    });
-
-    it('badPath_aPlaceWithoutMediaShowsNoMediaAndANewPlaceStartsAtItsFirstKind @S-V80-BAD-NO-MEDIA', async () => {
-        const element = await detail({ poi: { ...poi('casa-uranus'), photoIds: [] }, category: category('cladiri'), layers: MANIFEST.layers });
-        expect(element.shadowRoot?.querySelector('.media')).toBeNull();
-
-        element.mediaKind = 'interior';
-        element.poi = poi('casa-uranus');
-        await element.updateComplete;
-        expect(element.mediaKind).toBeNull();
-        expect(shadowQueryAll(element, '.thumbs button')).toHaveLength(2);
-    });
-
     it('badPath_noPoiRendersNothing', async () => {
         const element = await detail({ poi: null });
 
@@ -243,5 +205,54 @@ describe('<hcm-poi-detail> a Wikipedia article', () => {
             manifestUrl: 'https://[',
         });
         expect(broken.shadowRoot?.querySelector('img.picture')).toBeNull();
+    });
+});
+
+describe('<hcm-poi-detail> media (M17 §12)', () => {
+    beforeAll(() => {
+        defineKitDoubles();
+        defineHcmPoiDetail();
+    });
+
+    afterEach(() => {
+        document.body.replaceChildren();
+    });
+
+    it('happyPath_aPlaceShowsItsMediaByKindAndAMapOpensOnTheMap @S-V80-HAPPY-PLACE-MEDIA', async () => {
+        const place = poi('casa-uranus');
+        const [first, second] = MANIFEST.photos;
+        const layer = MANIFEST.layers[0];
+        if (first === undefined || second === undefined || layer === undefined) {
+            throw new Error('fixture');
+        }
+        const element = await detail({
+            poi: { ...place, photoIds: [first.id] },
+            photos: [first, { ...second, kind: 'interior', placeIds: [place.id] }],
+            layers: [{ ...layer, placeIds: [place.id] }],
+            category: category('cladiri'),
+            locale: 'en',
+        });
+
+        expect(shadowText(element)).toContain('Media');
+        const chips = shadowQueryAll(element, '.kinds label').map((label) => label.textContent.trim());
+        expect(chips).toEqual(['Maps', 'Exterior', 'Interior']);
+        const events = recordEvents(element, 'hcm-layer-show');
+        await page.getByRole('button', { name: `Show the map on the map: ${layer.label.en}` }).click();
+        expect(events).toEqual([{ type: 'hcm-layer-show', detail: { layerId: layer.id } }]);
+
+        await page.getByRole('radio', { name: 'Interior' }).click();
+        await element.updateComplete;
+        expect(shadowQueryAll(element, '.thumbs button')).toHaveLength(1);
+    });
+
+    it('badPath_aPlaceWithoutMediaShowsNoMediaAndANewPlaceStartsAtItsFirstKind @S-V80-BAD-NO-MEDIA', async () => {
+        const element = await detail({ poi: { ...poi('casa-uranus'), photoIds: [] }, category: category('cladiri'), layers: MANIFEST.layers });
+        expect(element.shadowRoot?.querySelector('.media')).toBeNull();
+
+        element.mediaKind = 'interior';
+        element.poi = poi('casa-uranus');
+        await element.updateComplete;
+        expect(element.mediaKind).toBeNull();
+        expect(shadowQueryAll(element, '.thumbs button')).toHaveLength(2);
     });
 });

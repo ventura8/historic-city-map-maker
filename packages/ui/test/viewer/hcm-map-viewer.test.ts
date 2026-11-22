@@ -154,39 +154,6 @@ describe('<hcm-map-viewer>: boot', () => {
         expect(store.callsOf('locatePhoto')).toEqual([['uranus-1984', [0, -120]]]);
     });
 
-    it('happyPath_aPlacesMapFromItsMediaIsSwitchedOnAndFitted @S-V80-HAPPY-PLACE-MEDIA', async () => {
-        const manifest = testManifest((raw) => {
-            const [first] = raw['layers'] as Record<string, unknown>[];
-            if (first !== undefined) {
-                first['bounds'] = [
-                    [26.07, 44.41],
-                    [26.08, 44.42],
-                ];
-            }
-        });
-        const { element, store } = await mountViewer(readyState(manifest, { selectedPoiId: 'casa-uranus', sheet: 'photo' }));
-
-        part({ element, store }, 'hcm-photo-sheet').dispatchEvent(
-            new CustomEvent('hcm-layer-show', { bubbles: true, composed: true, detail: { layerId: 'kh9-1977' } }),
-        );
-
-        expect(store.callsOf('pickLayer')).toEqual([['kh9-1977']]);
-        const [view] = (store.callsOf('flyTo')[0] ?? []) as { center: number[] }[];
-        expect(view?.center[0]).toBeCloseTo(26.075, 3);
-    });
-
-    it('badPath_aPlacesMapWithoutBoundsOrUnknownLeavesTheCameraAlone @S-V80-BAD-UNKNOWN-PLACE', async () => {
-        const { element, store } = await mountViewer(readyState(testManifest(), { selectedPoiId: 'casa-uranus', sheet: 'photo' }));
-        const sheet = part({ element, store }, 'hcm-photo-sheet');
-
-        for (const layerId of ['kh9-1977', 'gone']) {
-            sheet.dispatchEvent(new CustomEvent('hcm-layer-show', { bubbles: true, composed: true, detail: { layerId } }));
-        }
-
-        expect(store.callsOf('pickLayer')).toEqual([['kh9-1977'], ['gone']]);
-        expect(store.callsOf('flyTo')).toEqual([]);
-    });
-
     it('badPath_withoutWebglThePhotoSheetCannotLocate', async () => {
         const { element, store } = await mountViewer(
             readyState(testManifest(), { webgl: false, selectedPhotoId: 'uranus-1984', sheet: 'photo' }),
@@ -453,5 +420,44 @@ describe('the keyboard and the gamepad on <hcm-map-viewer>', () => {
         expect(mounted.store.getState().sheet).toBe('help');
         fireKitEvent(about, 'hcm-shortcuts-change', { enabled: false });
         expect(mounted.store.getState().shortcuts).toBe(false);
+    });
+});
+
+describe("<hcm-map-viewer>: a place's maps (M17 §12)", () => {
+    afterEach(() => {
+        document.body.replaceChildren();
+    });
+
+    it('happyPath_aPlacesMapFromItsMediaIsSwitchedOnAndFitted @S-V80-HAPPY-PLACE-MEDIA', async () => {
+        const manifest = testManifest((raw) => {
+            const [first] = raw['layers'] as Record<string, unknown>[];
+            if (first !== undefined) {
+                first['bounds'] = [
+                    [26.07, 44.41],
+                    [26.08, 44.42],
+                ];
+            }
+        });
+        const { element, store } = await mountViewer(readyState(manifest, { selectedPoiId: 'casa-uranus', sheet: 'photo' }));
+
+        part({ element, store }, 'hcm-photo-sheet').dispatchEvent(
+            new CustomEvent('hcm-layer-show', { bubbles: true, composed: true, detail: { layerId: 'kh9-1977' } }),
+        );
+
+        expect(store.callsOf('pickLayer')).toEqual([['kh9-1977']]);
+        const [view] = (store.callsOf('flyTo')[0] ?? []) as { center: number[] }[];
+        expect(view?.center[0]).toBeCloseTo(26.075, 3);
+    });
+
+    it('badPath_aPlacesMapWithoutBoundsOrUnknownLeavesTheCameraAlone @S-V80-BAD-UNKNOWN-PLACE', async () => {
+        const { element, store } = await mountViewer(readyState(testManifest(), { selectedPoiId: 'casa-uranus', sheet: 'photo' }));
+        const sheet = part({ element, store }, 'hcm-photo-sheet');
+
+        for (const layerId of ['kh9-1977', 'gone']) {
+            sheet.dispatchEvent(new CustomEvent('hcm-layer-show', { bubbles: true, composed: true, detail: { layerId } }));
+        }
+
+        expect(store.callsOf('pickLayer')).toEqual([['kh9-1977'], ['gone']]);
+        expect(store.callsOf('flyTo')).toEqual([]);
     });
 });
