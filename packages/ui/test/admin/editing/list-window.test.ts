@@ -11,9 +11,10 @@ function names(count: number): string[] {
     return Array.from({ length: count }, (_, index) => `place ${String(index)}`);
 }
 
-const rows = (items: readonly string[]): TemplateResult => html`<ul>
-    ${items.map((item) => html`<li>${item}</li>`)}
-</ul>`;
+const rows = (items: readonly string[]): TemplateResult =>
+    html`<ul>
+        ${items.map((item) => html`<li>${item}</li>`)}
+    </ul>`;
 
 /** A host of `height` CSS px that scrolls, holding the template; resolves once Lit and the observer settled. */
 async function mount(template: TemplateResult, height = 400): Promise<HTMLElement> {
@@ -108,8 +109,20 @@ describe('listBody', () => {
     const ready = { status: 'ready' as const, reconnecting: false, failure: null };
 
     it('happyPath_countsEveryItemTheSearchKeeps', async () => {
-        const handlers = { retry: () => undefined, more: () => undefined, items: rows, shown: (items: readonly string[]) => items.slice(1) };
-        const host = await mount(listBody('ro', { ...ready, items: names(316), hasMore: false }, { empty: 'adminContent.pois.empty', icon: 'place', count: 'adminContent.pois.count' }, handlers));
+        const handlers = {
+            retry: () => undefined,
+            more: () => undefined,
+            items: rows,
+            shown: (items: readonly string[]) => items.slice(1),
+        };
+        const host = await mount(
+            listBody(
+                'ro',
+                { ...ready, items: names(316), hasMore: false },
+                { empty: 'adminContent.pois.empty', icon: 'place', count: 'adminContent.pois.count' },
+                handlers,
+            ),
+        );
 
         expect(host.querySelector('.list-count')?.textContent.trim()).toBe('Locuri: 315');
     });

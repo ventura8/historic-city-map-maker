@@ -26,7 +26,11 @@ test(
             await Promise.all(
                 numbers.slice(start, start + 25).map((index) => {
                     const number = String(index).padStart(3, '0');
-                    return seedPlace(content, { id: `str-${number}`, title: `Strada ${number}`, at: [26.1, 44.43] }, new Date(AT.getTime() + index * 1000));
+                    return seedPlace(
+                        content,
+                        { id: `str-${number}`, title: `Strada ${number}`, at: [26.1, 44.43] },
+                        new Date(AT.getTime() + index * 1000),
+                    );
                 }),
             );
         }
