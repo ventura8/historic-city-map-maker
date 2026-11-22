@@ -41,6 +41,15 @@ describe('georefVersionOf: an archive series', () => {
         expect(version.series).toEqual({ stitchedOnly: true });
     });
 
+    // LESSONS 759: a relayout writes a new revision over the same preview path; the revision tells the picture is new.
+    it('happyPath_aLaidOutSeriesPictureCarriesItsLayoutRevision', () => {
+        const quality = { placedPct: 100, seamMedian: 0.8, seamRmsPx: 1, verdict: 'good' as const };
+        const layout = { rows: 2, cols: 2, revision: 4, quality, weakSeams: [] };
+        const help = { reason: 'layout-check', note: 'n', at: at('2026-11-21T08:00:00.000Z'), stitched: { ...STITCHED, layout } };
+
+        expect(series({ help }).scan).toMatchObject({ previewPath: 'rasters/x/stitched.jpg', revision: 4 });
+    });
+
     it('badPath_aSeriesWithNeitherHasNoPictureAndSaysItIsASeries @S-A-BAD-FIX-TILES-STATE', () => {
         const version = series({ help: { reason: 'no-scale', note: 'n', at: at('2026-11-21T08:00:00.000Z') } });
 
