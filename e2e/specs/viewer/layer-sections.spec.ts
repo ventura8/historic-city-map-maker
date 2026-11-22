@@ -5,7 +5,7 @@ import { openLayers, openViewer, t, viewer, visibilitySwitch } from '../../suppo
 
 /**
  * The Layers panel's three collapsible sections (owner, 2026-11-22): pinned at the top, then Places, then the historical
- * layers; pinned and Places start expanded, Layers collapsed, and the choice is remembered per viewer.
+ * maps, then the aerial and satellite photos (the e2e city has only those); pinned and Places start expanded, the rest collapsed, and the choice is remembered per viewer.
  */
 
 const LAYER_LABEL = 'Corona 1966 (e2e)';
@@ -15,7 +15,7 @@ function header(page: Page, name: string) {
 }
 
 test(
-    'Pinned, Places and Layers in that order; Layers starts collapsed and its header expands it',
+    'Pinned, Places and the aerial and satellite photos in that order; the photos start collapsed and their header expands them',
     { tag: ['@S-V03-HAPPY-LAYER-SECTIONS', '@layer-sections-default'] },
     async ({ page, lang }) => {
         await openViewer(page, { lang, hash: '15/44.42700/26.08530' });
@@ -25,11 +25,11 @@ test(
         expect(await sections.evaluateAll((all) => all.map((element) => element.getAttribute('data-section')))).toEqual([
             'pinned',
             'places',
-            'layers',
+            'aerial',
         ]);
         await expect(header(page, t(lang, 'layers.group.pinned'))).toHaveAttribute('aria-expanded', 'true');
         await expect(header(page, t(lang, 'layers.group.places'))).toHaveAttribute('aria-expanded', 'true');
-        const layers = header(page, t(lang, 'layers.group.historical'));
+        const layers = header(page, t(lang, 'layers.group.aerial'));
         await expect(layers).toHaveAttribute('aria-expanded', 'false');
         await expect(visibilitySwitch(page, lang, LAYER_LABEL)).toBeHidden();
 
@@ -39,7 +39,7 @@ test(
 
         await page.reload();
         await openLayers(page, lang);
-        await expect(header(page, t(lang, 'layers.group.historical'))).toHaveAttribute('aria-expanded', 'true');
+        await expect(header(page, t(lang, 'layers.group.aerial'))).toHaveAttribute('aria-expanded', 'true');
     },
 );
 
@@ -58,7 +58,7 @@ test(
         await openLayers(page, lang);
         const places = header(page, t(lang, 'layers.group.places'));
         await expect(places).toHaveAttribute('aria-expanded', 'true');
-        await expect(header(page, t(lang, 'layers.group.historical'))).toHaveAttribute('aria-expanded', 'false');
+        await expect(header(page, t(lang, 'layers.group.aerial'))).toHaveAttribute('aria-expanded', 'false');
 
         await places.click();
         await expect(places).toHaveAttribute('aria-expanded', 'false');

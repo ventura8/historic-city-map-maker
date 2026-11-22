@@ -97,6 +97,7 @@ export const hi: Messages = {
     'layers.empty': 'इस मानचित्र में कोई ऐतिहासिक परत नहीं है।',
     'layers.group.historical': 'ऐतिहासिक परतें',
     'layers.group.places': 'स्थान',
+    'layers.group.aerial': 'हवाई और उपग्रह तस्वीरें',
     'layers.group.pinned': 'ऊपर पिन की गई परतें',
     'layers.opacityChanged': '{name}: अपारदर्शिता {percent}%',
     'layers.shown': '{name}: दिखाई गई',

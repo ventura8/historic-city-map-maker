@@ -108,6 +108,7 @@ export const fr: Messages = {
     'layers.empty': 'Cette carte n’a pas de calques historiques.',
     'layers.group.historical': 'Calques historiques',
     'layers.group.places': 'Lieux',
+    'layers.group.aerial': 'Photos aériennes et satellite',
     'layers.group.pinned': 'Calques fixés en haut',
     'layers.opacityChanged': '{name} : opacité {percent} %',
     'layers.shown': '{name} : affichée',

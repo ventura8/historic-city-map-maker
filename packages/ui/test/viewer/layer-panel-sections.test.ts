@@ -7,7 +7,13 @@ import { defineKitDoubles, mountElement, shadowQuery, shadowQueryAll } from './d
 import { testManifest } from './fixtures.js';
 
 async function panel(): Promise<HcmLayerPanel> {
-    const manifest = testManifest();
+    // The first layer a map, the second a satellite photo: one in Layers, one in Aerial and satellite photos.
+    const manifest = testManifest((raw) => {
+        const layers = raw['layers'] as Record<string, unknown>[];
+        for (const layer of layers.slice(0, 1)) {
+            layer['kind'] = 'map';
+        }
+    });
     return mountElement<HcmLayerPanel>(HCM_LAYER_PANEL_TAG, {
         manifest,
         overlays: overlaysFromManifest(manifest),
@@ -40,11 +46,13 @@ describe('layer panel sections', () => {
     it('happyPath_pinnedThenPlacesThenLayers_layersCollapsedByDefault', async () => {
         const element = await panel();
         const order = shadowQueryAll(element, '[data-section]').map((section) => section.dataset['section']);
-        expect(order).toEqual(['pinned', 'places', 'layers']);
+        expect(order).toEqual(['pinned', 'places', 'layers', 'aerial']);
         expect(toggle(element, 'pinned').getAttribute('aria-expanded')).toBe('true');
         expect(toggle(element, 'places').getAttribute('aria-expanded')).toBe('true');
         expect(toggle(element, 'layers').getAttribute('aria-expanded')).toBe('false');
         expect(body(element, 'layers').hidden).toBe(true);
+        expect(toggle(element, 'aerial').getAttribute('aria-expanded')).toBe('false');
+        expect(toggle(element, 'aerial').textContent).toContain('Aerial and satellite photos');
         expect(toggle(element, 'layers').getAttribute('aria-controls')).toBe('section-layers');
         expect(toggle(element, 'layers').textContent).toContain('Historical layers');
     });
@@ -59,7 +67,7 @@ describe('layer panel sections', () => {
         toggle(element, 'places').click();
         await element.updateComplete;
         expect(body(element, 'places').hidden).toBe(true);
-        expect(loadSections()).toEqual({ pinned: true, places: false, layers: true });
+        expect(loadSections()).toEqual({ pinned: true, places: false, layers: true, aerial: false });
         document.body.replaceChildren();
         const again = await panel();
         expect(toggle(again, 'layers').getAttribute('aria-expanded')).toBe('true');
@@ -72,6 +80,7 @@ describe('layer panel sections', () => {
         await element.updateComplete;
         await element.updateComplete;
         expect(toggle(element, 'layers').getAttribute('aria-expanded')).toBe('true');
+        expect(toggle(element, 'aerial').getAttribute('aria-expanded')).toBe('true');
     });
 
     it('happyPath_switchesAreCompact', async () => {
@@ -87,7 +96,7 @@ describe('layer panel sections', () => {
         localStorage.setItem(SECTIONS_STORAGE_KEY, '42');
         expect(loadSections()).toEqual(DEFAULT_SECTIONS);
         localStorage.setItem(SECTIONS_STORAGE_KEY, '{"layers":"yes","places":false}');
-        expect(loadSections()).toEqual({ pinned: true, places: false, layers: false });
+        expect(loadSections()).toEqual({ pinned: true, places: false, layers: false, aerial: false });
         vi.spyOn(Storage.prototype, 'getItem').mockImplementation(() => {
             throw new Error('blocked');
         });

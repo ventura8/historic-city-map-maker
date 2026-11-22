@@ -101,6 +101,7 @@ export const zh: Messages = {
     'layers.empty': '此地图没有历史图层。',
     'layers.group.historical': '历史图层',
     'layers.group.places': '地点',
+    'layers.group.aerial': '航拍与卫星照片',
     'layers.group.pinned': '已固定在顶部的图层',
     'layers.opacityChanged': '{name}：不透明度 {percent}%',
     'layers.shown': '{name}：已显示',

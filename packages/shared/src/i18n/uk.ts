@@ -100,6 +100,7 @@ export const uk: Messages = {
     'layers.empty': 'На цій мапі немає історичних шарів.',
     'layers.group.historical': 'Історичні шари',
     'layers.group.places': 'Місця',
+    'layers.group.aerial': 'Аеро- та супутникові знімки',
     'layers.group.pinned': 'Шари закріплено зверху',
     'layers.opacityChanged': '{name}: непрозорість {percent} %',
     'layers.shown': '{name}: показано',

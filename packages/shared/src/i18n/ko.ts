@@ -101,6 +101,7 @@ export const ko: Messages = {
     'layers.empty': '이 지도에는 역사 레이어가 없습니다.',
     'layers.group.historical': '역사 레이어',
     'layers.group.places': '장소',
+    'layers.group.aerial': '항공 및 위성 사진',
     'layers.group.pinned': '상단에 고정된 레이어',
     'layers.opacityChanged': '{name}: 불투명도 {percent}%',
     'layers.shown': '{name}: 표시됨',
