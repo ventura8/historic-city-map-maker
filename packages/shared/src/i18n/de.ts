@@ -133,6 +133,7 @@ export const de: Messages = {
     'photos.filter.all': 'Alle',
     'photos.filter.ground': 'Straße',
     'photos.filter.aerial': 'Luftbilder',
+    'photos.filter.interior': 'Innen',
     'photos.count.zero': '{count} Fotos',
     'photos.count.one': '{count} Foto',
     'photos.count.two': '{count} Fotos',

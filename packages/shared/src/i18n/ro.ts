@@ -130,6 +130,7 @@ export const ro = {
     'photos.filter.all': 'Toate',
     'photos.filter.ground': 'De pe stradă',
     'photos.filter.aerial': 'Aeriene',
+    'photos.filter.interior': 'Interior',
     'photos.count.zero': '{count} fotografii',
     'photos.count.one': '{count} fotografie',
     'photos.count.two': '{count} fotografii',

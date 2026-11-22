@@ -84,6 +84,7 @@ export function editor(overrides: Partial<PhotoEditorPort> = {}): PhotoEditorPor
 
 export function photosState(overrides: Partial<PhotosViewState> = {}): PhotosViewState {
     return {
+        places: null,
         role: 'editor',
         list: {
             status: 'ready',

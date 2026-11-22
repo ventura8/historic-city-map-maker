@@ -125,6 +125,7 @@ export const hi: Messages = {
     'photos.filter.all': 'सभी',
     'photos.filter.ground': 'सड़क से',
     'photos.filter.aerial': 'हवाई',
+    'photos.filter.interior': 'भीतरी',
     'photos.count.zero': '{count} तस्वीरें',
     'photos.count.one': '{count} तस्वीर',
     'photos.count.two': '{count} तस्वीरें',

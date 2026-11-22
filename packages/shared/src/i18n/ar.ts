@@ -126,6 +126,7 @@ export const ar: Messages = {
     'photos.filter.all': 'الكل',
     'photos.filter.ground': 'من الشارع',
     'photos.filter.aerial': 'جوية',
+    'photos.filter.interior': 'داخلي',
     'photos.count.zero': '{count} صورة',
     'photos.count.one': '{count} صورة',
     'photos.count.two': '{count} صورتان',

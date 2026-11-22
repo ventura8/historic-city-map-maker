@@ -129,6 +129,7 @@ export const zh: Messages = {
     'photos.filter.all': '全部',
     'photos.filter.ground': '街景',
     'photos.filter.aerial': '航拍',
+    'photos.filter.interior': '内景',
     'photos.count.zero': '{count}张照片',
     'photos.count.one': '{count}张照片',
     'photos.count.two': '{count}张照片',

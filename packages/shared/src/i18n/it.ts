@@ -131,6 +131,7 @@ export const it: Messages = {
     'photos.filter.all': 'Tutte',
     'photos.filter.ground': 'Dalla strada',
     'photos.filter.aerial': 'Aeree',
+    'photos.filter.interior': 'Interno',
     'photos.count.zero': '{count} foto',
     'photos.count.one': '{count} foto',
     'photos.count.two': '{count} foto',

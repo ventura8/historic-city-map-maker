@@ -79,6 +79,7 @@ export function editorOf(layer: LayerDoc = layerDoc(), overrides: Partial<LayerE
 
 export function layersState(overrides: Partial<LayersViewState> = {}): LayersViewState {
     return {
+        places: null,
         list: ready([
             layerItem(),
             layerItem({

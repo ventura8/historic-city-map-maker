@@ -128,6 +128,7 @@ export const uk: Messages = {
     'photos.filter.all': 'Усі',
     'photos.filter.ground': 'З вулиці',
     'photos.filter.aerial': 'Аерофото',
+    'photos.filter.interior': 'Інтер’єр',
     'photos.count.zero': '{count} фотографій',
     'photos.count.one': '{count} фотографія',
     'photos.count.two': '{count} фотографії',

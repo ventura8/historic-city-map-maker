@@ -131,6 +131,7 @@ export const ja: Messages = {
     'photos.filter.all': 'すべて',
     'photos.filter.ground': '地上',
     'photos.filter.aerial': '航空',
+    'photos.filter.interior': '内観',
     'photos.count.zero': '写真{count}枚',
     'photos.count.one': '写真{count}枚',
     'photos.count.two': '写真{count}枚',

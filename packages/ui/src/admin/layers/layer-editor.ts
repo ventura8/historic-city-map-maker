@@ -227,7 +227,7 @@ function placesRow(context: EditorContext, layer: LayerDoc): TemplateResult {
         places: context.places,
         readOnly: context.readOnly,
         change: (placeIds) => {
-            context.intents?.edit({ placeIds });
+            context.intents?.edit({ placeIds: placeIds === undefined ? undefined : [...placeIds] });
         },
     });
 }

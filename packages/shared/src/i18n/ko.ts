@@ -130,6 +130,7 @@ export const ko: Messages = {
     'photos.filter.all': '전체',
     'photos.filter.ground': '거리',
     'photos.filter.aerial': '항공',
+    'photos.filter.interior': '내부',
     'photos.count.zero': '사진 {count}장',
     'photos.count.one': '사진 {count}장',
     'photos.count.two': '사진 {count}장',

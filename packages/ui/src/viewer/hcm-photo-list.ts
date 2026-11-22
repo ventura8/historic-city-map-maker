@@ -18,7 +18,7 @@ export const HCM_PHOTO_LIST_TAG = 'hcm-photo-list';
 /** Which photos the list shows (the owner, 2026-11-16): every kind, street photos or aerial photos. */
 export type PhotoKindFilter = 'all' | PhotoKind;
 
-const KIND_FILTERS: readonly PhotoKindFilter[] = ['all', 'ground', 'aerial'];
+const KIND_FILTERS: readonly PhotoKindFilter[] = ['all', 'ground', 'aerial', 'interior'];
 
 /** The photos of `photos` that `filter` keeps. */
 function photosOfKind(photos: readonly Photo[], filter: PhotoKindFilter): readonly Photo[] {
@@ -164,17 +164,22 @@ export class HcmPhotoList extends LitElement {
             </ul>`;
     }
 
-    /** The Street / Aerial choice, only when some photo is aerial (a city of street photos sees no change). */
+    /**
+     * The Street / Aerial / Interior choice, only when some photo is not a street photo (a city of street photos sees no
+     * change); Aerial and Interior each only when some photo is of that kind.
+     */
     #kinds(): TemplateResult {
-        if (!this.photos.some((photo) => photoKindOf(photo) === 'aerial')) {
+        const kinds = new Set(this.photos.map((photo) => photoKindOf(photo)));
+        if (!kinds.has('aerial') && !kinds.has('interior')) {
             return html``;
         }
+        const shown = KIND_FILTERS.filter((filter) => filter === 'all' || filter === 'ground' || kinds.has(filter));
         const choose = (filter: PhotoKindFilter): void => {
             this.kindFilter = filter;
         };
         return html`<fieldset class="kinds">
             <legend class="visually-hidden">${translate(this.locale, 'photos.filter')}</legend>
-            ${KIND_FILTERS.map(
+            ${shown.map(
                 (filter) =>
                     html`<label
                         ><input

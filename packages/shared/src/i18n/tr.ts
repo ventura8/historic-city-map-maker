@@ -128,6 +128,7 @@ export const tr: Messages = {
     'photos.filter.all': 'Tümü',
     'photos.filter.ground': 'Sokaktan',
     'photos.filter.aerial': 'Havadan',
+    'photos.filter.interior': 'İç',
     'photos.count.zero': '{count} fotoğraf',
     'photos.count.one': '{count} fotoğraf',
     'photos.count.two': '{count} fotoğraf',

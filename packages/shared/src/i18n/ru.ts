@@ -132,6 +132,7 @@ export const ru: Messages = {
     'photos.filter.all': 'Все',
     'photos.filter.ground': 'С улицы',
     'photos.filter.aerial': 'Аэрофото',
+    'photos.filter.interior': 'Интерьер',
     'photos.count.zero': '{count} фотографий',
     'photos.count.one': '{count} фотография',
     'photos.count.two': '{count} фотографии',
