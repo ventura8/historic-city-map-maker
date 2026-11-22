@@ -64,6 +64,9 @@ def test_bad_path_another_class_or_no_original_or_another_job_keeps_the_scan(wor
     assert based_original(replace(ctx, job=replace(ctx.job, type="usgs-import"))) is None
     world.store.update(world.job_path(), {"type": "usgs-import"})
     assert based_original(ctx) is None
+    single, _ = regeoref(world, tmp_path / "moved")
+    (tmp_path / "moved" / "scratch" / "sheets.json").unlink()
+    assert based_original(single) is None
     gone, _ = regeoref(world, tmp_path / "gone", original=False)
     assert based_original(gone) is None
     assert based_original(replace(ctx, services=replace(ctx.services, archive_root=None))) is None

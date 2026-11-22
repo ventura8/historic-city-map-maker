@@ -12,10 +12,10 @@ from pathlib import Path
 from typing import Final
 
 from hcm_pipeline.archive.magic import sniff_file
-from hcm_pipeline.jobs import JobContext
+from hcm_pipeline.jobs import JobContext, StepFailedError
 from hcm_pipeline.placing.raster_io import tiled_copy
 from hcm_pipeline.placing.series import series_of
-from hcm_pipeline.steps.gather import text_param
+from hcm_pipeline.steps.gather import SHEETS, sheets_of, store_of, text_param, write_sheets
 
 ORIGINAL: Final = "original.tif"
 SINGLE: Final = "single"
@@ -56,8 +56,27 @@ def _archive_base(ctx: JobContext, job_id: str, depth: int = CHAIN_MAX) -> tuple
     return _archive_base(ctx, following, depth - 1) if isinstance(following, str) else None
 
 
+def _sheets_here(ctx: JobContext, params: dict[str, object]) -> None:
+    """The base series' sheets read from this computer's archive into the scratch folder: a worker may read only its own job's files,
+    so the base job's `sheets.json` is never fetched (`apiError.worker.refused`, the live 1:2000 regeoref)."""
+    if not ctx.local(SHEETS).is_file():
+        write_sheets(ctx.local(SHEETS), sheets_of(store_of(ctx), text_param(params, "archiveId"), text_param(params, "seriesId")))
+
+
+def _single_base(ctx: JobContext) -> tuple[str, dict[str, object]] | None:
+    """The archive series' job a `regeoref` starts from, on the computer that holds the archive; else None."""
+    based_on = ctx.job.params.get("basedOn") if ctx.job.type == "regeoref" and ctx.services.archive_root is not None else None
+    return _archive_base(ctx, based_on) if isinstance(based_on, str) else None
+
+
 def based_original(ctx: JobContext) -> Path | None:
     """A `regeoref` job's base archive single map's original, else None: the base job's parameters and sheets are its own."""
-    based_on = ctx.job.params.get("basedOn") if ctx.job.type == "regeoref" else None
-    found = _archive_base(ctx, based_on) if isinstance(based_on, str) and ctx.services.archive_root is not None else None
-    return None if found is None else single_original(replace(ctx, job=replace(ctx.job, id=found[0], params=found[1])))
+    found = _single_base(ctx)
+    if found is None or text_param(found[1], "class") != SINGLE:
+        return None
+    try:
+        _sheets_here(ctx, found[1])
+    except StepFailedError as error:
+        ctx.log.warn(f"the original of {found[0]} is not on this computer ({error}): the scan is warped", ctx.step)
+        return None
+    return single_original(replace(ctx, job=replace(ctx.job, id=found[0], params=found[1])))
