@@ -23616,8 +23616,8 @@
             "behaviour": "A195",
             "area": "admin",
             "path": "happy",
-            "title": "The admin draws an aerial photo's area in front of the camera and drags its corners",
-            "asserts": "photo editor, kind Aerial photo -> Draw the area in front of the camera puts a four-corner trapezoid on the map; dragging a corner changes the draft; Save writes viewedArea",
+            "title": "The admin draws the area of an aerial photo in front of the camera and saves it",
+            "asserts": "an aerial photo with a place and a direction north -> Draw the area in front of the camera shows Reset and Remove; Save writes viewedArea of four corners, the far ones north of the near ones",
             "tier": "e2e-admin",
             "status": "planned",
             "notes": "The owner, 2026-11-22. Unit coverage today: packages/admin/test/photos/store.test.ts, packages/ui/test/admin/photos/photo-editor.test.ts."
@@ -23627,8 +23627,8 @@
             "behaviour": "A195",
             "area": "admin",
             "path": "bad",
-            "title": "Adding a fifth corner or crossing the area is refused with its message",
-            "asserts": "photo editor, an aerial photo's area -> dragging a midpoint is refused with 'The viewed area keeps exactly four corners and must not cross itself'; the area stays four corners",
+            "title": "A crossed viewed area says why and is not saved",
+            "asserts": "an aerial photo whose stored area crosses itself -> the Viewed area section shows the validation.viewedArea message; Reset clears it",
             "tier": "e2e-admin",
             "status": "planned",
             "notes": "The owner, 2026-11-22. Unit coverage today: packages/admin/test/photos/store.test.ts (area.refused)."
@@ -23674,8 +23674,19 @@
             "title": "A photo without a viewed area draws none",
             "asserts": "the fixture manifest's street photos -> hovering or selecting one draws no area feature",
             "tier": "e2e-viewer",
-            "status": "planned",
-            "notes": "The owner, 2026-11-22. Unit coverage today: packages/engine/test/core/map-specs.test.ts (badPath_aPhotoWithoutAViewedAreaDrawsNoArea)."
+            "status": "exists",
+            "notes": "Test: e2e/specs/viewer/viewed-area.spec.ts. The owner, 2026-11-22. Unit coverage today: packages/engine/test/core/map-specs.test.ts (badPath_aPhotoWithoutAViewedAreaDrawsNoArea)."
+        },
+        {
+            "id": "S-A194-HAPPY",
+            "behaviour": "A194",
+            "area": "admin",
+            "path": "happy",
+            "title": "After the Statistics page read the numbers, Home's Visitors card shows them with the trend and the top lists",
+            "asserts": "Show the numbers on Statistics (one consent) -> back on Home the card shows the period's visitors and visits, the trend, the last day, new against returning, the top countries, languages, devices, years, layers and photos, with All the numbers",
+            "tier": "e2e-admin",
+            "status": "exists",
+            "notes": "The owner's request, 2026-11-16. Test: e2e/admin/specs/ops/statistics.spec.ts; unit: packages/ui/test/admin/home/visitors.test.ts, packages/admin/test/home/visitors.test.ts."
         },
         {
             "id": "S-A194-BAD-NOT-READ",
