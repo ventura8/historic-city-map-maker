@@ -133,8 +133,29 @@ function rasterEntries(overlays: readonly Overlay[], opacity: number | undefined
  * Undefined when none does, so an untouched viewer writes no `&op=`.
  */
 export function hashOverlayOpacity(overlays: readonly Overlay[]): Readonly<Record<string, number>> | undefined {
-    const changed = overlays.filter((target) => opacityPercent(target.opacity) !== opacityPercent(target.defaultOpacity));
+    // 0 is never written (the owner, 2026-11-22: `op=…:0` opened a layer that was on and invisible); the link then reopens
+    // the layer at its default opacity.
+    const changed = overlays.filter(
+        (target) => target.opacity > 0 && opacityPercent(target.opacity) !== opacityPercent(target.defaultOpacity),
+    );
     return changed.length === 0 ? undefined : Object.fromEntries(changed.map((target) => [target.id, roundTo(target.opacity, 2)]));
+}
+
+/** The opacity a layer switched on at 0 takes: its default, or 85 % when the default itself is 0. */
+const VISIBLE_FALLBACK_OPACITY = 0.85;
+
+/**
+ * A historical layer that is on is never invisible (the owner, 2026-11-22): one at opacity 0 takes its default opacity
+ * (85 % when that is 0 too). Unchanged list when none is.
+ */
+export function withVisibleOpaque(overlays: readonly Overlay[]): readonly Overlay[] {
+    const hidden = (target: Overlay): boolean => target.kind === 'raster' && target.visible && target.opacity <= 0;
+    if (!overlays.some(hidden)) {
+        return overlays;
+    }
+    return overlays.map((target) =>
+        hidden(target) ? { ...target, opacity: target.defaultOpacity > 0 ? target.defaultOpacity : VISIBLE_FALLBACK_OPACITY } : target,
+    );
 }
 
 /** Every overlay back at its manifest defaults (the admin's "reset", the viewer's new manifest). */

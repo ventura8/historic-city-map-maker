@@ -3807,6 +3807,28 @@
             "notes": "Milestone M1. PLAN Addendum 3. Fixture: the POI set scripts/seed/e2e-pois.json in the e2e fixture manifest (docs/research/M1-interfaces.md §10)."
         },
         {
+            "id": "S-V23-HAPPY-ON-NEVER-INVISIBLE",
+            "behaviour": "V23",
+            "area": "viewer",
+            "path": "happy",
+            "title": "A layer a link turns on at opacity 0 opens at its default opacity",
+            "asserts": "layers=<id>&op=<id>:0 -> the layer is on at its default opacity (85 % when that is 0), never invisible",
+            "tier": "e2e-viewer",
+            "status": "planned",
+            "notes": "Owner 2026-11-22. Tests: packages/engine/test/core/deep-link-places.test.ts."
+        },
+        {
+            "id": "S-V23-BAD-ZERO-NOT-WRITTEN",
+            "behaviour": "V23",
+            "area": "viewer",
+            "path": "bad",
+            "title": "An opacity dragged to 0 is never written into the link",
+            "asserts": "a visible layer at 0 % -> the hash has no op entry for it (reopened at its default)",
+            "tier": "e2e-viewer",
+            "status": "planned",
+            "notes": "Owner 2026-11-22. Tests: packages/engine/test/core/deep-link-places.test.ts."
+        },
+        {
             "id": "S-V23-HAPPY",
             "behaviour": "V23",
             "area": "viewer",

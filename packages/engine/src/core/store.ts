@@ -11,6 +11,7 @@ import {
     findOverlay,
     withOverlayOpacity,
     withOverlayVisibility,
+    withVisibleOpaque,
     type DecodedHash,
     type LngLat,
     type ViewerLocale,
@@ -252,7 +253,7 @@ class Store implements ViewerStore, BootHost, CompareDriverHost {
     }
 
     toggleOverlay(overlayId: string, visible?: boolean): void {
-        const overlays = withOverlayVisibility(this.#state.overlays, overlayId, visible);
+        const overlays = withVisibleOpaque(withOverlayVisibility(this.#state.overlays, overlayId, visible));
         const overlay = findOverlay(overlays, overlayId);
         if (overlays === this.#state.overlays || overlay === undefined) {
             return;

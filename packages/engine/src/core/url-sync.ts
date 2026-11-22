@@ -9,6 +9,7 @@ import {
     hashOverlayOpacity,
     PHOTOS_OVERLAY_ID,
     withHashOpacity,
+    withVisibleOpaque,
     type CompareState,
     type DecodedHash,
     type HashLimits,
@@ -152,7 +153,7 @@ function withHashMapLabels(state: ViewerState, labels: DecodedHash['labels']): V
 export function applyDecodedHash(state: ViewerState, hash: DecodedHash): AppliedHash {
     const withView = hash.view === undefined ? state : { ...state, view: hash.view, hashView: undefined };
     const withLayers = withHashMapLabels(withHashCompare(withHashLayers(withView, hash.layers), hash.compare), hash.labels);
-    const overlays = withHashOpacity(withLayers.overlays, hash);
+    const overlays = withVisibleOpaque(withHashOpacity(withLayers.overlays, hash));
     const withNear = hash.photosNear === undefined ? withLayers : { ...withLayers, photosNear: hash.photosNear };
     const withLang = hash.lang === undefined ? withNear : { ...withNear, locale: hash.lang };
     return withUnknownLayer(

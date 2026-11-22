@@ -29,3 +29,22 @@ describe('place categories in links', () => {
         expect(applied.unknownLayer).toBe('railways');
     });
 });
+
+/** A layer that is on is never invisible (the owner, 2026-11-22: `op=<layer>:0` opened a blank map). */
+describe('a layer on at opacity 0', () => {
+    const city = manifest();
+    const loaded = withManifest(initialState('ro', 'system', 'unknown'), city);
+
+    it('happyPath_aLinkTurningALayerOnAt0OpensItAtItsDefaultOpacity @S-V23-HAPPY-ON-NEVER-INVISIBLE', () => {
+        const applied = applyDecodedHash(loaded, decodeHash('#15/44.43/26.1&layers=kh4-1966&op=kh4-1966:0', hashLimits(city)));
+        const layer = applied.state.overlays.find((overlay) => overlay.id === 'kh4-1966');
+        expect(layer?.visible).toBe(true);
+        expect(layer?.opacity).toBe(layer?.defaultOpacity);
+    });
+
+    it('badPath_opacity0IsNeverWrittenIntoTheLink @S-V23-BAD-ZERO-NOT-WRITTEN', () => {
+        const applied = applyDecodedHash(loaded, decodeHash('#15/44.43/26.1&layers=kh4-1966', hashLimits(city)));
+        const overlays = applied.state.overlays.map((overlay) => (overlay.id === 'kh4-1966' ? { ...overlay, opacity: 0 } : overlay));
+        expect(encodeViewerHash({ ...applied.state, overlays }, 'ro')).not.toContain('kh4-1966:0');
+    });
+});

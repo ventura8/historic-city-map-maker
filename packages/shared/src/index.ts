@@ -362,6 +362,7 @@ export {
     OVERLAY_KINDS,
     findOverlay,
     hashOverlayOpacity,
+    withVisibleOpaque,
     opacityPercent,
     overlayLabel,
     overlaysFromManifest,
