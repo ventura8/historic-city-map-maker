@@ -33,32 +33,33 @@ export type MakeLiveDeps = Pick<Ports, 'documents' | 'clock' | 'log' | 'blobs'>;
 
 type Own = NonNullable<LayerVersionDoc['own']>;
 
-/** The version's own public archive while it is still there, else null. */
-async function liveArchive(deps: MakeLiveDeps, version: LayerVersionDoc): Promise<Own | null> {
-    const own = version.own;
-    if (own === undefined || own.removedAt !== undefined) {
+/** The version's own public archive and its output while the archive is still there, else null. */
+async function liveArchive(deps: MakeLiveDeps, version: LayerVersionDoc): Promise<Omit<Restorable, 'layerId'> | null> {
+    const { own, output } = version;
+    // A superseded version always has an output (`layerVersionDocSchema`); the check only narrows its type.
+    if (own === undefined || own.removedAt !== undefined || output === undefined) {
         return null;
     }
-    return (await deps.blobs.stat('public', own.path)) === undefined ? null : own;
+    return (await deps.blobs.stat('public', own.path)) === undefined ? null : { own, output };
 }
 
-/** The version, checked: superseded and its archive still in the public bucket. */
 interface Restorable {
     readonly layerId: string;
     readonly own: Own;
     readonly output: NonNullable<LayerVersionDoc['output']>;
 }
 
+/** The version, checked: superseded and its archive still in the public bucket. */
 async function requireRestorable(deps: MakeLiveDeps, request: Request): Promise<Restorable> {
     const version = await requireVersion(deps.documents, request.cityId, request.versionId);
     if (version.state !== 'superseded') {
         throw new ApiError('apiError.imagery.versionState');
     }
-    const own = await liveArchive(deps, version);
-    if (own === null || version.output === undefined) {
+    const archive = await liveArchive(deps, version);
+    if (archive === null) {
         throw new ApiError('apiError.imagery.liveTilesGone');
     }
-    return { layerId: version.layerId, own, output: version.output };
+    return { layerId: version.layerId, ...archive };
 }
 
 /** The layer as the version's archive leaves it: its tiles, zooms and bounds; the presentation kept. */
