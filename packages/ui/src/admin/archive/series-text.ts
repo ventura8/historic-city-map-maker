@@ -9,7 +9,7 @@ import type { AdminArchiveKey } from '@hcm/shared/admin-archive';
 import type { SeriesEditPort, SeriesProgressPort } from './archive-port.js';
 import { archiveText, count, sizeText } from './archive-element.js';
 
-/** A year a layer can show (1800–2100), as typed. */
+/** A year a layer can show (1500–2100), as typed. */
 export function yearShown(text: string): boolean {
     return /^\d{4}$/.test(text.trim()) && yearSchema.safeParse(Number(text)).success;
 }

@@ -1,6 +1,7 @@
 import { describe, expect, it } from 'vitest';
 
 import { poiDocSchema } from '../../src/schemas/firestore.js';
+import { yearSchema } from '../../src/schemas/primitives.js';
 import { hasPlaceYear, latestPlaceYear, placeYearIssues } from '../../src/schemas/place-year.js';
 import { validate } from '../../src/schemas/validation.js';
 
@@ -59,5 +60,15 @@ describe('a stored place without a year', () => {
         const result = validate(poiDocSchema, stored);
         expect(result.ok).toBe(true);
         expect(result.ok && hasPlaceYear(result.value)).toBe(false);
+    });
+});
+
+describe('yearSchema (an old city plan, 2026-11-22)', () => {
+    it('happyPath_yearsFrom1500To2100_includingThePlansOf1770And1791 @S-A121-HAPPY-PRE-1800', () => {
+        expect([1500, 1770, 1791, 1799, 2100].map((year) => yearSchema.safeParse(year).success)).toEqual([true, true, true, true, true]);
+    });
+
+    it('badPath_1499And2101AndAFractionAreRefused @S-A121-BAD-YEAR-1499', () => {
+        expect([1499, 2101, 1770.5].map((year) => yearSchema.safeParse(year).success)).toEqual([false, false, false]);
     });
 });

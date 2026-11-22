@@ -45,7 +45,8 @@ describe('presentation', () => {
         ['a fully opaque default', { opacity: 1 }],
         ['a removed description, attribution and date', { description: deleted(), attribution: deleted(), date: deleted() }],
         ['a leap day', { date: '1968-02-29' }],
-        ['the oldest year', { year: 1800 }],
+        ['the oldest year', { year: 1500 }],
+        ['an old city plan (Specht, 1790)', { year: 1790 }],
         ['a corrected licence and author', { rights: { licence: 'CC-BY-SA-4.0', author: 'Institutul Geografic' } }],
         ['removed rights', { rights: deleted() }],
     ])('happyPath_adminSaves_%s', async (_label, changes) => {
@@ -53,7 +54,7 @@ describe('presentation', () => {
     });
 
     it.each([
-        ['a year before 1800', { year: 1799 }],
+        ['a year before 1500', { year: 1499 }],
         ['a fractional year', { year: 1966.5 }],
         ['a date that is not ISO', { date: '20.08.1966' }],
         ['a date in month 13', { date: '1966-13-01' }],

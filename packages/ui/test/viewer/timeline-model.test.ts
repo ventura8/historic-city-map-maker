@@ -70,3 +70,16 @@ describe('timelineDensity', () => {
         expect(timelineDensity(-10, 1)).toBe('scroll');
     });
 });
+
+describe('an early first year (a plan of 1770, 2026-11-22)', () => {
+    it('happyPath_theTimelineStartsAtTheEarliestLayerAndAddsOneStopNotAnEmptySpan', () => {
+        const stops = timelineStops([{ year: 1977 }, { year: 1770 }, { year: 1912 }]);
+
+        expect(stops).toEqual([1770, 1912, 1977, null]);
+        expect(timelineDensity(4 * YEAR_GAP_PX, stops.length - 1)).toBe('roomy');
+    });
+
+    it('badPath_aYearBeforeTheFirstLayerSnapsToIt', () => {
+        expect(stopIndex(timelineStops([{ year: 1770 }, { year: 1912 }]), 1500)).toBe(0);
+    });
+});

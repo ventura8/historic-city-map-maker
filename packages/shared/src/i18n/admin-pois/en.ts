@@ -51,7 +51,7 @@ export const en: Readonly<Record<AdminPoisKey, string>> = {
     'adminContent.pois.language.en': 'English',
     'adminContent.pois.field.yearStart': 'Start year',
     'adminContent.pois.field.yearEnd': 'End year',
-    'adminContent.pois.field.yearsHint': 'One year, or the years from and to; leave an unknown one empty (1800 to next year).',
+    'adminContent.pois.field.yearsHint': 'One year, or the years from and to; leave an unknown one empty (1500 to next year).',
     'adminContent.pois.field.linkUrl': 'Address of link {number} (https://)',
     'adminContent.pois.field.linkLabel': 'Text of link {number}',
     'adminContent.pois.field.addLink': 'Add a link',

@@ -63,7 +63,7 @@ function seriesOf(archive: ArchiveDoc, seriesId: string): ArchiveSeries {
 
 /**
  * The layer's year, or `apiError.imagery.archiveYear` for one a layer cannot show yet: a series the scan could not date (`?`) until
- * the owner types its year, and one before 1800 (the report knows 1770, a layer's year does not; it waits until layers go further back).
+ * the owner types its year, and one before 1500 (a layer shows 1500 to 2100).
  */
 function yearOf(choice: Choice, series: ArchiveSeries): number {
     const undated = choice.year === undefined && series.yearLabel === UNDATED;

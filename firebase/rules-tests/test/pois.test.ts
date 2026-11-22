@@ -123,7 +123,7 @@ describe('POI fields', () => {
         ['a title without Romanian', { title: { en: 'Enei Church' } }],
         ['a description over 5000 characters', { description: { ro: 'x'.repeat(5001) } }],
         ['a start year after the end year', { yearStart: 1990, yearEnd: 1977 }],
-        ['a start year before 1800', { yearStart: 1611 }],
+        ['a start year before 1500', { yearStart: 1499 }],
         ['an end year after 2100', { yearEnd: 2101 }],
         ['six links', { links: links(6) }],
         [

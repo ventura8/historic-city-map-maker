@@ -73,7 +73,7 @@ function yearField(locale: UiLocale, key: 'year' | 'yearEnd', proposal: Suggesti
             id=${key}
             name=${key}
             type="number"
-            min="1800"
+            min="1500"
             max="2100"
             .value=${String(proposal[key] ?? '')}
             @change=${(event: Event) => {

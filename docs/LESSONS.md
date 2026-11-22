@@ -4454,3 +4454,9 @@ Append a numbered entry to *Lessons from this repository* in the task that finds
     - **The picture a person places points on may be reduced; what is warped must be the original.**
 
 763. **The first 48-sheet join failed on its own label** (2026-11-22): `imagery.join` named the version by joining the parts' labels with " + ", which for 48 sheets passed the label's 200 characters, and the write was refused (`apiError.internal`, `InvalidDocumentError` on the new version). Fix and pin: a label over 200 characters becomes the parts' common start and their count, "Plan cadastral 1:2000, 1990, foaia (48 foi)" (`join-archive.test.ts`). **When a cap on a list is raised, check every text built from that list.**
+
+764. **Maps from 1770 to 1799 could not be imported: the year floor was 1800 in six places.**
+    - Seen: 2026-11-22, harti.zip (1770, 1791, 1799) and the Specht 1790 and Ernst 1791 originals were refused with "Maps from before 1800 cannot be imported yet".
+    - Cause: `yearSchema`, the archive choice schema, the Firestore rules' `isYear`, the target-year field's pattern and the admin's number fields each held their own 1800, while the pipeline's report already took 1500.
+    - Fix and pin: one floor, 1500, in `yearSchema` and `isYear` (`1[5-9][0-9][0-9]`), the archive and admin fields following it; the timeline needed nothing, its stops a fixed gap apart (S-A121-HAPPY-PRE-1800, S-A121-BAD-YEAR-1499).
+    - **A range written in more than one place drifts: keep one constant and derive the rest from it.**

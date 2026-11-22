@@ -51,7 +51,7 @@ export const fr: Readonly<Partial<Record<AdminPoisKey, string>>> = {
     'adminContent.pois.field.yearStart': 'Année de début',
     'adminContent.pois.field.yearEnd': 'Année de fin',
     'adminContent.pois.field.yearsHint':
-        'Une année, ou une période allant de telle année à telle autre ; laissez le champ vide si l’année est inconnue (1800 jusqu’à l’année prochaine).',
+        'Une année, ou une période allant de telle année à telle autre ; laissez le champ vide si l’année est inconnue (1500 jusqu’à l’année prochaine).',
     'adminContent.pois.field.linkUrl': 'Adresse du lien {number} (https://)',
     'adminContent.pois.field.linkLabel': 'Texte du lien {number}',
     'adminContent.pois.field.addLink': 'Ajouter un lien',

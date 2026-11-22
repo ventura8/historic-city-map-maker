@@ -119,7 +119,7 @@ export const boundsRecordSchema = z
     .refine((bounds) => bounds.west < bounds.east && bounds.south < bounds.north, coded('validation.bounds'));
 
 export const zoomSchema = z.number().min(0).max(24);
-export const yearSchema = z.number().int().min(1800).max(2100);
+export const yearSchema = z.number().int().min(1500).max(2100);
 export const opacitySchema = z.number().min(0).max(1);
 export const bearingSchema = z.number().min(0).max(360);
 export const fovSchema = z.number().min(1).max(180);

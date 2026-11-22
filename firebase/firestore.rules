@@ -156,9 +156,9 @@ service cloud.firestore {
             return value.matches('[A-Za-z0-9_-]{1,40}');
         }
 
-        // A year 1800-2100: the digits of an integer (a fraction or a string never matches both).
+        // A year 1500-2100 (an old city plan, 1770, 2026-11-22): the digits of an integer (a fraction or a string never matches both).
         function isYear(value) {
-            return value is int && string(value).matches('18[0-9][0-9]|19[0-9][0-9]|20[0-9][0-9]|2100');
+            return value is int && string(value).matches('1[5-9][0-9][0-9]|20[0-9][0-9]|2100');
         }
 
         // {lat, lng} in degrees: photo locations and POI vertices.

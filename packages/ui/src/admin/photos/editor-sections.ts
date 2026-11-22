@@ -159,7 +159,7 @@ export function datesSection(input: SectionInput): TemplateResult {
                 label: photoText(locale, `adminContent.photos.field.${key}`),
                 value: value[field] === undefined ? '' : String(value[field]),
                 error: fieldIssue(locale, issues, field),
-                min: 1800,
+                min: 1500,
                 max: 2100,
                 step: '1',
                 readOnly: input.readOnly,

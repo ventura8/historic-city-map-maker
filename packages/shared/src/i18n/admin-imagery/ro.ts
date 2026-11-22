@@ -375,11 +375,11 @@ export const ro = {
     'adminContent.imagery.settings.years': 'Anii doriți',
     'adminContent.imagery.settings.yearsHelp': 'Căutarea pune primele scenele din acești ani; cel mult {max}.',
     'adminContent.imagery.settings.noYears': 'Niciun an dorit: toți anii contează la fel.',
-    'adminContent.imagery.settings.yearsInvalid': 'Anii doriți trebuie să fie ani diferiți, între 1800 și 2100.',
+    'adminContent.imagery.settings.yearsInvalid': 'Anii doriți trebuie să fie ani diferiți, între 1500 și 2100.',
     'adminContent.imagery.settings.newYear': 'Un an de adăugat',
     'adminContent.imagery.settings.addYear': 'Adaugă anul',
     'adminContent.imagery.settings.removeYear': 'Scoate {year}',
-    'adminContent.imagery.settings.yearRefused': 'Scrie un an între 1800 și 2099 care nu e încă în listă (cel mult {max} de ani).',
+    'adminContent.imagery.settings.yearRefused': 'Scrie un an între 1500 și 2099 care nu e încă în listă (cel mult {max} de ani).',
     // [end imagery]
 } as const;
 

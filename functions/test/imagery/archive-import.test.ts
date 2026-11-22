@@ -271,7 +271,7 @@ describe('imagery.archiveImport, what is refused', () => {
     it.each([
         ['a series the report skipped', archiveSeries(0, { action: 'skip', reason: 'do-not-publish' }), {}],
         ['a series it never found', archiveSeries(7), {}],
-        ['a year a layer cannot show', archiveSeries(0), { series: [{ seriesId: seriesIdOf(0), include: true, year: 1770 }] }],
+        ['a year a layer cannot show', archiveSeries(0), { series: [{ seriesId: seriesIdOf(0), include: true, year: 1499 }] }],
         ['nothing kept', archiveSeries(0), { series: [{ seriesId: seriesIdOf(0), include: false }] }],
     ])('badPath_%sIsRefused', async (_name, series, extra) => {
         const world = await readyWorld();
@@ -352,19 +352,19 @@ describe('imagery.archiveImport, the rights', () => {
         expect(version?.rights?.sourceLabel).toBeUndefined();
     });
 
-    it('badPath_anUndatedSeriesOrOneBefore1800IsRefusedUntilItsYearIsTyped @S-A121-BAD-YEAR-UNDATED', async () => {
+    it('badPath_anUndatedSeriesIsRefusedUntilItsYearIsTyped_aPlanOf1770Imports @S-A121-BAD-YEAR-UNDATED @S-A121-HAPPY-PRE-1800', async () => {
         const world = await readyWorld();
         const undated = archiveSeries(0, { year: 2026, yearLabel: '?', rights: { ...CLEAR, year: '?' } });
         await seedArchive(world, archiveDoc(2, { series: [undated, archiveSeries(1, { year: 1770 })] }));
 
         expect(await failureOf(importAll(world, 1))).toMatchObject({ details: { code: 'apiError.imagery.archiveYear' } });
-        const old = [{ seriesId: seriesIdOf(1), include: true }];
-        expect(
-            await failureOf(archiveImportFunction(() => world.deps).run(adminCall({ cityId: CITY, archiveId: ARCHIVE, series: old }))),
-        ).toMatchObject({ details: { code: 'apiError.imagery.archiveYear' } });
-        const typed = [{ seriesId: seriesIdOf(0), include: true, year: 1912 }];
+        const typed = [
+            { seriesId: seriesIdOf(0), include: true, year: 1912 },
+            { seriesId: seriesIdOf(1), include: true },
+        ];
         const response = await archiveImportFunction(() => world.deps).run(adminCall({ cityId: CITY, archiveId: ARCHIVE, series: typed }));
         expect(await readVersion(world, response.jobs[0]?.jobId ?? '')).toMatchObject({ year: 1912, rights: { year: '1912' } });
+        expect(await readVersion(world, response.jobs[1]?.jobId ?? '')).toMatchObject({ year: 1770 });
     });
 });
 

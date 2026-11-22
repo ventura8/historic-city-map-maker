@@ -250,7 +250,7 @@ function yearField(context: FieldContext, field: 'yearStart' | 'yearEnd'): Templ
             id=${field}
             type="number"
             inputmode="numeric"
-            min="1800"
+            min="1500"
             max="2100"
             ?readonly=${context.readOnly}
             .value=${numberValue(String(context.value[field] ?? ''))}

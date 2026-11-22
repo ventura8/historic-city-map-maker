@@ -138,7 +138,7 @@ export const en: ApiMessages = {
     'apiError.imagery.archiveMissing': 'The scanned maps are on the computer that imported them: turn it on, then Try again.',
     'apiError.imagery.filmMissing': 'The film of this frame is no longer on any computer: choose Locate again, or import the frame again.',
     'apiError.imagery.archiveImported': 'This archive was already imported.',
-    'apiError.imagery.archiveYear': 'Type this map’s year first. Maps from before 1800 cannot be imported yet.',
+    'apiError.imagery.archiveYear': 'Type this map’s year first. Maps from before 1500 cannot be imported yet.',
     'apiError.imagery.notPausable': 'This job cannot pause: it finished, or waits for USGS, your points or your approval.',
     'apiError.imagery.pauseUntil': 'A pause must end within two days. Choose For 1 hour, Until tomorrow or Until I resume.',
     'apiError.imagery.missingBand': 'The Landsat delivery lacks band {band}: no colour image. Try another scene of that year.',

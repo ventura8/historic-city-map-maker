@@ -43,7 +43,7 @@ const seriesChoiceSchema = z.strictObject({
     seriesId: seriesIdSchema,
     include: z.boolean(),
     title: plainText(200).optional(),
-    year: z.number().int().min(1800).max(2100).optional(),
+    year: z.number().int().min(1500).max(2100).optional(),
     rights: rightsSchema.optional(),
 });
 

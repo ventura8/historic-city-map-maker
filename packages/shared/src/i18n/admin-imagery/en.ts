@@ -373,10 +373,10 @@ export const en: Readonly<Record<AdminImageryKey, string>> = {
     'adminContent.imagery.settings.years': 'Target years',
     'adminContent.imagery.settings.yearsHelp': 'The search ranks the scenes of these years first; at most {max}.',
     'adminContent.imagery.settings.noYears': 'No target years: every year counts the same.',
-    'adminContent.imagery.settings.yearsInvalid': 'The target years must be different years from 1800 to 2100.',
+    'adminContent.imagery.settings.yearsInvalid': 'The target years must be different years from 1500 to 2100.',
     'adminContent.imagery.settings.newYear': 'A year to add',
     'adminContent.imagery.settings.addYear': 'Add the year',
     'adminContent.imagery.settings.removeYear': 'Remove {year}',
-    'adminContent.imagery.settings.yearRefused': 'Type a year from 1800 to 2099 that is not in the list yet (at most {max} years).',
+    'adminContent.imagery.settings.yearRefused': 'Type a year from 1500 to 2099 that is not in the list yet (at most {max} years).',
     // [end imagery]
 };

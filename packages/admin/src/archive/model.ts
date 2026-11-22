@@ -61,7 +61,7 @@ export function skippedOf(archive: ArchiveDoc): (readonly [string, number])[] {
     return Object.entries(archive.skipped).sort((a, b) => b[1] - a[1]);
 }
 
-/** A layer can show the year (1800–2100): a series dated earlier is left out until the timeline goes further back. */
+/** A layer can show the year (1500–2100): a series dated earlier waits for a typed year. */
 function yearShown(text: string): boolean {
     return /^\d{4}$/.test(text.trim()) && yearSchema.safeParse(Number(text)).success;
 }

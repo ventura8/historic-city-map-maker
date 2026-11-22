@@ -21,7 +21,7 @@ import { field, issueAt } from '../layers/form-parts.js';
 import { contentText } from '../shell/text.js';
 import { cityHead, cityOf, sectionTitle, type SectionContext } from './section-parts.js';
 
-const YEAR = /^(?:18|19|20)\d\d$/;
+const YEAR = /^(?:1[5-9]|20)\d\d$/;
 const NEW_YEAR_ID = 'imagery-new-year';
 
 /** The threshold as typed: a number, or NaN for an empty field (the document refuses it on Save). */
@@ -183,7 +183,7 @@ function landsatGroup(context: SectionContext, city: CityDoc, issues: readonly V
     </section>`;
 }
 
-/** The typed year when the list takes it (from 1800 to 2099, not in the list yet, room left), else null. */
+/** The typed year when the list takes it (from 1500 to 2099, not in the list yet, room left), else null. */
 function acceptedYear(text: string, years: readonly number[]): number | null {
     const year = Number(text);
     return YEAR.test(text) && !years.includes(year) && years.length < MAX_TARGET_YEARS ? year : null;

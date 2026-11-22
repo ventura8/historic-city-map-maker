@@ -36,7 +36,8 @@ describe('the archive model', () => {
 
         expect(sent('  ', '1911')).toEqual([{ seriesId: SERIES.seriesId, include: true }]);
         expect(sent('Plan 1911', '1912')).toEqual([{ seriesId: SERIES.seriesId, include: true, year: 1912 }]);
-        expect(sent('Plan', '1770')).toBeNull();
+        expect(sent('Plan', '1499')).toBeNull();
+        expect(sent('Plan', '1770')).toEqual([{ seriesId: SERIES.seriesId, include: true, title: 'Plan', year: 1770 }]);
     });
 
     it('badPath_anUndatedSeriesWaitsForTheOwnersYearAndAlwaysSendsIt', () => {

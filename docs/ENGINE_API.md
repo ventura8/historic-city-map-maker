@@ -437,7 +437,7 @@ At most `MAX_LAYERS` (300; 100 until 2026-11-22, raised when the Bucharest manif
 | Field | Type | Rule |
 | --- | --- | --- |
 | `id` | string | unique in the manifest; also an overlay id, so never `photos` and never a POI category id |
-| `year`, `date?` | integer, `YYYY-MM-DD` | 1800 to 2100; `date` within `year` |
+| `year`, `date?` | integer, `YYYY-MM-DD` | 1500 to 2100; `date` within `year` |
 | `label`, `description?` | `{ro, en}` | at most 200 and 5,000 characters |
 | `kind` | `satellite`, `aerial` or `map` | |
 | `sensor?`, `attribution` | string | at most 100 and 500 characters; the attribution is always shown with the layer, as plain text (markup in it is shown, never rendered) |
@@ -455,7 +455,7 @@ At most `MAX_LAYERS` (300; 100 until 2026-11-22, raised when the Bucharest manif
 | `id` | string | unique; the `#photo=` id |
 | `kind?` | `ground` or `aerial` | absent is `ground` (a street photo); `aerial`, a photo taken from above: its own marker, an "Aerial photo" label and a Street / Aerial choice in the Photos list (the owner, 2026-11-16) |
 | `title`, `description?` | `{ro, en?}` | at most 200 and 5,000 characters |
-| `year?`, `yearEnd?` | integer | 1800 to 2100; `yearEnd` needs `year` and is not before it |
+| `year?`, `yearEnd?` | integer | 1500 to 2100; `yearEnd` needs `year` and is not before it |
 | `month?`, `day?` | integer | 1 to 12 and 1 to 31: the date's precision beyond the year. A month needs a `year` (and a `yearEnd`, when present, equal to it), a day needs a month and must exist in it, leap years counted (`validation.datePart`, `validation.dateRange`, `validation.dateImpossible`). The viewer reads them through `Intl`: `12 iulie 1936`, `12 July 1936`, `Iulie 1936`, `July 1936`; the timeline keeps using the year |
 | `dateText?` | `{ro, en?}` | the source's own dating, such as `Vara lui 1936`; when present it is what the visitor reads, before any other date |
 | `author?`, `rightsHolder?` | string | at most 200 characters |
@@ -499,8 +499,8 @@ At most 50 categories.
 | `category` | string | the id of one of `poiCategories` |
 | `geometry` | GeoJSON | `Point`, `LineString` (2 positions or more) or `Polygon` (closed rings of 4 positions or more, at most 20 rings); `[lng, lat]` positions only (no altitude, no `bbox`); at most 500 positions per geometry; every position within the city bounds plus 0.5° |
 | `title`, `description?` | `{ro, en?}` | at most 200 and 5,000 characters; `description` is Markdown subset |
-| `yearStart?`, `yearEnd?` | integer | 1800 to 2100; either may be absent (an open end), never `yearEnd` before `yearStart` |
-| `yearSeen?` | integer | 1800 to 2100; M27: the year of the plan the place was traced on when its lifespan is unknown; the sheet says "Văzută pe harta din {year}" / "Seen on the {year} map"; `placeYearIssues` accepts it instead of start/end |
+| `yearStart?`, `yearEnd?` | integer | 1500 to 2100; either may be absent (an open end), never `yearEnd` before `yearStart` |
+| `yearSeen?` | integer | 1500 to 2100; M27: the year of the plan the place was traced on when its lifespan is unknown; the sheet says "Văzută pe harta din {year}" / "Seen on the {year} map"; `placeYearIssues` accepts it instead of start/end |
 | `links` | `[{url, label}]` | at most 5, https only |
 | `photoIds?` | string[] | at most 20 ids of manifest photos, shown in the POI's details |
 | `sourceLayer?` | string | M27: the id of a manifest layer the POI was traced on (`validation.reference` otherwise); the sheet says "Seen on: <layer>" |
@@ -516,7 +516,7 @@ M17 ([research/M17-stories.md](research/M17-stories.md) §4): a city's stories, 
 | `id` | string | unique; the `#story=` id |
 | `title` | `{ro, en?}` | at most 200 characters |
 | `body` | `{ro, en?}` | at most 10,000 characters per language, the story format: the Markdown subset of the city's texts (paragraphs, `**bold**`, `_italic_`, https links) plus a paragraph that is exactly `![caption](photo:<id>)`, a figure of one of the city's photos. Any other image is text; a figure whose photo the manifest does not list is left out; an `http:` or `javascript:` link is refused |
-| `yearStart?`, `yearEnd?` | integer | 1800 to 2100, never inverted |
+| `yearStart?`, `yearEnd?` | integer | 1500 to 2100, never inverted |
 | `photoIds?` | string[] | at most 20 ids of `photos[]` or `unplaced[]`; the first is the story's cover in the list |
 | `poiIds?` | string[] | at most 20 ids of `pois[]` |
 | `credit?` | string | the contributor's credit name, at most 100 characters |

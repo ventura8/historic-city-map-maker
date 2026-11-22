@@ -168,7 +168,7 @@ export class HcmAdminPhotoList extends LitElement {
                 name=${name}
                 type="number"
                 inputmode="numeric"
-                min="1800"
+                min="1500"
                 max="2100"
                 .value=${value === null ? '' : String(value)}
                 @input=${changed}

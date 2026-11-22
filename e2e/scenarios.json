@@ -19032,11 +19032,33 @@
             "behaviour": "A121",
             "area": "admin",
             "path": "bad",
-            "title": "An undated series or one before 1800 is refused until its year is typed",
-            "asserts": "a series labelled '?' or dated 1770 with no typed year -> apiError.imagery.archiveYear ('Type this map's year first. Maps from before 1800 cannot be imported yet.'); its first edit starts left out with an empty year; a typed year imports it and becomes the rights' year",
+            "title": "An undated series is refused until its year is typed",
+            "asserts": "a series labelled '?' with no typed year -> apiError.imagery.archiveYear ('Type this map's year first. Maps from before 1500 cannot be imported yet.'); its first edit starts left out with an empty year; a typed year imports it and becomes the rights' year",
             "tier": "functions",
             "status": "exists",
             "notes": "M20 (docs/research/M20-import-local.md §7, §8, review 2026-11-09). Tests: functions/test/imagery/archive-import.test.ts, packages/admin/test/archive/model.test.ts."
+        },
+        {
+            "id": "S-A121-HAPPY-PRE-1800",
+            "behaviour": "A121",
+            "area": "admin",
+            "path": "happy",
+            "title": "A map from before 1800 (1770, 1791) can be a layer",
+            "asserts": "the year schema takes 1500, 1770, 1791, 1799 and 2100; the rules let an admin save a layer of 1790; a typed 1770 is sent as the series' year; imagery.archiveImport makes a 1770 series a layer version of 1770",
+            "tier": "functions",
+            "status": "exists",
+            "notes": "2026-11-22 (owner: harti.zip 1770/1791, Specht 1790). Tests: functions/test/imagery/archive-import.test.ts, packages/shared/test/schemas/place-year.test.ts, firebase/rules-tests/test/layers.test.ts, packages/admin/test/archive/model.test.ts."
+        },
+        {
+            "id": "S-A121-BAD-YEAR-1499",
+            "behaviour": "A121",
+            "area": "admin",
+            "path": "bad",
+            "title": "A year before 1500 is refused everywhere",
+            "asserts": "the year schema refuses 1499, 2101 and 1770.5; the rules refuse a layer, photo, story, POI and target year of 1499",
+            "tier": "functions",
+            "status": "exists",
+            "notes": "2026-11-22. Tests: packages/shared/test/schemas/place-year.test.ts, firebase/rules-tests/test/{layers,photos,stories,pois,cities}.test.ts."
         },
         {
             "id": "S-A121-BAD-LOCAL-ONLY-CLOUD",

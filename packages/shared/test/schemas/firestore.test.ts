@@ -358,7 +358,7 @@ describe('Firestore content documents of M2', () => {
         [
             'a suggested year out of range',
             photoDocSchema,
-            { ...processed, suggested: { year: 1700 } },
+            { ...processed, suggested: { year: 1499 } },
             'suggested.year',
             'validation.tooSmall',
         ],

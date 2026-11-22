@@ -8,7 +8,7 @@
  */
 import type { Layer, Overlay } from '@hcm/shared';
 
-/** What lifts a layer of the timeline's year above every other year (years are 1800–2100). */
+/** What lifts a layer of the timeline's year above every other year (years are 1500–2100). */
 const RAISE = 10_000;
 
 /** What the stack is computed from: the manifest's layers, the overlays' visibility, the timeline and the chosen front. */

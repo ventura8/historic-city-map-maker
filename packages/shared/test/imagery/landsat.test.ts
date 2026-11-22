@@ -83,7 +83,7 @@ describe('the settings of the tick’s Landsat imports', () => {
     it('badPath_aReversedRangeHasNoYearAndAYearPastTheCurrentOneIsNotWanted @S-A130-BAD-AUTO-OFF', () => {
         expect(landsatYearsOf({ landsatFrom: 2000, landsatTo: 1990 }, 2026)).toEqual([]);
         expect(landsatYearsOf({ landsatFrom: 2025, landsatTo: 2030 }, 2026)).toEqual([2025, 2026]);
-        expect(cityImagerySchema.safeParse({ landsatFrom: 1700 }).success).toBe(false);
+        expect(cityImagerySchema.safeParse({ landsatFrom: 1499 }).success).toBe(false);
         expect(cityImagerySchema.safeParse({ landsatAuto: false, landsatFrom: 1985, landsatTo: 1995 }).success).toBe(true);
     });
 });

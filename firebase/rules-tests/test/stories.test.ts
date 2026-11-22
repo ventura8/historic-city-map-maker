@@ -202,7 +202,7 @@ describe('M17 stories: the values', () => {
         ['a blank title', { title: { ro: ' ' } }],
         ['a text over 10 000 characters', { body: { ro: 'x'.repeat(10_001) } }],
         ['an inverted span', { yearStart: 1950, yearEnd: 1900 }],
-        ['a year before 1800', { yearStart: 1799 }],
+        ['a year before 1500', { yearStart: 1499 }],
         ['21 photos', { photoIds: Array.from({ length: 21 }, (_, index) => `p${String(index)}`) }],
         ['21 places', { poiIds: Array.from({ length: 21 }, (_, index) => `x${String(index)}`) }],
         ['a field nobody writes', { reviewNote: 'Bună.' }],

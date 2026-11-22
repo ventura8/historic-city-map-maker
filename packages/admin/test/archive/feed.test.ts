@@ -39,7 +39,7 @@ function archiveDoc(more: Record<string, unknown> = {}): Record<string, unknown>
         series: [
             series(0),
             series(1, { rights: UNCONFIRMED, year: 1977 }),
-            series(2, { year: 1770 }),
+            series(2, { year: 2026, yearLabel: '?' }),
             series(3, { action: 'skip', reason: 'do-not-publish' }),
         ],
         skipped: { 'not-a-map': 3, 'duplicate-of': 10 },

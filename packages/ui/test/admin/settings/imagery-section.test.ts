@@ -114,7 +114,7 @@ describe('<hcm-settings-page> imagery', () => {
         await updated(element);
 
         expect(calls(settings)).toEqual([]);
-        expect(deepText(element)).toContain('Scrie un an între 1800 și 2099 care nu e încă în listă (cel mult 20 de ani).');
+        expect(deepText(element)).toContain('Scrie un an între 1500 și 2099 care nu e încă în listă (cel mult 20 de ani).');
         expect(deep(element, '#imagery-threshold').closest('.field')?.hasAttribute('data-invalid')).toBe(true);
         expect(deep(element, '[role="alert"]').textContent).toContain('Anii doriți trebuie să fie ani diferiți');
     });
