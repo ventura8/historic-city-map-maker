@@ -98,6 +98,8 @@ const POI_EDITABLE = [
     'credit',
     /** M27: the layer the place was traced on. */
     'sourceLayer',
+    /** A sub-group of the category (bridges, lakes…). */
+    'group',
     'published',
     ...STAMP,
 ] as const;

@@ -382,6 +382,8 @@ export const poiDocSchema = z
         photoIds: z.array(idSchema).max(MAX_POI_PHOTOS).optional(),
         /** M27: the layer the place was traced on (the manifest drops it when that layer is not listed). */
         sourceLayer: idSchema.optional(),
+        /** A sub-group of the category (an import's `group`: bridges, lakes…), its own switch in the Layers panel. */
+        group: plainText(60).optional(),
         published: z.boolean(),
         ...reviewFields,
         createdAt: timestampSchema.optional(),

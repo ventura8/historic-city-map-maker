@@ -88,7 +88,7 @@ describe('a place draft: checks', () => {
         expect(draftIssues(FRESH, CONTEXT)).toEqual([]);
         expect(draftIssues(FRESH, { limits: null, categories: null })).toEqual([]);
         expect(changedFields(FRESH, { ...FRESH, published: false })).toEqual(['published']);
-        expect(changedFields(FRESH, null)).toHaveLength(11);
+        expect(changedFields(FRESH, null)).toHaveLength(12);
     });
 
     it('badPath_aMissingShapeTitleOrCategoryAndAShapeOutsideTheCityAreIssues', () => {

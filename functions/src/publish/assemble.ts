@@ -239,6 +239,7 @@ function poiEntry(poi: PoiDoc, id: string, listed: Listed): unknown {
         credit: poi.credit,
         // M27: a layer the manifest does not list (unpublished, retired) is left out, never the place.
         sourceLayer: poi.sourceLayer !== undefined && listed.layers.has(poi.sourceLayer) ? poi.sourceLayer : undefined,
+        group: poi.group,
     };
 }
 

@@ -113,6 +113,11 @@ export const poiSchema = z
         credit: plainText(100).optional(),
         /** M27: the id of the manifest layer the POI was traced on (a disappeared street seen on the map of 1911). */
         sourceLayer: idSchema.optional(),
+        /**
+         * A sub-group of the category (bridges, lakes, ponds, islands of the old rivers; the owner, 2026-11-22), set by an
+         * import: the Layers panel lists one switch per group under its category. Any short text.
+         */
+        group: plainText(60).optional(),
     })
     .refine(validYearSpan, coded('validation.yearRange', ['yearEnd']));
 

@@ -112,6 +112,7 @@ describe('POI fields', () => {
         [`${String(MAX_POI_PHOTOS)} photos`, { photoIds: Array.from({ length: MAX_POI_PHOTOS }, (_, index) => `p${String(index)}`) }],
         ['five links', { links: links(5) }],
         ['the layer it was traced on (M27)', { sourceLayer: 'plan-1911' }],
+        ['a sub-group of its category (2026-11-22)', { group: 'bălți' }],
     ])('happyPath_adminCreatesAPoiWith_%s', async (_label, changes) => {
         expect(await createPoi(changes)).toBe('allow');
     });
@@ -137,6 +138,7 @@ describe('POI fields', () => {
         ['another editor', { updatedBy: 'someone-else' }],
         ['an unknown field', { style: 'color:red' }],
         ['a traced-on layer that is not an id (M27)', { sourceLayer: 'a/b' }],
+        ['a sub-group over 60 characters', { group: 'x'.repeat(61) }],
     ])('badPath_adminCannotCreateAPoiWith_%s', async (_label, changes) => {
         expect(await createPoi(changes)).toBe('deny');
     });

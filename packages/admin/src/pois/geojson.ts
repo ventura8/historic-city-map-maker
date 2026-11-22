@@ -210,6 +210,12 @@ function sourceLayerOf(value: unknown): Readonly<Partial<Record<'sourceLayer', s
     return typeof value === 'string' && ID_PATTERN.test(value) ? { sourceLayer: value } : {};
 }
 
+/** `{group}` when the property is short text (an import's sub-group: bridges, lakes…; 2026-11-22), else nothing. */
+function groupOf(value: unknown): Readonly<Partial<Record<'group', string>>> {
+    const text = typeof value === 'string' ? value.trim() : '';
+    return text.length > 0 && text.length <= 60 ? { group: text } : {};
+}
+
 /** A feature's properties as a place's value, field by field. */
 function valueOf(properties: Raw, geometry: Geometry, category: string): PoiValue {
     const description = textOf(properties['description']);
@@ -225,6 +231,7 @@ function valueOf(properties: Raw, geometry: Geometry, category: string): PoiValu
         photoIds: idsOf(properties['photoIds']),
         published: properties['published'] !== false,
         ...sourceLayerOf(properties['sourceLayer']),
+        ...groupOf(properties['group']),
     };
 }
 
@@ -353,6 +360,7 @@ function exportFeature(place: ExportedPlace): Raw {
             ...(value.photoIds.length === 0 ? {} : { photoIds: value.photoIds }),
             published: value.published,
             ...optional('sourceLayer', value.sourceLayer),
+            ...optional('group', value.group),
         },
     };
 }

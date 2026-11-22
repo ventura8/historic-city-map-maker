@@ -306,6 +306,29 @@ describe('GeoJSON export', () => {
     });
 });
 
+describe("GeoJSON: a place's sub-group (2026-11-22)", () => {
+    it('happyPath_aGroupIsImportedAndExported', () => {
+        const plan = planImport([feature({ category: 'biserici', title: { ro: 'Podul Mogoșoaiei' }, group: 'poduri' })], CONTEXT);
+        expect(plan.created[0]?.value.group).toBe('poduri');
+
+        const text = exportText('bucharest', [{ id: 'pod', value: { ...STAVROPOLEOS, group: 'bălți' } }], CATEGORIES);
+        const parsed = JSON.parse(text) as { features: { properties: Record<string, unknown> }[] };
+        expect(parsed.features[0]?.properties['group']).toBe('bălți');
+    });
+
+    it('badPath_anEmptyOrTooLongOrNonTextGroupIsDropped', () => {
+        const plan = planImport(
+            [
+                feature({ category: 'biserici', title: { ro: 'A' }, group: '  ' }),
+                feature({ category: 'biserici', title: { ro: 'B' }, group: 'x'.repeat(61) }),
+                feature({ category: 'biserici', title: { ro: 'C' }, group: 7 }),
+            ],
+            CONTEXT,
+        );
+        expect(plan.created.map((place) => place.value.group)).toEqual([undefined, undefined, undefined]);
+    });
+});
+
 describe('GeoJSON: the old map a street was traced on (M27)', () => {
     it('happyPath_aSourceLayerIdIsImportedAndExported', () => {
         const plan = planImport([feature({ category: 'biserici', title: { ro: 'Strada Veche' }, sourceLayer: 'plan-1911' })], CONTEXT);

@@ -509,6 +509,8 @@ service cloud.firestore {
                 && data.get('credit', 'x').matches('[\\s\\S]{1,100}')
                 // M27: the layer the place was traced on.
                 && isId(data.get('sourceLayer', 'x'))
+                // A sub-group of the category (bridges, lakes…; 2026-11-22).
+                && data.get('group', 'x').matches('[\\s\\S]{1,60}')
                 && data.published is bool
                 && stamped(data);
         }
@@ -758,7 +760,7 @@ service cloud.firestore {
                         : (isCityUploader(city) && request.resource.data.get('reviewStatus', '') == 'pending'))
                     && isId(poi)
                     && request.resource.data.keys().hasOnly(['category', 'geometry', 'title', 'description', 'yearStart', 'yearEnd',
-                        'yearSeen', 'links', 'photoIds', 'published', 'credit', 'sourceLayer', 'reviewStatus', 'createdAt', 'createdBy',
+                        'yearSeen', 'links', 'photoIds', 'published', 'credit', 'sourceLayer', 'group', 'reviewStatus', 'createdAt', 'createdBy',
                         'updatedBy', 'updatedAt'])
                     && validPoi(request.resource.data)
                     && yearsInRange(request.resource.data)
@@ -769,7 +771,7 @@ service cloud.firestore {
                         : (isCityUploader(city) && ownItem(resource.data) && resource.data.get('reviewStatus', '') == 'pending'
                             && !('published' in changedKeys())))
                     && changedKeys().hasOnly(['category', 'geometry', 'title', 'description', 'yearStart', 'yearEnd', 'yearSeen',
-                        'links', 'photoIds', 'published', 'credit', 'sourceLayer', 'updatedBy', 'updatedAt'])
+                        'links', 'photoIds', 'published', 'credit', 'sourceLayer', 'group', 'updatedBy', 'updatedAt'])
                     && validPoi(request.resource.data)
                     && yearsInRange(request.resource.data);
                 allow delete: if isCityMember(city)

@@ -58,6 +58,7 @@ function updateFieldsOf(value: PoiValue): Readonly<Record<string, unknown>> {
         yearEnd: undefined,
         yearSeen: undefined,
         sourceLayer: undefined,
+        group: undefined,
         ...docFieldsOf(value),
     };
 }
