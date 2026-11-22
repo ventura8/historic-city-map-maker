@@ -101,10 +101,57 @@ export function maxzoomOf(parts: readonly { readonly version: Pick<LayerVersionD
     return Math.min(MAX_ZOOM, Math.max(MIN_ZOOM, zoom));
 }
 
-/** Two labels or more as one: "N + S". */
+/** A version label's longest text (`localizedPartial(200)`). */
+const MAX_LABEL = 200;
+
+/** How many leading characters every label shares with the first. */
+function sharedLength(labels: readonly string[]): number {
+    const first = labels[0] ?? '';
+    let end = 0;
+    while (end < first.length && labels.every((label) => label[end] === first[end])) {
+        end += 1;
+    }
+    return end;
+}
+
+/** `text` without its trailing spaces and separators. */
+function trimmedEnd(text: string): string {
+    let cut = text;
+    while (cut.length > 0 && ' ,;:–-'.includes(cut.at(-1) ?? '')) {
+        cut = cut.slice(0, -1);
+    }
+    return cut;
+}
+
+/** The labels' common start, cut back to a whole word and stripped of trailing separators. */
+function commonStart(labels: readonly string[]): string {
+    const first = labels[0] ?? '';
+    const end = sharedLength(labels);
+    return trimmedEnd(end === first.length ? first : first.slice(0, first.lastIndexOf(' ', end) + 1));
+}
+
+/**
+ * Two labels or more as one: "N + S". A long series (the owner's 48 sheets, 2026-11-22) would pass the label's 200 characters,
+ * so it becomes the sheets' common start and their count: "Plan cadastral 1:2000, 1990, foaia (48 sheets)".
+ */
+function joinedText(labels: readonly string[], sheets: string): string {
+    const joined = labels.join(' + ');
+    if (joined.length <= MAX_LABEL) {
+        return joined;
+    }
+    const count = ` (${String(labels.length)} ${sheets})`;
+    return `${commonStart(labels).slice(0, MAX_LABEL - count.length)}${count}`.trim();
+}
+
 function labelOf(parts: readonly Part[]): LayerVersionDoc['label'] {
-    const ro = parts.map(({ version }) => version.label.ro).join(' + ');
-    const english = parts.map(({ version }) => version.label.en ?? version.label.ro).join(' + ');
+    const ro = joinedText(
+        parts.map(({ version }) => version.label.ro),
+        'foi',
+    );
+    const english = joinedText(
+        parts.map(({ version }) => version.label.en ?? version.label.ro),
+        'sheets',
+    );
     return { ro, en: english };
 }
 

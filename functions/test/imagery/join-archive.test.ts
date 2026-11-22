@@ -58,6 +58,24 @@ function join(ready: ImageryWorld, versionIds: readonly string[]) {
 }
 
 describe('imagery.join: archive maps', () => {
+    it('happyPath_48SheetsJoinUnderTheirCommonNameAndCount @S-A65-HAPPY-ARCHIVE-48-SHEETS', async () => {
+        const ready = await readyWorld();
+        const ids = Array.from({ length: 48 }, (_, index) => `ar-sheet-${String(index)}`);
+        for (const [index, id] of ids.entries()) {
+            await seedVersion(ready, id, archiveMap(`sheet-${String(index)}`, `Plan cadastral 1:2000, 1990, foaia ${String(index + 1)}`));
+        }
+        await seedLayer(ready, 'sheet-0', { currentVersion: ids[0] });
+
+        const answer = await join(ready, ids);
+
+        const version = await readVersion(ready, answer.jobId);
+        expect(version?.label).toEqual({
+            ro: 'Plan cadastral 1:2000, 1990, foaia (48 foi)',
+            en: 'Plan cadastral 1:2000, 1990, foaia (48 sheets)',
+        });
+        expect((await readJob(ready, answer.jobId))?.params).toMatchObject({ maxzoom: 16 });
+    });
+
     it('happyPath_twoHalvesBecomeANewVersionOfTheFirstPublishedLayerEachOnItsOwnFit @S-A65-HAPPY-ARCHIVE', async () => {
         const ready = await world();
 
