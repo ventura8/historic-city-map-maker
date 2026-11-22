@@ -20,7 +20,9 @@ async function openAerial(page: Page, content: ContentWorld, lang: 'ro' | 'en', 
     await seedPublicCity(content, AT);
     await seedPhoto(content, { id: 'air', title: 'Gara de Nord', extra: { location: START, bearing: 0, kind: 'aerial', ...extra } }, AT);
     await page.goto(content.address(lang, 'photos/air'));
-    await expect(page.getByRole('heading', { name: photosText(lang, 'adminContent.photos.editor.title', { title: 'Gara de Nord' }) })).toBeVisible();
+    await expect(
+        page.getByRole('heading', { name: photosText(lang, 'adminContent.photos.editor.title', { title: 'Gara de Nord' }) }),
+    ).toBeVisible();
     await adminMapReady(page);
 }
 
@@ -28,18 +30,24 @@ function areaSection(page: Page): Locator {
     return page.locator('hcm-admin-photo-editor [data-area]');
 }
 
-test('The admin draws the area of an aerial photo in front of the camera and saves it', { tag: ['@S-A195-HAPPY-DRAW'] }, async ({ page, lang, content }) => {
-    await openAerial(page, content, lang, {});
+test(
+    'The admin draws the area of an aerial photo in front of the camera and saves it',
+    { tag: ['@S-A195-HAPPY-DRAW'] },
+    async ({ page, lang, content }) => {
+        await openAerial(page, content, lang, {});
 
-    await areaSection(page).getByRole('button', { name: photosText(lang, 'adminContent.photos.area.draw') }).click();
-    await expect(areaSection(page).getByRole('button', { name: photosText(lang, 'adminContent.photos.area.remove') })).toBeVisible();
-    await page.getByRole('button', { name: photosText(lang, 'adminContent.photos.editor.save'), exact: true }).click();
+        await areaSection(page)
+            .getByRole('button', { name: photosText(lang, 'adminContent.photos.area.draw') })
+            .click();
+        await expect(areaSection(page).getByRole('button', { name: photosText(lang, 'adminContent.photos.area.remove') })).toBeVisible();
+        await page.getByRole('button', { name: photosText(lang, 'adminContent.photos.editor.save'), exact: true }).click();
 
-    await expect.poll(async () => ((await content.document('photos/air'))?.['viewedArea'] as unknown[] | undefined)?.length).toBe(4);
-    const [nearLeft, farLeft] = (await content.document('photos/air'))?.['viewedArea'] as { lat: number }[];
-    // In front of the camera (north): the far corners lie further north than the near ones.
-    expect(farLeft?.lat ?? 0).toBeGreaterThan(nearLeft?.lat ?? 0);
-});
+        await expect.poll(async () => ((await content.document('photos/air'))?.['viewedArea'] as unknown[] | undefined)?.length).toBe(4);
+        const [nearLeft, farLeft] = (await content.document('photos/air'))?.['viewedArea'] as { lat: number }[];
+        // In front of the camera (north): the far corners lie further north than the near ones.
+        expect(farLeft?.lat ?? 0).toBeGreaterThan(nearLeft?.lat ?? 0);
+    },
+);
 
 test('A crossed viewed area says why and is not saved', { tag: ['@S-A195-BAD-SHAPE'] }, async ({ page, lang, content }) => {
     const crossed = [
@@ -51,6 +59,8 @@ test('A crossed viewed area says why and is not saved', { tag: ['@S-A195-BAD-SHA
     await openAerial(page, content, lang, { viewedArea: crossed });
 
     await expect(areaSection(page).getByRole('alert')).toContainText(translate(lang, 'validation.viewedArea'));
-    await areaSection(page).getByRole('button', { name: photosText(lang, 'adminContent.photos.area.reset') }).click();
+    await areaSection(page)
+        .getByRole('button', { name: photosText(lang, 'adminContent.photos.area.reset') })
+        .click();
     await expect(areaSection(page).getByRole('alert')).toHaveCount(0);
 });

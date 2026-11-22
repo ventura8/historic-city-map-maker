@@ -29,26 +29,22 @@ function lonePlace(): readonly [number, number] {
     return [location.lng, location.lat];
 }
 
-test(
-    'Selecting or hovering an aerial photo draws its viewed area',
-    { tag: '@S-V77-HAPPY-HOVER' },
-    async ({ page, lang }) => {
-        await serveManifest(page, withAerialArea());
-        await openViewer(page, { lang, hash: `${LONE_VIEW}&photo=${LONE}` });
-        await mapIdle(page);
+test('Selecting or hovering an aerial photo draws its viewed area', { tag: '@S-V77-HAPPY-HOVER' }, async ({ page, lang }) => {
+    await serveManifest(page, withAerialArea());
+    await openViewer(page, { lang, hash: `${LONE_VIEW}&photo=${LONE}` });
+    await mapIdle(page);
 
-        await expect.poll(() => renderedFeatureIds(page, 'hcm-photos-area-')).toEqual([LONE]);
+    await expect.poll(() => renderedFeatureIds(page, 'hcm-photos-area-')).toEqual([LONE]);
 
-        await openViewer(page, { lang, hash: LONE_VIEW });
-        await mapIdle(page);
-        expect(await renderedFeatureIds(page, 'hcm-photos-area-')).toEqual([]);
-        const marker = await screenPointOf(page, lonePlace());
-        await page.mouse.move(marker.x, marker.y);
-        await expect.poll(() => renderedFeatureIds(page, 'hcm-photos-area-')).toEqual([LONE]);
-        await page.mouse.move(5, 5);
-        await expect.poll(() => renderedFeatureIds(page, 'hcm-photos-area-')).toEqual([]);
-    },
-);
+    await openViewer(page, { lang, hash: LONE_VIEW });
+    await mapIdle(page);
+    expect(await renderedFeatureIds(page, 'hcm-photos-area-')).toEqual([]);
+    const marker = await screenPointOf(page, lonePlace());
+    await page.mouse.move(marker.x, marker.y);
+    await expect.poll(() => renderedFeatureIds(page, 'hcm-photos-area-')).toEqual([LONE]);
+    await page.mouse.move(5, 5);
+    await expect.poll(() => renderedFeatureIds(page, 'hcm-photos-area-')).toEqual([]);
+});
 
 test('A photo without a viewed area draws none', { tag: '@S-V77-BAD-NO-AREA' }, async ({ page, lang }) => {
     await openViewer(page, { lang, hash: `${LONE_VIEW}&photo=${LONE}` });
