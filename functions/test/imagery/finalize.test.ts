@@ -24,6 +24,9 @@ import {
 
 const JOB = 'up-plan1911';
 const LAYER = 'planul-bucurestilor-1911';
+const SENSOR = 'KH-4A' as const;
+const ARCHIVE = 'ar-0123456789abcdef';
+const SERIES = 's-0123456789ab';
 const TILESET = `${MAPBOX_USER}.hcm-${CITY}-${LAYER}`;
 
 function job(): JobDoc {
@@ -131,13 +134,28 @@ describe('finalizeVersion', () => {
         });
     });
 
-    it('happyPath_aRenditionWithoutASourceOrACameraIsALayerOfItsLabel', async () => {
+    it('happyPath_aRenditionWithoutASourceOrACameraIsAMapWithoutUsgsCredit', async () => {
+        // LESSONS 2026-11-22: four scanned maps of Bucharest showed USGS's credit; a scan without a camera is not a USGS frame.
         const { world } = await finish(uploaded({ source: undefined, origin: 'regeoref', label: { ro: 'Harta orașului' } }));
 
-        expect(await readLayer(world, LAYER)).toMatchObject({
-            kind: 'map',
-            attribution: 'USGS EROS, declassified imagery (public domain)',
-        });
+        const layer = await readLayer(world, LAYER);
+        expect(layer?.kind).toBe('map');
+        expect(layer?.attribution).toBeUndefined();
+    });
+
+    it('happyPath_aRenditionOfACameraFrameKeepsUsgsCredit', async () => {
+        const { world } = await finish(uploaded({ source: undefined, origin: 'regeoref', sensor: SENSOR }));
+
+        expect((await readLayer(world, LAYER))?.attribution).toBe(USGS_ATTRIBUTION);
+    });
+
+    it('badPath_anArchiveScanWithoutRightsCarriesNoUsgsCredit', async () => {
+        const source = { kind: 'archive' as const, archiveId: ARCHIVE, seriesId: SERIES, sheetCount: 1 };
+        const { world } = await finish(uploaded({ source, origin: 'archive', georef: undefined }));
+
+        const layer = await readLayer(world, LAYER);
+        expect(layer?.kind).toBe('map');
+        expect(layer?.attribution).toBeUndefined();
     });
 
     it('happyPath_aFrameFittedOverTerrainCreditsTheSurfaceModel @S-P06-HAPPY-TERRAIN', async () => {
@@ -147,7 +165,7 @@ describe('finalizeVersion', () => {
         const heights = { left: 2.9e6, top: 5.5e6, cell: 420, columns: 2, rows: 2, baseDm: 512, valuesDm: 'AAAAAAAAAAA=' };
         const georef = { ...goldenGeoref(), terrain: { source: 'glo30' as const, reliefM: 6.45, rpc, heights } };
 
-        const { world } = await finish(uploaded({ source: undefined, origin: 'regeoref', georef }));
+        const { world } = await finish(uploaded({ source: undefined, origin: 'regeoref', sensor: SENSOR, georef }));
 
         expect((await readLayer(world, LAYER))?.attribution).toBe(`${USGS_ATTRIBUTION}; ${DEM_ATTRIBUTION}`);
     });

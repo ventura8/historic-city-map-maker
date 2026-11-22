@@ -136,8 +136,8 @@ A KH-9 panoramic frame often holds only part of a city, so M8 joins one date's f
 
 - The layer document is created by the finalize step of the layer's first published version (stamped `system:imagery`):
   the version's label, year, date, sensor, `kind: 'satellite'` (USGS) or `'map'` (an upload whose name says plan or map;
-  else `'aerial'`, the admin edits it), `attribution` (`USGS_ATTRIBUTION`, or the upload's original name until the admin
-  writes one), the output's bounds and zooms, `order` on top, `opacity: 1`, `defaultVisible: false`, `published: true`
+  else `'aerial'`, the admin edits it), `attribution` (`USGS_ATTRIBUTION` only for a USGS frame or a join of frames, the upload's original name until the admin
+  writes one, an archive series' credit line from its rights, else none: a scanned map never gets USGS's text, LESSONS 760), the output's bounds and zooms, `order` on top, `opacity: 1`, `defaultVisible: false`, `published: true`
   (auto-publish means the public map), `status: 'ready'`, `provenance` (`usgsEntityId`, `usgsDataset`, `georef.method`,
   `gcpCount`, `checkpointRmseM`), `mapbox` and `currentVersion`.
 - A later version of the same layer sets `layer.pendingVersion` while it is unfinished (the layer editor's chip "New

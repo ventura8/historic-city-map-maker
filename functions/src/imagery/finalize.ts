@@ -101,16 +101,42 @@ function opacityOf(version: LayerVersionDoc): number {
     return version.origin === 'archive' ? MAP_OPACITY : 1;
 }
 
-/** USGS's courtesy credit, or an upload's own name until the admin writes one; a frame fitted over terrain adds the DEM's notice (M15). */
-function attributionOf(version: LayerVersionDoc): string {
+/**
+ * USGS's courtesy credit for a frame or a join of frames, an upload's own name until the admin writes one, nothing for an
+ * archive scan without rights (a scanned map is never a USGS frame); a frame fitted over terrain adds the DEM's notice (M15).
+ */
+function attributionOf(version: LayerVersionDoc): string | undefined {
     // M20 (docs/research/M20-import-local.md §7): an archive series credits its author, title, year, licence and the scan's source.
     return version.rights === undefined ? ownAttribution(version) : creditLine(version.rights, version.label.ro);
 }
 
-function ownAttribution(version: LayerVersionDoc): string {
-    const own = version.source?.kind === 'upload' ? nameOf(version).slice(0, 500) : usgsCredit(version);
-    return version.georef?.terrain === undefined ? own : `${own}; ${DEM_ATTRIBUTION}`.slice(0, 500);
+function ownAttribution(version: LayerVersionDoc): string | undefined {
+    const own = baseCredit(version);
+    if (own === undefined || version.georef?.terrain === undefined) {
+        return own;
+    }
+    return `${own}; ${DEM_ATTRIBUTION}`.slice(0, 500);
 }
+
+/** LESSONS 2026-11-22: only a USGS frame (or a join of them) carries USGS's text; an archive scan or local import carries none. */
+function baseCredit(version: LayerVersionDoc): string | undefined {
+    const kind = sourceKindOf(version);
+    if (kind === 'upload') {
+        return nameOf(version).slice(0, 500);
+    }
+    return USGS_KINDS.has(kind) ? usgsCredit(version) : undefined;
+}
+
+/** A rendition without a source of its own (crop, re-georeference) counts as a USGS frame only when it has a camera. */
+function sourceKindOf(version: LayerVersionDoc): string {
+    if (version.source !== undefined) {
+        return version.source.kind;
+    }
+    return version.sensor === undefined ? 'none' : 'usgs';
+}
+
+/** The sources whose tiles are USGS frames: one frame, or one date's frames joined (M8). */
+const USGS_KINDS: ReadonlySet<string> = new Set(['usgs', 'join']);
 
 /** M25: a Landsat scene credits NASA and USGS as they ask; a declassified frame USGS EROS. */
 function usgsCredit(version: LayerVersionDoc): string {
