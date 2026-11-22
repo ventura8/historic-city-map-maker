@@ -45,10 +45,15 @@ export function uploaded(
     deps: ContentDeps,
     photoId: string,
     bytes: Uint8Array,
-    options: { name?: string; file?: string } = {},
+    options: { name?: string; file?: string; timeCreated?: Date | string } = {},
 ): FinalizedObject {
     const path = STORAGE_PATHS.photoUpload(CITY, UID, photoId, options.file ?? 'nonce-0001.jpg');
     const metadata = options.name === undefined ? {} : { originalName: options.name };
     deps.blobs.put('private', path, bytes, { contentType: 'image/jpeg', customMetadata: metadata });
-    return { name: path, size: String(bytes.length), metadata };
+    return {
+        name: path,
+        size: String(bytes.length),
+        metadata,
+        ...(options.timeCreated === undefined ? {} : { timeCreated: options.timeCreated }),
+    };
 }

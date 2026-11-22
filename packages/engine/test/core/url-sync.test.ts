@@ -51,6 +51,32 @@ describe('url sync', () => {
         expect(applyDecodedHash(loaded, decodeHash('', hashLimits(city))).state).toBe(loaded);
     });
 
+    it('badPath_removingPhotoFromTheHashClosesItsVersionAndLightbox', () => {
+        const open = {
+            ...loaded,
+            selectedPhotoId: 'mihai-voda-1978',
+            photoVersion: 'colorized' as const,
+            lightbox: true,
+            sheet: 'photo' as const,
+        };
+
+        expect(applyDecodedHash(open, decodeHash('', hashLimits(city))).state).toMatchObject({
+            selectedPhotoId: null,
+            photoVersion: null,
+            lightbox: false,
+            sheet: 'none',
+        });
+    });
+
+    it('badPath_removingStoryFromTheHashClosesItsSheet', () => {
+        const open = { ...loaded, selectedStoryId: 'lost-street', sheet: 'stories' as const };
+
+        expect(applyDecodedHash(open, decodeHash('', hashLimits(city))).state).toMatchObject({
+            selectedStoryId: null,
+            sheet: 'none',
+        });
+    });
+
     it('badPath_layersBeforeTheManifestAreIgnored', () => {
         const empty = initialState('ro', 'system', 'unknown');
 

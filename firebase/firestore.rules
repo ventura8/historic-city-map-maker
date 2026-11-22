@@ -690,8 +690,9 @@ service cloud.firestore {
 
             // New photos start unpublished and unprocessed; photos.onUpload owns the image fields.
             match /photos/{photo} {
-                // M13: an uploader reads their own items only, so their queries ask `createdBy == uid`.
-                allow read: if isCityReviewer(city) || (isCityUploader(city) && ownItem(resource.data));
+                // M13: an uploader reads their own items only, so their queries ask `createdBy == uid`. Their create
+                // transaction first reads its new id, as stories do, so a missing document is readable too.
+                allow read: if isCityReviewer(city) || (isCityUploader(city) && (resource == null || ownItem(resource.data)));
                 // A location is optional (M13 §5: a photo may wait for a place), and without one so are a direction and a field
                 // of view. An uploader's item must say it waits, staff's must not say anything, and a moderator adds nothing.
                 allow create: if (isCityMember(city) ? !('reviewStatus' in request.resource.data)
@@ -751,7 +752,8 @@ service cloud.firestore {
 
             // Points of interest, drawn and edited by admins.
             match /pois/{poi} {
-                allow read: if isCityReviewer(city) || (isCityUploader(city) && ownItem(resource.data));
+                // The uploader's create transaction reads its new id before writing it, as photos and stories do.
+                allow read: if isCityReviewer(city) || (isCityUploader(city) && (resource == null || ownItem(resource.data)));
                 allow create: if (isCityMember(city) ? !('reviewStatus' in request.resource.data)
                         : (isCityUploader(city) && request.resource.data.get('reviewStatus', '') == 'pending'))
                     && isId(poi)

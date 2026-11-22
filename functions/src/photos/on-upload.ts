@@ -22,7 +22,12 @@ export function onUploadFunction(getDeps: () => PhotoDeps, bucket?: string): Clo
         ...runAs('photos.onUpload'),
     } as const;
     return onObjectFinalized(bucket === undefined ? options : { ...options, bucket }, async (event) => {
-        const { name, size, metadata } = event.data;
-        await processPhotoUpload(getDeps(), { name, size, metadata: metadata ?? {} });
+        const { name, size, metadata, timeCreated } = event.data;
+        await processPhotoUpload(getDeps(), {
+            name,
+            size,
+            metadata: metadata ?? {},
+            ...(timeCreated === undefined ? {} : { timeCreated }),
+        });
     });
 }

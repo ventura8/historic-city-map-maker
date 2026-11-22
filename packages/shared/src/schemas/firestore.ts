@@ -190,6 +190,12 @@ const photoOriginalDocSchema = z.strictObject({
 /** An improved or colorized version (the owner 2026-11-09): its derivatives and its original, as `image` and `original` are. */
 const photoVersionDocSchema = z.strictObject({ image: photoImageDocSchema, original: photoOriginalDocSchema });
 
+/** The latest finalized upload seen for one slot (`photos.onUpload`), so an older upload never overwrites a newer one. */
+const photoLatestUploadSchema = z.strictObject({
+    upload: z.string().min(1).max(1024),
+    at: timestampSchema,
+});
+
 /** What `photos.onUpload` read from the file (EXIF, file name); the admin accepts a suggestion with one click. */
 const photoSuggestionsSchema = z.strictObject({
     location: latLngSchema.optional(),
@@ -239,14 +245,14 @@ const photoDocObjectSchema = z
         location: latLngSchema.optional(),
         bearing: bearingSchema.optional(),
         fov: fovSchema.optional(),
+        /** An aerial photo's ground footprint: four corners, a rectangle or a trapezoid (the owner 2026-11-22). */
+        viewedArea: viewedAreaSchema.optional(),
         published: z.boolean(),
         rightsReview: z.boolean().optional(),
         image: photoImageDocSchema.optional(),
         exif: z.record(z.string().max(64), z.union([z.string().max(500), z.number()])).optional(),
         processing: z.enum(PROCESSING_STATES),
         /** Why the last processing failed (`apiError.photo.*`), set with `processing: 'failed'`. */
-        /** An aerial photo's ground footprint: four corners, a rectangle or a trapezoid (the owner 2026-11-22). */
-        viewedArea: viewedAreaSchema.optional(),
         processingError: apiErrorCodeSchema.optional(),
         /** The photo whose original has the same SHA-256 (flagged, never processed twice: S-A08-BAD-DUPLICATE). */
         duplicateOf: idSchema.optional(),
@@ -259,6 +265,17 @@ const photoDocObjectSchema = z
          */
         versions: z.strictObject({ improved: photoVersionDocSchema.optional(), colorized: photoVersionDocSchema.optional() }).optional(),
         versionCredits: z.strictObject({ improved: plainText(200).optional(), colorized: plainText(200).optional() }).optional(),
+        /**
+         * The latest finalized upload per slot (`photos.onUpload`), so an older upload finishing late never overwrites a
+         * newer image or version.
+         */
+        latestUploads: z
+            .strictObject({
+                image: photoLatestUploadSchema.optional(),
+                improved: photoLatestUploadSchema.optional(),
+                colorized: photoLatestUploadSchema.optional(),
+            })
+            .optional(),
         /** M13: a pending photo's derivatives, in the private bucket until `review.decide` moves them. */
         heldImage: heldImageSchema.optional(),
         ...reviewFields,

@@ -8,7 +8,7 @@ import { createHash } from 'node:crypto';
 import { STORAGE_PATHS, type PhotoDoc } from '@hcm/shared';
 import { describe, expect, it } from 'vitest';
 
-import { processPhotoUpload, versionOf, type FinalizedObject } from '../../src/photos/upload.js';
+import { processPhotoUpload, versionOf, type FinalizedObject, type UploadOutcome } from '../../src/photos/upload.js';
 import { contentDeps, publicUrl, type ContentDeps } from '../publish/fakes.js';
 import { PDF, jpeg } from './images.js';
 import { CITY, photo, seedPhoto } from './world.js';
@@ -24,11 +24,21 @@ const IMAGE = {
 };
 const DONE: Partial<PhotoDoc> = { processing: 'done', image: IMAGE, published: true };
 
-function versionUpload(deps: ContentDeps, bytes: Uint8Array, version: string): FinalizedObject {
-    const path = STORAGE_PATHS.photoUpload(CITY, 'u-admin', 'p1', 'nonce-0002.jpg');
+function versionUpload(
+    deps: ContentDeps,
+    bytes: Uint8Array,
+    version: string,
+    options: { file?: string; timeCreated?: Date | string } = {},
+): FinalizedObject {
+    const path = STORAGE_PATHS.photoUpload(CITY, 'u-admin', 'p1', options.file ?? 'nonce-0002.jpg');
     const metadata = { originalName: 'color.jpg', version };
     deps.blobs.put('private', path, bytes, { contentType: 'image/jpeg', customMetadata: metadata });
-    return { name: path, size: String(bytes.length), metadata };
+    return {
+        name: path,
+        size: String(bytes.length),
+        metadata,
+        ...(options.timeCreated === undefined ? {} : { timeCreated: options.timeCreated }),
+    };
 }
 
 describe('processPhotoUpload: a version', () => {
@@ -84,5 +94,61 @@ describe('processPhotoUpload: a version', () => {
             undefined,
             'improved',
         ]);
+    });
+
+    it('badPath_anOlderVersionUploadFinishingAfterANewerOneNeverOverwritesIt', async () => {
+        const deps = contentDeps(NOW);
+        await seedPhoto(deps, 'p1', DONE);
+        const older = await jpeg(32, 32);
+        const newer = await jpeg(64, 48);
+        const olderObject = versionUpload(deps, older, 'colorized', {
+            file: 'color-0001.jpg',
+            timeCreated: '2026-11-09T08:30:01.000Z',
+        });
+        const newerObject = versionUpload(deps, newer, 'colorized', {
+            file: 'color-0002.jpg',
+            timeCreated: '2026-11-09T08:30:05.000Z',
+        });
+        let newerOutcome: UploadOutcome | undefined;
+        const slowImages = {
+            ...deps.images,
+            webp: async (bytes: Uint8Array, options: { readonly longEdge: number; readonly quality: number }) => {
+                newerOutcome ??= await processPhotoUpload(deps, newerObject);
+                return deps.images.webp(bytes, options);
+            },
+        };
+
+        await expect(processPhotoUpload({ ...deps, images: slowImages }, olderObject)).resolves.toBe('stale');
+
+        expect(newerOutcome).toBe('done');
+        const after = await photo(deps, 'p1');
+        expect(after?.versions?.colorized?.image.sha256).toBe(sha(newer));
+        expect(after?.versions?.colorized?.original.sha256).toBe(sha(newer));
+        expect(after?.latestUploads?.colorized?.upload).toBe(newerObject.name);
+        expect(deps.blobs.paths('private', 'uploads/')).toEqual([]);
+    });
+
+    it('happyPath_concurrentUploadsForDifferentSlotsBothApply', async () => {
+        const deps = contentDeps(NOW);
+        await seedPhoto(deps, 'p1', DONE);
+        const improved = await jpeg(40, 30);
+        const colorized = await jpeg(48, 36);
+        const improvedObject = versionUpload(deps, improved, 'improved', { file: 'imp-0001.jpg' });
+        const colorizedObject = versionUpload(deps, colorized, 'colorized', { file: 'col-0001.jpg' });
+        let colorizedOutcome: UploadOutcome | undefined;
+        const interleavedImages = {
+            ...deps.images,
+            webp: async (bytes: Uint8Array, options: { readonly longEdge: number; readonly quality: number }) => {
+                colorizedOutcome ??= await processPhotoUpload(deps, colorizedObject);
+                return deps.images.webp(bytes, options);
+            },
+        };
+
+        await expect(processPhotoUpload({ ...deps, images: interleavedImages }, improvedObject)).resolves.toBe('done');
+
+        expect(colorizedOutcome).toBe('done');
+        const after = await photo(deps, 'p1');
+        expect(after?.versions?.improved?.image.sha256).toBe(sha(improved));
+        expect(after?.versions?.colorized?.image.sha256).toBe(sha(colorized));
     });
 });

@@ -16,7 +16,7 @@ import {
 } from '@hcm/shared';
 import { describe, expect, it } from 'vitest';
 
-import { requireLayerTiles } from '../../src/history/restore.js';
+import { cancelLayerDeletes, requireLayerTiles, waitingLayerDeletes } from '../../src/history/restore.js';
 import { revertFunction } from '../../src/history/revert.js';
 import { layerDeleteFunction } from '../../src/layers/delete.js';
 import { failureOf } from '../admin/world.js';
@@ -80,6 +80,37 @@ describe('history.revert of a deleted layer', () => {
 
         expect(failure).toMatchObject({ code: 'failed-precondition', details: { code: 'apiError.history.layerGone' } });
         expect(deps.documents.peek(FIRESTORE_PATHS.layer(LAYER_CITY, 'corona-1968'))).toBeUndefined();
+    });
+
+    it('badPath_aLayerWhoseDeletionStartedIsNotRestored', async () => {
+        const deps = contentDeps(NOW);
+        const { audited, job } = await deletedLayer(deps);
+        const queued = await deps.documents.get(job, jobDocSchema);
+        await deps.documents.set(job, jobDocSchema, { ...(queued ?? {}), status: 'running' } as never);
+
+        const failure = await failureOf(revert(deps, audited));
+
+        expect(failure).toMatchObject({ code: 'failed-precondition', details: { code: 'apiError.history.layerGone' } });
+        expect(deps.documents.peek(FIRESTORE_PATHS.layer(LAYER_CITY, 'corona-1968'))).toBeUndefined();
+        expect(await deps.documents.get(job, jobDocSchema)).toMatchObject({ status: 'running' });
+    });
+
+    it('badPath_aDeletionStartingAfterTheFirstCheckRefusesTheRestoreTransaction', async () => {
+        const deps = contentDeps(NOW);
+        const { audited, job } = await deletedLayer(deps);
+        const paths = await waitingLayerDeletes(deps, audited);
+        const queued = await deps.documents.get(job, jobDocSchema);
+        await deps.documents.set(job, jobDocSchema, { ...(queued ?? {}), status: 'running' } as never);
+
+        await expect(
+            deps.documents.transaction((transaction) =>
+                cancelLayerDeletes(transaction, paths, {
+                    caller: { uid: 'u-admin', email: 'admin@example.test', claim: true },
+                    now: new Date(NOW),
+                }),
+            ),
+        ).rejects.toMatchObject({ code: 'apiError.history.layerGone' });
+        expect(await deps.documents.get(job, jobDocSchema)).toMatchObject({ status: 'running' });
     });
 
     it('happyPath_aLayerThatExistsIsRevertedWithoutLookingAtItsJobs', async () => {

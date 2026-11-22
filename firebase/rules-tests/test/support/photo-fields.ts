@@ -32,11 +32,16 @@ export function photoVersion(): Data {
     };
 }
 
-/** The server document's versions and the admin's credits. */
+/** The server document's versions, upload claims and the admin's credits. */
 export function versionFields(): Data {
     return {
         versions: { improved: photoVersion(), colorized: photoVersion() },
         versionCredits: { improved: 'Ana Pop', colorized: 'Atelierul' },
+        latestUploads: {
+            image: { upload: 'uploads/photos/versions/u-admin/v1/nonce-0001.jpg', at: past() },
+            improved: { upload: 'uploads/photos/versions/u-admin/v1/nonce-0002.jpg', at: past() },
+            colorized: { upload: 'uploads/photos/versions/u-admin/v1/nonce-0003.jpg', at: past() },
+        },
     };
 }
 

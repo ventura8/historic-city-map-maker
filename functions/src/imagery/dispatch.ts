@@ -126,16 +126,25 @@ async function liveSlots(transaction: DocumentTransaction, slots: OpsDispatchDoc
     return Object.fromEntries(live);
 }
 
-/** `starting` for the queued job, if a place is free; the slots and the job written in one transaction. */
+/**
+ * The job read in the slot transaction may still start on Cloud Run. The dispatcher's earlier read is stale by then:
+ * the owner can move it to the computer, pause it, cancel it, or leave it waiting, and a retry time or a spent attempt
+ * can land while the free-tier and capacity reads run.
+ */
+function mayTakeCloudSlot(job: JobDoc | undefined, now: Date): job is JobDoc {
+    return isQueued(job) && job.runOn === 'cloud' && !runsLocally(job) && notYet(job, now) === undefined;
+}
+
+/** `starting` for the queued cloud job, if a place is free; the fresh job is checked again before the slot is claimed. */
 async function takeSlot(deps: DispatchDeps, cityId: string, jobId: string, busy: Busy): Promise<'started' | 'capacity' | 'moved'> {
     const path = FIRESTORE_PATHS.job(cityId, jobId);
     const now = deps.clock.now();
     return deps.documents.transaction(async (transaction) => {
         const job = await transaction.get(path, jobDocSchema);
-        const slots = await liveSlots(transaction, await slotsIn(transaction), busy, now);
-        if (!isQueued(job)) {
+        if (!mayTakeCloudSlot(job, now)) {
             return 'moved';
         }
+        const slots = await liveSlots(transaction, await slotsIn(transaction), busy, now);
         if (new Set([...busy.holding, ...Object.keys(slots)]).size >= RUNNING_JOBS_MAX) {
             return 'capacity';
         }

@@ -3,8 +3,8 @@
  * restored layer or photo never points at files that are gone.
  *
  * - A deleted layer waits `LAYER_DELETE_GRACE_DAYS` before its `layer-delete` job removes the Mapbox tileset. Restoring
- *   it within the grace sets that waiting job `cancelled` in the same transaction; once a job succeeded, the tiles are
- *   gone and the revert answers `apiError.history.layerGone` (S-A23-BAD-LAYER-GONE).
+ *   it within the grace sets that queued job `cancelled` in the same transaction; once a job is `running` or succeeded,
+ *   files may be gone and the revert answers `apiError.history.layerGone` (S-A23-BAD-LAYER-GONE).
  * - A deleted photo's public derivatives are swept once no manifest names them. Restoring it after the sweep puts it
  *   back `pending` and processes it again from its kept original, as `photos.reprocess` does
  *   (S-A23-BAD-RESTORE-AFTER-SWEEP). The steps are written here: a feature folder reaches another only through
@@ -33,11 +33,11 @@ import type { Ports } from '../ports/index.js';
 
 export type RestoreDeps = Pick<Ports, 'documents' | 'blobs' | 'clock' | 'log' | 'config'>;
 
-const FINISHED: ReadonlySet<JobDoc['status']> = new Set(['succeeded', 'failed', 'cancelled']);
+const IRREVERSIBLE: ReadonlySet<JobDoc['status']> = new Set(['running', 'succeeded']);
 
 /**
- * The `layer-delete` jobs of a layer about to be restored: refused once one succeeded (its tiles are gone); the paths of
- * those still waiting otherwise, which the revert's transaction cancels.
+ * The `layer-delete` jobs of a layer about to be restored: refused once one started (its files may be gone); the paths
+ * of those still queued otherwise, which the revert's transaction cancels.
  */
 export async function waitingLayerDeletes(deps: Pick<RestoreDeps, 'documents'>, audited: AuditedDocument): Promise<readonly string[]> {
     if (audited.entity !== 'layer') {
@@ -48,10 +48,10 @@ export async function waitingLayerDeletes(deps: Pick<RestoreDeps, 'documents'>, 
         where: [['type', '==', 'layer-delete']],
     });
     const jobs = deletes.documents.filter((job) => job.data.params['layerId'] === audited.entityId);
-    if (jobs.some((job) => job.data.status === 'succeeded')) {
+    if (jobs.some((job) => IRREVERSIBLE.has(job.data.status))) {
         throw new ApiError('apiError.history.layerGone');
     }
-    return jobs.filter((job) => !FINISHED.has(job.data.status)).map((job) => job.path);
+    return jobs.filter((job) => job.data.status === 'queued').map((job) => job.path);
 }
 
 /**
@@ -88,15 +88,18 @@ async function archiveOfEntry(
     return url.startsWith(prefix) ? url.slice(prefix.length) : undefined;
 }
 
-/** Inside the revert's transaction, after its reads: each waiting job of the restored layer ends `cancelled`. */
+/** Inside the revert's transaction, after its reads: queued jobs end `cancelled`; a deletion that started refuses the restore. */
 export async function cancelLayerDeletes(
     transaction: DocumentTransaction,
     paths: readonly string[],
     stamp: { readonly caller: VerifiedCaller; readonly now: Date },
 ): Promise<void> {
     const jobs = await Promise.all(paths.map(async (path) => ({ path, job: await transaction.get(path, jobDocSchema) })));
+    if (jobs.some(({ job }) => job !== undefined && IRREVERSIBLE.has(job.status))) {
+        throw new ApiError('apiError.history.layerGone');
+    }
     for (const { path, job } of jobs) {
-        if (job !== undefined && !FINISHED.has(job.status)) {
+        if (job?.status === 'queued') {
             await transaction.set(path, jobDocSchema, {
                 ...job,
                 status: 'cancelled',

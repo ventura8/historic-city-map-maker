@@ -72,10 +72,10 @@ function actionOf(change: DocumentChange): HistoryAction | undefined {
 
 /**
  * Server records that are no version of the document an editor would restore: the city's tab icon (its files are
- * replaced in place; a revert keeps the current one anyway, being server-owned). A write that changes only these is
- * not listed.
+ * replaced in place; a revert keeps the current one anyway, being server-owned) and a photo's per-slot upload claims.
+ * A write that changes only these is not listed.
  */
-const UNLISTED_FIELDS: ReadonlySet<string> = new Set(['icon']);
+const UNLISTED_FIELDS: ReadonlySet<string> = new Set(['icon', 'latestUploads']);
 
 function unlisted(change: DocumentChange): boolean {
     if (change.before === undefined || change.after === undefined) {

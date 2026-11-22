@@ -13,7 +13,7 @@ import { photo, seedPhoto, uploaded } from './world.js';
 
 const BUCKET = 'demo-hcm.firebasestorage.app';
 
-function finalized(name: string, size: string, metadata?: Record<string, string>): StorageEvent {
+function finalized(name: string, size: string, metadata?: Record<string, string>, timeCreated?: string): StorageEvent {
     return {
         specversion: '1.0',
         id: 'event-1',
@@ -30,6 +30,7 @@ function finalized(name: string, size: string, metadata?: Record<string, string>
             id: `${BUCKET}/${name}/1`,
             storageClass: 'STANDARD',
             ...(metadata === undefined ? {} : { metadata }),
+            ...(timeCreated === undefined ? {} : { timeCreated }),
         },
     };
 }
@@ -53,6 +54,19 @@ describe('photos-onUpload', () => {
         await onUploadFunction(() => deps, BUCKET).run(finalized(object.name, String(object.size)));
 
         expect((await photo(deps, 'p1'))?.processing).toBe('done');
+    });
+
+    it('badPath_anEventWithAnOlderTimeCreatedDoesNotOverwriteANewerUpload', async () => {
+        const deps = contentDeps();
+        await seedPhoto(deps, 'p1');
+        const newer = uploaded(deps, 'p1', await jpeg(32, 24), { file: 'second-0002.jpg' });
+        const older = uploaded(deps, 'p1', await jpeg(16, 12), { file: 'first-0001.jpg' });
+        const trigger = onUploadFunction(() => deps, BUCKET);
+
+        await trigger.run(finalized(newer.name, String(newer.size), newer.metadata, '2026-10-12T08:30:05.000Z'));
+        await trigger.run(finalized(older.name, String(older.size), older.metadata, '2026-10-12T08:30:01.000Z'));
+
+        expect((await photo(deps, 'p1'))?.image?.w).toBe(32);
     });
 
     it('happyPath_deploysOnThePrivateBucketWithOneGigabyteAndNoRetry', () => {

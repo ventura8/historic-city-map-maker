@@ -65,7 +65,16 @@ describe('photo document versions', () => {
     });
 
     it('happyPath_versionsAndTheirCredits', () => {
-        const doc = { ...DOC, versions: { improved: { image: DOC_IMAGE, original: ORIGINAL } }, versionCredits: { improved: 'Ion' } };
+        const doc = {
+            ...DOC,
+            versions: { improved: { image: DOC_IMAGE, original: ORIGINAL } },
+            versionCredits: { improved: 'Ion' },
+            latestUploads: {
+                image: { upload: 'uploads/photos/c/u/p/nonce-0001.jpg', at: STAMP.updatedAt },
+                improved: { upload: 'uploads/photos/c/u/p/nonce-0002.jpg', at: STAMP.updatedAt },
+                colorized: { upload: 'uploads/photos/c/u/p/nonce-0003.jpg', at: STAMP.updatedAt },
+            },
+        };
 
         expect(photoDocSchema.safeParse(doc).success).toBe(true);
     });
@@ -74,6 +83,9 @@ describe('photo document versions', () => {
         ['a version without its original', { ...DOC, versions: { colorized: { image: DOC_IMAGE } } }],
         ['a credit of an unknown version', { ...DOC, versionCredits: { sepia: 'Ion' } }],
         ['a credit too long', { ...DOC, versionCredits: { improved: 'x'.repeat(201) } }],
+        ['a latest upload of an unknown slot', { ...DOC, latestUploads: { sepia: { upload: 'u', at: STAMP.updatedAt } } }],
+        ['a latest upload without its time', { ...DOC, latestUploads: { image: { upload: 'u' } } }],
+        ['a latest upload with an empty path', { ...DOC, latestUploads: { image: { upload: '', at: STAMP.updatedAt } } }],
     ])('badPath_%s', (_name, doc) => {
         expect(photoDocSchema.safeParse(doc).success).toBe(false);
     });

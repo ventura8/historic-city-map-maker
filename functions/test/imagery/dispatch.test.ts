@@ -62,6 +62,16 @@ function queued(overrides: Partial<JobDoc> = {}): JobDoc {
     };
 }
 
+/** Writes `next` just before the first transaction: a choice that lands while the dispatcher is still deciding. */
+function replaceBeforeTransaction(world: ImageryWorld, jobId: string, next: JobDoc): void {
+    const documents = world.deps.documents;
+    const transaction = documents.transaction.bind(documents);
+    documents.transaction = <R>(work: Parameters<typeof transaction<R>>[0]): Promise<R> => {
+        documents.transaction = transaction;
+        return seedJob(world, jobId, next).then(() => transaction(work));
+    };
+}
+
 /** Firestore runs conflicting transactions one after the other; the fake runs them as they come, so they are queued. */
 function serialiseTransactions(world: ImageryWorld): void {
     const transaction = world.deps.documents.transaction.bind(world.deps.documents);
@@ -269,6 +279,26 @@ describe('dispatchJob: what does not start', () => {
         expect(await dispatchJob(world.deps, CITY, 'j')).toBe('skipped');
         expect(await dispatchJob(world.deps, CITY, 'missing')).toBe('skipped');
         expect(world.jobs.runs).toEqual([]);
+    });
+
+    it.each([
+        ['moved to the computer', queued({ runOn: 'local' })],
+        ['paused', queued({ runOn: 'cloud', paused: { by: 'u-admin', at: at(NOW) } })],
+        ['asked to stop', queued({ runOn: 'cloud', cancelRequested: true })],
+        ['not due yet', queued({ runOn: 'cloud', retryAt: at('2026-10-23T08:01:00.000Z') })],
+        ['waiting for a later day', queued({ runOn: 'cloud', waitReason: 'daily' })],
+        ['out of attempts', queued({ runOn: 'cloud', attempt: JOB_MAX_ATTEMPTS })],
+        ['held by a worker', queued({ runOn: 'cloud', lease: { owner: 'worker:w-1', until: at('2026-10-23T08:05:00.000Z') } })],
+    ])('badPath_aStaleCloudDispatchStartsNothing_%s @S-A12-BAD-STALE-CLOUD', async (_case, next) => {
+        const world = await readyWorld();
+        await seedJob(world, 'j', queued({ runOn: 'cloud' }));
+        replaceBeforeTransaction(world, 'j', next);
+
+        expect(await dispatchJob(world.deps, CITY, 'j')).toBe('skipped');
+
+        expect(world.jobs.runs).toEqual([]);
+        expect(await readJob(world, 'j')).toEqual(next);
+        expect(await world.deps.documents.get(FIRESTORE_PATHS.opsDispatch, opsDispatchDocSchema)).toBeUndefined();
     });
 
     it('badPath_aJobTakenMeanwhileIsNotStartedTwice', async () => {

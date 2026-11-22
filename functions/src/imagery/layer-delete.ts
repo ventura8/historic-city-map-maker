@@ -1,8 +1,9 @@
 /**
  * A deleted layer's clean-up (`docs/research/M3-interfaces.md` §4.6 step 5, §7.6; CR-M2c-13; S-A33-HAPPY-TILESET-DELETED):
- * `layers.delete` queued a `layer-delete` job that may run once its grace has passed. When the layer is back (a revert
- * from History) the job is cancelled; while an unfinished version holds the layer's id (it should not, the id stays
- * reserved during the grace: CR-M3-47) the job waits for it to end, since the tileset id is the layer's; otherwise the
+ * `layers.delete` queued a `layer-delete` job that may run once its grace has passed. Before external deletion it
+ * transactionally becomes `running` while the layer is absent; History cancels only a still-queued job. While an
+ * unfinished version holds the layer's id (it should not, the id stays reserved during the grace: CR-M3-47) the job waits
+ * for it to end, since the tileset id is the layer's; otherwise the
  * tileset and its source are deleted at Mapbox (a missing one is fine; a tileset of another account is never touched),
  * the files of the deleted layer's own versions (those made before the deletion; M8: and of the frames a join of the layer
  * made `joined`; M12: and its archives in the public bucket) go, and the job succeeds, which frees the scenes the layer was imported from (`release-scene.ts`: nothing can bring the layer back now, so it can be imported again).
@@ -28,7 +29,7 @@ import {
 
 import { ApiError } from '../api/api-error.js';
 import { omit } from '../api/objects.js';
-import type { StoredDocument } from '../ports/documents.js';
+import type { DocumentTransaction, StoredDocument } from '../ports/documents.js';
 import type { Ports } from '../ports/index.js';
 import { rewriteDatePlan } from './join-plan.js';
 import { deletePublicTiles } from './own-tiles-clean.js';
@@ -45,9 +46,9 @@ function graceOver(job: JobDoc, now: Date): boolean {
     return job.dispatchAt === undefined || timestampToDate(job.dispatchAt) <= now;
 }
 
-/** A due deletion: queued, past its grace. */
+/** A due deletion: queued to start, or irreversibly running after an earlier attempt, past its grace. */
 function isDue(job: JobDoc | undefined, now: Date): job is JobDoc {
-    return job?.type === 'layer-delete' && job.status === 'queued' && graceOver(job, now);
+    return job?.type === 'layer-delete' && (job.status === 'queued' || job.status === 'running') && graceOver(job, now);
 }
 
 /** The tileset and its source at Mapbox, when the layer had one of the city's own account. */
@@ -122,6 +123,70 @@ async function finish(deps: LayerDeleteDeps, path: string, job: JobDoc, status: 
     await deps.documents.set(path, jobDocSchema, { ...omit(done, ['error']), status, finishedAt: stamp.updatedAt, ...stamp });
 }
 
+type Claim =
+    | { readonly outcome: 'run'; readonly job: JobDoc; readonly params: LayerDeleteParams; readonly started: boolean }
+    | { readonly outcome: DeleteOutcome };
+interface Due {
+    readonly job: JobDoc;
+    readonly params: LayerDeleteParams;
+}
+
+async function claimWhileLayerExists(transaction: DocumentTransaction, path: string, due: Due, now: Date): Promise<Claim> {
+    if (due.job.status === 'running') {
+        return { outcome: 'skipped' };
+    }
+    const stamp = stampOf(IMAGERY_WRITER, now);
+    await transaction.set(path, jobDocSchema, {
+        ...due.job,
+        status: 'cancelled',
+        finishedAt: stamp.updatedAt,
+        ...stamp,
+    });
+    return { outcome: 'cancelled' };
+}
+
+async function claimAbsentLayer(transaction: DocumentTransaction, path: string, due: Due, now: Date): Promise<Claim> {
+    if (due.job.status === 'running') {
+        return { outcome: 'run', job: due.job, params: due.params, started: false };
+    }
+    const job = { ...due.job, status: 'running' as const, ...stampOf(IMAGERY_WRITER, now) };
+    await transaction.set(path, jobDocSchema, job);
+    return { outcome: 'run', job, params: due.params, started: true };
+}
+
+/**
+ * Starts a queued deletion only while its layer is absent. The same transaction makes `running` visible to restore
+ * before any external deletion starts; a retry stays running because files may already be gone. A claim that finds it
+ * cannot start destructive work is put back below, so History can still restore the layer.
+ */
+async function claimDeletion(deps: LayerDeleteDeps, cityId: string, path: string): Promise<Claim> {
+    return deps.documents.transaction(async (transaction) => {
+        const due = dueParams(await transaction.get(path, jobDocSchema), deps.clock.now());
+        if (due === undefined) {
+            return { outcome: 'skipped' };
+        }
+        const layer = await transaction.get(FIRESTORE_PATHS.layer(cityId, due.params.layerId), layerDocSchema);
+        if (layer !== undefined) {
+            return claimWhileLayerExists(transaction, path, due, deps.clock.now());
+        }
+        return claimAbsentLayer(transaction, path, due, deps.clock.now());
+    });
+}
+
+/** A claim that reached no destructive work waits as queued again; never overwrite a job another runner moved on. */
+async function returnWaitingClaim(deps: LayerDeleteDeps, path: string): Promise<void> {
+    await deps.documents.transaction(async (transaction) => {
+        const current = await transaction.get(path, jobDocSchema);
+        if (current?.status === 'running') {
+            await transaction.set(path, jobDocSchema, {
+                ...current,
+                status: 'queued',
+                ...stampOf(IMAGERY_WRITER, deps.clock.now()),
+            });
+        }
+    });
+}
+
 /** A failed attempt: tried again on the next tick, or failed for good after `JOB_MAX_ATTEMPTS`. */
 async function failedAttempt(deps: LayerDeleteDeps, path: string, job: JobDoc, error: unknown): Promise<DeleteOutcome> {
     const attempt = (job.attempt ?? 0) + 1;
@@ -144,7 +209,7 @@ async function failedAttempt(deps: LayerDeleteDeps, path: string, job: JobDoc, e
 }
 
 /** The params of a due deletion, or undefined (not due, not a deletion, params the schema refuses). */
-function dueParams(job: JobDoc | undefined, now: Date): { readonly job: JobDoc; readonly params: LayerDeleteParams } | undefined {
+function dueParams(job: JobDoc | undefined, now: Date): Due | undefined {
     const params = validate(layerDeleteParamsSchema, job?.params);
     return isDue(job, now) && params.ok ? { job, params: params.value } : undefined;
 }
@@ -152,18 +217,17 @@ function dueParams(job: JobDoc | undefined, now: Date): { readonly job: JobDoc; 
 /** Runs one due `layer-delete` job. */
 export async function runLayerDelete(deps: LayerDeleteDeps, cityId: string, jobId: string): Promise<DeleteOutcome> {
     const path = FIRESTORE_PATHS.job(cityId, jobId);
-    const due = dueParams(await deps.documents.get(path, jobDocSchema), deps.clock.now());
-    if (due === undefined) {
-        return 'skipped';
+    const claim = await claimDeletion(deps, cityId, path);
+    if (claim.outcome !== 'run') {
+        return claim.outcome;
     }
-    const { job, params } = due;
-    if ((await deps.documents.get(FIRESTORE_PATHS.layer(cityId, params.layerId), layerDocSchema)) !== undefined) {
-        await finish(deps, path, job, 'cancelled');
-        return 'cancelled';
-    }
+    const { job, params } = claim;
     const versions = await versionsOf(deps, cityId, params.layerId);
     if (versions.some((version) => !ENDED.has(version.data.state))) {
         deps.log.warn('layer deletion waits for a version of the same id', { cityId, jobId, layerId: params.layerId });
+        if (claim.started) {
+            await returnWaitingClaim(deps, path);
+        }
         return 'waiting';
     }
     try {

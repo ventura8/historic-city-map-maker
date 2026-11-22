@@ -122,17 +122,19 @@ describe('layer-delete: the scene of the deleted layer', () => {
         expect(await deletionsPending(world.deps.documents, CITY)).toEqual([]);
     });
 
-    it('badPath_aDeletionThatFailedOrWasCancelledKeepsTheScene @S-A33-HAPPY-TILESET-DELETED', async () => {
+    it('badPath_aDeletionThatStartedCannotBeCancelledAfterAFailedAttempt @S-A33-HAPPY-TILESET-DELETED', async () => {
         const world = await dueWorld();
         await seedScene(world, 'DS-PUBLISHED', { status: 'imported', layerId: 'corona-1968' });
         world.tilesets.recorder.failNext('deleteTileset', new UpstreamError('mapbox', 'unavailable', { status: 503 }));
 
         expect(await runLayerDelete(world.deps, CITY, 'ld-1')).toBe('retry');
+        expect((await readJob(world, 'ld-1'))?.status).toBe('running');
         expect(await readScene(world, 'DS-PUBLISHED')).toMatchObject({ status: 'imported', layerId: 'corona-1968' });
 
         await seedLayer(world, 'corona-1968');
 
-        expect(await runLayerDelete(world.deps, CITY, 'ld-1')).toBe('cancelled');
+        expect(await runLayerDelete(world.deps, CITY, 'ld-1')).toBe('skipped');
+        expect((await readJob(world, 'ld-1'))?.status).toBe('running');
         expect(await readScene(world, 'DS-PUBLISHED')).toMatchObject({ status: 'imported', layerId: 'corona-1968' });
     });
 });
@@ -167,7 +169,7 @@ describe('layer-delete', () => {
 
         expect(await runLayerDelete(world.deps, CITY, 'ld-1')).toBe('retry');
         expect(await readJob(world, 'ld-1')).toMatchObject({
-            status: 'queued',
+            status: 'running',
             attempt: 1,
             error: { code: 'apiError.mapbox.unavailable' },
         });

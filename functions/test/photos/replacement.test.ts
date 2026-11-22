@@ -9,7 +9,7 @@ import { STORAGE_PATHS, timestampFromDate, type PhotoDoc } from '@hcm/shared';
 import { describe, expect, it } from 'vitest';
 
 import { UpstreamError } from '../../src/ports/errors.js';
-import { processPhotoUpload } from '../../src/photos/upload.js';
+import { processPhotoUpload, type UploadOutcome } from '../../src/photos/upload.js';
 import { contentDeps, publicUrl, type ContentDeps } from '../publish/fakes.js';
 import { isoMedia, jpeg } from './images.js';
 import { CITY, photo, seedPhoto, uploaded } from './world.js';
@@ -108,5 +108,138 @@ describe('processPhotoUpload: a replacement', () => {
             replacement: { error: 'apiError.unavailable' },
         });
         expect(deps.blobs.paths('private')).toContain(object.name);
+    });
+});
+
+describe('processPhotoUpload: concurrent uploads', () => {
+    it('badPath_anOlderUploadFinishingAfterANewerOneNeverOverwritesTheImage', async () => {
+        const deps = contentDeps(NOW);
+        await publishedPhoto(deps, 'p1', await jpeg(24, 24));
+        const older = await jpeg(32, 32);
+        const newer = await jpeg(64, 48);
+        const newerObject = uploaded(deps, 'p1', newer, { file: 'second-0002.jpg', timeCreated: '2026-10-12T08:30:05.000Z' });
+        const olderObject = uploaded(deps, 'p1', older, { file: 'first-0002.jpg', timeCreated: new Date('2026-10-12T08:30:01.000Z') });
+        let newerOutcome: UploadOutcome | undefined;
+        const slowImages = {
+            ...deps.images,
+            webp: async (bytes: Uint8Array, options: { readonly longEdge: number; readonly quality: number }) => {
+                newerOutcome ??= await processPhotoUpload(deps, newerObject);
+                return deps.images.webp(bytes, options);
+            },
+        };
+
+        await expect(processPhotoUpload({ ...deps, images: slowImages }, olderObject)).resolves.toBe('stale');
+
+        expect(newerOutcome).toBe('done');
+        const after = await photo(deps, 'p1');
+        expect(after?.image?.sha256).toBe(sha(newer));
+        expect(after?.original?.sha256).toBe(sha(newer));
+        expect(after?.latestUploads?.image?.upload).toBe(newerObject.name);
+        expect(deps.blobs.paths('private', 'uploads/')).toEqual([]);
+    });
+
+    it('badPath_anOlderUploadFailingAfterANewerClaimDoesNotOverwriteThePhoto', async () => {
+        const deps = contentDeps(NOW);
+        await publishedPhoto(deps, 'p1', await jpeg(24, 24));
+        const newer = await jpeg(64, 48);
+        const newerObject = uploaded(deps, 'p1', newer, { file: 'second-0002.jpg', timeCreated: '2026-10-12T08:30:05.000Z' });
+        const olderObject = uploaded(deps, 'p1', isoMedia('heic'), { file: 'first-0002.heic', timeCreated: '2026-10-12T08:30:01.000Z' });
+        let newerOutcome: UploadOutcome | undefined;
+        const images = {
+            ...deps.images,
+            inspect: async (bytes: Uint8Array) => {
+                newerOutcome ??= await processPhotoUpload(deps, newerObject);
+                return deps.images.inspect(bytes);
+            },
+        };
+
+        await expect(processPhotoUpload({ ...deps, images }, olderObject)).resolves.toBe('stale');
+
+        expect(newerOutcome).toBe('done');
+        const after = await photo(deps, 'p1');
+        expect(after?.image?.sha256).toBe(sha(newer));
+        expect(after?.replacement).toBeUndefined();
+        expect(deps.blobs.paths('private', 'uploads/')).toEqual([]);
+    });
+});
+
+describe('processPhotoUpload: out-of-order and mid-claim races', () => {
+    it('badPath_anOutOfOrderOlderUploadArrivingLateIsSkippedWithoutReading', async () => {
+        const deps = contentDeps(NOW);
+        await seedPhoto(deps, 'p1');
+        const newer = await jpeg(48, 32);
+        const newerObject = uploaded(deps, 'p1', newer, { file: 'second-0002.jpg', timeCreated: '2026-10-12T08:30:10.000Z' });
+        await expect(processPhotoUpload(deps, newerObject)).resolves.toBe('done');
+
+        const readsBefore = deps.blobs.recorder.argsOf('read').length;
+        const late = uploaded(deps, 'p1', await jpeg(16, 16), { file: 'older-0001.jpg', timeCreated: '2026-10-12T08:30:01.000Z' });
+        await expect(processPhotoUpload(deps, late)).resolves.toBe('stale');
+
+        expect(deps.blobs.recorder.argsOf('read')).toHaveLength(readsBefore);
+        expect((await photo(deps, 'p1'))?.image?.sha256).toBe(sha(newer));
+        expect(deps.blobs.paths('private', 'uploads/')).toEqual([]);
+    });
+
+    it('badPath_aNewerUploadClaimingBeforeTheOlderClaimsMakesTheOlderStale', async () => {
+        const deps = contentDeps(NOW);
+        await seedPhoto(deps, 'p1');
+        const newer = await jpeg(48, 32);
+        const newerObject = uploaded(deps, 'p1', newer, { file: 'second-0002.jpg', timeCreated: '2026-10-12T08:30:10.000Z' });
+        const olderObject = uploaded(deps, 'p1', await jpeg(16, 16), { file: 'older-0001.jpg', timeCreated: '2026-10-12T08:30:01.000Z' });
+        let newerOutcome: UploadOutcome | undefined;
+        const blobs = {
+            ...deps.blobs,
+            read: async (bucket: 'private' | 'public', path: string) => {
+                const bytes = await deps.blobs.read(bucket, path);
+                newerOutcome ??= await processPhotoUpload(deps, newerObject);
+                return bytes;
+            },
+        };
+
+        await expect(processPhotoUpload({ ...deps, blobs }, olderObject)).resolves.toBe('stale');
+        expect(newerOutcome).toBe('done');
+        expect((await photo(deps, 'p1'))?.image?.sha256).toBe(sha(newer));
+        expect(deps.blobs.paths('private', 'uploads/')).toEqual([]);
+    });
+
+    it('badPath_aPhotoDeletedBeforeClaimBecomesAnOrphan', async () => {
+        const deps = contentDeps(NOW);
+        await seedPhoto(deps, 'p1');
+        const object = uploaded(deps, 'p1', await jpeg(16, 16), { timeCreated: 'not-a-date' });
+        const blobs = {
+            ...deps.blobs,
+            read: async (bucket: 'private' | 'public', path: string) => {
+                const bytes = await deps.blobs.read(bucket, path);
+                await deps.documents.delete(`cities/${CITY}/photos/p1`);
+                return bytes;
+            },
+        };
+
+        await expect(processPhotoUpload({ ...deps, blobs }, object)).resolves.toBe('orphan');
+        expect(deps.blobs.paths('private', 'uploads/')).toEqual([]);
+    });
+
+    it('badPath_anOlderUploadFailingBeforeClaimNeverWritesOverANewerOne', async () => {
+        const deps = contentDeps(NOW);
+        await seedPhoto(deps, 'p1');
+        const newer = await jpeg(48, 32);
+        const newerObject = uploaded(deps, 'p1', newer, { file: 'second-0002.jpg', timeCreated: '2026-10-12T08:30:10.000Z' });
+        const olderObject = uploaded(deps, 'p1', await jpeg(16, 16), { file: 'older-0001.jpg', timeCreated: '2026-10-12T08:30:01.000Z' });
+        let newerOutcome: UploadOutcome | undefined;
+        const blobs = {
+            ...deps.blobs,
+            read: async (bucket: 'private' | 'public', path: string) => {
+                if (newerOutcome === undefined) {
+                    newerOutcome = await processPhotoUpload(deps, newerObject);
+                    throw new UpstreamError('cloud-storage', 'unavailable', { status: 503 });
+                }
+                return deps.blobs.read(bucket, path);
+            },
+        };
+
+        await expect(processPhotoUpload({ ...deps, blobs }, olderObject)).resolves.toBe('stale');
+        expect(newerOutcome).toBe('done');
+        expect((await photo(deps, 'p1'))?.image?.sha256).toBe(sha(newer));
+        expect((await photo(deps, 'p1'))?.replacement).toBeUndefined();
     });
 });

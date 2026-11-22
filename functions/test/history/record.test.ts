@@ -286,4 +286,28 @@ describe('history.onCityWrite', () => {
             historyTrigger('history.onCityWrite', () => world).run({ ...writeEvent(path, before, after), params: { city: CITY } }),
         ).resolves.toBe('recorded');
     });
+
+    it('happyPath_aPhotoUploadClaimAloneIsNotListed', async () => {
+        const world = emulators.newWorld();
+        const path = FIRESTORE_PATHS.photo(CITY, 'p1');
+        const base = {
+            title: { ro: 'Foto' },
+            license: 'CC0',
+            published: false,
+            processing: 'pending',
+            updatedBy: 'u-editor',
+            updatedAt: T1,
+        };
+        await world.db.doc(path).set(base);
+        const before = await world.db.doc(path).get();
+        await world.db.doc(path).set({
+            ...base,
+            latestUploads: { image: { upload: 'uploads/photos/bucuresti/u-editor/p1/nonce-0001.jpg', at: T1 } },
+        });
+        const after = await world.db.doc(path).get();
+
+        await expect(
+            historyTrigger('history.onPhotoWrite', () => world).run({ ...writeEvent(path, before, after), params: { city: CITY } }),
+        ).resolves.toBe('skipped');
+    });
 });

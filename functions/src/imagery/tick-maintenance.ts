@@ -68,7 +68,7 @@ export async function publishDeferred(deps: TickMaintenanceDeps, cityId: string,
 /** Step 5: `layer-delete` jobs past their grace. */
 export async function runDeletions(deps: TickMaintenanceDeps, cityId: string): Promise<void> {
     const due = await deps.documents.query(FIRESTORE_PATHS.jobs(cityId), jobDocSchema, { where: [['type', '==', 'layer-delete']] });
-    for (const { id } of due.documents.filter((job) => job.data.status === 'queued')) {
+    for (const { id } of due.documents.filter((job) => job.data.status === 'queued' || job.data.status === 'running')) {
         await runLayerDelete(deps, cityId, id);
     }
 }

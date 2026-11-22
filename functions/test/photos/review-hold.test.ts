@@ -5,7 +5,7 @@
 import { FIRESTORE_PATHS, STORAGE_PATHS, adminDocSchema, photoDocSchema, timestampFromDate, type PhotoDoc } from '@hcm/shared';
 import { describe, expect, it } from 'vitest';
 
-import { processPhotoUpload } from '../../src/photos/upload.js';
+import { processPhotoUpload, type UploadOutcome } from '../../src/photos/upload.js';
 import { contentDeps, type ContentDeps } from '../publish/fakes.js';
 import { jpeg } from './images.js';
 import { CITY, photo, seedPhoto } from './world.js';
@@ -30,11 +30,11 @@ async function member(deps: ContentDeps, uid: string, role: 'moderator' | 'uploa
     });
 }
 
-async function upload(deps: ContentDeps, uid: string): Promise<'ignored' | 'orphan' | 'gone' | 'failed' | 'done'> {
-    const bytes = await jpeg(40, 30);
-    const name = STORAGE_PATHS.photoUpload(CITY, uid, 'p1', 'nonce-0001.jpg');
-    deps.blobs.put('private', name, bytes, { contentType: 'image/jpeg' });
-    return processPhotoUpload(deps, { name, size: String(bytes.length), metadata: {} });
+async function upload(deps: ContentDeps, uid: string, file = 'nonce-0001.jpg', bytes?: Uint8Array): Promise<UploadOutcome> {
+    const content = bytes ?? (await jpeg(40, 30));
+    const name = STORAGE_PATHS.photoUpload(CITY, uid, 'p1', file);
+    deps.blobs.put('private', name, content, { contentType: 'image/jpeg' });
+    return processPhotoUpload(deps, { name, size: String(content.length), metadata: {} });
 }
 
 async function world(fields: Partial<PhotoDoc>): Promise<ContentDeps> {
@@ -106,5 +106,46 @@ describe("whose upload goes public (M13 §2's hold)", () => {
         expect(stored?.image).toEqual(IMAGE);
         expect(stored?.heldImage).toBeUndefined();
         expect(deps.blobs.paths('private', 'review-held/')).toEqual([]);
+    });
+
+    it('badPath_aStalePendingUploadDropsItsUnusedHeldPicturesAndKeepsNewerOnes', async () => {
+        const deps = await world({ reviewStatus: 'pending' });
+        const first = await jpeg(40, 30);
+        const second = await jpeg(60, 40);
+        const webp = deps.images.webp.bind(deps.images);
+        let newerOutcome: UploadOutcome | undefined;
+        const slowImages = {
+            ...deps.images,
+            webp: async (bytes: Uint8Array, options: { readonly longEdge: number; readonly quality: number }) => {
+                newerOutcome ??= await upload(deps, 'u-up', 'nonce-0002.jpg', second);
+                return webp(bytes, options);
+            },
+        };
+
+        await expect(upload({ ...deps, images: slowImages }, 'u-up', 'nonce-0001.jpg', first)).resolves.toBe('stale');
+        expect(newerOutcome).toBe('done');
+        const stored = await photo(deps, 'p1');
+        expect(stored?.heldImage?.w).toBe(60);
+        expect(deps.blobs.paths('private', 'review-held/')).toEqual([stored?.heldImage?.thumb, stored?.heldImage?.web]);
+        expect(deps.blobs.paths('private', 'uploads/')).toEqual([]);
+    });
+
+    it('badPath_aStalePendingUploadOfTheSameBytesKeepsTheActiveHeldPictures', async () => {
+        const deps = await world({ reviewStatus: 'pending' });
+        const same = await jpeg(40, 30);
+        const webp = deps.images.webp.bind(deps.images);
+        let newerOutcome: UploadOutcome | undefined;
+        const slowImages = {
+            ...deps.images,
+            webp: async (bytes: Uint8Array, options: { readonly longEdge: number; readonly quality: number }) => {
+                newerOutcome ??= await upload(deps, 'u-up', 'nonce-0002.jpg', same);
+                return webp(bytes, options);
+            },
+        };
+
+        await expect(upload({ ...deps, images: slowImages }, 'u-up', 'nonce-0001.jpg', same)).resolves.toBe('stale');
+        expect(newerOutcome).toBe('done');
+        const stored = await photo(deps, 'p1');
+        expect(deps.blobs.paths('private', 'review-held/')).toEqual([stored?.heldImage?.thumb, stored?.heldImage?.web]);
     });
 });

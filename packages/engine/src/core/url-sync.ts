@@ -70,9 +70,15 @@ function unknownLayerOf(state: ViewerState, layers: DecodedHash['layers']): stri
  * M17: `story=` opens the story, at its year; an id the manifest does not have opens nothing. A link that also carries
  * `layers=` is the sender's view (they moved the timeline with the story open), so its layers and their year stay.
  */
+function withoutHashStory(state: ViewerState): ViewerState {
+    const active = state.selectedStoryId !== null || state.sheet === 'stories';
+    return active ? { ...state, selectedStoryId: null, sheet: state.sheet === 'stories' ? 'none' : state.sheet } : state;
+}
+
 function withHashStory(applied: AppliedHash, hash: DecodedHash): AppliedHash {
     if (hash.story === undefined) {
-        return applied;
+        const state = withoutHashStory(applied.state);
+        return state === applied.state ? applied : { ...applied, state };
     }
     const state = withStory(applied.state, hash.story);
     if (state === null) {
@@ -91,9 +97,26 @@ function withHashLayers(state: ViewerState, layers: readonly string[] | undefine
     return { ...state, overlays, ...frontOfIds(state.manifest.layers, layers) };
 }
 
+function hasHashPhotoState(state: ViewerState): boolean {
+    return state.selectedPhotoId !== null || state.photoVersion !== null || state.lightbox || state.sheet === 'photo';
+}
+
+function withoutHashPhoto(state: ViewerState): ViewerState {
+    if (!hasHashPhotoState(state)) {
+        return state;
+    }
+    return {
+        ...state,
+        selectedPhotoId: null,
+        photoVersion: null,
+        lightbox: false,
+        sheet: state.sheet === 'photo' ? 'none' : state.sheet,
+    };
+}
+
 function withHashPhoto(state: ViewerState, { photo, photoVersion }: DecodedHash): AppliedHash {
     if (photo === undefined) {
-        return { state, unknownPhoto: null };
+        return { state: withoutHashPhoto(state), unknownPhoto: null };
     }
     const known = state.manifest?.photos.some((candidate) => candidate.id === photo) === true;
     return known

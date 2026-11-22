@@ -7,33 +7,47 @@
 import { createHash } from 'node:crypto';
 
 import {
-    DERIVATIVE_WRITTEN_AT,
     FIRESTORE_PATHS,
-    IMMUTABLE_CACHE_CONTROL,
     PHOTO_LIMITS,
     STORAGE_PATHS,
     adminDocSchema,
     hasCityRole,
     parsePhotoUploadPath,
     photoDocSchema,
-    publicObjectUrl,
     systemWriter,
     timestampFromDate,
-    type ApiErrorCode,
-    type PhotoContentType,
     type PhotoDoc,
     type PhotoUpload,
-    type PhotoVariant,
 } from '@hcm/shared';
 
-/** The versions an upload may be for besides the photo's own image (the owner 2026-11-09). */
-type PhotoVersionKind = 'improved' | 'colorized';
-
-import type { ExifSummary, ImageInspection } from '../ports/image-processor.js';
 import type { Ports } from '../ports/index.js';
 import { UpstreamError } from '../ports/errors.js';
 import { compact, omit } from '../api/objects.js';
-import { exifRecord, suggestionsFrom } from './suggestions.js';
+import {
+    StaleUpload,
+    claimUploadSlot,
+    deleteOrphan,
+    finishStale,
+    isLatestUpload,
+    isOlderThanLatest,
+    updateIfActive,
+    updatePhoto,
+    uploadSlot,
+    uploadTime,
+    type PhotoVersionKind,
+    type UploadClaim,
+} from './upload-claim.js';
+import {
+    PhotoRefused,
+    accept,
+    processPhotoBytes,
+    refuseUnreadable,
+    render,
+    store,
+    tooLarge,
+    type Processed,
+    type Refusal,
+} from './upload-image.js';
 
 export type PhotoDeps = Pick<Ports, 'log' | 'clock' | 'config' | 'documents' | 'blobs' | 'images'>;
 
@@ -44,82 +58,15 @@ export interface FinalizedObject {
     readonly size: number | string;
     /** Custom metadata: the admin sets `originalName`, the file's name on the admin's computer. */
     readonly metadata: Readonly<Record<string, string>>;
+    /** When Cloud Storage finalized the object (`StorageObjectData.timeCreated`); absent in older synthetic fixtures. */
+    readonly timeCreated?: Date | string | undefined;
 }
 
 /** What became of one upload (logged, and what the tests assert besides the documents and objects). */
-export type UploadOutcome = 'ignored' | 'orphan' | 'gone' | 'failed' | 'done';
-
-/**
- * The code of a HEIC/HEIF upload, which the runtime cannot decode (`adapters/image.ts`; `DECISIONS-for-review.md` §20b):
- * its message tells the admin how to export a JPEG instead (CR-M2-30).
- */
-const HEIC_ERROR: ApiErrorCode = 'apiError.photo.heicUnsupported';
-const UNDECODABLE: ReadonlySet<PhotoContentType> = new Set(['image/heic', 'image/heif']);
+export type UploadOutcome = 'ignored' | 'orphan' | 'gone' | 'stale' | 'failed' | 'done';
 
 /** The fields one processing result replaces; everything else of the document stays as the admin wrote it. */
 const SERVER_FIELDS = ['image', 'heldImage', 'exif', 'suggested', 'original', 'processingError', 'duplicateOf', 'replacement'] as const;
-
-const DERIVATIVES: Readonly<Record<PhotoVariant, { readonly longEdge: number; readonly quality: number }>> = {
-    web: { longEdge: PHOTO_LIMITS.webLongEdge, quality: PHOTO_LIMITS.webQuality },
-    thumb: { longEdge: PHOTO_LIMITS.thumbLongEdge, quality: PHOTO_LIMITS.thumbQuality },
-};
-
-/** Why a file was refused: the code the photo records (`apiError.photo.tooLarge` reads its limit from `PHOTO_LIMITS`). */
-interface Refusal {
-    readonly code: ApiErrorCode;
-    readonly duplicateOf?: string;
-}
-
-/** An upload the server will not process; recorded on the document, the upload deleted. */
-class PhotoRefused extends Error {
-    readonly refusal: Refusal;
-
-    constructor(refusal: Refusal) {
-        super(refusal.code);
-        this.name = 'PhotoRefused';
-        this.refusal = refusal;
-    }
-}
-
-interface Processed {
-    /** The public derivatives, or (M13 §2) `heldImage`, the private ones of a photo that waits for review. */
-    readonly image?: NonNullable<PhotoDoc['image']>;
-    readonly heldImage?: NonNullable<PhotoDoc['heldImage']>;
-    readonly original: NonNullable<PhotoDoc['original']>;
-    readonly exif: NonNullable<PhotoDoc['exif']>;
-    readonly suggested?: NonNullable<PhotoDoc['suggested']>;
-}
-
-interface Accepted {
-    readonly contentType: PhotoContentType;
-    readonly exif: ExifSummary;
-}
-
-function refuseUnreadable(error: unknown): never {
-    if (error instanceof UpstreamError && error.failure === 'invalid') {
-        throw new PhotoRefused({ code: 'apiError.photo.unreadable' });
-    }
-    throw error;
-}
-
-function tooLarge(): PhotoRefused {
-    return new PhotoRefused({ code: 'apiError.photo.tooLarge' });
-}
-
-/** The sniffed type must be an accepted, decodable photo type, and the pixel count within the limit. */
-function accept(inspection: ImageInspection): Accepted {
-    const { contentType } = inspection;
-    if (contentType === undefined) {
-        throw new PhotoRefused({ code: 'apiError.photo.unsupportedType' });
-    }
-    if (UNDECODABLE.has(contentType)) {
-        throw new PhotoRefused({ code: HEIC_ERROR });
-    }
-    if (inspection.width * inspection.height > PHOTO_LIMITS.maxInputPixels) {
-        throw tooLarge();
-    }
-    return { contentType, exif: inspection.exif };
-}
 
 /** The upload's bytes; undefined when it is gone (a redelivered event after the upload was processed and deleted). */
 async function readUpload(deps: PhotoDeps, object: FinalizedObject): Promise<Uint8Array | undefined> {
@@ -134,47 +81,6 @@ async function readUpload(deps: PhotoDeps, object: FinalizedObject): Promise<Uin
         }
         throw error;
     }
-}
-
-/** Whether the photo being processed came from the old site (it carries a `legacyId`). */
-async function isLegacyPhoto(deps: PhotoDeps, upload: PhotoUpload): Promise<boolean> {
-    const current = await deps.documents.get(FIRESTORE_PATHS.photo(upload.cityId, upload.photoId), photoDocSchema);
-    return current?.legacyId !== undefined;
-}
-
-/**
- * Another photo of the city whose original has the same SHA-256 (S-A08-BAD-DUPLICATE); the photo itself never counts.
- * The old site placed one image at two spots (two legacy records, one file): two legacy photos are never each other's
- * duplicate, so the legacy import keeps both whichever is processed first.
- */
-async function refuseDuplicate(deps: PhotoDeps, upload: PhotoUpload, sha256: string): Promise<void> {
-    const found = await deps.documents.query(FIRESTORE_PATHS.photos(upload.cityId), photoDocSchema, {
-        where: [['original.sha256', '==', sha256]],
-        limit: 2,
-    });
-    const others = [...found.documents, ...found.invalid].filter((document) => document.id !== upload.photoId);
-    const [other] = others;
-    if (other === undefined) {
-        return;
-    }
-    const legacyPair = found.documents.some((document) => document.id === other.id && document.data.legacyId !== undefined);
-    if (!(legacyPair && (await isLegacyPhoto(deps, upload)))) {
-        throw new PhotoRefused({ code: 'apiError.photo.duplicate', duplicateOf: other.id });
-    }
-}
-
-interface Derivative {
-    readonly variant: PhotoVariant;
-    readonly bytes: Uint8Array;
-    readonly width: number;
-    readonly height: number;
-}
-
-/** One upload of a known photo, and whether it is held back for review (M13 §2). */
-interface KnownUpload {
-    readonly upload: PhotoUpload;
-    readonly object: FinalizedObject;
-    readonly held: boolean;
 }
 
 const DECIDED: Refusal = { code: 'apiError.review.alreadyDecided' };
@@ -199,104 +105,20 @@ async function heldBack(deps: PhotoDeps, upload: PhotoUpload, photo: PhotoDoc): 
     return false;
 }
 
-interface Rendered {
-    readonly web: Derivative;
-    readonly thumb: Derivative;
-    readonly sha256: string;
-}
-
-/**
- * Both derivatives in memory: every decoding problem shows here, before anything is written. The original is decoded once, for the
- * web derivative; the thumbnail is made from that 2,048 px WebP, already turned upright and without metadata (2026-11-12,
- * reports/resource-audit.md item 10: a second decode of a 200 MP original cost as much CPU again; measured on a 200 MP JPEG, 1.8 to
- * 1.1 CPU-seconds, and on a 200 MP PNG 3.3 to 1.6, peak 321 MB either way, so the function runs at 1 GiB).
- */
-async function render(deps: PhotoDeps, bytes: Uint8Array): Promise<readonly [Derivative, Derivative]> {
-    const encode = async (variant: PhotoVariant, from: Uint8Array): Promise<Derivative> => ({
-        variant,
-        ...(await deps.images.webp(from, DERIVATIVES[variant]).catch(refuseUnreadable)),
-    });
-    const web = await encode('web', bytes);
-    return [web, await encode('thumb', web.bytes)];
-}
-
-/** One derivative, created once: a redelivered event finds the same content-hashed object (a conflict) and moves on. */
-async function store(deps: PhotoDeps, upload: PhotoUpload, sha256: string, derivative: Derivative): Promise<string> {
-    const path = STORAGE_PATHS.photoDerivative(upload.cityId, upload.photoId, sha256, derivative.variant);
-    await deps.blobs
-        .write('public', path, derivative.bytes, {
-            contentType: 'image/webp',
-            cacheControl: IMMUTABLE_CACHE_CONTROL,
-            ifGenerationMatch: 0,
-            customMetadata: { [DERIVATIVE_WRITTEN_AT]: deps.clock.now().toISOString() },
-        })
-        .catch((error: unknown) => {
-            if (!(error instanceof UpstreamError && error.failure === 'conflict')) {
-                throw error;
-            }
-        });
-    return publicObjectUrl(deps.config.buckets.public, path);
-}
-
-/**
- * M13 §2: a pending photo's derivative stays in the private bucket: nothing of it has a public address until `review.decide`
- * moves it, so an uploader cannot host a file by uploading it.
- */
-async function hold(deps: PhotoDeps, upload: PhotoUpload, sha256: string, derivative: Derivative): Promise<string> {
-    const path = STORAGE_PATHS.reviewHeld(upload.cityId, upload.photoId, sha256, derivative.variant);
-    await deps.blobs.write('private', path, derivative.bytes, { contentType: 'image/webp' });
-    return path;
-}
-
-/** Where the derivatives go: the public bucket, or held back while the photo waits for review. */
-async function stored(deps: PhotoDeps, upload: PhotoUpload, held: boolean, rendered: Rendered) {
-    const { web, thumb, sha256 } = rendered;
-    const size = { sha256, w: web.width, h: web.height };
-    return held
-        ? {
-              image: undefined,
-              heldImage: { web: await hold(deps, upload, sha256, web), thumb: await hold(deps, upload, sha256, thumb), ...size },
-          }
-        : {
-              heldImage: undefined,
-              image: { web: await store(deps, upload, sha256, web), thumb: await store(deps, upload, sha256, thumb), ...size },
-          };
-}
-
-async function processBytes(deps: PhotoDeps, known: KnownUpload, bytes: Uint8Array): Promise<Processed> {
-    const { upload, object, held } = known;
-    const accepted = accept(await deps.images.inspect(bytes).catch(refuseUnreadable));
-    const sha256 = createHash('sha256').update(bytes).digest('hex');
-    await refuseDuplicate(deps, upload, sha256);
-    const [web, thumb] = await render(deps, bytes);
-    const originalPath = STORAGE_PATHS.photoOriginal(upload.cityId, upload.photoId, sha256, accepted.contentType);
-    await deps.blobs.copy({ bucket: 'private', path: object.name }, { bucket: 'private', path: originalPath });
-    return compact<Processed>({
-        ...(await stored(deps, upload, held, { web, thumb, sha256 })),
-        original: { path: originalPath, contentType: accepted.contentType, bytes: bytes.length, sha256 },
-        exif: exifRecord(accepted.exif),
-        suggested: suggestionsFrom(accepted.exif, object.metadata['originalName']),
-    });
-}
-
-/** Rewrites the photo inside a transaction (the admin may be editing it); a photo deleted meanwhile stays deleted. */
-async function updatePhoto(deps: PhotoDeps, upload: PhotoUpload, change: (current: PhotoDoc) => PhotoDoc): Promise<void> {
-    const path = FIRESTORE_PATHS.photo(upload.cityId, upload.photoId);
-    await deps.documents.transaction(async (transaction) => {
-        const current = await transaction.get(path, photoDocSchema);
-        if (current !== undefined) {
-            await transaction.set(path, photoDocSchema, change(current));
-        }
-    });
-}
-
 function stamp(deps: PhotoDeps): Pick<PhotoDoc, 'updatedBy' | 'updatedAt'> {
     return { updatedBy: systemWriter('photos'), updatedAt: timestampFromDate(deps.clock.now()) };
 }
 
-/** A decision made while this ran wins: held pictures never overwrite a decided photo, whose `image` this would take away. */
-async function recordDone(deps: PhotoDeps, upload: PhotoUpload, processed: Processed): Promise<void> {
+function sameHeld(current: PhotoDoc, processed: Processed): boolean {
+    return processed.heldImage !== undefined && current.heldImage?.sha256 === processed.heldImage.sha256;
+}
+
+/** A decision or a newer upload made while this ran wins: stale or held pictures never overwrite a newer or decided photo. */
+async function recordDone(deps: PhotoDeps, upload: PhotoUpload, claim: UploadClaim, processed: Processed): Promise<void> {
     await updatePhoto(deps, upload, (current) => {
+        if (!isLatestUpload(current, claim)) {
+            throw new StaleUpload(sameHeld(current, processed));
+        }
         if (processed.heldImage !== undefined && current.reviewStatus !== 'pending') {
             throw new PhotoRefused(DECIDED);
         }
@@ -304,12 +126,16 @@ async function recordDone(deps: PhotoDeps, upload: PhotoUpload, processed: Proce
     });
 }
 
-/** The held pictures of a decision that came first have no one to show them to. */
-async function recordProcessed(deps: PhotoDeps, upload: PhotoUpload, processed: Processed): Promise<void> {
+function shouldDeleteHeld(error: unknown): boolean {
+    return error instanceof PhotoRefused || (error instanceof StaleUpload && !error.keepHeld);
+}
+
+/** The held pictures of a decision or a newer upload that came first have no one to show them to. */
+async function recordProcessed(deps: PhotoDeps, upload: PhotoUpload, claim: UploadClaim, processed: Processed): Promise<void> {
     try {
-        await recordDone(deps, upload, processed);
+        await recordDone(deps, upload, claim, processed);
     } catch (error) {
-        if (error instanceof PhotoRefused && processed.heldImage !== undefined) {
+        if (processed.heldImage !== undefined && shouldDeleteHeld(error)) {
             await Promise.all([
                 deps.blobs.delete('private', processed.heldImage.web),
                 deps.blobs.delete('private', processed.heldImage.thumb),
@@ -345,12 +171,6 @@ function refusedReplacement(deps: PhotoDeps, current: PhotoDoc, refusal: Refusal
     };
 }
 
-async function recordFailed(deps: PhotoDeps, upload: PhotoUpload, refusal: Refusal): Promise<void> {
-    await updatePhoto(deps, upload, (current) =>
-        current.image === undefined ? failedPhoto(deps, current, refusal) : refusedReplacement(deps, current, refusal),
-    );
-}
-
 /** A failure that is not the file's fault (Storage or Firestore unavailable): retryable with Reprocess, upload kept. */
 function unexpected(deps: PhotoDeps, upload: PhotoUpload, error: unknown): Refusal {
     const transient = error instanceof UpstreamError && ['unavailable', 'rateLimited'].includes(error.failure);
@@ -358,40 +178,61 @@ function unexpected(deps: PhotoDeps, upload: PhotoUpload, error: unknown): Refus
     return { code: transient ? 'apiError.unavailable' : 'apiError.internal' };
 }
 
-/** A refused or failed version leaves the photo as it was; `replacement` says why, as for a refused replacement image. */
-async function recordVersionFailed(deps: PhotoDeps, upload: PhotoUpload, refusal: Refusal): Promise<void> {
-    await updatePhoto(deps, upload, (current) => ({ ...refusedReplacement(deps, current, refusal), processing: current.processing }));
-}
-
 interface FailedUpload {
     readonly upload: PhotoUpload;
     readonly object: FinalizedObject;
     readonly version: PhotoVersionKind | undefined;
+    readonly claim: UploadClaim;
 }
 
-async function recordFailure(deps: PhotoDeps, { upload, object, version }: FailedUpload, error: unknown): Promise<void> {
-    const record = version === undefined ? recordFailed : recordVersionFailed;
-    if (!(error instanceof PhotoRefused)) {
-        await record(deps, upload, unexpected(deps, upload, error));
-        return;
+function applyFailure(deps: PhotoDeps, version: PhotoVersionKind | undefined, refusal: Refusal): (current: PhotoDoc) => PhotoDoc {
+    if (version !== undefined) {
+        return (current) => ({ ...refusedReplacement(deps, current, refusal), processing: current.processing });
     }
-    await record(deps, upload, error.refusal);
-    await deps.blobs.delete('private', object.name);
-    deps.log.info('photo refused', { cityId: upload.cityId, photoId: upload.photoId, code: error.refusal.code });
+    return (current) => (current.image === undefined ? failedPhoto(deps, current, refusal) : refusedReplacement(deps, current, refusal));
 }
 
-/** An upload read, with the photo it is for. */
+function failureRefusal(deps: PhotoDeps, failed: FailedUpload, error: unknown): Refusal {
+    return error instanceof PhotoRefused ? error.refusal : unexpected(deps, failed.upload, error);
+}
+
+async function completeFailure(deps: PhotoDeps, failed: FailedUpload, error: unknown, applied: boolean): Promise<'failed' | 'stale'> {
+    if (!applied) {
+        return finishStale(deps, failed.upload, failed.claim);
+    }
+    if (error instanceof PhotoRefused) {
+        await deps.blobs.delete('private', failed.object.name);
+        deps.log.info('photo refused', { cityId: failed.upload.cityId, photoId: failed.upload.photoId, code: error.refusal.code });
+    }
+    return 'failed';
+}
+
+async function recordUnclaimedFailure(deps: PhotoDeps, failed: FailedUpload, error: unknown): Promise<'failed' | 'stale'> {
+    const refusal = failureRefusal(deps, failed, error);
+    const stale = (current: PhotoDoc) => isOlderThanLatest(current, failed.claim);
+    const applied = await updateIfActive(deps, failed.upload, stale, applyFailure(deps, failed.version, refusal));
+    return completeFailure(deps, failed, error, applied);
+}
+
+async function recordClaimedFailure(deps: PhotoDeps, failed: FailedUpload, error: unknown): Promise<'failed' | 'stale'> {
+    const refusal = failureRefusal(deps, failed, error);
+    const stale = (current: PhotoDoc) => !isLatestUpload(current, failed.claim);
+    const applied = await updateIfActive(deps, failed.upload, stale, applyFailure(deps, failed.version, refusal));
+    return completeFailure(deps, failed, error, applied);
+}
+
+/** An upload read, authorized and claimed, ready to process. */
 interface Received {
     readonly upload: PhotoUpload;
     readonly object: FinalizedObject;
-    readonly photo: PhotoDoc;
+    readonly claim: UploadClaim;
+    readonly held: boolean;
     readonly bytes: Uint8Array;
 }
 
 /** The photo's own image: its derivatives public, or held back while the photo waits for review. */
-async function processImage(deps: PhotoDeps, { upload, object, photo, bytes }: Received): Promise<void> {
-    const held = await heldBack(deps, upload, photo);
-    await recordProcessed(deps, upload, await processBytes(deps, { upload, object, held }, bytes));
+async function processImage(deps: PhotoDeps, { upload, object, claim, held, bytes }: Received): Promise<void> {
+    await recordProcessed(deps, upload, claim, await processPhotoBytes(deps, { upload, object, held, bytes }));
     deps.log.info('photo processed', { cityId: upload.cityId, photoId: upload.photoId, held });
 }
 
@@ -407,10 +248,7 @@ export function versionOf(metadata: Readonly<Record<string, string>>): PhotoVers
  * duplicate check (a version is the same photo by design) and no EXIF suggestions; the photo's own image, its processing
  * and its publication stay as they are.
  */
-async function processVersion(deps: PhotoDeps, { upload, object, photo, bytes }: Received, kind: PhotoVersionKind): Promise<void> {
-    if (photo.reviewStatus === 'pending' || !(await byReviewer(deps, upload))) {
-        throw new PhotoRefused({ code: 'apiError.photo.versionNotAllowed' });
-    }
+async function processVersion(deps: PhotoDeps, { upload, object, claim, bytes }: Received, kind: PhotoVersionKind): Promise<void> {
     const accepted = accept(await deps.images.inspect(bytes).catch(refuseUnreadable));
     const sha256 = createHash('sha256').update(bytes).digest('hex');
     const [web, thumb] = await render(deps, bytes);
@@ -424,37 +262,84 @@ async function processVersion(deps: PhotoDeps, { upload, object, photo, bytes }:
         h: web.height,
     };
     const original = { path: originalPath, contentType: accepted.contentType, bytes: bytes.length, sha256 };
-    await updatePhoto(deps, upload, (current) => ({
-        ...omit(current, ['replacement']),
-        versions: { ...current.versions, [kind]: { image, original } },
-        ...stamp(deps),
-    }));
+    await updatePhoto(deps, upload, (current) => {
+        if (!isLatestUpload(current, claim)) {
+            throw new StaleUpload();
+        }
+        return {
+            ...omit(current, ['replacement']),
+            versions: { ...current.versions, [kind]: { image, original } },
+            ...stamp(deps),
+        };
+    });
     deps.log.info('photo version processed', { cityId: upload.cityId, photoId: upload.photoId, version: kind });
+}
+
+async function authorize(deps: PhotoDeps, upload: PhotoUpload, photo: PhotoDoc, version: PhotoVersionKind | undefined): Promise<boolean> {
+    if (version === undefined) {
+        return heldBack(deps, upload, photo);
+    }
+    if (photo.reviewStatus === 'pending' || !(await byReviewer(deps, upload))) {
+        throw new PhotoRefused({ code: 'apiError.photo.versionNotAllowed' });
+    }
+    return false;
+}
+
+async function finishClaimedUpload(deps: PhotoDeps, failed: FailedUpload, held: boolean, bytes: Uint8Array): Promise<UploadOutcome> {
+    const { upload, object, version, claim } = failed;
+    const received = { upload, object, claim, held, bytes };
+    try {
+        await (version === undefined ? processImage(deps, received) : processVersion(deps, received, version));
+        await deps.blobs.delete('private', object.name);
+        return 'done';
+    } catch (error) {
+        return await (error instanceof StaleUpload ? finishStale(deps, upload, claim) : recordClaimedFailure(deps, failed, error));
+    }
+}
+
+function finishUnclaimed(deps: PhotoDeps, failed: FailedUpload, status: 'stale' | 'orphan'): Promise<'stale' | 'orphan'> {
+    return status === 'stale' ? finishStale(deps, failed.upload, failed.claim) : deleteOrphan(deps, failed.upload, failed.object.name);
+}
+
+async function claimUpload(
+    deps: PhotoDeps,
+    failed: FailedUpload,
+    photo: PhotoDoc,
+): Promise<{ readonly bytes: Uint8Array; readonly held: boolean } | UploadOutcome> {
+    try {
+        const bytes = await readUpload(deps, failed.object);
+        if (bytes === undefined) {
+            return 'gone';
+        }
+        const held = await authorize(deps, failed.upload, photo, failed.version);
+        const status = await claimUploadSlot(deps, failed.upload, failed.claim);
+        if (status === 'claimed') {
+            return { bytes, held };
+        }
+        return await finishUnclaimed(deps, failed, status);
+    } catch (error) {
+        return await recordUnclaimedFailure(deps, failed, error);
+    }
 }
 
 async function processKnownUpload(deps: PhotoDeps, upload: PhotoUpload, object: FinalizedObject, photo: PhotoDoc): Promise<UploadOutcome> {
     const version = versionOf(object.metadata);
-    try {
-        const bytes = await readUpload(deps, object);
-        if (bytes === undefined) {
-            return 'gone';
-        }
-        const received = { upload, object, photo, bytes };
-        await (version === undefined ? processImage(deps, received) : processVersion(deps, received, version));
-    } catch (error) {
-        await recordFailure(deps, { upload, object, version }, error);
-        return 'failed';
+    const claim: UploadClaim = { slot: uploadSlot(version), id: object.name, at: uploadTime(deps, object.timeCreated) };
+    if (isOlderThanLatest(photo, claim)) {
+        return finishStale(deps, upload, claim);
     }
-    await deps.blobs.delete('private', object.name);
-    return 'done';
+    const failed = { upload, object, version, claim };
+    const claimed = await claimUpload(deps, failed, photo);
+    return typeof claimed === 'string' ? claimed : finishClaimedUpload(deps, failed, claimed.held, claimed.bytes);
 }
 
 /**
  * Processes one finalized object of the private bucket: anything but `uploads/photos/{city}/{uid}/{photo}/{file}` is
- * ignored, an upload without its photo document is deleted, a refused file is recorded on the document
- * (`processing: 'failed'`, `processingError`, `duplicateOf`; for a photo that already has an image, a replacement, only
- * `replacement`: CR-M2c-4) and deleted, a processed one sets `image`, `exif`, `suggested`, `original` and
- * `processing: 'done'` and removes `replacement` (stamped `system:photos`) and is deleted.
+ * ignored, an upload without its photo document is deleted, an upload superseded by a newer one for the same slot is
+ * deleted without modifying the photo, a refused file is recorded on the document (`processing: 'failed'`,
+ * `processingError`, `duplicateOf`; for a photo that already has an image, a replacement, only `replacement`:
+ * CR-M2c-4) and deleted, a processed one sets `image`, `exif`, `suggested`, `original` and `processing: 'done'` and
+ * removes `replacement` (stamped `system:photos`) and is deleted.
  */
 export async function processPhotoUpload(deps: PhotoDeps, object: FinalizedObject): Promise<UploadOutcome> {
     const upload = parsePhotoUploadPath(object.name);
@@ -463,10 +348,5 @@ export async function processPhotoUpload(deps: PhotoDeps, object: FinalizedObjec
         return 'ignored';
     }
     const photo = await deps.documents.get(FIRESTORE_PATHS.photo(upload.cityId, upload.photoId), photoDocSchema);
-    if (photo === undefined) {
-        await deps.blobs.delete('private', object.name);
-        deps.log.warn('upload without its photo document deleted', { cityId: upload.cityId, photoId: upload.photoId });
-        return 'orphan';
-    }
-    return processKnownUpload(deps, upload, object, photo);
+    return photo === undefined ? deleteOrphan(deps, upload, object.name) : processKnownUpload(deps, upload, object, photo);
 }
