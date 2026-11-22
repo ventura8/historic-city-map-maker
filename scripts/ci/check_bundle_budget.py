@@ -99,6 +99,11 @@ ENGINE_CHUNK_BUDGETS: Mapping[str, int] = {
     # the overlay on; it takes the file's schema from the engine. A new chunk: about 0.5 KB, budget 2 (and its extra).
     "wikipedia": 2,
     "extra-wikipedia": 2,
+    # Shared ES-build chunks split out by Rolldown (DECISIONS-for-review.md §244): locale list, manifest schema and
+    # primitive schemas shared with the lazy chunks.
+    "locales": 2,
+    "manifest": 4,
+    "primitives": 4,
 }
 
 # The admin's build folder and its entry (packages/admin/vite.config.ts).
@@ -266,7 +271,8 @@ ADMIN_CHUNK_BUDGETS: Mapping[str, int] = {
     # and Join frames, fetched when its tab first opens, 1.2 KB measured then. The total did not rise: the line breaks left in
     # the `css` and `html` templates went (6.4 KB, `scripts/site/src/css-literals.ts`). 4 since 2026-11-13 (the owner's "raise the
     # limits you need to raise" for beta.1): the join card reached 3.0 KB with the cloud estimate and the plain messages.
-    "join-card": 4,
+    # 5 since 2026-11-22 (DECISIONS-for-review.md §244): reached the 4.0 KB limit; 5 KB is the smallest whole-KB step above it.
+    "join-card": 5,
     "upload-panel": 2,
     # M28 (docs/research/M28-sources.md §5, §10-§11; DECISIONS-for-review.md §215b): Setup's Platform and Sources cards with
     # their catalogue (`@hcm/shared/admin-sources`: the sources, the collections, free translation and the country finder in

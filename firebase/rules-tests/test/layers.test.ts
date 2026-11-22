@@ -67,7 +67,7 @@ describe('presentation', () => {
         ['a fractional order', { order: 1.5 }],
         ['a visibility that is not a boolean', { defaultVisible: 'yes' }],
         ['a published flag that is not a boolean', { published: 1 }],
-        ['a kind the viewer does not know', { kind: 'drawing' }],
+        ['a kind the viewer does not know @S-A33-BAD-LAYER-KIND', { kind: 'drawing' }],
         ['places that are not a list @S-A199-BAD-LAYER-PLACES', { placeIds: 'parcul-carol' }],
         ['a level without a name @S-A201-BAD-LEVEL', { level: { order: 0 } }],
         ['a level with an unknown field', { level: { order: 0, label: { ro: 'Parter' }, floor: 'x' } }],

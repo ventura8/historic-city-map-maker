@@ -163,5 +163,10 @@ export function withVisibleOpaque(overlays: readonly Overlay[]): readonly Overla
 
 /** Every overlay back at its manifest defaults (the admin's "reset", the viewer's new manifest). */
 export function resetOverlays(overlays: readonly Overlay[]): readonly Overlay[] {
-    return overlays.map((target) => ({ ...target, visible: target.defaultVisible, opacity: target.defaultOpacity }));
+    // Every sub-group is shown again too: the defaults hide none (`hiddenGroups` left out, as a fresh overlay has it).
+    return overlays.map((target) => {
+        const next: Overlay = { ...target, visible: target.defaultVisible, opacity: target.defaultOpacity };
+        delete (next as { hiddenGroups?: readonly string[] }).hiddenGroups;
+        return next;
+    });
 }

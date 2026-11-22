@@ -1445,11 +1445,6 @@
             "source": "the owner, 2026-11-22: building plans per level, a level picker, interior photos on a level"
         },
         {
-            "id": "V83",
-            "area": "viewer",
-            "name": "The Layers panel's Place media category with a switch per kind",
-            "milestone": "M17",
-            "source": "the owner, 2026-11-22: a Place media entry in the Layers panel's Places, one sub-entry per kind",
             "id": "A231",
             "area": "admin",
             "name": "Make a superseded version the live one again, while its own tiles are still public",
@@ -6649,6 +6644,17 @@
             "tier": "functions",
             "status": "exists",
             "notes": "DECISIONS §209. In functions/test/imagery/scene-record.test.ts."
+        },
+        {
+            "id": "S-A12-BAD-STALE-CLOUD",
+            "behaviour": "A12",
+            "area": "admin",
+            "path": "bad",
+            "title": "A cloud dispatch that went stale starts nothing",
+            "asserts": "a queued cloud job moved to the computer, paused, asked to stop, not due, waiting for a later day, out of attempts or held by a worker before the dispatch's transaction -> the dispatch is skipped, no run starts and the job is left as it was",
+            "tier": "functions",
+            "status": "exists",
+            "notes": "Test: functions/test/imagery/dispatch.test.ts."
         },
         {
             "id": "S-A11-HAPPY-SAME-DATE-RANK",
@@ -14445,7 +14451,7 @@
             "path": "happy",
             "title": "The layer page sets what a layer is: map, aerial photo or satellite image",
             "asserts": "the What it is control edits kind on the layer; the rules allow kind in satellite/aerial/map; an upload named as a map (impartirea, administrativ, sistematizare, plan...) or without a photo word finalizes as a map",
-            "tier": "unit",
+            "tier": "functions",
             "status": "exists",
             "notes": "Live 2026-11-22 (1966 and 1935 maps listed as photos). Tests: packages/ui/test/admin/layers/layers-page.test.ts, firebase/rules-tests/test/layers.test.ts, functions/test/imagery/finalize.test.ts."
         },
@@ -14456,7 +14462,7 @@
             "path": "bad",
             "title": "A kind the viewer does not know is refused; a photo upload stays aerial",
             "asserts": "kind 'drawing' -> rules deny; an upload named Ortofoto -> aerial",
-            "tier": "unit",
+            "tier": "rules",
             "status": "exists",
             "notes": "Live 2026-11-22. Tests: firebase/rules-tests/test/layers.test.ts, functions/test/imagery/finalize.test.ts."
         },
@@ -21580,7 +21586,7 @@
         {
             "id": "S-P20-HAPPY-REGEOREF-HOLDER",
             "behaviour": "P20",
-            "area": "functions",
+            "area": "pipeline",
             "path": "happy",
             "title": "A regeoref of an archive version names its archive and is claimed by the holder",
             "asserts": "startRegeoref on an archive base sets params.originalArchiveId (a USGS base does not); archiveHere returns true and worker.claim hands the job to a worker holding that archive whole",
@@ -21591,7 +21597,7 @@
         {
             "id": "S-P20-BAD-REGEOREF-NOT-HOLDER",
             "behaviour": "P20",
-            "area": "functions",
+            "area": "pipeline",
             "path": "bad",
             "title": "A worker without the archive cannot claim a regeoref of an archive version",
             "asserts": "a worker without the archive cannot claim a regeoref of an archive version before the holder's copy, nor one handed back for a new copy; a frame's regeoref reads no archive copy",
@@ -24621,8 +24627,8 @@
             "title": "The admin draws the area of an aerial photo in front of the camera and saves it",
             "asserts": "an aerial photo with a place and a direction north -> Draw the area in front of the camera shows Reset and Remove; Save writes viewedArea of four corners, the far ones north of the near ones",
             "tier": "e2e-admin",
-            "status": "planned",
-            "notes": "The owner, 2026-11-22. Unit coverage today: packages/admin/test/photos/store.test.ts, packages/ui/test/admin/photos/photo-editor.test.ts."
+            "status": "exists",
+            "notes": "Test: e2e/admin/specs/photos/viewed-area.spec.ts. The owner, 2026-11-22. Unit coverage today: packages/admin/test/photos/store.test.ts, packages/ui/test/admin/photos/photo-editor.test.ts."
         },
         {
             "id": "S-A195-BAD-SHAPE",
@@ -24632,8 +24638,8 @@
             "title": "A crossed viewed area says why and is not saved",
             "asserts": "an aerial photo whose stored area crosses itself -> the Viewed area section shows the validation.viewedArea message; Reset clears it",
             "tier": "e2e-admin",
-            "status": "planned",
-            "notes": "The owner, 2026-11-22. Unit coverage today: packages/admin/test/photos/store.test.ts (area.refused)."
+            "status": "exists",
+            "notes": "Test: e2e/admin/specs/photos/viewed-area.spec.ts. The owner, 2026-11-22. Unit coverage today: packages/admin/test/photos/store.test.ts (area.refused)."
         },
         {
             "id": "S-V77-HAPPY-MANIFEST",
@@ -24665,8 +24671,8 @@
             "title": "Selecting or hovering an aerial photo draws its viewed area",
             "asserts": "a manifest with an aerial photo and a viewedArea -> hovering its marker or opening it fills and outlines the area (hcm-photos-area-fill / -line); leaving it hides the area",
             "tier": "e2e-viewer",
-            "status": "planned",
-            "notes": "The owner, 2026-11-22. Unit coverage today: packages/ui/test/map/mapbox-adapter.test.ts, packages/engine/test/core/map-specs.test.ts."
+            "status": "exists",
+            "notes": "Test: e2e/specs/viewer/viewed-area.spec.ts. The owner, 2026-11-22. Unit coverage today: packages/ui/test/map/mapbox-adapter.test.ts, packages/engine/test/core/map-specs.test.ts."
         },
         {
             "id": "S-V77-BAD-NO-AREA",
@@ -25076,15 +25082,17 @@
             "notes": "Unit: packages/shared/test/overlays/place-media.test.ts, packages/ui/test/viewer/layer-panel-model.test.ts. docs/research/M17-stories.md §15."
         },
         {
-            "id": "S-V83-BAD-NO-MEDIA",
+            "id": "S-V83-BAD-NO-PLACE-MEDIA",
             "behaviour": "V83",
             "area": "viewer",
             "path": "bad",
-            "title": "A city without media has no Place media entry",
-            "asserts": "no place with media -> the manifest is unchanged, no category is added",
+            "title": "Places without media add no Place media category",
+            "asserts": "a manifest whose places have no map and no photos -> the layer panel shows no Place media category and no empty switches",
             "tier": "e2e-viewer",
             "status": "planned",
-            "notes": "Unit: packages/shared/test/overlays/place-media.test.ts.",
+            "notes": "Unit: packages/shared/test/overlays/place-media.test.ts. docs/research/M17-stories.md §15."
+        },
+        {
             "id": "S-A231-HAPPY-MAKE-LIVE",
             "behaviour": "A231",
             "area": "admin",

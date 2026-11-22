@@ -1,21 +1,22 @@
 import { describe, expect, it } from 'vitest';
 
 import type { Overlay } from '../../src/overlays/model.js';
+import type { Poi } from '../../src/schemas/poi.js';
 import { categoryGroups, groupShown, poiGroupOf, withOverlayGroup } from '../../src/overlays/poi-groups.js';
 
-const point = { type: 'Point', coordinates: [26.1, 44.43] } as const;
-const line = {
+const point: Poi['geometry'] = { type: 'Point', coordinates: [26.1, 44.43] };
+const line: Poi['geometry'] = {
     type: 'LineString',
     coordinates: [
         [26.1, 44.43],
         [26.2, 44.44],
     ],
-} as const;
+};
 
 const RIVERS: Overlay = {
     id: 'old-rivers',
     kind: 'poi',
-    label: { ro: 'Cursuri vechi' },
+    label: { ro: 'Cursuri vechi', en: 'Old rivers' },
     visible: true,
     opacity: 1,
     defaultVisible: true,

@@ -120,7 +120,7 @@ describe('finalizeVersion', () => {
         ['Planul de sistematizare, 1935', 'map'],
         ['Zbor deasupra Cotrocenilor', 'map'],
         ['Ortofoto 2005', 'aerial'],
-    ])('happyPath_anUploadNamed_%s_isA_%s', async (name, kind) => {
+    ])('happyPath_anUploadNamed_%s_isA_%s @S-A33-HAPPY-LAYER-KIND', async (name, kind) => {
         const { world } = await finish(
             uploaded({
                 source: { kind: 'upload', uploadPath: 'uploads/rasters/bucharest/u/up-plan1911/Qx7mP2rT9w.tif', bytes: 10 },

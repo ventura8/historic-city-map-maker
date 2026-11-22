@@ -7308,3 +7308,16 @@ to 300 and joining the 48 sheets into one layer, which needs a join of more than
 - Memory: the worker spills each part's preview, tone field, weight and cover to scratch files (`spilled`), so a 48-part join fits a
   modest computer; tone fields accumulate in float32.
 - `scripts/ci/check_e2e_matrix.py` also reads `packages/shared/test/schemas/*.test.ts` for scenario tags (the caps' tests live there).
+
+## 244. Engine shared chunks and admin `join-card` budget (2026-11-22) — APPLIED
+
+The engine's ES module build now emits three shared chunks (`locales`, `manifest`, `primitives`) without entries in `ENGINE_CHUNK_BUDGETS`, and the admin's `join-card` chunk reached its 4 KB ceiling (`scripts/ci/check_bundle_budget.py`).
+
+| Row | Was | Now | Reason |
+| --- | --- | --- | --- |
+| `locales` (engine) | — | 2 | New ES-build shared chunk (`packages/shared/src/i18n/locales.ts`) |
+| `manifest` (engine) | — | 4 | New ES-build shared chunk (`packages/shared/src/schemas/manifest.ts`) |
+| `primitives` (engine) | — | 4 | New ES-build shared chunk (`packages/shared/src/schemas/primitives.ts`) |
+| `join-card` (admin) | 4 | 5 | Reached the 4.0 KB ceiling; 5 KB is the smallest whole-KB step in `ADMIN_CHUNK_BUDGETS` |
+
+Verify: `PIPELINE_STAGE=build`.
