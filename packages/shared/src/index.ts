@@ -295,8 +295,7 @@ export {
     parseRasterUploadPath,
 } from './schemas/imagery-paths.js';
 export type { RasterUpload, ReferenceKind, VersionFile, VersionTilesPaths } from './schemas/imagery-paths.js';
-// M4 (docs/research/M4-interfaces.md): buying a scan, automatic GCP suggestions, the assists, notifications (every export
-// of these modules is public; `test/index.test.ts` lists them).
+// M4 (docs/research/M4-interfaces.md): buying scans, GCP suggestions, assists, notifications; all public (`test/index.test.ts`).
 export * from './schemas/usgs-order.js';
 export * from './schemas/autogcp.js';
 export * from './schemas/assist.js';
