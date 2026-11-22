@@ -38,9 +38,11 @@ const CALLABLE_CONCURRENCY: Readonly<Partial<Record<CallableName, number>>> = { 
 /**
  * Callables that need more than the default 256 MiB: `imagery.markScene` rewrites the whole-city date plan after each mark and
  * ran out of 256 MiB (259 MiB used; Crashes top group, release `imagery-markscene-00032-wut`, 2026-11-20). 512 MiB matches
- * `imagery.tick` / `publish.buildManifest` (cost-shape table).
+ * `imagery.tick` / `publish.buildManifest` (cost-shape table). `imagery.browse` still ran out of 256 MiB at two requests an
+ * instance (67 times in 30 days, last on 2026-11-22: `reports/analytics-review-2026-11-22.md`, LESSONS 760): one KH-9 strip's
+ * fetched bytes plus its decoded pixels for the shrink pass 256 MiB alone.
  */
-const CALLABLE_MEMORY: Readonly<Partial<Record<CallableName, '512MiB'>>> = { 'imagery.markScene': '512MiB' };
+const CALLABLE_MEMORY: Readonly<Partial<Record<CallableName, '512MiB'>>> = { 'imagery.markScene': '512MiB', 'imagery.browse': '512MiB' };
 
 /** Timeout, concurrency and memory overrides when `CALLABLE_*` names the callable. */
 function callableLimits(name: CallableName): Pick<CallableOptions, 'timeoutSeconds' | 'concurrency' | 'memory'> {

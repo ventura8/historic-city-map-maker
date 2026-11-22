@@ -345,7 +345,9 @@ describe('callableOptions', () => {
     it('happyPath_markSceneTakesHalfAGigabyteForTheDatePlanRewrite', () => {
         // Crashes 2026-11-20: `imagery-markscene` used 259 MiB on the default 256 MiB (22 reports).
         expect(callableOptions('imagery.markScene', {})).toMatchObject({ memory: '512MiB' });
-        expect(callableOptions('imagery.browse', {})).not.toHaveProperty('memory');
+        // Error Reporting 2026-11-22: `imagery.browse` still ran out of 256 MiB at two requests an instance (LESSONS 760).
+        expect(callableOptions('imagery.browse', {})).toMatchObject({ memory: '512MiB', concurrency: 2 });
+        expect(callableOptions('imagery.search', {})).not.toHaveProperty('memory');
     });
 
     it('badPath_theLocalWorkersCallablesNeverEnforceAppCheck', () => {

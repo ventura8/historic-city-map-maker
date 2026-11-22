@@ -4384,3 +4384,10 @@ Append a numbered entry to *Lessons from this repository* in the task that finds
     - Cause: `household-sharing.ts` imported `ARCHIVE_SHARE_DAY_BYTES` from `@hcm/shared`, which re-exported it from `worker-calls.ts`, so Rolldown put the whole worker-only schema module in the household chunk.
     - Fix and pin: move `ARCHIVE_COPY_MAX_BYTES` / `ARCHIVE_SHARE_DAY_BYTES` / `ARCHIVE_SHARE_IDLE_WHYS` to `api/worker.ts` (admin-safe); `worker-calls.ts` imports them.
     - **Constants the admin UI reads must not live in `worker-calls.ts`.**
+
+### 760. Two browse copies at a time still ran out of 256 MiB (2026-11-22)
+
+- Seen: Cloud Error Reporting's top group over 30 days, "Memory limit of 256 MiB exceeded with 259 MiB used", 67 occurrences on `imagery-browse` across six revisions, the last five hours before the review (`reports/analytics-review-2026-11-22.md`).
+- Cause: lesson 730 capped `imagery.browse` at two requests an instance but kept 256 MiB; one KH-9 panoramic strip's fetched bytes (up to 30 MB) plus its decoded pixels for the shrink and the cloud estimate already fill most of it, so two at once pass the limit.
+- Fix: `CALLABLE_MEMORY` gives `imagery.browse` 512 MiB beside the concurrency of 2 (`functions/src/api/callable.ts`, S-A11-BAD-BROWSE-MEMORY).
+- **A concurrency cap only helps when one request fits the memory with room to spare; size the memory for the largest single input first, then cap the concurrency.**

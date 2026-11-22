@@ -23341,11 +23341,11 @@
             "behaviour": "A11",
             "area": "admin",
             "path": "bad",
-            "title": "The browse copy takes two requests at a time",
-            "asserts": "imagery.browse deploy options -> concurrency 2 (it ran out of 256 MiB at 80); other callables keep the default",
+            "title": "The browse copy takes two requests at a time on 512 MiB",
+            "asserts": "imagery.browse deploy options -> concurrency 2 and memory 512MiB (it ran out of 256 MiB at 80, then 67 times in 30 days at 2); other callables keep the default",
             "tier": "functions",
             "status": "exists",
-            "notes": "Admin sweep 2026-11-14 (reports/admin-sweep/bugs.md), lesson 730. Test: functions/test/api/callable.test.ts."
+            "notes": "Admin sweep 2026-11-14 (reports/admin-sweep/bugs.md), lesson 730; Error Reporting 2026-11-22, lesson 760. Test: functions/test/api/callable.test.ts."
         },
         {
             "id": "S-P33-HAPPY",
