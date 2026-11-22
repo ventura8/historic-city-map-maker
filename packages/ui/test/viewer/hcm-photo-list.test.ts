@@ -52,22 +52,6 @@ describe('<hcm-photo-list>', () => {
         await expect.element(page.getByRole('status')).toHaveTextContent('2 photos');
     });
 
-    it('happyPath_interiorPhotosGetTheirOwnChoiceAndAerialNone @S-V80-HAPPY-PLACE-MEDIA', async () => {
-        const [first, second] = MANIFEST.photos;
-        if (first === undefined || second === undefined) {
-            throw new Error('the fixture has two photos');
-        }
-        const element = await mountElement<HcmPhotoList>(HCM_PHOTO_LIST_TAG, {
-            photos: [{ ...first, kind: 'interior' as const }, second],
-            locale: 'en',
-            manifestUrl: TEST_MANIFEST_URL,
-        });
-
-        expect(shadowQueryAll(element, 'label').map((label) => label.textContent.trim())).toEqual(['All', 'Street', 'Interior']);
-        await page.getByRole('radio', { name: 'Interior' }).click();
-        await expect.element(page.getByRole('status')).toHaveTextContent('1 photo');
-    });
-
     it('badPath_noAerialPhotoShowsNoKindChoice', async () => {
         const element = await mountElement<HcmPhotoList>(HCM_PHOTO_LIST_TAG, { photos: MANIFEST.photos, manifestUrl: TEST_MANIFEST_URL });
 
@@ -175,5 +159,31 @@ describe('<hcm-photo-list>', () => {
         defineHcmPhotoList();
 
         expect(customElements.get(HCM_PHOTO_LIST_TAG)).toBe(HcmPhotoList);
+    });
+});
+
+describe('<hcm-photo-list> interior photos (M17 §12)', () => {
+    beforeAll(() => {
+        defineHcmPhotoList();
+    });
+
+    afterEach(() => {
+        document.body.replaceChildren();
+    });
+
+    it('happyPath_interiorPhotosGetTheirOwnChoiceAndAerialNone @S-V80-HAPPY-PLACE-MEDIA', async () => {
+        const [first, second] = MANIFEST.photos;
+        if (first === undefined || second === undefined) {
+            throw new Error('the fixture has two photos');
+        }
+        const element = await mountElement<HcmPhotoList>(HCM_PHOTO_LIST_TAG, {
+            photos: [{ ...first, kind: 'interior' as const }, second],
+            locale: 'en',
+            manifestUrl: TEST_MANIFEST_URL,
+        });
+
+        expect(shadowQueryAll(element, 'label').map((label) => label.textContent.trim())).toEqual(['All', 'Street', 'Interior']);
+        await page.getByRole('radio', { name: 'Interior' }).click();
+        await expect.element(page.getByRole('status')).toHaveTextContent('1 photo');
     });
 });

@@ -48,6 +48,22 @@ describe('<hcm-poi-editor>: the form', () => {
     beforeAll(defineAll);
     afterEach(cleanup);
 
+    it('happyPath_aPlacesPhotosMoveUpAndDownForItsMedia @S-A196-HAPPY-REORDER', async () => {
+        const { element, store } = await mounted(editor({ draft: draft({ value: { ...VALUE, photoIds: ['p1', 'p9'] } }) }));
+
+        press(deep(element, '.chosen li:last-child .move-up'));
+        press(deep(element, '.chosen li:first-child .move-down'));
+
+        expect(asked(store, 'edit')).toEqual(['edit {"photoIds":["p9","p1"]}', 'edit {"photoIds":["p9","p1"]}']);
+    });
+
+    it('badPath_theFirstPhotoCannotMoveUpNorTheLastDown @S-A196-BAD-REORDER', async () => {
+        const { element } = await mounted(editor({ draft: draft({ value: { ...VALUE, photoIds: ['p1', 'p9'] } }) }));
+
+        expect(deep(element, '.chosen li:first-child .move-up').hasAttribute('disabled')).toBe(true);
+        expect(deep(element, '.chosen li:last-child .move-down').hasAttribute('disabled')).toBe(true);
+    });
+
     it('happyPath_everyFieldEditsTheDraft', async () => {
         const { element, store } = await mounted(
             editor({
@@ -68,7 +84,7 @@ describe('<hcm-poi-editor>: the form', () => {
         type(element, '#link-label-1', 'B');
         press(deep(element, '.link-row hcm-icon-button'));
         press(deep(element, '.add-link'));
-        press(deep(element, '.chosen hcm-icon-button'));
+        press(deep(element, '.chosen hcm-icon-button[icon="close"]'));
         press(deep(element, 'hcm-switch'));
 
         expect(asked(store, 'edit')).toEqual([
