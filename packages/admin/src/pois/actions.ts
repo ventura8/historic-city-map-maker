@@ -18,6 +18,11 @@ export const LAST_CATEGORY_KEY = 'hcm:admin:lastCategory';
 
 export type ActionServices = Pick<ContentServices, 'cityId' | 'store' | 'callables' | 'clock' | 'local' | 'notify' | 'cityRole' | 'denied'>;
 
+/** The version a delete expects: none when the place's first snapshot has not arrived yet. */
+function versionOf(base: { readonly version: string } | null): string | null {
+    return base === null ? null : base.version;
+}
+
 export class PlaceActions {
     readonly #services: ActionServices;
     readonly #changed: (patch: { readonly busy?: boolean; readonly exporting?: boolean }) => void;
@@ -69,21 +74,43 @@ export class PlaceActions {
         return outcome;
     }
 
-    /** Deletes the open place; the snackbar offers Undo for ten seconds. */
-    async remove(editor: PlaceEditor): Promise<WriteOutcome | null> {
-        const base = editor.state.draft?.base ?? null;
-        if (base === null) {
+    /**
+     * Deletes the open place; the snackbar offers Undo for ten seconds. A place saved for the first time moments ago has
+     * no snapshot yet (2026-11-22: such a delete returned nothing and said nothing): it is deleted without a version to
+     * compare. A refused delete says why and offers Try again; only an unsaved new place has nothing to delete.
+     */
+    async remove(editor: PlaceEditor, deleted: () => void): Promise<WriteOutcome | null> {
+        const draft = editor.state.draft;
+        if (draft?.isNew !== false) {
             return null;
         }
         this.#busy(true);
-        const outcome = await this.#services.store.remove(FIRESTORE_PATHS.poi(this.#services.cityId, editor.id), base.version);
+        const outcome = await this.#services.store.remove(FIRESTORE_PATHS.poi(this.#services.cityId, editor.id), versionOf(draft.base));
         this.#busy(false);
         if (outcome.ok) {
+            deleted();
             this.#offerUndo(editor.id);
         } else {
-            this.refused(outcome.reason);
+            this.#deleteRefused(outcome.reason, editor, deleted);
         }
         return outcome;
+    }
+
+    /** Why a delete was refused, with Try again. */
+    #deleteRefused(reason: WriteFailure, editor: PlaceEditor, deleted: () => void): void {
+        if (reason === 'denied') {
+            this.#services.denied();
+        }
+        const run = (): void => {
+            void this.remove(editor, deleted);
+        };
+        this.#services.notify({ key: WRITE_FAILURES[reason], action: { key: 'adminContent.common.retry', run } });
+    }
+
+    /** A delete asked while another write runs: said, never silently dropped. */
+    busyDelete(): null {
+        this.#services.notify({ key: 'adminContent.pois.deleteBusy' });
+        return null;
     }
 
     #offerUndo(id: string): void {

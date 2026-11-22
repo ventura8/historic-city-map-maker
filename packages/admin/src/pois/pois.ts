@@ -332,7 +332,15 @@ class PoisStore implements AreaStore<PoisState, PoisIntents> {
     }
 
     async #remove(): Promise<WriteOutcome | null> {
-        return this.#editor === null || this.#cell.state.busy ? null : this.#actions.remove(this.#editor);
+        const editor = this.#editor;
+        if (editor === null || this.#cell.state.busy) {
+            return editor === null ? null : this.#actions.busyDelete();
+        }
+        // A deleted place leaves the list at once; the listener's next answer agrees.
+        return this.#actions.remove(editor, () => {
+            const { list } = this.#cell.state;
+            this.#cell.update({ list: { ...list, items: list.items.filter((item) => item.id !== editor.id) } });
+        });
     }
 
     async #bulk(action: BulkAction): Promise<void> {

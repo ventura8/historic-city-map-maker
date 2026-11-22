@@ -97,6 +97,8 @@ export const fr: Readonly<Partial<Record<AdminPoisKey, string>>> = {
     'adminContent.pois.deleteBody':
         "Le lieu disparaîtra de la carte publique dans environ une minute. Vous pourrez le restaurer à partir de l'historique.",
     'adminContent.pois.deleteConfirm': 'Supprimer',
+    'adminContent.pois.deleteBusy':
+        'Une autre modification des lieux est encore en cours d’enregistrement : le lieu n’a pas été supprimé. Attendez quelques secondes, puis appuyez de nouveau sur Supprimer.',
     'adminContent.pois.deleted': 'Le lieu a été supprimé.',
     'adminContent.pois.undo': 'Annuler',
     'adminContent.pois.restored': 'Le lieu a été restauré.',

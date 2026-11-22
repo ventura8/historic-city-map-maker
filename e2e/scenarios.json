@@ -9505,6 +9505,28 @@
             "notes": "Owner 2026-11-22. Test: e2e/admin/specs/pois/long-list.spec.ts; packages/admin/test/content/live.test.ts (past WHOLE_LIMIT), packages/ui/test/admin/editing/list-window.test.ts."
         },
         {
+            "id": "S-A33-HAPPY-DELETE-FRESH",
+            "behaviour": "A33",
+            "area": "admin",
+            "path": "happy",
+            "title": "A delete always goes through and the place leaves the list at once, a place saved moments before included",
+            "asserts": "Delete place -> Delete -> the place is gone from the list and the store; a place whose first Save has no snapshot yet is deleted too (no silent no-op)",
+            "tier": "e2e-admin",
+            "status": "exists",
+            "notes": "Owner 2026-11-22 (place 84QFbxLR2AsyRcZ3nq9v). Test: e2e/admin/specs/pois/delete-outcome.spec.ts; packages/admin/test/pois/delete-race.test.ts."
+        },
+        {
+            "id": "S-A33-BAD-DELETE-REFUSED",
+            "behaviour": "A33",
+            "area": "admin",
+            "path": "bad",
+            "title": "A delete the server does not take says why and offers Try again",
+            "asserts": "the commit fails -> the place stays, the snackbar says why with Try again -> Try again deletes it; a delete asked while another write runs says to wait",
+            "tier": "e2e-admin",
+            "status": "exists",
+            "notes": "Owner 2026-11-22. Test: e2e/admin/specs/pois/delete-outcome.spec.ts; packages/admin/test/pois/delete-race.test.ts."
+        },
+        {
             "id": "S-A32-BAD-LINKED-PHOTO-PAST-PAGE",
             "behaviour": "A32",
             "area": "admin",
