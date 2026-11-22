@@ -97,6 +97,14 @@ describe('rights (§7)', () => {
         );
     });
 
+    it('happyPath_aTitleThatNamesTheYearIsNotFollowedByItAgain @S-A197-HAPPY-YEAR-ONCE', () => {
+        expect(creditLine({ licence: 'unknown', state: 'needs-confirmation', year: '1791' }, 'Planul Ernst 1791')).toBe('Planul Ernst 1791');
+    });
+
+    it('badPath_aTitleWithAnotherYearStillCredits @S-A197-BAD-YEAR-OTHER-NUMBER', () => {
+        expect(creditLine({ licence: 'unknown', state: 'needs-confirmation', year: '1791' }, 'Plan 1790')).toBe('Plan 1790, 1791');
+    });
+
     it('happyPath_aCreditLineWithoutSourceOrAuthorKeepsWhatItHas', () => {
         expect(creditLine({ licence: 'unknown', state: 'needs-confirmation', year: 'c. 1900' }, 'Plan')).toBe('Plan, c. 1900');
         expect(creditLine({ licence: 'PD', state: 'clear', year: '1911', watermark: 'dacoromanica' }, 'Plan')).toBe(

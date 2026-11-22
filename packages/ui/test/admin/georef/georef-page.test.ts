@@ -177,7 +177,31 @@ describe('<hcm-georef-page>: pairs, saving and states', () => {
         expect(deepText(element)).toContain('No reference image: use the base map.');
         expect(deep(element, '[data-state="no-pairs"]')).toBeDefined();
         expect((button(element, 'Add pairs') as HTMLElement & { disabled: boolean }).disabled).toBe(true);
-        expect(deepAll(element, '.page > .alert[role="alert"]')).toHaveLength(1);
+        expect(deepAll(element, '.page > .alert-slot > .alert[role="alert"]')).toHaveLength(1);
+    });
+
+    const panesTop = (element: HTMLElement): number => deep(element, '.panes').getBoundingClientRect().top;
+
+    it('happyPath_aRefusalBannerThatAppearsLeavesThePanesWhereTheyWere @S-A122-HAPPY-GEOREF-BANNER-STILL', async () => {
+        const { element, area } = await georefPage(georefState());
+        const before = panesTop(element);
+
+        area.set({ refusal: { key: 'apiError.imagery.gcpOutside' } });
+        await updated(element);
+
+        expect(deepAll(element, '.alert[role="alert"]')).toHaveLength(1);
+        expect(panesTop(element)).toBe(before);
+    });
+
+    it('badPath_aRefusalBannerThatGoesLeavesThePanesWhereTheyWere @S-A122-BAD-GEOREF-BANNER-GONE', async () => {
+        const { element, area } = await georefPage(georefState({ refusal: { key: 'apiError.imagery.gcpOutside' } }));
+        const before = panesTop(element);
+
+        area.set({ refusal: null });
+        await updated(element);
+
+        expect(deepAll(element, '.alert[role="alert"]')).toHaveLength(0);
+        expect(panesTop(element)).toBe(before);
     });
 
     it('happyPath_aScanWaitingForPointsCanBeSavedAsItIsAndCompactWindowsSwitchPanes', async () => {

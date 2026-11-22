@@ -340,7 +340,9 @@ function originalPart(rights: Rights): string | undefined {
 
 /** The parts of the credit line, each skipped when absent. */
 function creditParts(rights: Rights, title: string): string[] {
-    const work = [rights.author, title, rights.year].filter((part) => part !== undefined).join(', ');
+    // The year is skipped when the title already names it ("Planul Ernst 1791"), so the line never reads "…1791, 1791".
+    const year = title.includes(rights.year) ? undefined : rights.year;
+    const work = [rights.author, title, year].filter((part) => part !== undefined).join(', ');
     const licence = rights.licence === 'unknown' ? undefined : rights.licence;
     return [work, licence, scanPart(rights), originalPart(rights)].filter((part) => part !== undefined);
 }

@@ -12,6 +12,15 @@ export const georefStyles = [
     ...editingStyles,
     visuallyHidden,
     css`
+        /* The refusal banner's reserved room: the panes below never move when it appears or goes (docs/LESSONS.md). */
+        .alert-slot {
+            min-block-size: 3.5rem;
+        }
+
+        .alert-slot > .alert {
+            margin: 0;
+        }
+
         :host {
             display: flex;
             flex-direction: column;

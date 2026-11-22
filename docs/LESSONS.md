@@ -4460,3 +4460,9 @@ Append a numbered entry to *Lessons from this repository* in the task that finds
     - Cause: `yearSchema`, the archive choice schema, the Firestore rules' `isYear`, the target-year field's pattern and the admin's number fields each held their own 1800, while the pipeline's report already took 1500.
     - Fix and pin: one floor, 1500, in `yearSchema` and `isYear` (`1[5-9][0-9][0-9]`), the archive and admin fields following it; the timeline needed nothing, its stops a fixed gap apart (S-A121-HAPPY-PRE-1800, S-A121-BAD-YEAR-1499).
     - **A range written in more than one place drifts: keep one constant and derive the rest from it.**
+
+765. **A point placed in the georeferencer landed about 290 m off** (2026-11-22). The refusal banner sat above the panes in the flow; when it appeared or went between a pointer's press and release the panes moved, and the point was placed where the pane had been.
+    - Fix and pin: the banner lives in a slot that always keeps its height (`.alert-slot` in `georef-parts.ts`), so the panes never move (S-A122-HAPPY-GEOREF-BANNER-STILL, S-A122-BAD-GEOREF-BANNER-GONE).
+    - **A notice that comes and goes above something people click must not move it: reserve its room or overlay it.**
+
+766. **The credit line read "Planul Ernst 1791, 1791"** (2026-11-22): `creditLine` always appended the rights' year after the title, and the Ernst and Purcek titles already carry it. Fix and pin: the year is skipped when the title already contains it (S-A197-HAPPY-YEAR-ONCE, S-A197-BAD-YEAR-OTHER-NUMBER). **A text built from parts must check that the parts do not already say the same thing.**

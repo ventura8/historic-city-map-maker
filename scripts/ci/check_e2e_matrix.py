@@ -64,6 +64,8 @@ TEST_GLOBS = (
     "packages/shared/test/georef/*.test.ts",
     # The manifest and join caps (DECISIONS §242) live in the shared schemas' Vitest.
     "packages/shared/test/schemas/*.test.ts",
+    # The georeferencer page's layout pins (the refusal banner never moves the panes, LESSONS 765) live in the UI's Vitest.
+    "packages/ui/test/admin/georef/*.test.ts",
 )
 # Area -> section title, in the doc's order.
 AREAS = {

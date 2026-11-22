@@ -204,12 +204,18 @@ function saveButtons(context: GeorefContext): TemplateResult {
         >`;
 }
 
+/**
+ * The refusal's banner sits in a slot that keeps its height whether or not a banner shows: a banner that came and went used to
+ * push the panes down or up between a pointer's press and release, and the point landed where the pane had moved (~290 m off).
+ */
 function failure(context: GeorefContext): TemplateResult {
-    return withValue(
-        context.view.refusal,
-        (notice) =>
-            html`<p class="alert" role="alert"><hcm-icon name="error"></hcm-icon><span>${noticeOf(context.locale, notice)}</span></p>`,
-    );
+    return html`<div class="alert-slot" data-state="alert-slot">
+        ${withValue(
+            context.view.refusal,
+            (notice) =>
+                html`<p class="alert" role="alert"><hcm-icon name="error"></hcm-icon><span>${noticeOf(context.locale, notice)}</span></p>`,
+        )}
+    </div>`;
 }
 
 export function tools(context: GeorefContext): TemplateResult {
