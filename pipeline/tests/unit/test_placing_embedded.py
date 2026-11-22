@@ -100,7 +100,8 @@ def test_bad_path_a_georeference_that_disagrees_with_openstreetmap_waits_for_a_l
 
 
 def test_happy_path_a_georeferenced_file_opens_in_the_georeferencer_with_its_own_places_as_pairs(world: PipelineWorld, tmp_path: Path) -> None:
-    """Scenarios: S-P20-HAPPY-EMBEDDED-GEOREFERENCER (LESSONS 759: it opened with no picture, so no points could correct it)"""
+    """Scenarios: S-P20-HAPPY-EMBEDDED-GEOREFERENCER"""
+    # LESSONS 759: it opened with no picture, so no points could correct it.
     ctx = series_context(world, tmp_path, ["off.tif"], {"class": "georeferenced", "encoding": "grey"})
     town_geotiff(originals(ctx) / "off.tif", shift_m=60.0)
 
@@ -119,6 +120,7 @@ def test_happy_path_a_georeferenced_file_opens_in_the_georeferencer_with_its_own
 
 
 def test_bad_path_a_world_file_whose_system_cannot_be_told_waits(world: PipelineWorld, tmp_path: Path) -> None:
+    """Scenarios: S-P20-BAD-EMBEDDED-GEOREFERENCER"""
     ctx = series_context(world, tmp_path, ["nowhere.tif"], {"class": "georeferenced", "encoding": "grey"})
     path = originals(ctx) / "nowhere.tif"
     write_geotiff(path, GeoTiff([numpy.full((10, 10), 200, numpy.uint8)], None))
@@ -128,7 +130,7 @@ def test_bad_path_a_world_file_whose_system_cannot_be_told_waits(world: Pipeline
     help_item = world.version()["help"]
     assert isinstance(help_item, dict)
     assert help_item["note"] == embedded.NO_SYSTEM
-    # Scenarios: S-P20-BAD-EMBEDDED-GEOREFERENCER: its picture is shown, with no pairs from a system that cannot be told.
+    # Its picture is shown, with no pairs from a system that cannot be told.
     assert isinstance(world.version()["scan"], dict)
     assert "suggestions" not in world.version()
 

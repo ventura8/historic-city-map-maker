@@ -20122,18 +20122,18 @@
             "asserts": "a sheet carried two cells by Shift and the arrows ends at the target cell, the sheet that was there takes its first cell, and the sheets it passed stay where they were",
             "tier": "e2e-admin",
             "status": "exists",
-            "notes": "Finding of 2026-11-22 on the live admin (docs/LESSONS.md 759). Tests: packages/admin/test/tiles/draft.test.ts. M20 §19.11."
+            "notes": "Finding of 2026-11-22 on the live admin (docs/LESSONS.md 759). Tests: e2e/admin/specs/imagery/tiles-grid.spec.ts, packages/admin/test/tiles/draft.test.ts. M20 §19.11."
         },
         {
             "id": "S-A-BAD-TILE-WIZARD-SHIFT-STALE",
             "behaviour": "A141",
             "area": "admin",
             "path": "bad",
-            "title": "A Shift move after another edit starts from that edit",
-            "asserts": "a sheet turned between two Shift moves keeps its turn, and the next move swaps only from where it stands, never undoing the edit",
+            "title": "A sheet carried back to its own cell, or after another edit, leaves the others as they were",
+            "asserts": "Shift+Right then Shift+Left puts both sheets back where they were; a sheet turned between two Shift moves keeps its turn and the next move swaps only from where it stands",
             "tier": "e2e-admin",
             "status": "exists",
-            "notes": "Finding of 2026-11-22 on the live admin (docs/LESSONS.md 759). Tests: packages/admin/test/tiles/draft.test.ts. M20 §19.11."
+            "notes": "Finding of 2026-11-22 on the live admin (docs/LESSONS.md 759). Tests: e2e/admin/specs/imagery/tiles-grid.spec.ts, packages/admin/test/tiles/draft.test.ts. M20 §19.11."
         },
         {
             "id": "S-A-HAPPY-FIX-TILES-PARKED",

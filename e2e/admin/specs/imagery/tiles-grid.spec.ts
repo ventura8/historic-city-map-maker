@@ -74,3 +74,30 @@ test(
         expect(help.layoutAnswer.sheets.map((sheet) => sheet.index)).toEqual([0, 1, 2]);
     },
 );
+
+// Finding of 2026-11-22 (docs/LESSONS.md 759): each Shift step swapped with the sheet it passed, so a whole row shifted.
+test('Shift and the arrows carry one sheet past others without moving them', { tag: '@S-A-HAPPY-TILE-WIZARD-SHIFT-ONE' }, async ({ page, lang, content }) => {
+    await seedWaitingSeries(content);
+    await openWizard(page, lang, content);
+
+    await button(page, lang, 'adminTiles.addCol').click();
+    await sheetCell(page, lang, 'atlas/r1c1.jpg').click();
+    await page.keyboard.press('Shift+ArrowRight');
+    await page.keyboard.press('Shift+ArrowRight');
+
+    await expect(sheetCell(page, lang, 'atlas/r1c1.jpg')).toHaveAttribute('data-col', '2');
+    await expect(sheetCell(page, lang, 'atlas/r1c2.jpg')).toHaveAttribute('data-col', '1');
+    await expect(sheetCell(page, lang, 'atlas/r2c1.jpg')).toHaveAttribute('data-col', '0');
+});
+
+test('A sheet carried back to its own cell leaves the row as it was', { tag: '@S-A-BAD-TILE-WIZARD-SHIFT-STALE' }, async ({ page, lang, content }) => {
+    await seedWaitingSeries(content);
+    await openWizard(page, lang, content);
+
+    await sheetCell(page, lang, 'atlas/r1c1.jpg').click();
+    await page.keyboard.press('Shift+ArrowRight');
+    await page.keyboard.press('Shift+ArrowLeft');
+
+    await expect(sheetCell(page, lang, 'atlas/r1c1.jpg')).toHaveAttribute('data-col', '0');
+    await expect(sheetCell(page, lang, 'atlas/r1c2.jpg')).toHaveAttribute('data-col', '1');
+});
