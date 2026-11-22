@@ -110,6 +110,8 @@ export const ja: Messages = {
     'layers.sub.lines': 'ライン',
     'layers.sub.areas': 'エリア',
     'layers.sub.expand': '{name}のグループ',
+    'layers.hint': '古い地図と航空写真は「レイヤー」にあります。',
+    'layers.hintOpen': 'レイヤーを開く',
     'layers.group.pinned': '最上部に固定されたレイヤー',
     'layers.opacityChanged': '{name}：不透明度{percent}%',
     'layers.shown': '{name}：表示',

@@ -111,6 +111,8 @@ export const ru: Messages = {
     'layers.sub.lines': 'Линии',
     'layers.sub.areas': 'Области',
     'layers.sub.expand': 'Группы: {name}',
+    'layers.hint': 'Старые карты и аэрофотоснимки — в разделе «Слои».',
+    'layers.hintOpen': 'Открыть «Слои»',
     'layers.group.pinned': 'Слои закреплены вверху',
     'layers.opacityChanged': '{name}: непрозрачность {percent} %',
     'layers.shown': '{name}: показан',

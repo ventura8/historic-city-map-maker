@@ -109,6 +109,8 @@ export const ko: Messages = {
     'layers.sub.lines': '선',
     'layers.sub.areas': '구역',
     'layers.sub.expand': '{name} 그룹',
+    'layers.hint': '옛 지도와 항공 사진은 레이어에 있습니다.',
+    'layers.hintOpen': '레이어 열기',
     'layers.group.pinned': '상단에 고정된 레이어',
     'layers.opacityChanged': '{name}: 불투명도 {percent}%',
     'layers.shown': '{name}: 표시됨',

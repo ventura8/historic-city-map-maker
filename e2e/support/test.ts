@@ -157,6 +157,16 @@ export const test = base.extend<TestFixtures, WorkerFixtures>({
                     }
                 });
             }
+            if (!testInfo.tags.includes('@layers-hint')) {
+                // The first visit's Layers hint (layers-hint.ts) is seen already: only layers-hint.spec.ts meets it.
+                await context.addInitScript(() => {
+                    try {
+                        localStorage.setItem('hcm.layersHint.seen', '1');
+                    } catch {
+                        // Storage blocked: the hint shows, as for a visitor.
+                    }
+                });
+            }
             await use(undefined);
         },
         { auto: true },

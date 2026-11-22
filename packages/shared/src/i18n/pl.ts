@@ -109,6 +109,8 @@ export const pl: Messages = {
     'layers.sub.lines': 'Linie',
     'layers.sub.areas': 'Obszary',
     'layers.sub.expand': 'Grupy: {name}',
+    'layers.hint': 'Stare mapy i zdjęcia lotnicze są w Warstwach.',
+    'layers.hintOpen': 'Otwórz Warstwy',
     'layers.group.pinned': 'Warstwy przypięte u góry',
     'layers.opacityChanged': '{name}: krycie {percent}%',
     'layers.shown': '{name}: widoczna',

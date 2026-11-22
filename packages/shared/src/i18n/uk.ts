@@ -107,6 +107,8 @@ export const uk: Messages = {
     'layers.sub.lines': 'Лінії',
     'layers.sub.areas': 'Ділянки',
     'layers.sub.expand': 'Групи: {name}',
+    'layers.hint': 'Старі мапи та аерофото — у розділі «Шари».',
+    'layers.hintOpen': 'Відкрити «Шари»',
     'layers.group.pinned': 'Шари закріплено зверху',
     'layers.opacityChanged': '{name}: непрозорість {percent} %',
     'layers.shown': '{name}: показано',

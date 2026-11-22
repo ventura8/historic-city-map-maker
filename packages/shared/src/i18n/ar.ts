@@ -105,6 +105,8 @@ export const ar: Messages = {
     'layers.sub.lines': 'خطوط',
     'layers.sub.areas': 'مناطق',
     'layers.sub.expand': 'مجموعات {name}',
+    'layers.hint': 'الخرائط القديمة والصور الجوية موجودة في الطبقات.',
+    'layers.hintOpen': 'افتح الطبقات',
     'layers.group.pinned': 'الطبقات المثبتة في الأعلى',
     'layers.opacityChanged': '{name}: العتامة {percent}٪',
     'layers.shown': '{name}: ظاهرة',

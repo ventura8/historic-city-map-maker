@@ -107,6 +107,8 @@ export const tr: Messages = {
     'layers.sub.lines': 'Çizgiler',
     'layers.sub.areas': 'Alanlar',
     'layers.sub.expand': '{name} grupları',
+    'layers.hint': 'Eski haritalar ve hava fotoğrafları Katmanlar’da.',
+    'layers.hintOpen': 'Katmanları aç',
     'layers.group.pinned': 'Üste sabitlenmiş katmanlar',
     'layers.opacityChanged': '{name}: opaklık %{percent}',
     'layers.shown': '{name}: gösteriliyor',

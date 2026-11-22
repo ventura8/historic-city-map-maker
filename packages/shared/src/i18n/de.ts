@@ -112,6 +112,8 @@ export const de: Messages = {
     'layers.sub.lines': 'Linien',
     'layers.sub.areas': 'Flächen',
     'layers.sub.expand': 'Gruppen von {name}',
+    'layers.hint': 'Die alten Karten und Luftbilder findest du unter Ebenen.',
+    'layers.hintOpen': 'Ebenen öffnen',
     'layers.group.pinned': 'Ebenen oben angeheftet',
     'layers.opacityChanged': '{name}: Deckkraft {percent} %',
     'layers.shown': '{name}: eingeblendet',

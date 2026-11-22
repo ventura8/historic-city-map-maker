@@ -109,6 +109,8 @@ export const ro = {
     'layers.sub.lines': 'Linii',
     'layers.sub.areas': 'Zone',
     'layers.sub.expand': 'Grupurile din {name}',
+    'layers.hint': 'Hărțile vechi și fotografiile aeriene sunt în Straturi.',
+    'layers.hintOpen': 'Deschide Straturi',
     'layers.group.pinned': 'Straturi fixate sus',
     'layers.opacityChanged': '{name}: opacitate {percent} %',
     'layers.shown': '{name}: afișat',

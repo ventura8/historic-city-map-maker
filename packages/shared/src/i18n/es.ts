@@ -108,6 +108,8 @@ export const es: Messages = {
     'layers.sub.lines': 'Líneas',
     'layers.sub.areas': 'Áreas',
     'layers.sub.expand': 'Grupos de {name}',
+    'layers.hint': 'Los mapas antiguos y las fotos aéreas están en Capas.',
+    'layers.hintOpen': 'Abrir Capas',
     'layers.group.pinned': 'Capas fijadas en la parte superior',
     'layers.opacityChanged': '{name}: opacidad {percent} %',
     'layers.shown': '{name}: visible',

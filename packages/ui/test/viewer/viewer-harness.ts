@@ -14,6 +14,13 @@ import type { ViewerController, ViewerState } from '../../src/viewer/store-port.
 import { defineKitDoubles, shadowQuery } from './doubles.js';
 import { FakeStore, readyState } from './fake-store.js';
 
+// The first visit's Layers hint (`layers-hint.ts`) is seen already: only layers-hint.test.ts meets it.
+try {
+    localStorage.setItem('hcm.layersHint.seen', '1');
+} catch {
+    // Storage blocked: the hint shows, as for a visitor.
+}
+
 export interface Box {
     readonly width: number;
     readonly height: number;

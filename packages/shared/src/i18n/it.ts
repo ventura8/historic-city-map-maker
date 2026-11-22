@@ -110,6 +110,8 @@ export const it: Messages = {
     'layers.sub.lines': 'Linee',
     'layers.sub.areas': 'Aree',
     'layers.sub.expand': 'Gruppi di {name}',
+    'layers.hint': 'Le mappe antiche e le foto aeree sono in Livelli.',
+    'layers.hintOpen': 'Apri Livelli',
     'layers.group.pinned': 'Livelli fissati in alto',
     'layers.opacityChanged': '{name}: opacità {percent}%',
     'layers.shown': '{name}: visibile',

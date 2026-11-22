@@ -108,6 +108,8 @@ export const zh: Messages = {
     'layers.sub.lines': '线',
     'layers.sub.areas': '区域',
     'layers.sub.expand': '{name}的分组',
+    'layers.hint': '旧地图和航拍照片都在“图层”中。',
+    'layers.hintOpen': '打开图层',
     'layers.group.pinned': '已固定在顶部的图层',
     'layers.opacityChanged': '{name}：不透明度 {percent}%',
     'layers.shown': '{name}：已显示',

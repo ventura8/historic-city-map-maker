@@ -107,6 +107,8 @@ export const pt: Messages = {
     'layers.sub.lines': 'Linhas',
     'layers.sub.areas': 'Áreas',
     'layers.sub.expand': 'Grupos de {name}',
+    'layers.hint': 'Os mapas antigos e as fotos aéreas estão em Camadas.',
+    'layers.hintOpen': 'Abrir Camadas',
     'layers.group.pinned': 'Camadas fixadas no topo',
     'layers.opacityChanged': '{name}: opacidade {percent}%',
     'layers.shown': '{name}: visível',

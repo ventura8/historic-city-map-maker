@@ -104,6 +104,8 @@ export const hi: Messages = {
     'layers.sub.lines': 'रेखाएँ',
     'layers.sub.areas': 'क्षेत्र',
     'layers.sub.expand': '{name} के समूह',
+    'layers.hint': 'पुराने नक्शे और हवाई तस्वीरें परतें में हैं।',
+    'layers.hintOpen': 'परतें खोलें',
     'layers.group.pinned': 'ऊपर पिन की गई परतें',
     'layers.opacityChanged': '{name}: अपारदर्शिता {percent}%',
     'layers.shown': '{name}: दिखाई गई',

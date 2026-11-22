@@ -116,6 +116,8 @@ export const fr: Messages = {
     'layers.sub.lines': 'Lignes',
     'layers.sub.areas': 'Zones',
     'layers.sub.expand': 'Groupes de {name}',
+    'layers.hint': 'Les cartes anciennes et les photos aériennes sont dans Calques.',
+    'layers.hintOpen': 'Ouvrir Calques',
     'layers.group.pinned': 'Calques fixés en haut',
     'layers.opacityChanged': '{name} : opacité {percent} %',
     'layers.shown': '{name} : affichée',

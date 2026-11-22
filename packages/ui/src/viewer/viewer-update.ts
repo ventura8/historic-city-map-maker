@@ -11,6 +11,8 @@ import { keyed } from 'lit/directives/keyed.js';
 
 import { reloadApp, watchUpdate } from '../app-update.js';
 import { EMPTY } from './empty.js';
+import { LayersHint, layersHintSnackbar, type LayersHintOffer } from './layers-hint.js';
+import { layoutFor } from './layout.js';
 import { isDialogSheet } from './input-commands.js';
 import type { MenuPoint } from './map-menu-trigger.js';
 import type { ViewerState, ViewerToast } from './store-port.js';
@@ -19,6 +21,9 @@ import type { ViewerState, ViewerToast } from './store-port.js';
 export interface UpdateOffer {
     readonly onReload: () => void;
     readonly onDismiss: () => void;
+    /** Not an update: the first visit's Layers hint, sharing the dock (`layers-hint.ts`). */
+    readonly hintOnly?: boolean;
+    readonly layersHint?: LayersHintOffer | null;
 }
 
 /** True while a reload would close what the visitor has open. */
@@ -33,6 +38,7 @@ export function reloadHeld(state: ViewerState | null, mapMenu: MenuPoint | null)
 export interface UpdateHost extends ReactiveControllerHost {
     readonly viewState: ViewerState | null;
     readonly mapMenu: MenuPoint | null;
+    readonly renderRoot: HTMLElement | DocumentFragment;
 }
 
 /** Hands the viewer's hold to the page script while the element is connected, and keeps the snackbar's state. */
@@ -54,9 +60,26 @@ export class ViewerUpdates implements ReactiveController {
         host.addController(this);
     }
 
-    /** The snackbar's answers while it shows; null: none. */
+    readonly #hint = new LayersHint();
+
+    /** The snackbar's answers while it shows, with the Layers hint's; null: neither. */
     offer(): UpdateOffer | null {
-        return this.#ready ? this.#offer : null;
+        const host = this.#host;
+        const state = host.viewState;
+        const docked = state === null || layoutFor(state.windowClass, state.compactHeight, state.dockable).layersDocked;
+        const layersHint = this.#hint.offer(state, docked, {
+            // Opens Layers as the menu's own item does (`viewer-actions.ts`).
+            open: () => {
+                host.renderRoot.querySelector('hcm-fab-menu')?.dispatchEvent(new CustomEvent('hcm-select', { detail: { value: 'layers' } }));
+            },
+            changed: () => {
+                host.requestUpdate();
+            },
+        });
+        if (this.#ready) {
+            return { ...this.#offer, layersHint };
+        }
+        return layersHint === null ? null : { ...this.#offer, hintOnly: true, layersHint };
     }
 
     hostConnected(): void {
@@ -85,6 +108,9 @@ function updateSnackbar(locale: ViewerLocale, offer: UpdateOffer | null | undefi
     if (offer === null || offer === undefined) {
         return EMPTY;
     }
+    if (offer.hintOnly === true) {
+        return layersHintSnackbar(locale, offer.layersHint);
+    }
     return html`<hcm-snackbar
         data-layout-check="update"
         timeout-ms="0"
@@ -94,7 +120,7 @@ function updateSnackbar(locale: ViewerLocale, offer: UpdateOffer | null | undefi
         .closeLabel=${translate(locale, 'action.close')}
         @hcm-action=${offer.onReload}
         @hcm-dismiss=${offer.onDismiss}
-    ></hcm-snackbar>`;
+    ></hcm-snackbar>${layersHintSnackbar(locale, offer.layersHint)}`;
 }
 
 /** The toast's dock: the update's snackbar, then the store's toast; nothing when neither shows. */

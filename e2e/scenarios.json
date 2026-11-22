@@ -4588,6 +4588,28 @@
             "notes": "Owner 2026-11-22. Unit tests: packages/ui/test/components/overlay-subgroups.test.ts."
         },
         {
+            "id": "S-V03-HAPPY-LAYERS-HINT",
+            "behaviour": "V03",
+            "area": "viewer",
+            "path": "happy",
+            "title": "A first visit where Layers is not docked offers it in a snackbar, once",
+            "asserts": "360x800, first visit -> a snackbar says the old maps and aerial photos are in Layers with Open Layers; the action opens the Layers sheet and the hint never shows again (after a reload)",
+            "tier": "e2e-viewer",
+            "status": "exists",
+            "notes": "Owner 2026-11-22 (27 % open Layers). Tests: e2e/specs/viewer/layers-hint.spec.ts, packages/ui/test/viewer/layers-hint.test.ts."
+        },
+        {
+            "id": "S-V03-BAD-LAYERS-HINT-DOCKED",
+            "behaviour": "V03",
+            "area": "viewer",
+            "path": "bad",
+            "title": "Where the Layers pane is docked no hint shows",
+            "asserts": "1920x1080 -> the pane is open and no layers hint snackbar shows",
+            "tier": "e2e-viewer",
+            "status": "exists",
+            "notes": "Owner 2026-11-22. Tests: e2e/specs/viewer/layers-hint.spec.ts, packages/ui/test/viewer/layers-hint.test.ts."
+        },
+        {
             "id": "S-V03-HAPPY-LAYER-SECTIONS",
             "behaviour": "V03",
             "area": "viewer",

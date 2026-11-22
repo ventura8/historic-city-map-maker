@@ -104,6 +104,8 @@ export const en: Messages = {
     'layers.sub.lines': 'Lines',
     'layers.sub.areas': 'Areas',
     'layers.sub.expand': 'Groups of {name}',
+    'layers.hint': 'The old maps and aerial photos are in Layers.',
+    'layers.hintOpen': 'Open Layers',
     'layers.group.pinned': 'Layers pinned to the top',
     'layers.opacityChanged': '{name}: opacity {percent}%',
     'layers.shown': '{name}: shown',
