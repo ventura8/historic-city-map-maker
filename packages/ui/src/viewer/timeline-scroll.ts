@@ -49,7 +49,7 @@ export class TimelineScroll {
     want(): void {
         this.#pending = true;
         this.reveal();
-        this.keepInView();
+        this.keepInView(false);
     }
 
     /** Centres the selected stop in a scrolling card once it has a size (the scroller only: the page never moves). */
@@ -69,14 +69,8 @@ export class TimelineScroll {
      * The selected stop, out of the card's view, is centred again (the owner, 2026-11-22: after a drag and a click on 1943
      * the bar stood at its far end with no pill in view). A stop in view stays where the visitor put it.
      */
-    keepInView(chosen = false): void {
-        if (chosen) {
-            this.#chosenAt = performance.now();
-        }
-        if (performance.now() - this.#chosenAt > KEEP_MS) {
-            return;
-        }
-        const scroller = this.#scrolling();
+    keepInView(chosen: boolean): void {
+        const scroller = this.#recent(chosen) ? this.#scrolling() : null;
         const stop = this.#view.renderRoot.querySelector('.stop.selected');
         if (scroller !== null && stop !== null && !within(stop.getBoundingClientRect(), scroller.getBoundingClientRect())) {
             this.#centre(scroller, stop);
@@ -84,6 +78,22 @@ export class TimelineScroll {
     }
 
     #chosenAt = Number.NEGATIVE_INFINITY;
+
+    /** A year was chosen now (`chosen`) or a moment ago. */
+    #recent(chosen: boolean): boolean {
+        if (chosen) {
+            this.#chosenAt = performance.now();
+        }
+        return performance.now() - this.#chosenAt <= KEEP_MS;
+    }
+
+    /** After the timeline's update: centre the year when it `moved` (`want`), and keep a just-chosen one in view. */
+    afterUpdate(moved: boolean, chosen: boolean): void {
+        if (moved) {
+            this.want();
+        }
+        this.keepInView(chosen);
+    }
 
     /** The scroller of a scrolling, open, laid-out card that is not being dragged; else null. */
     #scrolling(): HTMLElement | null {

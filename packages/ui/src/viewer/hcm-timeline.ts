@@ -222,10 +222,7 @@ export class HcmTimeline extends LitElement {
     #pointerStop: TimelineStop | undefined = undefined;
 
     protected override updated(changed: PropertyValues<this>): void {
-        if (moves(changed) && !this.dragging && this.value !== this.#pointerStop) {
-            this.#scroll.want();
-        }
-        this.#scroll.keepInView(changed.has('value'));
+        this.#scroll.afterUpdate(moves(changed) && !this.dragging && this.value !== this.#pointerStop, changed.has('value'));
         this.#scroll.fadeEdges();
         this.#scroll.crowd();
         this.#placeTip();
