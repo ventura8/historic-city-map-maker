@@ -10,6 +10,7 @@ export {
     conePolygon,
     createViewerGuard,
     findOverlay,
+    groupShown,
     isHttpsUrl,
     isPhotoNearYear,
     localized,
