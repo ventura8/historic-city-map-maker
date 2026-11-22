@@ -31,7 +31,7 @@ export function archiveJoinOffered(version: VersionViewPort | null, held: boolea
  * A published join of archive maps (each part's entity is its own version id), offered **Add sheets to this join** (live 2026-11-22:
  * a 1990 sheet was missing from the 47 joined): a new join of its parts plus the one picked, on the same layer.
  */
-export function extendable(version: VersionViewPort | null): version is VersionViewPort {
+export function extendable(version: VersionViewPort | null): boolean {
     return (
         version?.origin === 'join' &&
         version.state === 'published' &&

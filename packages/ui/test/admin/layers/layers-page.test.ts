@@ -168,7 +168,7 @@ describe('<hcm-layers-page> editor', () => {
         const { element } = await page('layers', layers, { params: ['corona'] });
 
         const kind = deep(element, '[data-layer-kind]');
-        expect(deepText(element)).toContain('What it is');
+        expect(deepText(element)).toContain('Kind');
         kind.dispatchEvent(new CustomEvent('hcm-change', { detail: { value: 'map' }, bubbles: true, composed: true }));
 
         expect(calls(layers)).toEqual(['edit {"kind":"map"}']);
