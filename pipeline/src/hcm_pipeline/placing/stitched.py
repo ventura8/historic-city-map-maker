@@ -23,7 +23,7 @@ from hcm_pipeline.geo import Grid
 from hcm_pipeline.images import resize, write_jpeg, write_png
 from hcm_pipeline.jobs import JobContext, Waiting
 from hcm_pipeline.osm import draw
-from hcm_pipeline.placing import assemble
+from hcm_pipeline.placing import assemble, fullres
 from hcm_pipeline.placing.output import wait_for_help
 from hcm_pipeline.placing.reference import city_window, osm_features_cached, window_resolution
 from hcm_pipeline.placing.streets import UInt8Array
@@ -114,15 +114,28 @@ def _linked(written: Path, target: Path) -> Path:
     return target
 
 
-def publish_stitched(ctx: JobContext, stitched: Stitched, written: Path | None = None) -> dict[str, object]:
+def _parts_kept(ctx: JobContext, canvas: Path | None, stitched: Path) -> None:
+    """The canvas's parts (`fullres`) kept beside `stitched.tif` and with the job's files, so a later `place` from the owner's pairs
+    warps the originals too."""
+    found = None if canvas is None else fullres.sidecar(canvas)
+    if found is None or not found.is_file():
+        return
+    kept = fullres.sidecar(stitched)
+    if kept != found:
+        kept.write_bytes(found.read_bytes())
+    ctx.publish(kept, ctx.work_file(kept.name), "application/json")
+
+
+def publish_stitched(ctx: JobContext, stitched: Stitched, written: Path | None = None, canvas: Path | None = None) -> dict[str, object]:
     """The canvas kept with the job's files, its preview with the version's; the record `help.stitched` keeps.
 
     A method the server's schema does not know is refused here, before any file is published: the worker's write would be refused
     after minutes of work (`overview`, harti.zip 1895, lesson 569).
     """
     _known(stitched)
-    canvas = _linked(written, ctx.local(STITCHED)) if written is not None else assemble.write_canvas(ctx.local(STITCHED), stitched.canvas)
-    ctx.publish(canvas, ctx.work_file(STITCHED), "image/tiff")
+    kept = _linked(written, ctx.local(STITCHED)) if written is not None else assemble.write_canvas(ctx.local(STITCHED), stitched.canvas)
+    ctx.publish(kept, ctx.work_file(STITCHED), "image/tiff")
+    _parts_kept(ctx, written or canvas, kept)
     small, scale = _preview(stitched.canvas)
     preview = ctx.publish(write_jpeg(ctx.local(PREVIEW), small, PREVIEW_QUALITY), ctx.version_file(PREVIEW), "image/jpeg")
     height, width = stitched.canvas.shape[:2]

@@ -22,7 +22,7 @@ import numpy
 from hcm_pipeline.archive import model
 from hcm_pipeline.archive.magic import sniff_file
 from hcm_pipeline.jobs import JobContext, StepResult, Waiting
-from hcm_pipeline.placing import assemble, autoplace, autostitch, joins, owner_layout
+from hcm_pipeline.placing import assemble, autoplace, autostitch, fullres, joins, owner_layout
 from hcm_pipeline.placing.output import wait_for_help
 from hcm_pipeline.placing.overview import MosaicReport
 from hcm_pipeline.placing.overview_find import CanvasOpts, find_overview, overview_canvas
@@ -78,6 +78,8 @@ class Assembled:
     names: tuple[str, ...]
     method: str
     quality: JoinQuality | None = None
+    # Each part's original to the canvas (`fullres`): the published map is warped from them, never from this reduced canvas.
+    originals: tuple[fullres.Part, ...] = ()
 
     def stitched(self) -> Stitched:
         left_out = tuple((self.names[index], NO_JOIN) for index in self.layout.left_out)
@@ -90,6 +92,8 @@ def _assembled(ctx: JobContext, series: SeriesJob, made: Assembled) -> StepResul
     ctx.log.info(f"assembled {len(layout.placed)} parts, {len(layout.left_out)} left out, {layout.holes} holes", ctx.step)
     # Written once: the placing reads this file, and a series that waits for a person publishes it as its stitched picture.
     path = assemble.write_canvas(ctx.local(CANVAS), made.canvas)
+    if made.originals:
+        fullres.write_parts(path, made.originals, layout.size)
     result = place_map(ctx, series, _drawn(path, made.canvas, made.method), made.method, len(layout.placed))
     if isinstance(result, Waiting):
         ctx.update_version({"help.stitched": publish_stitched(ctx, made.stitched(), path)})
@@ -146,6 +150,7 @@ class Parts:
     canvas: Callable[[], UInt8Array]
     layout: assemble.Layout
     quality: JoinQuality | None = None
+    originals: tuple[fullres.Part, ...] = ()
 
 
 def _series_placed(ctx: JobContext, method: str, legacy: Callable[[Sequence[Sheet]], Parts | None]) -> StepResult:
@@ -179,7 +184,7 @@ def _legacy_or_wait(
     if parts is None or not legacy_good(parts, len(names), proposal.quality.verdict):
         return autoplace.wait_layout(ctx, series, proposal)
     ctx.log.info(f"the {method}'s edges or overlaps place {len(parts.layout.placed)} of {len(names)} parts", ctx.step)
-    return _assembled(ctx, series, Assembled(parts.canvas(), parts.layout, names, method, parts.quality))
+    return _assembled(ctx, series, Assembled(parts.canvas(), parts.layout, names, method, parts.quality, parts.originals))
 
 
 def legacy_good(parts: Parts, count: int, verdict: str) -> bool:
@@ -197,9 +202,15 @@ def atlas_parts(sheets: Sequence[Sheet]) -> Parts:
     layout = assemble.atlas_layout(pages.grey, cell)
     overlapping = _overlapping(sheets, len(layout.placed))
     if overlapping is not None:
-        return _joined_parts(overlapping)
+        return _joined_parts(overlapping, [sheet.path for sheet in sheets])
     sizes = [(page.shape[1], page.shape[0]) for page in pages.grey]
-    return Parts(lambda: assemble.compose_parts(pages.page, sizes, pages.colour, layout), layout)
+    originals = fullres.layout_parts([sheet.path for sheet in sheets], layout.placed, pages.max_px, _crops(pages))
+    return Parts(lambda: assemble.compose_parts(pages.page, sizes, pages.colour, layout), layout, None, originals)
+
+
+def _crops(pages: assemble.Pages) -> list[tuple[int, int]]:
+    """Each page's frame corner (working pixels): where its cropped picture starts."""
+    return [(int(columns.start or 0), int(rows.start or 0)) for rows, columns in pages.boxes]
 
 
 def _pages(sheets: Sequence[Sheet]) -> tuple[assemble.Pages, tuple[int, int]]:
@@ -245,13 +256,14 @@ def overview_mosaic(ctx: JobContext, series: SeriesJob) -> Assembled | None:
     return Assembled(canvas, _overview_layout(names, report, (canvas.shape[1], canvas.shape[0])), names, "overview", quality)
 
 
-def _joined_parts(found: joins.Joined) -> Parts:
-    return Parts(lambda: assemble.compose_canvas(found.images, found.layout), found.layout, found.quality)
+def _joined_parts(found: joins.Joined, paths: Sequence[Path]) -> Parts:
+    originals = fullres.layout_parts(paths, found.layout.placed, joins.CANVAS_PX)
+    return Parts(lambda: assemble.compose_canvas(found.images, found.layout), found.layout, found.quality, originals)
 
 
 def _pieces_parts(sheets: Sequence[Sheet]) -> Parts | None:
     found = joins.joined([sheet.path for sheet in sheets])
-    return None if found is None else _joined_parts(found)
+    return None if found is None else _joined_parts(found, [sheet.path for sheet in sheets])
 
 
 class PiecesPlacer:

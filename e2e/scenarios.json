@@ -21341,6 +21341,28 @@
             "notes": "Live report of 2026-11-13 (1968 Corona F026, film no longer stored); M20 §21, DECISIONS §217. Tests: pipeline/tests/unit/test_film_host.py."
         },
         {
+            "id": "S-P20-HAPPY-FULLRES",
+            "behaviour": "P20",
+            "area": "pipeline",
+            "path": "happy",
+            "title": "A composite is published from its parts' originals at full resolution",
+            "asserts": "two parts on a canvas four times smaller warp from their originals: the output's pixel is the originals' size, the one-pixel stripes the canvas lost are kept, each part's mark lands where the canvas's pairs put it, seams split at the centres, -wm bounded",
+            "tier": "e2e-pipeline",
+            "status": "exists",
+            "notes": "M20 §19.18. Tests: pipeline/tests/unit/test_placing_fullres.py."
+        },
+        {
+            "id": "S-P20-BAD-FULLRES-ORIGINAL-GONE",
+            "behaviour": "P20",
+            "area": "pipeline",
+            "path": "bad",
+            "title": "An original that cannot be read leaves the canvas warped, with the reason logged",
+            "asserts": "an original gone, unreadable, a failed warp or a broken parts record: the canvas is warped and the log names the original and why",
+            "tier": "e2e-pipeline",
+            "status": "exists",
+            "notes": "M20 §19.18. Tests: pipeline/tests/unit/test_placing_fullres.py."
+        },
+        {
             "id": "S-A65-HAPPY-JOINED-FRAME",
             "behaviour": "A65",
             "area": "admin",

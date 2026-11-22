@@ -26,7 +26,9 @@ from hcm_pipeline.jobs import JobContext, StepResult, Waiting
 from hcm_pipeline.placing.checks import Checked, span_pct
 from hcm_pipeline.placing.original import single_original
 from hcm_pipeline.placing.output import Placement, finish, param_int, resolution_of
-from hcm_pipeline.placing.raster_io import Pair, WarpPlan, warp_by_pairs
+from hcm_pipeline.placing import fullres
+from hcm_pipeline.placing.fullres import warp_composite
+from hcm_pipeline.placing.raster_io import Pair, WarpPlan
 from hcm_pipeline.placing.series import ENCODINGS
 from hcm_pipeline.placing.stitched import STITCHED
 from hcm_pipeline.steps.common import gdal_step
@@ -35,6 +37,7 @@ from hcm_pipeline.steps.warp import scan_size
 
 OWNER_METHOD: Final = "gcps"
 PICTURE_GONE: Final = "the stitched picture is gone: the pairs are warped on the scan they were placed on"
+WARP_WHAT: Final = "warp the series by the owner's pairs"
 NOT_ENOUGH: Final = "Your points are too few, or lie almost in a line, for the chosen fit: add a few more, spread over the map."
 
 
@@ -62,6 +65,13 @@ def _original(ctx: JobContext, scan: ScanInfo) -> Picture | None:
     return Picture(copy, width / max(scan.width, 1), height / max(scan.height, 1))
 
 
+def _stage_parts(ctx: JobContext, local: Path) -> None:
+    """The stitched picture's parts (`fullres`) beside it, when the parked job kept them and they are not here already."""
+    name = fullres.sidecar(local).name
+    if local.is_file() and not fullres.sidecar(local).is_file() and ctx.services.objects.stat(ctx.work_file(name)) is not None:
+        ctx.stage(ctx.work_file(name), name)
+
+
 def picture_of(ctx: JobContext, scan: ScanInfo) -> Picture:
     """A single map's original, else `stitched.tif` where this run or the parked one left it, else the scan the pairs were placed on."""
     original = _original(ctx, scan)
@@ -70,6 +80,7 @@ def picture_of(ctx: JobContext, scan: ScanInfo) -> Picture:
     local = ctx.local(STITCHED)
     if not local.is_file() and ctx.services.objects.stat(ctx.work_file(STITCHED)) is not None:
         local = ctx.stage(ctx.work_file(STITCHED), STITCHED)
+    _stage_parts(ctx, local)
     if not local.is_file():
         ctx.log.info(PICTURE_GONE, ctx.step)
         return Picture(ctx.stage(scan.path, "scan.tif"), 1.0, 1.0)
@@ -109,7 +120,8 @@ def place_from_pairs(ctx: JobContext, georef: GeorefInfo) -> StepResult:
     encoding = str(params.get("encoding")) if params.get("encoding") in ENCODINGS else "grey"
     picture = picture_of(ctx, scan)
     plan = WarpPlan(lattice_pairs(fitted, scan, picture), resolution_of(params), True, encoding == "lineart")
-    warped = gdal_step(ctx, lambda: warp_by_pairs(picture.path, ctx.local("warped.tif"), plan), "warp the series by the owner's pairs")
+    target = ctx.local("warped.tif")
+    warped = gdal_step(ctx, lambda: warp_composite(picture.path, target, plan, lambda line: ctx.log.info(line, ctx.step)), WARP_WHAT)
     ctx.update_version({"georef": recorded(fitted, OWNER_METHOD).as_record()})
     scale = param_int(params, "scaleDenominator")
     placement = Placement(OWNER_METHOD, encoding, _checked(fitted, scan), True, scale, params.get("paperTransparent") is True)

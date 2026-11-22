@@ -995,6 +995,34 @@ from the answer's cells, `1 + max(row)` by `1 + max(col)`, and keeps an unnamed 
 Scenarios: S-A-HAPPY-TILE-WIZARD-GRID-SIZE, S-A-BAD-TILE-WIZARD-GRID-SIZE, S-A-BAD-TILE-WIZARD-LEFT-OUT-STAYS (A141;
 `e2e/admin/specs/imagery/tiles-grid.spec.ts`), S-A-HAPPY-FIX-TILES-PARKED, S-A-BAD-FIX-TILES-LAYOUT-WAITS (A196; `fix-tiles.spec.ts`).
 
+### 19.18 Every composite published at full resolution (the owner's demand of 2026-11-22)
+
+Single maps, regeorefs and USGS or Landsat frames already warped their originals; a composite warped its reduced canvas
+(`assemble.CANVAS_MAX_PX` 20,000 px for atlases and pieces, with `page_px` shrinking each page; `autostitch.CANVAS_MAX_PX` for an
+automatic or owner layout), so its tiles were a fraction as sharp as its scans at the same `maxzoom`. Now (`placing/fullres.py`):
+
+- The canvas stays for matching, point placing, the georeferencer's scan and the Help calibrate picture.
+- Whoever builds a canvas records each part's transform from its **original** pixels to canvas pixels beside it
+  (`canvas.tif.parts.json`: the canvas size and, per part, its original's path, the box of it on the canvas and a 3x3): a
+  `canvas_window` tile (`tile_part`: the box read at the tile's size, its variant's quarter turns and flip, its small angle, its
+  place) and an `assemble.Layout` part (`layout_parts`: the original read at `max_px` by `read_working`, the frame crop, the 2x3 on
+  pixel indices). `publish_stitched` keeps that file beside `stitched.tif` and with the job's files, so a later `place` from the
+  owner's pairs finds it (`owner._stage_parts`); a smaller stitched picture rescales it (`Recorded.on`), so the pairs' scaling is
+  unchanged.
+- At warp time (`warp_composite`, called by `single._warped` and `owner.place_from_pairs` in place of `warp_by_pairs`) each original is
+  warped on its own through (part to canvas) composed with the canvas's georeference: a 9 x 9 lattice of the original's pixels carried
+  to EPSG:3857 by GDAL's transformer on the canvas's pairs (a thin-plate spline, or an affine), into one GeoTIFF at the plan's
+  resolution on the tile grid, alpha last.
+- Seams as on the canvas: a hard nearest-centre seam, each part cut (`-cutline`, densified) to its quad clipped by the half-planes
+  toward its neighbours' centres. No feather.
+- Bounded memory: gdalwarp `-wm` `WARP_MEMORY_MB` (256) per part, GDAL's cache held to 128 MB, windowed reads; no original is read whole.
+- An original gone or unreadable, a failed warp, or a canvas with no record (a grid's mosaic, an overview canvas, a series parked
+  before this change) warps the canvas as before, the reason in the job's log; the job never fails on an original.
+- Not yet: a `regeoref` of a composite still warps its scan (it needs the base job's parts record); the grid's automatic render
+  already warps each sheet from its own scan (`render.py`).
+
+Scenarios: S-P20-HAPPY-FULLRES, S-P20-BAD-FULLRES-ORIGINAL-GONE (`pipeline/tests/unit/test_placing_fullres.py`).
+
 ## 20. Any computer runs an archive series: copies through the bucket (live report of 2026-11-13; DECISIONS §204)
 
 **What happened.** The owner connected two more workers for Bucharest (the NUC and the PC's WSL) beside the laptop that imported

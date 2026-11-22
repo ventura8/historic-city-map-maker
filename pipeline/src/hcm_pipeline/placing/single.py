@@ -30,7 +30,8 @@ from hcm_pipeline.placing.city_guard import lands_in_city
 from hcm_pipeline.placing.frame import find_frame
 from hcm_pipeline.placing.geometry import FloatArray, apply, scale_of
 from hcm_pipeline.placing.output import Placement, finish, resolution_of, suggestions, wait_for_help
-from hcm_pipeline.placing.raster_io import Pair, WarpPlan, Working, dpi_of, read_working, warp_by_pairs
+from hcm_pipeline.placing.fullres import warp_composite
+from hcm_pipeline.placing.raster_io import Pair, WarpPlan, Working, dpi_of, read_working
 from hcm_pipeline.placing.reference import Reference, city_window, references, window_resolution
 from hcm_pipeline.placing.series import SeriesJob
 from hcm_pipeline.placing.streets import grey_of, street_network
@@ -271,6 +272,6 @@ def _warped(ctx: JobContext, series: SeriesJob, drawn: Drawn, held: tuple[fine.F
     method, placed = how
     checked = replace(fit.checked, rmse_m=in_quadrature(fit.checked.rmse_m, reference.error_m))
     plan = WarpPlan(_pairs(fit.source, fit.target, drawn.scale), resolution_of(ctx.job.params), fit.transform.kind == "tps", series.nearest)
-    warped = warp_by_pairs(drawn.path, ctx.local("warped.tif"), plan)
+    warped = warp_composite(drawn.path, ctx.local("warped.tif"), plan, lambda line: ctx.log.info(line, ctx.step))
     placement = Placement(method, series.encoding, checked, True, series.scale, series.paper_transparent)
     return finish(ctx, placement, warped, placed)

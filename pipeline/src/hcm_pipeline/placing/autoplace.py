@@ -11,6 +11,7 @@ from typing import Final
 
 from hcm_pipeline.jobs import JobContext, StepResult, Waiting
 from hcm_pipeline.placing.autostitch import CANVAS_MAX_PX, Proposal, propose
+from hcm_pipeline.placing import fullres
 from hcm_pipeline.placing.canvas_window import Canvas, render
 from hcm_pipeline.placing.layout_files import publish_layout, revision_of
 from hcm_pipeline.placing.raster_io import read_working
@@ -57,6 +58,7 @@ def _stitched(ctx: JobContext, proposal: Proposal, canvas: Path, method: str, re
 def _canvas(ctx: JobContext, proposal: Proposal, name: str, longest: int, colour: bool) -> tuple[Path, int, int]:
     tiles, size = proposal.tiles(longest)
     path = render([tile for _index, tile in tiles], Canvas(ctx.local(name), size, colour))
+    fullres.write_parts(path, [fullres.tile_part(tile) for _index, tile in tiles], size)
     return path, len(tiles), max(size)
 
 
@@ -65,7 +67,7 @@ def mosaicked(ctx: JobContext, series: SeriesJob, proposal: Proposal, methods: t
     path, placed, longest = _canvas(ctx, proposal, CANVAS, CANVAS_MAX_PX, series.colour)
     result = place_map(ctx, series, drawn_of(path, methods[1], longest, framed=False), methods[0], placed)
     if isinstance(result, Waiting):
-        ctx.update_version({"help.stitched": publish_stitched(ctx, _stitched(ctx, proposal, path, methods[1], revision))})
+        ctx.update_version({"help.stitched": publish_stitched(ctx, _stitched(ctx, proposal, path, methods[1], revision), canvas=path)})
     return result
 
 
