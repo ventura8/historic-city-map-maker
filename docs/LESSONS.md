@@ -4487,3 +4487,8 @@ Append a numbered entry to *Lessons from this repository* in the task that finds
     - Cause: lesson 730 capped `imagery.browse` at two requests an instance but kept 256 MiB; one KH-9 panoramic strip's fetched bytes (up to 30 MB) plus its decoded pixels for the shrink and the cloud estimate fill most of it.
     - Fix and pin: `CALLABLE_MEMORY` gives `imagery.browse` 512 MiB beside the concurrency of 2 (`functions/src/api/callable.ts`, S-A11-BAD-BROWSE-MEMORY).
     - **A concurrency cap only helps when one request fits the memory with room to spare: size the memory for the largest single input first.**
+
+773. **The map took 22 minutes to render in tabs nobody was looking at** (2026-11-22): the saved GA4 Explore *HCM performance: web vitals, map ready, map unavailable* (28 days) showed desktop Chrome `map_render` at a mean of 1,357 s and `map_idle` 723 s, while mobile Chrome's were 1.4 s and 2.1 s (`reports/analytics-review-2026-11-22.md`).
+    - Cause: `FieldRecorder` timed each boot phase from the engine's start whatever the page's visibility; a tab opened in the background renders its map only when shown, so the phase measured the visitor's absence.
+    - Fix and pin: a phase reached after the page was hidden, or on a page that started hidden, is marked in the performance panel but not sent (`packages/engine/src/telemetry/field.ts`, `telemetry.ts`; S-V19-BAD-HIDDEN-PAGE-TIMING).
+    - **A load timing is only a load timing while someone is looking: drop it once the page has been hidden, as web-vitals does.**

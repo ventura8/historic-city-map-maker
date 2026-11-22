@@ -3609,6 +3609,28 @@
             "notes": "DECISIONS-for-review.md §76 (the user's request of 2026-10-31: field measurements). docs/ARCHITECTURE.md → Field measurements; packages/engine/src/telemetry/field.ts, field-sdk.ts, packages/shared/src/telemetry/."
         },
         {
+            "id": "S-V19-HAPPY-VISIBLE-PAGE-TIMING",
+            "behaviour": "V19",
+            "area": "viewer",
+            "path": "happy",
+            "title": "A page that stays visible times each boot phase once from the engine's start",
+            "asserts": "manifest, map_render and map_idle -> one viewer_timing each with duration_ms from the engine's start and since_start_ms from the navigation; a repeat of a phase sends nothing",
+            "tier": "e2e-viewer",
+            "status": "exists",
+            "notes": "GA4 Explore 2026-11-22 (reports/analytics-review-2026-11-22.md), lesson 773. Test: packages/engine/test/telemetry/field.test.ts."
+        },
+        {
+            "id": "S-V19-BAD-HIDDEN-PAGE-TIMING",
+            "behaviour": "V19",
+            "area": "viewer",
+            "path": "bad",
+            "title": "A boot phase reached after the page was hidden is not sent",
+            "asserts": "a tab opened in the background, or hidden before the map's first render -> the later phases are marked in the performance panel but no viewer_timing leaves (desktop map_render had averaged 22 minutes)",
+            "tier": "e2e-viewer",
+            "status": "exists",
+            "notes": "GA4 Explore 2026-11-22 (reports/analytics-review-2026-11-22.md), lesson 773. Tests: packages/engine/test/telemetry/field.test.ts, packages/engine/test/telemetry/telemetry.test.ts."
+        },
+        {
             "id": "S-V19-BAD-NO-MEASUREMENT-BEFORE-CONSENT",
             "behaviour": "V19",
             "area": "viewer",

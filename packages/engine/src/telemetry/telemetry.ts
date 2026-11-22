@@ -21,7 +21,8 @@ import type { ConsentState, ErrorSource, Measurement, TelemetryContext, Telemetr
 /** The parts of `window` telemetry uses: the page's address without its hash, and its cookies (GA4's, on withdrawal). */
 export interface TelemetryWindow extends Pick<Window, 'addEventListener' | 'removeEventListener' | 'innerWidth' | 'innerHeight'> {
     readonly location: Pick<Location, 'origin' | 'pathname' | 'hostname'>;
-    readonly document: CookieJar;
+    /** Its cookies, and whether the page is hidden (a boot phase timed after that is not sent). */
+    readonly document: CookieJar & { readonly visibilityState?: DocumentVisibilityState };
     /** Do Not Track and Global Privacy Control: either one counts as a refusal until the visitor accepts (§200). */
     readonly navigator?: PrivacyNavigator;
 }
@@ -93,9 +94,14 @@ class Telemetry implements TelemetryPort {
             loadField: deps.loadField ?? loadFieldSdk,
             fieldContext: () => ({ app: 'viewer', window_class: this.#windowClass, release: deps.release }),
         });
-        this.#field = new FieldRecorder(deps.performance ?? globalThis.performance, (event) => {
-            this.#analytics.send(event);
-        });
+        const isHidden = (): boolean => deps.window.document.visibilityState === 'hidden';
+        this.#field = new FieldRecorder(
+            deps.performance ?? globalThis.performance,
+            (event) => {
+                this.#analytics.send(event);
+            },
+            isHidden(),
+        );
         this.#analytics.setConsent(this.#consent.state);
         this.#year = new Settle((event) => {
             this.#analytics.send(event);
@@ -114,6 +120,9 @@ class Telemetry implements TelemetryPort {
         });
         const uninstallErrors = installErrorHooks(deps.window, this.#errors);
         const flush = (): void => {
+            if (isHidden()) {
+                this.#field.hidden();
+            }
             this.#field.flush();
             this.#year.flush();
         };

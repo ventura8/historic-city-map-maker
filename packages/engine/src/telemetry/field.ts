@@ -7,7 +7,9 @@
  * to its second map (`compare_timing`).
  *
  * Times come from `performance` (milliseconds since the navigation started), marked `hcm:<phase>` and measured from
- * `hcm:boot` for the browser's own tools. The recorder only builds events: telemetry's analytics sends them after
+ * `hcm:boot` for the browser's own tools. A boot phase reached after the page was hidden (a tab opened in the background, or
+ * left before the map was ready) is marked but not sent: a hidden page renders nothing, so its time is the visitor's absence
+ * (GA4 Explore, 2026-11-22: desktop `map_render` averaged 22 minutes; LESSONS 773). The recorder only builds events: telemetry's analytics sends them after
  * consent (`analytics.ts`, which also checks each against the guard of `@hcm/shared`), never before.
  */
 import type { FieldEvent, Measurement } from './telemetry-port.js';
@@ -30,10 +32,13 @@ export class FieldRecorder {
     readonly #errorsSent = new Map<string, number>();
     /** When the visitor's current waits (a photo, compare) began. */
     readonly #waits = new Map<string, number>();
+    /** The page was hidden since the engine started: boot phases no longer measure loading. */
+    #wasHidden: boolean;
 
-    constructor(clock: FieldClock, send: (event: FieldEvent) => void) {
+    constructor(clock: FieldClock, send: (event: FieldEvent) => void, hiddenAtStart = false) {
         this.#clock = clock;
         this.#send = send;
+        this.#wasHidden = hiddenAtStart;
         this.#start = clock.now();
         this.#mark('boot');
     }
@@ -58,6 +63,11 @@ export class FieldRecorder {
         }
     }
 
+    /** The page is hidden: later boot phases are no longer sent. */
+    hidden(): void {
+        this.#wasHidden = true;
+    }
+
     #since(start: number): number {
         return Math.round(this.#clock.now() - start);
     }
@@ -69,6 +79,9 @@ export class FieldRecorder {
         }
         this.#phases.add(phase);
         this.#mark(phase);
+        if (this.#wasHidden) {
+            return;
+        }
         this.#send({ name: 'viewer_timing', params: { phase, duration_ms: this.#since(this.#start), since_start_ms: this.#since(0) } });
     }
 

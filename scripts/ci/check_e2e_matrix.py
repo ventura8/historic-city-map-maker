@@ -66,6 +66,8 @@ TEST_GLOBS = (
     "packages/shared/test/schemas/*.test.ts",
     # The georeferencer page's layout pins (the refusal banner never moves the panes, LESSONS 765) live in the UI's Vitest.
     "packages/ui/test/admin/georef/*.test.ts",
+    # The viewer's boot timings of a hidden page (V19, LESSONS 773) are timing logic, pinned in the engine's Vitest.
+    "packages/engine/test/telemetry/*.test.ts",
 )
 # Area -> section title, in the doc's order.
 AREAS = {

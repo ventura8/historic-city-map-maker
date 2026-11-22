@@ -28,7 +28,7 @@ function recorder(clock = fakeClock()): { field: FieldRecorder; sent: FieldEvent
 }
 
 describe('field measurements', () => {
-    it('happyPath_eachBootPhaseIsTimedOnceFromTheEnginesStart', () => {
+    it('happyPath_eachBootPhaseIsTimedOnceFromTheEnginesStart @S-V19-HAPPY-VISIBLE-PAGE-TIMING', () => {
         const { field, sent, clock } = recorder();
         clock.time = 1250.4;
         field.record({ kind: 'phase', phase: 'manifest' });
@@ -52,6 +52,27 @@ describe('field measurements', () => {
             'mark hcm:map_idle',
             'measure hcm:map_idle hcm:boot',
         ]);
+    });
+
+    it('badPath_aPhaseAfterThePageWasHiddenIsMarkedButNotSent @S-V19-BAD-HIDDEN-PAGE-TIMING', () => {
+        // GA4 Explore 2026-11-22: desktop map_render averaged 22 minutes, background tabs timed while nobody looked (LESSONS 773).
+        const { field, sent, clock } = recorder();
+        clock.time = 1200;
+        field.record({ kind: 'phase', phase: 'manifest' });
+        field.hidden();
+        clock.time = 900_000;
+        field.record({ kind: 'phase', phase: 'map_render' });
+
+        expect(sent).toEqual([{ name: 'viewer_timing', params: { phase: 'manifest', duration_ms: 200, since_start_ms: 1200 } }]);
+        expect(clock.marks).toContain('mark hcm:map_render');
+    });
+
+    it('badPath_aPageOpenedInTheBackgroundSendsNoPhase', () => {
+        const sent: FieldEvent[] = [];
+        const field = new FieldRecorder(fakeClock(), (event) => sent.push(event), true);
+        field.record({ kind: 'phase', phase: 'manifest' });
+
+        expect(sent).toEqual([]);
     });
 
     it('badPath_failuresAreSentAsTheyHappen', () => {

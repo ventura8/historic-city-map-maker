@@ -254,6 +254,21 @@ describe('telemetry: field measurements', () => {
         expect(params.map((sent) => (sent as Record<string, unknown>)['error_count'])).toEqual([1, 24]);
     });
 
+    it('badPath_aBootPhaseAfterThePageWasHiddenIsNotSent', async () => {
+        // GA4 Explore 2026-11-22: background tabs reported map_render after 22 minutes on average (LESSONS 773).
+        const page = fakeWindow();
+        const { telemetry, events } = setup({ 'hcm:bucuresti:consent': 'granted' }, page);
+        telemetry.setContext?.(CONTEXT);
+        telemetry.measure?.({ kind: 'phase', phase: 'manifest' });
+        page.dispatchEvent(new Event('visibilitychange'));
+        Object.assign(page.document, { visibilityState: 'hidden' });
+        page.dispatchEvent(new Event('visibilitychange'));
+        telemetry.measure?.({ kind: 'phase', phase: 'map_render' });
+        await settle();
+
+        expect(events).toEqual(['viewer_timing']);
+    });
+
     it('badPath_afterDestroyNothingIsMeasuredOrFlushed', async () => {
         const { telemetry, events, page } = setup({ 'hcm:bucuresti:consent': 'granted' });
         telemetry.setContext?.(CONTEXT);
