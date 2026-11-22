@@ -54,6 +54,12 @@ if [[ "$source" == *:*/reports/ ]]; then
 fi
 """
 
+FAKE_TUTTI = """#!/usr/bin/env bash
+[[ "${FAKE_TUTTI_RC:-0}" == 0 ]] && { echo "$2"; exit 0; }
+echo "tutti: may-run: refused: $2: paused by the owner" >&2
+exit "$FAKE_TUTTI_RC"
+"""
+
 FAKE_DOCKER = """#!/usr/bin/env bash
 printf 'docker %s %s\\n' "${*: -2:1}" "${*: -1}" >>"$SPLIT_LOG"
 ls "${*: -1}" >>"$SPLIT_LOG"
@@ -93,7 +99,7 @@ def split(tmp_path: Path) -> Split:
     (root / "scripts/ci").mkdir(parents=True)
     shutil.copy(SCRIPT, root / "scripts/ci/e2e-split.sh")
     executable(root / "scripts/ci/run-all-checks.sh", STUB_RUN_ALL_CHECKS)
-    for name, text in (("ssh", FAKE_SSH), ("rsync", FAKE_RSYNC), ("docker", FAKE_DOCKER)):
+    for name, text in (("ssh", FAKE_SSH), ("rsync", FAKE_RSYNC), ("docker", FAKE_DOCKER), ("tutti", FAKE_TUTTI)):
         executable(tmp_path / "bin" / name, text)
     (tmp_path / "remote").mkdir()
     env = {
@@ -174,7 +180,8 @@ def test_happy_path_the_parts_can_be_chosen(split: Split) -> None:
             "HCM_SPLIT_HOST, HCM_SPLIT_DIR or E2E_TIER has characters this script does not pass on",
         ),
         ({"PIPELINE_STAGE": "e2e", "HCM_SPLIT_PARTS": "0:2"}, "HCM_SPLIT_PARTS must be <here>:<remote>, got '0:2'"),
-        ({"PIPELINE_STAGE": "e2e", "FAKE_PREPARE_RC": "255"}, "nuc does not answer"),
+        ({"PIPELINE_STAGE": "e2e", "FAKE_TUTTI_RC": "3"}, "Tutti refuses nuc (tutti: may-run: refused: nuc: paused by the owner)"),
+        ({"PIPELINE_STAGE": "e2e", "FAKE_TUTTI_RC": "2", "FAKE_PREPARE_RC": "255"}, "nuc does not answer"),
         ({"PIPELINE_STAGE": "e2e", "FAKE_PREPARE_RC": "3"}, "nuc has no docker or no rsync"),
         ({"PIPELINE_STAGE": "e2e", "FAKE_PREPARE_RC": "4"}, "another split holds nuc (hcm-ci.split-lock)"),
         ({"PIPELINE_STAGE": "e2e", "FAKE_PREPARE_RC": "1"}, "nuc could not prepare hcm-ci (exit 1)"),

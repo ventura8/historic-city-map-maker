@@ -31,6 +31,8 @@
 # When the host does not answer within 5 s (ssh BatchMode), lacks docker or rsync, or another split holds it (a lock
 # folder next to HCM_SPLIT_DIR, stale after two hours), the stage runs here only, exactly as run-all-checks.sh runs it.
 # When the connection drops during the run (ssh exit 255), this machine runs the remote's part itself afterwards.
+# When Tutti is installed here and refuses the host (`tutti may-run <host>`: paused by its owner or the heat guard, too hot,
+# limited hours, no free slot), the host is never touched and the stage runs here only, with Tutti's reason.
 set -euo pipefail
 
 readonly SSH_OPTIONS=(-o BatchMode=yes -o ConnectTimeout=5 -o ServerAliveInterval=30)
@@ -174,6 +176,18 @@ merge_reports() {
 	return "$rc"
 }
 
+# Tutti's verdict on the host; prints the reason and fails when it refuses. No Tutti here (CI) or one without may-run: no verdict.
+tutti_refusal() {
+	command -v tutti >/dev/null || return 0
+	local why rc=0
+	why=$(tutti may-run "$host" 2>&1 >/dev/null) || rc=$?
+	# 3 is Tutti's refusal; anything else (an older Tutti without may-run exits 2) gives no verdict.
+	((rc == 3)) || return 0
+	why=${why//$'\n'/; }
+	printf '%s' "${why:-no reason given}"
+	return 1
+}
+
 local_only() {
 	say "$1: stage '$stage' runs here only"
 	exec bash "$root/scripts/ci/run-all-checks.sh"
@@ -200,6 +214,8 @@ main() {
 	remote_shard=$(shard_range 1 "$there" "$total")
 	local_shard=$(shard_range $((there + 1)) "$total" "$total")
 	command -v rsync >/dev/null || local_only "rsync is not installed here"
+	local refusal
+	refusal=$(tutti_refusal) || local_only "Tutti refuses $host ($refusal)"
 
 	local prepared=0
 	prepare_remote || prepared=$?
