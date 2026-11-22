@@ -4,7 +4,17 @@
  * and licences. Everything returned here is plain text that
  * the elements render with Lit templates, never as HTML.
  */
-import { formatPhotoDate, isHttpsUrl, localized, translate, WIKIPEDIA_CATEGORY_ID, type License, type Photo, type Poi, type ViewerLocale } from '@hcm/shared';
+import {
+    formatPhotoDate,
+    isHttpsUrl,
+    localized,
+    translate,
+    WIKIPEDIA_CATEGORY_ID,
+    type License,
+    type Photo,
+    type Poi,
+    type ViewerLocale,
+} from '@hcm/shared';
 
 /** A `{ro, en?}` data text (photo and POI texts: English is optional). */
 export interface DataText {

@@ -69,7 +69,9 @@ describe('<hcm-pois-page>: the list', () => {
 
     it('happyPath_theNoYearsFilterShowsTheResearchBacklog @S-A32-HAPPY-NO-YEARS-FILTER', async () => {
         const undated = place({ id: 'undated', title: { ro: 'Calea ferată' }, yearStart: null, yearEnd: null });
-        const store = area(poisState({ list: ready([place(), undated]), filter: { category: null, unpublished: false, noYears: true, search: '' } }));
+        const store = area(
+            poisState({ list: ready([place(), undated]), filter: { category: null, unpublished: false, noYears: true, search: '' } }),
+        );
         const { element } = await poisPage(store);
 
         expect(deepAll(element, 'a.row').map((row) => row.getAttribute('href'))).toEqual(['#/pois/undated']);

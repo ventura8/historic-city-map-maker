@@ -113,7 +113,12 @@ export type FileIntent =
 export type PoisServices = ContentServices & { readonly maps?: AdminMapFactory | null };
 
 export const INITIAL_POIS_STATE: PoisState = {
-    ...{ filter: { category: null, unpublished: false, noYears: false, search: '' }, list: LOADING_LIST, categories: LOADING_LIST, frame: null },
+    ...{
+        filter: { category: null, unpublished: false, noYears: false, search: '' },
+        list: LOADING_LIST,
+        categories: LOADING_LIST,
+        frame: null,
+    },
     ...{ selection: [], editor: null, map: 'none', clicked: null, photos: null, importing: null, busy: false, assist: NO_ASSIST },
     ...{ linkedPhotos: [], exporting: false, traceLayers: [], traceOpacity: 100 },
 };

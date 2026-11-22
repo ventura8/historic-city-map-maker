@@ -52,7 +52,14 @@ export interface ImporterDeps {
  * delete). Before 2026-11-22 an update merged, so a file that took a place's years or description away changed nothing.
  */
 function updateFieldsOf(value: PoiValue): Readonly<Record<string, unknown>> {
-    return { description: undefined, yearStart: undefined, yearEnd: undefined, yearSeen: undefined, sourceLayer: undefined, ...docFieldsOf(value) };
+    return {
+        description: undefined,
+        yearStart: undefined,
+        yearEnd: undefined,
+        yearSeen: undefined,
+        sourceLayer: undefined,
+        ...docFieldsOf(value),
+    };
 }
 
 function batches<T>(items: readonly T[], size: number): T[][] {

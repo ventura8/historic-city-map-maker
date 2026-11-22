@@ -214,7 +214,13 @@ describe('GeoJSON import: the years', () => {
     });
 
     it('happyPath_aFeatureWithNoYearsAtAllIsAccepted @S-A34-HAPPY-NO-YEARS', () => {
-        const line = { type: 'LineString', coordinates: [[26.1, 44.43], [26.11, 44.44]] };
+        const line = {
+            type: 'LineString',
+            coordinates: [
+                [26.1, 44.43],
+                [26.11, 44.44],
+            ],
+        };
         const plan = planImport([feature({ category: 'biserici', title: 'Calea ferată', yearStart: null, yearSeen: '' }, line)], CONTEXT);
 
         expect(plan.refused).toEqual([]);

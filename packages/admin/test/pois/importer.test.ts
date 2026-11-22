@@ -86,7 +86,15 @@ describe('the import dialog', () => {
 
     it('happyPath_aFileMixingUpdatesAndNewPlacesCountsAndWritesBoth @S-A34-HAPPY-MIXED', async () => {
         const world = poisWorld();
-        const old = (title: string): PoiValue => ({ category: 'biserici', geometry: POINT, title: { ro: title }, yearSeen: 2026, links: [], photoIds: [], published: true });
+        const old = (title: string): PoiValue => ({
+            category: 'biserici',
+            geometry: POINT,
+            title: { ro: title },
+            yearSeen: 2026,
+            links: [],
+            photoIds: [],
+            published: true,
+        });
         const existing = new Map<string, PoiValue>([
             ['cf-1', old('Linia 1')],
             ['cf-2', old('Linia 2')],
@@ -114,7 +122,11 @@ describe('the import dialog', () => {
     it('badPath_anIdInThePropertiesNamingNoPlaceMakesANewPlace @S-A34-BAD-MIXED-UNKNOWN-ID', async () => {
         const world = poisWorld();
         const { importer: subject } = importer(world);
-        const text = JSON.stringify({ type: 'Feature', geometry: POINT, properties: { id: 'nu-exista', category: 'biserici', title: 'Nou' } });
+        const text = JSON.stringify({
+            type: 'Feature',
+            geometry: POINT,
+            properties: { id: 'nu-exista', category: 'biserici', title: 'Nou' },
+        });
 
         await subject.choose(file(text), null);
 

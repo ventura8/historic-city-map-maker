@@ -35,7 +35,13 @@ async function openPlaces(page: Page, content: ContentWorld, lang: 'ro' | 'en'):
     const railway = (id: string, title: string, from: number): Promise<void> =>
         content.emulators.setDocument(`cities/${content.city}/pois/${id}`, {
             category: 'monuments',
-            geometry: { type: 'LineString', points: [{ lng: from, lat: 44.43 }, { lng: from + 0.004, lat: 44.434 }] },
+            geometry: {
+                type: 'LineString',
+                points: [
+                    { lng: from, lat: 44.43 },
+                    { lng: from + 0.004, lat: 44.434 },
+                ],
+            },
             title: { ro: title },
             yearSeen: 2026,
             published: true,
@@ -98,7 +104,11 @@ test(
         await openPlaces(page, content, lang);
 
         await chooseFile(page, testInfo.outputPath('an-gresit.geojson'), [
-            { type: 'Feature', geometry: line(26.13), properties: { category: 'monuments', title: { ro: 'Linia Grant' }, yearStart: 'demult' } },
+            {
+                type: 'Feature',
+                geometry: line(26.13),
+                properties: { category: 'monuments', title: { ro: 'Linia Grant' }, yearStart: 'demult' },
+            },
             { type: 'Feature', geometry: line(26.15), properties: { id: 'nu-exista', category: 'monuments', title: { ro: 'Linia nouă' } } },
         ]);
         const dialog = importDialog(page);

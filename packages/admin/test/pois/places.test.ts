@@ -48,7 +48,10 @@ describe('the places list: queries and filters', () => {
         const seen = { ...item('d', { ro: 'Strada Rozelor' }, true), yearSeen: 1939 };
         const places = [...ITEMS, dated, seen];
 
-        expect(shownPlaces(places, { category: null, unpublished: false, noYears: true, search: '' }).map((place) => place.id)).toEqual(['a', 'b']);
+        expect(shownPlaces(places, { category: null, unpublished: false, noYears: true, search: '' }).map((place) => place.id)).toEqual([
+            'a',
+            'b',
+        ]);
         expect(shownPlaces(places, { category: null, unpublished: false, noYears: false, search: '' })).toHaveLength(4);
     });
 
