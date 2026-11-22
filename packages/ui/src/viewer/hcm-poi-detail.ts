@@ -236,7 +236,7 @@ export class HcmPoiDetail extends LitElement {
     }
 
     /** M17 §13: the place's facts; a related place fires `hcm-poi-select`. */
-    #facts(poi: Poi): TemplateResult | typeof nothing {
+    #facts(poi: Poi): TemplateResult {
         return placeFacts(poi, this.pois, this.locale, (poiId) => {
             this.dispatchEvent(new CustomEvent('hcm-poi-select', { bubbles: true, composed: true, detail: { poiId } }));
         });

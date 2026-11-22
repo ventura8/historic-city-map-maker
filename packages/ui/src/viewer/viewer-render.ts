@@ -28,7 +28,7 @@ import type { MenuPoint } from './map-menu-trigger.js';
 import { lightbox, mapMenu, type LightboxHandlers, type MapMenuHandlers } from './viewer-lightbox.js';
 import { menuActions, menuItem } from './viewer-menu.js';
 import { nearYearChip, textChip } from './viewer-near-year.js';
-import { storiesSheet } from './viewer-stories.js';
+import { storiesSheet, type PlaceHandlers } from './viewer-stories.js';
 import { unplacedSheet } from './viewer-unplaced.js';
 import { statusOrCard } from './viewer-wordless.js';
 import type { CameraSource } from './hcm-compass.js';
@@ -78,7 +78,7 @@ export interface OverlayOpacityDetail {
 }
 
 /** The element's event handlers, bound once. */
-export interface ViewerHandlers extends LightboxHandlers, MapMenuHandlers {
+export interface ViewerHandlers extends LightboxHandlers, MapMenuHandlers, PlaceHandlers {
     readonly onYearChange: (event: CustomEvent<{ readonly year: number | null }>) => void;
     readonly onOverlayVisibility: (event: CustomEvent<{ readonly id: string; readonly visible: boolean }>) => void;
     /** A place category's sub-group switch (`overlay-subgroups.ts`). */
@@ -89,11 +89,8 @@ export interface ViewerHandlers extends LightboxHandlers, MapMenuHandlers {
     readonly photoReturn?: { readonly fromList: boolean; readonly scroll: number };
     /** The photo sheet's "Show on map" (V51). */
     readonly onPhotoLocate: (event: CustomEvent<PhotoLocateDetail>) => void;
-    /** M17: a story to open (null: their list), and a place a story names. */
+    /** M17: a story to open (null: their list); a place a story names is `PlaceHandlers`'. */
     readonly onStorySelect: (event: CustomEvent<{ readonly storyId: string | null }>) => void;
-    readonly onPoiSelect: (event: CustomEvent<{ readonly poiId: string }>) => void;
-    /** M17 §12: a place's map, from the Media of its sheet. */
-    readonly onLayerShow: (event: CustomEvent<{ readonly layerId: string }>) => void;
     readonly onLightboxOpen: (event: Event) => void;
     /** The photo sheet's thumbnail was decoded (or failed): the `photo_timing` field measurement. */
     readonly onPhotoShown: (event: CustomEvent<{ readonly ok: boolean }>) => void;

@@ -4,7 +4,7 @@
  * its related places as buttons that open them (`hcm-poi-select`). Every value is data, rendered as text.
  */
 import { translate, type MessageKey, type PlaceFacts, type Poi, type ViewerLocale } from '@hcm/shared';
-import { html, nothing, type TemplateResult } from 'lit';
+import { html, type TemplateResult } from 'lit';
 
 import { localizedText } from './text.js';
 
@@ -24,19 +24,27 @@ function dated(text: string, start: number | undefined, end: number | undefined)
 
 type Row = readonly [MessageKey, readonly string[]];
 
+/** One fact as its row's values; an absent fact has none (the row is left out). */
+const SCALARS: readonly (readonly [MessageKey, (facts: PlaceFacts, locale: ViewerLocale) => string | undefined])[] = [
+    ['poi.facts.architects', (facts) => facts.architects?.join(', ')],
+    ['poi.facts.built', (facts) => facts.yearBuilt?.toString()],
+    ['poi.facts.demolished', (facts) => facts.yearDemolished?.toString()],
+    ['poi.facts.abandoned', (facts) => facts.yearAbandoned?.toString()],
+    ['poi.facts.style', (facts, locale) => (facts.style === undefined ? undefined : localizedText(facts.style, locale))],
+    ['poi.facts.floors', (facts) => facts.floors?.toString()],
+    ['poi.facts.height', (facts, locale) => (facts.heightM === undefined ? undefined : metres(facts.heightM, locale))],
+    ['poi.facts.lmi', (facts) => facts.lmiCode],
+];
+
+function metres(value: number, locale: ViewerLocale): string {
+    return new Intl.NumberFormat(locale, { style: 'unit', unit: 'meter' }).format(value);
+}
+
 function scalarRows(facts: PlaceFacts, locale: ViewerLocale): Row[] {
-    const metres = (value: number): string => new Intl.NumberFormat(locale, { style: 'unit', unit: 'meter' }).format(value);
-    const rows: (Row | null)[] = [
-        facts.architects === undefined ? null : ['poi.facts.architects', [facts.architects.join(', ')]],
-        facts.yearBuilt === undefined ? null : ['poi.facts.built', [String(facts.yearBuilt)]],
-        facts.yearDemolished === undefined ? null : ['poi.facts.demolished', [String(facts.yearDemolished)]],
-        facts.yearAbandoned === undefined ? null : ['poi.facts.abandoned', [String(facts.yearAbandoned)]],
-        facts.style === undefined ? null : ['poi.facts.style', [localizedText(facts.style, locale)]],
-        facts.floors === undefined ? null : ['poi.facts.floors', [String(facts.floors)]],
-        facts.heightM === undefined ? null : ['poi.facts.height', [metres(facts.heightM)]],
-        facts.lmiCode === undefined ? null : ['poi.facts.lmi', [facts.lmiCode]],
-    ];
-    return rows.filter((row): row is Row => row !== null);
+    return SCALARS.flatMap(([key, read]) => {
+        const value = read(facts, locale);
+        return value === undefined ? [] : [[key, [value]] as const];
+    });
 }
 
 function listRows(facts: PlaceFacts, locale: ViewerLocale): Row[] {
@@ -58,9 +66,12 @@ function related(facts: PlaceFacts, pois: readonly Poi[], locale: ViewerLocale, 
         return html``;
     }
     return html`<dt>${translate(locale, 'poi.facts.related')}</dt>
-        ${places.map((place) => {
-            const title = localizedText(place.title, locale);
-            return html`<dd>
+        ${places.map((place) => relatedItem(place, locale, open))}`;
+}
+
+function relatedItem(place: Poi, locale: ViewerLocale, open: (poiId: string) => void): TemplateResult {
+    const title = localizedText(place.title, locale);
+    return html`<dd>
                 <button
                     type="button"
                     class="related"
@@ -72,20 +83,24 @@ function related(facts: PlaceFacts, pois: readonly Poi[], locale: ViewerLocale, 
                     ${title}
                 </button>
             </dd>`;
-        })}`;
+}
+
+function factRow(locale: ViewerLocale, key: MessageKey, values: readonly string[]): TemplateResult {
+    return html`<dt>${translate(locale, key)}</dt>
+        ${values.map((value) => html`<dd>${value}</dd>`)}`;
 }
 
 /** The place's facts; nothing when it has none. */
-export function placeFacts(poi: Poi, pois: readonly Poi[], locale: ViewerLocale, open: (poiId: string) => void): TemplateResult | typeof nothing {
+export function placeFacts(poi: Poi, pois: readonly Poi[], locale: ViewerLocale, open: (poiId: string) => void): TemplateResult {
     const facts = poi.facts;
     if (facts === undefined) {
-        return nothing;
+        return html``;
     }
     const rows = [...scalarRows(facts, locale), ...listRows(facts, locale)];
     return html`<section class="facts">
         <h3>${translate(locale, 'poi.facts')}</h3>
         <dl>
-            ${rows.map(([key, values]) => html`<dt>${translate(locale, key)}</dt>${values.map((value) => html`<dd>${value}</dd>`)}`)}
+            ${rows.map(([key, values]) => factRow(locale, key, values))}
             ${related(facts, pois, locale, open)}
         </dl>
     </section>`;

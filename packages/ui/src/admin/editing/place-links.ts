@@ -46,10 +46,11 @@ export function placeLinksField(input: PlaceLinksInput): TemplateResult {
         select.value = '';
     };
     const full = ids.length >= MAX_MEDIA_PLACES;
+    const [labelId, hintId] = [[id, 'label'].join('-'), [id, 'hint'].join('-')];
     return html`<section class="field place-links">
-        <h3 id=${`${id}-label`}>${contentText(locale, input.label ?? 'adminContent.pois.places.label')}</h3>
-        <p class="note" id=${`${id}-hint`}>${contentText(locale, input.hint ?? 'adminContent.pois.places.hint')}</p>
-        <ul class="chips" aria-labelledby=${`${id}-label`}>
+        <h3 id=${labelId}>${contentText(locale, input.label ?? 'adminContent.pois.places.label')}</h3>
+        <p class="note" id=${hintId}>${contentText(locale, input.hint ?? 'adminContent.pois.places.hint')}</p>
+        <ul class="chips" aria-labelledby=${labelId}>
             ${ids.map(
                 (placeId) =>
                     html`<li>
@@ -67,7 +68,7 @@ export function placeLinksField(input: PlaceLinksInput): TemplateResult {
             )}
         </ul>
         <label for=${id}>${contentText(locale, 'adminContent.pois.places.add')}</label>
-        <select id=${id} aria-describedby=${`${id}-hint`} ?disabled=${readOnly || full || input.places === null} @change=${add}>
+        <select id=${id} aria-describedby=${hintId} ?disabled=${readOnly || full || input.places === null} @change=${add}>
             <option value="">${contentText(locale, 'adminContent.pois.places.pick')}</option>
             ${places
                 .filter((place) => !ids.includes(place.id))

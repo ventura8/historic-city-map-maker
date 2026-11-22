@@ -19,7 +19,7 @@ type Facts = Partial<Record<keyof PlaceFacts, unknown>>;
 export function withFact(facts: PlaceFacts | undefined, key: keyof PlaceFacts, value: unknown): PlaceFacts | undefined {
     const next: Facts = { ...facts, [key]: value };
     const kept = Object.fromEntries(Object.entries(next).filter(([, item]) => item !== undefined));
-    return Object.keys(kept).length === 0 ? undefined : (kept as PlaceFacts);
+    return Object.keys(kept).length === 0 ? undefined : kept;
 }
 
 function numberOrUndefined(text: string): number | undefined {
@@ -44,14 +44,15 @@ function input(context: FieldContext, spec: Input): TemplateResult {
     const change = (event: Event): void => {
         spec.set((event.target as HTMLInputElement | HTMLTextAreaElement).value);
     };
-    const hintId = spec.hint === undefined ? nothing : `${spec.id}-hint`;
+    const hintPart = [spec.id, 'hint'].join('-');
+    const hintId = spec.hint === undefined ? nothing : hintPart;
     const field = spec.lines === true
         ? html`<textarea id=${spec.id} rows="3" ?readonly=${context.readOnly} .value=${spec.value} aria-describedby=${hintId} @change=${change}></textarea>`
         : html`<input id=${spec.id} autocomplete="off" ?readonly=${context.readOnly} .value=${spec.value} aria-describedby=${hintId} @change=${change} />`;
     return html`<div class="field">
         <label for=${spec.id}>${contentText(context.locale, spec.key)}</label>
         ${field}
-        ${spec.hint === undefined ? nothing : html`<p class="note" id=${`${spec.id}-hint`}>${contentText(context.locale, spec.hint)}</p>`}
+        ${spec.hint === undefined ? nothing : html`<p class="note" id=${hintPart}>${contentText(context.locale, spec.hint)}</p>`}
     </div>`;
 }
 
@@ -112,7 +113,11 @@ function lineInputs(context: FieldContext, facts: PlaceFacts | undefined, set: (
         lines: true,
         value: uses.join('\n'),
         set: (typed) => {
-            const lines = parseDatedLines(typed).map(({ text, current: _today, ...years }) => ({ use: { ro: text }, ...years }));
+            const lines = parseDatedLines(typed).map(({ text, yearStart, yearEnd }) => ({
+                use: { ro: text },
+                ...(yearStart === undefined ? {} : { yearStart }),
+                ...(yearEnd === undefined ? {} : { yearEnd }),
+            }));
             set('uses', lines.length === 0 ? undefined : lines);
         },
     })}
@@ -135,7 +140,7 @@ export function factsFields(context: FieldContext, places: readonly PlacePickPor
     const set = (key: keyof PlaceFacts, value: unknown): void => {
         context.edit({ facts: withFact(facts, key, value) });
     };
-    const invalid = context.issues.some((issue) => issue.path[0] === 'facts');
+    const invalid = context.issues.some((issue) => issue.path.startsWith('facts'));
     return html`${scalarInputs(context, facts, set)} ${lineInputs(context, facts, set)}
     ${placeLinksField({
         id: 'facts-related',

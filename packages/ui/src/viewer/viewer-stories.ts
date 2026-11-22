@@ -21,6 +21,12 @@ export interface StoriesHandlers {
     readonly onPoiSelect: (event: CustomEvent<{ readonly poiId: string }>) => void;
 }
 
+/** M17 §12, §13: from a place's sheet, a map of its Media to show and a related place to open. */
+export interface PlaceHandlers {
+    readonly onPoiSelect: (event: CustomEvent<{ readonly poiId: string }>) => void;
+    readonly onLayerShow: (event: CustomEvent<{ readonly layerId: string }>) => void;
+}
+
 export function storiesSheet(view: StoriesView, manifest: Manifest, placement: Placement, handlers: StoriesHandlers): TemplateResult {
     const stories = manifest.stories ?? [];
     const story = stories.find((candidate) => candidate.id === view.storyId);
