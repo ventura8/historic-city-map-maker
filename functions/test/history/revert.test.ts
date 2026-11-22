@@ -183,7 +183,7 @@ describe('history.revert', () => {
     it('badPath_aVersionTodaysSchemaRefusesIsNotRestored @S-A23-BAD-INVALID-SNAPSHOT', async () => {
         const world = emulators.newWorld();
         await seedAdmin(world);
-        const legacy = { ...poi('Unu'), title: { en: 'English only' }, yearStart: 1700 };
+        const legacy = { ...poi('Unu'), title: { en: 'English only' }, yearStart: 1499 };
         await edit(world, POI_PATH, legacy, { id: 'e1', at: '2026-10-12T07:00:00.000Z' });
         const update = await edit(world, POI_PATH, poi('Doi', { updatedAt: T2 }), { id: 'e2', at: '2026-10-12T07:30:00.000Z' });
 

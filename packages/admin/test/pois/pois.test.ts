@@ -49,7 +49,7 @@ describe('places: the list', () => {
         expect(store.state.list.items.map((item) => item.id)).toEqual(['cismigiu']);
         store.intents.setFilter({ unpublished: false, search: 'STAVRO' });
 
-        expect(store.state.filter).toEqual({ category: null, unpublished: false, search: 'STAVRO' });
+        expect(store.state.filter).toEqual({ category: null, unpublished: false, noYears: false, search: 'STAVRO' });
         expect(store.state.list.items).toHaveLength(2);
     });
 
