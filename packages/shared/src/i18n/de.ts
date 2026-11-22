@@ -104,6 +104,7 @@ export const de: Messages = {
     'layers.empty': 'Diese Karte hat keine historischen Ebenen.',
     'layers.group.historical': 'Historische Ebenen',
     'layers.group.places': 'Orte',
+    'layers.group.aerial': 'Luft- und Satellitenbilder',
     'layers.group.pinned': 'Ebenen oben angeheftet',
     'layers.opacityChanged': '{name}: Deckkraft {percent} %',
     'layers.shown': '{name}: eingeblendet',

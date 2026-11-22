@@ -146,7 +146,10 @@ export const test = base.extend<TestFixtures, WorkerFixtures>({
         async ({ context }, use, testInfo) => {
             if (!testInfo.tags.includes('@layer-sections-default')) {
                 await context.addInitScript(() => {
-                    localStorage.setItem('hcm.layerPanel.sections', JSON.stringify({ pinned: true, places: true, layers: true }));
+                    localStorage.setItem(
+                        'hcm.layerPanel.sections',
+                        JSON.stringify({ pinned: true, places: true, layers: true, aerial: true }),
+                    );
                 });
             }
             await use(undefined);

@@ -16,7 +16,7 @@ export const LAYER_SECTIONS_STATES = {
             await openLayers(page, lang);
             const header = viewer(page)
                 .locator('hcm-layer-panel')
-                .getByRole('button', { name: t(lang, 'layers.group.historical'), exact: true });
+                .getByRole('button', { name: t(lang, 'layers.group.aerial'), exact: true });
             if ((await header.getAttribute('aria-expanded')) === 'true') {
                 await header.click();
             }

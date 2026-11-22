@@ -97,6 +97,7 @@ export const en: Messages = {
     'layers.empty': 'This map has no historical layers.',
     'layers.group.historical': 'Historical layers',
     'layers.group.places': 'Places',
+    'layers.group.aerial': 'Aerial and satellite photos',
     'layers.group.pinned': 'Layers pinned to the top',
     'layers.opacityChanged': '{name}: opacity {percent}%',
     'layers.shown': '{name}: shown',

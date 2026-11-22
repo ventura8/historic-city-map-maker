@@ -1,17 +1,18 @@
 /**
  * The Layers panel's three collapsible sections (the owner, 2026-11-22): the pinned strip at the top, then Places (the
- * POI categories), then the historical layers. Pinned and Places start expanded, Layers collapsed. Each section has a
+ * POI categories), then the historical maps, then (owner, 2026-11-22) the aerial and satellite photos (a layer whose manifest
+ * `kind` is not `map`). Pinned and Places start expanded, Layers and aerial collapsed. Each section has a
  * header button with `aria-expanded` and a chevron; a collapsed body stays in the DOM but `hidden`, so it leaves the
  * accessibility tree and the Tab order. The state is remembered per viewer in localStorage, every access guarded: a
  * private window or blocked storage only loses the memory, never the panel.
  */
 import { css, html, type TemplateResult } from 'lit';
 
-export type PanelSection = 'pinned' | 'places' | 'layers';
+export type PanelSection = 'pinned' | 'places' | 'layers' | 'aerial';
 
 export type SectionState = Readonly<Record<PanelSection, boolean>>;
 
-export const DEFAULT_SECTIONS: SectionState = { pinned: true, places: true, layers: false };
+export const DEFAULT_SECTIONS: SectionState = { pinned: true, places: true, layers: false, aerial: false };
 
 export const SECTIONS_STORAGE_KEY = 'hcm.layerPanel.sections';
 
@@ -42,7 +43,12 @@ export function loadSections(): SectionState {
             return DEFAULT_SECTIONS;
         }
         const stored = parsed as Partial<Record<PanelSection, unknown>>;
-        return { pinned: flag(stored, 'pinned'), places: flag(stored, 'places'), layers: flag(stored, 'layers') };
+        return {
+            pinned: flag(stored, 'pinned'),
+            places: flag(stored, 'places'),
+            layers: flag(stored, 'layers'),
+            aerial: flag(stored, 'aerial'),
+        };
     } catch {
         return DEFAULT_SECTIONS;
     }

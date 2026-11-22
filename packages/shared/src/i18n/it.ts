@@ -102,6 +102,7 @@ export const it: Messages = {
     'layers.empty': 'Questa mappa non ha livelli storici.',
     'layers.group.historical': 'Livelli storici',
     'layers.group.places': 'Luoghi',
+    'layers.group.aerial': 'Foto aeree e satellitari',
     'layers.group.pinned': 'Livelli fissati in alto',
     'layers.opacityChanged': '{name}: opacità {percent}%',
     'layers.shown': '{name}: visibile',

@@ -104,6 +104,7 @@ export const ru: Messages = {
     'layers.empty': 'На этой карте нет исторических слоёв.',
     'layers.group.historical': 'Исторические слои',
     'layers.group.places': 'Места',
+    'layers.group.aerial': 'Аэро- и спутниковые снимки',
     'layers.group.pinned': 'Слои закреплены вверху',
     'layers.opacityChanged': '{name}: непрозрачность {percent} %',
     'layers.shown': '{name}: показан',

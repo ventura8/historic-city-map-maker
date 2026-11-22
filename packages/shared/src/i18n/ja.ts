@@ -102,6 +102,7 @@ export const ja: Messages = {
     'layers.empty': 'この地図には歴史レイヤーがありません。',
     'layers.group.historical': '歴史レイヤー',
     'layers.group.places': '場所',
+    'layers.group.aerial': '航空写真と衛星写真',
     'layers.group.pinned': '最上部に固定されたレイヤー',
     'layers.opacityChanged': '{name}：不透明度{percent}%',
     'layers.shown': '{name}：表示',

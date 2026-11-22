@@ -281,6 +281,7 @@ export class HcmLayerPanel extends LitElement {
         }
         this.#pendingYear = null;
         this.#setSection('layers', true);
+        this.#setSection('aerial', true);
         const ids = this.manifest.layers.filter((layer) => layer.year === year).map((layer) => layer.id);
         void this.updateComplete.then(revealLayers.bind(null, this, this.renderRoot, ids));
     }
@@ -314,25 +315,31 @@ export class HcmLayerPanel extends LitElement {
             return EMPTY;
         }
         const locale = this.locale;
-        const listed = listedOverlays(this.overlays, manifest);
-        const places = listed.filter((overlay) => overlay.kind === 'poi');
-        const layers = listed.filter((overlay) => overlay.kind !== 'poi');
         return html`<div class="content">
-            ${
-                this.#hasPinned(manifest)
-                    ? this.#section(
-                          'pinned',
-                          'layers.group.pinned',
-                          html`${this.#compareButton(locale)}${this.#mapLabels(manifest, locale)}${this.#photos(manifest, locale)}${this.#pinnedList(manifest, locale)}`,
-                      )
-                    : nothing
-            }
-            ${places.length > 0 ? this.#section('places', 'layers.group.places', this.#list(places, manifest, [])) : nothing}
-            ${this.#section('layers', 'layers.group.historical', html`${this.#emptyNote(manifest)}${this.#list(layers, manifest, [])}`)}
+            ${this.#hasPinned(manifest) ? this.#section('pinned', 'layers.group.pinned', this.#pinnedBody(manifest, locale)) : nothing}
+            ${this.#overlaySections(manifest)}
             <ul class="attribution">
                 ${attributionLines(this.overlays, manifest, locale).map((line) => html`<li>${line}</li>`)}
             </ul>
         </div>`;
+    }
+
+    #pinnedBody(manifest: Manifest, locale: ViewerLocale): TemplateResult {
+        return html`${this.#compareButton(locale)}${this.#mapLabels(manifest, locale)}${this.#photos(manifest, locale)}${this.#pinnedList(manifest, locale)}`;
+    }
+
+    /** Places, then the maps, then (a layer whose kind is not `map`) the aerial and satellite photos; empty ones are left out. */
+    #overlaySections(manifest: Manifest): TemplateResult {
+        const listed = listedOverlays(this.overlays, manifest);
+        const places = listed.filter((overlay) => overlay.kind === 'poi');
+        const photographed = new Set(manifest.layers.filter((layer) => layer.kind !== 'map').map((layer) => layer.id));
+        const rasters = listed.filter((overlay) => overlay.kind !== 'poi');
+        const layers = rasters.filter((overlay) => !photographed.has(overlay.id));
+        const aerial = rasters.filter((overlay) => photographed.has(overlay.id));
+        const showLayers = layers.length > 0 || manifest.layers.length === 0;
+        return html`${places.length > 0 ? this.#section('places', 'layers.group.places', this.#list(places, manifest, [])) : nothing}
+        ${showLayers ? this.#section('layers', 'layers.group.historical', html`${this.#emptyNote(manifest)}${this.#list(layers, manifest, [])}`) : nothing}
+        ${aerial.length > 0 ? this.#section('aerial', 'layers.group.aerial', this.#list(aerial, manifest, [])) : nothing}`;
     }
 
     #emptyNote(manifest: Manifest): TemplateResult {
@@ -343,7 +350,7 @@ export class HcmLayerPanel extends LitElement {
 
     #section(
         id: PanelSection,
-        key: 'layers.group.pinned' | 'layers.group.places' | 'layers.group.historical',
+        key: 'layers.group.pinned' | 'layers.group.places' | 'layers.group.historical' | 'layers.group.aerial',
         body: TemplateResult,
     ): TemplateResult {
         const onToggle = (section: PanelSection): void => {

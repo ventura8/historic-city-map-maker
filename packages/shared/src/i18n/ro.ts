@@ -102,6 +102,7 @@ export const ro = {
     'layers.empty': 'Această hartă nu are straturi istorice.',
     'layers.group.historical': 'Straturi istorice',
     'layers.group.places': 'Locuri',
+    'layers.group.aerial': 'Fotografii aeriene și satelit',
     'layers.group.pinned': 'Straturi fixate sus',
     'layers.opacityChanged': '{name}: opacitate {percent} %',
     'layers.shown': '{name}: afișat',

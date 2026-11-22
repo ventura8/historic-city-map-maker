@@ -100,6 +100,7 @@ export const tr: Messages = {
     'layers.empty': 'Bu haritada tarihî katman yok.',
     'layers.group.historical': 'Tarihî katmanlar',
     'layers.group.places': 'Yerler',
+    'layers.group.aerial': 'Hava ve uydu fotoğrafları',
     'layers.group.pinned': 'Üste sabitlenmiş katmanlar',
     'layers.opacityChanged': '{name}: opaklık %{percent}',
     'layers.shown': '{name}: gösteriliyor',

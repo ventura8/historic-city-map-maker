@@ -199,7 +199,7 @@ describe('<hcm-layer-panel> more', () => {
         const lists = [...(element.shadowRoot?.querySelectorAll('hcm-overlay-list') ?? [])] as unknown as (HTMLElement &
             OverlayListProps)[];
         expect(lists.map((each) => each.items.length)).toEqual([2, 2]);
-        const list = lists[0] as HTMLElement & OverlayListProps;
+        const list = shadowQuery(element, 'hcm-overlay-list') as HTMLElement & OverlayListProps;
         expect(list.groups).toEqual([]);
         expect([list.toggleLabel, list.opacityLabel, list.valueText, list.changedText]).toEqual([
             'Show {name}',

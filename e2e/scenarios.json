@@ -4265,7 +4265,7 @@
             "area": "viewer",
             "path": "happy",
             "title": "Layers shows pinned, Places and historical layers as collapsible sections, Layers collapsed at first",
-            "asserts": "Layers open -> three sections in the order pinned, Places, Layers; header buttons carry aria-expanded true, true, false; a layer switch is hidden until the Layers header is clicked; after a reload the expanded Layers section is remembered",
+            "asserts": "Layers open -> sections in the order pinned, Places, Layers (kind map), Aerial and satellite photos (other kinds; the e2e city has only these); headers carry aria-expanded true, true, false; a layer switch is hidden until its header is clicked; after a reload the expanded section is remembered",
             "tier": "e2e-viewer",
             "status": "exists",
             "notes": "Owner 2026-11-22. Tests: e2e/specs/viewer/layer-sections.spec.ts, packages/ui/test/viewer/layer-panel-sections.test.ts."
@@ -13828,6 +13828,28 @@
             "tier": "functions",
             "status": "exists",
             "notes": "Finding of 2026-11-14. Test: functions/test/imagery/join-archive.test.ts."
+        },
+        {
+            "id": "S-A65-HAPPY-ARCHIVE-CREDIT",
+            "behaviour": "A65",
+            "area": "admin",
+            "path": "happy",
+            "title": "A join of archive maps keeps the archive's title and credit",
+            "asserts": "the join version takes the parts' shared series title and rights; finalize credits the archive (its rights' credit line), never USGS",
+            "tier": "functions",
+            "status": "exists",
+            "notes": "Owner bug of 2026-11-22 (Ortofotoplan 2017). Tests: functions/test/imagery/join-archive.test.ts, join-finalize.test.ts."
+        },
+        {
+            "id": "S-A65-BAD-ARCHIVE-CREDIT",
+            "behaviour": "A65",
+            "area": "admin",
+            "path": "bad",
+            "title": "A join of archive maps without rights or a shared title never credits USGS",
+            "asserts": "parts with no shared title join as N + S with no rights; a join of non-USGS parts without rights credits its own name, not USGS",
+            "tier": "functions",
+            "status": "exists",
+            "notes": "Owner bug of 2026-11-22. Tests: functions/test/imagery/join-archive.test.ts, join-finalize.test.ts."
         },
         {
             "id": "S-A65-HAPPY-ARCHIVE-OFFER",

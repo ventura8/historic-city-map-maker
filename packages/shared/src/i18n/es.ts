@@ -101,6 +101,7 @@ export const es: Messages = {
     'layers.empty': 'Este mapa no tiene capas históricas.',
     'layers.group.historical': 'Capas históricas',
     'layers.group.places': 'Lugares',
+    'layers.group.aerial': 'Fotos aéreas y de satélite',
     'layers.group.pinned': 'Capas fijadas en la parte superior',
     'layers.opacityChanged': '{name}: opacidad {percent} %',
     'layers.shown': '{name}: visible',

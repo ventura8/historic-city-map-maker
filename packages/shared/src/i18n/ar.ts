@@ -98,6 +98,7 @@ export const ar: Messages = {
     'layers.empty': 'لا توجد طبقات تاريخية في هذه الخريطة.',
     'layers.group.historical': 'الطبقات التاريخية',
     'layers.group.places': 'الأماكن',
+    'layers.group.aerial': 'صور جوية وصور الأقمار الصناعية',
     'layers.group.pinned': 'الطبقات المثبتة في الأعلى',
     'layers.opacityChanged': '{name}: العتامة {percent}٪',
     'layers.shown': '{name}: ظاهرة',

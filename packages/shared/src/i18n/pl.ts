@@ -101,6 +101,7 @@ export const pl: Messages = {
     'layers.empty': 'Ta mapa nie ma warstw historycznych.',
     'layers.group.historical': 'Warstwy historyczne',
     'layers.group.places': 'Miejsca',
+    'layers.group.aerial': 'Zdjęcia lotnicze i satelitarne',
     'layers.group.pinned': 'Warstwy przypięte u góry',
     'layers.opacityChanged': '{name}: krycie {percent}%',
     'layers.shown': '{name}: widoczna',

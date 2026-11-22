@@ -100,6 +100,7 @@ export const pt: Messages = {
     'layers.empty': 'Este mapa não tem camadas históricas.',
     'layers.group.historical': 'Camadas históricas',
     'layers.group.places': 'Lugares',
+    'layers.group.aerial': 'Fotos aéreas e de satélite',
     'layers.group.pinned': 'Camadas fixadas no topo',
     'layers.opacityChanged': '{name}: opacidade {percent}%',
     'layers.shown': '{name}: visível',
