@@ -31,6 +31,7 @@ export const LAYER_EDITABLE = [
     'defaultVisible',
     'adjustments',
     'published',
+    'kind',
 ] as const satisfies readonly (keyof LayerDoc)[];
 
 /** What the editor's fields change directly (the sliders have their own intents). */

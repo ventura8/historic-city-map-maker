@@ -78,6 +78,8 @@ const LAYER_EDITABLE = [
     'defaultVisible',
     'adjustments',
     'published',
+    /** Map, aerial photo or satellite image (live 2026-11-22: maps were listed as photos). */
+    'kind',
     ...STAMP,
 ] as const;
 

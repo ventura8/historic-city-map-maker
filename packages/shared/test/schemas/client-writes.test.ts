@@ -52,7 +52,9 @@ describe('CLIENT_WRITES', () => {
                 ['image', 'exif', 'processingError', 'duplicateOf', 'suggested', 'original'].includes(field),
             ),
         ).toEqual([]);
-        expect(writable('layer').filter((field) => ['source', 'status', 'mapbox', 'provenance', 'kind'].includes(field))).toEqual([]);
+        expect(writable('layer').filter((field) => ['source', 'status', 'mapbox', 'provenance'].includes(field))).toEqual([]);
+        // Live 2026-11-22: the owner sets a layer's kind (map, aerial, satellite) on its page; the manifest follows.
+        expect(writable('layer')).toContain('kind');
         expect(writable('job').filter((field) => ['executionName', 'lease', 'steps', 'error'].includes(field))).toEqual([]);
     });
 
