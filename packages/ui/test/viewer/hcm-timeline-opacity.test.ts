@@ -232,11 +232,11 @@ describe('the timeline opacity card of a year with several layers', () => {
             'Opacitate: Autumn 1977',
         ]);
         expect(sliders.map((slider) => slider.value)).toEqual([65, 40, 90]);
-        expect([...(element.shadowRoot?.querySelectorAll('.opacity-name') ?? [])].map((name) => name.textContent)).toEqual([
-            'Toate straturile din 1977',
-            'April 1977',
-            'October 1977',
-        ]);
+        // Each row names its layer, then its date (the owner, 2026-11-22: two rows both read the year).
+        const names = [...(element.shadowRoot?.querySelectorAll('.opacity-name') ?? [])].map((name) => name.textContent);
+        expect(names[0]).toBe('Toate straturile din 1977');
+        expect(names.slice(1).map((name) => name.split(' · ')[1])).toEqual(['April 1977', 'October 1977']);
+        expect(names.slice(1).every((name) => name.split(' · ')[0] !== '')).toBe(true);
 
         const sent = recordEvents(element, 'hcm-overlay-opacity');
         const send = (slider: Kit | undefined, type: string, value: number): void => {
