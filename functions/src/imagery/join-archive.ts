@@ -276,10 +276,21 @@ async function requireFreeLayer(deps: ArchiveJoinDeps, cityId: string, layerId: 
  * had a layer of its own): a join run again with the same parts, or more, stays on it.
  */
 async function earlierLayer(deps: ArchiveJoinDeps, cityId: string, parts: readonly Part[]): Promise<string | undefined> {
-    const stamped = parts.find(({ version }) => version.partOf !== undefined)?.version.partOf;
-    const join =
-        stamped === undefined ? undefined : await deps.documents.get(FIRESTORE_PATHS.layerVersion(cityId, stamped), layerVersionDocSchema);
-    return join?.source?.kind === 'join' && join.state === 'published' ? join.layerId : undefined;
+    const stamped = stampedBy(parts);
+    if (stamped === undefined) {
+        return undefined;
+    }
+    const join = await deps.documents.get(FIRESTORE_PATHS.layerVersion(cityId, stamped), layerVersionDocSchema);
+    return publishedJoin(join) ? join.layerId : undefined;
+}
+
+/** The join the first stamped part names. */
+function stampedBy(parts: readonly Part[]): string | undefined {
+    return parts.map(({ version }) => version.partOf).find((partOf) => partOf !== undefined);
+}
+
+function publishedJoin(join: LayerVersionDoc | undefined): join is LayerVersionDoc {
+    return join?.source?.kind === 'join' && join.state === 'published';
 }
 
 /** The layer the join becomes a version of: a published part's, else the earlier join's, else none (a new layer). */
