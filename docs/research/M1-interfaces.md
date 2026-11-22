@@ -409,7 +409,7 @@ export const PHOTO_YEAR_WINDOW = 10;
 ```
 
 The store derives the map from `state.overlays`: `addRasterLayer` per historical layer, `setPhotosData` for the photos,
-`addVectorOverlay` per POI category with the POIs `poiInYear(poi, state.year)` keeps (again after every year change),
+`addVectorOverlay` per POI category with every POI of it (since 2026-11-22 no year filter; `poiInYear` stays in `@hcm/shared` for the API),
 then `setOverlayVisibility` / `setOverlayOpacity` whenever an overlay changes and `setLayerPaint` with
 `rasterAdjustmentPaint(layer.adjustments)` once per raster. The URL hash carries `overlayOpacity:
 hashOverlayOpacity(state.overlays)` (only overlays that differ from their default).

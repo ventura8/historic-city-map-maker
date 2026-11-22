@@ -18,6 +18,7 @@ export const M31_EXPORTS = [
     'literalMarkdown',
     'shownWikipediaLanguage',
     'wikipediaArticleIdSchema',
+    'wikipediaArticlesFileSchema',
     'wikipediaArticleOf',
     'wikipediaArticleSchema',
     'wikipediaFileSchema',

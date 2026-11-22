@@ -31,6 +31,7 @@ import {
     wikipediaForBuild,
     withWikipedia,
 } from '../../src/wikipedia/refresh.js';
+import { storedArticles } from '../../src/wikipedia/store.js';
 import { CITY_ID, cityDoc, seedCity } from '../publish/city.js';
 import { contentDeps, type ContentDeps } from '../publish/fakes.js';
 import { FAKE_IMAGE, createFakeWikipedia, wikiPage, type FakeWikipedia } from '../support/wikipedia-fake.js';
@@ -61,6 +62,11 @@ const ATHENAEUM = wikiPage('ro', 1, 'Ateneul Român', 26.0973, 44.4413, {
     thumbnail: 'https://upload.wikimedia.org/a.jpg',
 });
 
+/** The articles the last fetch stored in the private bucket. */
+function stored(deps: ContentDeps): Promise<readonly WikipediaArticle[]> {
+    return storedArticles(deps, CITY_ID, undefined);
+}
+
 function fileOf(deps: ContentDeps): unknown {
     return JSON.parse(gunzipSync(deps.blobs.object('public', FILE)?.bytes ?? new Uint8Array()).toString('utf8'));
 }
@@ -88,14 +94,15 @@ describe('refreshState', () => {
 
         const next = await refreshState(deps, CITY_ID, cityDoc(), state({ refreshRequested: true, failure: 'unavailable' }));
 
-        expect(next.articles).toEqual([{ ...ARTICLE, thumb: 'wikipedia/ro-1.jpg' }]);
+        await expect(stored(deps)).resolves.toEqual([{ ...ARTICLE, thumb: 'wikipedia/ro-1.jpg' }]);
+        expect(next.articles).toBeUndefined();
         expect(next.refreshRequested).toBeUndefined();
         expect(next.failure).toBeUndefined();
         expect(next.updatedBy).toBe('system:publish');
         expect(deps.blobs.object('public', STORAGE_PATHS.wikipediaThumb(CITY_ID, 'wikipedia/ro-1.jpg'))?.options.contentType).toBe(
             'image/jpeg',
         );
-        await expect(deps.documents.get(STATE_PATH, wikipediaStateDocSchema)).resolves.toMatchObject({ articles: next.articles });
+        await expect(deps.documents.get(STATE_PATH, wikipediaStateDocSchema)).resolves.not.toHaveProperty('articles');
     });
 
     it('badPath_aThumbnailThatFailsOrIsRefusedLeavesTheArticleWithoutOne', async () => {
@@ -105,18 +112,19 @@ describe('refreshState', () => {
         );
         const deps = withWiki(contentDeps(NOW), wiki);
 
-        const next = await refreshState(deps, CITY_ID, cityDoc(), state());
+        await refreshState(deps, CITY_ID, cityDoc(), state());
 
-        expect(next.articles?.every((article) => article.thumb === undefined)).toBe(true);
+        expect((await stored(deps)).every((article) => article.thumb === undefined)).toBe(true);
         expect(deps.recording.records.some((record) => record.message === 'wikipedia thumbnail skipped')).toBe(true);
     });
 
     it('badPath_anArticleTheSchemaRefusesIsDroppedNotTheFetch', async () => {
         const wiki = createFakeWikipedia([ATHENAEUM, wikiPage('ro', 2, 'x'.repeat(250), 26.1, 44.45)]);
 
-        const next = await refreshState(withWiki(contentDeps(NOW), wiki), CITY_ID, cityDoc(), state());
+        const deps = withWiki(contentDeps(NOW), wiki);
+        await refreshState(deps, CITY_ID, cityDoc(), state());
 
-        expect(next.articles?.map((article) => article.id)).toEqual(['ro-1']);
+        expect((await stored(deps)).map((article) => article.id)).toEqual(['ro-1']);
     });
 
     it('badPath_aFailedFetchKeepsTheArticlesOfBeforeAndSaysWhy @S-A230-BAD-WIKIPEDIA-DOWN', async () => {
@@ -151,9 +159,10 @@ describe('refreshState', () => {
         const images = new Map(pages.map((page) => [page.thumbnail ?? '', FAKE_IMAGE]));
         const wiki = createFakeWikipedia(pages, images);
 
-        const next = await refreshState(withWiki(contentDeps(NOW), wiki), CITY_ID, cityDoc(), state());
+        const deps = withWiki(contentDeps(NOW), wiki);
+        await refreshState(deps, CITY_ID, cityDoc(), state());
 
-        expect(next.articles?.filter((article) => article.thumb !== undefined)).toHaveLength(MAX_THUMBS);
+        expect((await stored(deps)).filter((article) => article.thumb !== undefined)).toHaveLength(MAX_THUMBS);
         expect(wiki.calls.image).toBe(MAX_THUMBS);
     });
 });
@@ -179,8 +188,8 @@ describe('publishFile', () => {
 
         await expect(publishFile(deps, CITY_ID, state({ enabled: false, articles: [ARTICLE] }))).resolves.toBeUndefined();
         expect(deps.blobs.object('public', FILE)).toBeUndefined();
-        expect(shownArticles(undefined)).toEqual([]);
-        expect(shownArticles(state())).toEqual([]);
+        expect(shownArticles(undefined, [ARTICLE])).toEqual([]);
+        expect(shownArticles(state(), [])).toEqual([]);
     });
 });
 

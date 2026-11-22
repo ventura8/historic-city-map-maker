@@ -21,7 +21,7 @@ import { engineEvents, manifestIssues, openLayers, openViewer, serveManifest, t,
 /**
  * Points of interest (behaviour V24, PLAN Addendum 3) from the fixture set scripts/seed/e2e-pois.json
  * (docs/research/M1-interfaces.md §10): drawn as icons, lines and filled blocks in their category colours, filtered by
- * the timeline, and opened in the same detail sheet as photos, where their Markdown description stays text.
+ * every stop of the timeline, and opened in the same detail sheet as photos, where their Markdown description stays text.
  */
 
 const POI_VIEW = '16/44.42680/26.08720';
@@ -211,7 +211,7 @@ function withStops1890And1990(): Json {
     return manifest;
 }
 
-test('The timeline filters the POIs by their years', { tag: '@S-V24-HAPPY-YEAR-FILTER' }, async ({ page, lang }) => {
+test('Every POI stays on the map at every stop of the timeline', { tag: '@S-V24-HAPPY-EVERY-STOP' }, async ({ page, lang }) => {
     await serveManifest(page, withStops1890And1990());
     await openViewer(page, { lang, hash: ALL_POIS_VIEW });
     const slider = page.getByRole('slider', { name: t(lang, 'timeline.label'), exact: true });
@@ -221,11 +221,11 @@ test('The timeline filters the POIs by their years', { tag: '@S-V24-HAPPY-YEAR-F
     await slider.focus();
     await slider.press('Home');
     await expect(slider).toHaveAttribute('aria-valuetext', t(lang, 'timeline.year', { year: '1890' }));
-    await expect.poll(() => renderedFeatureIds(page, 'hcm-poi-')).toEqual(['fixture-cladire', 'fixture-eveniment', 'fixture-strada']);
+    await expect.poll(() => renderedFeatureIds(page, 'hcm-poi-')).toEqual(all);
 
     await slider.press('ArrowRight');
     await expect(slider).toHaveAttribute('aria-valuetext', t(lang, 'timeline.year', { year: '1990' }));
-    await expect.poll(() => renderedFeatureIds(page, 'hcm-poi-')).toEqual(['fixture-eveniment']);
+    await expect.poll(() => renderedFeatureIds(page, 'hcm-poi-')).toEqual(all);
     await expectColourAt(
         page,
         await screenPointOf(page, EVENIMENT).then((at) => ({ x: at.x, y: at.y + 10 })),
@@ -235,9 +235,6 @@ test('The timeline filters the POIs by their years', { tag: '@S-V24-HAPPY-YEAR-F
             radius: 1,
         },
     );
-
-    await slider.press('End');
-    await expect.poll(() => renderedFeatureIds(page, 'hcm-poi-')).toEqual(all);
 });
 
 test(

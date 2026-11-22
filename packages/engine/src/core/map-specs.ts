@@ -11,7 +11,6 @@ import {
     isHttpsUrl,
     localized,
     poiIcon,
-    poiInYear,
     wikipediaPois,
     type Basemap,
     type Layer,
@@ -146,15 +145,13 @@ function poiSpec(category: PoiCategory, pois: readonly Poi[], overlay: Overlay |
     };
 }
 
-/** One vector overlay per POI category, with the POIs the timeline shows at `year` (`poiInYear`). */
-export function poiSpecs(
-    manifest: Manifest,
-    overlays: readonly Overlay[],
-    locale: ViewerLocale,
-    year: number | null,
-): readonly VectorOverlaySpec[] {
-    const shown = (manifest.pois ?? []).filter((poi) => poiInYear(poi, year));
-    return (manifest.poiCategories ?? []).map((category) => poiSpec(category, shown, findOverlay(overlays, category.id), locale));
+/**
+ * One vector overlay per POI category with every POI of it, whatever the timeline year (the owner, 2026-11-22: a category
+ * filtered by the stop's year looked incomplete, as the photos did before 2026-11-15); a POI's years stay in its details.
+ */
+export function poiSpecs(manifest: Manifest, overlays: readonly Overlay[], locale: ViewerLocale): readonly VectorOverlaySpec[] {
+    const pois = manifest.pois ?? [];
+    return (manifest.poiCategories ?? []).map((category) => poiSpec(category, pois, findOverlay(overlays, category.id), locale));
 }
 
 /**

@@ -20,6 +20,10 @@ export const CELL_LAT_DEG = 0.08;
 export const CELL_LNG_DEG = 0.1;
 /** At most this many cells a language (a larger city keeps those nearest its centre). */
 export const MAX_CELLS = 36;
+/** `list=geosearch` answers at most this many places a box (`gslimit`): a box that fills it may hold more. */
+export const GEOSEARCH_LIMIT = 500;
+/** A full box is cut into four, at most this many times (a dense centre: Bucharest's held more than 500 a cell). */
+export const MAX_SPLIT_DEPTH = 4;
 const PAGES_PER_REQUEST = 20;
 
 /** One fetched article and its free page image's address (copied to the public bucket by `refresh.ts`). */
@@ -55,11 +59,40 @@ function inside(bounds: WikipediaBox, place: WikipediaPlace): boolean {
     return place.lng >= bounds.west && place.lng <= bounds.east && place.lat >= bounds.south && place.lat <= bounds.north;
 }
 
+/** The four quarters of a box. */
+export function quartersOf(box: WikipediaBox): readonly WikipediaBox[] {
+    const [lng, lat] = centreOf(box);
+    return [
+        { west: box.west, south: lat, east: lng, north: box.north },
+        { west: lng, south: lat, east: box.east, north: box.north },
+        { west: box.west, south: box.south, east: lng, north: lat },
+        { west: lng, south: box.south, east: box.east, north: lat },
+    ];
+}
+
+/** The places of one box; a box that fills geosearch's answer is asked again in quarters, so none is cut off. */
+async function placesIn(
+    api: WikipediaApi,
+    language: WikipediaLanguage,
+    box: WikipediaBox,
+    depth: number,
+): Promise<readonly WikipediaPlace[]> {
+    const places = await api.places(language, box);
+    if (places.length < GEOSEARCH_LIMIT || depth >= MAX_SPLIT_DEPTH) {
+        return places;
+    }
+    const parts = [];
+    for (const quarter of quartersOf(box)) {
+        parts.push(...(await placesIn(api, language, quarter, depth + 1)));
+    }
+    return parts;
+}
+
 /** Every geotagged page of the language in the bounds, once, nearest the centre first, at most `MAX_WIKIPEDIA_ARTICLES`. */
 async function placesOf(api: WikipediaApi, language: WikipediaLanguage, bounds: WikipediaBox): Promise<readonly WikipediaPlace[]> {
     const found = new Map<number, WikipediaPlace>();
     for (const cell of cellsOf(bounds)) {
-        for (const place of await api.places(language, cell)) {
+        for (const place of await placesIn(api, language, cell, 0)) {
             if (inside(bounds, place)) {
                 found.set(place.pageId, place);
             }

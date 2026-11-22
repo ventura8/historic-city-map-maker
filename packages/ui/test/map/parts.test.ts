@@ -167,8 +167,19 @@ describe('pointer selection', () => {
         expect(selectionOf(photo)).toEqual({ kind: 'photo', id: 'p1' });
         expect(selectionOf(cone)).toEqual({ kind: 'photo', id: 'p2' });
         expect(selectionOf(poi)).toEqual({ kind: 'poi', id: 'casa' });
-        expect(selectionOf(cluster)).toEqual({ kind: 'cluster', clusterId: 7, center: [26, 44] });
-        expect(selectionOf({ ...cluster, geometry: { type: 'Point' } })).toEqual({ kind: 'cluster', clusterId: 7, center: null });
+        expect(selectionOf({ ...cluster, layer: { id: 'hcm-poi-cladiri-cluster' } })).toEqual({
+            kind: 'cluster',
+            source: 'hcm-source-cladiri-points',
+            clusterId: 7,
+            center: [26, 44],
+        });
+        expect(selectionOf(cluster)).toEqual({ kind: 'cluster', source: 'hcm-photos-points', clusterId: 7, center: [26, 44] });
+        expect(selectionOf({ ...cluster, geometry: { type: 'Point' } })).toEqual({
+            kind: 'cluster',
+            source: 'hcm-photos-points',
+            clusterId: 7,
+            center: null,
+        });
     });
 
     it('badPath_basemapFeaturesAndMalformedOnesSelectNothing', () => {

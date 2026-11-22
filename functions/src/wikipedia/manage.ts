@@ -9,6 +9,7 @@ import {
     wikipediaStateDocSchema,
     type CallableRequest,
     type CallableResponse,
+    type WikipediaArticle,
     type WikipediaLanguage,
     type WikipediaSettings,
     type WikipediaStateDoc,
@@ -18,6 +19,7 @@ import type { VerifiedCaller } from '../api/access.js';
 import { defineCallable } from '../api/callable.js';
 import type { Ports } from '../ports/index.js';
 import { requestManifestBuild, type RequestDeps } from '../publish/request.js';
+import { storedArticles } from './store.js';
 
 /**
  * `wikipedia.manage` (`docs/research/M31-wikipedia.md` §3; a city editor): the admin's Wikipedia card. `get` answers the
@@ -25,7 +27,7 @@ import { requestManifestBuild, type RequestDeps } from '../publish/request.js';
  * `save` writes the settings and asks for a build, which fetches when the languages changed or no fetch was made yet;
  * `refresh` asks for a fetch at the next build and the build. Every answer is the state after the action.
  */
-export type ManageDeps = RequestDeps & Pick<Ports, 'admins'>;
+export type ManageDeps = RequestDeps & Pick<Ports, 'admins' | 'blobs'>;
 
 type Response = CallableResponse<'wikipedia.manage'>;
 
@@ -38,8 +40,8 @@ function settingsOf(state: WikipediaStateDoc | undefined): WikipediaSettings {
 }
 
 /** The admin's list: each article in the city's first language when it has it. */
-function listed(state: WikipediaStateDoc | undefined, first: WikipediaLanguage): Response['articles'] {
-    return (state?.articles ?? []).map((article) => {
+function listed(articles: readonly WikipediaArticle[], first: WikipediaLanguage): Response['articles'] {
+    return articles.map((article) => {
         const language = shownWikipediaLanguage(article, first);
         return { id: article.id, language, title: article.versions[language]?.title ?? article.id };
     });
@@ -52,9 +54,9 @@ function fetchFields(state: WikipediaStateDoc | undefined): Pick<Response, 'refr
     };
 }
 
-function responseOf(state: WikipediaStateDoc | undefined): Response {
+function responseOf(state: WikipediaStateDoc | undefined, stored: readonly WikipediaArticle[]): Response {
     const settings = settingsOf(state);
-    const articles = listed(state, settings.languages[0] ?? 'ro');
+    const articles = listed(stored, settings.languages[0] ?? 'ro');
     return { settings, refreshRequested: state?.refreshRequested === true, articles, ...fetchFields(state) };
 }
 
@@ -88,8 +90,9 @@ export async function manageWikipedia(
 ): Promise<Response> {
     const path = FIRESTORE_PATHS.wikipedia(request.cityId);
     const current = await deps.documents.get(path, wikipediaStateDocSchema);
+    const stored = await storedArticles(deps, request.cityId, current);
     if (request.action === 'get') {
-        return responseOf(current);
+        return responseOf(current, stored);
     }
     const next = nextState(current, request, { updatedBy: caller.uid, updatedAt: timestampFromDate(deps.clock.now()) });
     await deps.documents.set(path, wikipediaStateDocSchema, next);
@@ -100,7 +103,7 @@ export async function manageWikipedia(
         enabled: next.enabled,
         hidden: next.hidden.length,
     });
-    return responseOf(next);
+    return responseOf(next, stored);
 }
 
 /** `wikipedia-manage` (callable, city editors). */

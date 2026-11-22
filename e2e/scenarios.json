@@ -3705,12 +3705,12 @@
             "notes": "Milestone M1. PLAN Addendum 3. Fixture: the POI set scripts/seed/e2e-pois.json in the e2e fixture manifest (docs/research/M1-interfaces.md §10)."
         },
         {
-            "id": "S-V24-HAPPY-YEAR-FILTER",
+            "id": "S-V24-HAPPY-EVERY-STOP",
             "behaviour": "V24",
             "area": "viewer",
             "path": "happy",
-            "title": "The timeline filters POIs by their years",
-            "asserts": "today -> all four fixture POIs; a stop at 1890 -> the block (from 1900) disappears; a stop at 1990 -> only the event without years remains (pixel probes, map features)",
+            "title": "Every POI stays on the map at every stop of the timeline",
+            "asserts": "today, a stop at 1890 and a stop at 1990 all draw the four fixture POIs (map features), the event still drawn in its colour (pixel probe); a POI's years stay in its details (owner, 2026-11-22: a category filtered by the stop looked incomplete)",
             "tier": "e2e-viewer",
             "status": "exists",
             "notes": "Milestone M1. PLAN Addendum 3. Fixture: the POI set scripts/seed/e2e-pois.json in the e2e fixture manifest (docs/research/M1-interfaces.md §10)."
@@ -3791,6 +3791,28 @@
             "tier": "e2e-viewer",
             "status": "exists",
             "notes": "Live manual test of 2026-11-01 (docs/research/manual-test-2026-10-25.md, finding 36)."
+        },
+        {
+            "id": "S-V24-HAPPY-CLUSTER",
+            "behaviour": "V24",
+            "area": "viewer",
+            "path": "happy",
+            "title": "Nearby points of a POI category cluster like the photos and a cluster click zooms in",
+            "asserts": "each category's points come from a clustered GeoJSON source (cluster up to zoom 15, radius 40): a disc in the category colour with the count; a click on it asks that source for its expansion zoom and flies there; lines and areas stay unclustered",
+            "tier": "e2e-viewer",
+            "status": "planned",
+            "notes": "2026-11-22 (Locuri and Wikipedia clustered as the photos). Unit: packages/ui/test/map/layers.test.ts, parts.test.ts, mapbox-adapter.test.ts."
+        },
+        {
+            "id": "S-V24-BAD-CLUSTER-NOT-SHAPES",
+            "behaviour": "V24",
+            "area": "viewer",
+            "path": "bad",
+            "title": "A cluster never swallows a line or an area, and another layer's cluster id selects nothing of a category",
+            "asserts": "lines and polygons go to the unclustered source only; a cluster-count or point layer names no clustered source; a photo cluster zooms the photos' source, a category's cluster its own",
+            "tier": "e2e-viewer",
+            "status": "planned",
+            "notes": "2026-11-22. Unit: packages/ui/test/map/layers.test.ts (badPath_onlyAPoiClusterLayerNamesAClusteredSource), parts.test.ts."
         },
         {
             "id": "S-V25-HAPPY",
@@ -23983,7 +24005,7 @@
             "area": "admin",
             "path": "happy",
             "title": "The server fetches the city's geotagged articles politely and copies their free thumbnails",
-            "asserts": "geosearch over cells of the city's bounds with the generic User-Agent and maxlag, one request at a time; a place on both Wikipedias is one article; pilicense=free thumbnails go to the public bucket beside the manifest; the state records the articles and the time",
+            "asserts": "geosearch over cells of the city's bounds with the generic User-Agent and maxlag, one request at a time; a place on both Wikipedias is one article; pilicense=free thumbnails go to the public bucket beside the manifest; the state records the articles and the time; a cell whose geosearch answer is full (500) is asked again in quarters, up to 4 times, so no article is cut off; up to 6000 articles, kept in the private bucket (wikipedia/<city>/articles.json), not on the state document",
             "tier": "functions",
             "status": "exists",
             "notes": "Milestone M31 (docs/research/M31-wikipedia.md). Tests: functions/test/wikipedia/refresh.test.ts, functions/test/wikipedia/fetch.test.ts, functions/test/adapters/wikipedia.test.ts."

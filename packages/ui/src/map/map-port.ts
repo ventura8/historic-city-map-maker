@@ -74,8 +74,9 @@ export interface PoiFeature {
 
 /**
  * A vector overlay (PLAN Addendum 3): today one POI category. The adapter draws its points as `symbol` (icon + label)
- * with a `circle` behind the icon, its LineStrings and polygon outlines as `line`, its polygons as `fill`, all from one
- * GeoJSON source, in the category colour; the store passes only the POIs the timeline shows (`poiInYear`).
+ * with a `circle` behind the icon from a clustered GeoJSON source (a cluster is a disc with its count), its LineStrings and
+ * polygon outlines as `line` and its polygons as `fill` from a second one, in the category colour; the store passes every
+ * POI of the category, whatever the timeline year.
  */
 export interface VectorOverlaySpec {
     /** The overlay id: the POI category id. */

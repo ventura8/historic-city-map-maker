@@ -34,6 +34,7 @@ import {
 import { UpstreamError } from '../ports/errors.js';
 import type { Ports } from '../ports/index.js';
 import { fetchArticles, type FetchedArticle } from './fetch.js';
+import { storeArticles, storedArticles } from './store.js';
 
 export type WikipediaDeps = Pick<Ports, 'log' | 'clock' | 'documents' | 'blobs' | 'wiki'>;
 
@@ -129,7 +130,9 @@ export async function refreshState(
     let next: WikipediaStateDoc;
     try {
         const articles = await fetched(deps, cityId, city, state);
-        next = { ...rest, ...stamp, articles, refreshedAt: timestampFromDate(now) };
+        await storeArticles(deps, cityId, articles);
+        delete rest.articles;
+        next = { ...rest, ...stamp, refreshedAt: timestampFromDate(now) };
         deps.log.info('wikipedia fetched', { cityId, articles: articles.length, languages: state.languages.join(',') });
     } catch (error) {
         const failure = failureOf(error);
@@ -141,12 +144,12 @@ export async function refreshState(
 }
 
 /** The articles visitors see: the last fetch's, without the hidden ones. */
-export function shownArticles(state: WikipediaStateDoc | undefined): readonly WikipediaArticle[] {
+export function shownArticles(state: WikipediaStateDoc | undefined, articles: readonly WikipediaArticle[]): readonly WikipediaArticle[] {
     if (state?.enabled !== true) {
         return [];
     }
     const hidden = new Set(state.hidden);
-    return (state.articles ?? []).filter((article) => !hidden.has(article.id));
+    return articles.filter((article) => !hidden.has(article.id));
 }
 
 /** Writes `wikipedia.json` (or removes it when there is nothing to show); its reference for the manifest. */
@@ -155,7 +158,7 @@ export async function publishFile(
     cityId: string,
     state: WikipediaStateDoc | undefined,
 ): Promise<WikipediaRef | undefined> {
-    const articles = shownArticles(state);
+    const articles = state?.enabled === true ? shownArticles(state, await storedArticles(deps, cityId, state)) : [];
     const path = STORAGE_PATHS.wikipediaFile(cityId);
     if (articles.length === 0) {
         await deps.blobs.delete('public', path);

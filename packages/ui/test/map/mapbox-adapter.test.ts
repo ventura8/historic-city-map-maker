@@ -290,7 +290,12 @@ describe('Mapbox adapter: overlays', () => {
         port.removeLayer('cladiri');
         port.removeLayer('photos');
 
-        expect(map.callsOf('removeSource').map(([id]) => id)).toEqual(['hcm-source-cladiri', 'hcm-source-cladiri']);
+        expect(map.callsOf('removeSource').map(([id]) => id)).toEqual([
+            'hcm-source-cladiri',
+            'hcm-source-cladiri-points',
+            'hcm-source-cladiri',
+            'hcm-source-cladiri-points',
+        ]);
         expect(map.layers.has('hcm-photos-marker')).toBe(true);
     });
 });
@@ -639,5 +644,20 @@ describe('Mapbox adapter: a camera move with an offset (Show on map, V51)', () =
 
         expect(animated.map.callsOf('flyTo')).toEqual([[{ zoom: 15 }]]);
         expect(Object.hasOwn(animated.map.callsOf('flyTo')[0]?.[0] ?? {}, 'offset')).toBe(false);
+    });
+});
+
+describe('Mapbox adapter: POI clusters', () => {
+    it('happyPath_aPoiClusterZoomsIntoItsOwnCategorysSource', async () => {
+        const { port, map } = await mounted();
+        port.addVectorOverlay(POI, 'top');
+
+        map.rendered = [{ layer: { id: 'hcm-poi-cladiri-cluster' }, properties: { cluster_id: 9 } }];
+        map.fire('click', { point: { x: 5, y: 5 } });
+
+        expect(map.getSource('hcm-source-cladiri-points')?.expandedClusters).toEqual([9]);
+        expect(map.getSource('hcm-photos-points')?.expandedClusters).toEqual([]);
+        const queried = map.callsOf('queryRenderedFeatures').at(-1)?.[1] as { layers: string[] };
+        expect(queried.layers).toContain('hcm-poi-cladiri-cluster');
     });
 });

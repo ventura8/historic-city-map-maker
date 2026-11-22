@@ -141,11 +141,11 @@ export class MapSync {
         }
     }
 
-    /** The photo markers and the POIs of the current stop, titles in the current language. */
+    /** The photo markers of the current stop and every POI, titles in the current language. */
     #features(manifest: Manifest, state: ViewerState): void {
         this.#map.setPhotosData(photoFeatures(manifest.photos, state.locale, state.year, photosScope(state.photosNear)));
         const places = withArticles(manifest, state.wikipedia.articles, state.locale);
-        for (const spec of poiSpecs(places, state.overlays, state.locale, state.year)) {
+        for (const spec of poiSpecs(places, state.overlays, state.locale)) {
             this.#map.addVectorOverlay(spec, 'top');
         }
     }

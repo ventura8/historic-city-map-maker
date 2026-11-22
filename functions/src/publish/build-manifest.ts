@@ -259,7 +259,7 @@ export function buildManifestFunction(getDeps: () => BuildDeps) {
             retryConfig: { maxAttempts: 5, minBackoffSeconds: 30 },
             rateLimits: { maxConcurrentDispatches: 1 },
             memory: '512MiB',
-            timeoutSeconds: 300,
+            timeoutSeconds: 540,
             maxInstances: 1,
             ...runAs('publish.buildManifest'),
         },

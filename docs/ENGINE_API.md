@@ -505,7 +505,7 @@ At most 50 categories.
 | `photoIds?` | string[] | at most 20 ids of manifest photos, shown in the POI's details |
 | `sourceLayer?` | string | M27: the id of a manifest layer the POI was traced on (`validation.reference` otherwise); the sheet says "Seen on: <layer>" |
 
-At most 5,000 POIs. The timeline shows a POI at a year its span covers (an absent bound is open); "today" shows every POI (`poiInYear`). POI details open in the same sheet as photos, labels show from zoom 16. Lines and area outlines are drawn in the category colour over a white casing (wider strokes as the zoom grows, the area filled at 35 %), so they stay legible on a satellite basemap; the casing fades with the category's opacity like the rest (`packages/ui/src/map/pois.ts`, 2026-11-01).
+At most 5,000 POIs. Every stop of the timeline shows every POI of a category that is on (the owner, 2026-11-22: a category filtered by the stop's year looked incomplete); a POI's years stay in its details. A category's points cluster as the photos do: up to zoom 15, points within 40 px merge into a disc in the category colour with their count, and a click on it zooms in (`hcm-poi-<id>-cluster` and `-cluster-count` over the clustered source `hcm-source-<id>-points`); lines and areas are never clustered. POI details open in the same sheet as photos, labels show from zoom 16. Lines and area outlines are drawn in the category colour over a white casing (wider strokes as the zoom grows, the area filled at 35 %), so they stay legible on a satellite basemap; the casing fades with the category's opacity like the rest (`packages/ui/src/map/pois.ts`, 2026-11-01).
 
 ### `stories[]` (optional)
 

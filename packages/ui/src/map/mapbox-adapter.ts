@@ -43,7 +43,7 @@ import {
     splitPhotoData,
 } from './photos.js';
 import { attachPointer, type Selection } from './pointer.js';
-import { poiData, poiEntry, poiLayers } from './pois.js';
+import { poiData, poiEntry, poiLayers, poiPointData, poiPointsSourceId, poiSources } from './pois.js';
 import { overlaySourceId, rasterBeforeId, rasterEntry, rasterLayer, rasterLayerId, rasterSource } from './rasters.js';
 
 /** The slot of the photo markers and cones: above the POI labels of the basemap. */
@@ -228,12 +228,12 @@ class MapboxPort implements MapPort {
         } else if (selection.kind === 'poi') {
             this.#poiClicks.emit(selection.id);
         } else {
-            this.#zoomIntoCluster(session, selection.clusterId, selection.center);
+            this.#zoomIntoCluster(session, selection);
         }
     }
 
-    #zoomIntoCluster(session: Session, clusterId: number, center: readonly [number, number] | null): void {
-        session.map.getSource(PHOTO_POINTS_SOURCE)?.getClusterExpansionZoom?.(clusterId, (error, zoom) => {
+    #zoomIntoCluster(session: Session, { source, clusterId, center }: Extract<Selection, { kind: 'cluster' }>): void {
+        session.map.getSource(source)?.getClusterExpansionZoom?.(clusterId, (error, zoom) => {
             if (error === null || error === undefined) {
                 this.flyTo(center === null ? { zoom } : { center, zoom });
             }
@@ -276,9 +276,7 @@ class MapboxPort implements MapPort {
         }
         const style = `${spec.color} ${spec.icon} ${slot}`;
         if (session.vectorStyles.get(spec.id) === style) {
-            session.map.getSource(overlaySourceId(spec.id))?.setData(poiData(spec));
-            this.setOverlayVisibility(spec.id, spec.visible);
-            this.setOverlayOpacity(spec.id, spec.opacity);
+            this.#refreshVectorOverlay(session, spec);
             return;
         }
         this.removeLayer(spec.id);
@@ -286,8 +284,18 @@ class MapboxPort implements MapPort {
         session.vectorStyles.set(spec.id, style);
     }
 
+    /** The same style: new data in both sources, visibility and opacity. */
+    #refreshVectorOverlay(session: Session, spec: VectorOverlaySpec): void {
+        session.map.getSource(overlaySourceId(spec.id))?.setData(poiData(spec));
+        session.map.getSource(poiPointsSourceId(spec.id))?.setData(poiPointData(spec));
+        this.setOverlayVisibility(spec.id, spec.visible);
+        this.setOverlayOpacity(spec.id, spec.opacity);
+    }
+
     #drawVectorOverlay(session: Session, spec: VectorOverlaySpec, slot: MapSlot): void {
-        session.map.addSource(overlaySourceId(spec.id), { type: 'geojson', data: poiData(spec) });
+        for (const [id, source] of poiSources(spec)) {
+            session.map.addSource(id, source);
+        }
         // In the photos' slot the POIs go below the photo markers and cones, which stay the topmost thing to click.
         const beforeId = slot === PHOTO_SLOT ? PHOTO_CONE_FILL_LAYER : undefined;
         for (const layer of poiLayers(spec, slot)) {

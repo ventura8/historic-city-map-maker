@@ -30,7 +30,8 @@ Visitors make no request to Wikipedia (privacy, and Wikipedia's load), and the v
   has neither. The schedule is a part of the imagery tick (`functions/src/wikipedia/tick.ts`): a city whose fetch is due
   gets a manifest build, which fetches. The build is the only place that asks Wikipedia.
 - **What it asks** (`functions/src/adapters/wikipedia.ts`, port `WikipediaApi`): `list=geosearch` over cells of the
-  city's bounds (0.08° × 0.1°, at most 36 cells, nearest the centre first, within geosearch's largest box), then
+  city's bounds (0.08° × 0.1°, at most 36 cells, nearest the centre first, within geosearch's largest box; a cell whose
+  answer is full, 500 places, is asked again in quarters, up to four times, so a dense centre is not cut off), then
   `prop=extracts|info|pageimages|langlinks` 20 pages at a time (the intro's first two sentences as plain text, the page's
   address, the page image only with `pilicense=free`, the title on the other Wikipedia), then each free thumbnail
   (320 px, `upload.wikimedia.org` only, at most 400 KB, at most 150 a fetch), copied to `cities/<city>/wikipedia/<id>.<ext>`.
@@ -38,8 +39,11 @@ Visitors make no request to Wikipedia (privacy, and Wikipedia's load), and the v
   (no person's address), anonymous, one request at a time with at least 250 ms between two, `maxlag=5`. A `maxlag` answer
   or HTTP 429 is `rateLimited`, 5xx or the network `unavailable`, anything else `invalid`.
 - **Cached.** The state document `cities/<city>/wikipedia/state` (`wikipediaStateDocSchema`, functions only: the rules
-  deny every client) keeps the settings and every article of the last fetch, the hidden ones too, so hiding an article
-  rewrites the file without asking Wikipedia. At most 400 articles (the nearest the centre), extracts within 300 characters.
+  deny every client) keeps the settings; every article of the last fetch, the hidden ones too, is a gzip JSON in the private bucket
+  (`wikipedia/<city>/articles.json`, `wikipediaArticlesFileSchema`), so hiding an article rewrites the file without asking
+  Wikipedia. At most 6,000 articles (the nearest the centre), extracts within 300 characters. Until 2026-11-22 the list sat
+  on the state document and was capped at 400, so Bucharest's overlay showed 400 of its few thousand articles; a state that
+  still holds a list is read until the next fetch. The manifest build has 540 s for a fetch.
 - **Failure.** A failed fetch records why (`failure`) and keeps the articles and the file of the fetch before; any error
   of the overlay is logged and the manifest goes out without it. Wikipedia never fails a build.
 
@@ -72,6 +76,6 @@ press Refresh now again; each article has **Ascunde** / **Hide** (or **Arată** 
 
 - No other languages than Romanian and English (the places' texts are bilingual); a third would need the POI title to
   carry more languages.
-- No popularity ranking: the nearest 400 articles to the centre are kept.
+- No popularity ranking: the nearest 6,000 articles to the centre are kept.
 - The static export does not copy `wikipedia.json`: an exported map shows the overlay's switch only when the file is
   copied by hand beside the manifest.

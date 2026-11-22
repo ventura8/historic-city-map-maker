@@ -7,6 +7,7 @@ import { describe, expect, it } from 'vitest';
 
 import { wikipediaFunctions } from '../../src/wikipedia/index.js';
 import { manageWikipedia, manageWikipediaFunction } from '../../src/wikipedia/manage.js';
+import { storeArticles } from '../../src/wikipedia/store.js';
 import { wikipediaDue } from '../../src/wikipedia/tick.js';
 import { CITY_ID } from '../publish/city.js';
 import { adminCall, contentDeps } from '../publish/fakes.js';
@@ -54,6 +55,16 @@ describe('manageWikipedia', () => {
             articles: [{ id: 'ro-1', language: 'en', title: 'Romanian Athenaeum' }],
             refreshedAt: '2026-11-21T08:00:00.000Z',
             failure: 'rateLimited',
+        });
+    });
+
+    it('happyPath_getListsTheStoredArticlesOverTheLegacyList', async () => {
+        const deps = contentDeps(NOW);
+        deps.documents.seed(PATH, { enabled: true, languages: ['ro'], hidden: [], articles: [], updatedBy: 'u', updatedAt: AT });
+        await storeArticles(deps, CITY_ID, [ARTICLE]);
+
+        await expect(manageWikipedia(deps, ADMIN, { cityId: CITY_ID, action: 'get' })).resolves.toMatchObject({
+            articles: [{ id: 'ro-1', language: 'ro', title: 'Ateneul Român' }],
         });
     });
 

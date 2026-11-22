@@ -161,23 +161,23 @@ describe('map specs: photos, POIs, options', () => {
         expect(photoFeatures([photo({ year: 1900 })], 'ro', null, scope).features).toHaveLength(2);
     });
 
-    it('happyPath_oneVectorOverlayPerCategoryWithTheYearsPois', () => {
+    it('happyPath_oneVectorOverlayPerCategoryWithEveryPoiWhateverTheYear', () => {
         const city = manifest();
         const overlays = withOverlayOpacity(overlaysFromManifest(city), 'strazi', 0.3);
 
-        const specs = poiSpecs(city, overlays, 'en', 1870);
+        const specs = poiSpecs(city, overlays, 'en');
 
         expect(specs.map((spec) => [spec.id, spec.features.map((feature) => feature.properties.id)])).toEqual([
-            ['cladiri', ['eveniment']],
+            ['cladiri', ['casa-uranus', 'eveniment']],
             ['strazi', ['strada']],
         ]);
         expect(specs[1]).toMatchObject({ kind: 'poi', color: '#B3261E', icon: 'location_on', visible: true, opacity: 0.3 });
-        expect(specs[0]?.features[0]?.properties.title).toBe('Event');
+        expect(specs[0]?.features[1]?.properties.title).toBe('Event');
         expect(specs[1]?.features[0]?.properties.title).toBe('Stradă');
     });
 
     it('happyPath_aBundledIconIsKept', () => {
-        const specs = poiSpecs(manifest({ categories: [category()], pois: [poi()] }), [], 'ro', null);
+        const specs = poiSpecs(manifest({ categories: [category()], pois: [poi()] }), [], 'ro');
 
         expect(specs[0]).toMatchObject({ icon: 'domain_disabled', visible: true, opacity: 1 });
     });
@@ -186,9 +186,9 @@ describe('map specs: photos, POIs, options', () => {
         const city = manifest();
         const bare = { ...omit(city, 'poiCategories', 'pois') };
 
-        expect(poiSpecs(bare, [], 'ro', null)).toEqual([]);
-        expect(poiSpecs({ ...city, pois: [] }, [], 'ro', null).every((spec) => spec.features.length === 0)).toBe(true);
-        expect(poiSpecs({ ...omit(city, 'pois') }, [], 'ro', null)).toHaveLength(2);
+        expect(poiSpecs(bare, [], 'ro')).toEqual([]);
+        expect(poiSpecs({ ...city, pois: [] }, [], 'ro').every((spec) => spec.features.length === 0)).toBe(true);
+        expect(poiSpecs({ ...omit(city, 'pois') }, [], 'ro')).toHaveLength(2);
     });
 
     it('happyPath_mapOptionsOfACity', () => {

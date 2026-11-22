@@ -13,7 +13,9 @@ import {
     poiData,
     poiEntry,
     poiLayers,
-    poiSource,
+    poiClusterSource,
+    poiPointData,
+    poiSources,
 } from '../../src/map/pois.js';
 import {
     attributionText,
@@ -243,7 +245,7 @@ describe('photo layers', () => {
 });
 
 describe('POI layers', () => {
-    it('happyPath_sevenLayersInTheCategoryColourWithAWhiteCasingUnderLinesAndOutlines', () => {
+    it('happyPath_nineLayersInTheCategoryColourWithAWhiteCasingUnderLinesAndOutlinesAndClusteredPoints', () => {
         const layers = poiLayers(POI, 'top');
 
         expect(layers.map((layer) => [layer['id'], layer['type']])).toEqual([
@@ -252,6 +254,8 @@ describe('POI layers', () => {
             ['hcm-poi-cladiri-line', 'line'],
             ['hcm-poi-cladiri-circle', 'circle'],
             ['hcm-poi-cladiri-symbol', 'symbol'],
+            ['hcm-poi-cladiri-cluster', 'circle'],
+            ['hcm-poi-cladiri-cluster-count', 'symbol'],
             ['hcm-poi-cladiri-label-line', 'symbol'],
             ['hcm-poi-cladiri-label-area', 'symbol'],
         ]);
@@ -276,11 +280,18 @@ describe('POI layers', () => {
         });
         expect(layers[3]?.['paint']).toMatchObject({ 'circle-color': '#8B5E3C', 'circle-opacity': 0.5, 'circle-stroke-opacity': 0.5 });
         expect(layers[4]?.['layout']).toMatchObject({ 'icon-image': 'hcm-poi-icon-domain_disabled', visibility: 'none' });
-        expect(layers[5]?.['layout']).toMatchObject({
+        expect(layers[5]).toMatchObject({ filter: ['has', 'point_count'], paint: { 'circle-color': '#8B5E3C' } });
+        expect(layers[6]?.['layout']).toMatchObject({ 'text-field': ['get', 'point_count_abbreviated'] });
+        expect(layers[7]?.['layout']).toMatchObject({
             'symbol-placement': 'line-center',
             'text-field': ['step', ['zoom'], '', POI_LABEL_MIN_ZOOM, ['get', 'title']],
         });
-        expect(layers.every((layer) => layer['source'] === 'hcm-source-cladiri' && layer['slot'] === 'top')).toBe(true);
+        expect(layers.map((layer) => layer['source'])).toEqual([
+            ...Array<string>(3).fill('hcm-source-cladiri'),
+            ...Array<string>(4).fill('hcm-source-cladiri-points'),
+            ...Array<string>(2).fill('hcm-source-cladiri'),
+        ]);
+        expect(layers.every((layer) => layer['slot'] === 'top')).toBe(true);
     });
 
     it('badPath_atZeroOpacityTheCasingGoesWithTheStroke', () => {
@@ -291,12 +302,49 @@ describe('POI layers', () => {
         expect(layers[0]?.['paint']).toMatchObject({ 'fill-opacity': 0 });
     });
 
-    it('happyPath_theSourceHoldsTheFeaturesOfTheStop', () => {
-        expect(poiSource(POI)).toEqual({ type: 'geojson', data: { type: 'FeatureCollection', features: POI.features } });
+    it('happyPath_pointsGoToAClusteredSourceAndShapesToTheOther', () => {
+        const line: VectorOverlaySpec['features'][number] = {
+            type: 'Feature',
+            geometry: {
+                type: 'LineString',
+                coordinates: [
+                    [26.08, 44.42],
+                    [26.09, 44.43],
+                ],
+            },
+            properties: { id: 'strada', title: 'Strada' },
+        };
+        const both = { ...POI, features: [...POI.features, line] };
+        expect(poiSources(both)).toEqual([
+            ['hcm-source-cladiri', { type: 'geojson', data: { type: 'FeatureCollection', features: [line] } }],
+            [
+                'hcm-source-cladiri-points',
+                {
+                    type: 'geojson',
+                    data: { type: 'FeatureCollection', features: POI.features },
+                    cluster: true,
+                    clusterMaxZoom: 15,
+                    clusterRadius: 40,
+                },
+            ],
+        ]);
         expect(poiData({ ...POI, features: [] })).toEqual({ type: 'FeatureCollection', features: [] });
-        expect(poiEntry(POI)).toMatchObject({ kind: 'poi', sources: ['hcm-source-cladiri'], visible: false, opacity: 0.5 });
+        expect(poiPointData({ ...POI, features: [line] })).toEqual({ type: 'FeatureCollection', features: [] });
+        expect(poiEntry(POI)).toMatchObject({
+            kind: 'poi',
+            sources: ['hcm-source-cladiri', 'hcm-source-cladiri-points'],
+            visible: false,
+            opacity: 0.5,
+        });
         expect(isPoiLayer('hcm-poi-cladiri-fill')).toBe(true);
         expect(isPoiLayer('hcm-photos-marker')).toBe(false);
+    });
+
+    it('badPath_onlyAPoiClusterLayerNamesAClusteredSource', () => {
+        expect(poiClusterSource('hcm-poi-cladiri-cluster')).toBe('hcm-source-cladiri-points');
+        expect(poiClusterSource('hcm-poi-cladiri-cluster-count')).toBeNull();
+        expect(poiClusterSource('hcm-poi-cladiri-circle')).toBeNull();
+        expect(poiClusterSource('hcm-photos-cluster')).toBeNull();
     });
 });
 
@@ -308,7 +356,9 @@ describe('OverlayRegistry', () => {
         for (const layer of poiLayers(POI, 'top')) {
             map.addLayer(layer);
         }
-        map.addSource('hcm-source-cladiri', poiSource(POI));
+        for (const [id, source] of poiSources(POI)) {
+            map.addSource(id, source);
+        }
         registry.set('cladiri', poiEntry(POI));
         return { map, registry, frames };
     }
@@ -325,7 +375,7 @@ describe('OverlayRegistry', () => {
         expect(map.paint.get('hcm-poi-cladiri-fill')?.['fill-opacity']).toBeCloseTo(0.315);
         expect(map.paint.get('hcm-poi-cladiri-casing')?.['line-opacity']).toBeCloseTo(0.81);
         expect(map.paint.get('hcm-poi-cladiri-symbol')).toMatchObject({ 'icon-opacity': 0.9, 'text-opacity': 0.9 });
-        expect(map.callsOf('setPaintProperty')).toHaveLength(before + 11);
+        expect(map.callsOf('setPaintProperty')).toHaveLength(before + 15);
         expect(registry.get('cladiri')?.opacity).toBeCloseTo(0.9);
     });
 
@@ -350,7 +400,7 @@ describe('OverlayRegistry', () => {
         expect(registry.setVisibility('cladiri', true)).toBe(true);
         expect(registry.setVisibility('cladiri', true)).toBe(false);
 
-        expect(map.callsOf('setLayoutProperty')).toHaveLength(7);
+        expect(map.callsOf('setLayoutProperty')).toHaveLength(9);
         expect(map.layout.get('hcm-poi-cladiri-label-area')).toMatchObject({ visibility: 'visible' });
         expect(visibilityValue(false)).toBe('none');
     });
@@ -365,6 +415,8 @@ describe('OverlayRegistry', () => {
         expect(map.callsOf('removeLayer').map(([id]) => id)).toEqual([
             'hcm-poi-cladiri-label-area',
             'hcm-poi-cladiri-label-line',
+            'hcm-poi-cladiri-cluster-count',
+            'hcm-poi-cladiri-cluster',
             'hcm-poi-cladiri-symbol',
             'hcm-poi-cladiri-circle',
             'hcm-poi-cladiri-line',
@@ -372,6 +424,7 @@ describe('OverlayRegistry', () => {
             'hcm-poi-cladiri-fill',
         ]);
         expect(map.sources.has('hcm-source-cladiri')).toBe(false);
+        expect(map.sources.has('hcm-source-cladiri-points')).toBe(false);
         expect(registry.entries()).toEqual([]);
     });
 

@@ -32,9 +32,11 @@ export function wikiPage(
     return { language, pageId, title, lng, lat, ...extra };
 }
 
+/** `limit`: at most this many places a box, as geosearch's `gslimit` (none by default). */
 export function createFakeWikipedia(
     pages: readonly FakeWikiPage[],
     images: ReadonlyMap<string, WikipediaImage | Error> = new Map(),
+    limit = Number.POSITIVE_INFINITY,
 ): FakeWikipedia {
     const calls = { places: 0, pages: 0, image: 0 };
     let failure: UpstreamFailure | Error | null = null;
@@ -62,7 +64,7 @@ export function createFakeWikipedia(
                     page.lat >= box.south &&
                     page.lat <= box.north,
             );
-            return Promise.resolve(found.map(({ pageId, title, lat, lng }) => ({ pageId, title, lat, lng })));
+            return Promise.resolve(found.slice(0, limit).map(({ pageId, title, lat, lng }) => ({ pageId, title, lat, lng })));
         },
         pages(language, pageIds, others) {
             calls.pages += 1;

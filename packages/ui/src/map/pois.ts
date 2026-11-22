@@ -1,11 +1,13 @@
 /**
- * A POI category on the Mapbox map (PLAN Addendum 3): one GeoJSON source and seven layers, bottom first: polygon fills,
+ * A POI category on the Mapbox map (PLAN Addendum 3): two GeoJSON sources and nine layers, bottom first: polygon fills,
  * a white casing under every line and area outline, the line and outline strokes in the category colour, point discs,
- * point icons (labelled from zoom 16), and the labels of lines and areas from zoom 16. The casing keeps a line legible on
+ * point icons (labelled from zoom 16), cluster discs and their counts, and the labels of lines and areas from zoom 16. The casing keeps a line legible on
  * a satellite photo, where a thin stroke in the category colour almost disappeared (the live manual test of 2026-11-01,
  * finding 36): the category colour is dark by rule (the white glyph reads on it at 3:1), so the stroke stands on the white
  * band on any basemap. Every layer's opacity scales with the overlay's (`layerOpacityPaint`): at 0 the casing goes too.
- * The POIs are the ones the timeline shows; titles are already localized. Fills, lines and discs are emissive, as icons and
+ * Points come from a second, clustered source (as the photos' markers do): up to `POI_CLUSTER_MAX_ZOOM` nearby points
+ * merge into a disc in the category colour with their count, a click zooms in. Every POI of the category is drawn; titles
+ * are already localized. Fills, lines and discs are emissive, as icons and
  * text are by default: on Mapbox Standard's night a city owner's colour would otherwise go dark (docs/research/viewer-input.md §4).
  */
 import type { MapLayerType, OpacityBase } from '@hcm/shared';
@@ -17,6 +19,11 @@ import { overlaySourceId } from './rasters.js';
 
 /** Labels appear from this zoom (docs/ENGINE_API.md → pois). */
 export const POI_LABEL_MIN_ZOOM = 16;
+/** Points are clustered up to this zoom, as the photos are; from the next one every point stands alone. */
+export const POI_CLUSTER_MAX_ZOOM = 15;
+const POI_CLUSTER_RADIUS = 40;
+const CLUSTERED = ['has', 'point_count'];
+const SINGLE = ['!', CLUSTERED];
 
 const POI_LAYER_PREFIX = 'hcm-poi-';
 
@@ -30,6 +37,8 @@ interface PoiStyle {
 
 interface PoiLayerKind {
     readonly suffix: string;
+    /** The clustered points' source instead of the shapes' one. */
+    readonly points?: true;
     readonly type: MapLayerType;
     readonly base: OpacityBase;
     readonly style: (spec: VectorOverlaySpec) => PoiStyle;
@@ -88,9 +97,10 @@ const POI_LAYER_KINDS: readonly PoiLayerKind[] = [
     {
         suffix: 'circle',
         type: 'circle',
+        points: true,
         base: {},
         style: (spec) => ({
-            filter: geometryIs('Point'),
+            filter: SINGLE,
             layout: {},
             paint: {
                 'circle-color': spec.color,
@@ -104,9 +114,10 @@ const POI_LAYER_KINDS: readonly PoiLayerKind[] = [
     {
         suffix: 'symbol',
         type: 'symbol',
+        points: true,
         base: {},
         style: (spec) => ({
-            filter: geometryIs('Point'),
+            filter: SINGLE,
             layout: {
                 ...LABEL_LAYOUT,
                 'icon-image': poiIconId(spec.icon),
@@ -115,6 +126,34 @@ const POI_LAYER_KINDS: readonly PoiLayerKind[] = [
                 'text-anchor': 'top',
             },
             paint: LABEL_PAINT,
+        }),
+    },
+    {
+        suffix: 'cluster',
+        type: 'circle',
+        points: true,
+        base: {},
+        style: (spec) => ({
+            filter: CLUSTERED,
+            layout: {},
+            paint: {
+                'circle-color': spec.color,
+                'circle-radius': ['step', ['get', 'point_count'], 15, 10, 18, 50, 22],
+                'circle-stroke-color': '#ffffff',
+                'circle-stroke-width': 2,
+                'circle-emissive-strength': 1,
+            },
+        }),
+    },
+    {
+        suffix: 'cluster-count',
+        type: 'symbol',
+        points: true,
+        base: {},
+        style: () => ({
+            filter: CLUSTERED,
+            layout: { 'text-field': ['get', 'point_count_abbreviated'], 'text-size': 13, 'text-allow-overlap': true },
+            paint: { 'text-color': '#ffffff' },
         }),
     },
     {
@@ -148,23 +187,60 @@ export function isPoiLayer(id: string): boolean {
     return id.startsWith(POI_LAYER_PREFIX);
 }
 
-/** The source of a category: its POIs as GeoJSON. */
-export function poiSource(spec: VectorOverlaySpec): Style {
-    return { type: 'geojson', data: poiData(spec) };
+/** The clustered points' source of a category. */
+export function poiPointsSourceId(id: string): string {
+    return `${overlaySourceId(id)}-points`;
 }
 
+const CLUSTER_SUFFIX = '-cluster';
+
+/** The clustered source behind a POI cluster layer (a click zooms into it); null for any other layer. */
+export function poiClusterSource(layerId: string): string | null {
+    if (!isPoiLayer(layerId) || !layerId.endsWith(CLUSTER_SUFFIX)) {
+        return null;
+    }
+    return poiPointsSourceId(layerId.slice(POI_LAYER_PREFIX.length, -CLUSTER_SUFFIX.length));
+}
+
+function isPoint(feature: VectorOverlaySpec['features'][number]): boolean {
+    return feature.geometry.type === 'Point';
+}
+
+/** The category's lines and areas (the shapes' source). */
 export function poiData(spec: VectorOverlaySpec): unknown {
-    return { type: 'FeatureCollection', features: spec.features };
+    return { type: 'FeatureCollection', features: spec.features.filter((feature) => !isPoint(feature)) };
 }
 
-/** The seven Mapbox layers of a category, bottom first, at its visibility and opacity. */
+/** The category's points (the clustered source). */
+export function poiPointData(spec: VectorOverlaySpec): unknown {
+    return { type: 'FeatureCollection', features: spec.features.filter(isPoint) };
+}
+
+/** The two GeoJSON sources of a category: its shapes, and its points clustered. */
+export function poiSources(spec: VectorOverlaySpec): readonly (readonly [string, Style])[] {
+    return [
+        [overlaySourceId(spec.id), { type: 'geojson', data: poiData(spec) }],
+        [
+            poiPointsSourceId(spec.id),
+            {
+                type: 'geojson',
+                data: poiPointData(spec),
+                cluster: true,
+                clusterMaxZoom: POI_CLUSTER_MAX_ZOOM,
+                clusterRadius: POI_CLUSTER_RADIUS,
+            },
+        ],
+    ];
+}
+
+/** The nine Mapbox layers of a category, bottom first, at its visibility and opacity. */
 export function poiLayers(spec: VectorOverlaySpec, slot: MapSlot): readonly Style[] {
     return POI_LAYER_KINDS.map((kind) => {
         const style = kind.style(spec);
         return {
             id: layerId(spec.id, kind),
             type: kind.type,
-            source: overlaySourceId(spec.id),
+            source: kind.points === true ? poiPointsSourceId(spec.id) : overlaySourceId(spec.id),
             slot,
             filter: style.filter,
             layout: { ...style.layout, visibility: visibilityValue(spec.visible) },
@@ -177,7 +253,7 @@ export function poiEntry(spec: VectorOverlaySpec): OverlayEntry {
     return {
         kind: 'poi',
         layers: POI_LAYER_KINDS.map((kind) => mapLayer(spec.id, kind)),
-        sources: [overlaySourceId(spec.id)],
+        sources: [overlaySourceId(spec.id), poiPointsSourceId(spec.id)],
         visible: spec.visible,
         opacity: spec.opacity,
     };

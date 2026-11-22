@@ -1,7 +1,7 @@
 /**
  * The timeline (scenario V04): its stops are the years of the historical layers plus "today" (`null`, no historical
  * layer). A year without a layer snaps to the nearest stop; photos are "near" a stop within `PHOTO_YEAR_WINDOW`
- * years; POIs follow their own span (`poiInYear` of @hcm/shared).
+ * years; POIs are not filtered by the stop (every POI of a category shows, since 2026-11-22).
  */
 import { isPhotoNearYear, type Layer, type Photo } from '@hcm/shared';
 

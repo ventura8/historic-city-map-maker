@@ -30,7 +30,11 @@ export const WIKIPEDIA_FILE = 'wikipedia.json';
 export const WIKIPEDIA_THUMBS = 'wikipedia';
 /** A fetch older than this is done again at the next manifest build (the tick asks for one). */
 export const WIKIPEDIA_REFRESH_DAYS = 7;
-export const MAX_WIKIPEDIA_ARTICLES = 400;
+/**
+ * Every geotagged article of a large city (Bucharest: a few thousand on both Wikipedias); the full list lives in the private
+ * bucket (`STORAGE_PATHS.wikipediaArticles`), never on the state document, whose 1 MiB held about 800.
+ */
+export const MAX_WIKIPEDIA_ARTICLES = 6000;
 export const MAX_WIKIPEDIA_HIDDEN = 1000;
 export const WIKIPEDIA_EXTRACT_CHARS = 300;
 /** The thumbnail's width asked of Wikipedia, in pixels. */
@@ -63,6 +67,13 @@ export const wikipediaArticleSchema = z
     })
     .refine((article) => article.versions.ro !== undefined || article.versions.en !== undefined);
 
+/** Every article of the last fetch, the hidden ones too (the admin's list, and the file rewritten without a fetch). */
+export const wikipediaArticlesFileSchema = z.strictObject({
+    version: z.literal(1),
+    articles: z.array(wikipediaArticleSchema).max(MAX_WIKIPEDIA_ARTICLES),
+});
+export type WikipediaArticlesFile = z.infer<typeof wikipediaArticlesFileSchema>;
+
 export const wikipediaFileSchema = z.strictObject({
     version: z.literal(1),
     generatedAt: z.iso.datetime(),
@@ -85,7 +96,10 @@ export const wikipediaStateDocSchema = wikipediaSettingsSchema.extend({
     refreshedAt: timestampSchema.optional(),
     /** Why the last fetch failed (the file of the fetch before stays). */
     failure: z.enum(WIKIPEDIA_FAILURES).optional(),
-    /** Every article of the last fetch, the hidden ones too (the admin's list, and the file rewritten without a fetch). */
+    /**
+     * Legacy: the articles of a fetch made before they moved to the private bucket (`STORAGE_PATHS.wikipediaArticles`); read
+     * while no stored list exists, removed at the next fetch.
+     */
     articles: z.array(wikipediaArticleSchema).max(MAX_WIKIPEDIA_ARTICLES).optional(),
     updatedBy: uidSchema,
     updatedAt: timestampSchema,

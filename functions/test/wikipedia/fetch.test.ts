@@ -5,10 +5,21 @@
 import { MAX_WIKIPEDIA_ARTICLES, WIKIPEDIA_EXTRACT_CHARS } from '@hcm/shared';
 import { describe, expect, it } from 'vitest';
 
-import { CELL_LAT_DEG, CELL_LNG_DEG, MAX_CELLS, cellsOf, fetchArticles, shortExtract } from '../../src/wikipedia/fetch.js';
+import {
+    CELL_LAT_DEG,
+    CELL_LNG_DEG,
+    GEOSEARCH_LIMIT,
+    MAX_CELLS,
+    MAX_SPLIT_DEPTH,
+    cellsOf,
+    fetchArticles,
+    quartersOf,
+    shortExtract,
+} from '../../src/wikipedia/fetch.js';
 import { createFakeWikipedia, wikiPage } from '../support/wikipedia-fake.js';
 
 const BOUNDS = { west: 26.0, south: 44.4, east: 26.2, north: 44.5 };
+const BOX = { west: 26.0, south: 44.4, east: 26.1, north: 44.48 };
 
 describe('cellsOf', () => {
     it('happyPath_theBoundsAreCutIntoCellsWithinGeosearchsBox', () => {
@@ -95,12 +106,37 @@ describe('fetchArticles', () => {
 
     it('badPath_atMostTheCapIsKept', async () => {
         const pages = Array.from({ length: MAX_WIKIPEDIA_ARTICLES + 30 }, (_, index) =>
-            wikiPage('ro', index + 1, `P${String(index)}`, 26.0 + (index % 100) / 600, 44.4 + Math.floor(index / 100) / 60),
+            wikiPage('ro', index + 1, `P${String(index)}`, 26.0 + (index % 100) / 600, 44.4 + Math.floor(index / 100) / 700),
         );
 
         const articles = await fetchArticles(createFakeWikipedia(pages), BOUNDS, ['ro']);
 
         expect(articles).toHaveLength(MAX_WIKIPEDIA_ARTICLES);
+    });
+
+    it('happyPath_aBoxThatFillsGeosearchsAnswerIsAskedAgainInQuartersSoNoArticleIsCutOff', async () => {
+        const pages = Array.from({ length: 1200 }, (_, index) =>
+            wikiPage('ro', index + 1, `P${String(index)}`, 26.0013 + (index % 40) * 0.0024, 44.4011 + Math.floor(index / 40) * 0.0025),
+        );
+        const wiki = createFakeWikipedia(pages, new Map(), GEOSEARCH_LIMIT);
+
+        const articles = await fetchArticles(wiki, BOX, ['ro']);
+
+        expect(articles).toHaveLength(1200);
+        expect(wiki.calls.places).toBeGreaterThan(cellsOf(BOX).length);
+    });
+
+    it('badPath_splittingStopsAtTheDepthCap', async () => {
+        const pages = Array.from({ length: GEOSEARCH_LIMIT + 1 }, (_, index) =>
+            wikiPage('ro', index + 1, `P${String(index)}`, 26.001, 44.401),
+        );
+        const wiki = createFakeWikipedia(pages, new Map(), GEOSEARCH_LIMIT);
+
+        const articles = await fetchArticles(wiki, BOX, ['ro']);
+
+        expect(articles).toHaveLength(GEOSEARCH_LIMIT);
+        expect(wiki.calls.places).toBe(cellsOf(BOX).length + 4 * MAX_SPLIT_DEPTH);
+        expect(quartersOf({ west: 0, south: 0, east: 2, north: 2 })).toContainEqual({ west: 1, south: 0, east: 2, north: 1 });
     });
 
     it('badPath_aFailureOfWikipediaIsThrown', async () => {

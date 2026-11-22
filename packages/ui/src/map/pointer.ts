@@ -7,13 +7,19 @@
 import type { LngLat } from '@hcm/shared';
 
 import type { MapboxEvent, MapboxFeature, MapboxMap, MapPoint } from './mapbox-types.js';
-import { PHOTO_CLUSTER_LAYER, PHOTO_CONE_FILL_LAYER, PHOTO_CONE_LINE_LAYER, PHOTO_MARKER_LAYER } from './photos.js';
-import { isPoiLayer } from './pois.js';
+import { PHOTO_CLUSTER_LAYER, PHOTO_CONE_FILL_LAYER, PHOTO_CONE_LINE_LAYER, PHOTO_MARKER_LAYER, PHOTO_POINTS_SOURCE } from './photos.js';
+import { isPoiLayer, poiClusterSource } from './pois.js';
 
 export type Selection =
     | { readonly kind: 'photo'; readonly id: string }
     | { readonly kind: 'poi'; readonly id: string }
-    | { readonly kind: 'cluster'; readonly clusterId: number; readonly center: readonly [number, number] | null };
+    | {
+          readonly kind: 'cluster';
+          /** The clustered GeoJSON source the cluster belongs to (the photos' or a POI category's points). */
+          readonly source: string;
+          readonly clusterId: number;
+          readonly center: readonly [number, number] | null;
+      };
 
 /** Half the side of the box, in CSS pixels, searched around the map centre on Enter or Space. */
 export const KEYBOARD_PICK_RADIUS = 24;
@@ -30,9 +36,9 @@ function pointCoordinates(feature: MapboxFeature): readonly [number, number] | n
     return Array.isArray(coordinates) && coordinates.length === 2 ? [Number(coordinates[0]), Number(coordinates[1])] : null;
 }
 
-function clusterSelection(feature: MapboxFeature): Selection | null {
+function clusterSelection(source: string, feature: MapboxFeature): Selection | null {
     const clusterId = feature.properties?.['cluster_id'];
-    return typeof clusterId === 'number' ? { kind: 'cluster', clusterId, center: pointCoordinates(feature) } : null;
+    return typeof clusterId === 'number' ? { kind: 'cluster', source, clusterId, center: pointCoordinates(feature) } : null;
 }
 
 function idSelection(kind: 'photo' | 'poi', feature: MapboxFeature): Selection | null {
@@ -44,12 +50,16 @@ function idSelection(kind: 'photo' | 'poi', feature: MapboxFeature): Selection |
 export function selectionOf(feature: MapboxFeature): Selection | null {
     const layer = feature.layer?.id ?? '';
     if (layer === PHOTO_CLUSTER_LAYER) {
-        return clusterSelection(feature);
+        return clusterSelection(PHOTO_POINTS_SOURCE, feature);
     }
     return PHOTO_LAYERS.has(layer) ? idSelection('photo', feature) : poiSelection(layer, feature);
 }
 
 function poiSelection(layer: string, feature: MapboxFeature): Selection | null {
+    const cluster = poiClusterSource(layer);
+    if (cluster !== null) {
+        return clusterSelection(cluster, feature);
+    }
     return isPoiLayer(layer) ? idSelection('poi', feature) : null;
 }
 

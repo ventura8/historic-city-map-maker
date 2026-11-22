@@ -259,6 +259,8 @@ export const STORAGE_PATHS = {
     manifest: (cityId: string) => `cities/${citySegment(cityId)}/manifest.json`,
     /** M31: public, `max-age=300`, beside the manifest: the Wikipedia overlay's articles (`wikipediaFileSchema`). */
     wikipediaFile: (cityId: string) => `cities/${citySegment(cityId)}/wikipedia.json`,
+    /** M31: private, gzip JSON (`wikipediaArticlesFileSchema`): every article of the last fetch, the hidden ones too. */
+    wikipediaArticles: (cityId: string) => ['wikipedia', citySegment(cityId), 'articles.json'].join('/'),
     /** M31: public, beside the manifest: an article's free thumbnail (`thumb` names it relative to the manifest). */
     wikipediaThumb: (cityId: string, thumb: string) => `cities/${citySegment(cityId)}/${thumb}`,
     /**
