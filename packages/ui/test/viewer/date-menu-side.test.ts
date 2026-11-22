@@ -36,4 +36,11 @@ describe('the opacity sliders beside the date menu', () => {
         expect(side.style.left).toBe('308px');
         side.remove();
     });
+
+    it('badPath_aFloorKeepsTheSlidersAboveTheTimeline', () => {
+        const menu = { x: 100, y: 300, width: 200, height: 160 };
+        const tall = { width: 240, height: 400 };
+        expect(sideOrigin(menu, tall, { ...ROOM, floor: 470 }, false).y).toBe(70);
+        expect(sideOrigin(menu, tall, ROOM, false).y).toBe(180);
+    });
 });

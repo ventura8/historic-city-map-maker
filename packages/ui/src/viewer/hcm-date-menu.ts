@@ -37,6 +37,9 @@ const MAX_WIDTH = 280;
 
 type Box = DatesOpenDetail['anchor'];
 
+/** The properties that move or resize the menu or its sliders. */
+const PLACING: readonly (keyof HcmDateMenu)[] = ['anchor', 'side', 'stacked', 'items', 'vertical'];
+
 /** The side of the timeline the menu opens on: above a lying one, past or before a standing one. */
 type Side = 'above' | 'end' | 'start';
 
@@ -284,10 +287,23 @@ export class HcmDateMenu extends LitElement {
         if (menu === null || this.anchor === null) {
             return;
         }
-        this.#resize.observe(menu);
-        if (changed.has('anchor')) {
+        this.#observe(menu);
+        // Placed again on every change that moves or resizes it, not only a new anchor: a year's sliders slotted after the
+        // anchor (side turned on, new items) kept their unplaced corner, over the dates, so only the opacity panel showed.
+        if (PLACING.some((key) => changed.has(key))) {
             this.#place(menu, this.anchor);
+        }
+        if (changed.has('anchor')) {
             this.#focusChecked();
+        }
+    }
+
+    /** Watches the menu's and the sliders' sizes: each change places them again. */
+    #observe(menu: HTMLElement): void {
+        this.#resize.observe(menu);
+        const sliders = this.renderRoot.querySelector<HTMLElement>('.side');
+        if (sliders !== null) {
+            this.#resize.observe(sliders);
         }
     }
 
@@ -312,7 +328,8 @@ export class HcmDateMenu extends LitElement {
         menu.style.setProperty('top', `${String(origin.y)}px`);
         const sliders = this.renderRoot.querySelector<HTMLElement>('.side');
         if (sliders !== null) {
-            placeSide(sliders, { ...origin, ...size }, host, this.stacked);
+            const room = { width: host.width, height: host.height, ...(side === 'above' ? { floor: anchor.y - EDGE } : {}) };
+            placeSide(sliders, { ...origin, ...size }, room, this.stacked);
         }
     }
 

@@ -1,7 +1,8 @@
 /**
  * Where the year's opacity sliders go beside its date menu (the owner, 2026-11-16; `hcm-date-menu.ts`): past the menu's end
  * side, centred on it, or before it where the end has no room; on a phone (`stacked`) under it, as wide as it, one sheet
- * with the dates on top, or beside it where a short window has no room under it. Always inside the viewer and above the strip of Mapbox's legal line. Px from the viewer's corner.
+ * with the dates on top, or beside it where a short window has no room under it; never below `floor` (the timeline's top
+ * when the menu opens above it). Always inside the viewer and above the strip of Mapbox's legal line. Px from the viewer's corner.
  */
 
 /** The gap between the menu and the sliders, and the edge kept from the viewer's sides. */
@@ -16,6 +17,13 @@ export interface SideBox {
     readonly height: number;
 }
 
+/** The viewer's size, and the lowest the sliders may reach (the timeline's top when the menu opens above it). */
+export interface SideRoom {
+    readonly width: number;
+    readonly height: number;
+    readonly floor?: number;
+}
+
 function within(at: number, length: number, low: number, high: number): number {
     return Math.max(low, Math.min(at, high - length));
 }
@@ -24,10 +32,11 @@ function within(at: number, length: number, low: number, high: number): number {
 export function sideOrigin(
     menu: SideBox,
     side: { readonly width: number; readonly height: number },
-    room: { readonly width: number; readonly height: number },
+    room: SideRoom,
     stacked: boolean,
 ): { readonly x: number; readonly y: number } {
-    const bottom = room.height - LEGAL_STRIP;
+    // Never below `floor`: above a lying timeline, the sliders taller than the menu once reached down over it (owner, 2026-11-22).
+    const bottom = Math.min(room.height - LEGAL_STRIP, room.floor ?? Number.POSITIVE_INFINITY);
     const under = menu.y + menu.height + GAP;
     if (stacked && under + side.height <= bottom) {
         return { x: menu.x, y: under };
@@ -39,12 +48,7 @@ export function sideOrigin(
 }
 
 /** Puts the sliders' box (`side`) by the menu; stacked, it takes the menu's width. */
-export function placeSide(
-    side: HTMLElement,
-    menu: SideBox,
-    room: { readonly width: number; readonly height: number },
-    stacked: boolean,
-): void {
+export function placeSide(side: HTMLElement, menu: SideBox, room: SideRoom, stacked: boolean): void {
     side.style.setProperty('inline-size', stacked ? `${String(menu.width)}px` : '');
     const origin = sideOrigin(menu, { width: side.offsetWidth, height: side.offsetHeight }, room, stacked);
     side.style.setProperty('left', `${String(origin.x)}px`);

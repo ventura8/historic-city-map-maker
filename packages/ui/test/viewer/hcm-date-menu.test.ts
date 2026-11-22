@@ -196,4 +196,36 @@ describe('<hcm-date-menu> as a peek (a pointer resting on the year)', () => {
 
         expect(events.map((event) => event.detail)).toEqual([{ inside: true }, { inside: false }]);
     });
+
+    /** Two boxes overlap (client px). */
+    function overlaps(a: DOMRect, b: DOMRect): boolean {
+        return a.left < b.right && b.left < a.right && a.top < b.bottom && b.top < a.bottom;
+    }
+
+    it('happyPath_slidersTurnedOnAfterTheAnchorArePlacedBesideTheDatesNotOverThem', async () => {
+        const element = await menu();
+        // A window wide enough for the 240 px sliders beside the menu (a phone stacks them under it).
+        element.parentElement?.style.setProperty('width', '1000px');
+        const sliders = document.createElement('div');
+        sliders.style.cssText = 'height: 300px';
+        element.append(sliders);
+        element.side = true;
+        await element.updateComplete;
+        const dates = shadowQuery(element, '.menu').getBoundingClientRect();
+        const side = shadowQuery(element, '.side').getBoundingClientRect();
+        expect(overlaps(dates, side), 'the dates stay visible beside the sliders').toBe(false);
+        expect(shadowQuery(element, '.side').style.top).not.toBe('');
+    });
+
+    it('badPath_tallSlidersAboveALyingTimelineNeverReachDownOverIt', async () => {
+        const element = await menu({ side: true });
+        const sliders = document.createElement('div');
+        sliders.style.cssText = 'width: 120px; height: 460px';
+        element.append(sliders);
+        element.anchor = { ...ANCHOR, y: ANCHOR.y + 1 };
+        await element.updateComplete;
+        const side = shadowQuery(element, '.side').getBoundingClientRect();
+        const host = element.getBoundingClientRect();
+        expect(side.bottom - host.top).toBeLessThanOrEqual(ANCHOR.y + 1 - 8 + 0.5);
+    });
 });

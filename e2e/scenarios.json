@@ -2825,6 +2825,28 @@
             "notes": "The owner, 2026-11-13: \"the feature to follow the OS accent colours (and others available) is the new default\" (track/osaccent; DECISIONS-for-review.md §215). packages/ui/src/theme/device-accent.ts: the city's schemes turned to the accent's OKLCH hue with their WCAG luminance kept; Chrome exposes the device's AccentColor only to an installed app (a tab gets a constant), Safari a constant, Firefox the real one; a page names it with --hcm-device-accent. Tests: e2e/specs/viewer/device-accent.spec.ts; packages/ui/test/theme/device-accent.test.ts. The owner, 2026-11-14: the option did nothing on an Android phone and a laptop with no word why (docs/LESSONS.md 711); deviceAccentState and the accent.hidden / accent.grey notes."
         },
         {
+            "id": "S-V13-HAPPY-DATES-WITH-SLIDERS",
+            "behaviour": "V13",
+            "area": "viewer",
+            "path": "happy",
+            "title": "A year with several layers shows its dates together with the opacity sliders",
+            "asserts": "a mouse resting on the selected pill of a year of two dates -> the dates menu and the sliders are both visible and do not overlap (1440 x 900, 1024 x 768)",
+            "tier": "e2e-viewer",
+            "status": "exists",
+            "notes": "Owner 2026-11-22: the sliders kept their unplaced corner, over the dates, when they were slotted after the anchor; now placed on every change of anchor, side, stacked, items and vertical, and when their size changes. Tests: e2e/specs/viewer/date-menu-side.spec.ts, packages/ui/test/viewer/hcm-date-menu.test.ts; tour state timeline-opacity-several."
+        },
+        {
+            "id": "S-V13-BAD-SLIDERS-OVER-TIMELINE",
+            "behaviour": "V13",
+            "area": "viewer",
+            "path": "bad",
+            "title": "Tall opacity sliders never cover the timeline",
+            "asserts": "the sliders beside a menu above a lying timeline -> their box ends above the timeline's top (date-menu-side.ts floor)",
+            "tier": "e2e-viewer",
+            "status": "exists",
+            "notes": "Owner 2026-11-22. Tests: e2e/specs/viewer/date-menu-side.spec.ts, packages/ui/test/viewer/date-menu-side.test.ts, packages/ui/test/viewer/hcm-date-menu.test.ts; tour state timeline-opacity-several (occlusion)."
+        },
+        {
             "id": "S-V13-HAPPY",
             "behaviour": "V13",
             "area": "viewer",
