@@ -329,21 +329,21 @@ test(
     },
 );
 
-test(
-    'A place with no years says its years are unknown, research ongoing; a dated place never does',
-    { tag: ['@S-V24-HAPPY-NO-YEARS', '@S-V24-BAD-NO-YEARS'] },
-    async ({ page, lang }) => {
-        await openViewer(page, { lang, hash: '16/44.42950/26.09000' });
+test('A place with no years says its years are unknown, research ongoing', { tag: '@S-V24-HAPPY-NO-YEARS' }, async ({ page, lang }) => {
+    await openViewer(page, { lang, hash: '16/44.42950/26.09000' });
 
-        await openPoi(page, EVENIMENT);
-        await expect(poiSheet(page)).toContainText(t(lang, 'poi.yearsUnknown'));
+    await openPoi(page, EVENIMENT);
+    await expect(poiSheet(page)).toContainText(t(lang, 'poi.yearsUnknown'));
+});
 
-        await openViewer(page, { lang, hash: POI_VIEW });
-        await openPoi(page, CLADIRE);
-        await expect(page.getByRole('heading', { name: TITLES.cladire[lang] })).toBeVisible();
-        await expect(poiSheet(page)).not.toContainText(t(lang, 'poi.yearsUnknown'));
-    },
-);
+test('A dated place never says its years are unknown', { tag: '@S-V24-BAD-NO-YEARS' }, async ({ page, lang }) => {
+    await openViewer(page, { lang, hash: POI_VIEW });
+
+    await openPoi(page, CLADIRE);
+    await expect(page.getByRole('heading', { name: TITLES.cladire[lang] })).toBeVisible();
+    await expect(poiSheet(page)).toContainText(t(lang, 'poi.yearEnd', { yearEnd: '1984' }));
+    await expect(poiSheet(page)).not.toContainText(t(lang, 'poi.yearsUnknown'));
+});
 
 const ICON_FONT = '**/engine/fonts/material-symbols-rounded.woff2';
 const ICON_FONT_FACE = '24px "HCM Material Symbols Rounded"';
