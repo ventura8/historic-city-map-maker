@@ -35,12 +35,12 @@ describe('the version page: Make this version the live one', () => {
     it('badPath_tilesGoneStaysOnTheCard @S-A231-BAD-TILES-GONE', async () => {
         const { version, store, callables, state } = page();
         store.docs.set(VERSIONS(ID), versionDoc({ state: 'superseded' }));
-        callables.answer('imagery.makeLive' as never, () => Promise.reject(failure('failed-precondition', 'apiError.imagery.tilesGone')));
+        callables.answer('imagery.makeLive' as never, () => Promise.reject(failure('failed-precondition', 'apiError.imagery.liveTilesGone')));
         version.show(ID);
 
         await expect(version.makeLive()).resolves.toBe(false);
 
-        expect(state()?.refusal).toEqual({ key: 'apiError.imagery.tilesGone' });
+        expect(state()?.refusal).toEqual({ key: 'apiError.imagery.liveTilesGone' });
         expect(state()?.acting).toBeNull();
     });
 });

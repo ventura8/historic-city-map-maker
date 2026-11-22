@@ -165,7 +165,7 @@ export const imageryDeleteVersionResponseSchema = z.strictObject({ deleted: z.li
 /**
  * `imagery.makeLive` (an editor or the owner; `docs/research/M12-own-tiles.md` §8; S-A231-*): a superseded version whose own tiles are
  * still in the public bucket becomes the layer's live version again; the one that was live reads superseded. A version that is not
- * superseded (`apiError.imagery.versionState`) or whose tiles are gone (`apiError.imagery.tilesGone`) is refused.
+ * superseded (`apiError.imagery.versionState`) or whose tiles are gone (`apiError.imagery.liveTilesGone`) is refused.
  */
 export const imageryMakeLiveResponseSchema = z.strictObject({ live: z.literal(true) });
 

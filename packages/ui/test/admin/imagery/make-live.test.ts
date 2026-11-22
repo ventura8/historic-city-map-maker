@@ -34,7 +34,7 @@ describe('<hcm-imagery-page>: Make this version the live one', () => {
         await updated(element);
         const dialog = deep(element, 'hcm-confirm-dialog') as HTMLElement & { headline: string; body: string; confirmLabel: string };
         expect(dialog.headline).toBe('Put this version back on the map?');
-        expect(dialog.body).toContain('you can bring it back the same way');
+        expect(dialog.body).toContain('can come back');
         expect(dialog.confirmLabel).toBe(LABEL);
         expect(await axeViolations(element)).toEqual([]);
         click(deep(dialog, '.confirm'));
@@ -48,7 +48,7 @@ describe('<hcm-imagery-page>: Make this version the live one', () => {
 
         expect(liveButtons(element)).toEqual([]);
         const note = deep(element, '.tiles-gone');
-        expect(note.textContent).toContain('its tiles were removed');
+        expect(note.textContent).toContain('Its tiles were removed');
         expect(note.textContent).toContain('Calibrate again');
         expect(await axeViolations(element)).toEqual([]);
     });

@@ -192,6 +192,7 @@ export {
     imageryConfirmRightsRequestSchema,
     imageryConfirmRightsResponseSchema,
     imageryDeleteVersionResponseSchema,
+    imageryMakeLiveResponseSchema,
     imageryCropRequestSchema,
     imageryCropResponseSchema,
     imageryImportRequestSchema,

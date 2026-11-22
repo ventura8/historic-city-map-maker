@@ -92,7 +92,7 @@ describe('imagery.makeLive', () => {
     ])('badPath_tiles%sAreRefused @S-A231-BAD-TILES-GONE', async (_name, version, stored) => {
         const target = await world(version, stored);
 
-        await expect(failureOf(makeLive(target))).resolves.toMatchObject({ details: { code: 'apiError.imagery.tilesGone' } });
+        await expect(failureOf(makeLive(target))).resolves.toMatchObject({ details: { code: 'apiError.imagery.liveTilesGone' } });
         await expectUntouched(target);
     });
 

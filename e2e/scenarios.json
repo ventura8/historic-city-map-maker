@@ -16248,7 +16248,7 @@
             "area": "admin",
             "path": "bad",
             "title": "The archive gone fails with its reason",
-            "asserts": "the private object missing -> job and version failed with apiError.imagery.tilesGone (nothing makes it again), no copy",
+            "asserts": "the private object missing -> job and version failed with apiError.imagery.liveTilesGone (nothing makes it again), no copy",
             "tier": "functions",
             "status": "exists",
             "notes": "M12 (docs/research/M12-own-tiles.md). Test: functions/test/imagery/own-tiles.test.ts."
@@ -16336,7 +16336,7 @@
             "area": "admin",
             "path": "bad",
             "title": "No tiles yet, or tiles gone, each answer their own reason",
-            "asserts": "imagery.previewUrl with no output.tiles -> apiError.imagery.tilesMissing (they are on their way); its object gone -> apiError.imagery.tilesGone (they never come back)",
+            "asserts": "imagery.previewUrl with no output.tiles -> apiError.imagery.tilesMissing (they are on their way); its object gone -> apiError.imagery.liveTilesGone (they never come back)",
             "tier": "functions",
             "status": "exists",
             "notes": "M12 (docs/research/M12-own-tiles.md). Test: functions/test/imagery/own-tiles.test.ts."
@@ -25101,7 +25101,7 @@
             "area": "admin",
             "path": "bad",
             "title": "A superseded version whose tiles are gone says so and names Calibrate again",
-            "asserts": "once its own tiles were removed after the grace (or it was published through Mapbox) the page offers no button and says its tiles were removed and to choose Calibrate again; imagery.makeLive refuses it with apiError.imagery.tilesGone, a version not superseded with apiError.imagery.versionState, a moderator or uploader with apiError.city.notEditor, and nothing is written",
+            "asserts": "once its own tiles were removed after the grace (or it was published through Mapbox) the page offers no button and says its tiles were removed and to choose Calibrate again; imagery.makeLive refuses it with apiError.imagery.liveTilesGone, a version not superseded with apiError.imagery.versionState, a moderator or uploader with apiError.city.notEditor, and nothing is written",
             "tier": "functions",
             "status": "exists",
             "notes": "M12 (docs/research/M12-own-tiles.md, Make this version the live one). Tests: functions/test/imagery/make-live.test.ts, packages/admin/test/imagery/version-make-live.test.ts, packages/ui/test/admin/imagery/make-live.test.ts."

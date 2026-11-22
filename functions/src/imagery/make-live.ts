@@ -24,7 +24,7 @@ import { requireVersion, stampOf, type Stamp } from './records.js';
  * `currentVersion` point at its archive, the version reads `published` and the one that was live reads `superseded` (its tiles then
  * wait out the grace of `own-tiles-clean.ts`). The layer is written as the caller, so History records the change, and
  * `publish.onLayerWrite` rebuilds the manifest. Refused: a version that is not superseded (`apiError.imagery.versionState`), one
- * whose own tiles are gone or never existed (`apiError.imagery.tilesGone`: calibrate again), one whose layer is gone
+ * whose own tiles are gone or never existed (`apiError.imagery.liveTilesGone`: calibrate again), one whose layer is gone
  * (`apiError.notFound`). The three documents are written in one transaction that reads them again.
  */
 type Request = CallableRequest<'imagery.makeLive'>;
@@ -56,7 +56,7 @@ async function requireRestorable(deps: MakeLiveDeps, request: Request): Promise<
     }
     const own = await liveArchive(deps, version);
     if (own === null || version.output === undefined) {
-        throw new ApiError('apiError.imagery.tilesGone');
+        throw new ApiError('apiError.imagery.liveTilesGone');
     }
     return { layerId: version.layerId, own, output: version.output };
 }

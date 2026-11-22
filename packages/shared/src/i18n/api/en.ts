@@ -142,8 +142,7 @@ export const en: ApiMessages = {
     'apiError.imagery.pauseUntil': 'A pause must end within two days. Choose For 1 hour, Until tomorrow or Until I resume.',
     'apiError.imagery.missingBand': 'The Landsat delivery lacks band {band}: no colour image. Try another scene of that year.',
     'apiError.imagery.pipelineOutdated': "This computer's program is too old for this job: Update the map in Setup, then try again.",
-    'apiError.imagery.tilesGone':
-        'The tiles of this version were removed after it was replaced, so it cannot go back on the map. Open it and choose Calibrate again to make new tiles.',
+    'apiError.imagery.liveTilesGone': 'Its tiles were removed after it was replaced. Choose Calibrate again.',
     'apiError.imagery.deletePublished': 'A version on the map, or approved for it, is not deleted here: delete its layer.',
     'apiError.imagery.deleteRunning': 'This version is still being worked on. Cancel it first, then delete it.',
     'apiError.imagery.deleteInUse': 'Another version is built on this one. Delete that one first.',

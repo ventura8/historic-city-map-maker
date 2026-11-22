@@ -217,7 +217,7 @@ export const API_ERRORS: Readonly<Record<ApiErrorCode, ApiErrorSpec>> = {
     'apiError.imagery.deletePublished': spec('failed-precondition'),
     'apiError.imagery.deleteRunning': spec('failed-precondition'),
     'apiError.imagery.deleteInUse': spec('failed-precondition'),
-    'apiError.imagery.tilesGone': spec('failed-precondition'),
+    'apiError.imagery.liveTilesGone': spec('failed-precondition'),
     'apiError.worker.notHolder': spec('failed-precondition'),
     'apiError.worker.refused': spec('permission-denied'),
     // Finding 67 of 2026-11-02: a pairing code unknown, used or expired (one answer for the three), and a disconnected computer.
