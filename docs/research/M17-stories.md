@@ -238,3 +238,29 @@ A place carries structured facts, `facts` on its document and in the manifest (`
 - **Import**: a GeoJSON feature's `properties.facts` (the content agent's facts.json, per place, in the same shape) is taken
   when `placeFactsSchema` accepts it, else dropped with the place kept; the export writes it back.
 - **Scenarios**: V81, A200.
+
+## 14. Building plans per level (the owner, 2026-11-22)
+
+A building's plans are map layers that name the place (`placeIds`) and carry a **level**: `level: {order, label: {ro, en?}}`
+on the layer (`planLevelSchema`); `order` sorts the levels (-1 a basement, 0 the ground floor, 0.5 a mezzanine, 1 the first
+floor). An interior photo says where it was taken with `level`, the order of that level (`levelOrderSchema`, -10 to 200).
+
+- `placeMedia` keeps a place's maps without a level under **Maps** and groups the leveled ones under **Plans**
+  (`plans: [{order, label, layers, photos}]`, lowest first; the first label of an order names it), each level with the
+  interior photos of that order. An interior photo is also listed under Interior.
+- **The viewer**: the Plans chip shows a level picker (`place-plans.ts`, one radio per level), then the chosen level's plans
+  (Show on the map: on, at its year, fitted) and its photos.
+- **The admin**: the layer editor's level (order and Romanian name, `level-row.ts`; both empty: an ordinary map), the photo
+  editor's Level for an interior photo. The rules keep the shapes (`validLevel`, a number for a photo).
+- **Next**: placing interior photos on the plan itself and the plan importer (trim, deskew, split floors) that waits for the
+  admin to place each level (`reports/PLAN-live.md` → *Buildings and photos*). Scenarios: V82, A201.
+
+## 15. Place media in the Layers panel (the owner, 2026-11-22)
+
+The engine adds, after validating the manifest, a POI category **Place media** (`place-media`, `withPlaceMedia`, off at
+first): every place that has media, once per kind it has (Maps and Plans drawn as their layers' footprints, the other
+kinds at the place), each entry keeping the place's id so a click opens the place. Each kind is a sub-group
+(`media:maps`, `media:plans`, `media:aerial`, `media:ground`, `media:interior`), so the panel's chevron (the sub-groups of
+`overlay-subgroups.ts`, the place `group` work) shows one switch per kind and the map leaves out a kind switched off. The
+category is never written to a manifest; a city with a category of that id, or without media, is left as it is. Its name is
+Romanian and English only (category labels are city data). Scenario V83.
