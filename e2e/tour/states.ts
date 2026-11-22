@@ -10,6 +10,7 @@ import { INPUT_JOURNEYS, INPUT_STATES } from './input-states.js';
 import { CJK_JOURNEY, LANGUAGE_STATES, RTL_JOURNEY } from './language-states.js';
 import { AERIAL_PHOTO_JOURNEY, AERIAL_PHOTO_STATES } from './aerial-photo-states.js';
 import { LOST_STREETS_JOURNEY, LOST_STREETS_STATES } from './lost-streets-states.js';
+import { WIKIPEDIA_JOURNEY, WIKIPEDIA_STATES } from './wikipedia-states.js';
 import { MAP_LABEL_JOURNEY, MAP_LABEL_STATES } from './map-labels-states.js';
 import { ERROR_STATES, expectErrorCard } from './error-states.js';
 import { MY_LOCATION_STATES } from './my-location-states.js';
@@ -317,6 +318,7 @@ const VIEWER_STATES = {
     ...MAP_LABEL_STATES,
     ...ERROR_STATES,
     ...LOST_STREETS_STATES,
+    ...WIKIPEDIA_STATES,
     ...AERIAL_PHOTO_STATES,
     ...PHOTO_SOURCE_STATES,
     // The language list, Arabic right to left and Japanese (V11).
@@ -419,6 +421,7 @@ const VIEWER_JOURNEYS: readonly Journey[] = [
     },
     MAP_LABEL_JOURNEY,
     LOST_STREETS_JOURNEY,
+    WIKIPEDIA_JOURNEY,
     AERIAL_PHOTO_JOURNEY,
     PHOTO_SOURCE_JOURNEY,
     RTL_JOURNEY,

@@ -83,6 +83,7 @@ const extras = engineExtrasPlugin({
         { name: 'gamepad', global: 'gamepad', entry: here('../ui/src/viewer/gamepad/gamepad.ts') },
         { name: 'firebase-sdk', global: 'firebaseSdk', entry: here('src/telemetry/firebase-sdk.ts') },
         { name: 'field-sdk', global: 'fieldSdk', entry: here('src/telemetry/field-sdk.ts') },
+        { name: 'wikipedia', global: 'wikipedia', entry: here('src/wikipedia/wikipedia.ts') },
     ],
     // src/extras/host.ts installs these globals.
     host: [

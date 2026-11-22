@@ -159,6 +159,9 @@ export const pt: Messages = {
     'poi.sourceLayer': 'Visível em: {layer}',
     'poi.photos': 'Fotos deste lugar',
     'poi.openPhoto': 'Abrir a foto: {title}',
+    'wikipedia.read': 'Ler na Wikipédia',
+    'wikipedia.loadFailed':
+        'Os artigos da Wikipédia não carregaram, provavelmente por causa da ligação. Verifique a internet e volte a ativar a Wikipédia em Camadas.',
     'license.CC0': 'CC0 (nenhum direito reservado)',
     'license.CC-BY-4.0': 'CC BY 4.0',
     'license.CC-BY-SA-4.0': 'CC BY-SA 4.0',

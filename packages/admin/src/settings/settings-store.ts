@@ -29,6 +29,7 @@ import { viewFields } from './area.js';
 import { canAdd, categoryItemOf, inOrder, type CategoryItem } from './categories.js';
 import { CategoryArea } from './category-area.js';
 import { iconIntents, NO_ICON_SECTION, type IconSectionState } from './icon.js';
+import { NO_WIKIPEDIA_SECTION, wikipediaIntents, type WikipediaSectionState } from './wikipedia.js';
 import { CITY_SECTIONS, CitySections, NO_CITY_SECTION, type CitySection } from './city-sections.js';
 import { NO_OVERLAY_DEFAULTS, OverlayDefaults } from './overlay-defaults.js';
 import { photosOpacityOf } from './overlays.js';
@@ -56,6 +57,7 @@ const INITIAL: SettingsState = {
     export: NO_EXPORT_SECTION,
     budget: NO_BUDGET_SECTION,
     icon: NO_ICON_SECTION,
+    wikipedia: NO_WIKIPEDIA_SECTION,
 };
 
 function isCitySection(section: SettingsRoute['section']): section is CitySection {
@@ -85,6 +87,9 @@ export class SettingsStore implements AreaStore<SettingsState, SettingsIntents> 
         this.#cell.update({ budget });
     };
     /** The tab icon's card: an upload or a reset on its way, and a refusal. */
+    readonly #wikipediaChanged = (wikipedia: WikipediaSectionState): void => {
+        this.#cell.update({ wikipedia });
+    };
     readonly #iconChanged = (icon: IconSectionState): void => {
         this.#cell.update({ icon });
     };
@@ -138,6 +143,7 @@ export class SettingsStore implements AreaStore<SettingsState, SettingsIntents> 
             ...this.#export.intents,
             ...this.#budget.intents,
             ...iconIntents(services, this.#iconChanged),
+            ...wikipediaIntents(services, () => this.#cell.state.wikipedia, this.#wikipediaChanged),
             ...this.#cityIntents(),
             ...this.#creditIntents(),
             ...this.#categoryArea.intents,
@@ -330,12 +336,25 @@ export class SettingsStore implements AreaStore<SettingsState, SettingsIntents> 
         if (route.section !== 'icon') {
             this.#iconChanged(NO_ICON_SECTION);
         }
+        this.#routeWikipedia(route.section);
         this.#cell.update({ section: route.section });
         this.#sections.open(isCitySection(route.section) ? route.section : null);
         if (route.section !== 'overlays') {
             this.#overlays.discard();
         }
         this.#categoryArea.open(route.category);
+    }
+
+    /** M31: the Wikipedia card reads its settings when its section opens, and forgets them when it is left. */
+    #routeWikipedia(section: SettingsRoute['section']): void {
+        const card = this.#cell.state.wikipedia;
+        if (section !== 'wikipedia') {
+            this.#wikipediaChanged(NO_WIKIPEDIA_SECTION);
+            return;
+        }
+        if (card.data === null && !card.busy) {
+            void this.intents.loadWikipedia();
+        }
     }
 
     /** The export section's listeners follow its route: attached when it opens, detached when it closes. */

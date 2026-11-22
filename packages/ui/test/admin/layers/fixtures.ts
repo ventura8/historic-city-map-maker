@@ -176,6 +176,7 @@ export function settingsState(overrides: Partial<SettingsViewState> = {}): Setti
         budget: { status: 'loading', failure: null, owner: false, limits: null, draft: {}, used: {}, saving: false, error: null },
         // The browser tab icon's card, idle.
         icon: { busy: false, error: null },
+        wikipedia: { data: null, draft: null, busy: false, error: null },
         ...overrides,
     };
 }

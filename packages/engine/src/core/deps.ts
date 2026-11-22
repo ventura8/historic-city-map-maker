@@ -3,7 +3,7 @@
  * additions to the contract: the engine version and the map container the boot sequence needs, the reduced-motion
  * preference, and the page address, query and `hashchange` of the location.
  */
-import type { EngineConfig, Logger } from '@hcm/shared';
+import type { EngineConfig, Logger, WikipediaArticle } from '@hcm/shared';
 import type { Unsubscribe, ViewerMapPort } from '@hcm/ui/map';
 
 import type { TelemetryPort } from '../telemetry/telemetry-port.js';
@@ -57,4 +57,11 @@ export interface ViewerDeps {
      * has (the node tests of the store: Romanian and English).
      */
     readonly catalogues?: CatalogueLoader;
+    /** M31: the Wikipedia overlay's lazy chunk; without it the overlay's switch shows nothing (the node tests of the store). */
+    readonly wikipedia?: WikipediaDeps;
+}
+
+/** M31: the Wikipedia overlay's lazy chunk: the file's articles, or a rejection (offline, a 404, a file the schema refuses). */
+export interface WikipediaDeps {
+    load(url: string): Promise<readonly WikipediaArticle[]>;
 }

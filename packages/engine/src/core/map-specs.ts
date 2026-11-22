@@ -12,6 +12,7 @@ import {
     localized,
     poiIcon,
     poiInYear,
+    wikipediaPois,
     type Basemap,
     type Layer,
     type LayerSource,
@@ -22,6 +23,7 @@ import {
     type Photo,
     type Poi,
     type PoiCategory,
+    type WikipediaArticle,
 } from '@hcm/shared';
 import { localizedCredit } from '@hcm/shared/credits';
 import { basemapLabels, MAP_LABEL_CONFIG, MAP_LABEL_KINDS, TRANSIT_LABELS, transitLabels, type MapLabels } from '@hcm/shared/map-labels';
@@ -153,6 +155,14 @@ export function poiSpecs(
 ): readonly VectorOverlaySpec[] {
     const shown = (manifest.pois ?? []).filter((poi) => poiInYear(poi, year));
     return (manifest.poiCategories ?? []).map((category) => poiSpec(category, shown, findOverlay(overlays, category.id), locale));
+}
+
+/**
+ * M31: the manifest with the Wikipedia overlay's articles among its places, in `locale` (they have no years, so every stop
+ * of the timeline shows them); the manifest itself without any.
+ */
+export function withArticles(manifest: Manifest, articles: readonly WikipediaArticle[], locale: ViewerLocale): Manifest {
+    return articles.length === 0 ? manifest : { ...manifest, pois: [...(manifest.pois ?? []), ...wikipediaPois(articles, locale)] };
 }
 
 /** What a map is mounted with besides the manifest: the moment's view, language, motion and basemap labels. */

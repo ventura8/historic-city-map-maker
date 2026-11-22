@@ -156,6 +156,8 @@ export const hi: Messages = {
     'poi.sourceLayer': '{layer} पर देखा गया',
     'poi.photos': 'इस स्थान की तस्वीरें',
     'poi.openPhoto': 'तस्वीर खोलें: {title}',
+    'wikipedia.read': 'विकिपीडिया पर पढ़ें',
+    'wikipedia.loadFailed': 'विकिपीडिया के लेख लोड नहीं हुए, शायद कनेक्शन की वजह से। अपना इंटरनेट जाँचें, फिर परतें में विकिपीडिया को दोबारा चालू करें।',
     'license.CC0': 'CC0 (कोई अधिकार सुरक्षित नहीं)',
     'license.CC-BY-4.0': 'CC BY 4.0',
     'license.CC-BY-SA-4.0': 'CC BY-SA 4.0',

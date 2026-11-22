@@ -13,6 +13,7 @@ import { M9_EXPORTS } from './fixtures/exports-m9.js';
 import { M20_EXPORTS } from './fixtures/exports-m20.js';
 import { M22_EXPORTS } from './fixtures/exports-m22.js';
 import { M25_EXPORTS } from './fixtures/exports-m25.js';
+import { M31_EXPORTS } from './fixtures/exports-m31.js';
 import { MIGRATION_EXPORTS } from './fixtures/exports-migration.js';
 
 /** The public API, by module: a removed or renamed export breaks the engine, the admin and the functions. */
@@ -507,6 +508,7 @@ const EXPORTS = {
     m22: M22_EXPORTS,
     /** M25 (docs/research/M25-landsat.md): Landsat. */
     m25: M25_EXPORTS,
+    m31: M31_EXPORTS,
     adminSite: [
         'ADMIN_SITE_MAX_LENGTH',
         'ADMIN_SITE_SUFFIX',

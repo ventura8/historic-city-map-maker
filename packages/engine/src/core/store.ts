@@ -50,6 +50,7 @@ import {
     type ViewerState,
 } from './state.js';
 import { encodeViewerHash, HashWriter } from './url-sync.js';
+import { WikipediaFollower } from './wikipedia.js';
 
 /** `#ring` while Show on map starts the camera. */
 const LOCATING = -1;
@@ -153,6 +154,7 @@ class Store implements ViewerStore, BootHost, CompareDriverHost {
     readonly #listeners: Listeners<[ViewerState, ViewerState]>;
     readonly #boot: Boot;
     readonly #compare: CompareDriver;
+    readonly #wikipedia = new WikipediaFollower(this);
     readonly #unsubscribe: Unsubscribe[] = [];
     #state: ViewerState;
     #destroyed = false;
@@ -210,6 +212,7 @@ class Store implements ViewerStore, BootHost, CompareDriverHost {
         this.#boot.followState(previous, next);
         this.#compare.follow(next);
         this.#listeners.emit(next, previous);
+        this.#wikipedia.follow(previous, next);
     }
 
     mountedMap(): MountedMap | null {
@@ -224,9 +227,7 @@ class Store implements ViewerStore, BootHost, CompareDriverHost {
         return this.#boot.load();
     }
 
-    retry(): Promise<void> {
-        return this.#boot.load();
-    }
+    readonly retry = (): Promise<void> => this.#boot.load();
 
     /** The visitor's language, once its texts are here (`locale-switch.ts`). */
     setLocale(locale: ViewerLocale): void {

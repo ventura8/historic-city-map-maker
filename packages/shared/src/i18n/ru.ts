@@ -163,6 +163,9 @@ export const ru: Messages = {
     'poi.sourceLayer': 'Отображается в: {layer}',
     'poi.photos': 'Фотографии этого места',
     'poi.openPhoto': 'Открыть фотографию: {title}',
+    'wikipedia.read': 'Читать в Википедии',
+    'wikipedia.loadFailed':
+        'Статьи Википедии не загрузились, вероятно, из-за соединения. Проверьте интернет и снова включите Википедию в разделе «Слои».',
     'license.CC0': 'CC0 (без сохранения прав)',
     'license.CC-BY-4.0': 'CC BY 4.0',
     'license.CC-BY-SA-4.0': 'CC BY-SA 4.0',

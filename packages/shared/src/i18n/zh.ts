@@ -160,6 +160,8 @@ export const zh: Messages = {
     'poi.sourceLayer': '显示在：{layer}',
     'poi.photos': '这个地点的照片',
     'poi.openPhoto': '打开照片：{title}',
+    'wikipedia.read': '在维基百科上阅读',
+    'wikipedia.loadFailed': '维基百科文章未能加载，可能是网络连接的原因。请检查网络，然后在“图层”中重新打开维基百科。',
     'license.CC0': 'CC0（不保留任何权利）',
     'license.CC-BY-4.0': 'CC BY 4.0',
     'license.CC-BY-SA-4.0': 'CC BY-SA 4.0',

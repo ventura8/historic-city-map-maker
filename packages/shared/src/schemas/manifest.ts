@@ -39,6 +39,7 @@ import {
 } from './primitives.js';
 import { daySchema, monthSchema, withPhotoDate } from './photo-date.js';
 import { MAX_STORIES, storySchema } from './story.js';
+import { wikipediaRefSchema } from './wikipedia.js';
 
 /** The `version` every v1 manifest carries; a different value is refused before validation. */
 export const MANIFEST_VERSION = 1;
@@ -275,6 +276,8 @@ export const manifestSchema = z
         pois: z.array(poiSchema).max(MAX_POIS).optional(),
         /** M17 (`docs/research/M17-stories.md` §4): the city's stories; absent when there are none. */
         stories: z.array(storySchema).max(MAX_STORIES).optional(),
+        /** M31 (`docs/research/M31-wikipedia.md`): the Wikipedia overlay's file, loaded when the overlay is first switched on. */
+        wikipedia: wikipediaRefSchema.optional(),
     })
     .superRefine((manifest, context) => {
         for (const issue of manifestRuleIssues(manifest)) {

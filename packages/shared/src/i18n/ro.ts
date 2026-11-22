@@ -161,6 +161,8 @@ export const ro = {
     'poi.sourceLayer': 'Se vede pe: {layer}',
     'poi.photos': 'Fotografii ale locului',
     'poi.openPhoto': 'Deschide fotografia: {title}',
+    'wikipedia.read': 'Citește pe Wikipedia',
+    'wikipedia.loadFailed': 'Wikipedia nu s-a încărcat, probabil din cauza conexiunii. Verifică internetul și pornește-o din nou.',
     'license.CC0': 'CC0 (fără drepturi rezervate)',
     'license.CC-BY-4.0': 'CC BY 4.0',
     'license.CC-BY-SA-4.0': 'CC BY-SA 4.0',

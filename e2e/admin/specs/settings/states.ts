@@ -33,3 +33,18 @@ export const SETTINGS_ICON_STATES = {
         visit: 'specs/settings/icon.spec.ts',
     },
 } as const;
+
+/**
+ * Settings → Wikipedia (behaviour A230, M31), ids `settings.wikipedia-<state>`: the card with its articles, and the last fetch's
+ * failure with what to do. Both are reached by e2e/admin/specs/settings/wikipedia.spec.ts.
+ */
+export const SETTINGS_WIKIPEDIA_STATES = {
+    'settings.wikipedia-articles': {
+        title: 'Settings → Wikipedia: the switch, the languages, when the articles were fetched and each article with Hide',
+        visit: 'specs/settings/wikipedia.spec.ts',
+    },
+    'settings.wikipedia-failed': {
+        title: 'Settings → Wikipedia: the last fetch failed, the card says why and to press Refresh now later',
+        visit: 'specs/settings/wikipedia.spec.ts',
+    },
+} as const;

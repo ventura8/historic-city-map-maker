@@ -161,6 +161,9 @@ export const it: Messages = {
     'poi.sourceLayer': 'Visibile in: {layer}',
     'poi.photos': 'Foto di questo luogo',
     'poi.openPhoto': 'Apri la foto: {title}',
+    'wikipedia.read': 'Leggi su Wikipedia',
+    'wikipedia.loadFailed':
+        'Gli articoli di Wikipedia non sono stati caricati, probabilmente per la connessione. Controlla internet, poi riattiva Wikipedia in Livelli.',
     'license.CC0': 'CC0 (nessun diritto riservato)',
     'license.CC-BY-4.0': 'CC BY 4.0',
     'license.CC-BY-SA-4.0': 'CC BY-SA 4.0',

@@ -156,6 +156,8 @@ export const en: Messages = {
     'poi.sourceLayer': 'Seen on: {layer}',
     'poi.photos': 'Photos of this place',
     'poi.openPhoto': 'Open the photo: {title}',
+    'wikipedia.read': 'Read on Wikipedia',
+    'wikipedia.loadFailed': 'Wikipedia did not load, probably the connection. Check your internet and switch Wikipedia on again.',
     'license.CC0': 'CC0 (no rights reserved)',
     'license.CC-BY-4.0': 'CC BY 4.0',
     'license.CC-BY-SA-4.0': 'CC BY-SA 4.0',

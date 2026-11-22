@@ -10,4 +10,6 @@ export const extraImports = {
     gamepad: () => import('@hcm/ui/viewer/gamepad'),
     firebaseSdk: () => import('../telemetry/firebase-sdk.js'),
     fieldSdk: () => import('../telemetry/field-sdk.js'),
+    // M31: the Wikipedia overlay's file reader.
+    wikipedia: () => import('../wikipedia/wikipedia.js'),
 };

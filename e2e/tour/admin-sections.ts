@@ -8,7 +8,7 @@ import { SUGGESTIONS_STATES } from '../admin/specs/imagery/suggestions-states.js
 import { UNUSABLE_STATES } from '../admin/specs/imagery/unusable-states.js';
 import { INSTALL_STATES } from '../admin/specs/install/states.js';
 import { NOTIFY_STATES } from '../admin/specs/notify/states.js';
-import { SETTINGS_ICON_STATES, SETTINGS_STARTER_STATES } from '../admin/specs/settings/states.js';
+import { SETTINGS_ICON_STATES, SETTINGS_STARTER_STATES, SETTINGS_WIKIPEDIA_STATES } from '../admin/specs/settings/states.js';
 import { SETUP_UX_STATES } from '../admin/specs/shell/setup-ux-states.js';
 import { START_STATES } from '../admin/specs/start/states.js';
 import { LANGUAGE_PICKER_STATES } from '../admin/specs/shell/language-states.js';
@@ -62,6 +62,7 @@ export const ADMIN_SECTION_STATES = {
     ...SETTINGS_STARTER_STATES,
     // Settings → Browser tab icon (behaviour A101).
     ...SETTINGS_ICON_STATES,
+    ...SETTINGS_WIKIPEDIA_STATES,
     // [end starters]
     // M7 (docs/research/M7-local-worker.md §7): ids 'worker.<state>', the local worker's panel and a version's place.
     // [section worker] owner: admin (M7)

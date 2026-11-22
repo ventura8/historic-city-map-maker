@@ -56,6 +56,7 @@ import {
 } from './content.js';
 import { COMMUNITY_CALLABLES } from './community.js';
 import { revertRequestSchema, revertResponseSchema } from './history.js';
+import { wikipediaManageRequestSchema, wikipediaManageResponseSchema } from './wikipedia.js';
 import { ASSIST_GEOCODE_QUEUE } from '../schemas/assist.js';
 import {
     IMAGERY_PUBLISH_QUEUE,
@@ -279,6 +280,8 @@ export const ADMIN_CALLABLES = {
     'setup.rotatePublicToken': cityOwner('fn-setup', rotatePublicTokenRequestSchema, rotatePublicTokenResponseSchema, 'consume'),
     'setup.analyticsConfig': projectOwner('fn-setup', analyticsConfigRequestSchema, analyticsConfigResponseSchema),
     'publish.rebuildManifest': cityEditor('fn-content', rebuildManifestRequestSchema, rebuildManifestResponseSchema),
+    // M31 (docs/research/M31-wikipedia.md §3): the Wikipedia overlay's settings, articles and refresh.
+    'wikipedia.manage': cityEditor('fn-content', wikipediaManageRequestSchema, wikipediaManageResponseSchema),
     'photos.reprocess': cityEditor('fn-content', reprocessPhotoRequestSchema, reprocessPhotoResponseSchema),
     'layers.delete': cityEditor('fn-content', layerDeleteRequestSchema, layerDeleteResponseSchema, 'consume'),
     'layers.link': cityEditor('fn-content', layerLinkRequestSchema, layerLinkResponseSchema),

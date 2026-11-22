@@ -8,7 +8,7 @@
  * the element's handlers; none keeps state. The map container is the one static `<div class="map">`: Lit never
  * re-creates it, so the Mapbox canvas that the engine mounts into it survives every render.
  */
-import { localized, translate, type Manifest, type Photo, type Poi, type PoiCategory, type ViewerLocale } from '@hcm/shared';
+import { localized, translate, type Manifest, type ViewerLocale } from '@hcm/shared';
 import { html, nothing, type TemplateResult } from 'lit';
 
 import { cssProperties, type CssPropertyValues } from '../components/css-properties.js';
@@ -19,6 +19,7 @@ import { dialogMode, isDialogSheet } from './input-commands.js';
 import { DOCKED_OPEN, type Placement, type SheetMode, type ViewerLayout } from './layout.js';
 import type { LegalLift } from './legal-lift.js';
 import { renderSheetFrame } from './sheet-frame.js';
+import { selectionOf } from './viewer-selection.js';
 import type { ThemeChoice, ViewerError, ViewerState } from './store-port.js';
 import { dateMenu, timelineDock, type TimelineDock } from './timeline-dock.js';
 import { photosNearYear, type TimelineStop } from './timeline-model.js';
@@ -371,32 +372,13 @@ function layerPanel(view: ViewerView, ready: Ready, placement: Placement, handle
     ></hcm-layer-panel>`;
 }
 
-interface Selection {
-    readonly photo: Photo | null;
-    readonly poi: Poi | null;
-    readonly category: PoiCategory | null;
-}
-
-function selectedPoi({ state, manifest }: Ready): Poi | null {
-    return state.sheet === 'poi' ? ((manifest.pois ?? []).find((candidate) => candidate.id === state.selectedPoiId) ?? null) : null;
-}
-
-function categoryOf(manifest: Manifest, poi: Poi | null): PoiCategory | null {
-    return poi === null ? null : ((manifest.poiCategories ?? []).find((candidate) => candidate.id === poi.category) ?? null);
-}
-
-function selection(ready: Ready): Selection {
-    const poi = selectedPoi(ready);
-    const photo = ready.manifest.photos.find((candidate) => candidate.id === ready.state.selectedPhotoId) ?? null;
-    return { photo, poi, category: categoryOf(ready.manifest, poi) };
-}
-
 function photoSheet(view: ViewerView, ready: Ready, placement: Placement, handlers: ViewerHandlers): TemplateResult {
-    const { photo, poi, category } = selection(ready);
+    const { photo, poi, category, thumbnail } = selectionOf(ready.state, ready.manifest);
     return html`<hcm-photo-sheet
         .photo=${photo}
         .poi=${poi}
         .category=${category}
+        .thumbnail=${thumbnail}
         .layers=${ready.manifest.layers}
         .photos=${ready.manifest.photos}
         .locale=${view.locale}

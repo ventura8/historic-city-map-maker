@@ -95,6 +95,10 @@ ENGINE_CHUNK_BUDGETS: Mapping[str, int] = {
     "extra-gamepad": 3,
     "extra-firebase-sdk": 16,
     "extra-field-sdk": 7,
+    # M31 (docs/research/M31-wikipedia.md §4): the Wikipedia overlay's file reader, fetched the first time a visitor switches
+    # the overlay on; it takes the file's schema from the engine. A new chunk: about 0.5 KB, budget 2 (and its extra).
+    "wikipedia": 2,
+    "extra-wikipedia": 2,
 }
 
 # The admin's build folder and its entry (packages/admin/vite.config.ts).
@@ -219,6 +223,9 @@ ADMIN_CHUNK_BUDGETS: Mapping[str, int] = {
     # chosen file, fetched the first time its section opens, so the settings chunk stays within its 20 KB (19.8 KB with the
     # card's state): 1.3 KB measured on 2026-11-08 plus about 20 %, rounded up.
     "icon-section": 2,
+    # M31 (docs/research/M31-wikipedia.md §3): Settings -> Wikipedia, fetched the first time its section opens, so the settings
+    # chunk keeps its budget: a new chunk of about 2 KB, budget 3.
+    "wikipedia-section": 3,
     # Step (g)'s Create the measurement reports (`packages/admin/src/google/analytics-reports.ts`: the GA4 property found
     # from the measurement id and the field measurements' custom definitions), fetched on its button's click only: 0.8 KB
     # measured on 2026-11-01 plus about 20 %, rounded up (DECISIONS-for-review.md §76f).

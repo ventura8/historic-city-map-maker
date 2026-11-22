@@ -48,6 +48,8 @@ describe('<hcm-settings-page> sections', () => {
             '#/settings/imagery',
             '#/settings/categories',
             '#/settings/overlays',
+            // M31 (@S-A230-HAPPY-CARD): the Wikipedia overlay.
+            '#/settings/wikipedia',
             '#/settings/publish',
             '#/settings/budget',
             '#/settings/export',

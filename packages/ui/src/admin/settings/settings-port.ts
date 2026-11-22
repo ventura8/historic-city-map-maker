@@ -3,7 +3,17 @@
  * structurally (`docs/research/M2c-interfaces.md` §2.3); `packages/admin/test/app/admin-port.test.ts` checks that the
  * real store satisfies it.
  */
-import type { CityDoc, UiLocale, OverlayKind, PoiCategoryDoc, ThemeTokens, ValidationIssue } from '@hcm/shared';
+import type {
+    CityDoc,
+    UiLocale,
+    OverlayKind,
+    PoiCategoryDoc,
+    ThemeTokens,
+    ValidationIssue,
+    WikipediaLanguage,
+    WikipediaManageResponse,
+    WikipediaSettings,
+} from '@hcm/shared';
 
 import type { DocStatePort, ListStatePort } from '../area-port.js';
 import type { BudgetIntentsPort, BudgetSectionPort } from '../cities/budget-port.js';
@@ -23,7 +33,24 @@ import type {
  * integrator, DECISIONS-for-review.md §63a) `publish`, whether visitors see the city; `icon`, the public map's tab icon.
  */
 export type SettingsSectionPort =
-    'area' | 'texts' | 'theme' | 'icon' | 'imagery' | 'publish' | 'categories' | 'overlays' | 'export' | 'budget';
+    'area' | 'texts' | 'theme' | 'icon' | 'imagery' | 'publish' | 'categories' | 'overlays' | 'export' | 'budget' | 'wikipedia';
+
+/** M31: the Wikipedia overlay's card (`packages/admin/src/settings/wikipedia.ts`). */
+export interface WikipediaSectionPort {
+    readonly data: WikipediaManageResponse | null;
+    readonly draft: WikipediaSettings | null;
+    readonly busy: boolean;
+    readonly error: AdminNoticeInputPort | null;
+}
+
+interface WikipediaIntentsPort {
+    loadWikipedia(): Promise<void>;
+    setWikipediaEnabled(enabled: boolean): void;
+    setWikipediaLanguage(language: WikipediaLanguage, on: boolean): void;
+    setWikipediaHidden(articleId: string, hidden: boolean): void;
+    saveWikipedia(): Promise<boolean>;
+    refreshWikipedia(): Promise<boolean>;
+}
 
 /** The browser tab icon's card (`packages/admin/src/settings/icon.ts`). */
 interface IconSectionPort {
@@ -140,9 +167,11 @@ export interface SettingsViewState {
     readonly budget: BudgetSectionPort;
     /** The browser tab icon's card. */
     readonly icon: IconSectionPort;
+    /** M31: the Wikipedia overlay's card. */
+    readonly wikipedia: WikipediaSectionPort;
 }
 
-export interface SettingsIntentsPort extends ExportIntentsPort, BudgetIntentsPort, IconIntentsPort {
+export interface SettingsIntentsPort extends ExportIntentsPort, BudgetIntentsPort, IconIntentsPort, WikipediaIntentsPort {
     retry(): void;
     editCity(patch: Partial<CityDoc>): void;
     setNumber(field: AreaNumberFieldPort, text: string): void;

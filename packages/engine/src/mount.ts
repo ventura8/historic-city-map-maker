@@ -13,6 +13,7 @@ import {
     type EngineConfig,
     type Logger,
     type ViewerLocale,
+    type WikipediaArticle,
 } from '@hcm/shared';
 import type { MapLabels } from '@hcm/shared/map-labels';
 import {
@@ -226,6 +227,8 @@ export interface MountEnvironment {
     readonly catalogues?: (engineBase: string | undefined) => CatalogueLoader;
     /** M4: swipe compare's lazy chunk (`compare-<hash>.js` of the ES module build, inlined in the IIFE). */
     readonly loadCompare: () => Promise<CompareModule>;
+    /** M31: the Wikipedia overlay's file through its lazy chunk (`wikipedia/wikipedia.ts`). */
+    readonly loadWikipedia: (url: string) => Promise<readonly WikipediaArticle[]>;
     /** `prefers-color-scheme` of the page (the basemap's light under the `system` theme). */
     readonly colorScheme?: ColorSchemeSource;
     /** Listens for a gamepad, whose lazy chunk comes only once one connects; returns the function that stops it. */
@@ -289,6 +292,7 @@ function start(viewer: HcmMapViewer, config: EngineConfig, env: MountEnvironment
         mapContainer: () => viewer.mapContainer,
         reducedMotion: env.reducedMotion,
         compare: { load: env.loadCompare, createMap: env.createMap, mapboxCssUrl: env.mapboxCssUrl },
+        wikipedia: { load: env.loadWikipedia },
         ...(env.colorScheme === undefined ? {} : { colorScheme: env.colorScheme }),
         ...catalogueDeps(env, config.engineBase),
     });
@@ -481,6 +485,8 @@ export function browserEnvironment(
                 engineVersion: release.engineVersion,
             }),
         loadCompare: () => extraImports.compare().then((chunk) => chunk.compareModule),
+        loadWikipedia: (url) =>
+            extraImports.wikipedia().then((chunk) => chunk.wikipediaModule.load(url, (address, init) => win.fetch(address, init))),
         colorScheme: colorSchemeOf(win),
         // The pad's chunk arrives once a pad connects: the `input_device` event says one was used (§200).
         watchGamepads: (surface, map, used) =>

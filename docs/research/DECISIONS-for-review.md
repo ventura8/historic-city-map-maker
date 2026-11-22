@@ -7290,3 +7290,7 @@ Measured on `feat/engine-rewrite` after the household day-limit constant left `w
 | `rolldown-runtime` | — | 1 | 0.2 KB |
 
 No new chunk. Headroom about 10 %. Verify: `PIPELINE_STAGE=build`.
+
+## 242. The Wikipedia overlay's chunks get budgets — APPLIED 2026-11-22 (owner: "implement wikipedia layer already")
+
+M31 (`docs/research/M31-wikipedia.md`) adds three lazy chunks, each a new row of `scripts/ci/check_bundle_budget.py` (a new chunk is a reviewed decision; no existing row rose): the engine's `wikipedia` (ES) and `extra-wikipedia` (IIFE extra), 2 KB each, fetched the first time a visitor switches the overlay on; the admin's `wikipedia-section`, 3 KB, fetched when Settings → Wikipedia opens, so `settings` keeps its 22 KB. The engine's entry gains `wikipediaFileSchema` and `validate` on the extras' host (`packages/engine/src/extras/host-shared.ts`) so the chunk carries no zod. No gate was loosened. Verify: `PIPELINE_STAGE=build`.

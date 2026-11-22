@@ -6,7 +6,7 @@
  * that is assignable to `ViewerStorePort`, which `packages/engine/src/mount.ts` checks at compile time. The viewer
  * renders `getState()` and calls the actions; it never touches the map or the URL hash itself.
  */
-import type { LngLat, ViewerLocale, Manifest, MapView, MessageKey, Overlay, PhotoView } from '@hcm/shared';
+import type { LngLat, ViewerLocale, Manifest, MapView, MessageKey, Overlay, PhotoView, WikipediaArticle } from '@hcm/shared';
 import type { MapLabelKind, MapLabels } from '@hcm/shared/map-labels';
 
 import type { CameraOffset } from '../map/mapbox-types.js';
@@ -109,6 +109,8 @@ export interface ViewerState {
     /** Design B (the owner, 2026-11-15): only the photos within this many years of the year are drawn; null: every photo. */
     readonly photosNear: number | null;
     readonly myLocation: MyLocationState;
+    /** M31: the Wikipedia overlay's articles once loaded (absent before the engine had any). */
+    readonly wikipedia?: { readonly articles: readonly WikipediaArticle[] };
 }
 
 /** The store actions the viewer elements call (a subset of the engine's `ViewerActions`). */

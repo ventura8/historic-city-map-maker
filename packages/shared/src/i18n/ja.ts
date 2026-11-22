@@ -161,6 +161,9 @@ export const ja: Messages = {
     'poi.sourceLayer': '次のレイヤーで表示されています： {layer}',
     'poi.photos': 'この場所の写真',
     'poi.openPhoto': '写真を開く：{title}',
+    'wikipedia.read': 'ウィキペディアで読む',
+    'wikipedia.loadFailed':
+        'ウィキペディアの記事を読み込めませんでした。接続が原因と思われます。インターネットを確認してから、レイヤーでウィキペディアをもう一度オンにしてください。',
     'license.CC0': 'CC0（権利の留保なし）',
     'license.CC-BY-4.0': 'CC BY 4.0',
     'license.CC-BY-SA-4.0': 'CC BY-SA 4.0',

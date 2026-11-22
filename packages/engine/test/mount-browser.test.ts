@@ -189,6 +189,14 @@ describe('browserEnvironment', () => {
         expect(typeof chunk.createCompareUi).toBe('function');
     });
 
+    it('happyPath_theWikipediaFileComesThroughItsLazyChunkWithThePagesFetch', async () => {
+        const file = { version: 1, generatedAt: '2026-11-22T08:00:00.000Z', attribution: 'Wikipedia (CC BY-SA 4.0)', articles: [] };
+        const page = fakePage({ fetch: () => Promise.resolve(new Response(JSON.stringify(file))) });
+        const env = browserEnvironment(page.window, RELEASE, createLogger('test'));
+
+        await expect(env.loadWikipedia('https://example.org/cities/b/wikipedia.json')).resolves.toEqual([]);
+    });
+
     it('happyPath_theMapComesFromThePagesMapboxGl', () => {
         const page = fakePage({ mapboxgl: new FakeMapboxGl() });
         const map = browserEnvironment(page.window, RELEASE, createLogger('test')).createMap();

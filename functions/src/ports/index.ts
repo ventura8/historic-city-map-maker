@@ -28,6 +28,7 @@ import type { Translator } from './translator.js';
 import type { UsgsApi } from './usgs-api.js';
 import type { UrlSigner } from './url-signer.js';
 import type { UsgsScenes } from './usgs-scenes.js';
+import type { WikipediaApi } from './wikipedia-api.js';
 
 /**
  * Every outside dependency of the handlers (docs/research/M2-interfaces.md §4). A handler declares the ports it uses
@@ -72,4 +73,6 @@ export interface Ports {
     readonly starters: StarterTemplates;
     readonly admins: AdminDirectory;
     readonly setup: SetupRecords;
+    /** M31 (docs/research/M31-wikipedia.md §2): Wikipedia's MediaWiki API, for the overlay's articles. */
+    readonly wiki: WikipediaApi;
 }

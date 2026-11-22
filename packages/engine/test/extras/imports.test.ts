@@ -8,10 +8,11 @@ import { extraImports } from '../../src/extras/imports.js';
 
 describe('extraImports', () => {
     it('happyPath_eachExtraIsTheModuleItsCallerReads', async () => {
-        expect(Object.keys(extraImports)).toEqual(['compare', 'gamepad', 'firebaseSdk', 'fieldSdk']);
+        expect(Object.keys(extraImports)).toEqual(['compare', 'gamepad', 'firebaseSdk', 'fieldSdk', 'wikipedia']);
         expect((await extraImports.compare()).compareModule.startCompare).toBeTypeOf('function');
         expect((await extraImports.gamepad()).startGamepad).toBeTypeOf('function');
         expect((await extraImports.firebaseSdk()).firebaseSdk.logEvent).toBeTypeOf('function');
         expect((await extraImports.fieldSdk()).fieldSdk.createGuard).toBeTypeOf('function');
+        expect(Object.keys((await extraImports.wikipedia()).wikipediaModule)).toEqual(['load']);
     }, 30_000);
 });

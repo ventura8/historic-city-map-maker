@@ -19,6 +19,7 @@ import type { TaskQueue } from '../../src/ports/task-queue.js';
 import { createFakeDocumentStore, type FakeDocumentStore } from '../support/documents.js';
 import { fakeAdmins, recordingLogger } from '../support/fakes.js';
 import { PortRecorder } from '../support/recorder.js';
+import { createFakeWikipedia, type FakeWikipedia } from '../support/wikipedia-fake.js';
 
 export const TEST_CONFIG: RuntimeConfig = {
     projectId: 'demo-hcm',
@@ -190,6 +191,8 @@ export interface ContentDeps {
     readonly tasks: RecordingTaskQueue;
     readonly images: ImageProcessor;
     readonly admins: ReturnType<typeof fakeAdmins>;
+    /** M31: Wikipedia with no geotagged page (a test that needs some passes its own). */
+    readonly wiki: FakeWikipedia;
 }
 
 /** Fresh fakes for one test: an empty store and buckets, the real sharp processor, `u-admin` as the only admin. */
@@ -205,6 +208,7 @@ export function contentDeps(now = '2026-10-12T08:30:00.000Z'): ContentDeps {
         tasks: createRecordingTaskQueue(),
         images: createSharpImageProcessor(),
         admins: fakeAdmins(['u-admin']),
+        wiki: createFakeWikipedia([]),
     };
 }
 

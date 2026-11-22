@@ -521,6 +521,18 @@ M17 ([research/M17-stories.md](research/M17-stories.md) §4): a city's stories, 
 
 At most 1,000 stories. Nothing in a story is rendered as HTML: the engine parses the text into paragraphs and figures (`parseStory` of `@hcm/shared`) and renders them with its own templates.
 
+### `wikipedia` (optional)
+
+M31 ([research/M31-wikipedia.md](research/M31-wikipedia.md)): the Wikipedia overlay's file, present only while the city has the overlay on and its last fetch found articles. The manifest builder adds it together with the overlay's category (`poiCategories[]` id `wikipedia`, `defaultVisible: false`, icon `info`, credit `Wikipedia (CC BY-SA 4.0)`), so the overlay has its own switch and slider in Layers and starts hidden.
+
+| Field | Type | Notes |
+| --- | --- | --- |
+| `file` | string | the file, relative to the manifest (`wikipedia.json`) or https |
+| `count` | integer | the articles in it, 1 to 400 |
+| `generatedAt` | ISO date-time | when the server wrote it |
+
+The engine fetches the file (no cookie) through its lazy chunk the first time the overlay shows, checks it against `wikipediaFileSchema` of `@hcm/shared` (`version: 1`, `generatedAt`, `attribution`, `articles[]`: `id` `ro-<page id>` or `en-<page id>`, `lng`, `lat`, `versions.ro?` / `versions.en?` each `{title, extract, url}` with `url` on `ro.wikipedia.org` or `en.wikipedia.org`, `thumb?` `wikipedia/<id>.<jpg|png|webp>` relative to the manifest) and draws each article as a place of the `wikipedia` category: its POI id is `wikipedia-<article id>`, it has no years (every stop of the timeline shows it), its title and extract are the visitor's language's version when the article has one (Romanian or English), else the other's; the extract is plain text; the sheet adds the free thumbnail and one link, **Citește pe Wikipedia** / **Read on Wikipedia**. A file that cannot be loaded switches the overlay off with the toast `wikipedia.loadFailed`; switching it on again tries again. The visitor's browser never asks Wikipedia: the file and the thumbnails are the city's own copies in its public bucket.
+
 ### Overlays
 
 The viewer's Layers panel lists one **overlay** per historical layer, one for the photos (markers and view cones, id `photos`) and one per POI category, each with a switch and a 0–100 % slider that updates the map live. Layer ids, `photos` and category ids are one namespace (a clash is `validation.duplicateId`), because the URL hash's `op=` names overlays by id. Order: historical layers by year (the higher `order` first within a year), the photos, then the categories in manifest order. Switching a historical layer on moves the timeline to its year and brings it to the front, above a newer opaque layer too (V15, the owner 2026-11-13); with several on, the timeline follows the last one switched on; switching layers off leaves it. The other layers stack by date, the newest on top, the timeline's year above the rest; choosing a year on the timeline shows exactly that year's layers. The hash names the visible layers, the one on top last, so a shared link opens on the same year with the same layer on top. In a photo's sheet, with a map, a date that holds a layer's year is a button (named by the date and **Harta din 1966** / **Map of 1966**) that shows the map at that year with its layers, the photo staying open; otherwise up to three chips name the layer years within ten years of the photo's, nearest first.
@@ -555,6 +567,7 @@ A fetch that returns 404 shows `error.manifest.notFound`, a network failure `err
 - **The URL hash** keeps v1's grammar for the whole 1.x line; new parameters are additive and old readers ignore them. The legacy hash stays readable.
 - **Additions before 1.0.0 (M4, 2026-10-24)**: the hash's `cmp=` and `sw=`, the controller's `openCompare`, `setComparePosition` and `closeCompare`, and the event `hcm-compare-change` are part of the v1 baseline too; the manifest does not change.
 - **Additions before 1.0.0** (the owner's requests, 2026-11-07, [research/photo-date-source.md](research/photo-date-source.md)): a photo's `month`, `day` and `source`. Optional: a manifest without them stays valid and reads as before; every 1.x engine reads them, so they need no `minVersion`. A viewer from before them refuses such a manifest, so Hosting goes before the functions in a deploy ([research/photo-date-source.md](research/photo-date-source.md) §3).
+- **Addition (M31, 2026-11-22)**: the manifest's optional `wikipedia` and the `wikipedia-<id>` places it brings ([research/M31-wikipedia.md](research/M31-wikipedia.md)). A manifest without it stays valid; the builder adds it only with the overlay on. An engine from before it refuses a manifest that has it (the unknown key), so Hosting's Update the map goes before the functions' build adds it, as with every addition.
 - **Additions before 1.0.0 (M17, 2026-11-08)**: `stories[]` and the hash's `story=` ([research/M17-stories.md](research/M17-stories.md) §4). Optional: a manifest without them stays valid; every 1.x engine reads them, so they need no `minVersion`.
 - **Additions before 1.0.0 (M13, 2026-11-07)**: `unplaced[]`, `contributeUrl` and the optional `credit` of a photo and a place (`docs/research/M13-roles.md` §5). A photo in `photos[]` still needs its `location`; a manifest from before them stays valid. The map gains only a link: no sign-in, no Firestore, no cookie.
 - **Additions before 1.0.0** (PLAN Addendum 3, 2026-10-12): `photosOverlay`, `poiCategories[]`, `pois[]`, the overlay namespace rule and the `op=` overlay ids. They are part of the v1 baseline that every 1.x engine reads, so a manifest that uses them needs no `minVersion`. A Material Symbols name outside the bundled set falls back to the default pin instead of failing validation, so new icons never need a new manifest generation.
@@ -568,6 +581,7 @@ The IIFE build cannot split into chunks, so until 2026-11-12 it carried every la
 | `extra-compare-<hash>.js` | the first time the visitor compares | 8 KB |
 | `extra-gamepad-<hash>.js` | once a gamepad connects | 3 KB |
 | `extra-firebase-sdk-<hash>.js`, `extra-field-sdk-<hash>.js` | after the analytics consent | 16 KB, 7 KB |
+| `extra-wikipedia-<hash>.js` | the first time the visitor switches the Wikipedia overlay on (M31) | 2 KB |
 
 - **Integrity.** The build computes each extra's `sha384-` digest and writes it into `engine.iife.js`, which adds the extra as `<script async crossorigin="anonymous" integrity="sha384-…">`. A page that pins `engine.iife.js` with `integrity` therefore covers its extras as well; a file changed on the way is refused by the browser.
 - **Where from.** The engine script's own folder (`engineBaseOf`: jsDelivr's pinned release folder, a site's `engine/`, a static export's `engine/`). A site, a release and a static export copy the extras with the engine; a self-hosted copy must too. The page's Content Security Policy already names that folder in `script-src`.

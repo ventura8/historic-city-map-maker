@@ -6,6 +6,7 @@ import { vi } from 'vitest';
 import type { CatalogueLoader } from '../../src/core/catalogues.js';
 import type { ColorSchemeSource } from '../../src/core/deps.js';
 import { createViewerStore, type ViewerStore } from '../../src/core/store.js';
+import type { WikipediaDeps } from '../../src/core/deps.js';
 import type { FakeCompare } from '../compare/support.js';
 import { FakeTelemetry, jsonResponse, memoryStorage, recordingLog, settle, type MemoryStorage, type RecordingLog } from './support.js';
 import { manifest as defaultManifest } from './fixtures.js';
@@ -72,6 +73,8 @@ export interface HarnessOptions {
     readonly storage?: MemoryStorage;
     /** The languages' texts (`core/catalogues.ts`); without it only Romanian and English, which the tests import. */
     readonly catalogues?: CatalogueLoader;
+    /** M31: the Wikipedia overlay's chunk; without it the overlay's switch loads nothing. */
+    readonly wikipedia?: WikipediaDeps;
 }
 
 export interface Harness {
@@ -111,6 +114,7 @@ export function harness(options: HarnessOptions = {}): Harness {
         ...(options.compare === undefined ? {} : { compare: options.compare.deps }),
         ...(options.colorScheme === undefined ? {} : { colorScheme: options.colorScheme }),
         ...(options.catalogues === undefined ? {} : { catalogues: options.catalogues }),
+        ...(options.wikipedia === undefined ? {} : { wikipedia: options.wikipedia }),
     });
     return { store, map, telemetry, storage, location, fetch, log, container };
 }

@@ -22,7 +22,9 @@ export type UpstreamService =
     /** M4: OpenStreetMap's Nominatim (`Geocoder`), Vertex AI Gemini (`Translator`), FCM web push (`PushSender`). */
     | 'nominatim'
     | 'vertex-ai'
-    | 'fcm';
+    | 'fcm'
+    /** M31: Wikipedia's MediaWiki API (`WikipediaApi`) and its image server. */
+    | 'wikipedia';
 
 /**
  * How an outside call failed, as far as a handler needs to know (docs/research/M2-interfaces.md §4.1):

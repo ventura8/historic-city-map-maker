@@ -159,6 +159,9 @@ export const tr: Messages = {
     'poi.sourceLayer': 'Şurada görülebilir: {layer}',
     'poi.photos': 'Bu yerin fotoğrafları',
     'poi.openPhoto': 'Fotoğrafı aç: {title}',
+    'wikipedia.read': "Vikipedi'de oku",
+    'wikipedia.loadFailed':
+        "Vikipedi makaleleri yüklenemedi, büyük olasılıkla bağlantı nedeniyle. İnternetinizi kontrol edin, ardından Katmanlar'da Vikipedi'yi yeniden açın.",
     'license.CC0': 'CC0 (hiçbir hakkı saklı değildir)',
     'license.CC-BY-4.0': 'CC BY 4.0',
     'license.CC-BY-SA-4.0': 'CC BY-SA 4.0',

@@ -160,6 +160,9 @@ export const es: Messages = {
     'poi.sourceLayer': 'Se ve en: {layer}',
     'poi.photos': 'Fotos de este lugar',
     'poi.openPhoto': 'Abrir la foto: {title}',
+    'wikipedia.read': 'Leer en Wikipedia',
+    'wikipedia.loadFailed':
+        'Los artículos de Wikipedia no se cargaron, probablemente por la conexión. Comprueba tu internet y vuelve a activar Wikipedia en Capas.',
     'license.CC0': 'CC0 (sin derechos reservados)',
     'license.CC-BY-4.0': 'CC BY 4.0',
     'license.CC-BY-SA-4.0': 'CC BY-SA 4.0',

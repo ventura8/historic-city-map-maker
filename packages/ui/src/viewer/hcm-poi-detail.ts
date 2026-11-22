@@ -42,6 +42,7 @@ export class HcmPoiDetail extends LitElement {
     static override readonly properties = {
         poi: { attribute: false },
         category: { attribute: false },
+        thumbnail: { attribute: false },
         layers: { attribute: false },
         photos: { attribute: false },
         locale: { type: String },
@@ -95,6 +96,14 @@ export class HcmPoiDetail extends LitElement {
                 cursor: pointer;
             }
 
+            .picture {
+                display: block;
+                inline-size: 100%;
+                max-block-size: 240px;
+                object-fit: cover;
+                border-radius: var(--md-sys-shape-corner-medium);
+            }
+
             .thumbs img {
                 display: block;
                 inline-size: 100%;
@@ -106,6 +115,8 @@ export class HcmPoiDetail extends LitElement {
 
     declare poi: Poi | null;
     declare category: PoiCategory | null;
+    /** M31: a Wikipedia article's free thumbnail (relative to the manifest), shown above its text; null for none. */
+    declare thumbnail: string | null;
     /** M27: the manifest's layers, where `sourceLayer` is looked up. */
     declare layers: readonly Layer[];
     /** The manifest's photos; the POI's `photoIds` are looked up here (unknown ids are skipped). */
@@ -117,6 +128,7 @@ export class HcmPoiDetail extends LitElement {
         super();
         this.poi = null;
         this.category = null;
+        this.thumbnail = null;
         this.layers = [];
         this.photos = [];
         this.locale = DEFAULT_LOCALE;
@@ -130,7 +142,7 @@ export class HcmPoiDetail extends LitElement {
         }
         const years = poiYearsText(poi, this.locale);
         return html`<div class="details">
-            ${this.#category()} ${years === null ? nothing : html`<p class="years">${years}</p>`}
+            ${this.#category()} ${this.#thumbnail()} ${years === null ? nothing : html`<p class="years">${years}</p>`}
             ${
                 poi.description === undefined
                     ? nothing
@@ -153,6 +165,12 @@ export class HcmPoiDetail extends LitElement {
             <span class="swatch" ${cssProperties(color)}><hcm-icon .name=${poiIcon(category.icon)}></hcm-icon></span>
             <span>${translate(this.locale, 'poi.category', { category: localized(category.label, this.locale) })}</span>
         </p>`;
+    }
+
+    /** M31: the article's picture, decorative (its title is the sheet's heading). */
+    #thumbnail(): TemplateResult {
+        const src = this.thumbnail === null ? null : resolveAssetUrl(this.thumbnail, this.manifestUrl, document.baseURI);
+        return src === null ? EMPTY : html`<img class="picture" src=${src} alt="" loading="lazy" decoding="async" />`;
     }
 
     /** M27: the layer the place was traced on and its category's data credit, each a line of text; none, nothing. */

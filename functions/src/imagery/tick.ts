@@ -18,6 +18,7 @@ import { monthlyHarvest, publishDeferred, runDeletions, sweepEnded } from './tic
 import { offerCloud } from './tick-worker.js';
 import { releaseScenes } from './release-scene.js';
 import { relocateParked } from './relocate.js';
+import { wikipediaDue } from '../wikipedia/tick.js';
 
 /**
  * `imagery.tick` (every 15 minutes, `IMAGERY_TICK_SCHEDULE`, one instance; `docs/research/M3-interfaces.md` §4.6): the raster
@@ -61,6 +62,8 @@ const PARTS: readonly (readonly [name: string, part: Part, whileRed: boolean])[]
     ['scenes', (deps, cityId) => releaseScenes(deps, cityId), true],
     // M8: a city with no plan of its whole-city dates gets one, as a deploy finds frames waiting and no job moves.
     ['plan', (deps, cityId) => ensureDatePlan(deps, cityId), true],
+    // M31 (docs/research/M31-wikipedia.md §2): a city whose Wikipedia articles are due gets a manifest build, which fetches them.
+    ['wikipedia', wikipediaDue, true],
 ];
 
 /** One tick over every city; returns the parts that failed (`<city>:<part>`). */

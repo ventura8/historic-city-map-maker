@@ -13,7 +13,7 @@ import type { MyLocationFix, ViewerMapPort } from '@hcm/ui/map';
 
 import { drawMapLabels } from './map-labels.js';
 import { drawMapLight, mapLight } from './map-light.js';
-import { photoFeatures, photosScope, poiSpecs, rasterSpec } from './map-specs.js';
+import { photoFeatures, photosScope, poiSpecs, rasterSpec, withArticles } from './map-specs.js';
 import { stackOrder } from './stack.js';
 import { displayedOverlays, type MyLocationState, type ViewerState } from './state.js';
 
@@ -25,6 +25,11 @@ function fixOf(state: MyLocationState): MyLocationFix | null {
 /** Each layer's place in the stack of the overlays the map draws (`stack.ts`). */
 function stackOf(state: ViewerState, { layers }: Manifest): (layer: Pick<Layer, 'id' | 'year'>) => number {
     return stackOrder({ layers, overlays: displayedOverlays(state), year: state.year, front: state.front });
+}
+
+/** What the photos and POIs drawn depend on besides the language: the year, Photos near, (M31) the Wikipedia articles. */
+function featuresChanged(previous: ViewerState, next: ViewerState): boolean {
+    return next.year !== previous.year || next.photosNear !== previous.photosNear || next.wikipedia !== previous.wikipedia;
 }
 
 export class MapSync {
@@ -108,12 +113,12 @@ export class MapSync {
         }
     }
 
-    /** A new year or language redraws the photos and POIs; a new language also relabels Mapbox's own controls. */
+    /** A new year, language or (M31) Wikipedia articles redraw the photos and POIs; a new language also relabels Mapbox's own controls. */
     #yearAndLanguage(previous: ViewerState, next: ViewerState, manifest: Manifest): void {
         if (next.locale !== previous.locale) {
             this.#map.setLocale(next.locale);
             this.#features(manifest, next);
-        } else if (next.year !== previous.year || next.photosNear !== previous.photosNear) {
+        } else if (featuresChanged(previous, next)) {
             this.#features(manifest, next);
         }
     }
@@ -139,7 +144,8 @@ export class MapSync {
     /** The photo markers and the POIs of the current stop, titles in the current language. */
     #features(manifest: Manifest, state: ViewerState): void {
         this.#map.setPhotosData(photoFeatures(manifest.photos, state.locale, state.year, photosScope(state.photosNear)));
-        for (const spec of poiSpecs(manifest, state.overlays, state.locale, state.year)) {
+        const places = withArticles(manifest, state.wikipedia.articles, state.locale);
+        for (const spec of poiSpecs(places, state.overlays, state.locale, state.year)) {
             this.#map.addVectorOverlay(spec, 'top');
         }
     }

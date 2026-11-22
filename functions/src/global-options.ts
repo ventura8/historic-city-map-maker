@@ -33,6 +33,7 @@ export const RUNTIME_ACCOUNTS: Readonly<Record<FunctionName, RuntimeAccount>> = 
     'setup.rotatePublicToken': 'fn-admin',
     'setup.analyticsConfig': 'fn-admin',
     'publish.rebuildManifest': 'fn-admin',
+    'wikipedia.manage': 'fn-admin',
     'photos.reprocess': 'fn-admin',
     'layers.delete': 'fn-admin',
     'layers.link': 'fn-admin',

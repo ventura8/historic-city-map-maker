@@ -17,6 +17,7 @@ import type { CategoryItem } from './categories.js';
 import type { CategoryDeletionState } from './category-deletion.js';
 import type { CategoryIntents } from './category-area.js';
 import type { IconIntents, IconSectionState } from './icon.js';
+import type { WikipediaIntents, WikipediaSectionState } from './wikipedia.js';
 import type { CategoryEditorState } from './category-editor.js';
 import type { CitySectionState } from './city-sections.js';
 import type { OverlayDefaultsState } from './overlay-defaults.js';
@@ -53,9 +54,11 @@ export interface SettingsState {
     readonly budget: BudgetSectionState;
     /** The browser tab icon's card (`./icon.ts`). */
     readonly icon: IconSectionState;
+    /** M31: the Wikipedia overlay's card (`./wikipedia.ts`). */
+    readonly wikipedia: WikipediaSectionState;
 }
 
-export interface SettingsIntents extends CategoryIntents, ExportIntents, BudgetIntents, IconIntents {
+export interface SettingsIntents extends CategoryIntents, ExportIntents, BudgetIntents, IconIntents, WikipediaIntents {
     retry(): void;
     /** A field of the open city section (`bounds`, `center`, `zoom`, `minZoom`, `maxZoom`, `basemap`, ...). */
     editCity(patch: Partial<CityDoc>): void;

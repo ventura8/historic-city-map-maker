@@ -35,8 +35,9 @@ import { UpstreamError } from '../ports/errors.js';
 import type { Ports } from '../ports/index.js';
 import { assembleManifest, type CityContent, type SkippedDocument } from './assemble.js';
 import { ensureCityIcon } from './icon.js';
+import { wikipediaForBuild, withWikipedia } from '../wikipedia/refresh.js';
 
-export type BuildDeps = Pick<Ports, 'log' | 'clock' | 'config' | 'documents' | 'blobs' | 'tasks' | 'images'>;
+export type BuildDeps = Pick<Ports, 'log' | 'clock' | 'config' | 'documents' | 'blobs' | 'tasks' | 'images' | 'wiki'>;
 
 /** At most this many skipped documents are listed on `manifests/{city}` (the schema's limit). */
 const MAX_LISTED_SKIPS = 100;
@@ -114,7 +115,9 @@ async function buildFrom(deps: BuildDeps, cityId: string): Promise<BuildResult> 
     if (!assembly.ok) {
         return cityRefused(deps, cityId, assembly.issues, assembly.skipped);
     }
-    const json = JSON.stringify(assembly.manifest);
+    // M31: the Wikipedia overlay (a fetch when due, its file), never the build's failure.
+    const manifest = withWikipedia(assembly.manifest, await wikipediaForBuild(deps, cityId, city));
+    const json = JSON.stringify(manifest);
     const stored = await upload(deps, cityId, json);
     const sha256 = createHash('sha256').update(json).digest('hex');
     return { kind: 'published', ...stored, sha256, counts: assembly.counts, skipped: assembly.skipped };

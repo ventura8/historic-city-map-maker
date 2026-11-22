@@ -1366,6 +1366,20 @@
             "name": "A layer's licence and author corrected after the import, the attribution's licence following it",
             "milestone": "M20",
             "source": "the owner, 2026-11-22: six drawn maps were imported as permission and nothing could correct their licence afterwards"
+        },
+        {
+            "id": "V90",
+            "area": "viewer",
+            "name": "The Wikipedia overlay: geotagged articles of the city, server-built, switched on in Layers",
+            "milestone": "M31",
+            "source": "the owner, 2026-11-09 and 2026-11-22 (reports/PLAN-live.md, Wikipedia layer, V3); docs/research/M31-wikipedia.md"
+        },
+        {
+            "id": "A230",
+            "area": "admin",
+            "name": "The Wikipedia overlay's fetch on the server, its file and manifest entry, and Settings -> Wikipedia",
+            "milestone": "M31",
+            "source": "the owner, 2026-11-09 and 2026-11-22 (reports/PLAN-live.md, Wikipedia layer); docs/research/M31-wikipedia.md"
         }
     ],
     "scenarios": [
@@ -23786,6 +23800,127 @@
             "tier": "e2e-admin",
             "status": "exists",
             "notes": "Tests: e2e/admin/specs/flows/layer-rights.spec.ts, packages/admin/test/layers/fields.test.ts, packages/ui/test/admin/layers/layer-rights.test.ts, firebase/rules-tests/test/layers.test.ts."
+        },
+        {
+            "id": "S-V90-HAPPY-OVERLAY",
+            "behaviour": "V90",
+            "area": "viewer",
+            "path": "happy",
+            "title": "The Wikipedia overlay is off at open and, switched on in Layers, loads the city's file and draws one icon per article",
+            "asserts": "the Wikipedia switch is off and no file is fetched at open; switched on, wikipedia.json is fetched once from beside the manifest, wikipedia-ro-1 is drawn, the credit Wikipedia (CC BY-SA 4.0) is listed; the timeline does not hide it",
+            "tier": "e2e-viewer",
+            "status": "exists",
+            "notes": "Milestone M31 (docs/research/M31-wikipedia.md). Tests: e2e/specs/viewer/wikipedia.spec.ts, packages/engine/test/core/store-wikipedia.test.ts."
+        },
+        {
+            "id": "S-V90-HAPPY-ARTICLE",
+            "behaviour": "V90",
+            "area": "viewer",
+            "path": "happy",
+            "title": "A click on an article shows its title, extract, free thumbnail, Read on Wikipedia and the credit, as text",
+            "asserts": "the sheet shows the extract in the visitor's language, the picture from the city's bucket (alt empty), a link Read on Wikipedia to the article and Source: Wikipedia (CC BY-SA 4.0); no request leaves for wikipedia.org",
+            "tier": "e2e-viewer",
+            "status": "exists",
+            "notes": "Milestone M31 (docs/research/M31-wikipedia.md). Tests: e2e/specs/viewer/wikipedia.spec.ts, packages/ui/test/viewer/hcm-poi-detail.test.ts."
+        },
+        {
+            "id": "S-V90-HAPPY-LANGUAGE",
+            "behaviour": "V90",
+            "area": "viewer",
+            "path": "happy",
+            "title": "An article on both Wikipedias shows the visitor's language first, else the other one",
+            "asserts": "English visitors see the English title, extract and link; Romanian and every other language see the Romanian version; an article only in English shows English to everyone; markup in the extract stays text",
+            "tier": "e2e-viewer",
+            "status": "exists",
+            "notes": "Milestone M31 (docs/research/M31-wikipedia.md). Tests: packages/shared/test/overlays/wikipedia.test.ts, e2e/specs/viewer/wikipedia.spec.ts (both languages)."
+        },
+        {
+            "id": "S-V90-BAD-FILE-FAILS",
+            "behaviour": "V90",
+            "area": "viewer",
+            "path": "bad",
+            "title": "A Wikipedia file that cannot be loaded switches the overlay off and says what to do",
+            "asserts": "wikipedia.json answers 404: a toast says the articles did not load, probably the connection, check the internet and switch Wikipedia on again in Layers; the switch is off, nothing is drawn; switching it on again tries again",
+            "tier": "e2e-viewer",
+            "status": "exists",
+            "notes": "Milestone M31 (docs/research/M31-wikipedia.md). Tests: e2e/specs/viewer/wikipedia.spec.ts, packages/engine/test/core/store-wikipedia.test.ts."
+        },
+        {
+            "id": "S-A230-HAPPY-FETCH",
+            "behaviour": "A230",
+            "area": "admin",
+            "path": "happy",
+            "title": "The server fetches the city's geotagged articles politely and copies their free thumbnails",
+            "asserts": "geosearch over cells of the city's bounds with the generic User-Agent and maxlag, one request at a time; a place on both Wikipedias is one article; pilicense=free thumbnails go to the public bucket beside the manifest; the state records the articles and the time",
+            "tier": "functions",
+            "status": "exists",
+            "notes": "Milestone M31 (docs/research/M31-wikipedia.md). Tests: functions/test/wikipedia/refresh.test.ts, functions/test/wikipedia/fetch.test.ts, functions/test/adapters/wikipedia.test.ts."
+        },
+        {
+            "id": "S-A230-HAPPY-MANIFEST",
+            "behaviour": "A230",
+            "area": "admin",
+            "path": "happy",
+            "title": "The manifest build writes wikipedia.json without the hidden articles and adds the overlay to the manifest",
+            "asserts": "with the overlay on, the build publishes wikipedia.json (gzip, max-age 60) and the manifest gets the category wikipedia (hidden at open, credit Wikipedia (CC BY-SA 4.0)) and wikipedia {file, count}; off, the file is removed and the manifest has neither; the tick asks for a build once a week",
+            "tier": "functions",
+            "status": "exists",
+            "notes": "Milestone M31 (docs/research/M31-wikipedia.md). Tests: functions/test/wikipedia/refresh.test.ts, functions/test/wikipedia/manage.test.ts (wikipediaDue)."
+        },
+        {
+            "id": "S-A230-HAPPY-SAVE",
+            "behaviour": "A230",
+            "area": "admin",
+            "path": "happy",
+            "title": "Settings -> Wikipedia saves the switch, the languages and the hidden articles, and the map is rebuilt",
+            "asserts": "wikipedia.manage save writes the settings stamped with the editor and queues a manifest build; other languages ask for a fetch; Refresh now asks for one too; the card says Saved",
+            "tier": "functions",
+            "status": "exists",
+            "notes": "Milestone M31 (docs/research/M31-wikipedia.md). Tests: functions/test/wikipedia/manage.test.ts, packages/admin/test/settings/wikipedia.test.ts."
+        },
+        {
+            "id": "S-A230-HAPPY-CARD",
+            "behaviour": "A230",
+            "area": "admin",
+            "path": "happy",
+            "title": "The Wikipedia card shows the switch, the languages, when the articles were fetched and each article with Hide or Show",
+            "asserts": "the section row Wikipedia opens the card; the last language cannot be switched off; Save waits for a change; Refresh now waits for none; each article has Hide (or Show for a hidden one) named with its title; axe finds nothing",
+            "tier": "e2e-admin",
+            "status": "exists",
+            "notes": "Milestone M31 (docs/research/M31-wikipedia.md). Tests: e2e/admin/specs/settings/wikipedia.spec.ts, packages/ui/test/admin/settings/wikipedia-section.test.ts."
+        },
+        {
+            "id": "S-A230-BAD-WIKIPEDIA-DOWN",
+            "behaviour": "A230",
+            "area": "admin",
+            "path": "bad",
+            "title": "Wikipedia down or busy keeps the articles of before and the card says why and what to do",
+            "asserts": "a fetch failing unavailable, rateLimited or invalid keeps the last articles and their file; the state records the failure; the card says Wikipedia did not answer (or asked us to wait) and to press Refresh now later; the manifest build never fails",
+            "tier": "functions",
+            "status": "exists",
+            "notes": "Milestone M31 (docs/research/M31-wikipedia.md). Tests: functions/test/wikipedia/refresh.test.ts, packages/ui/test/admin/settings/wikipedia-section.test.ts. e2e/admin/specs/settings/wikipedia.spec.ts."
+        },
+        {
+            "id": "S-A230-BAD-INVALID-SETTINGS",
+            "behaviour": "A230",
+            "area": "admin",
+            "path": "bad",
+            "title": "Settings with a language the overlay does not offer are refused",
+            "asserts": "wikipedia.manage save with languages [de] is apiError.invalidRequest; nothing is written",
+            "tier": "functions",
+            "status": "exists",
+            "notes": "Milestone M31 (docs/research/M31-wikipedia.md). Tests: functions/test/wikipedia/manage.test.ts."
+        },
+        {
+            "id": "S-A230-BAD-LAST-LANGUAGE",
+            "behaviour": "A230",
+            "area": "admin",
+            "path": "bad",
+            "title": "The last language cannot be switched off and Save waits for a change",
+            "asserts": "with languages [ro] the Romanian switch is disabled and Save is disabled until something changes; a refused save shows its reason beside the card and changes nothing",
+            "tier": "e2e-admin",
+            "status": "exists",
+            "notes": "Milestone M31 (docs/research/M31-wikipedia.md). Tests: e2e/admin/specs/settings/wikipedia.spec.ts, packages/admin/test/settings/wikipedia.test.ts, packages/ui/test/admin/settings/wikipedia-section.test.ts."
         }
     ]
 }

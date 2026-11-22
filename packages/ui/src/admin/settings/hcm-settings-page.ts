@@ -30,6 +30,7 @@ import { lazyBudgetCard } from '../cities/lazy-budget.js';
 import { publicAddressStyles } from '../cities/public-address.js';
 import { lazyExportCard } from '../export/lazy-card.js';
 import { overlaysSection } from './overlays-section.js';
+import { lazyWikipediaCard } from './lazy-wikipedia.js';
 import { publishSection } from './publish-section.js';
 import { sectionRowTexts, type SectionContext } from './section-parts.js';
 import type { SettingsIntentsPort, SettingsSectionPort, SettingsViewState } from './settings-port.js';
@@ -47,6 +48,7 @@ const SECTIONS: readonly SettingsSectionPort[] = [
     'imagery',
     'categories',
     'overlays',
+    'wikipedia',
     'publish',
     'budget',
     'export',
@@ -66,6 +68,7 @@ const SECTION_ICONS: Readonly<Record<SettingsSectionPort, string>> = {
     publish: 'publish',
     export: 'download',
     budget: 'tune',
+    wikipedia: 'language',
 };
 
 const RENDERERS: Readonly<Record<Exclude<SettingsSectionPort, 'categories'>, (context: SectionContext) => TemplateResult>> = {
@@ -82,6 +85,8 @@ const RENDERERS: Readonly<Record<Exclude<SettingsSectionPort, 'categories'>, (co
     export: (context) => lazyExportCard({ ...context, view: context.view.export }),
     // M5 (owner: multi-city): the city's budget, a chunk of its own too.
     budget: (context) => lazyBudgetCard({ ...context, view: context.view.budget }),
+    // M31 (docs/research/M31-wikipedia.md §3): the Wikipedia overlay, a chunk of its own.
+    wikipedia: lazyWikipediaCard,
 };
 
 export class HcmSettingsPage extends AreaPage<SettingsViewState, SettingsIntentsPort> {

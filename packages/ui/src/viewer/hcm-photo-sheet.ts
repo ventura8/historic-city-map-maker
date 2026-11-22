@@ -81,6 +81,7 @@ export class HcmPhotoSheet extends LitElement {
         photo: { attribute: false },
         poi: { attribute: false },
         category: { attribute: false },
+        thumbnail: { attribute: false },
         layers: { attribute: false },
         photos: { attribute: false },
         locale: { type: String },
@@ -144,6 +145,8 @@ export class HcmPhotoSheet extends LitElement {
     declare photo: Photo | null;
     declare poi: Poi | null;
     declare category: PoiCategory | null;
+    /** M31: a Wikipedia article's free thumbnail (relative to the manifest), or null. */
+    declare thumbnail: string | null;
     /** M27: the manifest's layers (a place's `sourceLayer` is named from them). */
     declare layers: readonly Layer[];
     /** Every manifest photo (a POI's linked thumbnails are looked up here). */
@@ -171,6 +174,7 @@ export class HcmPhotoSheet extends LitElement {
         this.photo = null;
         this.poi = null;
         this.category = null;
+        this.thumbnail = null;
         this.layers = [];
         this.photos = [];
         this.locale = DEFAULT_LOCALE;
@@ -217,6 +221,7 @@ export class HcmPhotoSheet extends LitElement {
             return html`<hcm-poi-detail
                     .poi=${this.poi}
                     .category=${this.category}
+                    .thumbnail=${this.thumbnail}
                     .layers=${this.layers}
                     .photos=${this.photos}
                     .locale=${this.locale}

@@ -37,6 +37,7 @@ import type { Fetch } from './adapters/upstream-http.js';
 import { createStandInUrlSigner, createStorageUrlSigner } from './adapters/url-signer.js';
 import { createUsgsApi, createUsgsScenes } from './adapters/usgs.js';
 import { createVertexAi } from './adapters/vertex-ai.js';
+import { createWikipediaApi } from './adapters/wikipedia.js';
 import type { Ports } from './ports/index.js';
 import type { RemoteFiles } from './ports/remote-files.js';
 import type { RuntimeConfig } from './ports/runtime-config.js';
@@ -300,6 +301,7 @@ export function createDeps(env: Env, app: App): Deps {
         signer: urlSignerOf(env, getStorage(app), config.buckets),
         kit: createDiskExportKit(EXPORT_KIT_FOLDER),
         starters: createDiskStarterTemplates(STARTER_FOLDER),
+        wiki: createWikipediaApi({ fetch: upstream.fetch }),
     };
 }
 

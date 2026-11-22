@@ -159,6 +159,9 @@ export const uk: Messages = {
     'poi.sourceLayer': 'Зображено на: {layer}',
     'poi.photos': 'Фотографії цього місця',
     'poi.openPhoto': 'Відкрити фотографію: {title}',
+    'wikipedia.read': 'Читати у Вікіпедії',
+    'wikipedia.loadFailed':
+        'Статті Вікіпедії не завантажилися, ймовірно, через з’єднання. Перевірте інтернет і знову увімкніть Вікіпедію в розділі «Шари».',
     'license.CC0': 'CC0 (без застереження прав)',
     'license.CC-BY-4.0': 'CC BY 4.0',
     'license.CC-BY-SA-4.0': 'CC BY-SA 4.0',

@@ -160,6 +160,9 @@ export const ko: Messages = {
     'poi.sourceLayer': '표시된 레이어: {layer}',
     'poi.photos': '이 장소의 사진',
     'poi.openPhoto': '사진 열기: {title}',
+    'wikipedia.read': '위키백과에서 읽기',
+    'wikipedia.loadFailed':
+        '위키백과 문서를 불러오지 못했습니다. 연결 문제일 가능성이 큽니다. 인터넷을 확인한 다음 레이어에서 위키백과를 다시 켜세요.',
     'license.CC0': 'CC0(권리 유보 없음)',
     'license.CC-BY-4.0': 'CC BY 4.0',
     'license.CC-BY-SA-4.0': 'CC BY-SA 4.0',

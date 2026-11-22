@@ -1,4 +1,4 @@
-import type { Poi, PoiCategory } from '@hcm/shared';
+import { wikipediaPoi, type Poi, type PoiCategory } from '@hcm/shared';
 import { afterEach, beforeAll, describe, expect, it } from 'vitest';
 import { page } from 'vitest/browser';
 
@@ -144,5 +144,53 @@ describe('<hcm-poi-detail>', () => {
         defineHcmPoiDetail();
 
         expect(customElements.get(HCM_POI_DETAIL_TAG)).toBe(HcmPoiDetail);
+    });
+});
+
+describe('<hcm-poi-detail> a Wikipedia article', () => {
+    beforeAll(() => {
+        defineKitDoubles();
+        defineHcmPoiDetail();
+    });
+
+    afterEach(() => {
+        document.body.replaceChildren();
+    });
+
+    it('happyPath_aWikipediaArticleShowsItsFreeThumbnailTextAndLink @S-V90-HAPPY-ARTICLE', async () => {
+        const article = {
+            id: 'ro-1',
+            lng: 26.0973,
+            lat: 44.4413,
+            versions: { ro: { title: 'Ateneul Român', extract: 'Sală de *concerte*.', url: 'https://ro.wikipedia.org/wiki/A' } },
+            thumb: 'wikipedia/ro-1.jpg',
+        };
+        const wiki: PoiCategory = {
+            ...category('cladiri'),
+            id: 'wikipedia',
+            label: { ro: 'Wikipedia', en: 'Wikipedia' },
+            attribution: 'Wikipedia (CC BY-SA 4.0)',
+        };
+        const element = await detail({ poi: wikipediaPoi(article, 'ro'), category: wiki, thumbnail: article.thumb, locale: 'ro' });
+
+        const picture = shadowQuery(element, 'img.picture');
+        expect(picture.getAttribute('src')).toBe(new URL('wikipedia/ro-1.jpg', TEST_MANIFEST_URL).href);
+        expect(picture.getAttribute('alt')).toBe('');
+        const text = shadowText(element);
+        expect(text).toContain('Sală de *concerte*.');
+        expect(text).toContain('Sursa: Wikipedia (CC BY-SA 4.0)');
+        expect(shadowQuery(element, 'a').textContent).toContain('Citește pe Wikipedia');
+    });
+
+    it('badPath_noThumbnailOrAnUnreadableAddressShowsNoPicture', async () => {
+        const element = await detail({ poi: poi('casa-uranus'), category: category('cladiri'), thumbnail: null });
+        expect(element.shadowRoot?.querySelector('img.picture')).toBeNull();
+        const broken = await detail({
+            poi: poi('casa-uranus'),
+            category: category('cladiri'),
+            thumbnail: 'a.jpg',
+            manifestUrl: 'https://[',
+        });
+        expect(broken.shadowRoot?.querySelector('img.picture')).toBeNull();
     });
 });

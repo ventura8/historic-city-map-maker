@@ -8,6 +8,7 @@ import {
     findOverlay,
     overlayLabel,
     overlaysFromManifest,
+    wikipediaArticleOf,
     withOverlayVisibility,
     type LngLat,
     type ViewerLocale,
@@ -17,6 +18,7 @@ import {
     type Overlay,
     type PhotoView,
     type Story,
+    type WikipediaArticle,
 } from '@hcm/shared';
 import type { AccentChoice, WindowClass } from '@hcm/ui';
 import { CONE_MIN_ZOOM, type MyLocationFix } from '@hcm/ui/map';
@@ -118,7 +120,17 @@ export interface ViewerState {
     readonly myLocation: MyLocationState;
     /** Show on map's ring around a photo's place (V51), on every map of the view; null without one. */
     readonly photoMark: LngLat | null;
+    /** M31: the Wikipedia overlay's articles, loaded the first time it shows (`wikipedia.ts`). */
+    readonly wikipedia: WikipediaState;
 }
+
+/** M31 (`docs/research/M31-wikipedia.md` §4): the Wikipedia file's articles and where their load is. */
+export interface WikipediaState {
+    readonly status: 'idle' | 'loading' | 'ready' | 'failed';
+    readonly articles: readonly WikipediaArticle[];
+}
+
+const NO_WIKIPEDIA: WikipediaState = { status: 'idle', articles: [] };
 
 const NO_VIEW: MapView = { center: [0, 0], zoom: 0, bearing: 0 };
 
@@ -154,6 +166,7 @@ export function initialState(locale: ViewerLocale, theme: ThemeMode, consent: Co
         systemDark: false,
         myLocation: null,
         photoMark: null,
+        wikipedia: NO_WIKIPEDIA,
     };
 }
 
@@ -183,6 +196,7 @@ export function withManifest(state: ViewerState, manifest: Manifest): ViewerStat
         ...state,
         manifest,
         overlays,
+        wikipedia: NO_WIKIPEDIA,
         view: cityView(manifest),
         year: yearOfLayers(manifest.layers, visible),
         front: null,
@@ -302,7 +316,9 @@ export function displayedOverlays(state: Pick<ViewerState, 'overlays' | 'compare
 }
 
 export function hasPoi(state: ViewerState, poiId: string): boolean {
-    return (state.manifest?.pois ?? []).some((poi) => poi.id === poiId);
+    return (
+        (state.manifest?.pois ?? []).some((poi) => poi.id === poiId) || wikipediaArticleOf(state.wikipedia.articles, poiId) !== undefined
+    );
 }
 
 export function sheetAfterClosing(sheet: SheetName, closed: SheetName): SheetName {

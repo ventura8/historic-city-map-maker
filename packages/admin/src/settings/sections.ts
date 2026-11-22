@@ -10,8 +10,9 @@ import { NEW_CATEGORY } from './categories.js';
 /**
  * M5 (docs/research/M5-interfaces.md §5.6, CR-M5-10; owner: export): `export`, the city's static export; (§1.8; owner:
  * multi-city) `budget`, the city's share of the project's budgets. `icon`: the public map's browser tab icon (`./icon.ts`).
+ * M31: `wikipedia`, the public map's Wikipedia overlay (`./wikipedia.ts`).
  */
-const SETTINGS_SECTIONS = [...CITY_SECTIONS, 'categories', 'overlays', 'export', 'budget', 'icon'] as const;
+const SETTINGS_SECTIONS = [...CITY_SECTIONS, 'categories', 'overlays', 'export', 'budget', 'icon', 'wikipedia'] as const;
 
 export type SettingsSection = (typeof SETTINGS_SECTIONS)[number];
 

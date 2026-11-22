@@ -20,6 +20,7 @@ import { contributorsFunctions, photosFunctions, reviewFunctions, suggestionsFun
 import { publishFunctions } from './publish/index.js';
 import { defineSetupFunctions } from './setup/index.js';
 import { telemetryFunctions } from './telemetry/index.js';
+import { wikipediaFunctions } from './wikipedia/index.js';
 import { workerFunctions } from './worker/index.js';
 
 export const admin = adminFunctions(getDeps);
@@ -55,3 +56,5 @@ const exportGroup = exportFunctions(getDeps);
 export { exportGroup as export };
 /** M7 (`docs/research/M7-local-worker.md` §2.4): the local worker's callables, `worker-hello` … `worker-end`. */
 export const worker = workerFunctions(getDeps);
+// M31 (docs/research/M31-wikipedia.md): the Wikipedia overlay's settings and refresh.
+export const wikipedia = wikipediaFunctions(getDeps);

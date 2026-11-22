@@ -118,6 +118,8 @@ export const FIRESTORE_PATHS = {
     poi: (cityId: string, poiId: string) => child(cityId, 'pois', poiId),
     /** M17 (`docs/research/M17-stories.md` §1): the city's stories. */
     stories: (cityId: string) => `${cityPath(cityId)}/stories`,
+    /** M31 (`docs/research/M31-wikipedia.md`): the Wikipedia overlay's settings and last fetch (functions only). */
+    wikipedia: (cityId: string) => child(cityId, 'wikipedia', 'state'),
     story: (cityId: string, storyId: string) => child(cityId, 'stories', storyId),
     poiCategories: (cityId: string) => `${cityPath(cityId)}/poiCategories`,
     poiCategory: (cityId: string, categoryId: string) => child(cityId, 'poiCategories', categoryId),
@@ -255,6 +257,10 @@ export const STORAGE_PATHS = {
         ['review-held', citySegment(cityId), idSegment(photoId), `${shaSegment(sha256)}-${variant}.webp`].join('/'),
     /** public, `Cache-Control: public, max-age=60`. */
     manifest: (cityId: string) => `cities/${citySegment(cityId)}/manifest.json`,
+    /** M31: public, `max-age=300`, beside the manifest: the Wikipedia overlay's articles (`wikipediaFileSchema`). */
+    wikipediaFile: (cityId: string) => `cities/${citySegment(cityId)}/wikipedia.json`,
+    /** M31: public, beside the manifest: an article's free thumbnail (`thumb` names it relative to the manifest). */
+    wikipediaThumb: (cityId: string, thumb: string) => `cities/${citySegment(cityId)}/${thumb}`,
     /**
      * public, `Cache-Control: public, max-age=300`, fixed names the server overwrites (`cities.setIcon`, the manifest's build):
      * the city's tab icon at `CITY_ICON_SIZES`, which the city's pages link straight to (the page never learns a hash).

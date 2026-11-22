@@ -167,6 +167,9 @@ export const fr: Messages = {
     'poi.sourceLayer': 'Visible sur : {layer}',
     'poi.photos': 'Photos de ce lieu',
     'poi.openPhoto': 'Ouvrir la photo : {title}',
+    'wikipedia.read': 'Lire sur Wikipédia',
+    'wikipedia.loadFailed':
+        'Les articles de Wikipédia ne se sont pas chargés, sans doute à cause de la connexion. Vérifiez votre connexion internet, puis réactivez Wikipédia dans Calques.',
     'license.CC0': 'CC0 (aucun droit réservé)',
     'license.CC-BY-4.0': 'CC BY 4.0',
     'license.CC-BY-SA-4.0': 'CC BY-SA 4.0',

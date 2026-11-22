@@ -160,6 +160,9 @@ export const pl: Messages = {
     'poi.sourceLayer': 'Widoczne na: {layer}',
     'poi.photos': 'Zdjęcia tego miejsca',
     'poi.openPhoto': 'Otwórz zdjęcie: {title}',
+    'wikipedia.read': 'Czytaj w Wikipedii',
+    'wikipedia.loadFailed':
+        'Artykuły z Wikipedii nie wczytały się, prawdopodobnie z powodu połączenia. Sprawdź internet, a potem ponownie włącz Wikipedię w Warstwach.',
     'license.CC0': 'CC0 (bez zastrzeżonych praw)',
     'license.CC-BY-4.0': 'CC BY 4.0',
     'license.CC-BY-SA-4.0': 'CC BY-SA 4.0',

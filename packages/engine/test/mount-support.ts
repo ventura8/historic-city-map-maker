@@ -153,6 +153,7 @@ export function testEnvironment(options: TestEnvironmentOptions = {}): TestEnvir
             fonts.push(engineBase);
         },
         loadCompare: () => compare.deps.load(),
+        loadWikipedia: () => Promise.resolve([]),
         ...(options.catalogues === undefined ? {} : { catalogues: options.catalogues }),
     };
     return { env, viewer, map, telemetry, log, stores, fonts, containers, created, compare };

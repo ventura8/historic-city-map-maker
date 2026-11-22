@@ -157,6 +157,9 @@ export const ar: Messages = {
     'poi.sourceLayer': 'يظهر في: {layer}',
     'poi.photos': 'صور هذا المكان',
     'poi.openPhoto': 'فتح الصورة: {title}',
+    'wikipedia.read': 'اقرأ على ويكيبيديا',
+    'wikipedia.loadFailed':
+        'لم يتم تحميل مقالات ويكيبيديا، على الأرجح بسبب الاتصال. تحقق من الإنترنت، ثم شغّل ويكيبيديا مرة أخرى من الطبقات.',
     'license.CC0': 'CC0 (دون حقوق محفوظة)',
     'license.CC-BY-4.0': 'CC BY 4.0',
     'license.CC-BY-SA-4.0': 'CC BY-SA 4.0',

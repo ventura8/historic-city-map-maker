@@ -214,7 +214,7 @@ held-out checks (`steps/recalibrate.py`); a refine with nothing better ends `can
 version's page shows both figures and swaps its one map between the new version and the current one at full detail; a recalibration
 never publishes itself, and one not shown better replaces the current layer only by the owner's choice (`acceptWorse`).
 
-## Later milestones (M9 to M29)
+## Later milestones (M9 to M31)
 
 Each has its contract in `docs/research/`; only the shape is here.
 
@@ -228,6 +228,7 @@ Each has its contract in `docs/research/`; only the shape is here.
 - **Disappeared streets** (M27, [research/M27-lost-streets.md](research/M27-lost-streets.md)): a pinned POI category rebuilt from open data and traced on our own georeferenced maps (`functions/src/imagery/lost-run.ts`); nothing from `fostulbucuresti`.
 - **Platform and Sources** (M28, [research/M28-sources.md](research/M28-sources.md)): Setup's Platform card (the required services) and Sources step (which imagery and data sources the map uses, with costs and accounts; `packages/admin/src/setup/sources.ts`, `functions/src/ops/country-sources.ts`).
 - **Imagery census** (M29, [research/M29-imagery-census.md](research/M29-imagery-census.md)): on the first step of a new map, how many historical images from above the city exist, free and paid, with a preview per decade (`packages/shared/src/census.ts`).
+- **Wikipedia overlay** (M31, [research/M31-wikipedia.md](research/M31-wikipedia.md)): geotagged Wikipedia articles of the city (Romanian and English, the visitor's language first) as an overlay of its own, off at open, not following the timeline. Built on the server only: the manifest build (`functions/src/wikipedia/refresh.ts`), asked for weekly by the imagery tick, queries MediaWiki's GeoSearch and extracts politely (generic User-Agent, one request at a time, `maxlag`), copies free thumbnails and writes `wikipedia.json` beside the manifest; the viewer loads it through its lazy chunk (`packages/engine/src/wikipedia/wikipedia.ts`) and draws the articles as places of the `wikipedia` category, text only. Visitors make no third-party request and the viewer reads no Firestore. The admin's Settings → Wikipedia (`wikipedia.manage`) turns it on, picks the languages, refreshes and hides articles.
 - **Viewer timeline and photos** (2026-11): the timeline dock (`packages/ui/src/viewer/timeline-dock.ts`) carries a picked year's opacity card (`packages/ui/src/viewer/timeline-opacity.ts`, the kit's slider); Layers keeps its rows under the pinned strip and scrolls a picked year's layer to the top; a photo opened from the photo list goes back to it by button, back gesture or Esc (`packages/ui/src/viewer/photo-return.ts`).
 
 ## Security

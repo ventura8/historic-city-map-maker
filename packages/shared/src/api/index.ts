@@ -155,6 +155,8 @@ export {
     reprocessPhotoResponseSchema,
 } from './content.js';
 export type { BuildManifestTask, RebuildManifestRequest, RebuildManifestResponse } from './content.js';
+export { wikipediaListedArticleSchema, wikipediaManageRequestSchema, wikipediaManageResponseSchema } from './wikipedia.js';
+export type { WikipediaListedArticle, WikipediaManageRequest, WikipediaManageResponse } from './wikipedia.js';
 export {
     BROWSE_FETCH_MAX_BYTES,
     BROWSE_LONG_EDGE,
