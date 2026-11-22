@@ -253,10 +253,9 @@ class ImageryStore implements AreaStore<ImageryState, ImageryIntents> {
                 toggleCurrent: version.toggleCurrent.bind(version),
                 reject: () => version.reject(),
                 confirmRights: (confirmedBy: string) => version.confirmRights(confirmedBy),
-                deleteVersion: () => version.deleteVersion(),
-                makeLive: () => version.makeLive(),
                 choose: (choice: PublishChoice) => version.choose(choice),
             },
+            ...{ deleteVersion: () => version.deleteVersion(), makeLive: () => version.makeLive() },
             ...{ studioDone: () => version.studioDone(), download: () => version.download(), retryJob: () => version.retry() },
             ...{ locateAgain: () => version.locateAgain(), fixTiles: () => version.fixTiles(), cancelJob: () => version.cancel() },
             setPreviewOpacity: (percent) => {

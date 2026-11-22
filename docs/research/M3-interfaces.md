@@ -938,6 +938,7 @@ implementation, `maxInstances` 3, as `fn-admin@`; the schemas are done (`package
 | `imagery.approve` | enforce | `{cityId, versionId}` → `{state, jobId}` | `notFound`, `imagery.versionState` |
 | `imagery.reject` | enforce | `{cityId, versionId}` → `{state: 'rejected'}` | `notFound`, `imagery.versionState` |
 | `imagery.deleteVersion` | enforce | `{cityId, versionId}` → `{deleted: true}` | `notFound`, `imagery.deletePublished`, `imagery.deleteRunning`, `imagery.deleteInUse`, `imagery.joinPartHeld`, `imagery.versionState`, `city.notEditor` |
+| `imagery.makeLive` | enforce | `{cityId, versionId}` → `{live: true}` | `notFound`, `imagery.versionState`, `imagery.liveTilesGone`, `city.notEditor` (M12-own-tiles.md, lesson 759) |
 | `imagery.choose` | consume | `{cityId, versionId, choice}` → `{state, deferUntil?, studioPath?}` | `notFound`, `imagery.versionState`, `imagery.tilesetLimit` (for `pay`) |
 | `imagery.studioDone` | enforce | `{cityId, versionId}` → `{tilesetId, layerId}` | `imagery.studioNotFound`, `imagery.versionState`, `mapbox.notConfigured` |
 | `imagery.saveGcps` | enforce | `imagerySaveGcpsRequestSchema` → `{jobId, versionId, resumed}` | `invalidRequest`, `imagery.tooFewGcps`, `imagery.degenerateGcps`, `imagery.gcpOutside`, `imagery.versionState`, `imagery.dailyLimit`, `guardPaused`, `layers.busy` |
