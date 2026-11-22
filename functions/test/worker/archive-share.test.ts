@@ -121,6 +121,18 @@ describe('sharing scanned maps while busy', () => {
         expect(archiveHere(archiveJob(), undefined)).toBe(true);
         expect(archiveHere(archiveJob({ waitReason: 'archive-copy' }), undefined)).toBe(false);
     });
+
+    it('happyPath_theHolderMayClaimARegeorefOfItsArchive @S-P20-HAPPY-REGEOREF-HOLDER', async () => {
+        const made = await world();
+        await seedWorker(made, WORKER);
+        const regeoref = localJob({ type: 'regeoref', params: { basedOn: 'ar-1', originalArchiveId: ARCHIVE } });
+        await seedJob(made, 'rg-archive', regeoref);
+
+        expect(archiveHere(regeoref, [ARCHIVE])).toBe(true);
+        await expect(callAs(made, claimFunction, { workerId: WORKER, archives: [ARCHIVE], shares: true })).resolves.toEqual({
+            job: { jobId: 'rg-archive' },
+        });
+    });
 });
 
 function sharing(overrides: Partial<NonNullable<WorkerDoc['sharing']>> = {}): NonNullable<WorkerDoc['sharing']> {
@@ -181,5 +193,19 @@ describe('sharing refused or idle', () => {
         await expect(readWorker(made)).resolves.not.toHaveProperty('sharing');
         await seedGuard(made, 'red');
         await expect(failureOf(wanted(made))).resolves.toMatchObject({ details: { code: 'apiError.guardPaused' } });
+    });
+
+    it('badPath_anotherWorkerOrOneWithNoArchivesCannotClaimAnArchiveRegeoref @S-P20-BAD-REGEOREF-NOT-HOLDER', async () => {
+        const made = await world();
+        const regeoref = localJob({ type: 'regeoref', params: { basedOn: 'ar-1', originalArchiveId: ARCHIVE } });
+        await seedJob(made, 'rg-archive', regeoref);
+
+        expect(archiveHere(regeoref, ['ar-fedcba9876543210'])).toBe(false);
+        expect(archiveHere(regeoref, [])).toBe(false);
+        expect(archiveHere(regeoref, undefined)).toBe(false);
+        await expect(callAs(made, claimFunction, { workerId: OTHER_WORKER, archives: ['ar-fedcba9876543210'] }, OTHER)).resolves.toEqual({
+            job: null,
+        });
+        await expect(callAs(made, claimFunction, { workerId: OTHER_WORKER, archives: [] }, OTHER)).resolves.toEqual({ job: null });
     });
 });

@@ -175,6 +175,14 @@ async function regeorefIn(transaction: DocumentTransaction, regeoref: Regeoref, 
     }
 }
 
+/** Parameters for a regeoref job: an archive version also names its archive so only a worker holding it whole claims it. */
+function paramsOf(base: LayerVersionDoc): Record<string, unknown> {
+    if (base.source?.kind === 'archive' && typeof base.source.archiveId === 'string') {
+        return { basedOn: base.jobId, originalArchiveId: base.source.archiveId };
+    }
+    return { basedOn: base.jobId };
+}
+
 /** Starts the new rendition after the creator's checks; its job id is also its version id. */
 export async function startRegeoref(deps: RegeorefDeps, regeoref: Regeoref): Promise<{ jobId: string; versionId: string }> {
     const now = deps.clock.now();
@@ -191,7 +199,7 @@ export async function startRegeoref(deps: RegeorefDeps, regeoref: Regeoref): Pro
         cityId,
         jobId,
         type: 'regeoref',
-        params: { basedOn: base.jobId },
+        params: paramsOf(base),
         layerId: base.layerId,
         createdBy: regeoref.by,
         now,

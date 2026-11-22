@@ -1027,6 +1027,8 @@ automatic or owner layout), so its tiles were a fraction as sharp as its scans a
 - A placing that used a record keeps it with the version (`parts.json`, `fullres.keep_for_version`). A `regeoref` of an archive
   composite stages it beside the scan and warps the originals through the saved points at the zoom the version was published at
   (`steps/warp.py` `composite_originals`); a crop ring, a map over terrain, no record or no published zoom keeps the usual warp.
+  A regeoref of an archive version names its archive (`originalArchiveId`), and only a worker that holds that archive whole
+  claims it (`functions/src/worker/archive-host.ts` `archiveHere`); it waits otherwise, never warping a reduced copy.
 
 Scenarios: S-P20-HAPPY-FULLRES, S-P20-BAD-FULLRES-ORIGINAL-GONE (`pipeline/tests/unit/test_placing_fullres.py`).
 

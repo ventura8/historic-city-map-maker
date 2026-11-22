@@ -21407,6 +21407,28 @@
             "notes": "M20 §19.18. Tests: pipeline/tests/unit/test_placing_fullres.py, test_placing_fullres_more.py."
         },
         {
+            "id": "S-P20-HAPPY-REGEOREF-HOLDER",
+            "behaviour": "P20",
+            "area": "functions",
+            "path": "happy",
+            "title": "A regeoref of an archive version names its archive and is claimed by the holder",
+            "asserts": "startRegeoref on an archive base sets params.originalArchiveId (a USGS base does not); archiveHere returns true and worker.claim hands the job to a worker holding that archive whole",
+            "tier": "functions",
+            "status": "exists",
+            "notes": "M20 §22 (archive regeoref routed to the holder so it warps original scans). Tests: functions/test/imagery/save-gcps.test.ts, functions/test/worker/archive-share.test.ts."
+        },
+        {
+            "id": "S-P20-BAD-REGEOREF-NOT-HOLDER",
+            "behaviour": "P20",
+            "area": "functions",
+            "path": "bad",
+            "title": "A worker without the archive cannot claim a regeoref of an archive version",
+            "asserts": "archiveHere returns false for a regeoref with params.originalArchiveId when the worker holds another archive or none, and worker.claim returns job: null",
+            "tier": "functions",
+            "status": "exists",
+            "notes": "M20 §22 (archive regeoref waits for the holder). Tests: functions/test/worker/archive-share.test.ts."
+        },
+        {
             "id": "S-A65-HAPPY-JOINED-FRAME",
             "behaviour": "A65",
             "area": "admin",

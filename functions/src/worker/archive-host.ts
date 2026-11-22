@@ -41,12 +41,17 @@ async function reporterOf(reader: DocumentReader, cityId: string, archiveId: str
 }
 
 /**
- * Whether a worker may take `job` for the sheets it waits on: a series waiting for its sheets' copy (`archive-copy`) goes only to a
- * worker that holds its archive whole (M20 §22: the holder runs it itself when it cannot share it, e.g. past today's limit); every
- * other job, to any worker.
+ * Whether a worker may take `job` for the local archive it needs: a series waiting for its sheets' copy (`archive-copy`) goes only
+ * to a worker that holds its archive whole (M20 §22: the holder runs it itself when it cannot share it, e.g. past today's limit); a
+ * regeoref naming `originalArchiveId` goes only to a worker that holds that archive whole; every other job, to any worker.
  */
 export function archiveHere(job: JobDoc, archives: readonly string[] | undefined): boolean {
-    return job.waitReason !== 'archive-copy' || (archives ?? []).includes(String(archiveOf(job)));
+    const held = archives ?? [];
+    const original = job.params['originalArchiveId'];
+    if (typeof original === 'string' && !held.includes(original)) {
+        return false;
+    }
+    return job.waitReason !== 'archive-copy' || held.includes(String(archiveOf(job)));
 }
 
 /** A queued archive series waiting for its sheets' copy. */

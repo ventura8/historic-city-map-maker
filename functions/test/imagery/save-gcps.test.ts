@@ -5,7 +5,7 @@
  * same layer, which keeps its tiles until the new one is published. Points off the scan or out of the city, a collinear
  * set, a crop that misses the layer or crosses itself are refused before anything is written.
  */
-import { FIRESTORE_PATHS, JOBS_PER_DAY, JOB_MAX_ATTEMPTS, type Gcp, type JobDoc } from '@hcm/shared';
+import { FIRESTORE_PATHS, JOBS_PER_DAY, JOB_MAX_ATTEMPTS, type Gcp, type JobDoc, type LayerVersionDoc } from '@hcm/shared';
 import { describe, expect, it } from 'vitest';
 
 import { cropFunction } from '../../src/imagery/crop.js';
@@ -14,6 +14,7 @@ import { onJobWrite } from '../../src/imagery/on-job-write.js';
 import { saveGcpsFunction } from '../../src/imagery/save-gcps.js';
 import { failureOf } from '../admin/world.js';
 import { adminCall } from '../publish/fakes.js';
+import { ARCHIVE, seriesIdOf } from './archive-world.js';
 import {
     CITY,
     NOW,
@@ -168,9 +169,9 @@ describe('imagery.saveGcps', () => {
         expect(await readJob(world, response.jobId)).toMatchObject({
             type: 'regeoref',
             status: 'queued',
-            params: { basedOn: CORONA },
             layerId: LAYER,
         });
+        expect((await readJob(world, response.jobId))?.params).toEqual({ basedOn: CORONA });
         expect(await readLayer(world, LAYER)).toMatchObject({ currentVersion: CORONA, pendingVersion: response.jobId });
         expect((await readVersion(world, CORONA))?.state).toBe('published');
     });
@@ -491,5 +492,19 @@ describe('imagery.crop', () => {
                 RING.map((vertex) => ({ ...vertex, lng: vertex.lng + 1 })),
             ),
         ).resolves.toMatchObject({ versionId: expect.stringMatching(/^cr-/) as unknown });
+    });
+});
+
+describe('imagery.saveGcps on an archive version', () => {
+    it('happyPath_anArchiveVersionRegeorefNamesItsOriginalArchive @S-P20-HAPPY-REGEOREF-HOLDER', async () => {
+        const world = await publishedWorld();
+        const corona = await readVersion(world, CORONA);
+        const source = { kind: 'archive', archiveId: ARCHIVE, seriesId: seriesIdOf(1), sheetCount: 4, placedCount: 4 } as const;
+        expect(corona).toBeDefined();
+        await seedVersion(world, CORONA, { ...(corona ?? {}), source } as LayerVersionDoc);
+
+        const response = await save(world, { versionId: CORONA, gcps: pairs(6, 20480, 16384) });
+
+        expect((await readJob(world, response.jobId))?.params).toEqual({ basedOn: CORONA, originalArchiveId: ARCHIVE });
     });
 });
