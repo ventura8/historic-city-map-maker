@@ -20,7 +20,7 @@ export interface PoisFilter {
     readonly unpublished: boolean;
     /**
      * No years (the owner's request of 2026-11-22): the research backlog, places with no start, end or seen year. A
-     * missing field cannot be queried, so it filters the loaded page, as Unpublished within a category does.
+     * missing field cannot be queried, so it filters the list read whole (lesson 768), as Unpublished within a category does.
      */
     readonly noYears?: boolean;
     /** Filters the loaded page by title. */

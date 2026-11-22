@@ -143,7 +143,7 @@ export interface PhotoChoicePort {
 interface PoisFilterPort {
     readonly category: string | null;
     readonly unpublished: boolean;
-    /** No years: places with no start, end or seen year (the research backlog), on the loaded page. */
+    /** No years: places with no start, end or seen year (the research backlog), of the whole list. */
     readonly noYears?: boolean;
     readonly search: string;
 }

@@ -136,7 +136,7 @@ Firestore rules' `yearsInRange` (was `dated`) likewise; `review.decide` and `his
 the viewer draws it at every timeline year (`map-specs.ts`, categories regardless of the year since 2026-11-22) and its
 sheet says `poi.yearsUnknown` ("Ani necunoscuți (cercetare în curs)" / "Years unknown (research ongoing)", in all 16
 viewer catalogues), except a Wikipedia article (M31), which has no years by nature. The admin's list marks it **Fără
-ani** / **No years**, and the **No years** chip filters the loaded page down to them: the research backlog.
+ani** / **No years**, and the **No years** chip filters the list (read whole) down to them: the research backlog.
 
 The GeoJSON import (`geojson.ts`, `importer.ts`) also: reads a year written as digits (`"1890"`) and refuses other text;
 finds the place a feature updates by its `id` or, failing that, `properties.id`; and clears, on update, the optional

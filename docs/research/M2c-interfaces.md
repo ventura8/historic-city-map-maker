@@ -733,8 +733,8 @@ Category chips (from `poiCategories`, with their icons and colours), Unpublished
 the category's icon on its colour, the title, the years, the shape (point, line, area). A place with no years (the
 owner's request of 2026-11-22: imported before research dates it) shows **No years** / **Fără ani** under its row instead
 of the years, and the **No years** chip (`filter.noYears`, `hasNoYears` of `places.ts`) shows only those places of the
-loaded page (a missing field cannot be queried, so it filters the page as Unpublished within a category does; **Show
-more** reaches the rest): the research backlog. From expanded, the overview map
+list, read whole (a missing field cannot be queried, so it filters in the page as Unpublished within a category does):
+the research backlog. From expanded, the overview map
 draws every place in its category's overlay; a click on a shape selects it (`onPoiClick`).
 
 ### 7.2 The editor
