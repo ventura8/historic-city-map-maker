@@ -98,7 +98,9 @@ describe('rights (§7)', () => {
     });
 
     it('happyPath_aTitleThatNamesTheYearIsNotFollowedByItAgain @S-A197-HAPPY-YEAR-ONCE', () => {
-        expect(creditLine({ licence: 'unknown', state: 'needs-confirmation', year: '1791' }, 'Planul Ernst 1791')).toBe('Planul Ernst 1791');
+        expect(creditLine({ licence: 'unknown', state: 'needs-confirmation', year: '1791' }, 'Planul Ernst 1791')).toBe(
+            'Planul Ernst 1791',
+        );
     });
 
     it('badPath_aTitleWithAnotherYearStillCredits @S-A197-BAD-YEAR-OTHER-NUMBER', () => {
