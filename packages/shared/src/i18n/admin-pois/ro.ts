@@ -55,8 +55,7 @@ export const ro = {
     'adminContent.pois.language.en': 'engleză',
     'adminContent.pois.field.yearStart': 'Anul de început',
     'adminContent.pois.field.yearEnd': 'Anul de sfârșit',
-    'adminContent.pois.field.yearsHint':
-        'Un an, anii de la și până la, sau niciunul cât timp cercetarea e în curs; lasă gol un an necunoscut (1500 până la anul viitor).',
+    'adminContent.pois.field.yearsHint': 'Un an, anii de la și până la, sau niciunul până la cercetare (1500 până la anul viitor).',
     'adminContent.pois.field.linkUrl': 'Adresa linkului {number} (https://)',
     'adminContent.pois.field.linkLabel': 'Textul linkului {number}',
     'adminContent.pois.field.addLink': 'Adaugă un link',
