@@ -616,7 +616,7 @@ describe('<hcm-admin-photo-editor>: the viewed area of an aerial photo', () => {
                 issues: [{ path: 'viewedArea', code: 'validation.viewedArea' }],
             }),
         );
-        expect(deep(broken.element, '[data-area] [role="alert"]').textContent).toContain('rectangle or a trapezoid');
+        expect(deep(broken.element, '[data-area] [role="alert"]').textContent).toContain('four corners, a rectangle or a trapezoid');
         cleanup();
 
         const street = await editorOf(editor());

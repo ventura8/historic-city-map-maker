@@ -187,14 +187,12 @@ export const en: Readonly<Record<AdminPhotosKey, string>> = {
     'adminContent.photos.direction.cancel': 'Cancel choosing the direction',
     'adminContent.photos.direction.centre': 'Point at map centre',
     'adminContent.photos.area.title': 'Viewed area',
-    'adminContent.photos.area.note':
-        'The ground this aerial photo shows. Drag the four corners on the map into a rectangle (photo taken straight down) or a trapezoid (photo taken at an angle).',
+    'adminContent.photos.area.note': 'The ground this aerial photo shows: drag its four corners on the map.',
     'adminContent.photos.area.none': 'This aerial photo has no viewed area yet.',
     'adminContent.photos.area.draw': 'Draw the area in front of the camera',
     'adminContent.photos.area.reset': 'Reset the area to the direction and field of view',
     'adminContent.photos.area.remove': 'Remove the area',
-    'adminContent.photos.area.refused':
-        'The viewed area keeps exactly four corners and must not cross itself: drag a corner instead of adding one, or reset the area.',
+    'adminContent.photos.area.refused': 'The viewed area keeps four corners and never crosses itself: drag a corner, or reset the area.',
     'adminContent.photos.pin.outside': 'The place must be in the city or at most half a degree outside it.',
     'adminContent.photos.block.processing': 'It can be published once processed.',
     'adminContent.photos.block.failed': 'The image was refused: replace it to publish the photo.',

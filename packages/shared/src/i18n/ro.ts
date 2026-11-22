@@ -31,8 +31,7 @@ export const ro = {
     'validation.manifestSource': 'Configurația trebuie să conțină fie manifestUrl, fie manifest.',
     'validation.json': 'Conținutul nu este JSON valid.',
     'validation.ringClosed': 'Un inel al poligonului trebuie să se termine unde începe.',
-    'validation.viewedArea':
-        'Zona văzută are nevoie de patru colțuri care formează un dreptunghi sau un trapez, fără laturi care se încrucișează: trageți colțurile la loc sau resetați zona.',
+    'validation.viewedArea': 'Zona văzută are patru colțuri, fără laturi încrucișate: trageți colțurile sau resetați zona.',
     'validation.reference': 'Valoarea trimite la un element care nu există.',
     'validation.invalid': 'Valoarea nu este validă.',
     'error.generic': 'Harta nu a pornit din cauza unei defecțiuni a paginii (e raportată). Reîncarcă pagina.',
