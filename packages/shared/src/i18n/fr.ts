@@ -112,7 +112,7 @@ export const fr: Messages = {
     'layers.group.historical': 'Calques historiques',
     'layers.group.places': 'Lieux',
     'layers.group.aerial': 'Photos aériennes et satellite',
-    'layers.sub.points': 'Points',
+    'layers.sub.points': 'Points isolés',
     'layers.sub.lines': 'Lignes',
     'layers.sub.areas': 'Zones',
     'layers.sub.expand': 'Groupes de {name}',

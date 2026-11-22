@@ -123,8 +123,7 @@ export const ro = {
     'adminContent.pois.deleteTitle': 'Ștergi „{title}”?',
     'adminContent.pois.deleteBody': 'Locul dispare de pe harta publică în aproximativ un minut. Îl poți restaura din Istoric.',
     'adminContent.pois.deleteConfirm': 'Șterge',
-    'adminContent.pois.deleteBusy':
-        'Altă modificare a locurilor încă se salvează, așa că locul nu a fost șters. Așteaptă câteva secunde, apoi apasă din nou Șterge.',
+    'adminContent.pois.deleteBusy': 'Altă modificare încă se salvează, deci locul nu a fost șters. Așteptați puțin, apoi apăsați Șterge.',
     'adminContent.pois.deleted': 'Locul a fost șters.',
     'adminContent.pois.undo': 'Anulează',
     'adminContent.pois.restored': 'Locul a fost readus.',

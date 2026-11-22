@@ -24654,17 +24654,6 @@
             "notes": "Test: e2e/specs/viewer/viewed-area.spec.ts. The owner, 2026-11-22. Unit coverage today: packages/engine/test/core/map-specs.test.ts (badPath_aPhotoWithoutAViewedAreaDrawsNoArea)."
         },
         {
-            "id": "S-A194-HAPPY",
-            "behaviour": "A194",
-            "area": "admin",
-            "path": "happy",
-            "title": "After the Statistics page read the numbers, Home's Visitors card shows them with the trend and the top lists",
-            "asserts": "Show the numbers on Statistics (one consent) -> back on Home the card shows the period's visitors and visits, the trend, the last day, new against returning, the top countries, languages, devices, years, layers and photos, with All the numbers",
-            "tier": "e2e-admin",
-            "status": "exists",
-            "notes": "The owner's request, 2026-11-16. Test: e2e/admin/specs/ops/statistics.spec.ts; unit: packages/ui/test/admin/home/visitors.test.ts, packages/admin/test/home/visitors.test.ts."
-        },
-        {
             "id": "S-A194-BAD-NOT-READ",
             "behaviour": "A194",
             "area": "admin",

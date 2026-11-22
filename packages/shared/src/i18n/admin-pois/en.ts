@@ -121,8 +121,7 @@ export const en: Readonly<Record<AdminPoisKey, string>> = {
     'adminContent.pois.deleteTitle': 'Delete "{title}"?',
     'adminContent.pois.deleteBody': 'The place leaves the public map within about a minute. You can restore it from History.',
     'adminContent.pois.deleteConfirm': 'Delete',
-    'adminContent.pois.deleteBusy':
-        'Another change of the places is still being saved, so the place was not deleted. Wait a few seconds, then press Delete again.',
+    'adminContent.pois.deleteBusy': 'Another change is still saving, so the place was not deleted. Wait a moment, then press Delete again.',
     'adminContent.pois.deleted': 'The place was deleted.',
     'adminContent.pois.undo': 'Undo',
     'adminContent.pois.restored': 'The place is back.',
