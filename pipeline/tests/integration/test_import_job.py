@@ -32,7 +32,7 @@ from tests.synthetic.scenes import Scene
 STEPS = ("fetch", "extract", "stitch", "locate", "reference", "georef", "warp", "export", "pyramid", "register")
 RAW = f"usgs-raw/corona2/{ENTITY_ID}/{ENTITY_ID}.tgz"
 WORK = f"work/{CITY}/{JOB_ID}/"
-ARCHIVE_ONLY = frozenset({"stitched.jpg", "layout.json", "thumbs.jpg", "seams.jpg"})
+ARCHIVE_ONLY = frozenset({"stitched.jpg", "layout.json", "thumbs.jpg", "seams.jpg", "parts.json"})
 
 
 def step_statuses(world: PipelineWorld) -> dict[str, str]:
