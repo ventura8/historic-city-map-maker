@@ -173,20 +173,16 @@ def own_pairs(path: Path, system: str, scale: float) -> list[Pair]:
     vrt, placed = _placed(path, system)
     try:
         dataset = gdal.Open(placed)
-        width, height = dataset.RasterXSize, dataset.RasterYSize
-        transformer = gdal.Transformer(dataset, None, [f"SRC_SRS={system}", f"DST_SRS={srs_wkt(WEB_MERCATOR)}"])
         steps = [index / (LATTICE - 1) for index in range(LATTICE)]
-        pairs = [_pair(transformer, (fx * width, fy * height), scale) for fy in steps for fx in steps]
+        pixels = [(fx * dataset.RasterXSize, fy * dataset.RasterYSize) for fy in steps for fx in steps]
+        transformer = gdal.Transformer(dataset, None, [f"SRC_SRS={system}", f"DST_SRS={srs_wkt(WEB_MERCATOR)}"])
+        places, success = transformer.TransformPoints(0, pixels)
         dataset.Close()
     finally:
         gdal.Unlink(placed)
         gdal.Unlink(vrt)
-    return [pair for pair in pairs if pair is not None]
-
-
-def _pair(transformer: gdal.Transformer, pixel: tuple[float, float], scale: float) -> Pair | None:
-    ok, (mx, my, _) = transformer.TransformPoint(0, pixel[0], pixel[1])
-    return Pair(pixel[0] * scale, pixel[1] * scale, mx, my) if ok else None
+    found = zip(pixels, places, success, strict=True)
+    return [Pair(px * scale, py * scale, place[0], place[1]) for (px, py), place, ok in found if ok]
 
 
 def _plain_copy(path: Path, target: Path) -> Path:

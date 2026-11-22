@@ -16,7 +16,7 @@
  * Finding of 2026-11-22 (1846 atlas, plan-ghid 1923, `docs/LESSONS.md` 759): nor is a tile series that holds the owner's saved
  * layout (`help.layoutAnswer`): the search dropped `help` and laid the series out again by order and seams.
  */
-import { FIRESTORE_PATHS, jobDocSchema, layerVersionDocSchema, type JobDoc } from '@hcm/shared';
+import { FIRESTORE_PATHS, jobDocSchema, layerVersionDocSchema, type JobDoc, type LayerVersionDoc } from '@hcm/shared';
 
 import { ApiError } from '../api/api-error.js';
 import type { StoredDocument } from '../ports/documents.js';
@@ -48,6 +48,14 @@ function whyNot(error: unknown): Readonly<Record<string, string>> {
     return error instanceof ApiError ? { code: error.code } : { error: String(error) };
 }
 
+/** Why a parked version is not searched again: it holds the owner's pairs or tile layout (null: it is searched). */
+function keptByOwner(version: LayerVersionDoc | undefined): string | null {
+    if (holdsOwnerPairs(version)) {
+        return "a parked version keeps the owner's pairs: not searched again";
+    }
+    return version?.help?.layoutAnswer === undefined ? null : "a parked version keeps the owner's tile layout: not searched again";
+}
+
 /**
  * One frame searched again; a refusal, or any other failure (a record its schema refuses: finding of 2026-11-12), is logged with
  * the version and remembered for this image, so one bad frame never stops the others nor is asked again each tick.
@@ -57,10 +65,9 @@ async function relocateOne(deps: RelocateDeps, cityId: string, frame: StoredDocu
     const versionId = frame.id;
     try {
         const version = await deps.documents.get(FIRESTORE_PATHS.layerVersion(cityId, versionId), layerVersionDocSchema);
-        if (holdsOwnerPairs(version)) {
-            deps.log.info("a parked version keeps the owner's pairs: not searched again", { cityId, versionId });
-        } else if (version?.help?.layoutAnswer !== undefined) {
-            deps.log.info("a parked version keeps the owner's tile layout: not searched again", { cityId, versionId });
+        const kept = keptByOwner(version);
+        if (kept !== null) {
+            deps.log.info(kept, { cityId, versionId });
         } else {
             await locateAgain(deps, { cityId, versionId, uid: IMAGERY_WRITER, message: MESSAGE });
         }

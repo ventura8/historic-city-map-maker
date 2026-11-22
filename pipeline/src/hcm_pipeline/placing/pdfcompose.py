@@ -21,6 +21,9 @@ CANVAS_MAX_PX: Final = 200_000_000
 # How far a placement's aspect may differ from its pixels' before the page is drawn rather than taken out as stored.
 ASPECT_TOLERANCE: Final = 0.01
 
+# A `cm` operator's six numbers.
+MATRIX_VALUES: Final = 6
+
 Affine = tuple[float, float, float, float, float, float]
 IDENTITY: Final[Affine] = (1.0, 0.0, 0.0, 1.0, 0.0, 0.0)
 
@@ -58,18 +61,20 @@ class _Reader:
         self.found: list[Placement] = []
 
     def step(self, verb: str, operands: list[object]) -> None:
-        if verb == "q":
-            self.saved.append(self.ctm)
-        elif verb == "Q":
-            self.ctm = self.saved.pop() if self.saved else IDENTITY
-        elif verb == "cm":
-            self.concat(operands)
-        elif verb == "Do":
-            self.draw(operands)
+        verbs = {"q": self.save, "Q": self.restore, "cm": self.concat, "Do": self.draw}
+        action = verbs.get(verb)
+        if action is not None:
+            action(operands)
+
+    def save(self, _operands: list[object]) -> None:
+        self.saved.append(self.ctm)
+
+    def restore(self, _operands: list[object]) -> None:
+        self.ctm = self.saved.pop() if self.saved else IDENTITY
 
     def concat(self, operands: list[object]) -> None:
         values = [float(str(value)) for value in operands]
-        if len(values) == 6:
+        if len(values) == MATRIX_VALUES:
             self.ctm = _times((values[0], values[1], values[2], values[3], values[4], values[5]), self.ctm)
 
     def draw(self, operands: list[object]) -> None:
@@ -81,8 +86,9 @@ class _Reader:
 def placements(page: pikepdf.Page) -> list[Placement]:
     """Every image the page's own content stream draws, with its matrix (images inside forms are not followed)."""
     reader = _Reader(page)
-    for operands, operator in pikepdf.parse_content_stream(page):
-        reader.step(str(operator), list(operands))
+    for instruction in pikepdf.parse_content_stream(page):
+        if isinstance(instruction, pikepdf.ContentStreamInstruction):
+            reader.step(str(instruction.operator), list(instruction.operands))
     return reader.found
 
 
@@ -94,13 +100,15 @@ def is_as_stored(page: pikepdf.Page, drawn: list[Placement]) -> bool:
     """The page is its one image upright: taken out as stored. A page that draws none is too (its largest image is all there is)."""
     if not drawn:
         return True
-    if len(drawn) > 1 or _rotation(page) != 0:
-        return False
-    a, b, c, d, _e, _f = drawn[0].matrix
+    return len(drawn) == 1 and _rotation(page) == 0 and _upright(drawn[0])
+
+
+def _upright(placement: Placement) -> bool:
+    """Drawn unturned, unmirrored, with its pixels' aspect."""
+    a, b, c, d, _e, _f = placement.matrix
     if b != 0 or c != 0 or a <= 0 or d <= 0:
         return False
-    image = drawn[0].image
-    return math.isclose(a / d, image.width / image.height, rel_tol=ASPECT_TOLERANCE)
+    return math.isclose(a / d, placement.image.width / placement.image.height, rel_tol=ASPECT_TOLERANCE)
 
 
 def _density(drawn: list[Placement]) -> float:

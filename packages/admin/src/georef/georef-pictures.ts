@@ -72,7 +72,7 @@ export function referenceOf(version: GeorefVersion, wanted: ReferenceKind | null
 }
 
 /** What names the picture a version shows: a change of path, size or layout revision is a new picture. */
-export function pictureKeyOf(version: GeorefVersion): string {
+function pictureKeyOf(version: GeorefVersion): string {
     return JSON.stringify([version.id, version.scan]);
 }
 
@@ -127,15 +127,7 @@ export class GeorefPictures {
     /** A version's scan (once per version) and the reference asked for. */
     load(version: GeorefVersion, wanted: ReferenceKind | null): void {
         void this.#warpCode();
-        const key = pictureKeyOf(version);
-        if (key !== this.#pictureKey) {
-            if (version.id === this.#versionId) {
-                this.#dropScan();
-            }
-            this.#versionId = version.id;
-            this.#pictureKey = key;
-            void this.#loadScan(version.scan);
-        }
+        this.#picture(version);
         const choice = referenceOf(version, wanted);
         const kind = choice?.kind ?? null;
         if (kind !== this.#reference) {
@@ -214,6 +206,20 @@ export class GeorefPictures {
         this.#next = null;
         this.#deps.scan({ status: 'none' });
         this.#deps.detail(null);
+    }
+
+    /** The version's picture, loaded again when it is a new one (another version, or the same one laid out again). */
+    #picture(version: GeorefVersion): void {
+        const key = pictureKeyOf(version);
+        if (key === this.#pictureKey) {
+            return;
+        }
+        if (version.id === this.#versionId) {
+            this.#dropScan();
+        }
+        this.#versionId = version.id;
+        this.#pictureKey = key;
+        void this.#loadScan(version.scan);
     }
 
     /**

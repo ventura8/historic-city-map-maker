@@ -22,7 +22,8 @@ def _stream(document: pikepdf.Pdf, pixels: numpy.ndarray) -> pikepdf.Stream:
 def _pdf(path: Path, size: tuple[int, int], images: dict[str, numpy.ndarray], content: bytes, rotate: int = 0) -> Path:
     document = pikepdf.new()
     page = document.add_blank_page(page_size=size)
-    page.Resources = pikepdf.Dictionary(XObject=pikepdf.Dictionary({f"/{name}": _stream(document, pixels) for name, pixels in images.items()}))
+    objects = {f"/{name}": _stream(document, pixels) for name, pixels in images.items()}
+    page.Resources = pikepdf.Dictionary(XObject=pikepdf.Dictionary(objects))
     page.Contents = pikepdf.Stream(document, content)
     if rotate:
         page.Rotate = rotate
@@ -64,7 +65,8 @@ def test_happy_path_strips_and_a_stretched_image_are_drawn_together(tmp_path: Pa
     assert pages is not None
     shown = _read(pages.files[0])
     assert shown.shape == (400, 400)
-    assert shown[:180].mean() < 40 and shown[220:].mean() > 200
+    assert shown[:180].mean() < 40
+    assert shown[220:].mean() > 200
 
 
 def test_happy_path_an_upright_image_that_is_the_page_is_still_taken_out_as_stored(tmp_path: Path) -> None:

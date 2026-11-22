@@ -15,7 +15,7 @@ from hcm_pipeline.placing.output import Placement, resolution_of, suggestions
 from hcm_pipeline.placing.raster_io import Pair, dpi_of
 from hcm_pipeline.placing.series import series_of
 from hcm_pipeline.raster import osr
-from hcm_pipeline.rasters import GeoTiff, srs_wkt, write_geotiff
+from hcm_pipeline.rasters import GeoTiff, open_raster, srs_wkt, write_geotiff
 from hcm_pipeline.steps.gather import SHEETS
 from hcm_pipeline.steps.place import PlaceStep
 
@@ -99,7 +99,9 @@ def test_bad_path_a_georeference_that_disagrees_with_openstreetmap_waits_for_a_l
     assert "disagrees with OpenStreetMap" in str(help_item["note"])
 
 
-def test_happy_path_a_georeferenced_file_opens_in_the_georeferencer_with_its_own_places_as_pairs(world: PipelineWorld, tmp_path: Path) -> None:
+def test_happy_path_a_georeferenced_file_opens_in_the_georeferencer_with_its_own_places_as_pairs(
+    world: PipelineWorld, tmp_path: Path
+) -> None:
     """Scenarios: S-P20-HAPPY-EMBEDDED-GEOREFERENCER"""
     # LESSONS 759: it opened with no picture, so no points could correct it.
     ctx = series_context(world, tmp_path, ["off.tif"], {"class": "georeferenced", "encoding": "grey"})
@@ -109,12 +111,14 @@ def test_happy_path_a_georeferenced_file_opens_in_the_georeferencer_with_its_own
 
     version = world.version()
     scan, suggested = version["scan"], version["suggestions"]
-    assert isinstance(scan, dict) and isinstance(suggested, dict)
+    assert isinstance(scan, dict)
+    assert isinstance(suggested, dict)
     assert (scan["width"], scan["height"]) == SIZE
     pairs = suggested["pairs"]
-    assert isinstance(pairs, list) and len(pairs) == embedded.LATTICE**2
+    assert isinstance(pairs, list)
+    assert len(pairs) == embedded.LATTICE**2
     assert ctx.services.objects.stat(ctx.work_file("stitched.tif")) is not None
-    plain = embedded.open_raster(ctx.local("stitched.tif"))
+    plain = open_raster(ctx.local("stitched.tif"))
     assert plain.GetProjection() == ""
     plain.Close()
 
