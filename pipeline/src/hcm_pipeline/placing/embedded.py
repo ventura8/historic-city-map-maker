@@ -173,14 +173,23 @@ def own_pairs(path: Path, system: str, scale: float) -> list[Pair]:
     vrt, placed = _placed(path, system)
     try:
         dataset = gdal.Open(placed)
-        steps = [index / (LATTICE - 1) for index in range(LATTICE)]
-        pixels = [(fx * dataset.RasterXSize, fy * dataset.RasterYSize) for fy in steps for fx in steps]
+        pixels = _lattice(dataset.RasterXSize, dataset.RasterYSize)
         transformer = gdal.Transformer(dataset, None, [f"SRC_SRS={system}", f"DST_SRS={srs_wkt(WEB_MERCATOR)}"])
         places, success = transformer.TransformPoints(0, pixels)
         dataset.Close()
     finally:
         gdal.Unlink(placed)
         gdal.Unlink(vrt)
+    return _pairs(pixels, places, success, scale)
+
+
+def _lattice(width: int, height: int) -> list[tuple[float, float]]:
+    steps = [index / (LATTICE - 1) for index in range(LATTICE)]
+    return [(fx * width, fy * height) for fy in steps for fx in steps]
+
+
+def _pairs(pixels: list[tuple[float, float]], places: list[tuple[float, ...]], success: list[int], scale: float) -> list[Pair]:
+    """The pixels the transformer placed, as pairs in the scan's pixels."""
     found = zip(pixels, places, success, strict=True)
     return [Pair(px * scale, py * scale, place[0], place[1]) for (px, py), place, ok in found if ok]
 
