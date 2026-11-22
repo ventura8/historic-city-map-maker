@@ -102,8 +102,8 @@ ENGINE_CHUNK_BUDGETS: Mapping[str, int] = {
     # Shared ES-build chunks split out by Rolldown (DECISIONS-for-review.md §244): locale list, manifest schema and
     # primitive schemas shared with the lazy chunks.
     "locales": 2,
-    "manifest": 4,
-    "primitives": 4,
+    "manifest": 5,
+    "primitives": 25,
 }
 
 # The admin's build folder and its entry (packages/admin/vite.config.ts).

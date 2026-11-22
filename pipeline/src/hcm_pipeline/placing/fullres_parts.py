@@ -75,5 +75,3 @@ def overview_parts(tiles: Sequence[tuple[str, Path]], on_canvas: dict[str, Float
     """An overview canvas's placed tiles (`overview.MosaicReport.on_canvas`, each read at most `read_px` long) as its parts record."""
     placed = {index: on_canvas[name] for index, (name, _path) in enumerate(tiles) if name in on_canvas}
     return Recorded(layout_parts([path for _name, path in tiles], placed, read_px), size)
-
-

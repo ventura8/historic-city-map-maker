@@ -8,7 +8,7 @@ import { destinationPoint } from './bearing.js';
 import { wrapBearing, type LngLat } from './math.js';
 
 /** The four corners of a viewed area. */
-export const VIEWED_AREA_CORNERS = 4;
+const VIEWED_AREA_CORNERS = 4;
 
 /** How far the default area starts and ends in front of the camera, in metres. */
 export const AREA_NEAR_M = 100;

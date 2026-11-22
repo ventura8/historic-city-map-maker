@@ -70,7 +70,9 @@ export class ViewerUpdates implements ReactiveController {
         const layersHint = this.#hint.offer(state, docked, {
             // Opens Layers as the menu's own item does (`viewer-actions.ts`).
             open: () => {
-                host.renderRoot.querySelector('hcm-fab-menu')?.dispatchEvent(new CustomEvent('hcm-select', { detail: { value: 'layers' } }));
+                host.renderRoot
+                    .querySelector('hcm-fab-menu')
+                    ?.dispatchEvent(new CustomEvent('hcm-select', { detail: { value: 'layers' } }));
             },
             changed: () => {
                 host.requestUpdate();
@@ -112,15 +114,16 @@ function updateSnackbar(locale: ViewerLocale, offer: UpdateOffer | null | undefi
         return layersHintSnackbar(locale, offer.layersHint);
     }
     return html`<hcm-snackbar
-        data-layout-check="update"
-        timeout-ms="0"
-        stacked
-        .message=${translate(locale, 'app.updateReady')}
-        .actionLabel=${translate(locale, 'app.reload')}
-        .closeLabel=${translate(locale, 'action.close')}
-        @hcm-action=${offer.onReload}
-        @hcm-dismiss=${offer.onDismiss}
-    ></hcm-snackbar>${layersHintSnackbar(locale, offer.layersHint)}`;
+            data-layout-check="update"
+            timeout-ms="0"
+            stacked
+            .message=${translate(locale, 'app.updateReady')}
+            .actionLabel=${translate(locale, 'app.reload')}
+            .closeLabel=${translate(locale, 'action.close')}
+            @hcm-action=${offer.onReload}
+            @hcm-dismiss=${offer.onDismiss}
+        ></hcm-snackbar
+        >${layersHintSnackbar(locale, offer.layersHint)}`;
 }
 
 /** The toast's dock: the update's snackbar, then the store's toast; nothing when neither shows. */

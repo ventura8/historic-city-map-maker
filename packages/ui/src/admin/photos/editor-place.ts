@@ -5,29 +5,14 @@
  * number, Set direction (one click on the map), Point at map centre (the crosshair: no pointer needed) and the field of
  * view, whose cone the map redraws live.
  */
-import { DEFAULT_FOV, MAX_FOV, MIN_FOV, type UiLocale, type ValidationIssue } from '@hcm/shared';
+import { DEFAULT_FOV, MAX_FOV, MIN_FOV, type UiLocale } from '@hcm/shared';
 import { html, nothing, type TemplateResult } from 'lit';
 
-import type { FieldsLeft } from '../editing/number-fields.js';
 import { EMPTY } from '../shell/empty.js';
 import { areaFields } from './editor-area.js';
 import { numberField, numberOf } from './editor-fields.js';
 import { fieldIssue, localized, messageText, photoHref, photoText } from './photo-text.js';
-import type { PhotoEditorPort, PhotosIntentsPort, PhotoValuePort, ReplacePort, SuggestionPort } from './photos-port.js';
-
-export interface PlaceInput {
-    readonly locale: UiLocale;
-    readonly editor: PhotoEditorPort;
-    readonly value: PhotoValuePort;
-    readonly issues: readonly ValidationIssue[];
-    readonly intents: PhotosIntentsPort | null;
-    /** The map can take a pick (Set direction, Point at map centre). */
-    readonly mapReady: boolean;
-    /** The number fields left since the photo opened: only they say their problem. */
-    readonly left: FieldsLeft;
-    /** A revoked admin's editor: nothing that writes is on (`DECISIONS-for-review.md` §42d). */
-    readonly readOnly: boolean;
-}
+import type { PhotoEditorPort, PlaceInput, ReplacePort, SuggestionPort } from './photos-port.js';
 
 const REPLACE_KEYS = {
     uploading: 'adminContent.photos.replace.uploading',

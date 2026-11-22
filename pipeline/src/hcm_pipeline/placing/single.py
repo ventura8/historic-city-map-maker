@@ -28,9 +28,9 @@ from hcm_pipeline.placing import coarse, fine
 from hcm_pipeline.placing.checks import gross_m, in_quadrature
 from hcm_pipeline.placing.city_guard import lands_in_city
 from hcm_pipeline.placing.frame import find_frame
+from hcm_pipeline.placing.fullres import keep_for_version, warp_composite
 from hcm_pipeline.placing.geometry import FloatArray, apply, scale_of
 from hcm_pipeline.placing.output import Placement, finish, resolution_of, suggestions, wait_for_help
-from hcm_pipeline.placing.fullres import keep_for_version, warp_composite
 from hcm_pipeline.placing.raster_io import Pair, WarpPlan, Working, dpi_of, read_working
 from hcm_pipeline.placing.reference import Reference, city_window, references, window_resolution
 from hcm_pipeline.placing.series import SeriesJob

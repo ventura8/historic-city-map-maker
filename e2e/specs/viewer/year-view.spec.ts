@@ -58,7 +58,7 @@ test(
         await stepTo1966(page, lang);
 
         // Towards them: the city's bounds hold the camera, so it moves north as far as they let it.
-    await expect.poll(() => mapLatitude(page), { timeout: 90_000 }).toBeGreaterThan(44.435);
+        await expect.poll(() => mapLatitude(page), { timeout: 90_000 }).toBeGreaterThan(44.435);
     },
 );
 

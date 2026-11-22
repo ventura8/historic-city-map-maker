@@ -2,7 +2,16 @@
  * The Layers panel's pure parts (`<hcm-layer-panel>`): the list rows, the group headings, the attribution lines, the Map
  * labels note and (M27, `docs/research/M27-lost-streets.md`) the split of the pinned POI categories from the list below.
  */
-import { categoryGroups, overlayLabel, poiIcon, translate, type ViewerLocale, type Manifest, type MessageKey, type Overlay } from '@hcm/shared';
+import {
+    categoryGroups,
+    overlayLabel,
+    poiIcon,
+    translate,
+    type ViewerLocale,
+    type Manifest,
+    type MessageKey,
+    type Overlay,
+} from '@hcm/shared';
 import { creditParts } from '@hcm/shared/credits';
 import { translateMapLabels } from '@hcm/shared/map-labels';
 

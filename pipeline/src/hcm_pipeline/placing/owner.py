@@ -23,11 +23,11 @@ from hcm_pipeline.geo import to_mercator
 from hcm_pipeline.georef.lattice import sampled
 from hcm_pipeline.georef.transforms import Fit, enabled_gcps, fit
 from hcm_pipeline.jobs import JobContext, StepResult, Waiting
+from hcm_pipeline.placing import fullres
 from hcm_pipeline.placing.checks import Checked, span_pct
+from hcm_pipeline.placing.fullres import warp_composite
 from hcm_pipeline.placing.original import single_original
 from hcm_pipeline.placing.output import Placement, finish, param_int, resolution_of
-from hcm_pipeline.placing import fullres
-from hcm_pipeline.placing.fullres import warp_composite
 from hcm_pipeline.placing.raster_io import Pair, WarpPlan
 from hcm_pipeline.placing.rebuild import rebuilt
 from hcm_pipeline.placing.series import ENCODINGS

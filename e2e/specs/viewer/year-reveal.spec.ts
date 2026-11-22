@@ -66,15 +66,14 @@ test('No row of the Layers pane is ever drawn under another part', { tag: '@S-V0
             return 0;
         });
     expect(scrolled, 'the pane scrolls').toBeGreaterThan(0);
-    const rows = pane.locator('li[data-overlay]');
-    const count = await rows.count();
-    for (let index = 0; index < count; index += 1) {
-        const row = rows.nth(index);
-        if (await row.isVisible()) {
-            const box = await row.boundingBox();
-            if ((box?.y ?? -1) > 80 && (box?.y ?? 2000) < 1000) {
-                expect(await rowOnTop(row), `row ${String(index)} on top`).toBe(true);
-            }
-        }
-    }
+    // Every row in the viewport's middle band whose centre is covered by something else: none may be.
+    const covered = await pane.locator('li[data-overlay]').evaluateAll((rows) =>
+        rows.flatMap((element, index) => {
+            const box = element.getBoundingClientRect();
+            const inBand = box.height > 0 && box.y > 80 && box.y < 1000;
+            const hit = (element.getRootNode() as ShadowRoot).elementFromPoint(box.left + 8, box.top + box.height / 2);
+            return inBand && !(hit !== null && (hit === element || element.contains(hit))) ? [index] : [];
+        }),
+    );
+    expect(covered, 'rows drawn under another part').toEqual([]);
 });

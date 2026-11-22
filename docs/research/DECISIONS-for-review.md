@@ -7316,8 +7316,8 @@ The engine's ES module build now emits three shared chunks (`locales`, `manifest
 | Row | Was | Now | Reason |
 | --- | --- | --- | --- |
 | `locales` (engine) | — | 2 | New ES-build shared chunk (`packages/shared/src/i18n/locales.ts`) |
-| `manifest` (engine) | — | 4 | New ES-build shared chunk (`packages/shared/src/schemas/manifest.ts`) |
-| `primitives` (engine) | — | 4 | New ES-build shared chunk (`packages/shared/src/schemas/primitives.ts`) |
+| `manifest` (engine) | — | 5 | New ES-build shared chunk (`packages/shared/src/schemas/manifest.ts`), 4.6 KB measured |
+| `primitives` (engine) | — | 25 | New ES-build shared chunk (`packages/shared/src/schemas/primitives.ts` with the zod it needs), 22.2 KB measured |
 | `join-card` (admin) | 4 | 5 | Reached the 4.0 KB ceiling; 5 KB is the smallest whole-KB step in `ADMIN_CHUNK_BUDGETS` |
 
 Verify: `PIPELINE_STAGE=build`.

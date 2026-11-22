@@ -52,7 +52,7 @@ function matches(item: PoiItem, search: string): boolean {
 }
 
 /** True when a place names no year at all (the research backlog of the No years filter). */
-export function hasNoYears(item: Pick<PoiItem, 'yearStart' | 'yearEnd' | 'yearSeen'>): boolean {
+function hasNoYears(item: Pick<PoiItem, 'yearStart' | 'yearEnd' | 'yearSeen'>): boolean {
     return item.yearStart === null && item.yearEnd === null && item.yearSeen === null;
 }
 

@@ -14,10 +14,9 @@ from hcm_pipeline.georef.transforms import Gcp
 from hcm_pipeline.jobs import JobContext, StepFailedError
 from hcm_pipeline.placing import autoplace, fullres, fullres_parts, grid, maps, rebuild
 from hcm_pipeline.placing.canvas_window import Tile
-from hcm_pipeline.placing.series import SeriesJob
 from hcm_pipeline.placing.gridscheme import Box, CityGrid
 from hcm_pipeline.placing.raster_io import Pair, WarpPlan
-from hcm_pipeline.placing.series import Sheet
+from hcm_pipeline.placing.series import SeriesJob, Sheet
 from hcm_pipeline.raster import gdal
 from hcm_pipeline.steps.warp import composite_originals
 
@@ -77,7 +76,9 @@ def test_bad_path_a_regeoref_without_a_record_a_crop_or_a_zoom_keeps_the_usual_w
 def test_happy_path_a_grid_mosaic_records_each_sheets_original(tmp_path: Path) -> None:
     """Scenarios: S-P20-HAPPY-FULLRES"""
     sheet = Sheet(tmp_path / "a.tif", "a", "a")
-    item = grid.Rectified(sheet, Cell("x", 1, 1), numpy.zeros((4, 2)), numpy.zeros((50, 100), numpy.uint8), "line", numpy.eye(3), (400, 200))
+    item = grid.Rectified(
+        sheet, Cell("x", 1, 1), numpy.zeros((4, 2)), numpy.zeros((50, 100), numpy.uint8), "line", numpy.eye(3), (400, 200)
+    )
     mosaic = grid.Mosaic(numpy.zeros((30, 60), numpy.uint8), numpy.zeros((30, 60), numpy.int32), 0.0, 100.0, 2.0)
 
     class Scheme:

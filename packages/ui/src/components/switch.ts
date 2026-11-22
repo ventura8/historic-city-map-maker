@@ -91,12 +91,6 @@ export class HcmSwitch extends LitElement {
                 visibility: visible;
             }
 
-            :host([checked]) button:active .handle {
-                width: 28px;
-                height: 28px;
-                margin-inline-start: 20px;
-            }
-
             :host([disabled]) button {
                 cursor: default;
                 opacity: 0.38;
@@ -134,6 +128,12 @@ export class HcmSwitch extends LitElement {
                 width: 16px;
                 height: 16px;
                 margin-inline-start: 18px;
+            }
+
+            :host([checked]) button:active .handle {
+                width: 28px;
+                height: 28px;
+                margin-inline-start: 20px;
             }
 
             :host([compact][checked]) button:active .handle {

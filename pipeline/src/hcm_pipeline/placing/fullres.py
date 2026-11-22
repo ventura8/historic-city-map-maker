@@ -49,7 +49,11 @@ class Part:
     clip: tuple[tuple[float, float], ...] = ()
 
     def as_record(self) -> dict[str, object]:
-        record: dict[str, object] = {"path": str(self.path), "box": list(self.box), "matrix": [[float(v) for v in row] for row in self.matrix]}
+        record: dict[str, object] = {
+            "path": str(self.path),
+            "box": list(self.box),
+            "matrix": [[float(v) for v in row] for row in self.matrix],
+        }
         return record | ({"clip": [list(point) for point in self.clip]} if self.clip else {})
 
     @classmethod
@@ -150,7 +154,7 @@ def read_parts(canvas: Path) -> Recorded | None:
         record = json.loads(found.read_text())
         size = (int(record["size"][0]), int(record["size"][1]))
         return Recorded(tuple(Part.of(part) for part in record["parts"]), size)
-    except (ValueError, KeyError, TypeError, IndexError):
+    except ValueError, KeyError, TypeError, IndexError:
         return None
 
 
@@ -170,7 +174,10 @@ def _clip(polygon: FloatArray, normal: FloatArray, limit: float) -> FloatArray:
 def cells(parts: Sequence[Part]) -> list[FloatArray]:
     """Each part's canvas pixels: its quad, nearer its own centre than any other part's (the canvas's hard seam)."""
     centres = [part.centre() for part in parts]
-    return [_cell(part.quad(), centres[index], [centre for other, centre in enumerate(centres) if other != index]) for index, part in enumerate(parts)]
+    return [
+        _cell(part.quad(), centres[index], [centre for other, centre in enumerate(centres) if other != index])
+        for index, part in enumerate(parts)
+    ]
 
 
 def _cell(polygon: FloatArray, own: FloatArray, others: Sequence[FloatArray]) -> FloatArray:

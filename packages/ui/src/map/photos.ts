@@ -15,7 +15,7 @@ export const PHOTO_CONES_SOURCE = 'hcm-photos-cones';
 export const PHOTO_CONE_FILL_LAYER = 'hcm-photos-cone-fill';
 export const PHOTO_CONE_LINE_LAYER = 'hcm-photos-cone-line';
 export const PHOTO_AREA_FILL_LAYER = 'hcm-photos-area-fill';
-export const PHOTO_AREA_LINE_LAYER = 'hcm-photos-area-line';
+const PHOTO_AREA_LINE_LAYER = 'hcm-photos-area-line';
 export const PHOTO_CLUSTER_LAYER = 'hcm-photos-cluster';
 export const PHOTO_MARKER_LAYER = 'hcm-photos-marker';
 

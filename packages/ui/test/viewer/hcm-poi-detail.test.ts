@@ -246,7 +246,11 @@ describe('<hcm-poi-detail> media (M17 §12)', () => {
     });
 
     it('badPath_aPlaceWithoutMediaShowsNoMediaAndANewPlaceStartsAtItsFirstKind @S-V80-BAD-NO-MEDIA', async () => {
-        const element = await detail({ poi: { ...poi('casa-uranus'), photoIds: [] }, category: category('cladiri'), layers: MANIFEST.layers });
+        const element = await detail({
+            poi: { ...poi('casa-uranus'), photoIds: [] },
+            category: category('cladiri'),
+            layers: MANIFEST.layers,
+        });
         expect(element.shadowRoot?.querySelector('.media')).toBeNull();
 
         element.mediaKind = 'interior';
@@ -265,7 +269,10 @@ describe('<hcm-poi-detail> media (M17 §12)', () => {
         }
         const element = await detail({
             poi: { ...place, photoIds: [] },
-            photos: [{ ...first, kind: 'interior', placeIds: [place.id], level: 0 }, { ...second, kind: 'interior', placeIds: [place.id], level: 1 }],
+            photos: [
+                { ...first, kind: 'interior', placeIds: [place.id], level: 0 },
+                { ...second, kind: 'interior', placeIds: [place.id], level: 1 },
+            ],
             layers: [
                 { ...plan, placeIds: [place.id], level: { order: 1, label: { ro: 'Etaj 1', en: 'First floor' } } },
                 { ...upper, placeIds: [place.id], level: { order: 0, label: { ro: 'Parter', en: 'Ground floor' } } },

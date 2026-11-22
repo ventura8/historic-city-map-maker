@@ -8,7 +8,16 @@ import { z } from 'zod';
 import { bboxContains } from '../geo/bbox.js';
 import { isCspOrigin, isHttpsUrl } from '../text/urls.js';
 import { manifestRuleIssues } from './manifest-rules.js';
-import { levelOrderSchema, photosOverlaySchema, placeIdsSchema, planLevelSchema, poiCategorySchema, poiSchema, MAX_POI_CATEGORIES, MAX_POIS } from './poi.js';
+import {
+    levelOrderSchema,
+    photosOverlaySchema,
+    placeIdsSchema,
+    planLevelSchema,
+    poiCategorySchema,
+    poiSchema,
+    MAX_POI_CATEGORIES,
+    MAX_POIS,
+} from './poi.js';
 import {
     assetUrlSchema,
     bboxSchema,

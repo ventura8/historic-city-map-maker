@@ -112,15 +112,12 @@ export class HcmLayerPanel extends LitElement {
                 /* Compare's 48 px ring reaches 4 px above its 40 px button: inside the strip, not cut by the scroller's edge. */
                 padding-block: 4px;
                 background: var(--md-sys-color-surface-container-low);
-                box-shadow: 0 1px 0 var(--md-sys-color-outline-variant);
-            }
 
-            /*
-             * The pinned section scrolls with the list everywhere (the owner, 2026-11-22). Sticky in the docked pane, it grew
-             * with Map labels and the Photos switch into a collapsible section of 600 px: the rows scrolled under it read as
-             * overlapping ones, and a year's revealed layer landed hidden behind it.
-             */
-            .pinned {
+                /*
+                 * No shadow: the pinned section scrolls with the list everywhere (the owner, 2026-11-22). Sticky in the docked
+                 * pane, it grew with Map labels and the Photos switch into a collapsible section of 600 px: the rows scrolled
+                 * under it read as overlapping ones, and a year's revealed layer landed hidden behind it.
+                 */
                 box-shadow: none;
             }
 

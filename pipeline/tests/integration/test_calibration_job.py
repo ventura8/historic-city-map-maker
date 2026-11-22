@@ -9,7 +9,7 @@ import numpy
 import pytest
 from hcm_pipeline.contract import Errors
 from hcm_pipeline.documents import OutputInfo, Version
-from hcm_pipeline.geo import Bounds, Grid, ground_scale
+from hcm_pipeline.geo import Bounds, Grid, MercatorBox, ground_scale
 from hcm_pipeline.jobs import JobContext
 from hcm_pipeline.join.canvas import DatasetSource, aligned_box
 from hcm_pipeline.raster import gdal
@@ -340,7 +340,7 @@ def test_happy_path_bounds_are_where_the_alpha_holds_data(tmp_path: Path) -> Non
 
     bounds = export.valid_bounds(Warped.of(path))
 
-    expected = export.MercatorBox(500.0, 600.0, 800.0, 800.0).bounds()
+    expected = MercatorBox(500.0, 600.0, 800.0, 800.0).bounds()
     assert bounds.west == pytest.approx(expected.west)
     assert bounds.east == pytest.approx(expected.east)
     assert bounds.south == pytest.approx(expected.south)

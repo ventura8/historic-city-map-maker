@@ -8,7 +8,7 @@ import { DEFAULT_FOV, areaAhead } from '@hcm/shared';
 import { html, nothing, type TemplateResult } from 'lit';
 
 import { EMPTY } from '../shell/empty.js';
-import type { PlaceInput } from './editor-place.js';
+import type { PlaceInput } from './photos-port.js';
 import { fieldIssue, photoText } from './photo-text.js';
 
 interface Corner {
@@ -17,7 +17,7 @@ interface Corner {
 }
 
 /** The default area of a photo at `location`, from its draft's direction and field of view. */
-export function startingArea(location: Corner, bearing: number | undefined, fov: number | undefined): Corner[] {
+function startingArea(location: Corner, bearing: number | undefined, fov: number | undefined): Corner[] {
     return areaAhead([location.lng, location.lat], bearing ?? 0, fov ?? DEFAULT_FOV).map(([lng, lat]) => ({ lat, lng }));
 }
 

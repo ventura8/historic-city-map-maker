@@ -35,7 +35,20 @@ const recordSchema = z.object({
 
 /** The manifest photo fields a photo document keeps (the rest of the record, such as `image`, is not the client's). */
 /** M17 §12: `kind` (street, aerial, interior) and `placeIds` (the places whose Media list it) travel too. */
-const COPIED = ['title', 'description', 'year', 'yearEnd', 'dateText', 'author', 'rightsHolder', 'location', 'bearing', 'fov', 'kind', 'placeIds'] as const;
+const COPIED = [
+    'title',
+    'description',
+    'year',
+    'yearEnd',
+    'dateText',
+    'author',
+    'rightsHolder',
+    'location',
+    'bearing',
+    'fov',
+    'kind',
+    'placeIds',
+] as const;
 
 /** A placeholder stamp: the store writes the real one (`serverTimestamp()`, the rules check it); validation needs a shape. */
 const STAMP = { updatedBy: 'legacy-import', updatedAt: { seconds: 0, nanoseconds: 0 } };

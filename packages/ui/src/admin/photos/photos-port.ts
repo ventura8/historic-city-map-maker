@@ -5,9 +5,19 @@
  * store satisfies `PhotosAreaPort`. The elements render the state and call the intents; they never touch Firestore,
  * Storage or the map's library themselves.
  */
-import type { AdminContentKey, ApiErrorCode, CityRole, FirestoreLicense, PhotoKind, ReviewStatus, ValidationIssue } from '@hcm/shared';
+import type {
+    AdminContentKey,
+    ApiErrorCode,
+    CityRole,
+    FirestoreLicense,
+    PhotoKind,
+    ReviewStatus,
+    UiLocale,
+    ValidationIssue,
+} from '@hcm/shared';
 
 import type { AssistActionsPort, AssistViewPort } from '../assist/assist-port.js';
+import type { FieldsLeft } from '../editing/number-fields.js';
 import type { PlacePickPort } from '../editing/place-pick-port.js';
 
 /** A live list's or document's status (`LoadStatusPort` of `content-port.ts`, which imports this file). */
@@ -271,4 +281,19 @@ export interface PhotosAreaPort {
     readonly intents: PhotosIntentsPort;
     open(params: readonly string[]): void;
     close(): void;
+}
+
+/** What the photo editor's place, direction and area sections read (`editor-place.ts`, `editor-area.ts`). */
+export interface PlaceInput {
+    readonly locale: UiLocale;
+    readonly editor: PhotoEditorPort;
+    readonly value: PhotoValuePort;
+    readonly issues: readonly ValidationIssue[];
+    readonly intents: PhotosIntentsPort | null;
+    /** The map can take a pick (Set direction, Point at map centre). */
+    readonly mapReady: boolean;
+    /** The number fields left since the photo opened: only they say their problem. */
+    readonly left: FieldsLeft;
+    /** A revoked admin's editor: nothing that writes is on (`DECISIONS-for-review.md` §42d). */
+    readonly readOnly: boolean;
 }

@@ -51,7 +51,10 @@ describe('presentation', () => {
         ['removed rights', { rights: deleted() }],
         ['a drawn map, once taken for an aerial photo', { kind: 'map' }],
         ['a small-area map of a place @S-A199-HAPPY-LAYER-PLACES', { placeIds: ['parcul-carol'] }],
-        ['a building plan of the ground floor @S-A201-HAPPY-LEVEL', { placeIds: ['hotel-dunarea'], level: { order: 0, label: { ro: 'Parter' } } }],
+        [
+            'a building plan of the ground floor @S-A201-HAPPY-LEVEL',
+            { placeIds: ['hotel-dunarea'], level: { order: 0, label: { ro: 'Parter' } } },
+        ],
     ])('happyPath_adminSaves_%s', async (_label, changes) => {
         expect(await edit(changes)).toBe('allow');
     });

@@ -10,8 +10,8 @@ from pathlib import Path, PurePosixPath
 from typing import Final
 
 from hcm_pipeline.jobs import JobContext, StepResult, Waiting
-from hcm_pipeline.placing.autostitch import CANVAS_MAX_PX, Proposal, propose
 from hcm_pipeline.placing import fullres, fullres_parts
+from hcm_pipeline.placing.autostitch import CANVAS_MAX_PX, Proposal, propose
 from hcm_pipeline.placing.canvas_window import Canvas, render
 from hcm_pipeline.placing.layout_files import publish_layout, revision_of
 from hcm_pipeline.placing.raster_io import read_working

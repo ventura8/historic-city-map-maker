@@ -38,12 +38,12 @@ function remember(): void {
 }
 
 /** Whether the row `id` shows its sub-groups. */
-export function subgroupsOpen(id: string): boolean {
+function subgroupsOpen(id: string): boolean {
     return open.has(id);
 }
 
 /** Opens or closes the row `id`'s sub-groups and asks `host` to render again. */
-export function toggleSubgroups(host: HTMLElement & { requestUpdate(): void }, id: string): void {
+function toggleSubgroups(host: HTMLElement & { requestUpdate(): void }, id: string): void {
     if (open.has(id)) {
         open.delete(id);
     } else {

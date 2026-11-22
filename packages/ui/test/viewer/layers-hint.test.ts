@@ -4,7 +4,7 @@ import { LayersHint } from '../../src/viewer/layers-hint.js';
 import { readyState } from './fake-store.js';
 import { testManifest } from './fixtures.js';
 
-describe('the first visit\'s Layers hint', () => {
+describe("the first visit's Layers hint", () => {
     afterEach(() => {
         localStorage.removeItem('hcm.layersHint.seen');
         vi.restoreAllMocks();

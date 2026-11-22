@@ -33,7 +33,10 @@ describe('placeMedia', () => {
 
     it('badPath_unknownIdsAndUndatedItemsDoNotBreakTheList', () => {
         const undated = { ...photo('undated', undefined, 1900, ['p']), year: undefined } as Photo;
-        const media = placeMedia({ id: 'p', photoIds: ['missing', 'twice'] }, { layers: [], photos: [undated, photo('twice', undefined, 1900, ['p'])] });
+        const media = placeMedia(
+            { id: 'p', photoIds: ['missing', 'twice'] },
+            { layers: [], photos: [undated, photo('twice', undefined, 1900, ['p'])] },
+        );
         expect(media.ground.map((item) => item.id)).toEqual(['twice', 'undated']);
         expect(placeMediaKinds(placeMedia({ id: 'none' }, { layers: [], photos: [] }))).toEqual([]);
     });
@@ -62,11 +65,22 @@ describe('manifest placeIds', () => {
 
 describe('placeMedia: plans by level (M17 §14)', () => {
     it('happyPath_plansGroupByLevelWithTheirInteriorPhotos @S-V82-HAPPY-LEVELS', () => {
-        const plan = (id: string, order: number, label: string): Layer => ({ ...layer(id, 1934, ['dunarea']), level: { order, label: { ro: label } } });
+        const plan = (id: string, order: number, label: string): Layer => ({
+            ...layer(id, 1934, ['dunarea']),
+            level: { order, label: { ro: label } },
+        });
         const room: Photo = { ...photo('hall', 'interior', 1940, ['dunarea']), level: 0 };
         const media = placeMedia(
             { id: 'dunarea' },
-            { layers: [plan('etaj-1', 1, 'Etaj 1'), plan('parter', 0, 'Parter'), plan('parter-b', 0, 'Parter (2)'), layer('site', 1930, ['dunarea'])], photos: [room] },
+            {
+                layers: [
+                    plan('etaj-1', 1, 'Etaj 1'),
+                    plan('parter', 0, 'Parter'),
+                    plan('parter-b', 0, 'Parter (2)'),
+                    layer('site', 1930, ['dunarea']),
+                ],
+                photos: [room],
+            },
         );
         expect(media.maps.map((item) => item.id)).toEqual(['site']);
         expect(media.plans.map((level) => [level.order, level.label.ro, level.layers.length, level.photos.length])).toEqual([

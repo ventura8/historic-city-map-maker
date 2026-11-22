@@ -41,7 +41,10 @@ export const LAYER_EDITABLE = [
 
 /** What the editor's fields change directly (the sliders have their own intents). */
 export type LayerPatch = Partial<
-    Pick<LayerDoc, 'label' | 'description' | 'attribution' | 'year' | 'date' | 'defaultVisible' | 'published' | 'kind' | 'placeIds' | 'level'>
+    Pick<
+        LayerDoc,
+        'label' | 'description' | 'attribution' | 'year' | 'date' | 'defaultVisible' | 'published' | 'kind' | 'placeIds' | 'level'
+    >
 >;
 
 export interface LayerEditorState {

@@ -115,7 +115,10 @@ describe('archive series on any computer', () => {
 
     it('happyPath_aRegeorefOfAnArchiveVersionReadsItsOwnCopy @S-P20-HAPPY-REGEOREF-SHARED', async () => {
         const made = await workerWorld();
-        await seedHeld(made, { type: 'regeoref', params: { basedOn: 'ar-1', originalArchiveId: ARCHIVE, originalSeriesId: 's-0123456789ab' } });
+        await seedHeld(made, {
+            type: 'regeoref',
+            params: { basedOn: 'ar-1', originalArchiveId: ARCHIVE, originalSeriesId: 's-0123456789ab' },
+        });
         const urls = (path: string) =>
             callAs(made, urlsFunction, { workerId: WORKER, jobId: JOB, request: { kind: 'objects', objects: [{ path, method: 'GET' }] } });
 

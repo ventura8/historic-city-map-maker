@@ -173,11 +173,6 @@ export class HcmDateMenu extends LitElement {
                 visibility: hidden;
             }
 
-            /* The layer drawn on top among the ticked ones (the owner, 2026-11-22: a tick for every plan that is on). */
-            .item[data-front] .label {
-                font-weight: 700;
-            }
-
             .text {
                 display: grid;
             }
@@ -190,6 +185,11 @@ export class HcmDateMenu extends LitElement {
             .label {
                 font-size: var(--md-sys-typescale-body-small-size);
                 color: var(--md-sys-color-on-surface-variant);
+            }
+
+            /* The layer drawn on top among the ticked ones (the owner, 2026-11-22: a tick for every plan that is on). */
+            .item[data-front] .label {
+                font-weight: 700;
             }
 
             /* Forced colours drop the menu's fill and shadow: an edge keeps it apart from the map. */

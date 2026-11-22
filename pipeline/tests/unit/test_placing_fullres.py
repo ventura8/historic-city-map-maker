@@ -10,8 +10,8 @@ from hcm_pipeline.jobs import Done
 from hcm_pipeline.placing import fullres, fullres_parts
 from hcm_pipeline.placing.canvas_window import Tile
 from hcm_pipeline.placing.raster_io import RGB, WARP_MEMORY_MB, Pair, WarpPlan, warp_by_pairs
-from hcm_pipeline.raster import gdal
 from hcm_pipeline.placing.stitched import STITCHED, Stitched, publish_stitched
+from hcm_pipeline.raster import gdal
 from hcm_pipeline.rasters import driver_of
 from hcm_pipeline.steps.place import PlaceStep
 

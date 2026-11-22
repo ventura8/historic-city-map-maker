@@ -31,7 +31,11 @@ export class LayersHint {
     #seen = readSeen();
 
     /** The offer while the hint should show: the map ready with historical layers, the pane not docked nor open. */
-    offer(state: ViewerState | null, layersDocked: boolean, answer: { readonly open: () => void; readonly changed: () => void }): LayersHintOffer | null {
+    offer(
+        state: ViewerState | null,
+        layersDocked: boolean,
+        answer: { readonly open: () => void; readonly changed: () => void },
+    ): LayersHintOffer | null {
         if (this.#seen || !shown(state, layersDocked)) {
             return null;
         }

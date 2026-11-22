@@ -36,7 +36,7 @@ function freeMap(version: VersionViewPort | null, held: boolean | null): boolean
  * A published join of archive maps (each part's entity is its own version id), offered **Add sheets to this join** (live 2026-11-22:
  * a 1990 sheet was missing from the 47 joined): a new join of its parts plus the one picked, on the same layer.
  */
-export function extendable(version: VersionViewPort | null): boolean {
+function extendable(version: VersionViewPort | null): boolean {
     return rejoinable(version) && version?.state === 'published';
 }
 
@@ -44,7 +44,7 @@ export function extendable(version: VersionViewPort | null): boolean {
 const AGAIN: ReadonlySet<LayerVersionState> = new Set<LayerVersionState>(['published', 'failed', 'rejected', 'cancelled']);
 
 /** A join of archive maps (each part's entity is its own version id) that ended: **Join again** with the same parts. */
-export function rejoinable(version: VersionViewPort | null): boolean {
+function rejoinable(version: VersionViewPort | null): boolean {
     return (
         version?.origin === 'join' &&
         AGAIN.has(version.state) &&
