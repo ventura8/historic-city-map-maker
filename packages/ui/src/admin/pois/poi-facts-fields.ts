@@ -134,6 +134,10 @@ function lineInputs(context: FieldContext, facts: PlaceFacts | undefined, set: (
     })}`;
 }
 
+function invalidNote(context: FieldContext): TemplateResult {
+    return html`<p class="note error" role="alert">${contentText(context.locale, 'adminContent.pois.facts.invalid')}</p>`;
+}
+
 /** The Facts fieldset's fields; `places` are the city's places the related-places picker offers. */
 export function factsFields(context: FieldContext, places: readonly PlacePickPort[] | null): TemplateResult {
     const facts = context.value.facts;
@@ -154,5 +158,5 @@ export function factsFields(context: FieldContext, places: readonly PlacePickPor
             set('relatedPlaceIds', ids === undefined ? undefined : [...ids]);
         },
     })}
-    ${invalid ? html`<p class="note error" role="alert">${contentText(context.locale, 'adminContent.pois.facts.invalid')}</p>` : nothing}`;
+    ${invalid ? invalidNote(context) : nothing}`;
 }

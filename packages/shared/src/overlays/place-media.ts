@@ -8,6 +8,8 @@
 import { photoKindOf, type Layer, type Photo, type PhotoKind, type UnplacedPhoto } from '../schemas/manifest.js';
 import type { Poi } from '../schemas/poi.js';
 
+export { MAX_MEDIA_PLACES } from '../schemas/poi.js';
+
 export const PLACE_MEDIA_KINDS = ['maps', 'aerial', 'ground', 'interior'] as const;
 export type PlaceMediaKind = (typeof PLACE_MEDIA_KINDS)[number];
 

@@ -87,7 +87,11 @@ function relatedItem(place: Poi, locale: ViewerLocale, open: (poiId: string) => 
 
 function factRow(locale: ViewerLocale, key: MessageKey, values: readonly string[]): TemplateResult {
     return html`<dt>${translate(locale, key)}</dt>
-        ${values.map((value) => html`<dd>${value}</dd>`)}`;
+        ${values.map(factValue)}`;
+}
+
+function factValue(value: string): TemplateResult {
+    return html`<dd>${value}</dd>`;
 }
 
 /** The place's facts; nothing when it has none. */

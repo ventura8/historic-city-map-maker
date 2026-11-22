@@ -90,6 +90,13 @@ function poiPlaces(manifest: CheckedManifest): RuleIssue[] {
     );
 }
 
+/** M17 §13: the related places a place's facts name must be places of the same manifest. */
+function missingRelated(ids: readonly string[] | undefined, index: number, pois: ReadonlySet<string>): RuleIssue[] {
+    return (ids ?? []).flatMap((id, at) =>
+        pois.has(id) ? [] : [{ path: ['pois', index, 'facts', 'relatedPlaceIds', at], code: 'validation.reference' } as const],
+    );
+}
+
 /** A POI's category, photos and (M27) source layer must exist in the same manifest. */
 function poiReferences(manifest: CheckedManifest): RuleIssue[] {
     const categories = new Set((manifest.poiCategories ?? []).map((category) => category.id));
@@ -100,9 +107,7 @@ function poiReferences(manifest: CheckedManifest): RuleIssue[] {
     return (manifest.pois ?? []).flatMap((poi, index): RuleIssue[] => [
         ...(categories.has(poi.category) ? [] : [{ path: ['pois', index, 'category'], code: 'validation.reference' } as const]),
         ...(layerMissing(poi.sourceLayer) ? [{ path: ['pois', index, 'sourceLayer'], code: 'validation.reference' } as const] : []),
-        ...(poi.facts?.relatedPlaceIds ?? []).flatMap((placeId, at) =>
-            pois.has(placeId) ? [] : [{ path: ['pois', index, 'facts', 'relatedPlaceIds', at], code: 'validation.reference' } as const],
-        ),
+        ...missingRelated(poi.facts?.relatedPlaceIds, index, pois),
         ...(poi.photoIds ?? []).flatMap((photoId, photoIndex) =>
             photos.has(photoId) ? [] : [{ path: ['pois', index, 'photoIds', photoIndex], code: 'validation.reference' } as const],
         ),

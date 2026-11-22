@@ -31,49 +31,62 @@ function titleIn(locale: UiLocale, place: PlacePickPort | undefined, id: string)
     return locale === 'en' && place.title.en !== undefined && place.title.en !== '' ? place.title.en : place.title.ro;
 }
 
+function chip(input: PlaceLinksInput, placeId: string, title: string): TemplateResult {
+    return html`<li>
+        <hcm-button
+            variant="outlined"
+            icon="close"
+            ?disabled=${input.readOnly}
+            .label=${contentText(input.locale, 'adminContent.pois.places.remove', { title })}
+            @click=${() => {
+                const next = input.ids.filter((other) => other !== placeId);
+                input.change(next.length === 0 ? undefined : next);
+            }}
+            >${title}</hcm-button
+        >
+    </li>`;
+}
+
+function option(locale: UiLocale, place: PlacePickPort): TemplateResult {
+    return html`<option value=${place.id}>${titleIn(locale, place, place.id)}</option>`;
+}
+
+function fullNote(locale: UiLocale): TemplateResult {
+    return html`<p class="note">${contentText(locale, 'adminContent.pois.places.full', { max: String(MAX_MEDIA_PLACES) })}</p>`;
+}
+
+/** The heading and the note of the field. */
+function texts(input: PlaceLinksInput): readonly [string, string] {
+    const label = input.label ?? 'adminContent.pois.places.label';
+    const hint = input.hint ?? 'adminContent.pois.places.hint';
+    return [contentText(input.locale, label), contentText(input.locale, hint)];
+}
+
 export function placeLinksField(input: PlaceLinksInput): TemplateResult {
-    const { id, locale, ids, readOnly, change } = input;
+    const { id, locale, ids } = input;
     const places = input.places ?? [];
-    const titleOf = (placeId: string): string => titleIn(locale, places.find((place) => place.id === placeId), placeId);
-    const set = (next: readonly string[]): void => {
-        change(next.length === 0 ? undefined : next);
-    };
     const add = (event: Event): void => {
         const select = event.target as HTMLSelectElement;
         if (select.value !== '') {
-            set([...ids, select.value]);
+            input.change([...ids, select.value]);
         }
         select.value = '';
     };
     const full = ids.length >= MAX_MEDIA_PLACES;
+    const off = [input.readOnly, full, input.places === null].includes(true);
     const [labelId, hintId] = [[id, 'label'].join('-'), [id, 'hint'].join('-')];
+    const [label, hint] = texts(input);
     return html`<section class="field place-links">
-        <h3 id=${labelId}>${contentText(locale, input.label ?? 'adminContent.pois.places.label')}</h3>
-        <p class="note" id=${hintId}>${contentText(locale, input.hint ?? 'adminContent.pois.places.hint')}</p>
+        <h3 id=${labelId}>${label}</h3>
+        <p class="note" id=${hintId}>${hint}</p>
         <ul class="chips" aria-labelledby=${labelId}>
-            ${ids.map(
-                (placeId) =>
-                    html`<li>
-                        <hcm-button
-                            variant="outlined"
-                            icon="close"
-                            ?disabled=${readOnly}
-                            .label=${contentText(locale, 'adminContent.pois.places.remove', { title: titleOf(placeId) })}
-                            @click=${() => {
-                                set(ids.filter((other) => other !== placeId));
-                            }}
-                            >${titleOf(placeId)}</hcm-button
-                        >
-                    </li>`,
-            )}
+            ${ids.map((placeId) => chip(input, placeId, titleIn(locale, places.find((place) => place.id === placeId), placeId)))}
         </ul>
         <label for=${id}>${contentText(locale, 'adminContent.pois.places.add')}</label>
-        <select id=${id} aria-describedby=${hintId} ?disabled=${readOnly || full || input.places === null} @change=${add}>
+        <select id=${id} aria-describedby=${hintId} ?disabled=${off} @change=${add}>
             <option value="">${contentText(locale, 'adminContent.pois.places.pick')}</option>
-            ${places
-                .filter((place) => !ids.includes(place.id))
-                .map((place) => html`<option value=${place.id}>${titleIn(locale, place, place.id)}</option>`)}
+            ${places.filter((place) => !ids.includes(place.id)).map((place) => option(locale, place))}
         </select>
-        ${full ? html`<p class="note">${contentText(locale, 'adminContent.pois.places.full', { max: String(MAX_MEDIA_PLACES) })}</p>` : html``}
+        ${full ? fullNote(locale) : html``}
     </section>`;
 }
