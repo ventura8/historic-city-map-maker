@@ -260,11 +260,15 @@ class GeotiffImportParams:
 @dataclass(frozen=True)
 class RegeorefParams:
     based_on: str
+    # M20 §19.18: a regeoref of an archive version names the archive and series whose originals it warps.
+    original_archive_id: str | None = None
+    original_series_id: str | None = None
 
     @classmethod
     def of(cls, params: Mapping[str, object]) -> RegeorefParams:
-        _strict(params, frozenset({"basedOn"}))
-        return cls(id_of(params, "basedOn"))
+        _strict(params, frozenset({"basedOn", "originalArchiveId", "originalSeriesId"}))
+        archive = None if params.get("originalArchiveId") is None else id_of(params, "originalArchiveId")
+        return cls(id_of(params, "basedOn"), archive, optional_text(params, "originalSeriesId"))
 
 
 @dataclass(frozen=True)

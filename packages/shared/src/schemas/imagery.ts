@@ -371,7 +371,12 @@ export const geotiffImportParamsSchema = z.strictObject({
 });
 
 /** `regeoref`: the version whose scan it renders again; the points and the crop are in its own version document. */
-export const regeorefParamsSchema = z.strictObject({ basedOn: idSchema });
+export const regeorefParamsSchema = z.strictObject({
+    basedOn: idSchema,
+    /** M20 §19.18: a regeoref of an archive version names the archive and the series whose originals it warps. */
+    originalArchiveId: idSchema.optional(),
+    originalSeriesId: idSchema.optional(),
+});
 
 /** `republish`: an approved version to publish again (after a Mapbox failure, or a deferral). */
 export const republishParamsSchema = z.strictObject({ versionId: idSchema });

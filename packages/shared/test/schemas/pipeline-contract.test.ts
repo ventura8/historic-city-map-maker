@@ -217,6 +217,13 @@ describe('the pipeline contract', () => {
         expect(Object.keys(job.steps).every((step) => (JOB_STEPS['usgs-import'] as readonly string[]).includes(step))).toBe(true);
     });
 
+    it('happyPath_everyRegeorefParamsTheServerWritesPassTheSharedSchema @S-P20-HAPPY-REGEOREF-SHARED', () => {
+        const { cases } = golden('job-params.regeoref.json') as { readonly cases: readonly unknown[] };
+
+        expect(cases.map((params) => validate(JOB_PARAMS_SCHEMAS.regeoref, params).ok)).toEqual(cases.map(() => true));
+        expect(validate(JOB_PARAMS_SCHEMAS.regeoref, { basedOn: 'im-1', other: 1 }).ok).toBe(false);
+    });
+
     it('happyPath_aDownloadReportsItsBytesOfTheTotalOnItsStep', () => {
         const job = golden('job.usgs-import.running.json') as Readonly<Record<string, unknown>>;
         const fetching = {

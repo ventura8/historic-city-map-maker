@@ -4492,3 +4492,8 @@ Append a numbered entry to *Lessons from this repository* in the task that finds
     - Cause: `FieldRecorder` timed each boot phase from the engine's start whatever the page's visibility; a tab opened in the background renders its map only when shown, so the phase measured the visitor's absence.
     - Fix and pin: a phase reached after the page was hidden, or on a page that started hidden, is marked in the performance panel but not sent (`packages/engine/src/telemetry/field.ts`, `telemetry.ts`; S-V19-BAD-HIDDEN-PAGE-TIMING).
     - **A load timing is only a load timing while someone is looking: drop it once the page has been hidden, as web-vitals does.**
+
+774. **Four full-resolution re-saves failed at once: "params has unknown keys: originalArchiveId"** (2026-11-22): the routing fix gave a regeoref of an archive version `originalArchiveId` (and later `originalSeriesId`), the server took it, and the installed pipeline's strict `RegeorefParams` refused every such job before its first step (1943, Soviet 1:50,000, 1939, Borroczyn 1852, 1969).
+    - Cause: the functions tests asserted the new params and the pipeline tests built their jobs by hand; no test ran the real params the server writes through the pipeline's parser, and `regeorefParamsSchema` in `@hcm/shared` was strict too.
+    - Fix and pin: both schemas accept the two keys; `pipeline/tests/contracts/job-params.regeoref.json` holds the params `regeoref.ts` writes, and both sides parse it with their real schemas (`pipeline-contract.test.ts`, `test_model.py`).
+    - **A new job param is a contract change: add it to the golden both sides parse, or a fake on one side hides the refusal on the other.**

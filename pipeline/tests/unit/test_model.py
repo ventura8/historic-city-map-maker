@@ -158,6 +158,11 @@ def test_happy_path_jobs_read_their_steps_lease_and_params() -> None:
         ),
         ("regeoref", {"basedOn": "v-1"}, RegeorefParams("v-1")),
         (
+            "regeoref",
+            {"basedOn": "v-1", "originalArchiveId": "ar-0123456789abcdef", "originalSeriesId": "s-0123456789ab"},
+            RegeorefParams("v-1", "ar-0123456789abcdef", "s-0123456789ab"),
+        ),
+        (
             "layer-join",
             {"parts": [{"versionId": "v-1", "layerId": "l-1"}, {"versionId": "v-2", "layerId": "l-2"}], "sensor": "KH-9-pan"},
             JoinParams((JoinPart("v-1", "l-1"), JoinPart("v-2", "l-2")), "KH-9-pan"),
@@ -241,3 +246,13 @@ def test_bad_path_readers_refuse_wrong_shapes() -> None:
     assert text_of({"a": "b"}, "a") == "b"
     assert Lease.of({"owner": 3}) is None
     assert StepRecord.of({"status": "done", "bytes": "12"}).bytes is None
+
+
+def test_happy_path_every_regeoref_params_the_server_writes_parse_here() -> None:
+    """Scenarios: S-P20-HAPPY-REGEOREF-SHARED (the golden the shared schema reads too: a fake job can no longer hide a new key)."""
+    cases = golden("job-params.regeoref.json")["cases"]
+    assert isinstance(cases, list)
+    parsed = [RegeorefParams.of(case) for case in cases]
+    assert parsed[1].original_archive_id == "ar-d6de189b65a0b61b"
+    with pytest.raises(DocumentError):
+        RegeorefParams.of({"basedOn": "im-1", "other": 1})
