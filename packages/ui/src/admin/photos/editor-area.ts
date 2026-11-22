@@ -1,10 +1,10 @@
 /**
  * The viewed area of an aerial photo (the owner, 2026-11-22): the ground the photo shows, four corners the admin drags
  * on the map. The section starts the area as a trapezoid in front of the camera, from the direction and the field of
- * view (`defaultViewedArea`), resets it to that, or removes it; a shape that is not a convex quadrilateral says so
+ * view (`areaAhead`), resets it to that, or removes it; a shape that is not a convex quadrilateral says so
  * under the section (`validation.viewedArea`). The cone stays: it is the direction, the area is what the photo shows.
  */
-import { DEFAULT_FOV, defaultViewedArea } from '@hcm/shared';
+import { DEFAULT_FOV, areaAhead } from '@hcm/shared';
 import { html, nothing, type TemplateResult } from 'lit';
 
 import { EMPTY } from '../shell/empty.js';
@@ -18,7 +18,7 @@ interface Corner {
 
 /** The default area of a photo at `location`, from its draft's direction and field of view. */
 export function startingArea(location: Corner, bearing: number | undefined, fov: number | undefined): Corner[] {
-    return defaultViewedArea([location.lng, location.lat], bearing ?? 0, fov ?? DEFAULT_FOV).map(([lng, lat]) => ({ lat, lng }));
+    return areaAhead([location.lng, location.lat], bearing ?? 0, fov ?? DEFAULT_FOV).map(([lng, lat]) => ({ lat, lng }));
 }
 
 function areaActions(input: PlaceInput, location: Corner): TemplateResult {

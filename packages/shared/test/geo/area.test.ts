@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest';
 
-import { AREA_FAR_M, AREA_NEAR_M, defaultViewedArea, isConvexQuad } from '../../src/geo/area.js';
+import { AREA_FAR_M, AREA_NEAR_M, areaAhead, isConvexQuad } from '../../src/geo/area.js';
 import { bearingBetween, distanceMeters } from '../../src/geo/bearing.js';
 import type { LngLat } from '../../src/geo/math.js';
 
@@ -65,9 +65,9 @@ describe('isConvexQuad', () => {
     });
 });
 
-describe('defaultViewedArea', () => {
+describe('areaAhead', () => {
     it('happyPath_aTrapezoidInFrontOfTheCamera', () => {
-        const area = defaultViewedArea(PHOTO, 90, 60);
+        const area = areaAhead(PHOTO, 90, 60);
 
         expect(isConvexQuad(area)).toBe(true);
         const [nearLeft, farLeft, farRight, nearRight] = area as [LngLat, LngLat, LngLat, LngLat];
@@ -78,7 +78,7 @@ describe('defaultViewedArea', () => {
     });
 
     it('badPath_aFieldOfViewOutsideTheUsefulRangeIsCapped', () => {
-        expect(isConvexQuad(defaultViewedArea(PHOTO, 0, 180))).toBe(true);
-        expect(isConvexQuad(defaultViewedArea(PHOTO, 350, 1))).toBe(true);
+        expect(isConvexQuad(areaAhead(PHOTO, 0, 180))).toBe(true);
+        expect(isConvexQuad(areaAhead(PHOTO, 350, 1))).toBe(true);
     });
 });
