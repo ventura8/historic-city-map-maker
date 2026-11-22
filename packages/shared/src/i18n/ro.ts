@@ -174,6 +174,8 @@ export const ro = {
     'poi.openPhoto': 'Deschide fotografia: {title}',
     'poi.media': 'Imagini și hărți',
     'poi.media.maps': 'Hărți',
+    'poi.media.plans': 'Planuri',
+    'poi.media.level': 'Nivel',
     'poi.media.aerial': 'Aeriene',
     'poi.media.ground': 'Exterioare',
     'poi.media.interior': 'Interioare',

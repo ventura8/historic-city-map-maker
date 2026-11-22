@@ -29,7 +29,7 @@ import {
 } from './manifest.js';
 import { ARCHIVE_PLACE_METHODS, layerRightsSchema } from './imagery-archive.js';
 import { placeFactsSchema } from './place-facts.js';
-import { iconNameSchema, MAX_POI_PHOTOS, photosOverlaySchema, placeIdsSchema } from './poi.js';
+import { iconNameSchema, levelOrderSchema, MAX_POI_PHOTOS, photosOverlaySchema, placeIdsSchema, planLevelSchema } from './poi.js';
 import { heldImageSchema, reviewFields } from './review.js';
 import { localizedStorySchema, storyFields } from './story.js';
 import {
@@ -227,6 +227,8 @@ const photoDocObjectSchema = z
         kind: z.enum(PHOTO_KINDS).optional(),
         /** The places whose Media list the photo (M17 §12, the owner 2026-11-22). */
         placeIds: placeIdsSchema.optional(),
+        /** An interior photo's level (M17 §14). */
+        level: levelOrderSchema.optional(),
         title: localizedPartial(200),
         description: localizedPartial(5000).optional(),
         year: yearSchema.optional(),
@@ -314,6 +316,8 @@ export const layerDocSchema = z.strictObject({
     adjustments: layerAdjustmentsSchema.optional(),
     /** A small-area map's places (M17 §12): their sheets list the layer under Media, Maps. */
     placeIds: placeIdsSchema.optional(),
+    /** A building plan's level (M17 §14). */
+    level: planLevelSchema.optional(),
     /** M20 (`docs/research/M20-import-local.md` §7): an archive map's licence, author and source, copied into the manifest. */
     rights: layerRightsSchema.optional(),
     status: z.enum(LAYER_STATUSES),

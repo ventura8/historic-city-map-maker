@@ -59,3 +59,26 @@ describe('manifest placeIds', () => {
         expect(unknown.error?.issues.map((issue) => issue.path.join('.'))).toEqual(['layers.0.placeIds.0']);
     });
 });
+
+describe('placeMedia: plans by level (M17 §14)', () => {
+    it('happyPath_plansGroupByLevelWithTheirInteriorPhotos @S-V82-HAPPY-LEVELS', () => {
+        const plan = (id: string, order: number, label: string): Layer => ({ ...layer(id, 1934, ['dunarea']), level: { order, label: { ro: label } } }) as Layer;
+        const room = { ...photo('hall', 'interior', 1940, ['dunarea']), level: 0 } as Photo;
+        const media = placeMedia(
+            { id: 'dunarea' },
+            { layers: [plan('etaj-1', 1, 'Etaj 1'), plan('parter', 0, 'Parter'), plan('parter-b', 0, 'Parter (2)'), layer('site', 1930, ['dunarea'])], photos: [room] },
+        );
+        expect(media.maps.map((item) => item.id)).toEqual(['site']);
+        expect(media.plans.map((level) => [level.order, level.label.ro, level.layers.length, level.photos.length])).toEqual([
+            [0, 'Parter', 2, 1],
+            [1, 'Etaj 1', 1, 0],
+        ]);
+        expect(placeMediaKinds(media)).toEqual(['maps', 'plans', 'interior']);
+    });
+
+    it('badPath_aPhotoOnALevelWithNoPlanIsOnlyAnInteriorPhoto @S-V82-BAD-LEVELS', () => {
+        const media = placeMedia({ id: 'p' }, { layers: [], photos: [{ ...photo('x', 'interior', 1940, ['p']), level: 3 } as Photo] });
+        expect(media.plans).toEqual([]);
+        expect(media.interior.map((item) => item.id)).toEqual(['x']);
+    });
+});

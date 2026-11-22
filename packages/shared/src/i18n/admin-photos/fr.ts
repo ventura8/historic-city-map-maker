@@ -139,6 +139,8 @@ export const fr: Readonly<Partial<Record<AdminPhotosKey, string>>> = {
     'adminContent.photos.kind.ground': 'Photo de rue',
     'adminContent.photos.kind.aerial': 'Photo aérienne',
     'adminContent.photos.kind.interior': 'Photo d’intérieur',
+    'adminContent.photos.field.level': 'Niveau (étage) de la photo d’intérieur',
+    'adminContent.photos.field.levelHint': 'Comme le niveau du plan : 0 rez-de-chaussée, 1 premier étage, -1 sous-sol.',
     'adminContent.photos.field.rightsHolder': 'Titulaire des droits',
     'adminContent.photos.field.sourceLabel': 'Nom de la source (facultatif)',
     'adminContent.photos.field.sourceLabelHint': 'Affiché sous forme de lien. Sans adresse, les visiteurs ne verront rien.',

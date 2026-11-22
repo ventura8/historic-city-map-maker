@@ -35,11 +35,13 @@ export const LAYER_EDITABLE = [
     'kind',
     /** A small-area map's places (M17 §12). */
     'placeIds',
+    /** A building plan's level (M17 §14). */
+    'level',
 ] as const satisfies readonly (keyof LayerDoc)[];
 
 /** What the editor's fields change directly (the sliders have their own intents). */
 export type LayerPatch = Partial<
-    Pick<LayerDoc, 'label' | 'description' | 'attribution' | 'year' | 'date' | 'defaultVisible' | 'published' | 'kind' | 'placeIds'>
+    Pick<LayerDoc, 'label' | 'description' | 'attribution' | 'year' | 'date' | 'defaultVisible' | 'published' | 'kind' | 'placeIds' | 'level'>
 >;
 
 export interface LayerEditorState {

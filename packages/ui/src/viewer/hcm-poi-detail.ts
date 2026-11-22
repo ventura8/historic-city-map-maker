@@ -31,6 +31,7 @@ import { EMPTY } from './empty.js';
 import { externalLink, renderMarkdown } from './markdown.js';
 import { creditLine } from './photo-rights.js';
 import { placeFacts } from './poi-facts.js';
+import { planItems } from './place-plans.js';
 import { resolveAssetUrl } from './services.js';
 import { fallbackNote } from './fallback-note.js';
 import { baseStyles, detailStyles } from './shared-styles.js';
@@ -62,6 +63,7 @@ export class HcmPoiDetail extends LitElement {
         locale: { type: String },
         manifestUrl: { type: String, attribute: 'manifest-url' },
         mediaKind: { state: true },
+        planLevel: { state: true },
     };
 
     static override readonly styles = [
@@ -183,6 +185,8 @@ export class HcmPoiDetail extends LitElement {
     declare manifestUrl: string;
     /** The Media chip chosen; null: the first kind the place has. */
     declare mediaKind: PlaceMediaKind | null;
+    /** M17 §14: the plan level chosen; null: the lowest. */
+    declare planLevel: number | null;
 
     constructor() {
         super();
@@ -195,11 +199,13 @@ export class HcmPoiDetail extends LitElement {
         this.locale = DEFAULT_LOCALE;
         this.manifestUrl = '';
         this.mediaKind = null;
+        this.planLevel = null;
     }
 
     override willUpdate(changed: Map<PropertyKey, unknown>): void {
         if (changed.has('poi')) {
             this.mediaKind = null;
+            this.planLevel = null;
         }
     }
 
@@ -313,6 +319,18 @@ export class HcmPoiDetail extends LitElement {
     }
 
     #items(media: PlaceMedia, kind: PlaceMediaKind): TemplateResult {
+        if (kind === 'plans') {
+            return planItems({
+                levels: media.plans,
+                chosen: this.planLevel,
+                locale: this.locale,
+                choose: (order) => {
+                    this.planLevel = order;
+                },
+                plan: (layer) => this.#map(layer),
+                photo: (photo) => this.#thumb(photo),
+            });
+        }
         if (kind === 'maps') {
             return html`<ul class="maps">
                 ${media.maps.map((layer) => this.#map(layer))}

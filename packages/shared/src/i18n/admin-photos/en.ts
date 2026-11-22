@@ -146,6 +146,8 @@ export const en: Readonly<Record<AdminPhotosKey, string>> = {
     'adminContent.photos.kind.ground': 'Street photo',
     'adminContent.photos.kind.aerial': 'Aerial photo',
     'adminContent.photos.kind.interior': 'Interior photo',
+    'adminContent.photos.field.level': 'Level (floor) of the interior photo',
+    'adminContent.photos.field.levelHint': 'The same as the plan’s level: 0 ground floor, 1 first floor, -1 basement.',
     'adminContent.photos.field.rightsHolder': 'Rights holder',
     'adminContent.photos.field.sourceLabel': 'Source name (optional)',
     'adminContent.photos.field.sourceLabelHint': 'Shown as the link. Without an address, visitors see nothing.',

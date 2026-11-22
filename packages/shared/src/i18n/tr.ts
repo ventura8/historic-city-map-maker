@@ -172,6 +172,8 @@ export const tr: Messages = {
     'poi.openPhoto': 'Fotoğrafı aç: {title}',
     'poi.media': 'Medya',
     'poi.media.maps': 'Haritalar',
+    'poi.media.plans': 'Kat planları',
+    'poi.media.level': 'Kat',
     'poi.media.aerial': 'Hava',
     'poi.media.ground': 'Dış',
     'poi.media.interior': 'İç',

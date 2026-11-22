@@ -169,6 +169,8 @@ export const hi: Messages = {
     'poi.openPhoto': 'तस्वीर खोलें: {title}',
     'poi.media': 'मीडिया',
     'poi.media.maps': 'नक्शे',
+    'poi.media.plans': 'नक़्शे (मंज़िल)',
+    'poi.media.level': 'मंज़िल',
     'poi.media.aerial': 'हवाई',
     'poi.media.ground': 'बाहरी',
     'poi.media.interior': 'भीतरी',

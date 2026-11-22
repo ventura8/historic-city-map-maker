@@ -203,6 +203,7 @@ function newLayer(version: LayerVersionDoc, order: number, stamp: Stamp): Omit<L
         defaultVisible: false,
         adjustments: undefined,
         placeIds: undefined,
+        level: undefined,
         rights: version.rights === undefined ? undefined : layerRightsOf(version.rights),
         published: true,
         provenance: undefined,

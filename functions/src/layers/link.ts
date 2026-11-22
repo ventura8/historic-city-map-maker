@@ -101,6 +101,7 @@ function layerOf(request: Request, order: number, caller: VerifiedCaller, now: D
         defaultVisible: false,
         adjustments: undefined,
         placeIds: undefined,
+        level: undefined,
         rights: undefined,
         status: 'ready',
         published: false,

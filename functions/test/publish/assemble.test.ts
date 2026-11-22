@@ -555,3 +555,21 @@ describe('assembleManifest: place facts (docs/research/M17-stories.md §13)', ()
         expect(manifest.pois?.[0]?.facts).toBeUndefined();
     });
 });
+
+describe('assembleManifest: plans by level (docs/research/M17-stories.md §14)', () => {
+    it('happyPath_aPlansLevelAndAnInteriorPhotosLevelReachTheManifest @S-V82-HAPPY-LEVELS', () => {
+        const manifest = manifestOf(
+            assembleManifest(
+                content({
+                    layers: result([['flight-1940', layerDoc({ placeIds: ['enei'], level: { order: 0, label: { ro: 'Parter' } } })]]),
+                    photos: result([['p1', photoDoc('p1', { kind: 'interior', placeIds: ['enei'], level: 0 })]]),
+                }),
+                TEST_CONFIG.errorEndpoint,
+            ),
+        );
+
+        expect(validateManifest(manifest).ok).toBe(true);
+        expect(manifest.layers[0]?.level).toEqual({ order: 0, label: { ro: 'Parter' } });
+        expect(manifest.photos[0]?.level).toBe(0);
+    });
+});

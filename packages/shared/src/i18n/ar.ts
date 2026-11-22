@@ -170,6 +170,8 @@ export const ar: Messages = {
     'poi.openPhoto': 'فتح الصورة: {title}',
     'poi.media': 'الوسائط',
     'poi.media.maps': 'خرائط',
+    'poi.media.plans': 'مخططات',
+    'poi.media.level': 'الطابق',
     'poi.media.aerial': 'جوية',
     'poi.media.ground': 'خارجي',
     'poi.media.interior': 'داخلي',

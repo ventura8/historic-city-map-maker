@@ -172,6 +172,8 @@ export const uk: Messages = {
     'poi.openPhoto': 'Відкрити фотографію: {title}',
     'poi.media': 'Медіа',
     'poi.media.maps': 'Мапи',
+    'poi.media.plans': 'Плани',
+    'poi.media.level': 'Рівень',
     'poi.media.aerial': 'Аерофото',
     'poi.media.ground': 'Зовні',
     'poi.media.interior': 'Інтер’єр',

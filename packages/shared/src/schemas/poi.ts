@@ -42,6 +42,13 @@ export const placeIdsSchema = z
     .max(MAX_MEDIA_PLACES)
     .refine((ids) => new Set(ids).size === ids.length, coded('validation.duplicateId'));
 
+/**
+ * A building plan's level (`docs/research/M17-stories.md` §14): `order` sorts the levels (-1 a basement, 0 the ground floor,
+ * 0.5 a mezzanine, 1 the first floor) and is what an interior photo's `level` names; `label` is what the picker shows.
+ */
+export const levelOrderSchema = z.number().min(-10).max(200);
+export const planLevelSchema = z.strictObject({ order: levelOrderSchema, label: localizedPartial(60) });
+
 /** A Material Symbols icon name (`account_balance`, `church`): lower case letters, digits and underscores. */
 export const ICON_NAME_PATTERN = /^[a-z0-9_]{1,64}$/;
 

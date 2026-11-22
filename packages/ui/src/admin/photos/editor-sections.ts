@@ -120,6 +120,31 @@ function kindField(input: SectionInput): TemplateResult {
     );
 }
 
+/** M17 §14: an interior photo's level, the order of a plan's level (0 the ground floor); other kinds have none. */
+function levelField(input: SectionInput): TemplateResult {
+    const { locale, value } = input;
+    if (value.kind !== 'interior') {
+        return html``;
+    }
+    return numberField(
+        {
+            id: 'photo-level',
+            label: photoText(locale, 'adminContent.photos.field.level'),
+            hint: photoText(locale, 'adminContent.photos.field.levelHint'),
+            value: value.level === undefined ? '' : String(value.level),
+            error: fieldIssue(locale, input.issues, 'level'),
+            min: -10,
+            max: 200,
+            step: '0.5',
+            readOnly: input.readOnly,
+        },
+        (typed) => {
+            input.edit({ level: numberOf(typed) });
+        },
+        input.left,
+    );
+}
+
 /** M17 §12: the places whose Media list the photo. */
 function placesField(input: SectionInput): TemplateResult {
     if (input.places === undefined) {
@@ -142,7 +167,7 @@ export function textsSection(input: SectionInput): TemplateResult {
     const title = value.title;
     return html`<fieldset>
         <legend>${photoText(locale, 'adminContent.photos.section.texts')}</legend>
-        ${kindField(input)} ${placesField(input)}
+        ${kindField(input)} ${levelField(input)} ${placesField(input)}
         ${textField(
             {
                 id: 'photo-title-ro',

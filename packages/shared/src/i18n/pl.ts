@@ -174,6 +174,8 @@ export const pl: Messages = {
     'poi.openPhoto': 'Otwórz zdjęcie: {title}',
     'poi.media': 'Multimedia',
     'poi.media.maps': 'Mapy',
+    'poi.media.plans': 'Rzuty',
+    'poi.media.level': 'Poziom',
     'poi.media.aerial': 'Lotnicze',
     'poi.media.ground': 'Na zewnątrz',
     'poi.media.interior': 'Wnętrza',

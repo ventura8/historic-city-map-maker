@@ -148,6 +148,8 @@ export const ro = {
     'adminContent.photos.kind.ground': 'Fotografie de pe stradă',
     'adminContent.photos.kind.aerial': 'Fotografie aeriană',
     'adminContent.photos.kind.interior': 'Fotografie de interior',
+    'adminContent.photos.field.level': 'Nivelul (etajul) fotografiei de interior',
+    'adminContent.photos.field.levelHint': 'La fel ca nivelul planului: 0 parter, 1 etajul 1, -1 subsol.',
     'adminContent.photos.field.rightsHolder': 'Deținătorul drepturilor',
     'adminContent.photos.field.sourceLabel': 'Numele sursei (opțional)',
     'adminContent.photos.field.sourceLabelHint': 'Apare ca link. Fără adresă, vizitatorii nu văd nimic.',

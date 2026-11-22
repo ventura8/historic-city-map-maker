@@ -109,6 +109,8 @@ export interface PhotoValuePort extends StickyPort {
     /** An aerial photo's viewed area: four corners on the ground, a rectangle or a trapezoid (the owner 2026-11-22). */
     /** M17 §12: the places whose Media list the photo. */
     readonly placeIds?: readonly string[] | undefined;
+    /** M17 §14: an interior photo's level. */
+    readonly level?: number | undefined;
     readonly viewedArea?: readonly { readonly lat: number; readonly lng: number }[] | undefined;
     readonly published: boolean;
     readonly rightsReview?: boolean | undefined;

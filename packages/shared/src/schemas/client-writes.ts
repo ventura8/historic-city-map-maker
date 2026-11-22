@@ -60,6 +60,8 @@ const PHOTO_EDITABLE = [
     'kind',
     /** The places whose Media list the photo (M17 §12). */
     'placeIds',
+    /** An interior photo's level (M17 §14). */
+    'level',
     /** M13: the optional credit name. */
     'credit',
     /** Who improved or colorized the photo (the owner 2026-11-09); the versions themselves are `photos.onUpload`'s. */
@@ -84,6 +86,8 @@ const LAYER_EDITABLE = [
     'kind',
     /** A small-area map's places (M17 §12). */
     'placeIds',
+    /** A building plan's level (M17 §14). */
+    'level',
     ...STAMP,
 ] as const;
 

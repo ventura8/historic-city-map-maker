@@ -51,6 +51,7 @@ describe('presentation', () => {
         ['removed rights', { rights: deleted() }],
         ['a drawn map, once taken for an aerial photo', { kind: 'map' }],
         ['a small-area map of a place @S-A199-HAPPY-LAYER-PLACES', { placeIds: ['parcul-carol'] }],
+        ['a building plan of the ground floor @S-A201-HAPPY-LEVEL', { placeIds: ['hotel-dunarea'], level: { order: 0, label: { ro: 'Parter' } } }],
     ])('happyPath_adminSaves_%s', async (_label, changes) => {
         expect(await edit(changes)).toBe('allow');
     });
@@ -68,6 +69,8 @@ describe('presentation', () => {
         ['a published flag that is not a boolean', { published: 1 }],
         ['a kind the viewer does not know', { kind: 'drawing' }],
         ['places that are not a list @S-A199-BAD-LAYER-PLACES', { placeIds: 'parcul-carol' }],
+        ['a level without a name @S-A201-BAD-LEVEL', { level: { order: 0 } }],
+        ['a level with an unknown field', { level: { order: 0, label: { ro: 'Parter' }, floor: 'x' } }],
         ['a label over 200 characters', { label: { ro: 'x'.repeat(201) } }],
         ['a label without Romanian', { label: { en: 'Corona 1966' } }],
         ['a removed label', { label: deleted() }],

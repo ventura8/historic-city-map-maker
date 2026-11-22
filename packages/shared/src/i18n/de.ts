@@ -177,6 +177,8 @@ export const de: Messages = {
     'poi.openPhoto': 'Foto öffnen: {title}',
     'poi.media': 'Medien',
     'poi.media.maps': 'Karten',
+    'poi.media.plans': 'Grundrisse',
+    'poi.media.level': 'Geschoss',
     'poi.media.aerial': 'Luftbilder',
     'poi.media.ground': 'Außen',
     'poi.media.interior': 'Innen',

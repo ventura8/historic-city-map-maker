@@ -173,6 +173,8 @@ export const es: Messages = {
     'poi.openPhoto': 'Abrir la foto: {title}',
     'poi.media': 'Medios',
     'poi.media.maps': 'Mapas',
+    'poi.media.plans': 'Planos',
+    'poi.media.level': 'Nivel de planta',
     'poi.media.aerial': 'Aéreas',
     'poi.media.ground': 'Exteriores',
     'poi.media.interior': 'Interiores',

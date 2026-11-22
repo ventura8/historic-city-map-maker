@@ -29,6 +29,7 @@ import { contentText } from '../shell/text.js';
 import { conflictBanner, field, issueAt, saveBar, saveStateOf, sliderRow, type FieldSpec } from './form-parts.js';
 import type { CropStatePort } from './geometry/crop-port.js';
 import { geometryGroup } from './geometry-group.js';
+import { levelRow } from './level-row.js';
 import { licenceSelect } from './rights-group.js';
 import {
     labelOf,
@@ -253,6 +254,14 @@ function displayGroup(context: EditorContext, editor: LayerEditorPort, layer: La
             },
         )}
         ${kindRow(context, layer)} ${placesRow(context, layer)}
+        ${levelRow({
+            locale: context.locale,
+            level: layer.level,
+            readOnly: context.readOnly,
+            change: (level) => {
+                context.intents?.edit({ level });
+            },
+        })}
         ${
             layer.status === 'ready' && issueAt(editor.draft.issues, 'published') === null
                 ? nothing

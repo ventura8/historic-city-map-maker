@@ -174,6 +174,8 @@ export const ko: Messages = {
     'poi.openPhoto': '사진 열기: {title}',
     'poi.media': '미디어',
     'poi.media.maps': '지도',
+    'poi.media.plans': '평면도',
+    'poi.media.level': '층',
     'poi.media.aerial': '항공',
     'poi.media.ground': '외부',
     'poi.media.interior': '내부',

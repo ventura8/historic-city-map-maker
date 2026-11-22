@@ -8,7 +8,7 @@ import { z } from 'zod';
 import { bboxContains } from '../geo/bbox.js';
 import { isCspOrigin, isHttpsUrl } from '../text/urls.js';
 import { manifestRuleIssues } from './manifest-rules.js';
-import { photosOverlaySchema, placeIdsSchema, poiCategorySchema, poiSchema, MAX_POI_CATEGORIES, MAX_POIS } from './poi.js';
+import { levelOrderSchema, photosOverlaySchema, placeIdsSchema, planLevelSchema, poiCategorySchema, poiSchema, MAX_POI_CATEGORIES, MAX_POIS } from './poi.js';
 import {
     assetUrlSchema,
     bboxSchema,
@@ -184,6 +184,8 @@ export const layerSchema = z
         adjustments: layerAdjustmentsSchema.optional(),
         /** A small-area map's places (POI ids): the place's sheet lists it under Media, Maps (M17 §12). */
         placeIds: placeIdsSchema.optional(),
+        /** A building plan's level (M17 §14): the place's sheet lists it under Plans, by level. */
+        level: planLevelSchema.optional(),
     })
     .refine((layer) => layer.minzoom <= layer.maxzoom, coded('validation.zoomRange', ['maxzoom']))
     .refine((layer) => layer.date === undefined || layer.date.startsWith(String(layer.year)), coded('validation.value', ['date']));
@@ -227,6 +229,8 @@ const photoFields = {
     kind: z.enum(PHOTO_KINDS).optional(),
     /** The places (POI ids) whose Media the photo belongs to (M17 §12). */
     placeIds: placeIdsSchema.optional(),
+    /** An interior photo's level (M17 §14): the `order` of a plan's level. */
+    level: levelOrderSchema.optional(),
     title: localizedPartial(200),
     description: localizedPartial(5000).optional(),
     year: yearSchema.optional(),

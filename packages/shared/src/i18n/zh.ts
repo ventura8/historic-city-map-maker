@@ -173,6 +173,8 @@ export const zh: Messages = {
     'poi.openPhoto': '打开照片：{title}',
     'poi.media': '媒体',
     'poi.media.maps': '地图',
+    'poi.media.plans': '平面图',
+    'poi.media.level': '楼层',
     'poi.media.aerial': '航拍',
     'poi.media.ground': '外景',
     'poi.media.interior': '内景',

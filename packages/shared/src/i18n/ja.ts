@@ -175,6 +175,8 @@ export const ja: Messages = {
     'poi.openPhoto': '写真を開く：{title}',
     'poi.media': 'メディア',
     'poi.media.maps': '地図',
+    'poi.media.plans': '平面図',
+    'poi.media.level': '階',
     'poi.media.aerial': '航空写真',
     'poi.media.ground': '外観',
     'poi.media.interior': '内観',

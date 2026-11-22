@@ -47,11 +47,13 @@ export const MANIFEST_FIELDS: Readonly<Record<HistoryEntity, readonly string[]>>
         'opacity',
         'adjustments',
         'placeIds',
+        'level',
         'status',
     ],
     photo: [
         'kind',
         'placeIds',
+        'level',
         'title',
         'description',
         'year',

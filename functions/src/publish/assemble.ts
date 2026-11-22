@@ -168,6 +168,7 @@ function layerEntry(layer: LayerDoc, id: string, listed: Listed): unknown {
         adjustments: layer.adjustments,
         // M17 §12: a place the manifest does not list leaves the map's Media, never the map.
         placeIds: stillListed(layer.placeIds, listed.pois),
+        level: layer.level,
     };
 }
 
@@ -177,6 +178,7 @@ function photoCommon(photo: PhotoDoc & { readonly image: NonNullable<PhotoDoc['i
         id,
         kind: photo.kind,
         placeIds: stillListed(photo.placeIds, listed.pois),
+        level: photo.level,
         title: photo.title,
         description: photo.description,
         year: photo.year,

@@ -255,4 +255,32 @@ describe('<hcm-poi-detail> media (M17 §12)', () => {
         expect(element.mediaKind).toBeNull();
         expect(shadowQueryAll(element, '.thumbs button')).toHaveLength(2);
     });
+
+    it('happyPath_aBuildingsPlansShowByLevelWithTheirInteriorPhotos @S-V82-HAPPY-LEVELS', async () => {
+        const place = poi('casa-uranus');
+        const [first, second] = MANIFEST.photos;
+        const [plan, upper] = MANIFEST.layers;
+        if (first === undefined || second === undefined || plan === undefined || upper === undefined) {
+            throw new Error('fixture');
+        }
+        const element = await detail({
+            poi: { ...place, photoIds: [] },
+            photos: [{ ...first, kind: 'interior', placeIds: [place.id], level: 0 }, { ...second, kind: 'interior', placeIds: [place.id], level: 1 }],
+            layers: [
+                { ...plan, placeIds: [place.id], level: { order: 1, label: { ro: 'Etaj 1', en: 'First floor' } } },
+                { ...upper, placeIds: [place.id], level: { order: 0, label: { ro: 'Parter', en: 'Ground floor' } } },
+            ],
+            category: category('cladiri'),
+            locale: 'en',
+        });
+
+        await page.getByRole('radio', { name: 'Plans' }).click();
+        await element.updateComplete;
+        expect(shadowQueryAll(element, '.levels label').map((label) => label.textContent.trim())).toEqual(['Ground floor', 'First floor']);
+        expect(shadowQueryAll(element, '.thumbs button')).toHaveLength(1);
+        await page.getByRole('radio', { name: 'First floor' }).click();
+        await element.updateComplete;
+        expect(shadowQueryAll(element, '.maps button')[0]?.getAttribute('aria-label')).toContain(plan.label.en);
+        expect(shadowQueryAll(element, '.maps button')).toHaveLength(1);
+    });
 });

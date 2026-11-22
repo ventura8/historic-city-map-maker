@@ -176,6 +176,8 @@ export const ru: Messages = {
     'poi.openPhoto': 'Открыть фотографию: {title}',
     'poi.media': 'Медиа',
     'poi.media.maps': 'Карты',
+    'poi.media.plans': 'Планы',
+    'poi.media.level': 'Уровень',
     'poi.media.aerial': 'Аэрофото',
     'poi.media.ground': 'Снаружи',
     'poi.media.interior': 'Интерьер',

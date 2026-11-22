@@ -10,11 +10,22 @@ import type { Poi } from '../schemas/poi.js';
 
 export { MAX_MEDIA_PLACES } from '../schemas/poi.js';
 
-export const PLACE_MEDIA_KINDS = ['maps', 'aerial', 'ground', 'interior'] as const;
+export const PLACE_MEDIA_KINDS = ['maps', 'plans', 'aerial', 'ground', 'interior'] as const;
 export type PlaceMediaKind = (typeof PLACE_MEDIA_KINDS)[number];
 
+/** M17 §14: one level of a building's plans, its plan layers and the interior photos taken on it. */
+export interface PlanLevel {
+    readonly order: number;
+    readonly label: { readonly ro: string; readonly en?: string | undefined };
+    readonly layers: readonly Layer[];
+    readonly photos: readonly (Photo | UnplacedPhoto)[];
+}
+
 export interface PlaceMedia {
+    /** Maps of the place without a level (plans of the area, the 1906 exhibition plan). */
     readonly maps: readonly Layer[];
+    /** M17 §14: the building's plans by level, lowest first. */
+    readonly plans: readonly PlanLevel[];
     readonly aerial: readonly (Photo | UnplacedPhoto)[];
     readonly ground: readonly (Photo | UnplacedPhoto)[];
     readonly interior: readonly (Photo | UnplacedPhoto)[];
@@ -41,12 +52,30 @@ function placePhotos(poi: Pick<Poi, 'id' | 'photoIds'>, photos: MediaSource['pho
     return [...listed, ...naming];
 }
 
+/** The leveled layers grouped by level (the first label of an order names it), each with the interior photos on it. */
+function planLevels(layers: readonly Layer[], interior: readonly (Photo | UnplacedPhoto)[]): PlanLevel[] {
+    const levels = new Map<number, PlanLevel>();
+    for (const layer of layers) {
+        const level = layer.level;
+        if (level !== undefined) {
+            const known = levels.get(level.order);
+            const plans = known === undefined ? [layer] : [...known.layers, layer];
+            levels.set(level.order, { order: level.order, label: known?.label ?? level.label, layers: plans, photos: [] });
+        }
+    }
+    return [...levels.values()]
+        .map((level) => ({ ...level, photos: interior.filter((photo) => photo.level === level.order) }))
+        .toSorted((a, b) => a.order - b.order);
+}
+
 /** The media of `poi` in `source`, by kind; every list may be empty. */
 export function placeMedia(poi: Pick<Poi, 'id' | 'photoIds'>, source: MediaSource): PlaceMedia {
     const photos = placePhotos(poi, source.photos);
     const ofKind = (kind: PhotoKind) => photos.filter((photo) => photoKindOf(photo) === kind);
+    const layers = source.layers.filter((layer) => names(layer, poi.id)).toSorted(byYear);
     return {
-        maps: source.layers.filter((layer) => names(layer, poi.id)).toSorted(byYear),
+        maps: layers.filter((layer) => layer.level === undefined),
+        plans: planLevels(layers, ofKind('interior')),
         aerial: ofKind('aerial'),
         ground: ofKind('ground'),
         interior: ofKind('interior'),

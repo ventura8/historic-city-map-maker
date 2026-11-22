@@ -1429,6 +1429,20 @@
             "name": "A place's facts edited and imported",
             "milestone": "M17",
             "source": "the owner, 2026-11-22: places get structured facts (architect, years, style, floors, uses, LMI, addresses, related places)"
+        },
+        {
+            "id": "V82",
+            "area": "viewer",
+            "name": "A building's plans by level in its place's Media",
+            "milestone": "M17",
+            "source": "the owner, 2026-11-22: building plans per level, a level picker, interior photos on a level"
+        },
+        {
+            "id": "A201",
+            "area": "admin",
+            "name": "A plan's level and an interior photo's level",
+            "milestone": "M17",
+            "source": "the owner, 2026-11-22: building plans per level, a level picker, interior photos on a level"
         }
     ],
     "scenarios": [
@@ -24993,6 +25007,50 @@
             "tier": "rules",
             "status": "exists",
             "notes": "Test: firebase/rules-tests/test/pois.test.ts. Unit: packages/admin/test/pois/geojson.test.ts, packages/ui/test/admin/pois/facts-text.test.ts."
+        },
+        {
+            "id": "S-V82-HAPPY-LEVELS",
+            "behaviour": "V82",
+            "area": "viewer",
+            "path": "happy",
+            "title": "A building's plans show by level with the photos taken there",
+            "asserts": "two plan layers with levels 0 and 1 and interior photos on them -> Media's Plans chip shows a level picker lowest first; each level shows its plans (Show on the map) and its photos; the manifest carries the levels",
+            "tier": "functions",
+            "status": "exists",
+            "notes": "Tests: functions/test/publish/assemble.test.ts, packages/shared/test/overlays/place-media.test.ts, packages/ui/test/viewer/hcm-poi-detail.test.ts. docs/research/M17-stories.md §14."
+        },
+        {
+            "id": "S-V82-BAD-LEVELS",
+            "behaviour": "V82",
+            "area": "viewer",
+            "path": "bad",
+            "title": "A photo on a level with no plan is only an interior photo",
+            "asserts": "an interior photo of level 3 without a plan -> no Plans chip; the photo stays under Interior",
+            "tier": "e2e-viewer",
+            "status": "planned",
+            "notes": "Unit: packages/shared/test/overlays/place-media.test.ts."
+        },
+        {
+            "id": "S-A201-HAPPY-LEVEL",
+            "behaviour": "A201",
+            "area": "admin",
+            "path": "happy",
+            "title": "An admin gives a plan and an interior photo a level",
+            "asserts": "a layer update with level {order 0, label Parter} and a photo with level 0.5 are allowed; the layer editor makes a level from an order and a name",
+            "tier": "rules",
+            "status": "exists",
+            "notes": "Tests: firebase/rules-tests/test/layers.test.ts, firebase/rules-tests/test/photos.test.ts, packages/ui/test/admin/layers/level-row.test.ts."
+        },
+        {
+            "id": "S-A201-BAD-LEVEL",
+            "behaviour": "A201",
+            "area": "admin",
+            "path": "bad",
+            "title": "A level without a name or not a number is refused",
+            "asserts": "a layer level without a label, a photo level as text or above 200 are denied; an empty or unreadable order makes no level",
+            "tier": "rules",
+            "status": "exists",
+            "notes": "Tests: firebase/rules-tests/test/layers.test.ts, firebase/rules-tests/test/photos.test.ts, packages/ui/test/admin/layers/level-row.test.ts."
         }
     ]
 }

@@ -29,6 +29,8 @@ const PHOTO_EDITABLE = [
     'kind',
     /** The places whose Media list the photo (M17 §12). */
     'placeIds',
+    /** An interior photo's level (M17 §14). */
+    'level',
     'rightsHolder',
     'sourceUrl',
     'sourceLabel',

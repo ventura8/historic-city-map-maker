@@ -135,7 +135,7 @@ export type LayerTextFieldPort =
 /** M4 (CR-M4-4): the draft buttons beside the name and the description ride with the area's intents. */
 export interface LayersIntentsPort extends AssistActionsPort {
     retry(): void;
-    edit(patch: Partial<Pick<LayerDoc, 'defaultVisible' | 'published' | 'kind' | 'placeIds'>>): void;
+    edit(patch: Partial<Pick<LayerDoc, 'defaultVisible' | 'published' | 'kind' | 'placeIds' | 'level'>>): void;
     setField(field: LayerTextFieldPort, text: string): void;
     setOpacity(percent: number): void;
     setAdjustment(name: LayerAdjustmentName, percent: number): void;
