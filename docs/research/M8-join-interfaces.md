@@ -709,3 +709,7 @@ and the manifest follows the layer. An upload finalizes as a map unless its name
 offers the same parts again; parts `joined` still serve, and a join whose parts a published join stamped becomes a version of that
 join's layer (`earlierLayer`, `join-archive.ts`). Parts placed by the file's own georeference (`embedded`) are still refused by the
 pipeline (`join/plan.py`). Scenarios: S-A65-HAPPY/BAD-ARCHIVE-JOIN-AGAIN.
+
+**A layer's bounds are its data's** (live 2026-11-22): `export` writes the alpha's extent (`valid_bounds`), finalize takes the box of
+the measured `outline` when there is one (`layer-bounds.ts`), and `imagery.tick`'s `bounds` part corrects, once, every layer published
+with the city's window as its bounds. Scenarios: S-A65-HAPPY/BAD-DATA-BOUNDS, S-P06-HAPPY/BAD-VALID-BOUNDS.

@@ -19,7 +19,7 @@ import numpy
 from hcm_pipeline.calibrate.reach import COVER_SIDE_CELLS, Reach, outline
 from hcm_pipeline.contract import STUDIO_MAX_BYTES
 from hcm_pipeline.documents import OutputInfo, city_bounds
-from hcm_pipeline.geo import ZOOM0_RESOLUTION_M, Grid, ground_scale
+from hcm_pipeline.geo import ZOOM0_RESOLUTION_M, Bounds, Grid, MercatorBox, ground_scale
 from hcm_pipeline.jobs import Done, JobContext, StepResult
 from hcm_pipeline.join.canvas import DatasetSource
 from hcm_pipeline.model import Job
@@ -101,6 +101,22 @@ def valid_area_km2(warped: Warped) -> float:
     pixel_area = (warped.grid.resolution / scale) ** 2
     middle = warped.grid.box().bounds().middle_lat
     return float(numpy.count_nonzero(alpha)) * pixel_area * ground_scale(middle) ** 2 / SQUARE_METRES_PER_KM2
+
+
+def valid_bounds(warped: Warped) -> Bounds:
+    """Where the alpha band holds data, as a north-up box (sampled at most 2048 px a side), else the whole grid. Live 2026-11-22: a
+    join's canvas, and a USGS render's grid, is the city's window, so the grid's box flew the year view to the whole city."""
+    width, height, _ = fit_long_side(warped.grid.width, warped.grid.height, AREA_SAMPLE_PX)
+    alpha = read_band(warped.path, warped.bands, (width, height))
+    rows = numpy.flatnonzero(alpha.any(axis=1))
+    columns = numpy.flatnonzero(alpha.any(axis=0))
+    box = warped.grid.box()
+    if rows.size == 0:
+        return box.bounds()
+    x_step, y_step = box.width / width, box.height / height
+    left, right = box.left + int(columns[0]) * x_step, box.left + (int(columns[-1]) + 1) * x_step
+    top, bottom = box.top - int(rows[0]) * y_step, box.top - (int(rows[-1]) + 1) * y_step
+    return MercatorBox(left, bottom, right, top).bounds()
 
 
 def city_coverage(warped: Warped, city: Mapping[str, object] | None) -> float | None:
@@ -185,7 +201,7 @@ class ExportStep:
             cog_bytes=_size_of(mapbox.cog),
             cog_sha256=mapbox.cog_sha256,
             preview_path=preview_info.path,
-            bounds=warped.grid.box().bounds(),
+            bounds=gdal_step(ctx, lambda: valid_bounds(warped), "measure the bounds"),
             minzoom=minzoom,
             maxzoom=maxzoom,
             area_km2=valid_area_km2(warped),

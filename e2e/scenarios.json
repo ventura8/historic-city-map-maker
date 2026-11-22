@@ -14400,6 +14400,28 @@
             "notes": "Live 2026-11-22, the 2017 orthophoto plan. Tests: functions/test/imagery/join-archive.test.ts, packages/ui/test/admin/imagery/archive-join.test.ts."
         },
         {
+            "id": "S-A65-HAPPY-DATA-BOUNDS",
+            "behaviour": "A65",
+            "area": "admin",
+            "path": "happy",
+            "title": "A layer's bounds are those of its own data",
+            "asserts": "a layer published with the city's window as bounds and a current version with a measured outline -> imagery.tick sets the outline's box; finalize writes the data's bounds",
+            "tier": "functions",
+            "status": "exists",
+            "notes": "Live 2026-11-22. Test: functions/test/imagery/layer-bounds.test.ts."
+        },
+        {
+            "id": "S-A65-BAD-DATA-BOUNDS",
+            "behaviour": "A65",
+            "area": "admin",
+            "path": "bad",
+            "title": "A layer of its own bounds, or one without an outline, is left alone",
+            "asserts": "bounds not the city's, no outline, no current version, or no city -> unchanged",
+            "tier": "functions",
+            "status": "exists",
+            "notes": "Live 2026-11-22. Test: functions/test/imagery/layer-bounds.test.ts."
+        },
+        {
             "id": "S-A65-BAD-ARCHIVE-CREDIT",
             "behaviour": "A65",
             "area": "admin",
@@ -15300,6 +15322,28 @@
             "tier": "e2e-pipeline",
             "status": "exists",
             "notes": "docs/research/M9-calibration.md §7. Test: pipeline/tests/unit/test_calibrate_pairs.py."
+        },
+        {
+            "id": "S-P06-HAPPY-VALID-BOUNDS",
+            "behaviour": "P06",
+            "area": "pipeline",
+            "path": "happy",
+            "title": "A layer's bounds are where its image holds data",
+            "asserts": "export's bounds are the alpha band's extent, not the grid: a join or a USGS render over the city's window reports its own footprint",
+            "tier": "e2e-pipeline",
+            "status": "exists",
+            "notes": "Live 2026-11-22 (IGA 1911, 1990 cadastral plan, 2017 orthophoto). Test: pipeline/tests/integration/test_calibration_job.py."
+        },
+        {
+            "id": "S-P06-BAD-VALID-BOUNDS",
+            "behaviour": "P06",
+            "area": "pipeline",
+            "path": "bad",
+            "title": "An image with no data keeps its grid's bounds",
+            "asserts": "an empty alpha -> the grid's box",
+            "tier": "e2e-pipeline",
+            "status": "exists",
+            "notes": "Live 2026-11-22 (IGA 1911, 1990 cadastral plan, 2017 orthophoto). Test: pipeline/tests/integration/test_calibration_job.py."
         },
         {
             "id": "S-P06-HAPPY-RENDERED-OUTLINE",

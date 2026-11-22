@@ -39,6 +39,7 @@ import type { DocumentTransaction } from '../ports/documents.js';
 import type { Ports } from '../ports/index.js';
 import { joinFrameWrites, readJoinFrames, retiredByJoin, retiredLayer } from './finalize-join.js';
 import { provenanceOf } from './finalize-provenance.js';
+import { dataBoundsOf } from './layer-bounds.js';
 import { IMAGERY_WRITER, stampOf, withStep, type Stamp } from './records.js';
 
 export type FinalizeDeps = Pick<Ports, 'documents' | 'clock' | 'log'>;
@@ -228,7 +229,7 @@ function layerAfter(held: Held, finish: Finish, order: number, stamp: Stamp): La
         ...sourceOf(finish, version.output),
         minzoom: version.output.minzoom,
         maxzoom: version.output.maxzoom,
-        bounds: version.output.bounds,
+        bounds: dataBoundsOf(version.output),
         provenance: provenanceOf(version, layer),
         currentVersion: finish.versionId,
         status: 'ready' as const,

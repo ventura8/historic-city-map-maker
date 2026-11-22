@@ -14,6 +14,7 @@ import { ensureDatePlan } from './join-plan.js';
 import { cancelAsked, dispatchDue, pendingApprovals, pollStale, recoverLost } from './tick-jobs.js';
 import { cleanOwnTiles } from './own-tiles-clean.js';
 import { sweepOwnTiles } from './own-tiles-sweep.js';
+import { correctLayerBounds } from './layer-bounds.js';
 import { monthlyHarvest, publishDeferred, runDeletions, sweepEnded } from './tick-maintenance.js';
 import { offerCloud } from './tick-worker.js';
 import { releaseScenes } from './release-scene.js';
@@ -53,6 +54,8 @@ const PARTS: readonly (readonly [name: string, part: Part, whileRed: boolean])[]
     ['ownTilesClean', cleanOwnTiles, false],
     ['deletions', runDeletions, false],
     ['sweep', sweepEnded, false],
+    // Live 2026-11-22: a layer published with the city's window as its bounds gets those of its own data.
+    ['bounds', (deps, cityId) => correctLayerBounds(deps, cityId), true],
     ['harvest', monthlyHarvest, false],
     // M25 (docs/research/M25-landsat.md §4): the best Landsat scene of a wanted year, imported on its own within the daily cap.
     ['landsat', importLandsat, false],

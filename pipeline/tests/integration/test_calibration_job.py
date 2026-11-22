@@ -327,3 +327,30 @@ def test_happy_path_output_records_its_coverage_only_with_a_figure() -> None:
     assert OutputInfo("c", 1, "s", "p", bounds, 10, 15, 1.0, coverage_pct=33.333).as_record()["coveragePct"] == 33.33
     assert export.city_coverage(export.Warped(Path("none"), Grid(0.0, 0.0, 1.0, 1, 1), 2), None) is None
     assert ground_scale(0.0) == 1.0
+
+
+def test_happy_path_bounds_are_where_the_alpha_holds_data(tmp_path: Path) -> None:
+    """Scenarios: S-P06-HAPPY-VALID-BOUNDS"""
+    # Live 2026-11-22: joins published the city's window as their bounds, so the year view flew to the whole city.
+    grid = Grid(0.0, 1000.0, 10.0, 100, 100)
+    alpha = numpy.zeros((100, 100), numpy.uint8)
+    alpha[20:40, 50:80] = 1
+    path = tmp_path / "corner.tif"
+    _alpha_raster(path, grid, alpha)
+
+    bounds = export.valid_bounds(Warped.of(path))
+
+    expected = export.MercatorBox(500.0, 600.0, 800.0, 800.0).bounds()
+    assert bounds.west == pytest.approx(expected.west)
+    assert bounds.east == pytest.approx(expected.east)
+    assert bounds.south == pytest.approx(expected.south)
+    assert bounds.north == pytest.approx(expected.north)
+
+
+def test_bad_path_an_empty_alpha_keeps_the_grids_bounds(tmp_path: Path) -> None:
+    """Scenarios: S-P06-BAD-VALID-BOUNDS"""
+    grid = Grid(0.0, 1000.0, 10.0, 10, 10)
+    path = tmp_path / "empty.tif"
+    _alpha_raster(path, grid, numpy.zeros((10, 10), numpy.uint8))
+
+    assert export.valid_bounds(Warped.of(path)) == grid.box().bounds()
