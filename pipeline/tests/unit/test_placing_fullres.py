@@ -7,7 +7,7 @@ import numpy
 import pytest
 from hcm_pipeline.geo import to_mercator
 from hcm_pipeline.jobs import Done
-from hcm_pipeline.placing import fullres
+from hcm_pipeline.placing import fullres, fullres_parts
 from hcm_pipeline.placing.canvas_window import Tile
 from hcm_pipeline.placing.raster_io import RGB, WARP_MEMORY_MB, Pair, WarpPlan, warp_by_pairs
 from hcm_pipeline.raster import gdal
@@ -48,7 +48,7 @@ def two_parts(tmp_path: Path) -> tuple[list[Path], list[Tile], Path, list[Pair]]
     tiles = [Tile(path, (0, 0, PART_W, PART_H), 0, index * width, 0, width, height) for index, path in enumerate(paths)]
     canvas = numpy.full((height, 2 * width), 128, numpy.uint8)
     canvas_path = write(tmp_path / "canvas.tif", canvas)
-    fullres.write_parts(canvas_path, [fullres.tile_part(tile) for tile in tiles], (2 * width, height))
+    fullres.write_parts(canvas_path, [fullres_parts.tile_part(tile) for tile in tiles], (2 * width, height))
     x, y = to_mercator(*CENTRE)
     corners = [(0, 0), (2 * width, 0), (2 * width, height), (0, height), (width, height / 2)]
     pairs = [Pair(px, py, x + px * REDUCE, y - py * REDUCE) for px, py in corners]
@@ -175,12 +175,12 @@ def test_happy_path_a_grey_part_joins_a_colour_one_and_the_stitched_picture_is_s
 
 def test_happy_path_a_tiles_variant_and_angle_carry_its_corners(tmp_path: Path) -> None:
     """Scenarios: S-P20-HAPPY-FULLRES"""
-    turned = fullres.tile_part(Tile(tmp_path / "a.tif", (10, 20, 110, 220), 1, 50, 60, 40, 20))
+    turned = fullres_parts.tile_part(Tile(tmp_path / "a.tif", (10, 20, 110, 220), 1, 50, 60, 40, 20))
     corners = fullres.apply(turned.matrix, numpy.array([[10.0, 20.0], [110.0, 220.0]]))
     assert corners.tolist() == [[90.0, 60.0], [50.0, 80.0]]
-    flipped = fullres.tile_part(Tile(tmp_path / "a.tif", (0, 0, 100, 100), 4, 0, 0, 10, 10))
+    flipped = fullres_parts.tile_part(Tile(tmp_path / "a.tif", (0, 0, 100, 100), 4, 0, 0, 10, 10))
     assert fullres.apply(flipped.matrix, numpy.array([[0.0, 0.0]])).tolist() == [[10.0, 0.0]]
-    tilted = fullres.tile_part(Tile(tmp_path / "a.tif", (0, 0, 100, 100), 0, 0, 0, 10, 10, angle=90.0))
+    tilted = fullres_parts.tile_part(Tile(tmp_path / "a.tif", (0, 0, 100, 100), 0, 0, 0, 10, 10, angle=90.0))
     assert fullres.apply(tilted.matrix, numpy.array([[0.0, 0.0]]))[0] == pytest.approx([10.0, 0.0])
 
 
@@ -188,7 +188,7 @@ def test_happy_path_an_assembled_parts_working_pixels_lead_back_to_its_original(
     """Scenarios: S-P20-HAPPY-FULLRES"""
     path = write(tmp_path / "page.tif", numpy.zeros((400, 800), numpy.uint8))
     placed = {0: numpy.array([[1.0, 0.0, 5.0], [0.0, 1.0, 7.0]])}
-    (part,) = fullres.layout_parts([path], placed, 200, [(10, 4)])
+    (part,) = fullres_parts.layout_parts([path], placed, 200, [(10, 4)])
     assert part.box == (40, 16, 800, 400)
     assert fullres.apply(part.matrix, numpy.array([[40.0, 16.0]])).tolist() == [[5.0, 7.0]]
 

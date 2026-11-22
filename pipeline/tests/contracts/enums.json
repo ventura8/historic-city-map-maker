@@ -125,7 +125,8 @@
         "scan-tiles.bin",
         "layout.json",
         "thumbs.jpg",
-        "seams.jpg"
+        "seams.jpg",
+        "parts.json"
     ],
     "LEASE_SECONDS": 600,
     "HEARTBEAT_SECONDS": 60,

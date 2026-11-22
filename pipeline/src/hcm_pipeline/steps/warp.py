@@ -9,7 +9,8 @@ bilinear, an alpha band, and `-cutline` with `-crop_to_cutline` when the version
 (`georef.terrain`, M15) renders through its RPC over the heights it carries (`-rpc -to RPC_DEM`, `attached`): each place straight to the
 scan at its height. The same `attached` is what a join (`join/warping.py`) and the next frame's ties (`steps/aligning.py`) read a frame
 through, so all of them show the one map the layer shows. A `regeoref` of an archive single map warps its original
-(`placing/original.py`, the points scaled to it), never the reduced scan the points were placed on. A USGS frame renders no
+(`placing/original.py`, the points scaled to it), never the reduced scan the points were placed on; a `regeoref` of an archive composite
+warps its parts' originals through its kept parts record (`composite_originals`, M20 §19.18). A USGS frame renders no
 further than the city's window (`outputBounds`, M9 §5): a wide crop rendered 1,249 km² and a 500 compute-unit estimate for one
 city.
 """
@@ -28,7 +29,9 @@ from hcm_pipeline.georef.lattice import LatticeNode, sampled
 from hcm_pipeline.georef.transforms import enabled_gcps, fit_transform
 from hcm_pipeline.jobs import Done, JobContext, StepFailedError, StepResult
 from hcm_pipeline.join.canvas import aligned_box
+from hcm_pipeline.placing import fullres
 from hcm_pipeline.placing.original import based_original
+from hcm_pipeline.placing.raster_io import Pair, WarpPlan
 from hcm_pipeline.raster import gdal
 from hcm_pipeline.rasters import GTIFF_OPTIONS, warp_memory_mb
 from hcm_pipeline.steps.common import city_window, gdal_step
@@ -170,6 +173,38 @@ def full_resolution(ctx: JobContext, scan: Path, georef: GeorefInfo) -> tuple[Pa
     return original, scaled(georef, width / scan_w, height / scan_h)
 
 
+def _published_zoom(ctx: JobContext) -> int | None:
+    """The `maxzoom` the version was published at (its originals' own), else None."""
+    output = (ctx.services.store.get(ctx.version_path()) or {}).get("output")
+    found = output.get("maxzoom") if isinstance(output, dict) else None
+    return found if isinstance(found, int) and not isinstance(found, bool) else None
+
+
+def _plain_archive(version: Version, georef: GeorefInfo) -> bool:
+    """An archive version placed by points, with no crop ring and no terrain."""
+    return georef.method == "gcps" and georef.terrain is None and not version.crop and version.source.get("kind") == "archive"
+
+
+def _composite_record(ctx: JobContext, scan: Path, georef: GeorefInfo) -> int | None:
+    """A regeoref of an archive composite with its parts record (`parts.json`, kept by its placing) staged beside the scan: the zoom
+    it was published at; else None. A crop ring or a map over terrain keeps the usual warp."""
+    if not _plain_archive(ctx.version, georef) or ctx.services.objects.stat(ctx.version_file(fullres.VERSION_RECORD)) is None:
+        return None
+    ctx.stage(ctx.version_file(fullres.VERSION_RECORD), fullres.sidecar(scan).name)
+    return _published_zoom(ctx)
+
+
+def composite_originals(ctx: JobContext, scan: Path, georef: GeorefInfo) -> Path | None:
+    """A regeoref of an archive composite warped from its parts' originals through the points (M20 §19.18), else None."""
+    maxzoom = _composite_record(ctx, scan, georef)
+    if maxzoom is None:
+        return None
+    pairs = [Pair(column, row, x, y) for x, y, column, row in rendered_points(georef, scan_size(scan))]
+    plan = WarpPlan(pairs, zoom_resolution(maxzoom), tps=True)
+    target = ctx.local("warped.tif")
+    return gdal_step(ctx, lambda: fullres.warp_composite(scan, target, plan, lambda line: ctx.log.info(line, ctx.step)), "warp the parts")
+
+
 class WarpStep:
     name = "warp"
 
@@ -178,6 +213,9 @@ class WarpStep:
         if version.scan is None or version.georef is None:
             raise StepFailedError(Errors.NO_SCAN, "the version has no georeferenced scan")
         scan, georef = full_resolution(ctx, ctx.stage(version.scan.path, "scan.tif"), version.georef)
+        composite = composite_originals(ctx, scan, georef)
+        if composite is not None:
+            return Done(ctx.publish(composite, ctx.work_file("warped.tif"), "image/tiff"))
         source, method = self._source(ctx, scan, georef)
         native = gdal_step(ctx, lambda: native_zoom(source, method, ctx.local("probe.vrt")), "measure the scan")
         _, maxzoom = zooms(version, native)

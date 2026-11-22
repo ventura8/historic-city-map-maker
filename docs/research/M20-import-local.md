@@ -1004,8 +1004,8 @@ automatic or owner layout), so its tiles were a fraction as sharp as its scans a
 - The canvas stays for matching, point placing, the georeferencer's scan and the Help calibrate picture.
 - Whoever builds a canvas records each part's transform from its **original** pixels to canvas pixels beside it
   (`canvas.tif.parts.json`: the canvas size and, per part, its original's path, the box of it on the canvas and a 3x3): a
-  `canvas_window` tile (`tile_part`: the box read at the tile's size, its variant's quarter turns and flip, its small angle, its
-  place) and an `assemble.Layout` part (`layout_parts`: the original read at `max_px` by `read_working`, the frame crop, the 2x3 on
+  `canvas_window` tile (`fullres_parts.tile_part`: the box read at the tile's size, its variant's quarter turns and flip, its small angle, its
+  place) and an `assemble.Layout` part (`fullres_parts.layout_parts`: the original read at `max_px` by `read_working`, the frame crop, the 2x3 on
   pixel indices). `publish_stitched` keeps that file beside `stitched.tif` and with the job's files, so a later `place` from the
   owner's pairs finds it (`owner._stage_parts`); a smaller stitched picture rescales it (`Recorded.on`), so the pairs' scaling is
   unchanged.
@@ -1018,8 +1018,15 @@ automatic or owner layout), so its tiles were a fraction as sharp as its scans a
 - Bounded memory: gdalwarp `-wm` `WARP_MEMORY_MB` (256) per part, GDAL's cache held to 128 MB, windowed reads; no original is read whole.
 - An original gone or unreadable, a failed warp, or a canvas with no record (a grid's mosaic, an overview canvas, a series parked
   before this change) warps the canvas as before, the reason in the job's log; the job never fails on an original.
-- Not yet: a `regeoref` of a composite still warps its scan (it needs the base job's parts record); the grid's automatic render
-  already warps each sheet from its own scan (`render.py`).
+- Grid mosaics and overview canvases write the record too: `grid.mosaic_parts` (each sheet's frame homography, then its slot,
+  clipped to the slot: `Part.clip`) and `fullres_parts.overview_parts` (`MosaicReport.on_canvas`, each placed tile's 2x3); the atlas a grid
+  falls back to carries its pages' record. The grid's automatic render already warps each sheet from its own scan (`render.py`).
+- A series parked before this change gets its record rebuilt when the owner's pairs place it (`placing/rebuild.py`): the same
+  deterministic layout as `help.stitched.method` (grid, atlas, pieces, overview, names) is computed again, never pasted, and used only
+  when its canvas has the picture's shape (1 %); else, or with the archive gone, the picture is warped and the log says why.
+- A placing that used a record keeps it with the version (`parts.json`, `fullres.keep_for_version`). A `regeoref` of an archive
+  composite stages it beside the scan and warps the originals through the saved points at the zoom the version was published at
+  (`steps/warp.py` `composite_originals`); a crop ring, a map over terrain, no record or no published zoom keeps the usual warp.
 
 Scenarios: S-P20-HAPPY-FULLRES, S-P20-BAD-FULLRES-ORIGINAL-GONE (`pipeline/tests/unit/test_placing_fullres.py`).
 

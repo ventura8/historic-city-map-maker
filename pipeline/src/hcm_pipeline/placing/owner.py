@@ -29,6 +29,7 @@ from hcm_pipeline.placing.output import Placement, finish, param_int, resolution
 from hcm_pipeline.placing import fullres
 from hcm_pipeline.placing.fullres import warp_composite
 from hcm_pipeline.placing.raster_io import Pair, WarpPlan
+from hcm_pipeline.placing.rebuild import rebuilt
 from hcm_pipeline.placing.series import ENCODINGS
 from hcm_pipeline.placing.stitched import STITCHED
 from hcm_pipeline.steps.common import gdal_step
@@ -72,19 +73,27 @@ def _stage_parts(ctx: JobContext, local: Path) -> None:
         ctx.stage(ctx.work_file(name), name)
 
 
+def _stitched_here(ctx: JobContext) -> Path:
+    """`stitched.tif` where this run left it, else staged from the parked job's files when it is there."""
+    local = ctx.local(STITCHED)
+    if not local.is_file() and ctx.services.objects.stat(ctx.work_file(STITCHED)) is not None:
+        local = ctx.stage(ctx.work_file(STITCHED), STITCHED)
+    return local
+
+
 def picture_of(ctx: JobContext, scan: ScanInfo) -> Picture:
     """A single map's original, else `stitched.tif` where this run or the parked one left it, else the scan the pairs were placed on."""
     original = _original(ctx, scan)
     if original is not None:
         return original
-    local = ctx.local(STITCHED)
-    if not local.is_file() and ctx.services.objects.stat(ctx.work_file(STITCHED)) is not None:
-        local = ctx.stage(ctx.work_file(STITCHED), STITCHED)
-    _stage_parts(ctx, local)
+    local = _stitched_here(ctx)
     if not local.is_file():
         ctx.log.info(PICTURE_GONE, ctx.step)
         return Picture(ctx.stage(scan.path, "scan.tif"), 1.0, 1.0)
+    _stage_parts(ctx, local)
     width, height = scan_size(local)
+    if not fullres.sidecar(local).is_file():
+        rebuilt(ctx, local, (width, height))
     return Picture(local, width / max(scan.width, 1), height / max(scan.height, 1))
 
 
@@ -122,6 +131,7 @@ def place_from_pairs(ctx: JobContext, georef: GeorefInfo) -> StepResult:
     plan = WarpPlan(lattice_pairs(fitted, scan, picture), resolution_of(params), True, encoding == "lineart")
     target = ctx.local("warped.tif")
     warped = gdal_step(ctx, lambda: warp_composite(picture.path, target, plan, lambda line: ctx.log.info(line, ctx.step)), WARP_WHAT)
+    fullres.keep_for_version(ctx, picture.path)
     ctx.update_version({"georef": recorded(fitted, OWNER_METHOD).as_record()})
     scale = param_int(params, "scaleDenominator")
     placement = Placement(OWNER_METHOD, encoding, _checked(fitted, scan), True, scale, params.get("paperTransparent") is True)

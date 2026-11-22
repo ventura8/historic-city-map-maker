@@ -33,7 +33,7 @@ import numpy
 from hcm_pipeline.archive.grammar import Cell, parse
 from hcm_pipeline.georef.transforms import Transform
 from hcm_pipeline.jobs import JobContext, StepResult
-from hcm_pipeline.placing import assemble
+from hcm_pipeline.placing import assemble, fullres, fullres_parts
 from hcm_pipeline.placing.checks import Checked
 from hcm_pipeline.placing.frame import content_frame, find_frame
 from hcm_pipeline.placing.geometry import FloatArray, compose
@@ -75,6 +75,9 @@ class Rectified:
     image: UInt8Array
     # How its frame was found: its printed neat line (`line`) or its drawing's extent (`content`).
     framed_by: str = "line"
+    # Its original's pixels to the picture's (3x3) and the original's size: the mosaic's parts record (`fullres`).
+    to_picture: FloatArray | None = None
+    full: tuple[int, int] = (0, 0)
 
 
 def rectify(sheet: Sheet, cell: Cell, scheme: CityGrid) -> Rectified | None:
@@ -95,7 +98,8 @@ def rectify(sheet: Sheet, cell: Cell, scheme: CityGrid) -> Rectified | None:
     )
     homography = cv2.getPerspectiveTransform((corners / working.scale).astype(numpy.float32), target)
     picture = numpy.asarray(cv2.warpPerspective(grey, homography, (width, height), borderValue=255), numpy.uint8)
-    return Rectified(sheet, cell, corners, picture, framed_by)
+    to_picture = fullres.indexed(numpy.asarray(homography, numpy.float64)) @ numpy.diag([1 / working.scale, 1 / working.scale, 1.0])
+    return Rectified(sheet, cell, corners, picture, framed_by, to_picture, (working.width, working.height))
 
 
 NEIGHBOUR_STEPS: Final = ((1, 0, "right", "left"), (0, -1, "bottom", "top"))
@@ -142,13 +146,36 @@ class Mosaic:
     west: float
     north: float
     metres: float = MOSAIC_M
+    # Each sheet's original to the mosaic (`mosaic_parts`), kept with the stitched picture.
+    record: fullres.Recorded | None = None
+
+
+def _slot(mosaic: Mosaic, box: Box) -> tuple[int, int, tuple[int, int]]:
+    """Where a sheet's box lies on the mosaic: its column, row and size in mosaic pixels."""
+    metres = mosaic.metres
+    col, row = round((box.west - mosaic.west) / metres), round((mosaic.north - box.north) / metres)
+    return col, row, (max(1, round(box.width / metres)), max(1, round(box.height / metres)))
+
+
+def mosaic_parts(rectified: list[Rectified], scheme: CityGrid, order: int, mosaic: Mosaic) -> fullres.Recorded | None:
+    """Each framed sheet's original to the mosaic (its homography, then its slot), clipped to its slot; None without a transform."""
+    height, width = mosaic.image.shape
+    parts = []
+    for item in rectified:
+        if item.to_picture is None:
+            return None
+        col, row, size = _slot(mosaic, scheme.box(item.cell, order))
+        picture_h, picture_w = item.image.shape[:2]
+        slot = numpy.array([[size[0] / picture_w, 0, col], [0, size[1] / picture_h, row], [0, 0, 1.0]])
+        right, bottom = float(min(width, col + size[0])), float(min(height, row + size[1]))
+        clip = ((col, row), (right, row), (right, bottom), (col, bottom))
+        parts.append(fullres.Part(item.sheet.path, (0, 0, *item.full), slot @ item.to_picture, clip))
+    return fullres.Recorded(tuple(parts), (width, height))
 
 
 def _paste(mosaic: Mosaic, index: int, picture: UInt8Array, box: Box) -> None:
     """One sheet's picture into the mosaic at its box (cut where it would run past the mosaic's edge)."""
-    metres = mosaic.metres
-    col, row = round((box.west - mosaic.west) / metres), round((mosaic.north - box.north) / metres)
-    size = (max(1, round(box.width / metres)), max(1, round(box.height / metres)))
+    col, row, size = _slot(mosaic, box)
     piece = cv2.resize(picture, size, interpolation=cv2.INTER_AREA)
     height, width = mosaic.image.shape
     mosaic.image[row : row + size[1], col : col + size[0]] = piece[: height - row, : width - col]
@@ -171,7 +198,7 @@ def mosaic_of(rectified: list[Rectified], scheme: CityGrid, order: int) -> Mosai
     mosaic = Mosaic(numpy.full((height, width), 255, numpy.uint8), numpy.full((height, width), -1, numpy.int32), west, north, metres)
     for index, (item, box) in enumerate(zip(rectified, boxes, strict=True)):
         _paste(mosaic, index, item.image, box)
-    return mosaic
+    return replace(mosaic, record=mosaic_parts(rectified, scheme, order, mosaic))
 
 
 def _grid_matrix(record: Mapping[str, object], mosaic: Mosaic) -> FloatArray | None:
@@ -263,7 +290,8 @@ def _wait_unplaced(ctx: JobContext, series: SeriesJob, reason: str, note: str) -
         working = read_working(series.sheets[0].path, LARGEST_WORKING_PX)
         return wait_stitched(ctx, Stitched(working.image, "single", 1, pairs_scale=1 / working.scale), reason, note)
     parts = atlas_parts(series.sheets)
-    return wait_stitched(ctx, Stitched(parts.canvas(), "atlas", len(series.sheets)), reason, note)
+    recorded = fullres.Recorded(parts.originals, parts.layout.size)
+    return wait_stitched(ctx, Stitched(parts.canvas(), "atlas", len(series.sheets), record=recorded), reason, note)
 
 
 def _unframed(ctx: JobContext, cells: list[tuple[Sheet, Cell]], rectified: list[Rectified]) -> tuple[tuple[str, str], ...]:
@@ -299,7 +327,13 @@ def _overview_picture(ctx: JobContext, rectified: list[Rectified], unframed: tup
     canvas, report = made
     left = tuple((name, NO_JOIN) for name in report.unplaced) + unframed
     quality = JoinQuality(links=len(report.placed), mean_inliers=0.0, rms_px=report.rms_px)
-    return Stitched(canvas, "overview", len(rectified) + len(unframed), left, joins=quality)
+    parts = _overview_record(rectified, report.on_canvas, (canvas.shape[1], canvas.shape[0]))
+    return Stitched(canvas, "overview", len(rectified) + len(unframed), left, joins=quality, record=parts)
+
+
+def _overview_record(rectified: list[Rectified], on_canvas: dict[str, numpy.ndarray], size: tuple[int, int]) -> fullres.Recorded:
+    tiles = [(item.sheet.name, item.sheet.path) for item in rectified]
+    return fullres_parts.overview_parts(tiles, on_canvas, CanvasOpts().read_px, size)
 
 
 def _wait_picture(
@@ -313,7 +347,7 @@ def _wait_picture(
     overviewed = _overview_picture(ctx, rectified, unframed, colour)
     if overviewed is not None:
         return overviewed
-    return Stitched(mosaic.image, "grid", len(rectified) + len(unframed), unframed, mosaic.metres)
+    return Stitched(mosaic.image, "grid", len(rectified) + len(unframed), unframed, mosaic.metres, record=mosaic.record)
 
 
 def _solved(

@@ -71,6 +71,8 @@ class Stitched:
     pairs_scale: float = 1.0
     # M20 §19: the automatic layout's summary (`help.stitched.layout`), when the picture is its proposal.
     layout: Mapping[str, object] | None = None
+    # Each part's original to this canvas (`fullres`), kept beside `stitched.tif` so the map is warped from the originals.
+    record: fullres.Recorded | None = None
 
     @property
     def joined(self) -> int:
@@ -114,6 +116,14 @@ def _linked(written: Path, target: Path) -> Path:
     return target
 
 
+def _recorded(stitched: Stitched, kept: Path) -> Path | None:
+    """The picture's own parts record written beside it (`Stitched.record`), else None."""
+    if stitched.record is None or not stitched.record.parts:
+        return None
+    fullres.write_parts(kept, stitched.record.parts, stitched.record.size)
+    return kept
+
+
 def _parts_kept(ctx: JobContext, canvas: Path | None, stitched: Path) -> None:
     """The canvas's parts (`fullres`) kept beside `stitched.tif` and with the job's files, so a later `place` from the owner's pairs
     warps the originals too."""
@@ -135,7 +145,7 @@ def publish_stitched(ctx: JobContext, stitched: Stitched, written: Path | None =
     _known(stitched)
     kept = _linked(written, ctx.local(STITCHED)) if written is not None else assemble.write_canvas(ctx.local(STITCHED), stitched.canvas)
     ctx.publish(kept, ctx.work_file(STITCHED), "image/tiff")
-    _parts_kept(ctx, written or canvas, kept)
+    _parts_kept(ctx, _recorded(stitched, kept) or written or canvas, kept)
     small, scale = _preview(stitched.canvas)
     preview = ctx.publish(write_jpeg(ctx.local(PREVIEW), small, PREVIEW_QUALITY), ctx.version_file(PREVIEW), "image/jpeg")
     height, width = stitched.canvas.shape[:2]

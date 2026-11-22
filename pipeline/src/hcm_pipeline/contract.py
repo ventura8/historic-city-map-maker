@@ -120,6 +120,7 @@ VERSION_FILES: Final = (
     "layout.json",
     "thumbs.jpg",
     "seams.jpg",
+    "parts.json",
 )
 LEASE_SECONDS: Final = 600
 HEARTBEAT_SECONDS: Final = 60

@@ -46,6 +46,8 @@ export const VERSION_FILES = [
     'layout.json',
     'thumbs.jpg',
     'seams.jpg',
+    /** A composite's parts record (M20 §19.18): each part's original to its canvas, so a regeoref warps the originals. */
+    'parts.json',
 ] as const;
 
 export type VersionFile = (typeof VERSION_FILES)[number];

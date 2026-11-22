@@ -24,18 +24,17 @@ from typing import Final
 
 import numpy
 
-from hcm_pipeline.placing.canvas_window import Tile
+from hcm_pipeline.jobs import JobContext
 from hcm_pipeline.placing.geometry import FloatArray
 from hcm_pipeline.placing.raster_io import RGB, WARP_MEMORY_MB, WarpPlan, normalised, warp_by_pairs
-from hcm_pipeline.placing.sheetwork import flip_of, swaps
 from hcm_pipeline.raster import gdal
-from hcm_pipeline.rasters import GTIFF_OPTIONS, WEB_MERCATOR, driver_of, fit_long_side, srs_wkt
+from hcm_pipeline.rasters import GTIFF_OPTIONS, WEB_MERCATOR, driver_of, srs_wkt
 
 SUFFIX: Final = ".parts.json"
 LATTICE: Final = 9
 EDGE_STEPS: Final = 8
 CACHE_BYTES: Final = 128 * 1024 * 1024
-TURNS: Final = 4
+SHAPE_SLACK: Final = 0.01
 Box = tuple[int, int, int, int]
 
 
@@ -46,23 +45,32 @@ class Part:
     path: Path
     box: Box
     matrix: FloatArray
+    # The canvas pixels the part was pasted into (a polygon), when the canvas cut it there (a grid's cell); else its box's quad.
+    clip: tuple[tuple[float, float], ...] = ()
 
     def as_record(self) -> dict[str, object]:
-        return {"path": str(self.path), "box": list(self.box), "matrix": [[float(v) for v in row] for row in self.matrix]}
+        record: dict[str, object] = {"path": str(self.path), "box": list(self.box), "matrix": [[float(v) for v in row] for row in self.matrix]}
+        return record | ({"clip": [list(point) for point in self.clip]} if self.clip else {})
 
     @classmethod
     def of(cls, record: dict[str, object]) -> Part:
         box = [int(str(value)) for value in _listed(record["box"])]
         matrix = numpy.array([[float(str(value)) for value in _listed(row)] for row in _listed(record["matrix"])], numpy.float64)
-        return cls(Path(str(record["path"])), (box[0], box[1], box[2], box[3]), matrix.reshape(3, 3))
+        return cls(Path(str(record["path"])), (box[0], box[1], box[2], box[3]), matrix.reshape(3, 3), _clip_of(record))
 
     def quad(self) -> FloatArray:
-        """The box's corners on the canvas, clockwise."""
+        """The part's outline on the canvas, clockwise: its clip, else its box's corners."""
+        if self.clip:
+            return numpy.array(self.clip, numpy.float64)
         left, top, right, bottom = self.box
         return apply(self.matrix, numpy.array([[left, top], [right, top], [right, bottom], [left, bottom]], numpy.float64))
 
     def centre(self) -> FloatArray:
         return numpy.asarray(self.quad().mean(axis=0), numpy.float64)
+
+
+def _clip_of(record: dict[str, object]) -> tuple[tuple[float, float], ...]:
+    return tuple((float(str(x)), float(str(y))) for x, y in (_listed(point) for point in _listed(record.get("clip", []))))
 
 
 def _listed(value: object) -> list[object]:
@@ -77,7 +85,7 @@ def apply(matrix: FloatArray, points: FloatArray) -> FloatArray:
     return numpy.asarray(moved[:, :2] / moved[:, 2:3], numpy.float64)
 
 
-def _affine(*values: float) -> FloatArray:
+def affine(*values: float) -> FloatArray:
     """The 3x3 of an affine's six values, row by row."""
     return numpy.array([values[:3], values[3:6], (0.0, 0.0, 1.0)], numpy.float64)
 
@@ -88,65 +96,19 @@ def _homogeneous(matrix: FloatArray) -> FloatArray:
 
 def indexed(matrix: FloatArray) -> FloatArray:
     """A 2x3 that maps pixel indices (cv2's `warpAffine`) as a 3x3 on continuous coordinates (a pixel's corner is 0)."""
-    return _affine(1, 0, 0.5, 0, 1, 0.5) @ _homogeneous(matrix) @ _affine(1, 0, -0.5, 0, 1, -0.5)
+    return affine(1, 0, 0.5, 0, 1, 0.5) @ _homogeneous(matrix) @ affine(1, 0, -0.5, 0, 1, -0.5)
 
 
-def _variant(variant: int, size: tuple[float, float]) -> FloatArray:
-    """`sheetwork.oriented` on coordinates: `variant % 4` quarter turns clockwise, then a mirror left to right when it flips."""
-    width, height = size
-    matrix = numpy.eye(3)
-    for _ in range(variant % TURNS):
-        matrix = _affine(0, -1, height, 1, 0, 0) @ matrix
-        width, height = height, width
-    return _affine(-1, 0, width, 0, 1, 0) @ matrix if flip_of(variant) else matrix
-
-
-def _turn(angle: float, size: tuple[int, int]) -> FloatArray:
-    """`canvas_window.turned` on coordinates: a turn by `angle` degrees clockwise about the picture's centre."""
-    radians = math.radians(angle)
-    cos, sin = math.cos(radians), math.sin(radians)
-    cx, cy = size[0] / 2.0, size[1] / 2.0
-    return _affine(cos, -sin, cx - cos * cx + sin * cy, sin, cos, cy - sin * cx - cos * cy)
-
-
-def tile_part(tile: Tile) -> Part:
-    """A `canvas_window` tile's original to the canvas: its box read at the tile's size, turned by its variant and its angle, moved."""
-    left, top, right, bottom = tile.box
-    read = (tile.height, tile.width) if swaps(tile.variant) else (tile.width, tile.height)
-    sx, sy = read[0] / max(1, right - left), read[1] / max(1, bottom - top)
-    scale = _affine(sx, 0, -left * sx, 0, sy, -top * sy)
-    matrix = _variant(tile.variant, (float(read[0]), float(read[1]))) @ scale
-    if tile.angle:
-        matrix = _turn(tile.angle, (tile.width, tile.height)) @ matrix
-    return Part(tile.path, tile.box, _affine(1, 0, tile.left, 0, 1, tile.top) @ matrix)
-
-
-def _size(path: Path) -> tuple[int, int]:
+def size_of(path: Path) -> tuple[int, int]:
     dataset = gdal.Open(str(path))
     size = (int(dataset.RasterXSize), int(dataset.RasterYSize))
     dataset.Close()
     return size
 
 
-def working_part(path: Path, full: tuple[int, int], working: tuple[int, int], crop: tuple[int, int], matrix: FloatArray) -> Part:
-    """An `assemble.Layout` part: the original (`full` pixels) read at `working` size, cropped from `crop` (working pixels, the frame's
-    corner), then `matrix` (a 2x3 on working pixel indices) to the canvas."""
-    to_working = _affine(working[0] / full[0], 0, -crop[0], 0, working[1] / full[1], -crop[1])
-    left, top = (math.floor(crop[0] * full[0] / working[0]), math.floor(crop[1] * full[1] / working[1]))
-    return Part(path, (left, top, full[0], full[1]), indexed(matrix) @ to_working)
-
-
-def layout_parts(
-    paths: Sequence[Path], placed: dict[int, FloatArray], max_px: int, crops: Sequence[tuple[int, int]] | None = None
-) -> tuple[Part, ...]:
-    """An `assemble.Layout`'s placed parts, each read at most `max_px` long (`raster_io.read_working`) and cropped from `crops`."""
-    found = []
-    for index, matrix in placed.items():
-        full = _size(paths[index])
-        width, height, _scale = fit_long_side(full[0], full[1], max_px)
-        crop = (0, 0) if crops is None else crops[index]
-        found.append(working_part(paths[index], full, (width, height), crop, matrix))
-    return tuple(found)
+def same_shape(size: tuple[int, int], picture: tuple[int, int]) -> bool:
+    """True when a canvas of `size` and the picture have the same shape (to `SHAPE_SLACK`): the picture is the canvas, smaller."""
+    return abs(size[0] / size[1] - picture[0] / picture[1]) <= SHAPE_SLACK * picture[0] / picture[1]
 
 
 def sidecar(canvas: Path) -> Path:
@@ -169,8 +131,14 @@ class Recorded:
 
     def on(self, picture: tuple[int, int]) -> tuple[Part, ...]:
         """The parts to a picture of the canvas at another size (the stitched picture, the georeferencer's scan)."""
-        rescale = _affine(picture[0] / self.size[0], 0, 0, 0, picture[1] / self.size[1], 0)
-        return tuple(Part(part.path, part.box, rescale @ part.matrix) for part in self.parts)
+        rescale = affine(picture[0] / self.size[0], 0, 0, 0, picture[1] / self.size[1], 0)
+        return tuple(Part(part.path, part.box, rescale @ part.matrix, _scaled_clip(part.clip, rescale)) for part in self.parts)
+
+
+def _scaled_clip(clip: tuple[tuple[float, float], ...], rescale: FloatArray) -> tuple[tuple[float, float], ...]:
+    if not clip:
+        return ()
+    return tuple((float(x), float(y)) for x, y in apply(rescale, numpy.array(clip, numpy.float64)))
 
 
 def read_parts(canvas: Path) -> Recorded | None:
@@ -356,15 +324,25 @@ def _warp_one(output: gdal.Dataset, found: Placed, plan: WarpPlan, cut_path: Pat
         cut_path.unlink(missing_ok=True)
 
 
+VERSION_RECORD: Final = "parts.json"
+
+
+def keep_for_version(ctx: JobContext, picture: Path) -> None:
+    """The picture's parts record with the version's files (`parts.json`), so a later `regeoref` warps the originals too."""
+    found = sidecar(picture)
+    if found.is_file():
+        ctx.publish(found, ctx.version_file(VERSION_RECORD), "application/json")
+
+
 def warp_composite(source: Path, target: Path, plan: WarpPlan, log: Callable[[str], None]) -> Path:
     """`source` (a canvas, or any picture) warped by the plan: from its parts' originals when it records them and they can be read,
     else the picture itself, the reason logged (`log`)."""
     recorded = read_parts(source)
     if recorded is None:
         return warp_by_pairs(source, target, plan)
-    size = _size(source)
+    size = size_of(source)
     parts = recorded.on(size)
-    reason = missing(parts)
+    reason = missing(parts) if same_shape(recorded.size, size) else "the parts record does not fit this picture"
     if reason is None:
         try:
             log(f"the {len(parts)} parts are warped from their originals at full resolution")

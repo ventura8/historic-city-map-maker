@@ -21349,7 +21349,7 @@
             "asserts": "two parts on a canvas four times smaller warp from their originals: the output's pixel is the originals' size, the one-pixel stripes the canvas lost are kept, each part's mark lands where the canvas's pairs put it, seams split at the centres, -wm bounded",
             "tier": "e2e-pipeline",
             "status": "exists",
-            "notes": "M20 §19.18. Tests: pipeline/tests/unit/test_placing_fullres.py."
+            "notes": "M20 §19.18. Tests: pipeline/tests/unit/test_placing_fullres.py, test_placing_fullres_more.py."
         },
         {
             "id": "S-P20-BAD-FULLRES-ORIGINAL-GONE",
@@ -21360,7 +21360,7 @@
             "asserts": "an original gone, unreadable, a failed warp or a broken parts record: the canvas is warped and the log names the original and why",
             "tier": "e2e-pipeline",
             "status": "exists",
-            "notes": "M20 §19.18. Tests: pipeline/tests/unit/test_placing_fullres.py."
+            "notes": "M20 §19.18. Tests: pipeline/tests/unit/test_placing_fullres.py, test_placing_fullres_more.py."
         },
         {
             "id": "S-A65-HAPPY-JOINED-FRAME",

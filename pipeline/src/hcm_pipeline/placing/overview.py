@@ -7,7 +7,7 @@ column, read from its file name by `sheetnames.cell_of` (the one name parser, M2
 from __future__ import annotations
 
 from collections.abc import Iterable, Sequence
-from dataclasses import dataclass
+from dataclasses import dataclass, field
 from typing import Any
 
 import cv2
@@ -46,6 +46,8 @@ class MosaicReport:
     placed: list[str]
     unplaced: list[str]
     rms_px: float
+    # Each placed tile's 2x3 from its read pixels (indices) to the canvas's: the canvas's parts record (`fullres`).
+    on_canvas: dict[str, np.ndarray] = field(default_factory=dict)
 
 
 @dataclass(frozen=True)
@@ -336,15 +338,17 @@ def paste_on_overview(
     placed: list[str] = []
     unplaced: list[str] = []
     rms_values: list[float] = []
+    on_canvas: dict[str, np.ndarray] = {}
     for (name, tile), fit in zip(tiles, fits, strict=True):
         if fit is None:
             unplaced.append(name)
             continue
         _paste_tile(canvas, tile, fit.matrix, upscale)
+        on_canvas[name] = fit.matrix * upscale
         placed.append(name)
         rms_values.append(fit.rms_px)
     rms = float(np.mean(rms_values)) if rms_values else 0.0
-    return canvas, MosaicReport(placed=placed, unplaced=unplaced, rms_px=rms)
+    return canvas, MosaicReport(placed=placed, unplaced=unplaced, rms_px=rms, on_canvas=on_canvas)
 
 
 def mosaic_on_overview(

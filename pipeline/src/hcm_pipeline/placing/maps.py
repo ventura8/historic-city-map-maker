@@ -22,7 +22,7 @@ import numpy
 from hcm_pipeline.archive import model
 from hcm_pipeline.archive.magic import sniff_file
 from hcm_pipeline.jobs import JobContext, StepResult, Waiting
-from hcm_pipeline.placing import assemble, autoplace, autostitch, fullres, joins, owner_layout
+from hcm_pipeline.placing import assemble, autoplace, autostitch, fullres, fullres_parts, joins, owner_layout
 from hcm_pipeline.placing.output import wait_for_help
 from hcm_pipeline.placing.overview import MosaicReport
 from hcm_pipeline.placing.overview_find import CanvasOpts, find_overview, overview_canvas
@@ -204,7 +204,7 @@ def atlas_parts(sheets: Sequence[Sheet]) -> Parts:
     if overlapping is not None:
         return _joined_parts(overlapping, [sheet.path for sheet in sheets])
     sizes = [(page.shape[1], page.shape[0]) for page in pages.grey]
-    originals = fullres.layout_parts([sheet.path for sheet in sheets], layout.placed, pages.max_px, _crops(pages))
+    originals = fullres_parts.layout_parts([sheet.path for sheet in sheets], layout.placed, pages.max_px, _crops(pages))
     return Parts(lambda: assemble.compose_parts(pages.page, sizes, pages.colour, layout), layout, None, originals)
 
 
@@ -253,15 +253,22 @@ def overview_mosaic(ctx: JobContext, series: SeriesJob) -> Assembled | None:
     canvas, report = made
     names = tuple(sheet.name for sheet in series.sheets)
     quality = JoinQuality(links=len(report.placed), mean_inliers=0.0, rms_px=report.rms_px)
-    return Assembled(canvas, _overview_layout(names, report, (canvas.shape[1], canvas.shape[0])), names, "overview", quality)
+    size = (canvas.shape[1], canvas.shape[0])
+    originals = _overview_originals(series, report.on_canvas, size)
+    return Assembled(canvas, _overview_layout(names, report, size), names, "overview", quality, originals)
+
+
+def _overview_originals(series: SeriesJob, on_canvas: dict[str, numpy.ndarray], size: tuple[int, int]) -> tuple[fullres.Part, ...]:
+    tiles = [(sheet.name, sheet.path) for sheet in series.sheets]
+    return fullres_parts.overview_parts(tiles, on_canvas, CanvasOpts().read_px, size).parts
 
 
 def _joined_parts(found: joins.Joined, paths: Sequence[Path]) -> Parts:
-    originals = fullres.layout_parts(paths, found.layout.placed, joins.CANVAS_PX)
+    originals = fullres_parts.layout_parts(paths, found.layout.placed, joins.CANVAS_PX)
     return Parts(lambda: assemble.compose_canvas(found.images, found.layout), found.layout, found.quality, originals)
 
 
-def _pieces_parts(sheets: Sequence[Sheet]) -> Parts | None:
+def pieces_parts(sheets: Sequence[Sheet]) -> Parts | None:
     found = joins.joined([sheet.path for sheet in sheets])
     return None if found is None else _joined_parts(found, [sheet.path for sheet in sheets])
 
@@ -271,4 +278,4 @@ class PiecesPlacer:
     and seams (M20 §19), joined on their overlaps when those place nearly all of them, or kept for their owner (`layout-check`)."""
 
     def place(self, ctx: JobContext) -> StepResult:
-        return _series_placed(ctx, "pieces", _pieces_parts)
+        return _series_placed(ctx, "pieces", pieces_parts)
