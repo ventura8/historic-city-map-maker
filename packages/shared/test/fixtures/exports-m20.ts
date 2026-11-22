@@ -38,6 +38,7 @@ export const M20_EXPORTS = [
     'imageryConfirmRightsRequestSchema',
     'imageryConfirmRightsResponseSchema',
     'imageryDeleteVersionResponseSchema',
+    'imageryMakeLiveResponseSchema',
     'layerRightsOf',
     'layerRightsSchema',
     'mapThresholdM',

@@ -24,6 +24,10 @@ function own(path: string, url: string, removed = false): NonNullable<LayerVersi
     return { path, url, bytes: 7, publishedAt: at(NOW), ...(removed ? { removedAt: at(NOW) } : {}) };
 }
 
+function withoutOwn(version: LayerVersionDoc): LayerVersionDoc {
+    return Object.fromEntries(Object.entries(version).filter(([name]) => name !== 'own')) as LayerVersionDoc;
+}
+
 function oldVersion(overrides: Partial<LayerVersionDoc> = {}): LayerVersionDoc {
     return renderedVersion({ state: 'superseded', jobId: OLD, own: own(OLD_PATH, OLD_URL), ...overrides });
 }
@@ -87,8 +91,7 @@ describe('imagery.makeLive', () => {
     it.each<[string, LayerVersionDoc, boolean]>([
         ['removed after the grace', oldVersion({ own: own(OLD_PATH, OLD_URL, true) }), true],
         ['missing from the bucket', oldVersion(), false],
-        ['published through Mapbox', oldVersion({ own: undefined }), true],
-        ['without an output', oldVersion({ output: undefined }), true],
+        ['published through Mapbox', { ...withoutOwn(oldVersion()), mapbox: { tilesetId: 'e2e-mapbox.x', origin: 'mts' } }, true],
     ])('badPath_tiles%sAreRefused @S-A231-BAD-TILES-GONE', async (_name, version, stored) => {
         const target = await world(version, stored);
 
