@@ -101,6 +101,8 @@ const POI_EDITABLE = [
     /** M13: the optional credit name. */
     'credit',
     /** M27: the layer the place was traced on. */
+    /** M17 §13: structured facts. */
+    'facts',
     'sourceLayer',
     /** A sub-group of the category (bridges, lakes…). */
     'group',

@@ -113,6 +113,10 @@ describe('POI fields', () => {
         ['five links', { links: links(5) }],
         ['the layer it was traced on (M27)', { sourceLayer: 'plan-1911' }],
         ['a sub-group of its category (2026-11-22)', { group: 'bălți' }],
+        [
+            'its facts (M17 §13) @S-A200-HAPPY-FACTS-IMPORT',
+            { facts: { architects: ['Ion Mincu'], yearBuilt: 1906, floors: 2, heightM: 12.5, lmiCode: 'B-II-m-A-18925', relatedPlaceIds: ['p2'] } },
+        ],
     ])('happyPath_adminCreatesAPoiWith_%s', async (_label, changes) => {
         expect(await createPoi(changes)).toBe('allow');
     });
@@ -138,6 +142,9 @@ describe('POI fields', () => {
         ['another editor', { updatedBy: 'someone-else' }],
         ['an unknown field', { style: 'color:red' }],
         ['a traced-on layer that is not an id (M27)', { sourceLayer: 'a/b' }],
+        ['a fact the place does not know @S-A200-BAD-FACTS-IMPORT', { facts: { colour: 'red' } }],
+        ['a bad LMI code', { facts: { lmiCode: 'B-V-x' } }],
+        ['a year built before 1500', { facts: { yearBuilt: 1400 } }],
         ['a sub-group over 60 characters', { group: 'x'.repeat(61) }],
     ])('badPath_adminCannotCreateAPoiWith_%s', async (_label, changes) => {
         expect(await createPoi(changes)).toBe('deny');

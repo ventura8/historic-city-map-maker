@@ -39,6 +39,7 @@ export interface CheckedManifest {
               readonly geometry: Geometry;
               readonly photoIds?: readonly string[] | undefined;
               readonly sourceLayer?: string | undefined;
+              readonly facts?: { readonly relatedPlaceIds?: readonly string[] | undefined } | undefined;
           })[]
         | undefined;
     readonly stories?:
@@ -94,10 +95,14 @@ function poiReferences(manifest: CheckedManifest): RuleIssue[] {
     const categories = new Set((manifest.poiCategories ?? []).map((category) => category.id));
     const photos = new Set(manifest.photos.map((photo) => photo.id));
     const layers = new Set(manifest.layers.map((layer) => layer.id));
+    const pois = new Set((manifest.pois ?? []).map((poi) => poi.id));
     const layerMissing = (layer: string | undefined): boolean => layer !== undefined && !layers.has(layer);
     return (manifest.pois ?? []).flatMap((poi, index): RuleIssue[] => [
         ...(categories.has(poi.category) ? [] : [{ path: ['pois', index, 'category'], code: 'validation.reference' } as const]),
         ...(layerMissing(poi.sourceLayer) ? [{ path: ['pois', index, 'sourceLayer'], code: 'validation.reference' } as const] : []),
+        ...(poi.facts?.relatedPlaceIds ?? []).flatMap((placeId, at) =>
+            pois.has(placeId) ? [] : [{ path: ['pois', index, 'facts', 'relatedPlaceIds', at], code: 'validation.reference' } as const],
+        ),
         ...(poi.photoIds ?? []).flatMap((photoId, photoIndex) =>
             photos.has(photoId) ? [] : [{ path: ['pois', index, 'photoIds', photoIndex], code: 'validation.reference' } as const],
         ),

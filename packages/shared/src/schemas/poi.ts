@@ -7,6 +7,7 @@
 import { z } from 'zod';
 
 import { geometrySchema } from './geometry.js';
+import { placeFactsSchema } from './place-facts.js';
 import {
     coded,
     hexColorSchema,
@@ -131,6 +132,8 @@ export const poiSchema = z
          * import: the Layers panel lists one switch per group under its category. Any short text.
          */
         group: plainText(60).optional(),
+        /** Structured facts (M17 §13): architect, years, style, floors, uses, LMI code, addresses, related places. */
+        facts: placeFactsSchema.optional(),
     })
     .refine(validYearSpan, coded('validation.yearRange', ['yearEnd']));
 

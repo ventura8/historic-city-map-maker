@@ -534,3 +534,23 @@ describe('assembleManifest: place media (docs/research/M17-stories.md §12)', ()
         expect(manifest.photos[0]?.placeIds).toEqual(['enei']);
     });
 });
+
+describe('assembleManifest: place facts (docs/research/M17-stories.md §13)', () => {
+    it('happyPath_aPlacesFactsReachTheManifestAndAnUnlistedRelatedPlaceLeaves @S-V81-HAPPY-FACTS', () => {
+        const facts = { architects: ['Ion Mincu'], yearBuilt: 1906, relatedPlaceIds: ['enei', 'gone'] };
+        const manifest = manifestOf(
+            assembleManifest(content({ pois: result([['enei', poiDoc({ facts })]]) }), TEST_CONFIG.errorEndpoint),
+        );
+
+        expect(validateManifest(manifest).ok).toBe(true);
+        expect(manifest.pois?.[0]?.facts).toEqual({ architects: ['Ion Mincu'], yearBuilt: 1906, relatedPlaceIds: ['enei'] });
+    });
+
+    it('badPath_onlyUnlistedRelatedPlacesLeaveTheFieldOut @S-V81-BAD-FACTS', () => {
+        const manifest = manifestOf(
+            assembleManifest(content({ pois: result([['enei', poiDoc({ facts: { relatedPlaceIds: ['gone'] } })]]) }), TEST_CONFIG.errorEndpoint),
+        );
+
+        expect(manifest.pois?.[0]?.facts).toBeUndefined();
+    });
+});

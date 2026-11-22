@@ -1415,6 +1415,20 @@
             "name": "A small-area map layer linked to its places",
             "milestone": "M17",
             "source": "the owner, 2026-11-22: a place shows its own media by kind (maps, aerial, exterior, interior)"
+        },
+        {
+            "id": "V81",
+            "area": "viewer",
+            "name": "A place's facts in its sheet",
+            "milestone": "M17",
+            "source": "the owner, 2026-11-22: places get structured facts (architect, years, style, floors, uses, LMI, addresses, related places)"
+        },
+        {
+            "id": "A200",
+            "area": "admin",
+            "name": "A place's facts edited and imported",
+            "milestone": "M17",
+            "source": "the owner, 2026-11-22: places get structured facts (architect, years, style, floors, uses, LMI, addresses, related places)"
         }
     ],
     "scenarios": [
@@ -24946,6 +24960,50 @@
             "tier": "rules",
             "status": "exists",
             "notes": "Test: firebase/rules-tests/test/layers.test.ts."
+        },
+        {
+            "id": "S-V81-HAPPY-FACTS",
+            "behaviour": "V81",
+            "area": "viewer",
+            "path": "happy",
+            "title": "A place's facts reach the manifest and its sheet",
+            "asserts": "facts with architect, years, style, floors, height, LMI, uses, addresses and a related place -> the builder copies them (an unlisted related place left out); the sheet's About the place lists each and the related place's button opens it",
+            "tier": "functions",
+            "status": "exists",
+            "notes": "Tests: functions/test/publish/assemble.test.ts, packages/shared/test/schemas/place-facts.test.ts, packages/ui/test/viewer/poi-facts.test.ts. docs/research/M17-stories.md §13."
+        },
+        {
+            "id": "S-V81-BAD-FACTS",
+            "behaviour": "V81",
+            "area": "viewer",
+            "path": "bad",
+            "title": "Bad facts are refused and none show nothing",
+            "asserts": "a bad LMI code, built after demolished, a repeated related place are refused; only unlisted related places leave the field out; a place without facts shows no section; markup stays text",
+            "tier": "functions",
+            "status": "exists",
+            "notes": "Tests: functions/test/publish/assemble.test.ts, packages/shared/test/schemas/place-facts.test.ts, packages/ui/test/viewer/poi-facts.test.ts."
+        },
+        {
+            "id": "S-A200-HAPPY-FACTS-IMPORT",
+            "behaviour": "A200",
+            "area": "admin",
+            "path": "happy",
+            "title": "A GeoJSON file's facts are imported and exported",
+            "asserts": "properties.facts valid -> the planned place carries them and the export writes them back; the place editor's About the place edits them",
+            "tier": "e2e-admin",
+            "status": "planned",
+            "notes": "Unit: packages/admin/test/pois/geojson.test.ts, packages/ui/test/admin/pois/facts-text.test.ts; rules: firebase/rules-tests/test/pois.test.ts."
+        },
+        {
+            "id": "S-A200-BAD-FACTS-IMPORT",
+            "behaviour": "A200",
+            "area": "admin",
+            "path": "bad",
+            "title": "Invalid facts in a file are dropped, the place kept",
+            "asserts": "properties.facts with a bad LMI code -> the place is planned without facts; a line the editor cannot read keeps its text",
+            "tier": "e2e-admin",
+            "status": "planned",
+            "notes": "Unit: packages/admin/test/pois/geojson.test.ts, packages/ui/test/admin/pois/facts-text.test.ts."
         }
     ]
 }

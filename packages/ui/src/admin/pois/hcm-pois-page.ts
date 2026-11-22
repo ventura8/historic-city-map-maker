@@ -220,6 +220,7 @@ export class HcmPoisPage extends AreaPage<PoisViewState, PoisIntentsPort> {
             .categories=${view.categories.items}
             .categoriesKnown=${categoriesListed(view)}
             .photos=${[...view.linkedPhotos, ...(view.photos?.items ?? [])]}
+            .places=${view.list.items.filter((item) => item.id !== editor.id).map(({ id, title }) => ({ id, title }))}
             .intents=${this.intents}
             .locale=${locale}
             .centreKnown=${view.frame !== null}

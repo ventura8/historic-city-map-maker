@@ -67,6 +67,7 @@ export {
     poiSchema,
 } from './schemas/poi.js';
 export type { PhotosOverlay, Poi, PoiCategory, PoiIcon } from './schemas/poi.js';
+export { LMI_CODE_PATTERN, MAX_FACT_ITEMS, placeFactsSchema, type PlaceFacts } from './schemas/place-facts.js';
 export { PLACE_MEDIA_KINDS, placeMedia, placeMediaKinds, type PlaceMedia, type PlaceMediaKind } from './overlays/place-media.js';
 export { hasPlaceYear, latestPlaceYear, placeYearIssues, type PlaceYears } from './schemas/place-year.js';
 export { storyDocSchema, type StoryDoc } from './schemas/firestore.js';

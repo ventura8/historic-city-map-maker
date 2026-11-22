@@ -226,6 +226,15 @@ function stillListed(ids: readonly string[] | undefined, known: ReadonlySet<stri
     return kept?.length === 0 ? undefined : kept;
 }
 
+/** M17 §13: a place's facts name only places the manifest lists; none left, the field goes. */
+function factsEntry(facts: PoiDoc['facts'], listed: Listed): unknown {
+    if (facts === undefined) {
+        return undefined;
+    }
+    const kept = { ...facts, relatedPlaceIds: stillListed(facts.relatedPlaceIds, listed.pois) };
+    return Object.values(kept).some((value) => value !== undefined) ? kept : undefined;
+}
+
 /** A POI names only photos the manifest lists: an unpublished photo leaves the POI, never the POI the manifest. */
 function poiEntry(poi: PoiDoc, id: string, listed: Listed): unknown {
     return {
@@ -243,6 +252,7 @@ function poiEntry(poi: PoiDoc, id: string, listed: Listed): unknown {
         // M27: a layer the manifest does not list (unpublished, retired) is left out, never the place.
         sourceLayer: poi.sourceLayer !== undefined && listed.layers.has(poi.sourceLayer) ? poi.sourceLayer : undefined,
         group: poi.group,
+        facts: factsEntry(poi.facts, listed),
     };
 }
 

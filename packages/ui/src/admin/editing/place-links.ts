@@ -2,7 +2,7 @@
  * The places a photo or a map layer belongs to (`placeIds`, `docs/research/M17-stories.md` §12): chips that remove one and a
  * select of the city's other places that adds one, at most `MAX_MEDIA_PLACES`. Titles are data, shown as text only.
  */
-import { MAX_MEDIA_PLACES, type UiLocale } from '@hcm/shared';
+import { MAX_MEDIA_PLACES, type AdminContentKey, type UiLocale } from '@hcm/shared';
 import { html, type TemplateResult } from 'lit';
 
 import { contentText } from '../shell/text.js';
@@ -19,6 +19,9 @@ export interface PlaceLinksInput {
     readonly readOnly: boolean;
     /** The new list; an empty list clears the field. */
     readonly change: (ids: readonly string[] | undefined) => void;
+    /** The heading and the note; the photo's and the map's Places by default. */
+    readonly label?: AdminContentKey;
+    readonly hint?: AdminContentKey;
 }
 
 function titleIn(locale: UiLocale, place: PlacePickPort | undefined, id: string): string {
@@ -44,8 +47,8 @@ export function placeLinksField(input: PlaceLinksInput): TemplateResult {
     };
     const full = ids.length >= MAX_MEDIA_PLACES;
     return html`<section class="field place-links">
-        <h3 id=${`${id}-label`}>${contentText(locale, 'adminContent.pois.places.label')}</h3>
-        <p class="note" id=${`${id}-hint`}>${contentText(locale, 'adminContent.pois.places.hint')}</p>
+        <h3 id=${`${id}-label`}>${contentText(locale, input.label ?? 'adminContent.pois.places.label')}</h3>
+        <p class="note" id=${`${id}-hint`}>${contentText(locale, input.hint ?? 'adminContent.pois.places.hint')}</p>
         <ul class="chips" aria-labelledby=${`${id}-label`}>
             ${ids.map(
                 (placeId) =>

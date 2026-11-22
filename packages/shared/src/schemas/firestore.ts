@@ -28,6 +28,7 @@ import {
     PHOTO_KINDS,
 } from './manifest.js';
 import { ARCHIVE_PLACE_METHODS, layerRightsSchema } from './imagery-archive.js';
+import { placeFactsSchema } from './place-facts.js';
 import { iconNameSchema, MAX_POI_PHOTOS, photosOverlaySchema, placeIdsSchema } from './poi.js';
 import { heldImageSchema, reviewFields } from './review.js';
 import { localizedStorySchema, storyFields } from './story.js';
@@ -388,6 +389,8 @@ export const poiDocSchema = z
         sourceLayer: idSchema.optional(),
         /** A sub-group of the category (an import's `group`: bridges, lakes…), its own switch in the Layers panel. */
         group: plainText(60).optional(),
+        /** Structured facts (M17 §13); the manifest drops related places it does not list. */
+        facts: placeFactsSchema.optional(),
         published: z.boolean(),
         ...reviewFields,
         createdAt: timestampSchema.optional(),

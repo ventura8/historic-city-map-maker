@@ -404,6 +404,7 @@ function photoSheet(view: ViewerView, ready: Ready, placement: Placement, handle
         .manifestUrl=${view.manifestUrl}
         .contributeUrl=${ready.manifest.contributeUrl ?? null}
         .stories=${ready.manifest.stories ?? []}
+        .pois=${ready.manifest.pois ?? []}
         .canLocate=${ready.state.webgl}
         .years=${view.stops}
         .photoVersion=${ready.state.photoVersion}
@@ -416,6 +417,7 @@ function photoSheet(view: ViewerView, ready: Ready, placement: Placement, handle
         @hcm-photo-select=${handlers.onPhotoSelect}
         @hcm-story-select=${handlers.onStorySelect}
         @hcm-layer-show=${handlers.onLayerShow}
+        @hcm-poi-select=${handlers.onPoiSelect}
         @hcm-lightbox-open=${handlers.onLightboxOpen}
         @hcm-photo-shown=${handlers.onPhotoShown}
         @hcm-photo-version=${handlers.onPhotoVersion}

@@ -17,6 +17,8 @@ import { NOBODY, type WhoPort } from '../editing/conflict.js';
 import { LeftFields } from '../editing/number-fields.js';
 import type { DrawToolPort } from '../map/hcm-draw-toolbar.js';
 import { EMPTY } from '../shell/empty.js';
+import type { PlacePickPort } from '../editing/place-pick-port.js';
+import { factsFields } from './poi-facts-fields.js';
 import {
     categoryField,
     descriptionFields,
@@ -56,6 +58,7 @@ export class HcmPoiEditor extends LitElement {
         categoriesKnown: { attribute: false },
         adding: { state: true },
         photos: { attribute: false },
+        places: { attribute: false },
         intents: { attribute: false },
         locale: { type: String },
         centreKnown: { attribute: false },
@@ -79,6 +82,8 @@ export class HcmPoiEditor extends LitElement {
     /** The starter categories are being written. */
     declare adding: boolean;
     declare photos: readonly PhotoChoicePort[];
+    /** M17 §13: the city's places the facts' related-places picker offers (the loaded list). */
+    declare places: readonly PlacePickPort[] | null;
     declare intents: PoisIntentsPort | null;
     /** Whether Add at centre has a centre to add (the city is read): the button waits until then. */
     declare centreKnown: boolean;
@@ -109,6 +114,7 @@ export class HcmPoiEditor extends LitElement {
         this.categoriesKnown = false;
         this.adding = false;
         this.photos = [];
+        this.places = null;
         this.intents = null;
         this.centreKnown = true;
         this.locale = 'en';
@@ -156,6 +162,10 @@ export class HcmPoiEditor extends LitElement {
             <fieldset>
                 <legend>${poiText(this.locale, 'adminContent.pois.section.years')}</legend>
                 ${yearFields(this.#context(draft))}
+            </fieldset>
+            <fieldset>
+                <legend>${poiText(this.locale, 'adminContent.pois.section.facts')}</legend>
+                ${factsFields(this.#context(draft), this.places)}
             </fieldset>
             <fieldset>
                 <legend>${poiText(this.locale, 'adminContent.pois.section.links')}</legend>

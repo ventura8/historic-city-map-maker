@@ -5,7 +5,7 @@
  * categories), and sorted into new, updated (its `id` names a place of the city), unchanged and refused (with the
  * reason). Text stays text: titles and descriptions are kept as typed, markup is characters.
  */
-import { geometrySchema, ID_PATTERN, MAX_GEOMETRY_VERTICES, type Geometry } from '@hcm/shared';
+import { geometrySchema, ID_PATTERN, MAX_GEOMETRY_VERTICES, placeFactsSchema, type Geometry, type PlaceFacts } from '@hcm/shared';
 
 import { draftIssues, type PoiContext } from './draft.js';
 import { docFieldsOf, optional, type CategoryItem, type PoiLink, type PoiText, type PoiValue } from './model.js';
@@ -216,6 +216,12 @@ function groupOf(value: unknown): Readonly<Partial<Record<'group', string>>> {
     return text.length > 0 && text.length <= 60 ? { group: text } : {};
 }
 
+/** M17 §13: `{facts}` when the property is a valid facts object (`placeFactsSchema`), else nothing. */
+function factsOf(value: unknown): Readonly<Partial<Record<'facts', PlaceFacts>>> {
+    const parsed = placeFactsSchema.safeParse(value);
+    return parsed.success ? { facts: parsed.data } : {};
+}
+
 /** A feature's properties as a place's value, field by field. */
 function valueOf(properties: Raw, geometry: Geometry, category: string): PoiValue {
     const description = textOf(properties['description']);
@@ -232,6 +238,7 @@ function valueOf(properties: Raw, geometry: Geometry, category: string): PoiValu
         published: properties['published'] !== false,
         ...sourceLayerOf(properties['sourceLayer']),
         ...groupOf(properties['group']),
+        ...factsOf(properties['facts']),
     };
 }
 
@@ -361,6 +368,7 @@ function exportFeature(place: ExportedPlace): Raw {
             published: value.published,
             ...optional('sourceLayer', value.sourceLayer),
             ...optional('group', value.group),
+            ...optional('facts', value.facts),
         },
     };
 }

@@ -355,3 +355,20 @@ describe('GeoJSON: the old map a street was traced on (M27)', () => {
         expect(parsed.features[0]?.properties).not.toHaveProperty('sourceLayer');
     });
 });
+
+describe("GeoJSON: a place's facts (docs/research/M17-stories.md §13)", () => {
+    it('happyPath_validFactsAreImportedAndExported @S-A200-HAPPY-FACTS-IMPORT', () => {
+        const facts = { architects: ['Ion Mincu'], yearBuilt: 1906, lmiCode: 'B-II-m-A-18925' };
+        const plan = planImport([feature({ category: 'biserici', title: { ro: 'Palatul Artelor' }, facts })], CONTEXT);
+        expect(plan.created[0]?.value.facts).toEqual(facts);
+
+        const text = exportText('bucharest', [{ id: 'palat', value: { ...STAVROPOLEOS, facts } }], CATEGORIES);
+        const parsed = JSON.parse(text) as { features: { properties: Record<string, unknown> }[] };
+        expect(parsed.features[0]?.properties['facts']).toEqual(facts);
+    });
+
+    it('badPath_invalidFactsAreDroppedAndThePlaceKept @S-A200-BAD-FACTS-IMPORT', () => {
+        const plan = planImport([feature({ category: 'biserici', title: { ro: 'A' }, facts: { lmiCode: 'nu' } })], CONTEXT);
+        expect(plan.created.map((place) => place.value.facts)).toEqual([undefined]);
+    });
+});

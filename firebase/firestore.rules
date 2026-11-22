@@ -402,6 +402,21 @@ service cloud.firestore {
                 && stamped(data);
         }
 
+        // M17 §13 (zod `placeFactsSchema`): a place's facts; its fields' shapes are zod's, the rules keep the keys and sizes.
+        function validFacts(facts) {
+            return facts is map
+                && facts.keys().hasOnly(['architects', 'yearBuilt', 'yearDemolished', 'yearAbandoned', 'style', 'floors', 'heightM',
+                    'uses', 'lmiCode', 'addresses', 'relatedPlaceIds'])
+                && facts.get('architects', []) is list && facts.get('architects', []).size() <= 10
+                && isYear(facts.get('yearBuilt', 1900)) && isYear(facts.get('yearDemolished', 1900)) && isYear(facts.get('yearAbandoned', 1900))
+                && facts.get('floors', 0) is int && facts.get('floors', 0) >= 0 && facts.get('floors', 0) <= 200
+                && facts.get('heightM', 0) is number && facts.get('heightM', 0) >= 0 && facts.get('heightM', 0) <= 1000
+                && facts.get('uses', []) is list && facts.get('uses', []).size() <= 20
+                && facts.get('addresses', []) is list && facts.get('addresses', []).size() <= 20
+                && facts.get('lmiCode', 'B-II-m-A-00000').matches('[A-Z]{1,2}-(I|II|III|IV)-[masf]-[AB]-[0-9]{5}([.][0-9]{1,3}){0,2}')
+                && facts.get('relatedPlaceIds', []) is list && facts.get('relatedPlaceIds', []).size() <= 20;
+        }
+
         // M17 §12 (zod `placeIdsSchema`): the places whose Media list a photo or a map, one to ten ids, each once.
         function validPlaceIds(ids) {
             return ids is list && ids.size() >= 1 && ids.size() <= 10 && ids.toSet().size() == ids.size();
@@ -518,6 +533,7 @@ service cloud.firestore {
                 && isId(data.get('sourceLayer', 'x'))
                 // A sub-group of the category (bridges, lakes…; 2026-11-22).
                 && data.get('group', 'x').matches('[\\s\\S]{1,60}')
+                && validFacts(data.get('facts', {}))
                 && data.published is bool
                 && stamped(data);
         }
@@ -767,7 +783,7 @@ service cloud.firestore {
                         : (isCityUploader(city) && request.resource.data.get('reviewStatus', '') == 'pending'))
                     && isId(poi)
                     && request.resource.data.keys().hasOnly(['category', 'geometry', 'title', 'description', 'yearStart', 'yearEnd',
-                        'yearSeen', 'links', 'photoIds', 'published', 'credit', 'sourceLayer', 'group', 'reviewStatus', 'createdAt', 'createdBy',
+                        'yearSeen', 'links', 'photoIds', 'published', 'credit', 'sourceLayer', 'group', 'facts', 'reviewStatus', 'createdAt', 'createdBy',
                         'updatedBy', 'updatedAt'])
                     && validPoi(request.resource.data)
                     && yearsInRange(request.resource.data)
@@ -778,7 +794,7 @@ service cloud.firestore {
                         : (isCityUploader(city) && ownItem(resource.data) && resource.data.get('reviewStatus', '') == 'pending'
                             && !('published' in changedKeys())))
                     && changedKeys().hasOnly(['category', 'geometry', 'title', 'description', 'yearStart', 'yearEnd', 'yearSeen',
-                        'links', 'photoIds', 'published', 'credit', 'sourceLayer', 'group', 'updatedBy', 'updatedAt'])
+                        'links', 'photoIds', 'published', 'credit', 'sourceLayer', 'group', 'facts', 'updatedBy', 'updatedAt'])
                     && validPoi(request.resource.data)
                     && yearsInRange(request.resource.data);
                 allow delete: if isCityMember(city)

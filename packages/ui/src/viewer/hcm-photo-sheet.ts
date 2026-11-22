@@ -84,6 +84,7 @@ export class HcmPhotoSheet extends LitElement {
         thumbnail: { attribute: false },
         layers: { attribute: false },
         photos: { attribute: false },
+        pois: { attribute: false },
         locale: { type: String },
         mode: { type: String },
         open: { type: Boolean },
@@ -151,6 +152,8 @@ export class HcmPhotoSheet extends LitElement {
     declare layers: readonly Layer[];
     /** Every manifest photo (a POI's linked thumbnails are looked up here). */
     declare photos: readonly Photo[];
+    /** M17 §13: the places a place's facts name. */
+    declare pois: readonly Poi[];
     declare locale: ViewerLocale;
     /** M13: the city's Contribute page (`manifest.contributeUrl`): a photo's "Suggest a correction" opens it on the photo. */
     declare contributeUrl: string | null;
@@ -177,6 +180,7 @@ export class HcmPhotoSheet extends LitElement {
         this.thumbnail = null;
         this.layers = [];
         this.photos = [];
+        this.pois = [];
         this.locale = DEFAULT_LOCALE;
         this.mode = 'bottom';
         this.open = false;
@@ -224,6 +228,7 @@ export class HcmPhotoSheet extends LitElement {
                     .thumbnail=${this.thumbnail}
                     .layers=${this.layers}
                     .photos=${this.photos}
+                    .pois=${this.pois}
                     .locale=${this.locale}
                     .manifestUrl=${this.manifestUrl}
                 ></hcm-poi-detail>

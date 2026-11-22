@@ -5,7 +5,7 @@
  * satisfies `PoisAreaPort`. The elements render the state and call the intents; they never touch Firestore or the
  * map's library themselves (the map's host element is handed to the store).
  */
-import type { LngLat, ValidationIssue } from '@hcm/shared';
+import type { LngLat, ValidationIssue, PlaceFacts } from '@hcm/shared';
 
 import type { AreaPort, ListStatePort, StoredPort } from '../area-port.js';
 import type { AssistActionsPort, AssistViewPort } from '../assist/assist-port.js';
@@ -45,6 +45,8 @@ export interface PoiValuePort {
     readonly published: boolean;
     /** M27: the id of the layer the street was traced on. */
     readonly sourceLayer?: string;
+    /** M17 §13: the place's structured facts. */
+    readonly facts?: PlaceFacts;
 }
 
 /** A change the editor sends; `undefined` clears an optional field. */

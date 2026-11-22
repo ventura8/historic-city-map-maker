@@ -30,6 +30,7 @@ import { cssProperties } from '../components/css-properties.js';
 import { EMPTY } from './empty.js';
 import { externalLink, renderMarkdown } from './markdown.js';
 import { creditLine } from './photo-rights.js';
+import { placeFacts } from './poi-facts.js';
 import { resolveAssetUrl } from './services.js';
 import { fallbackNote } from './fallback-note.js';
 import { baseStyles, detailStyles } from './shared-styles.js';
@@ -57,6 +58,7 @@ export class HcmPoiDetail extends LitElement {
         thumbnail: { attribute: false },
         layers: { attribute: false },
         photos: { attribute: false },
+        pois: { attribute: false },
         locale: { type: String },
         manifestUrl: { type: String, attribute: 'manifest-url' },
         mediaKind: { state: true },
@@ -175,6 +177,8 @@ export class HcmPoiDetail extends LitElement {
     declare layers: readonly Layer[];
     /** The manifest's photos; the POI's `photoIds` are looked up here (unknown ids are skipped). */
     declare photos: readonly Photo[];
+    /** M17 §13: the manifest's places, where the facts' related places are looked up. */
+    declare pois: readonly Poi[];
     declare locale: ViewerLocale;
     declare manifestUrl: string;
     /** The Media chip chosen; null: the first kind the place has. */
@@ -187,6 +191,7 @@ export class HcmPoiDetail extends LitElement {
         this.thumbnail = null;
         this.layers = [];
         this.photos = [];
+        this.pois = [];
         this.locale = DEFAULT_LOCALE;
         this.manifestUrl = '';
         this.mediaKind = null;
@@ -213,7 +218,7 @@ export class HcmPoiDetail extends LitElement {
                           ${renderMarkdown(localizedText(poi.description, this.locale))}
                       </div>`
             }
-            ${fallbackNote(poi.title, this.locale)} ${creditLine(poi.credit, this.locale)} ${this.#sources(poi)} ${this.#links(poi)}
+            ${fallbackNote(poi.title, this.locale)} ${creditLine(poi.credit, this.locale)} ${this.#facts(poi)} ${this.#sources(poi)} ${this.#links(poi)}
             ${this.#media(poi)}
         </div>`;
     }
@@ -228,6 +233,13 @@ export class HcmPoiDetail extends LitElement {
             <span class="swatch" ${cssProperties(color)}><hcm-icon .name=${poiIcon(category.icon)}></hcm-icon></span>
             <span>${translate(this.locale, 'poi.category', { category: localized(category.label, this.locale) })}</span>
         </p>`;
+    }
+
+    /** M17 §13: the place's facts; a related place fires `hcm-poi-select`. */
+    #facts(poi: Poi): TemplateResult | typeof nothing {
+        return placeFacts(poi, this.pois, this.locale, (poiId) => {
+            this.dispatchEvent(new CustomEvent('hcm-poi-select', { bubbles: true, composed: true, detail: { poiId } }));
+        });
     }
 
     /** M31: the article's picture, decorative (its title is the sheet's heading). */

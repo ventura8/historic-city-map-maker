@@ -17,6 +17,7 @@ import {
     type MapView,
     type PoiCategoryDoc,
     type PoiDoc,
+    type PlaceFacts,
 } from '@hcm/shared';
 
 import type { Stored } from '../content/services.js';
@@ -35,6 +36,8 @@ export const POI_EDITABLE = [
     'published',
     'sourceLayer',
     'group',
+    /** M17 §13: structured facts. */
+    'facts',
 ] as const;
 
 /** M13 §2: what the rules want of an uploader's new place, added to its fields as it is created. */
@@ -71,6 +74,8 @@ export interface PoiValue {
     readonly sourceLayer?: string;
     /** A sub-group of the category (an import's `group`: bridges, lakes…). */
     readonly group?: string;
+    /** M17 §13: architect, years, style, floors, uses, LMI code, addresses, related places. */
+    readonly facts?: PlaceFacts;
 }
 
 /** A change the editor sends; `undefined` clears an optional field. */
@@ -138,6 +143,7 @@ export function valueOf(doc: PoiDoc): PoiValue {
         published: doc.published,
         ...optional('sourceLayer', doc.sourceLayer),
         ...optional('group', doc.group),
+        ...optional('facts', doc.facts),
     };
 }
 
@@ -178,6 +184,7 @@ export function docFieldsOf(value: PoiValue): Readonly<Record<string, unknown>> 
         photoIds: value.photoIds,
         published: value.published,
         ...optional('sourceLayer', value.sourceLayer),
+        ...optional('facts', value.facts),
     };
 }
 
