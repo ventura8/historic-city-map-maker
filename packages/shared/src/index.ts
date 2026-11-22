@@ -372,6 +372,7 @@ export {
     withOverlayVisibility,
 } from './overlays/model.js';
 export type { Overlay, OverlayKind, OverlayLabel } from './overlays/model.js';
+export { categoryGroups, GEOMETRY_GROUPS, groupShown, poiGroupOf, withOverlayGroup, type GeometryGroup } from './overlays/poi-groups.js';
 export { MAP_LAYER_TYPES, OPACITY_PROPERTIES, OVERLAY_LAYER_TYPES, overlayOpacityPaint, rasterAdjustmentPaint } from './overlays/paint.js';
 export type { MapLayerType, OpacityBase, OpacityProperty, PaintUpdate, RasterAdjustmentPaint } from './overlays/paint.js';
 export { isPhotoNearYear, PHOTO_YEAR_WINDOW, PHOTOS_NEAR_WINDOWS } from './overlays/photos.js';

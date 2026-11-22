@@ -2,7 +2,7 @@
  * The Layers panel's pure parts (`<hcm-layer-panel>`): the list rows, the group headings, the attribution lines, the Map
  * labels note and (M27, `docs/research/M27-lost-streets.md`) the split of the pinned POI categories from the list below.
  */
-import { overlayLabel, poiIcon, translate, type ViewerLocale, type Manifest, type Overlay } from '@hcm/shared';
+import { categoryGroups, overlayLabel, poiIcon, translate, type ViewerLocale, type Manifest, type Overlay } from '@hcm/shared';
 import { creditParts } from '@hcm/shared/credits';
 import { translateMapLabels } from '@hcm/shared/map-labels';
 
@@ -27,8 +27,34 @@ export function overlayItems(overlays: readonly Overlay[], manifest: Manifest, l
             ...(layer === undefined ? {} : { detail: dateText(layer, locale) }),
         };
         const category = overlay.kind === 'poi' ? categories.get(overlay.id) : undefined;
-        return category === undefined ? item : { ...item, color: category.color, icon: poiIcon(category.icon) };
+        return category === undefined
+            ? item
+            : { ...item, color: category.color, icon: poiIcon(category.icon), ...subgroupsOf(overlay, manifest, locale) };
     });
+}
+
+const GEOMETRY_LABELS: Readonly<Record<string, 'layers.sub.points' | 'layers.sub.lines' | 'layers.sub.areas'>> = {
+    points: 'layers.sub.points',
+    lines: 'layers.sub.lines',
+    areas: 'layers.sub.areas',
+};
+
+/** A category's sub-groups for its row (the owner, 2026-11-22), with the chevron's name and the switch's mixed state. */
+function subgroupsOf(overlay: Overlay, manifest: Manifest, locale: ViewerLocale): Partial<OverlayListItem> {
+    const groups = categoryGroups(manifest.pois ?? [], overlay.id);
+    if (groups.length < 2) {
+        return {};
+    }
+    const hidden = new Set(overlay.hiddenGroups ?? []);
+    const label = (group: string): string => {
+        const key = GEOMETRY_LABELS[group];
+        return key === undefined ? group : translate(locale, key);
+    };
+    return {
+        subgroups: groups.map((group) => ({ id: group, label: label(group), visible: overlay.visible && !hidden.has(group) })),
+        expandLabel: translate(locale, 'layers.sub.expand', { name: overlayLabel(overlay, locale) }),
+        mixed: overlay.visible && groups.some((group) => hidden.has(group)),
+    };
 }
 
 /**

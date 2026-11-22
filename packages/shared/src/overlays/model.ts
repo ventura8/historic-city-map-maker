@@ -37,6 +37,8 @@ export interface Overlay {
     /** The manifest's values: the URL hash records only an opacity that differs from `defaultOpacity`. */
     readonly defaultVisible: boolean;
     readonly defaultOpacity: number;
+    /** A place category's sub-groups switched off (`poi-groups.ts`); absent or empty: every sub-group shows. */
+    readonly hiddenGroups?: readonly string[];
 }
 
 type OverlayDefaults = Pick<Overlay, 'id' | 'kind' | 'label' | 'visible' | 'opacity'>;
@@ -106,7 +108,8 @@ export function withOverlayOpacity(overlays: readonly Overlay[], id: string, opa
 export function withOverlayVisibility(overlays: readonly Overlay[], id: string, visible?: boolean): readonly Overlay[] {
     return replaceWhere(overlays, id, (target) => {
         const next = visible ?? !target.visible;
-        return next === target.visible ? target : { ...target, visible: next };
+        // The category's own switch turns every sub-group on or off with it (the owner, 2026-11-22).
+        return next === target.visible ? target : { ...target, visible: next, hiddenGroups: [] };
     });
 }
 

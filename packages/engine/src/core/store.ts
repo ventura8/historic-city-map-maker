@@ -9,7 +9,6 @@ import {
     PHOTOS_NEAR_WINDOWS,
     encodeHash,
     findOverlay,
-    withOverlayOpacity,
     withOverlayVisibility,
     withVisibleOpaque,
     type DecodedHash,
@@ -26,6 +25,7 @@ import { Listeners, type CameraOffset, type Unsubscribe } from '@hcm/ui/map';
 import type { Measurement } from '../telemetry/telemetry-port.js';
 import { Boot, type BootHost } from './boot.js';
 import { CompareDriver, type CompareDriverHost } from './compare-driver.js';
+import { setOverlayGroup, setOverlayOpacityOf } from './overlay-groups.js';
 import { resetNorth, watchCamera, zoomBy, type CompassActions } from './compass.js';
 import { inputLogger, measureToast, shareLogger } from './viewer-analytics.js';
 import { withWindowSize } from './window-size.js';
@@ -73,6 +73,8 @@ export interface ViewerActions {
      * moves the timeline to its year.
      */
     toggleOverlay(overlayId: string, visible?: boolean): void;
+    /** A place category's sub-group on or off (`poi-groups.ts`); one turned on turns its category on. */
+    toggleOverlayGroup(overlayId: string, group: string, visible: boolean): void;
     /** Live: the map follows on the next animation frame; `final` (slider released) also writes the hash. */
     setOverlayOpacity(overlayId: string, opacity: number, final?: boolean): void;
     openPhoto(photoId: string | null): void;
@@ -267,15 +269,13 @@ class Store implements ViewerStore, BootHost, CompareDriverHost {
         this.hash.schedule();
     }
 
-    setOverlayOpacity(overlayId: string, opacity: number, final = false): void {
-        const overlays = withOverlayOpacity(this.#state.overlays, overlayId, opacity);
-        if (overlays !== this.#state.overlays) {
-            this.set({ ...this.#state, overlays });
-        }
-        if (final) {
-            this.hash.schedule();
-        }
-    }
+    readonly toggleOverlayGroup: ViewerStore['toggleOverlayGroup'] = (id, group, visible) => {
+        setOverlayGroup(this, id, group, visible);
+    };
+
+    readonly setOverlayOpacity: ViewerStore['setOverlayOpacity'] = (id, opacity, final = false) => {
+        setOverlayOpacityOf(this, id, opacity, final);
+    };
 
     openPhoto(photoId: string | null): void {
         this.#unmark();

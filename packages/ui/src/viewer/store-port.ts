@@ -123,6 +123,8 @@ export interface ViewerStorePort {
     /** V13: a date of a timeline year picked: that layer's year, the layer on top. */
     pickLayer(layerId: string): void;
     toggleOverlay(overlayId: string, visible?: boolean): void;
+    /** A place category's sub-group on or off (`poi-groups.ts` of @hcm/shared). */
+    toggleOverlayGroup(overlayId: string, group: string, visible: boolean): void;
     setOverlayOpacity(overlayId: string, opacity: number, final?: boolean): void;
     openPhoto(photoId: string | null): void;
     /** The photo sheet's Locate: the camera goes to the photo's place, `offset` px from the map's centre (x right, y down). */

@@ -4,6 +4,7 @@
  * URLs to the manifest's address.
  */
 import {
+    groupShown,
     isPhotoNearYear,
     conePolygon,
     DEFAULT_FOV,
@@ -150,7 +151,7 @@ function poiSpec(category: PoiCategory, pois: readonly Poi[], overlay: Overlay |
     return {
         id: category.id,
         kind: 'poi',
-        features: pois.filter((poi) => poi.category === category.id).map((poi) => poiFeature(poi, locale)),
+        features: pois.filter((poi) => poi.category === category.id && groupShown(overlay, poi)).map((poi) => poiFeature(poi, locale)),
         color: category.color,
         icon: poiIcon(category.icon),
         visible: overlay?.visible ?? true,

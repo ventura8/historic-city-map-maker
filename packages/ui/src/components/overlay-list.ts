@@ -1,3 +1,4 @@
+import { renderSubgroups, subgroupStyles, type OverlaySubgroup } from './overlay-subgroups.js';
 import { opacityPercent, type OverlayKind } from '@hcm/shared';
 import { LitElement, css, html, nothing, type TemplateResult } from 'lit';
 import { repeat } from 'lit/directives/repeat.js';
@@ -36,6 +37,12 @@ export interface OverlayListItem {
      * two lines fit the row's 48 px when the name fits its line; a longer name wraps and the row grows (never cut).
      */
     readonly detail?: string;
+    /** A place category's sub-groups (`overlay-subgroups.ts`): two or more give the row a chevron. */
+    readonly subgroups?: readonly OverlaySubgroup[];
+    /** The chevron's name ("Groups of {name}"). */
+    readonly expandLabel?: string;
+    /** On with only some sub-groups on: the switch shows dimmed. */
+    readonly mixed?: boolean;
 }
 
 /** A group heading (`layers.group.historical`, `layers.group.places`); a kind without one is listed without heading. */
@@ -90,6 +97,7 @@ export class HcmOverlayList extends LitElement {
         baseStyles,
         typeStyles,
         visuallyHidden,
+        subgroupStyles,
         css`
             :host {
                 display: block;
@@ -328,6 +336,7 @@ export class HcmOverlayList extends LitElement {
                 ></hcm-slider>
                 <span class="value body-medium" aria-hidden="true">${valueText}</span>
             </div>
+            ${renderSubgroups(this, item, (name) => fillTemplate(this.toggleLabel, { name }))}
         </li>`;
     }
 
@@ -346,6 +355,7 @@ export class HcmOverlayList extends LitElement {
             ? nothing
             : html`<hcm-switch
                   compact
+                  ?data-mixed=${item.mixed === true}
                   .checked=${item.visible}
                   ?disabled=${this.disabled}
                   label=${fillTemplate(this.toggleLabel, { name: item.label })}

@@ -4544,6 +4544,28 @@
             "notes": "Owner 2026-11-22. Tests: e2e/specs/viewer/year-reveal.spec.ts."
         },
         {
+            "id": "S-V03-HAPPY-PLACE-SUBGROUPS",
+            "behaviour": "V03",
+            "area": "viewer",
+            "path": "happy",
+            "title": "A place category with several kinds has a chevron with one switch per sub-group",
+            "asserts": "a category whose places have two or more groups (an import's group, else points/lines/areas) -> a chevron (aria-expanded) opens one switch per group; switching one off hides its places on the map, the category's switch dims while only some are on",
+            "tier": "e2e-viewer",
+            "status": "planned",
+            "notes": "Owner 2026-11-22. Unit tests: packages/ui/test/components/overlay-subgroups.test.ts, packages/shared/test/overlays/poi-groups.test.ts."
+        },
+        {
+            "id": "S-V03-BAD-ONE-GROUP-NO-CHEVRON",
+            "behaviour": "V03",
+            "area": "viewer",
+            "path": "bad",
+            "title": "A category of one kind has no chevron",
+            "asserts": "every place of the category in one group -> no chevron, the switch never dims",
+            "tier": "e2e-viewer",
+            "status": "planned",
+            "notes": "Owner 2026-11-22. Unit tests: packages/ui/test/components/overlay-subgroups.test.ts."
+        },
+        {
             "id": "S-V03-HAPPY-LAYER-SECTIONS",
             "behaviour": "V03",
             "area": "viewer",

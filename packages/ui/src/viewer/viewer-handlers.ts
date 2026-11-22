@@ -156,8 +156,14 @@ function mapMenuHandlers(host: HandlerHost): Pick<ViewerHandlers, 'onMapMenuClos
  * The zoom buttons (V52): one level in (1) or out (-1); the compass (V64): north up and level. A click is no event of a
  * part, nothing to stop.
  */
-function zoomHandler(host: HandlerHost): Pick<ViewerHandlers, 'onZoom' | 'onCompass' | 'onLocate'> {
+function zoomHandler(host: HandlerHost): Pick<ViewerHandlers, 'onZoom' | 'onCompass' | 'onLocate' | 'onOverlayGroup'> {
     return {
+        // A place category's sub-group switch (the owner, 2026-11-22).
+        onOverlayGroup: (event) => {
+            host.act(event, (store) => {
+                store.toggleOverlayGroup(event.detail.id, event.detail.group, event.detail.visible);
+            });
+        },
         // Show my location (V10): the icon button above the compass (the owner, 2026-11-22).
         onLocate: () => {
             host.act(null, (store) => {

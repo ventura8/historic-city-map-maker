@@ -81,6 +81,8 @@ export interface OverlayOpacityDetail {
 export interface ViewerHandlers extends LightboxHandlers, MapMenuHandlers {
     readonly onYearChange: (event: CustomEvent<{ readonly year: number | null }>) => void;
     readonly onOverlayVisibility: (event: CustomEvent<{ readonly id: string; readonly visible: boolean }>) => void;
+    /** A place category's sub-group switch (`overlay-subgroups.ts`). */
+    readonly onOverlayGroup: (event: CustomEvent<{ readonly id: string; readonly group: string; readonly visible: boolean }>) => void;
     readonly onOverlayOpacity: (event: CustomEvent<OverlayOpacityDetail>) => void;
     readonly onSheetClose: (event: Event) => void;
     /** V75: the open photo came from the list (its sheet shows Back), and where the list was scrolled. */
@@ -376,6 +378,7 @@ function layerPanel(view: ViewerView, ready: Ready, placement: Placement, handle
         ?inert=${placement.inert === true}
         @hcm-close=${handlers.onSheetClose}
         @hcm-overlay-visibility=${handlers.onOverlayVisibility}
+        @hcm-overlay-group=${handlers.onOverlayGroup}
         @hcm-overlay-opacity=${handlers.onOverlayOpacity}
         @hcm-compare-toggle=${handlers.onCompareToggle}
         @hcm-map-label=${handlers.onMapLabel}

@@ -29,7 +29,22 @@ function stackOf(state: ViewerState, { layers }: Manifest): (layer: Pick<Layer, 
 
 /** What the photos and POIs drawn depend on besides the language: the year, Photos near, (M31) the Wikipedia articles. */
 function featuresChanged(previous: ViewerState, next: ViewerState): boolean {
-    return next.year !== previous.year || next.photosNear !== previous.photosNear || next.wikipedia !== previous.wikipedia;
+    return (
+        next.year !== previous.year ||
+        next.photosNear !== previous.photosNear ||
+        next.wikipedia !== previous.wikipedia ||
+        groupsChanged(previous, next)
+    );
+}
+
+/** A place category's sub-groups switched on or off (`poi-groups.ts`): its features are redrawn. */
+function groupsChanged(previous: ViewerState, next: ViewerState): boolean {
+    const key = (state: ViewerState): string =>
+        state.overlays
+            .filter((overlay) => (overlay.hiddenGroups ?? []).length > 0)
+            .map((overlay) => `${overlay.id}:${(overlay.hiddenGroups ?? []).join(',')}`)
+            .join('|');
+    return previous.overlays !== next.overlays && key(previous) !== key(next);
 }
 
 export class MapSync {

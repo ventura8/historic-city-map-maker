@@ -17,6 +17,7 @@ import {
     overlaysFromManifest,
     withOverlayOpacity,
     withOverlayVisibility,
+    withOverlayGroup,
     type Locale,
     type Manifest,
     type MapView,
@@ -142,6 +143,11 @@ export class FakeStore implements ViewerStorePort {
     toggleOverlay(overlayId: string, visible?: boolean): void {
         this.#record('toggleOverlay', overlayId, visible);
         this.set({ overlays: withOverlayVisibility(this.#state.overlays, overlayId, visible) });
+    }
+
+    toggleOverlayGroup(overlayId: string, group: string, visible: boolean): void {
+        this.#record('toggleOverlayGroup', overlayId, group, visible);
+        this.set({ overlays: withOverlayGroup(this.#state.overlays, overlayId, group, visible) });
     }
 
     setOverlayOpacity(overlayId: string, opacity: number, final?: boolean): void {
