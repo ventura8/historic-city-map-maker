@@ -20,7 +20,7 @@ import { overlaySourceId } from './rasters.js';
 /** Labels appear from this zoom (docs/ENGINE_API.md → pois). */
 export const POI_LABEL_MIN_ZOOM = 16;
 /** Points are clustered up to this zoom, as the photos are; from the next one every point stands alone. */
-export const POI_CLUSTER_MAX_ZOOM = 15;
+const POI_CLUSTER_MAX_ZOOM = 15;
 const POI_CLUSTER_RADIUS = 40;
 const CLUSTERED = ['has', 'point_count'];
 const SINGLE = ['!', CLUSTERED];

@@ -62,4 +62,3 @@ vertices, the shapes were the same. The areas are now cut in halves until each f
 positions), simplified to 1 m, every ring valid, outer rings counter-clockwise and holes clockwise (RFC 7946): 249 blocks,
 none wider than about 450 m. `packages/shared/test/seed/historic-overlays.test.ts` refuses an area wider than 1.5 km. In
 the live city the 17 old areas were deleted (History → Deleted can restore them) and the 249 imported.
-

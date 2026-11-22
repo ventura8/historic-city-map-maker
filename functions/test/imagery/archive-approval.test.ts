@@ -159,7 +159,7 @@ describe('the layer of an archive series', () => {
         expect(await readLayer(world, LAYER)).toMatchObject({
             kind: 'map',
             opacity: 0.85,
-            attribution: 'IGA, Planul IGA 1895, 1895 · PD · scan: Idei Urbane – DocuBucurești (romaniaforum)',
+            attribution: 'IGA, Planul IGA 1895 · PD · scan: Idei Urbane – DocuBucurești (romaniaforum)',
             rights: { licence: 'PD', author: 'IGA', source: { label: 'Idei Urbane – DocuBucurești', url: rights.sourceUrl } },
         });
     });
