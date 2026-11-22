@@ -113,12 +113,6 @@ export class HcmSwitch extends LitElement {
                 --hcm-icon-size: 12px;
             }
 
-            :host([compact]) button:active .handle {
-                width: 20px;
-                height: 20px;
-                margin-inline-start: 0;
-            }
-
             /* The thin switch shows its state by the handle's place and colour; no check mark in a 16 px handle. */
             :host([compact]) hcm-icon {
                 visibility: hidden;
@@ -128,6 +122,12 @@ export class HcmSwitch extends LitElement {
                 width: 16px;
                 height: 16px;
                 margin-inline-start: 18px;
+            }
+
+            :host([compact]) button:active .handle {
+                width: 20px;
+                height: 20px;
+                margin-inline-start: 0;
             }
 
             :host([checked]) button:active .handle {
