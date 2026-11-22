@@ -4,7 +4,7 @@ import { E2E_MEASUREMENT_ID, E2E_TILESET_LAYER, SITE_ORIGIN } from '../../fixtur
 import { analyticsCalls, analyticsManifest, gaEvents } from '../../support/ga4.js';
 import { mapFacts } from '../../support/map.js';
 import { expect, test } from '../../support/test.js';
-import { chooseMenuItem, openLayers, openViewer, serveManifest, t, viewer, visibilitySwitch } from '../../support/viewer.js';
+import { chooseMenuItem, locateButton, openLayers, openViewer, serveManifest, t, viewer, visibilitySwitch } from '../../support/viewer.js';
 
 /**
  * Analytics consent (behaviour V19, PLAN Addendum 2): with a GA4 measurement id and the Firebase app ids in the
@@ -114,7 +114,7 @@ test(
         await page.getByRole('button', { name: t(lang, 'consent.accept'), exact: true }).click();
         await expect.poll(async () => (await gaEvents(mockApis)).map((event) => event.name)).toContain('page_view');
 
-        await chooseMenuItem(page, lang, t(lang, 'action.locate'));
+        await locateButton(page, lang).click();
         // The map flies to the visitor; the address keeps the view it had (S-V10-BAD-POSITION-NOT-IN-LINK).
         await expect.poll(async () => (await mapFacts(page)).center[1]).toBeCloseTo(44.4301, 4);
         await toggleLayer(page, lang);

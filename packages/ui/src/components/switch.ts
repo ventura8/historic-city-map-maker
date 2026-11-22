@@ -125,6 +125,11 @@ export class HcmSwitch extends LitElement {
                 margin-inline-start: 0;
             }
 
+            /* The thin switch shows its state by the handle's place and colour; no check mark in a 16 px handle. */
+            :host([compact]) hcm-icon {
+                visibility: hidden;
+            }
+
             :host([compact][checked]) .handle {
                 width: 16px;
                 height: 16px;
@@ -148,7 +153,7 @@ export class HcmSwitch extends LitElement {
     declare checked: boolean;
     declare label: string;
     declare disabled: boolean;
-    /** The thin M3 variant (40 x 24) for dense lists; the touch target stays 48 px. */
+    /** The thin M3 variant (40 x 24), the default; the touch target stays 48 px. */
     declare compact: boolean;
 
     constructor() {
@@ -156,7 +161,8 @@ export class HcmSwitch extends LitElement {
         this.checked = false;
         this.label = '';
         this.disabled = false;
-        this.compact = false;
+        // Thin by default everywhere, viewer and admin (the owner, 2026-11-22); `compact=false` asks for the full size.
+        this.compact = true;
     }
 
     override render(): TemplateResult {

@@ -47,23 +47,46 @@ export function coverZoom([[west, south], [east, north]]: BBox, size: MapSize): 
 export interface MapControlHandlers {
     readonly onZoom: (step: number) => void;
     readonly onCompass: () => void;
+    readonly onLocate: () => void;
 }
 
 /**
  * The compass (V64; its needle follows `camera`, the store) in its own pill over the group, or beside its Zoom in on a
  * short map (`dock-styles.ts`), then the group of the two zoom buttons for the camera's `view` in the city's zoom range
  * and, once the map has a box (`size`), its bounds. A hundredth of a level covers the rounding of the camera Mapbox
- * stopped. The compass's name is its tooltip, as the zoom buttons'.
+ * stopped. The compass's name is its tooltip, as the zoom buttons'. Over the compass, Show my location (V10; the owner,
+ * 2026-11-22): an icon button only, its name its tooltip, selected while the dot shows.
  */
 export function zoomButtons(
-    { locale, mapSize, camera }: { readonly locale: ViewerLocale; readonly mapSize: MapSize | null; readonly camera: CameraSource | null },
+    {
+        locale,
+        mapSize,
+        camera,
+        locating,
+    }: {
+        readonly locale: ViewerLocale;
+        readonly mapSize: MapSize | null;
+        readonly camera: CameraSource | null;
+        readonly locating: boolean;
+    },
     view: MapView,
     manifest: Manifest,
-    { onZoom, onCompass }: MapControlHandlers,
+    { onZoom, onCompass, onLocate }: MapControlHandlers,
 ): TemplateResult {
     const { maxZoom, bounds } = manifest.city;
     const minZoom = Math.max(manifest.city.minZoom, mapSize === null ? 0 : coverZoom(bounds, mapSize) + 0.01);
-    return html`<div class="dock compass" data-layout-check="compass">
+    const locate = translate(locale, 'action.locate');
+    return html`<div class="dock locate" data-layout-check="locate">
+            <hcm-icon-button
+                icon="my_location"
+                toggle
+                .label=${locate}
+                title=${locate}
+                .selected=${locating}
+                @click=${onLocate}
+            ></hcm-icon-button>
+        </div>
+        <div class="dock compass" data-layout-check="compass">
             <hcm-compass .source=${camera} locale=${locale} title=${translate(locale, 'viewer.compass')} @click=${onCompass}></hcm-compass>
         </div>
         <div class="dock zoom" data-layout-check="zoom">

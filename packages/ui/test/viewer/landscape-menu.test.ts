@@ -53,7 +53,7 @@ describe('<hcm-map-viewer> the FAB menu of a landscape phone', () => {
         const fab = element.shadowRoot?.querySelector('hcm-fab-menu')?.shadowRoot?.querySelector('.fab')?.getBoundingClientRect();
         const rows = new Set(items.map((item) => Math.round(item.getBoundingClientRect().top)));
 
-        expect(items.length).toBeGreaterThan(5);
+        expect(items.length).toBeGreaterThan(4);
         expect(items.filter((item) => !inside(item, frame))).toEqual([]);
         expect(items.every((item) => item.getBoundingClientRect().bottom <= (fab?.top ?? 0))).toBe(true);
         expect(rows.size).toBeLessThan(items.length);

@@ -307,7 +307,7 @@ describe('<hcm-map-viewer>: store wiring', () => {
         store.set({ locale: 'en' });
         await element.updateComplete;
         expect(shadowQuery(element, '.timeline-note').textContent).toContain('No historical layers on this map');
-        expect(layoutChecked(element)).toEqual(['compass', 'consent', 'menu', 'timeline-note', 'zoom']);
+        expect(layoutChecked(element)).toEqual(['compass', 'consent', 'locate', 'menu', 'timeline-note', 'zoom']);
     });
 
     it('happyPath_everyFloatingControlIsNamedForTheLayoutCheck', async () => {
@@ -317,7 +317,19 @@ describe('<hcm-map-viewer>: store wiring', () => {
         store.showToast('error.tiles');
         await element.updateComplete;
 
-        expect(layoutChecked(element)).toEqual(['compass', 'consent', 'menu', 'near-year', 'timeline', 'toast', 'zoom']);
+        expect(layoutChecked(element)).toEqual(['compass', 'consent', 'locate', 'menu', 'near-year', 'timeline', 'toast', 'zoom']);
+    });
+
+    it('badPath_thePhotosAroundTheYearChipHidesWhileThePhotosAreOff', async () => {
+        const { element, store } = await mountViewer();
+        store.set({ year: 1977 });
+        await element.updateComplete;
+        expect(layoutChecked(element)).toContain('near-year');
+
+        const overlays = store.getState().overlays.map((overlay) => (overlay.kind === 'photos' ? { ...overlay, visible: false } : overlay));
+        store.set({ overlays });
+        await element.updateComplete;
+        expect(layoutChecked(element), 'photos off: no chip').not.toContain('near-year');
     });
 
     it('badPath_withoutWebglNoTimelineNote', async () => {

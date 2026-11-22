@@ -3,7 +3,7 @@ import type { BrowserContext, Page } from '@playwright/test';
 
 import { SITE_ORIGIN } from '../fixtures/world.js';
 import { mapIdle, photoMarkDrawn } from '../support/map.js';
-import { chooseMenuItem, holdToast, t, viewer } from '../support/viewer.js';
+import { holdToast, locateButton, t, viewer } from '../support/viewer.js';
 
 /**
  * The states of the camera's two moves to a place in the tour's inventory. Show my location (behaviour V10,
@@ -28,12 +28,20 @@ function shown(lang: Locale): string {
 }
 
 export const MY_LOCATION_STATES = {
+    'locate-toast': {
+        title: 'Show my location without permission: the "access refused" toast',
+        enter: async ({ page, lang }: { readonly page: Page; readonly lang: Locale }): Promise<void> => {
+            await locateButton(page, lang).click();
+            await holdToast(page, t(lang, 'error.geolocate.denied'));
+        },
+        announcements: (lang: Locale): readonly string[] => [t(lang, 'error.geolocate.denied')],
+    },
     'my-location': {
         title: 'Show my location on: the blue dot with its accuracy circle, the accuracy said in a toast',
         enter: async ({ page, context, lang }: LocationTour) => {
             await context.grantPermissions(['geolocation'], { origin: SITE_ORIGIN });
             await context.setGeolocation(POSITION);
-            await chooseMenuItem(page, lang, t(lang, 'action.locate'));
+            await locateButton(page, lang).click();
             await holdToast(page, shown(lang));
             await mapIdle(page);
         },

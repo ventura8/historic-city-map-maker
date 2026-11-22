@@ -32,20 +32,19 @@ async function bootWide(page: Page, lang: 'ro' | 'en'): Promise<void> {
 }
 
 test(
-    'Disappeared streets sit pinned below Compare and Map labels, above every layer, hidden until switched on',
+    'Disappeared streets lead the Places section, above every layer, hidden until switched on',
     { tag: ['@S-V71-HAPPY-PINNED', '@S-V71-HAPPY-SOURCES'] },
     async ({ page, lang }) => {
         const { manifest, layerLabel } = lostStreetsFixture();
         await serveManifest(page, manifest);
         await bootWide(page, lang);
         const pane = viewer(page).locator('.pane.leading hcm-layer-panel');
-        const strip = pane.locator('.pinned .section-body');
         const streets = visibilitySwitch(page, lang, LABEL[lang]);
 
-        // Its place: after the items already pinned (Compare, Map labels), before the list with every historical layer.
-        await expect(strip.locator('.pinned-overlays')).toBeVisible();
-        const order = await strip.evaluate((element) => [...element.children].map((child) => child.className));
-        expect(order).toEqual(['compare', 'labels', 'pinned-overlays']);
+        // Its place (the owner, 2026-11-22): the first of the places, no longer in the strip at the top.
+        await expect(pane.locator('.pinned .section-body hcm-overlay-list')).toHaveCount(0);
+        const firstPlace = await pane.locator('[data-section="places"] hcm-overlay-list li').first().textContent();
+        expect(firstPlace).toContain(LABEL[lang]);
         const streetsBox = await streets.boundingBox();
         const firstLayer = await pane.locator('hcm-overlay-list').last().boundingBox();
         expect((streetsBox?.y ?? 0) < (firstLayer?.y ?? 0), 'the pinned category sits above the historical layers').toBe(true);
@@ -84,7 +83,7 @@ test(
 );
 
 test(
-    'Without a pinned category the strip holds only Compare and Map labels',
+    'Without a pinned category neither the strip nor Places lists Disappeared streets',
     { tag: '@S-V71-BAD-NOTHING-ELSE-PINNED' },
     async ({ page, lang }) => {
         await serveManifest(page, siteManifestData());

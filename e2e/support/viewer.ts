@@ -101,6 +101,13 @@ export async function openTimelineCard(page: Page): Promise<void> {
     }
 }
 
+/** Show my location's icon button above the compass (V10; the owner, 2026-11-22). */
+export function locateButton(page: Page, lang: ViewerLocale): Locator {
+    return viewer(page)
+        .locator('.dock.locate')
+        .getByRole('button', { name: t(lang, 'action.locate'), exact: true });
+}
+
 /** The floating menu button. */
 export function menuButton(page: Page, lang: ViewerLocale): Locator {
     return page.getByRole('button', { name: t(lang, 'action.menu'), exact: true });

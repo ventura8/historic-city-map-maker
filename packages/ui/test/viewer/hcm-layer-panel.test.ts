@@ -341,13 +341,14 @@ describe('<hcm-layer-panel> pinned Compare and map labels', () => {
         expect(pinned?.compareDocumentPosition(list ?? pinned) ?? 0).toBe(Node.DOCUMENT_POSITION_FOLLOWING);
     });
 
-    it('happyPath_theStripStaysPinnedInTheDockedPaneOfALargeWindowOnly', async () => {
+    it('happyPath_theStripScrollsWithTheListEverywhere', async () => {
         const labels: HcmLayerPanel['labels'] = { shown: { streets: true, pois: true }, available: ['streets', 'pois'] };
         const [width, height] = [window.innerWidth, window.innerHeight];
         await page.viewport(1440, 900);
         const docked = await panel({ mode: 'docked', canCompare: true, labels });
         const dockedStrip = docked.shadowRoot?.querySelector('.pinned');
-        expect(dockedStrip === null || dockedStrip === undefined ? '' : getComputedStyle(dockedStrip).position).toBe('sticky');
+        // No longer sticky (the owner, 2026-11-22): rows scrolled under it read as overlapping ones.
+        expect(dockedStrip === null || dockedStrip === undefined ? '' : getComputedStyle(dockedStrip).position).toBe('static');
         document.body.replaceChildren();
 
         // A modal sheet is too short to keep it: the list scrolled under it hid a focused switch (WCAG 2.4.11).
@@ -403,7 +404,7 @@ describe('<hcm-layer-panel> M27 pinned Disappeared streets', () => {
         document.body.replaceChildren();
     });
 
-    it('happyPath_thePinnedCategoryIsBelowTheExistingPinnedItemsAndAboveEveryLayer @S-V71-HAPPY-PINNED', async () => {
+    it('happyPath_thePinnedCategoryLeadsPlacesAboveEveryLayer @S-V71-HAPPY-PINNED', async () => {
         const manifest = lostStreetsManifest();
         const element = await panel({
             manifest,
@@ -416,13 +417,11 @@ describe('<hcm-layer-panel> M27 pinned Disappeared streets', () => {
         const children = [...(strip?.children ?? [])].map((child) => child.className || child.tagName.toLowerCase());
         const lists = [...(element.shadowRoot?.querySelectorAll('hcm-overlay-list') ?? [])] as unknown as OverlayListProps[];
 
-        // Compare, then Map labels and the Photos switch under them, then the pinned category: the existing items keep their place.
-        expect(children).toEqual(['compare', 'labels', 'hcm-photos-control', 'pinned-overlays']);
-        expect(lists[0]?.items.map((item) => item.id)).toEqual(['strazi-disparute']);
+        // The strip keeps Compare, Map labels and the Photos switch; the pinned category leads Places (the owner, 2026-11-22).
+        expect(children).toEqual(['compare', 'labels', 'hcm-photos-control']);
+        expect(lists[0]?.items.map((item) => item.id)).toEqual(['strazi-disparute', 'cladiri', 'evenimente']);
         expect(lists[0]?.groups).toEqual([]);
-        // Places and the historical layers below no longer hold it.
-        expect(lists[1]?.items.map((item) => item.id)).toEqual(['cladiri', 'evenimente']);
-        expect(lists[2]?.items.map((item) => item.id)).toEqual(['kh9-1977', 'kh4-1966']);
+        expect(lists[1]?.items.map((item) => item.id)).toEqual(['kh9-1977', 'kh4-1966']);
         expect(overlaysFromManifest(manifest).find((overlay) => overlay.id === 'strazi-disparute')?.visible).toBe(false);
     });
 
@@ -436,7 +435,7 @@ describe('<hcm-layer-panel> M27 pinned Disappeared streets', () => {
         );
     });
 
-    it('badPath_aPinnedCategoryAloneStillMakesTheStripWithoutCompareOrLabels @S-V71-BAD-NOTHING-ELSE-PINNED', async () => {
+    it('badPath_aPinnedCategoryIsNeverInTheStrip @S-V71-BAD-NOTHING-ELSE-PINNED', async () => {
         const manifest = lostStreetsManifest();
         const element = await panel({
             manifest,
@@ -448,8 +447,9 @@ describe('<hcm-layer-panel> M27 pinned Disappeared streets', () => {
         const strip = element.shadowRoot?.querySelector('.pinned .section-body');
 
         expect(strip?.querySelector('.compare')).toBeNull();
-        expect(strip?.querySelector('.pinned-overlays')).not.toBeNull();
-        await expect.element(page.getByRole('group', { name: 'Straturi fixate sus' })).toBeInTheDocument();
+        expect(strip?.querySelector('hcm-overlay-list')).toBeNull();
+        const places = element.shadowRoot?.querySelector('[data-section="places"] hcm-overlay-list') as unknown as OverlayListProps | null;
+        expect(places?.items[0]?.id).toBe('strazi-disparute');
     });
 
     it('badPath_noPinnedCategoryLeavesTheListWhole', () => {

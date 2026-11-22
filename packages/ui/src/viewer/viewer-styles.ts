@@ -126,7 +126,8 @@ export const viewerStyles = [
          * controls it would cover (and the skip link to the timeline) step aside while it is open, so none sits under it,
          * reachable by Tab but not seen. Mapbox's legal line stays and rises above the sheet (below).
          */
-        .frame[data-layers-sheet] :is(.skip, .dock.chip, .dock.compass, .dock.zoom, .dock.timeline, .dock.timeline-note, .dock.menu) {
+        .frame[data-layers-sheet]
+            :is(.skip, .dock.chip, .dock.compass, .dock.locate, .dock.zoom, .dock.timeline, .dock.timeline-note, .dock.menu) {
             visibility: hidden;
         }
 

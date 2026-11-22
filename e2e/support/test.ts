@@ -146,10 +146,15 @@ export const test = base.extend<TestFixtures, WorkerFixtures>({
         async ({ context }, use, testInfo) => {
             if (!testInfo.tags.includes('@layer-sections-default')) {
                 await context.addInitScript(() => {
-                    localStorage.setItem(
-                        'hcm.layerPanel.sections',
-                        JSON.stringify({ pinned: true, places: true, layers: true, aerial: true }),
-                    );
+                    // A page with its storage blocked (a state of the tour) keeps the defaults: reading it throws there.
+                    try {
+                        localStorage.setItem(
+                            'hcm.layerPanel.sections',
+                            JSON.stringify({ pinned: true, places: true, layers: true, aerial: true }),
+                        );
+                    } catch {
+                        // Nothing to seed.
+                    }
                 });
             }
             await use(undefined);

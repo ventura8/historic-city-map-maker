@@ -2465,6 +2465,50 @@
             "notes": "Milestone M1. engine-ui CR-20: packages/ui/src/viewer/services.ts, viewer-actions.ts."
         },
         {
+            "id": "S-V07-HAPPY-NEAR-YEAR-WITH-PHOTOS",
+            "behaviour": "V07",
+            "area": "viewer",
+            "path": "happy",
+            "title": "The photos-around-the-year chip shows while the photos are on",
+            "asserts": "a year with photos near it and the Photos switch on -> the chip (photos.nearYear) shows on the map",
+            "tier": "e2e-viewer",
+            "status": "exists",
+            "notes": "Owner 2026-11-22. Tests: e2e/specs/viewer/near-year-photos-off.spec.ts, packages/ui/test/viewer/hcm-map-viewer.test.ts."
+        },
+        {
+            "id": "S-V07-BAD-NEAR-YEAR-PHOTOS-OFF",
+            "behaviour": "V07",
+            "area": "viewer",
+            "path": "bad",
+            "title": "With the photos switched off the photos-around-the-year chip hides",
+            "asserts": "the Photos switch turned off -> the chip is gone; on again -> it comes back",
+            "tier": "e2e-viewer",
+            "status": "exists",
+            "notes": "Owner 2026-11-22. Tests: e2e/specs/viewer/near-year-photos-off.spec.ts, packages/ui/test/viewer/hcm-map-viewer.test.ts."
+        },
+        {
+            "id": "S-V10-HAPPY-LOCATE-ICON",
+            "behaviour": "V10",
+            "area": "viewer",
+            "path": "happy",
+            "title": "Show my location is an icon button just above the compass, clear of every control",
+            "asserts": "at 1440x900, 1024x768, 768x1024, 412x915, 360x800 and 800x360 -> a 40 px+ icon button named and titled action.locate, above or beside the compass, overlapping neither the compass, the zoom group, the timeline, the Layers pane nor the menu",
+            "tier": "e2e-viewer",
+            "status": "exists",
+            "notes": "Owner 2026-11-22. Tests: e2e/specs/viewer/locate-button.spec.ts, packages/ui/test/viewer/hcm-map-viewer-layout.test.ts; the geolocate specs press it (S-V10-HAPPY, S-V10-BAD-DENIED); the tour's my-location states."
+        },
+        {
+            "id": "S-V10-BAD-NOT-IN-MENU",
+            "behaviour": "V10",
+            "area": "viewer",
+            "path": "bad",
+            "title": "The menu no longer lists Show my location",
+            "asserts": "the FAB menu opened -> no item named action.locate (the icon button is the only form)",
+            "tier": "e2e-viewer",
+            "status": "exists",
+            "notes": "Owner 2026-11-22. Tests: e2e/specs/viewer/locate-button.spec.ts, packages/ui/test/viewer/hcm-map-viewer-layout.test.ts."
+        },
+        {
             "id": "S-V10-HAPPY",
             "behaviour": "V10",
             "area": "viewer",
@@ -4412,6 +4456,28 @@
             "notes": "Owner 2026-11-22. Tests: e2e/specs/viewer/year-view.spec.ts, packages/ui/test/viewer/year-view.test.ts."
         },
         {
+            "id": "S-V03-HAPPY-YEAR-REVEALS-ITS-LAYER",
+            "behaviour": "V03",
+            "area": "viewer",
+            "path": "happy",
+            "title": "Choosing a year shows its layer's row in the Layers panel, expanded and in view",
+            "asserts": "docked pane, the list scrolled to its top, every layer section collapsed; the timeline moved to 1980 -> the section holding the 1980 layer is expanded and its row is inside the pane's view, the top element at its centre is the row itself",
+            "tier": "e2e-viewer",
+            "status": "exists",
+            "notes": "Owner 2026-11-22 (1970 hidden under the sticky strip). Tests: e2e/specs/viewer/year-reveal.spec.ts."
+        },
+        {
+            "id": "S-V03-BAD-ROWS-NEVER-UNDER-THE-STRIP",
+            "behaviour": "V03",
+            "area": "viewer",
+            "path": "bad",
+            "title": "Scrolled rows never slide under the pinned strip",
+            "asserts": "the pane scrolled half way -> at the centre of every visible row the top element belongs to that row (no strip or slider drawn over it)",
+            "tier": "e2e-viewer",
+            "status": "exists",
+            "notes": "Owner 2026-11-22. Tests: e2e/specs/viewer/year-reveal.spec.ts."
+        },
+        {
             "id": "S-V03-HAPPY-LAYER-SECTIONS",
             "behaviour": "V03",
             "area": "viewer",
@@ -4438,8 +4504,8 @@
             "behaviour": "V03",
             "area": "viewer",
             "path": "happy",
-            "title": "Compare, Street names and POIs stay pinned at the top of the docked Layers pane",
-            "asserts": "Layers open in the docked pane with Compare and map-label switches -> they sit in .pinned above hcm-overlay-list; scrolling the list leaves them in place; in a modal sheet the strip scrolls with the list, so no focused switch hides under it",
+            "title": "Compare, Street names and POIs sit at the top of the Layers pane and scroll with the list",
+            "asserts": "Layers open in the docked pane with Compare and map-label switches -> they sit in .pinned above hcm-overlay-list; scrolling the list scrolls them away (no longer sticky since 2026-11-22, so no row slides under them)",
             "tier": "e2e-viewer",
             "status": "exists",
             "notes": "Owner 2026-11-10; docked pane only since 2026-11-12 (the tour's focus-obscured and target-size findings in the compact sheets). Tests: e2e/specs/viewer/layers-pinned.spec.ts, packages/ui/test/viewer/hcm-layer-panel.test.ts; e2e/specs/viewer/iphone-sheet.spec.ts."
@@ -22819,8 +22885,8 @@
             "behaviour": "V71",
             "area": "viewer",
             "path": "happy",
-            "title": "Disappeared streets sit in the pinned strip below Compare and Map labels and above every historical layer, hidden until switched on",
-            "asserts": "the strip's children are compare, labels, pinned-overlays in that order; the category's switch is above the first historical layer and off; no street feature is rendered until it is switched on, then the line renders and its credit joins the attribution lines",
+            "title": "Disappeared streets lead the Places section, above every historical layer, hidden until switched on",
+            "asserts": "the strip at the top holds no overlay list; the first row of Places is the category (the owner, 2026-11-22), off; no street feature is rendered until it is switched on, then the line renders and its credit joins the attribution lines",
             "tier": "e2e-viewer",
             "status": "exists",
             "notes": "Milestone M27. docs/research/M27-lost-streets.md."

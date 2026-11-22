@@ -1,5 +1,5 @@
 import { overlaysFromManifest } from '@hcm/shared';
-import { afterEach, beforeAll, describe, expect, it, vi } from 'vitest';
+import { afterEach, beforeAll, beforeEach, describe, expect, it, vi } from 'vitest';
 
 import { HCM_LAYER_PANEL_TAG, defineHcmLayerPanel, type HcmLayerPanel } from '../../src/viewer/hcm-layer-panel.js';
 import { DEFAULT_SECTIONS, SECTIONS_STORAGE_KEY, loadSections, saveSections } from '../../src/viewer/layer-panel-sections.js';
@@ -34,6 +34,11 @@ function body(element: HcmLayerPanel, id: string): HTMLElement {
 beforeAll(() => {
     defineKitDoubles();
     defineHcmLayerPanel();
+});
+
+beforeEach(() => {
+    // Another suite of the run may have left a remembered state.
+    localStorage.removeItem(SECTIONS_STORAGE_KEY);
 });
 
 afterEach(() => {

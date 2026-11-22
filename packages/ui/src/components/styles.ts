@@ -15,6 +15,13 @@ export const baseStyles = css`
     [hidden] {
         display: none !important;
     }
+
+    /* M3's thin scrollbars in every scrolling part of the viewer and the admin (the owner, 2026-11-22), in the theme's colours. */
+    :host,
+    * {
+        scrollbar-width: thin;
+        scrollbar-color: var(--md-sys-color-outline-variant) transparent;
+    }
 `;
 
 /**

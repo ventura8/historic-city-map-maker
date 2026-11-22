@@ -75,11 +75,12 @@ export class HcmSlider extends LitElement {
                 --used: calc(var(--fraction) * (100% - 16px));
             }
 
+            /* M3 Expressive's thin (XS) track: 4 px, centred in the 48 px target (the owner, 2026-11-22: "thin controls"). */
             .active,
             .inactive {
                 position: absolute;
-                top: 16px;
-                height: 16px;
+                top: 22px;
+                height: 4px;
             }
 
             .active {
@@ -93,7 +94,7 @@ export class HcmSlider extends LitElement {
             }
 
             .inactive {
-                inset-inline: calc(var(--used) + 16px) 0;
+                inset-inline: calc(var(--used) + 8px) 0;
                 border-start-start-radius: 2px;
                 border-end-start-radius: 2px;
                 border-start-end-radius: var(--md-sys-shape-corner-full);
@@ -113,8 +114,8 @@ export class HcmSlider extends LitElement {
                 inset-inline-start: calc(var(--used) - 4px);
                 box-sizing: content-box;
                 width: 4px;
-                height: 20px;
-                padding-block: 12px;
+                height: 16px;
+                padding-block: 14px;
                 padding-inline: 10px;
                 border-radius: var(--md-sys-shape-corner-full);
                 background: var(--md-sys-color-primary);

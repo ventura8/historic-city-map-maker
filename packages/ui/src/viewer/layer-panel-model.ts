@@ -55,9 +55,14 @@ export function splitPinned(overlays: readonly Overlay[], manifest: Manifest, pi
     return overlays.filter((overlay) => ids.has(overlay.id) === pinned);
 }
 
-/** The list below the strip: no pinned category, and no photos (their switch and slider are the Photos control's, 2026-11-16). */
+/**
+ * The lists below the strip, without the photos (their switch and slider are the Photos control's, 2026-11-16). A pinned
+ * category (M27's Disappeared streets) leads the places (the owner, 2026-11-22: in Places, no longer in the strip).
+ */
 export function listedOverlays(overlays: readonly Overlay[], manifest: Manifest): readonly Overlay[] {
-    return splitPinned(overlays, manifest, false).filter((overlay) => overlay.kind !== 'photos');
+    return [...splitPinned(overlays, manifest, true), ...splitPinned(overlays, manifest, false)].filter(
+        (overlay) => overlay.kind !== 'photos',
+    );
 }
 
 /** The group headings: historical layers always, places only when the manifest has POI categories. */

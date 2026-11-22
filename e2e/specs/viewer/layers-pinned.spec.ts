@@ -20,8 +20,19 @@ async function bootWide(page: Page, lang: Locale): Promise<void> {
     await mapIdle(page);
 }
 
+/** Scrolls the list's own scroller (the nearest scrolling ancestor, across shadow roots) to its end; its scrollTop. */
+function scrollToEnd(element: Element): number {
+    for (let node: Node | null = element; node !== null; node = node.parentNode ?? (node instanceof ShadowRoot ? node.host : null)) {
+        if (node instanceof HTMLElement && node.scrollHeight > node.clientHeight && getComputedStyle(node).overflowY === 'auto') {
+            node.scrollTop = node.scrollHeight;
+            return node.scrollTop;
+        }
+    }
+    return 0;
+}
+
 test(
-    'Compare and map-label switches sit above the overlay list and stay while it scrolls',
+    'Compare and map-label switches sit above the overlay list and scroll away with it, covering no row',
     { tag: '@S-V03-HAPPY-LAYERS-PINNED' },
     async ({ page, lang }) => {
         await bootWide(page, lang);
@@ -42,16 +53,11 @@ test(
         const gap = (labelsBox?.y ?? 0) - ((compareBox?.y ?? 0) + (compareBox?.height ?? 0));
         expect(Math.abs(gap - 12), 'Compare keeps the 12 px section gap below').toBeLessThan(1);
 
-        await list.evaluate((element) => {
-            const body = element.closest('.body');
-            if (body instanceof HTMLElement) {
-                body.scrollTop = body.scrollHeight;
-            }
-        });
-        await expect(compare).toBeVisible();
-        await expect(streets).toBeVisible();
+        const scrolled = await list.evaluate(scrollToEnd);
+        // No longer sticky (the owner, 2026-11-22): the strip scrolls away, so no row slides under it.
         const after = await compare.boundingBox();
-        expect(Math.abs((after?.y ?? 0) - (compareBox?.y ?? 0)) < 2, 'Compare stays pinned while the list scrolls').toBe(true);
+        expect(scrolled, 'the pane scrolls').toBeGreaterThan(0);
+        expect(Math.abs((after?.y ?? 0) - ((compareBox?.y ?? 0) - scrolled)), 'Compare scrolls with the list').toBeLessThan(2);
     },
 );
 

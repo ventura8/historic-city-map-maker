@@ -160,14 +160,6 @@ const VIEWER_STATES = {
         },
         announcements: (lang) => [t(lang, 'share.copied')],
     },
-    'locate-toast': {
-        title: 'Show my location without permission: the "access refused" toast',
-        enter: async ({ page, lang }) => {
-            await chooseMenuItem(page, lang, t(lang, 'action.locate'));
-            await holdToast(page, t(lang, 'error.geolocate.denied'));
-        },
-        announcements: (lang) => [t(lang, 'error.geolocate.denied')],
-    },
     ...unplacedStates(sheetEscape),
     ...storyStates(sheetEscape),
     'near-year-photos': {

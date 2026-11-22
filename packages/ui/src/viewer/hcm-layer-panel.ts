@@ -6,12 +6,12 @@
  * `<hcm-map-viewer>`, which updates the store (the map follows live, the hash on release). A city without historical
  * layers yet gets a note at the top, where the layers will be (below the photos and places it read as a footnote).
  * With historical layers and a map, a Compare button and the Map labels group (Street names, POIs; V31) sit at the top of
- * the panel (the owner, 2026-11-10), pinned in the docked pane while the overlay list scrolls; a modal sheet scrolls them
- * with the list (2026-11-12: the list scrolled under them there hid a focused switch). Compare opens swipe compare (M4, V06)
+ * the panel (the owner, 2026-11-10), in the pinned section, which scrolls with the list (2026-11-22: sticky, it hid the rows
+ * scrolled under it and a year's revealed layer). Compare opens swipe compare (M4, V06)
  * or closes it while the visitor compares (`hcm-compare-toggle`). Each map-label switch fires `hcm-map-label`; its note
  * tells them from the city's own Places below. M27 (`docs/research/M27-lost-streets.md`): a POI category marked `pinned` (the
- * Disappeared streets) is listed in that strip, directly below Compare and Map labels and above every historical layer,
- * with its own switch and slider; the list below leaves it out.
+ * Disappeared streets) leads the Places section, with its own switch and slider (the owner, 2026-11-22; it was in the
+ * strip before).
  *
  * The extra-large pane that is always there is `minimizable` (the owner, 2026-11-08): its close button ("Restrânge
  * straturile", a chevron, `aria-expanded="true"`) turns it into one floating button on the map's leading edge ("Straturi",
@@ -28,7 +28,7 @@ import { tabbableElements } from '../components/focus.js';
 import { stateLayer } from '../components/styles.js';
 import { EMPTY } from './empty.js';
 import type { OverlayListGroup } from '../components/overlay-list.js';
-import { labelsNote, listedOverlays, overlayItems, pinnedIds, splitPinned, attributionLines } from './layer-panel-model.js';
+import { labelsNote, listedOverlays, overlayItems, attributionLines } from './layer-panel-model.js';
 import type { SheetMode } from './layout.js';
 import { revealLayers, syncPinnedOffset } from './pinned-offset.js';
 import { loadSections, renderSection, saveSections, sectionStyles, type PanelSection, type SectionState } from './layer-panel-sections.js';
@@ -116,32 +116,12 @@ export class HcmLayerPanel extends LitElement {
             }
 
             /*
-             * Pinned while the list scrolls in the docked pane of a large window only: in a modal sheet (a phone's bottom
-             * sheet, a short window's side sheet) the pane is too short, and the list scrolled under it hid a focused switch
-             * (WCAG 2.4.11) and cut the targets' 48 px (track/layout, 2026-11-12); at half height on a 360 x 800 phone it
-             * took 170 of 310 px, and in a 1024 x 768 side sheet a switch the focus scrolled back to sat under it (the tour's
-             * focus-obscured and target-size checks, docs/LESSONS.md 618). Below 1200 x 700 the strip scrolls with the list.
+             * The pinned section scrolls with the list everywhere (the owner, 2026-11-22). Sticky in the docked pane, it grew
+             * with Map labels and the Photos switch into a collapsible section of 600 px: the rows scrolled under it read as
+             * overlapping ones, and a year's revealed layer landed hidden behind it.
              */
-            .body .pinned {
-                position: sticky;
-                inset-block-start: 0;
-                z-index: 1;
-                margin-block-end: -12px;
-            }
-
-            .body {
-                scroll-padding-block-start: var(--hcm-pinned-height, 0);
-            }
-
-            @media (width < 1200px), (height < 700px) {
-                .pinned {
-                    box-shadow: none;
-                }
-
-                .body .pinned {
-                    position: static;
-                    margin-block-end: 0;
-                }
+            .pinned {
+                box-shadow: none;
             }
 
             .empty {
@@ -302,7 +282,7 @@ export class HcmLayerPanel extends LitElement {
     }
 
     #hasPinned(manifest: Manifest): boolean {
-        return this.canCompare || this.#hasLabels() || manifest.photos.length > 0 || pinnedIds(manifest).size > 0;
+        return this.canCompare || this.#hasLabels() || manifest.photos.length > 0;
     }
 
     #hasLabels(): boolean {
@@ -325,7 +305,7 @@ export class HcmLayerPanel extends LitElement {
     }
 
     #pinnedBody(manifest: Manifest, locale: ViewerLocale): TemplateResult {
-        return html`${this.#compareButton(locale)}${this.#mapLabels(manifest, locale)}${this.#photos(manifest, locale)}${this.#pinnedList(manifest, locale)}`;
+        return html`${this.#compareButton(locale)}${this.#mapLabels(manifest, locale)}${this.#photos(manifest, locale)}`;
     }
 
     /** Places, then the maps, then (a layer whose kind is not `map`) the aerial and satellite photos; empty ones are left out. */
@@ -382,17 +362,6 @@ export class HcmLayerPanel extends LitElement {
             .shownText=${translate(locale, 'layers.shown')}
             .hiddenText=${translate(locale, 'layers.hidden')}
         ></hcm-overlay-list>`;
-    }
-
-    /** M27: the pinned categories, below Compare and Map labels; nothing when the manifest pins none. */
-    #pinnedList(manifest: Manifest, locale: ViewerLocale): TemplateResult {
-        const pinned = splitPinned(this.overlays, manifest, true);
-        if (pinned.length === 0) {
-            return EMPTY;
-        }
-        return html`<div class="pinned-overlays" role="group" aria-label=${translate(locale, 'layers.group.pinned')}>
-            ${this.#list(pinned, manifest, [])}
-        </div>`;
     }
 
     /** Design B: the Photos switch, directly under the POIs switch; nothing for a city without photos. */

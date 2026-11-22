@@ -8,9 +8,9 @@ import { expect, test } from '../../support/test.js';
 import {
     callController,
     chooseMenuItem,
+    locateButton,
     currentHash,
     hashParam,
-    menuButton,
     openLayers,
     openViewer,
     t,
@@ -55,10 +55,9 @@ async function allowLocation(page: Page, position: Position): Promise<void> {
     await page.context().setGeolocation(position);
 }
 
-/** Opens the menu: the Show my location switch in it. */
+/** Show my location's icon button above the compass (a toggle: `aria-pressed`). */
 async function locateSwitch(page: Page, lang: 'ro' | 'en'): Promise<Locator> {
-    await menuButton(page, lang).click();
-    return page.getByRole('menuitemcheckbox', { name: t(lang, 'action.locate'), exact: true });
+    return Promise.resolve(locateButton(page, lang));
 }
 
 /** Where the viewer's map draws the dot now (null: none). */
@@ -77,7 +76,7 @@ test(
         await allowLocation(page, INSIDE);
         await openViewer(page, { lang });
 
-        await chooseMenuItem(page, lang, t(lang, 'action.locate'));
+        await locateButton(page, lang).click();
 
         await expect
             .poll(async () => (await mapFacts(page)).center[1], { message: 'the camera reaches the latitude' })
@@ -96,7 +95,7 @@ test(
                 .getByRole('status')
                 .filter({ hasText: t(lang, 'geolocate.shown', { meters: '25' }) }),
         ).toBeVisible();
-        await expect(await locateSwitch(page, lang)).toHaveAttribute('aria-checked', 'true');
+        await expect(await locateSwitch(page, lang)).toHaveAttribute('aria-pressed', 'true');
     },
 );
 
@@ -106,7 +105,7 @@ test(
     async ({ page, lang }) => {
         await allowLocation(page, INSIDE);
         await openViewer(page, { lang });
-        await chooseMenuItem(page, lang, t(lang, 'action.locate'));
+        await locateButton(page, lang).click();
         await expectDotAt(page, INSIDE);
         await expect.poll(async () => (await mapFacts(page)).moving).toBe(false);
         const camera = (await mapFacts(page)).center;
@@ -116,10 +115,10 @@ test(
         await expectDotAt(page, MOVED);
         expect((await mapFacts(page)).center[0]).toBeCloseTo(camera[0], 6);
         const item = await locateSwitch(page, lang);
-        await expect(item).toHaveAttribute('aria-checked', 'true');
+        await expect(item).toHaveAttribute('aria-pressed', 'true');
         await item.click();
         await expect.poll(() => dotOnTheMap(page)).toBeNull();
-        await expect(await locateSwitch(page, lang)).toHaveAttribute('aria-checked', 'false');
+        await expect(await locateSwitch(page, lang)).toHaveAttribute('aria-pressed', 'false');
     },
 );
 
@@ -131,7 +130,7 @@ test(
         page.on('request', (request) => requests.push(`${request.url()} ${request.postData() ?? ''}`));
         await allowLocation(page, INSIDE);
         await openViewer(page, { lang });
-        await chooseMenuItem(page, lang, t(lang, 'action.locate'));
+        await locateButton(page, lang).click();
         await expectDotAt(page, INSIDE);
         await page.context().setGeolocation(MOVED);
         await expectDotAt(page, MOVED);
@@ -146,7 +145,7 @@ test(
             Reflect.deleteProperty(document, 'visibilityState');
         });
         await page.context().setGeolocation(INSIDE);
-        await expect(await locateSwitch(page, lang)).toHaveAttribute('aria-checked', 'false');
+        await expect(await locateSwitch(page, lang)).toHaveAttribute('aria-pressed', 'false');
         expect(await dotOnTheMap(page)).toBeNull();
         const stored = await page.evaluate(() =>
             [localStorage, sessionStorage]
@@ -169,7 +168,7 @@ test(
         });
         await openViewer(page, { lang, hash: CITY_VIEW });
 
-        await chooseMenuItem(page, lang, t(lang, 'action.locate'));
+        await locateButton(page, lang).click();
         await expectDotAt(page, INSIDE);
         await expect.poll(async () => (await mapFacts(page)).center[1]).toBeCloseTo(INSIDE.latitude, 4);
         await expect.poll(async () => (await mapFacts(page)).moving).toBe(false);
@@ -194,7 +193,7 @@ test(
     async ({ page, lang }) => {
         await allowLocation(page, INSIDE);
         await openViewer(page, { lang });
-        await chooseMenuItem(page, lang, t(lang, 'action.locate'));
+        await locateButton(page, lang).click();
         await expectDotAt(page, INSIDE);
         await expect.poll(async () => (await mapFacts(page)).moving).toBe(false);
 
@@ -220,14 +219,14 @@ test('A refused permission says so and the camera stays', { tag: '@S-V10-BAD-DEN
     await openViewer(page, { lang });
     const before = await mapFacts(page);
 
-    await chooseMenuItem(page, lang, t(lang, 'action.locate'));
+    await locateButton(page, lang).click();
 
     await expect(page.getByRole('status').filter({ hasText: t(lang, 'error.geolocate.denied') })).toBeVisible();
     const after = await mapFacts(page);
     expect(after.center[0]).toBeCloseTo(before.center[0], 6);
     expect(after.zoom).toBeCloseTo(before.zoom, 6);
     expect(await dotOnTheMap(page)).toBeNull();
-    await expect(await locateSwitch(page, lang)).toHaveAttribute('aria-checked', 'false');
+    await expect(await locateSwitch(page, lang)).toHaveAttribute('aria-pressed', 'false');
 });
 
 test('A position outside the city says so and the camera stays', { tag: '@S-V10-BAD-OUT-OF-BOUNDS' }, async ({ page, lang }) => {
@@ -235,7 +234,7 @@ test('A position outside the city says so and the camera stays', { tag: '@S-V10-
     await openViewer(page, { lang });
     const before = await mapFacts(page);
 
-    await chooseMenuItem(page, lang, t(lang, 'action.locate'));
+    await locateButton(page, lang).click();
 
     await expect(page.getByRole('status').filter({ hasText: t(lang, 'error.geolocate.outside') })).toBeVisible();
     const after = await mapFacts(page);
@@ -257,7 +256,7 @@ test(
             .click();
         await expectMapCounts(page, 2, 0);
 
-        await chooseMenuItem(page, lang, t(lang, 'action.locate'));
+        await locateButton(page, lang).click();
 
         const expected = rounded(lngLatOf(INSIDE));
         await expect.poll(async () => (await myLocationDrawn(page)).map(({ dot }) => rounded(dot))).toEqual([expected, expected]);

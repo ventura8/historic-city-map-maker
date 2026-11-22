@@ -18,7 +18,6 @@ export function menuActions({ webgl, layersDocked, manifest }: MenuContext): rea
         ['photos', manifest.photos.length > 0],
         ['unplaced', (manifest.unplaced ?? []).length > 0],
         ['stories', (manifest.stories ?? []).length > 0],
-        ['locate', webgl],
         ['share', true],
         ['contribute', manifest.contributeUrl !== undefined],
         ['settings', true],

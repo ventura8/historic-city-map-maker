@@ -481,16 +481,25 @@ describe('<hcm-map-viewer>: Show my location (V10)', () => {
         document.body.replaceChildren();
     });
 
-    it('happyPath_showMyLocationIsAPressedSwitchInTheMenuUntilThePageHides', async () => {
+    it('happyPath_showMyLocationIsAPressedIconButtonAboveTheCompassUntilThePageHides', async () => {
         const mounted = await mountViewer(readyState(), COMPACT);
-        chooseFromMenu(mounted, 'locate');
+        const button = part(mounted, '.dock.locate hcm-icon-button') as HTMLElement & {
+            readonly selected: boolean;
+            readonly label: string;
+        };
+        expect(button.label).toBe('Arată-mi locația');
+        button.click();
         await vi.waitFor(() => {
             expect(mounted.store.getState().myLocation).toMatchObject({ accuracy: 20 });
         });
         await mounted.element.updateComplete;
 
-        const menu = part(mounted, 'hcm-fab-menu') as HTMLElement & { readonly items: readonly { value: string; checked?: boolean }[] };
-        expect(menu.items.find((item) => item.value === 'locate')?.checked).toBe(true);
+        const menu = part(mounted, 'hcm-fab-menu') as HTMLElement & { readonly items: readonly { value: string }[] };
+        expect(button.selected).toBe(true);
+        expect(
+            menu.items.some((item) => item.value === 'locate'),
+            'no longer in the menu',
+        ).toBe(false);
         expect(mounted.store.getState().toast).toEqual({ key: 'geolocate.shown', params: { meters: '20' } });
         Object.defineProperty(document, 'visibilityState', { configurable: true, get: () => 'hidden' });
         document.dispatchEvent(new Event('visibilitychange'));
@@ -498,7 +507,7 @@ describe('<hcm-map-viewer>: Show my location (V10)', () => {
         await mounted.element.updateComplete;
 
         expect(mounted.store.getState().myLocation).toBeNull();
-        expect(menu.items.find((item) => item.value === 'locate')?.checked).toBe(false);
+        expect(button.selected).toBe(false);
     });
 
     it('badPath_aVisiblePageOrALeavingViewerKeepsNothingRunning', async () => {

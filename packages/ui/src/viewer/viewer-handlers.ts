@@ -9,6 +9,7 @@ import type { ViewerServices } from './services.js';
 import type { ViewerStorePort } from './store-port.js';
 import { closeSheet, isMenuAction, menuAction, selectPhoto, shareViewer, toggleCompare } from './viewer-actions.js';
 import type { OverlayOpacityDetail, ViewerHandlers } from './viewer-render.js';
+import { toggleMyLocation } from './my-location.js';
 import { viewForYear } from './year-view.js';
 
 /** What the handlers need from the element. */
@@ -155,8 +156,14 @@ function mapMenuHandlers(host: HandlerHost): Pick<ViewerHandlers, 'onMapMenuClos
  * The zoom buttons (V52): one level in (1) or out (-1); the compass (V64): north up and level. A click is no event of a
  * part, nothing to stop.
  */
-function zoomHandler(host: HandlerHost): Pick<ViewerHandlers, 'onZoom' | 'onCompass'> {
+function zoomHandler(host: HandlerHost): Pick<ViewerHandlers, 'onZoom' | 'onCompass' | 'onLocate'> {
     return {
+        // Show my location (V10): the icon button above the compass (the owner, 2026-11-22).
+        onLocate: () => {
+            host.act(null, (store) => {
+                toggleMyLocation(store, host.services());
+            });
+        },
         onZoom: (step) => {
             host.act(null, (store) => {
                 store.zoomBy(step);

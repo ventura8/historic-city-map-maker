@@ -26,8 +26,8 @@ describe('<hcm-switch>', () => {
         expect(await axeViolations(toggle)).toEqual([]);
     });
 
-    it('happyPath_aCheckedSwitchShowsItsCheckMark', async () => {
-        const toggle = await fixture<HcmSwitch>(html`<hcm-switch checked label="Photos"></hcm-switch>`);
+    it('happyPath_aCheckedFullSizeSwitchShowsItsCheckMark', async () => {
+        const toggle = await fixture<HcmSwitch>(html`<hcm-switch checked .compact=${false} label="Photos"></hcm-switch>`);
 
         expect(getComputedStyle(toggle.shadowRoot?.querySelector('hcm-icon') ?? toggle).visibility).toBe('visible');
         await expect.element(page.getByRole('switch', { name: 'Photos' })).toBeChecked();
@@ -53,8 +53,8 @@ describe('<hcm-switch>', () => {
         expect(track?.classList.contains('touch-target')).toBe(true);
     });
 
-    it('badPath_notCompactByDefault', async () => {
-        const toggle = await fixture<HcmSwitch>(html`<hcm-switch label="Streets"></hcm-switch>`);
+    it('badPath_theFullSizeOnlyWhenAskedFor', async () => {
+        const toggle = await fixture<HcmSwitch>(html`<hcm-switch .compact=${false} label="Streets"></hcm-switch>`);
 
         expect(toggle.compact).toBe(false);
         expect(toggle.shadowRoot?.querySelector('button')?.getBoundingClientRect().width).toBe(52);

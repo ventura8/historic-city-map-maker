@@ -112,6 +112,8 @@ export interface ViewerHandlers extends LightboxHandlers, MapMenuHandlers {
     readonly onZoom: (step: number) => void;
     /** The compass (V64): the map back to north up and level. */
     readonly onCompass: () => void;
+    /** Show my location's icon button (V10), above the compass. */
+    readonly onLocate: () => void;
     /** The help panel's switch of the single-key shortcuts. */
     readonly onShortcuts: (event: CustomEvent<{ readonly enabled: boolean }>) => void;
     /** About's button to the help panel. */
@@ -310,6 +312,11 @@ function noWebgl(view: ViewerView, manifest: Manifest, handlers: ViewerHandlers)
     </div>`;
 }
 
+/** The photos the near-year chip may offer: none while the photos are switched off (the owner, 2026-11-22). */
+function shownPhotos(state: ViewerState, manifest: Manifest): Manifest['photos'] {
+    return state.overlays.some((overlay) => overlay.kind === 'photos' && overlay.visible) ? manifest.photos : [];
+}
+
 function controls(view: ViewerView, ready: Ready, handlers: ViewerHandlers): TemplateResult {
     const { state, manifest } = ready;
     // Without a map the consent card is in the fallback's column (`noWebgl`).
@@ -321,7 +328,7 @@ function controls(view: ViewerView, ready: Ready, handlers: ViewerHandlers): Tem
         ${nearYearChip(
             { locale: view.locale, wide: view.finePointer && textChip(state.windowClass, state.compactHeight) },
             state.year,
-            manifest.photos,
+            shownPhotos(state, manifest),
             handlers.onNearYear,
         )}
         <div class="dock menu" @hcm-toggle=${markMenuOpen}>
@@ -334,7 +341,7 @@ function controls(view: ViewerView, ready: Ready, handlers: ViewerHandlers): Tem
                 @hcm-select=${handlers.onMenuSelect}
             ></hcm-fab-menu>
         </div>
-        ${state.webgl ? zoomButtons(view, state.view, manifest, handlers) : nothing}
+        ${state.webgl ? zoomButtons({ ...view, locating: state.myLocation !== null }, state.view, manifest, handlers) : nothing}
         ${consent ? renderConsentBanner(view.locale, handlers.onConsent) : nothing}
         ${toastDock(view.locale, state.toast, handlers.onToastDismiss, view.update)} ${mapMenu(view, state, handlers)}`;
 }
