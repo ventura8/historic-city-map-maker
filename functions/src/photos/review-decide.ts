@@ -16,7 +16,6 @@ import {
     type HeldImage,
     type PhotoDoc,
     type PhotoVariant,
-    type PoiDoc,
     type Schema,
     type StoryDoc,
     type TimestampLike,
