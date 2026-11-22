@@ -118,14 +118,27 @@ function footprint(layer: Layer): Poi['geometry'] | null {
     return { type: 'Polygon', coordinates: [ring] };
 }
 
+/** The map layers of one kind: the maps, the plans of every level, none for photos. */
+function mapsOf(media: PlaceMedia, kind: PlaceMediaKind): readonly Layer[] {
+    if (kind === 'plans') {
+        return media.plans.flatMap((level) => level.layers);
+    }
+    return kind === 'maps' ? media.maps : [];
+}
+
 /** The entries of one place in the category: its maps' footprints, else the place itself, once per kind it has. */
 function mediaEntries(poi: Poi, media: PlaceMedia): Poi[] {
     return placeMediaKinds(media).flatMap((kind) => {
         const entry = { ...poi, category: PLACE_MEDIA_CATEGORY, group: placeMediaGroup(kind) };
-        const maps = kind === 'maps' ? media.maps : kind === 'plans' ? media.plans.flatMap((level) => level.layers) : [];
-        const shapes = maps.flatMap((layer) => footprint(layer) ?? []);
+        const shapes = mapsOf(media, kind).flatMap((layer) => footprint(layer) ?? []);
         return shapes.length === 0 ? [entry] : shapes.map((geometry) => ({ ...entry, geometry }));
     });
+}
+
+/** Every place's entries in the category. */
+function allEntries(manifest: MediaManifest): Poi[] {
+    const source = { layers: manifest.layers, photos: [...manifest.photos, ...(manifest.unplaced ?? [])] };
+    return (manifest.pois ?? []).flatMap((poi) => mediaEntries(poi, placeMedia(poi, source)));
 }
 
 /**
@@ -135,11 +148,7 @@ function mediaEntries(poi: Poi, media: PlaceMedia): Poi[] {
  */
 export function withPlaceMedia<M extends MediaManifest>(manifest: M): M {
     const categories = manifest.poiCategories ?? [];
-    if (categories.some((category) => category.id === PLACE_MEDIA_CATEGORY)) {
-        return manifest;
-    }
-    const source = { layers: manifest.layers, photos: [...manifest.photos, ...(manifest.unplaced ?? [])] };
-    const entries = (manifest.pois ?? []).flatMap((poi) => mediaEntries(poi, placeMedia(poi, source)));
+    const entries = categories.some((category) => category.id === PLACE_MEDIA_CATEGORY) ? [] : allEntries(manifest);
     if (entries.length === 0) {
         return manifest;
     }
@@ -151,5 +160,6 @@ export function withPlaceMedia<M extends MediaManifest>(manifest: M): M {
         defaultOpacity: 1,
         defaultVisible: false,
     };
-    return { ...manifest, poiCategories: [...categories, category], pois: [...(manifest.pois ?? []), ...entries] };
+    const pois = manifest.pois ?? [];
+    return { ...manifest, poiCategories: [...categories, category], pois: [...pois, ...entries] };
 }

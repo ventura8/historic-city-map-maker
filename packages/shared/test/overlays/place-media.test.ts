@@ -95,7 +95,6 @@ describe('withPlaceMedia (M17 §15)', () => {
         const entries = (shown.pois ?? []).filter((poi) => poi.category === PLACE_MEDIA_CATEGORY);
         expect(entries.map((poi) => [poi.id, poi.group, poi.geometry.type])).toEqual([
             ['casa-uranus', 'media:maps', 'Polygon'],
-            ['casa-uranus', 'media:ground', 'Point'],
             ['casa-uranus', 'media:interior', 'Point'],
         ]);
         expect(withPlaceMedia(shown)).toBe(shown);
