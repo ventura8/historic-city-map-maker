@@ -50,12 +50,16 @@ function previewOf(
 /** The places the filter shows of every place read (the store queries one filter; the search and the rest apply here). */
 function visiblePlaces(view: PoisViewState): readonly PoiItemPort[] {
     const search = view.filter.search.trim().toLocaleLowerCase('ro');
-    return withDraft(view.list.items, view.editor).filter(
-        (item) =>
-            (!view.filter.unpublished || !item.published) &&
-            (view.filter.noYears !== true || yearMissing(item)) &&
-            (search === '' || `${item.title.ro} ${item.title.en ?? ''}`.toLocaleLowerCase('ro').includes(search)),
-    );
+    return withDraft(view.list.items, view.editor).filter((item) => filtered(item, view.filter) && searched(item, search));
+}
+
+/** Unpublished and No years (the research backlog, the owner's request of 2026-11-22). */
+function filtered(item: PoiItemPort, filter: PoisViewState['filter']): boolean {
+    return (!filter.unpublished || !item.published) && (filter.noYears !== true || yearMissing(item));
+}
+
+function searched(item: PoiItemPort, search: string): boolean {
+    return search === '' || `${item.title.ro} ${item.title.en ?? ''}`.toLocaleLowerCase('ro').includes(search);
 }
 
 export class HcmPoiList extends LitElement {

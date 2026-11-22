@@ -164,7 +164,9 @@ describe('assembleManifest: the manifest', () => {
 
         expect(manifest.pois?.[0]?.photoIds).toBeUndefined();
     });
+});
 
+describe('assembleManifest: the years of a place', () => {
     it('happyPath_aPlaceWithNoYearsOrOnlyTheYearSeenIsListed @S-V24-HAPPY-NO-YEARS', () => {
         const pois = result([
             ['cale-ferata', poiDoc({ yearStart: undefined, yearEnd: undefined, yearSeen: undefined })],
