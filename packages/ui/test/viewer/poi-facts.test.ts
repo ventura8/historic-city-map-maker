@@ -42,7 +42,19 @@ describe('placeFacts', () => {
             (id) => opened.push(id),
         );
         const text = host.textContent.replace(/\s+/g, ' ');
-        for (const part of ['About the place', 'Horia Maicu', 'Built', '1934', 'Demolished', 'Abandoned', 'Modernism', '32 m', 'B-II-m-B-19750', '1934–1977: Hotel', 'Bd. Elisabeta 1 (today)']) {
+        for (const part of [
+            'About the place',
+            'Horia Maicu',
+            'Built',
+            '1934',
+            'Demolished',
+            'Abandoned',
+            'Modernism',
+            '32 m',
+            'B-II-m-B-19750',
+            '1934–1977: Hotel',
+            'Bd. Elisabeta 1 (today)',
+        ]) {
             expect(text).toContain(part);
         }
         const buttons = host.querySelectorAll('button.related');

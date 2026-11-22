@@ -15,7 +15,10 @@ const DUNAREA = {
     heightM: 32.5,
     uses: [{ use: { ro: 'Hotel', en: 'Hotel' }, yearStart: 1934, yearEnd: 1977 }],
     lmiCode: 'B-II-m-B-19750.02',
-    addresses: [{ text: 'Bd. Elisabeta 1', yearStart: 1934, yearEnd: 1948 }, { text: 'Bd. Regina Elisabeta 1', current: true }],
+    addresses: [
+        { text: 'Bd. Elisabeta 1', yearStart: 1934, yearEnd: 1948 },
+        { text: 'Bd. Regina Elisabeta 1', current: true },
+    ],
     relatedPlaceIds: ['casa-uranus'],
 };
 

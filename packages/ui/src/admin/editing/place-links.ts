@@ -8,7 +8,6 @@ import { html, type TemplateResult } from 'lit';
 import { contentText } from '../shell/text.js';
 import type { PlacePickPort } from './place-pick-port.js';
 
-
 export interface PlaceLinksInput {
     /** The field's id prefix (`photo-places`, `layer-places`). */
     readonly id: string;
@@ -80,7 +79,17 @@ export function placeLinksField(input: PlaceLinksInput): TemplateResult {
         <h3 id=${labelId}>${label}</h3>
         <p class="note" id=${hintId}>${hint}</p>
         <ul class="chips" aria-labelledby=${labelId}>
-            ${ids.map((placeId) => chip(input, placeId, titleIn(locale, places.find((place) => place.id === placeId), placeId)))}
+            ${ids.map((placeId) =>
+                chip(
+                    input,
+                    placeId,
+                    titleIn(
+                        locale,
+                        places.find((place) => place.id === placeId),
+                        placeId,
+                    ),
+                ),
+            )}
         </ul>
         <label for=${id}>${contentText(locale, 'adminContent.pois.places.add')}</label>
         <select id=${id} aria-describedby=${hintId} ?disabled=${off} @change=${add}>

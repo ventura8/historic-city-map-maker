@@ -87,7 +87,7 @@ export const en: Readonly<Record<AdminPoisKey, string>> = {
     'adminContent.pois.facts.addressesHint': 'One per line: 1906-1948: Str. Regală 1; today’s address as today: Str. Ion Câmpineanu 2.',
     'adminContent.pois.facts.related': 'Related places',
     'adminContent.pois.facts.relatedHint': 'The place’s sheet shows them as buttons to those places.',
-    'adminContent.pois.facts.invalid': 'A field under About the place is not right: check the years (1500 to 2100, built before demolished) and the LMI code.',
+    'adminContent.pois.facts.invalid': 'A field under About the place is wrong: check the years (1500 to 2100) and the LMI code.',
     'adminContent.pois.field.movePhotoUp': 'Move up: {title}',
     'adminContent.pois.field.movePhotoDown': 'Move down: {title}',
     'adminContent.pois.field.published': 'Published on the public map',

@@ -218,8 +218,8 @@ export class HcmPoiDetail extends LitElement {
                           ${renderMarkdown(localizedText(poi.description, this.locale))}
                       </div>`
             }
-            ${fallbackNote(poi.title, this.locale)} ${creditLine(poi.credit, this.locale)} ${this.#facts(poi)} ${this.#sources(poi)} ${this.#links(poi)}
-            ${this.#media(poi)}
+            ${fallbackNote(poi.title, this.locale)} ${creditLine(poi.credit, this.locale)} ${this.#facts(poi)} ${this.#sources(poi)}
+            ${this.#links(poi)} ${this.#media(poi)}
         </div>`;
     }
 

@@ -72,17 +72,17 @@ function related(facts: PlaceFacts, pois: readonly Poi[], locale: ViewerLocale, 
 function relatedItem(place: Poi, locale: ViewerLocale, open: (poiId: string) => void): TemplateResult {
     const title = localizedText(place.title, locale);
     return html`<dd>
-                <button
-                    type="button"
-                    class="related"
-                    aria-label=${translate(locale, 'poi.openPlace', { title })}
-                    @click=${() => {
-                        open(place.id);
-                    }}
-                >
-                    ${title}
-                </button>
-            </dd>`;
+        <button
+            type="button"
+            class="related"
+            aria-label=${translate(locale, 'poi.openPlace', { title })}
+            @click=${() => {
+                open(place.id);
+            }}
+        >
+            ${title}
+        </button>
+    </dd>`;
 }
 
 function factRow(locale: ViewerLocale, key: MessageKey, values: readonly string[]): TemplateResult {
@@ -103,9 +103,6 @@ export function placeFacts(poi: Poi, pois: readonly Poi[], locale: ViewerLocale,
     const rows = [...scalarRows(facts, locale), ...listRows(facts, locale)];
     return html`<section class="facts">
         <h3>${translate(locale, 'poi.facts')}</h3>
-        <dl>
-            ${rows.map(([key, values]) => factRow(locale, key, values))}
-            ${related(facts, pois, locale, open)}
-        </dl>
+        <dl>${rows.map(([key, values]) => factRow(locale, key, values))} ${related(facts, pois, locale, open)}</dl>
     </section>`;
 }

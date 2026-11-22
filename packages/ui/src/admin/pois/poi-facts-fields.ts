@@ -46,13 +46,27 @@ function input(context: FieldContext, spec: Input): TemplateResult {
     };
     const hintPart = [spec.id, 'hint'].join('-');
     const hintId = spec.hint === undefined ? nothing : hintPart;
-    const field = spec.lines === true
-        ? html`<textarea id=${spec.id} rows="3" ?readonly=${context.readOnly} .value=${spec.value} aria-describedby=${hintId} @change=${change}></textarea>`
-        : html`<input id=${spec.id} autocomplete="off" ?readonly=${context.readOnly} .value=${spec.value} aria-describedby=${hintId} @change=${change} />`;
+    const field =
+        spec.lines === true
+            ? html`<textarea
+                  id=${spec.id}
+                  rows="3"
+                  ?readonly=${context.readOnly}
+                  .value=${spec.value}
+                  aria-describedby=${hintId}
+                  @change=${change}
+              ></textarea>`
+            : html`<input
+                  id=${spec.id}
+                  autocomplete="off"
+                  ?readonly=${context.readOnly}
+                  .value=${spec.value}
+                  aria-describedby=${hintId}
+                  @change=${change}
+              />`;
     return html`<div class="field">
         <label for=${spec.id}>${contentText(context.locale, spec.key)}</label>
-        ${field}
-        ${spec.hint === undefined ? nothing : html`<p class="note" id=${hintPart}>${contentText(context.locale, spec.hint)}</p>`}
+        ${field} ${spec.hint === undefined ? nothing : html`<p class="note" id=${hintPart}>${contentText(context.locale, spec.hint)}</p>`}
     </div>`;
 }
 
@@ -60,7 +74,11 @@ function textOf(value: number | string | undefined): string {
     return value === undefined ? '' : String(value);
 }
 
-function scalarInputs(context: FieldContext, facts: PlaceFacts | undefined, set: (key: keyof PlaceFacts, value: unknown) => void): TemplateResult {
+function scalarInputs(
+    context: FieldContext,
+    facts: PlaceFacts | undefined,
+    set: (key: keyof PlaceFacts, value: unknown) => void,
+): TemplateResult {
     const number = (id: string, key: 'yearBuilt' | 'yearDemolished' | 'yearAbandoned' | 'floors' | 'heightM') =>
         input(context, {
             id,
@@ -103,7 +121,11 @@ function scalarInputs(context: FieldContext, facts: PlaceFacts | undefined, set:
     })}`;
 }
 
-function lineInputs(context: FieldContext, facts: PlaceFacts | undefined, set: (key: keyof PlaceFacts, value: unknown) => void): TemplateResult {
+function lineInputs(
+    context: FieldContext,
+    facts: PlaceFacts | undefined,
+    set: (key: keyof PlaceFacts, value: unknown) => void,
+): TemplateResult {
     const uses = (facts?.uses ?? []).map((use) => datedLine({ ...use, text: use.use.ro }));
     const addresses = (facts?.addresses ?? []).map((address) => datedLine(address));
     return html`${input(context, {

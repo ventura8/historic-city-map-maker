@@ -211,3 +211,30 @@ Parcul Carol), **aerial** photos, **exterior** (street) photos and **interior** 
 picker in the place's sheet, interior photos placed on a level, the plan importer (trim, deskew, split floors), structured place
 facts (architect, years built and demolished, style, floors and height, uses, LMI code, addresses, related places), and a
 "Place media" entry in the Layers panel's Places section.
+
+## 13. A place's facts (the owner, 2026-11-22)
+
+A place carries structured facts, `facts` on its document and in the manifest (`placeFactsSchema`,
+`packages/shared/src/schemas/place-facts.ts`); every field is optional:
+
+| Field | Type | Notes |
+| --- | --- | --- |
+| `architects` | text[], 1 to 10 | |
+| `yearBuilt`, `yearDemolished`, `yearAbandoned` | years 1500 to 2100 | built never after demolished |
+| `style` | `{ro, en?}` | |
+| `floors` | int 0 to 200 | |
+| `heightM` | 0 to 1000 | metres |
+| `uses` | `[{use: {ro, en?}, yearStart?, yearEnd?}]`, at most 20 | |
+| `lmiCode` | `B-II-m-A-18925` | the List of Historic Monuments' code (`LMI_CODE_PATTERN`) |
+| `addresses` | `[{text, yearStart?, yearEnd?, current?}]`, at most 20 | `current: true` is today's |
+| `relatedPlaceIds` | POI ids, 1 to 20, each once | the builder drops places it does not list; the manifest rule refuses an unknown one |
+
+- **The rules** keep the keys, the years, floors, height, the LMI pattern and the list sizes (`validFacts`); zod checks the rest.
+- **The viewer**: the place's sheet shows *About the place* (`poi.facts.*`, 16 catalogues), each fact a row of a description
+  list, a related place a button that opens it (`hcm-poi-select`). Values are text.
+- **The admin**: the place editor's *About the place* (`poi-facts-fields.ts`): architects separated by commas, the years,
+  style in both languages, floors, height, the LMI code, uses and addresses one per line (`1906-1940: Pavilion`,
+  `azi: Str. …`; `facts-text.ts`) and the related places from the loaded list. A field writes when the admin leaves it.
+- **Import**: a GeoJSON feature's `properties.facts` (the content agent's facts.json, per place, in the same shape) is taken
+  when `placeFactsSchema` accepts it, else dropped with the place kept; the export writes it back.
+- **Scenarios**: V81, A200.

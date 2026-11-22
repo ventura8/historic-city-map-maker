@@ -211,7 +211,13 @@ function versionEntries({ versions, versionCredits }: PhotoDoc): unknown {
 }
 
 function photoEntry(photo: PhotoDoc & { readonly image: NonNullable<PhotoDoc['image']> }, id: string, listed: Listed): unknown {
-    return { ...photoCommon(photo, id, listed), location: photo.location, bearing: photo.bearing, fov: photo.fov, viewedArea: photo.viewedArea };
+    return {
+        ...photoCommon(photo, id, listed),
+        location: photo.location,
+        bearing: photo.bearing,
+        fov: photo.fov,
+        viewedArea: photo.viewedArea,
+    };
 }
 
 function poiCategoryEntry(category: PoiCategoryDoc, id: string): unknown {

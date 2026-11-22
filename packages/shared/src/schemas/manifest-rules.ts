@@ -131,7 +131,9 @@ function mediaPlaces(manifest: CheckedManifest): RuleIssue[] {
     const pois = new Set((manifest.pois ?? []).map((poi) => poi.id));
     const check = (key: 'layers' | 'photos' | 'unplaced', items: readonly Placed[]) =>
         items.flatMap((item, index) =>
-            (item.placeIds ?? []).flatMap((id, at) => (pois.has(id) ? [] : [{ path: [key, index, 'placeIds', at], code: 'validation.reference' } as const])),
+            (item.placeIds ?? []).flatMap((id, at) =>
+                pois.has(id) ? [] : [{ path: [key, index, 'placeIds', at], code: 'validation.reference' } as const],
+            ),
         );
     return [...check('layers', manifest.layers), ...check('photos', manifest.photos), ...check('unplaced', manifest.unplaced ?? [])];
 }

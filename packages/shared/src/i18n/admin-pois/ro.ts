@@ -89,7 +89,7 @@ export const ro = {
     'adminContent.pois.facts.addressesHint': 'Câte una pe rând: 1906-1948: Str. Regală 1; adresa de azi: azi: Str. Ion Câmpineanu 2.',
     'adminContent.pois.facts.related': 'Locuri legate',
     'adminContent.pois.facts.relatedHint': 'Fișa locului le arată ca butoane către celelalte locuri.',
-    'adminContent.pois.facts.invalid': 'Un câmp din Despre loc nu e corect: verificați anii (între 1500 și 2100, construcția înainte de demolare) și codul LMI.',
+    'adminContent.pois.facts.invalid': 'Un câmp din Despre loc nu e corect: verificați anii (1500–2100) și codul LMI.',
     'adminContent.pois.field.movePhotoUp': 'Mută mai sus: {title}',
     'adminContent.pois.field.movePhotoDown': 'Mută mai jos: {title}',
     'adminContent.pois.field.published': 'Publicat pe harta publică',

@@ -115,7 +115,16 @@ describe('POI fields', () => {
         ['a sub-group of its category (2026-11-22)', { group: 'bălți' }],
         [
             'its facts (M17 §13) @S-A200-HAPPY-FACTS-IMPORT',
-            { facts: { architects: ['Ion Mincu'], yearBuilt: 1906, floors: 2, heightM: 12.5, lmiCode: 'B-II-m-A-18925', relatedPlaceIds: ['p2'] } },
+            {
+                facts: {
+                    architects: ['Ion Mincu'],
+                    yearBuilt: 1906,
+                    floors: 2,
+                    heightM: 12.5,
+                    lmiCode: 'B-II-m-A-18925',
+                    relatedPlaceIds: ['p2'],
+                },
+            },
         ],
     ])('happyPath_adminCreatesAPoiWith_%s', async (_label, changes) => {
         expect(await createPoi(changes)).toBe('allow');

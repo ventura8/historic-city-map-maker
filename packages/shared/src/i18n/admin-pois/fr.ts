@@ -84,10 +84,11 @@ export const fr: Readonly<Partial<Record<AdminPoisKey, string>>> = {
     'adminContent.pois.facts.uses': 'Usages au fil du temps',
     'adminContent.pois.facts.linesHint': 'Un par ligne : 1906-1940: Pavillon. Les années peuvent manquer.',
     'adminContent.pois.facts.addresses': 'Adresses',
-    'adminContent.pois.facts.addressesHint': 'Une par ligne : 1906-1948: Str. Regală 1 ; l’adresse actuelle : today: Str. Ion Câmpineanu 2.',
+    'adminContent.pois.facts.addressesHint':
+        'Une par ligne : 1906-1948: Str. Regală 1 ; l’adresse actuelle : today: Str. Ion Câmpineanu 2.',
     'adminContent.pois.facts.related': 'Lieux liés',
     'adminContent.pois.facts.relatedHint': 'La fiche du lieu les montre comme boutons vers ces lieux.',
-    'adminContent.pois.facts.invalid': 'Un champ d’À propos du lieu n’est pas correct : vérifiez les années (1500 à 2100, construction avant démolition) et le code LMI.',
+    'adminContent.pois.facts.invalid': 'Un champ d’À propos du lieu est faux : vérifiez les années (1500 à 2100) et le code LMI.',
     'adminContent.pois.field.movePhotoUp': 'Monter : {title}',
     'adminContent.pois.field.movePhotoDown': 'Descendre : {title}',
     'adminContent.pois.field.published': 'Affiché sur la carte publique',

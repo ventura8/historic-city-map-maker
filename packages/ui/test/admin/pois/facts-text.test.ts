@@ -14,7 +14,14 @@ describe('facts-text', () => {
             { text: 'Str. X 2', current: true },
             { text: 'plain text' },
         ]);
-        expect(items.map((item) => datedLine(item))).toEqual(['1906-1940: Pavilion', '1950: Expo', '1960-: Park', '-1970: Lake', 'azi: Str. X 2', 'plain text']);
+        expect(items.map((item) => datedLine(item))).toEqual([
+            '1906-1940: Pavilion',
+            '1950: Expo',
+            '1960-: Park',
+            '-1970: Lake',
+            'azi: Str. X 2',
+            'plain text',
+        ]);
         expect(parseCommaList(' A ,, B ')).toEqual(['A', 'B']);
     });
 
