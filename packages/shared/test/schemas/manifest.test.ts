@@ -41,7 +41,7 @@ describe('manifest v1: happy paths', () => {
 
     it('happyPath_aCityOf300LayersPublishesAndOneMoreIsRefused @S-A10-HAPPY-MANIFEST-300-LAYERS @S-A10-BAD-MANIFEST-301-LAYERS', () => {
         const layers = (count: number): unknown[] =>
-            Array.from({ length: count }, (_, index) => ({ ...validLayer(), id: `layer-${index}` }));
+            Array.from({ length: count }, (_, index) => ({ ...validLayer(), id: `layer-${String(index)}` }));
 
         expect(MAX_LAYERS).toBe(300);
         expect(issuesOf({ ...validManifest(), layers: layers(MAX_LAYERS) })).toEqual([]);

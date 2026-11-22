@@ -151,7 +151,8 @@ describe('the layer-join job', () => {
     });
 
     it('happyPath_archiveMapsJoinUpTo64SheetsAndCameraFramesStayAt8 @S-A65-HAPPY-ARCHIVE-48-SHEETS @S-A65-BAD-ARCHIVE-OVER-64', () => {
-        const parts = (count: number) => Array.from({ length: count }, (_, index) => ({ versionId: `v${index}`, layerId: `l${index}` }));
+        const parts = (count: number) =>
+            Array.from({ length: count }, (_, index) => ({ versionId: `v${String(index)}`, layerId: `l${String(index)}` }));
 
         expect(JOIN_MAX_PARTS).toBe(64);
         expect(layerJoinParamsSchema.safeParse({ parts: parts(48), maxzoom: 17 }).success).toBe(true);
