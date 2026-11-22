@@ -132,7 +132,8 @@ function commonStart(labels: readonly string[]): string {
 
 /**
  * Two labels or more as one: "N + S". A long series (the owner's 48 sheets, 2026-11-22) would pass the label's 200 characters,
- * so it becomes the sheets' common start and their count: "Plan cadastral 1:2000, 1990, foaia (48 sheets)".
+ * so it becomes the sheets' common start and their count; a series sharing a title (the words every label starts with) takes
+ * that title alone (`titleOf`).
  */
 function joinedText(labels: readonly string[], sheets: string): string {
     const joined = labels.join(' + ');
@@ -143,16 +144,50 @@ function joinedText(labels: readonly string[], sheets: string): string {
     return `${commonStart(labels).slice(0, MAX_LABEL - count.length)}${count}`.trim();
 }
 
-function labelOf(parts: readonly Part[]): LayerVersionDoc['label'] {
-    const ro = joinedText(
+/** The words every label starts with, without a trailing separator: the series' own title ("Ortofotoplan 2017"), or "". */
+export function commonTitle(labels: readonly string[]): string {
+    const split = labels.map((label) => label.trim().split(/\s+/u));
+    const first = split[0] ?? [];
+    let shared = 0;
+    while (shared < first.length && split.every((words) => words[shared] === first[shared])) {
+        shared += 1;
+    }
+    return withoutTrailing(first.slice(0, shared).join(' '));
+}
+
+/** What separates a title from a part's own name. */
+const SEPARATORS: ReadonlySet<string> = new Set([' ', ',', ';', ':', '+', '(', '–', '-']);
+
+function withoutTrailing(text: string): string {
+    let end = text.length;
+    while (end > 0 && SEPARATORS.has(text.charAt(end - 1))) {
+        end -= 1;
+    }
+    return text.slice(0, end);
+}
+
+/** The parts' own title when they share one (a series' sheets), else "N + S" (or, past 200 characters, its start and count). */
+function titleOf(labels: readonly string[], sheets: string): string {
+    const shared = commonTitle(labels);
+    return shared === '' ? joinedText(labels, sheets) : shared.slice(0, MAX_LABEL);
+}
+
+/** Two labels or more as one: the series' shared title, else "N + S". */
+export function labelOf(parts: readonly Pick<Part, 'version'>[]): LayerVersionDoc['label'] {
+    const ro = titleOf(
         parts.map(({ version }) => version.label.ro),
         'foi',
     );
-    const english = joinedText(
+    const english = titleOf(
         parts.map(({ version }) => version.label.en ?? version.label.ro),
         'sheets',
     );
     return { ro, en: english };
+}
+
+/** The archive's credit the parts carry (the first part's rights): the joined layer credits it, never USGS. */
+export function rightsOf(parts: readonly Pick<Part, 'version'>[]): LayerVersionDoc['rights'] {
+    return parts.find(({ version }) => version.rights !== undefined)?.version.rights;
 }
 
 /** The part whose layer the join becomes a new version of: the first published, else none (a new layer). */
@@ -213,7 +248,13 @@ async function writeIn(transaction: DocumentTransaction, plan: Plan): Promise<vo
         await transaction.set(FIRESTORE_PATHS.layerVersion(cityId, id), layerVersionDocSchema, { ...version, partOf: jobId, ...stamp });
     }
     const year = parts[0]?.version.year ?? plan.now.getUTCFullYear();
-    await createWork(transaction, workOf(plan), { origin: 'join', source: sourceOf(parts), label: labelOf(parts), year });
+    await createWork(transaction, workOf(plan), {
+        origin: 'join',
+        source: sourceOf(parts),
+        label: labelOf(parts),
+        year,
+        rights: rightsOf(parts),
+    });
     if (layer !== undefined) {
         await transaction.set(FIRESTORE_PATHS.layer(cityId, plan.layerId), layerDocSchema, { ...layer, pendingVersion: jobId, ...stamp });
     }

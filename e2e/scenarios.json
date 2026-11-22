@@ -13984,7 +13984,7 @@
             "area": "admin",
             "path": "happy",
             "title": "A sheet series of 48 archive maps joins into one layer",
-            "asserts": "imagery.join {versionIds} of 48 (up to 64) archive maps -> accepted, layer-join params with 48 parts and maxzoom, the label their common name and count (\"Plan cadastral 1:2000, 1990, foaia (48 foi)\") instead of a 200-character overflow; the worker keeps each part's levels in scratch files (spilled) so memory stays at about one part's",
+            "asserts": "imagery.join {versionIds} of 48 (up to 64) archive maps -> accepted, layer-join params with 48 parts and maxzoom, the label their shared series title (\"Plan cadastral 1:2000, 1990, foaia\"), never a count suffix, instead of a 200-character overflow; the worker keeps each part's levels in scratch files (spilled) so memory stays at about one part's",
             "tier": "functions",
             "status": "exists",
             "notes": "The owner's 1990 cadastral plan, 2026-11-22 (DECISIONS §243). Tests: functions/test/imagery/join-archive.test.ts, packages/shared/test/schemas/imagery-join.test.ts, pipeline/tests/unit/test_join_compose.py."
@@ -13999,17 +13999,6 @@
             "tier": "functions",
             "status": "exists",
             "notes": "DECISIONS §243. Test: packages/shared/test/schemas/imagery-join.test.ts."
-        },
-        {
-            "id": "S-A65-BAD-ARCHIVE-NO-POINTS",
-            "behaviour": "A65",
-            "area": "admin",
-            "path": "bad",
-            "title": "An archive map with no points of its own is not joined",
-            "asserts": "a part without georef -> apiError.imagery.joinNeedsPoints naming the map, nothing written; two versions of one map -> joinSameLayer; a rejected map -> joinPartGone; a busy layer -> joinLayerBusy",
-            "tier": "functions",
-            "status": "exists",
-            "notes": "Finding of 2026-11-14. Test: functions/test/imagery/join-archive.test.ts."
         },
         {
             "id": "S-A65-HAPPY-ARCHIVE-CREDIT",
@@ -14028,10 +14017,21 @@
             "area": "admin",
             "path": "bad",
             "title": "A join of archive maps without rights or a shared title never credits USGS",
-            "asserts": "parts with no shared title join as N + S with no rights; a join of non-USGS parts without rights credits its own name, not USGS",
+            "asserts": "parts with no shared title join as N + S with no rights; a join of non-USGS parts without rights carries no USGS credit",
             "tier": "functions",
             "status": "exists",
             "notes": "Owner bug of 2026-11-22. Tests: functions/test/imagery/join-archive.test.ts, join-finalize.test.ts."
+        },
+        {
+            "id": "S-A65-BAD-ARCHIVE-NO-POINTS",
+            "behaviour": "A65",
+            "area": "admin",
+            "path": "bad",
+            "title": "An archive map with no points of its own is not joined",
+            "asserts": "a part without georef -> apiError.imagery.joinNeedsPoints naming the map, nothing written; two versions of one map -> joinSameLayer; a rejected map -> joinPartGone; a busy layer -> joinLayerBusy",
+            "tier": "functions",
+            "status": "exists",
+            "notes": "Finding of 2026-11-14. Test: functions/test/imagery/join-archive.test.ts."
         },
         {
             "id": "S-A65-HAPPY-ARCHIVE-OFFER",

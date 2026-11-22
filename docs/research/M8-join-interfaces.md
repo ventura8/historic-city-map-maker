@@ -186,7 +186,9 @@ Warping stays memory-bounded (`warpMemoryLimit`, `flags.gdal_progress`).
    - Linear gain + offset from p2/p98 in the overlap, gain clamped to 0.5–2.
    - Then a low-frequency field: median log-ratio in the band, Gaussian σ 1 km, tapered to 0 at 8 km, applied ±½.
 3. **Weights.** A signed distance per part to its owned region at z13. `w_i = clamp(0.5 + D_i/(2F), 0, 1)`, upsampled bilinearly. Half-width F is 48 m when the seam's `afterRmseM ≤ 15`, else 12 m: a hard cut beats double streets.
-4. **Blocks.** 4096 px blocks into a BIGTIFF with grey + alpha.
+4. **Blocks.** 4096 px blocks into a BIGTIFF with grey + alpha; when any part is in colour (red, green, blue and alpha), 2048 px blocks
+   into red, green, blue + alpha, each band summed the same way, a grey part counting as grey in each, and every part measured on its
+   luma (owner bug of 2026-11-22: the 2017 orthophoto went live grey). A join of grey USGS frames stays two bands.
    - `grey = Σ w_i·a_i·tone_i(p_i) / Σ w_i·a_i`.
    - `alpha = any a_i`.
    - Only the parts whose weight is non-zero in the block are read.
@@ -675,7 +677,11 @@ The owner's harti.zip maps include maps in parts: the n and S halves of 1978, 19
 - each part is an archive map (`source.kind: 'archive'`, a regeoref of one included), usable (published, approved or awaiting approval),
   with a scan and points of its own (`georef`, not `embedded`; else `apiError.imagery.joinNeedsPoints {map}`), one version per map
   (`joinSameLayer`), and held by no live join;
-- the join is a new version of the first published part's layer (else a new layer), labelled with the parts' labels (`N + S`); the other
+- the join's title and credit are the archive's (owner bug of 2026-11-22): the parts' shared series title (the words every label starts
+  with, `Ortofotoplan 2017`), else their labels (`N + S`), and the first part's `rights`, so `finalize` credits the archive's line; a
+  version credits USGS only when it is a USGS frame or a join whose parts carry a USGS `dataset`, never an archive join without rights
+  (it credits its own title);
+- the join is a new version of the first published part's layer (else a new layer), labelled as above; the other
   parts' layers retire when it publishes, as in §18; approval is the usual one;
 - its `layer-join` parameters carry `maxzoom` (the parts' largest) instead of a camera; the parts in its `source` have no dataset, camera
   or date, and their `entityId` is their version id;

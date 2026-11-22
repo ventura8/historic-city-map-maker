@@ -124,7 +124,13 @@ function baseCredit(version: LayerVersionDoc): string | undefined {
     if (kind === 'upload') {
         return nameOf(version).slice(0, 500);
     }
-    return USGS_KINDS.has(kind) ? usgsCredit(version) : undefined;
+    return USGS_KINDS.has(kind) && joinsUsgs(version) ? usgsCredit(version) : undefined;
+}
+
+/** A join credits USGS only when its parts are USGS scenes (they carry a `dataset`); a join of archive maps never does. */
+function joinsUsgs(version: LayerVersionDoc): boolean {
+    const source = version.source;
+    return source?.kind !== 'join' || source.parts.some((part) => part.dataset !== undefined);
 }
 
 /** A rendition without a source of its own (crop, re-georeference) counts as a USGS frame only when it has a camera. */
