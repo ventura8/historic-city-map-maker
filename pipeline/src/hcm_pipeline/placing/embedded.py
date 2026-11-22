@@ -16,6 +16,7 @@
 """
 
 import math
+from collections.abc import Sequence
 from pathlib import Path
 from typing import Final
 
@@ -188,7 +189,7 @@ def _lattice(width: int, height: int) -> list[tuple[float, float]]:
     return [(fx * width, fy * height) for fy in steps for fx in steps]
 
 
-def _pairs(pixels: list[tuple[float, float]], places: list[tuple[float, ...]], success: list[int], scale: float) -> list[Pair]:
+def _pairs(pixels: list[tuple[float, float]], places: Sequence[Sequence[float]], success: Sequence[int], scale: float) -> list[Pair]:
     """The pixels the transformer placed, as pairs in the scan's pixels."""
     found = zip(pixels, places, success, strict=True)
     return [Pair(px * scale, py * scale, place[0], place[1]) for (px, py), place, ok in found if ok]
