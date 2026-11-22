@@ -195,9 +195,12 @@ describe('<hcm-layer-panel> more', () => {
         expect(sheet.label).toBe('Layers');
         expect(sheet.closeLabel).toBe('Close');
         expect(sheet.hasAttribute('modal')).toBe(false);
-        const list = shadowQuery(element, 'hcm-overlay-list') as HTMLElement & OverlayListProps;
-        expect(list.items).toHaveLength(4);
-        expect(list.groups.map((group) => group.label)).toEqual(['Historical layers', 'Places']);
+        // Places, then the historical layers, each in its own collapsible section (owner, 2026-11-22).
+        const lists = [...(element.shadowRoot?.querySelectorAll('hcm-overlay-list') ?? [])] as unknown as (HTMLElement &
+            OverlayListProps)[];
+        expect(lists.map((each) => each.items.length)).toEqual([2, 2]);
+        const list = lists[0] as HTMLElement & OverlayListProps;
+        expect(list.groups).toEqual([]);
         expect([list.toggleLabel, list.opacityLabel, list.valueText, list.changedText]).toEqual([
             'Show {name}',
             'Opacity: {name}',
@@ -232,7 +235,7 @@ describe('<hcm-layer-panel> more', () => {
         expect(shadowText(element)).toContain('Această hartă nu are straturi istorice.');
         // UX review: the note leads the panel, where the layers will be, not after the photos and places.
         const note = element.shadowRoot?.querySelector('.empty');
-        const list = element.shadowRoot?.querySelector('hcm-overlay-list');
+        const list = element.shadowRoot?.querySelector('[data-section="layers"] hcm-overlay-list');
         expect(note?.compareDocumentPosition(list ?? note) ?? 0).toBe(Node.DOCUMENT_POSITION_FOLLOWING);
     });
 
@@ -409,7 +412,7 @@ describe('<hcm-layer-panel> M27 pinned Disappeared streets', () => {
             canCompare: true,
             labels: { shown: { streets: true, pois: true }, available: ['streets', 'pois'] },
         });
-        const strip = element.shadowRoot?.querySelector('.pinned');
+        const strip = element.shadowRoot?.querySelector('.pinned .section-body');
         const children = [...(strip?.children ?? [])].map((child) => child.className || child.tagName.toLowerCase());
         const lists = [...(element.shadowRoot?.querySelectorAll('hcm-overlay-list') ?? [])] as unknown as OverlayListProps[];
 
@@ -417,8 +420,9 @@ describe('<hcm-layer-panel> M27 pinned Disappeared streets', () => {
         expect(children).toEqual(['compare', 'labels', 'hcm-photos-control', 'pinned-overlays']);
         expect(lists[0]?.items.map((item) => item.id)).toEqual(['strazi-disparute']);
         expect(lists[0]?.groups).toEqual([]);
-        // The list below starts with the historical layers and no longer holds it.
-        expect(lists[1]?.items.map((item) => item.id)).toEqual(['kh9-1977', 'kh4-1966', 'cladiri', 'evenimente']);
+        // Places and the historical layers below no longer hold it.
+        expect(lists[1]?.items.map((item) => item.id)).toEqual(['cladiri', 'evenimente']);
+        expect(lists[2]?.items.map((item) => item.id)).toEqual(['kh9-1977', 'kh4-1966']);
         expect(overlaysFromManifest(manifest).find((overlay) => overlay.id === 'strazi-disparute')?.visible).toBe(false);
     });
 
@@ -441,7 +445,7 @@ describe('<hcm-layer-panel> M27 pinned Disappeared streets', () => {
             canCompare: false,
             labels: null,
         });
-        const strip = element.shadowRoot?.querySelector('.pinned');
+        const strip = element.shadowRoot?.querySelector('.pinned .section-body');
 
         expect(strip?.querySelector('.compare')).toBeNull();
         expect(strip?.querySelector('.pinned-overlays')).not.toBeNull();

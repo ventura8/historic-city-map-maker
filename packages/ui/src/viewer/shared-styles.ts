@@ -79,6 +79,10 @@ export const sheetStyles = css`
     .docked > .body {
         flex: 1;
         overflow: hidden auto;
+
+        /* M3 thin scrollbar: thin, themed with the tokens (light and dark follow them), rounded where the engine draws it. */
+        scrollbar-width: thin;
+        scrollbar-color: var(--md-sys-color-outline-variant) transparent;
         padding-block: 0 24px;
         padding-inline: 24px;
     }

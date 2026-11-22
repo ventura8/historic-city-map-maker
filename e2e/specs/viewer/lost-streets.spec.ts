@@ -39,7 +39,7 @@ test(
         await serveManifest(page, manifest);
         await bootWide(page, lang);
         const pane = viewer(page).locator('.pane.leading hcm-layer-panel');
-        const strip = pane.locator('.pinned');
+        const strip = pane.locator('.pinned .section-body');
         const streets = visibilitySwitch(page, lang, LABEL[lang]);
 
         // Its place: after the items already pinned (Compare, Map labels), before the list with every historical layer.

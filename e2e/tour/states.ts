@@ -4,6 +4,7 @@ import { expect, type BrowserContext, type Page, type Route } from '@playwright/
 import { IMAGERY_STATES } from '../admin/specs/imagery/states.js';
 import { ADMIN_SECTION_STATES } from './admin-sections.js';
 import { COMPARE_STATES, openComparing } from './compare-states.js';
+import { LAYER_SECTIONS_STATES } from './layer-sections-states.js';
 import { UNPLACED_JOURNEY, unplacedStates } from './unplaced-states.js';
 import { STORY_JOURNEY, storyStates } from './story-states.js';
 import { INPUT_JOURNEYS, INPUT_STATES } from './input-states.js';
@@ -184,6 +185,7 @@ const VIEWER_STATES = {
             await mapIdle(page);
         },
     },
+    ...LAYER_SECTIONS_STATES,
     'layers-opacity': {
         title: 'An overlay made more transparent by the keyboard: its new opacity is announced',
         enter: async ({ page, lang }) => {
@@ -416,6 +418,7 @@ const VIEWER_JOURNEYS: readonly Journey[] = [
             'layers-peek',
             'layers-full',
             'layers-opacity',
+            'layers-sections-collapsed',
             'layers-minimized',
         ],
     },

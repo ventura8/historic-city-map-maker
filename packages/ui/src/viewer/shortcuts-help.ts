@@ -25,7 +25,7 @@ export function renderShortcutsHelp(
     const toggle = translate(locale, 'input.toggle');
     return html`<div class="details">
         <section>
-            <p>${toggle} <hcm-switch .checked=${enabled} .label=${toggle} @hcm-change=${onToggle}></hcm-switch></p>
+            <p>${toggle} <hcm-switch compact .checked=${enabled} .label=${toggle} @hcm-change=${onToggle}></hcm-switch></p>
             <ul>
                 ${SHORTCUT_ROWS.map(([keys, label]) => shortcutRow(keys, translate(locale, label)))}
             </ul>

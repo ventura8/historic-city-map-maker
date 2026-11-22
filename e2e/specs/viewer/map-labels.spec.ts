@@ -152,7 +152,7 @@ test(
         await openViewer(page, { lang, hash: `${VIEW}&labels=` });
         await openLayers(page, lang);
 
-        await expect(viewer(page).locator('hcm-overlay-list')).toBeVisible();
+        await expect(viewer(page).locator('hcm-overlay-list').last()).toBeVisible();
         await expect(page.getByRole('group', { name: translateMapLabels(lang, 'mapLabels.group'), exact: true })).toHaveCount(0);
         await expect(streets(page, lang)).toHaveCount(0);
         expect(await mapLabelFlags(page)).toEqual([{ streets: null, pois: null }]);

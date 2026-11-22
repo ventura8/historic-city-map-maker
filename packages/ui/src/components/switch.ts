@@ -18,6 +18,7 @@ export class HcmSwitch extends LitElement {
         checked: { type: Boolean, reflect: true },
         label: { type: String },
         disabled: { type: Boolean, reflect: true },
+        compact: { type: Boolean, reflect: true },
     };
 
     static override readonly styles = [
@@ -101,6 +102,41 @@ export class HcmSwitch extends LitElement {
                 opacity: 0.38;
             }
 
+            /*
+             * Compact (thin) variant for dense lists such as the viewer's Layers panel: a 40 x 24 track with a 12 / 16 px
+             * handle. The 48 px touch target stays (touchTarget), only the drawing is thinner.
+             */
+            :host([compact]) button {
+                width: 40px;
+                height: 24px;
+            }
+
+            :host([compact]) .handle {
+                width: 12px;
+                height: 12px;
+                margin-inline-start: 4px;
+
+                --hcm-icon-size: 12px;
+            }
+
+            :host([compact]) button:active .handle {
+                width: 20px;
+                height: 20px;
+                margin-inline-start: 0;
+            }
+
+            :host([compact][checked]) .handle {
+                width: 16px;
+                height: 16px;
+                margin-inline-start: 18px;
+            }
+
+            :host([compact][checked]) button:active .handle {
+                width: 20px;
+                height: 20px;
+                margin-inline-start: 16px;
+            }
+
             @media (forced-colors: active) {
                 .handle {
                     border: 1px solid ButtonText;
@@ -112,12 +148,15 @@ export class HcmSwitch extends LitElement {
     declare checked: boolean;
     declare label: string;
     declare disabled: boolean;
+    /** The thin M3 variant (40 x 24) for dense lists; the touch target stays 48 px. */
+    declare compact: boolean;
 
     constructor() {
         super();
         this.checked = false;
         this.label = '';
         this.disabled = false;
+        this.compact = false;
     }
 
     override render(): TemplateResult {
