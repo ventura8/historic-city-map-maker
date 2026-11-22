@@ -1,6 +1,9 @@
 import { bearingBetween, destinationPoint, distanceMeters } from './bearing.js';
 import { clamp, wrapBearing, type LngLat } from './math.js';
 
+/** An aerial photo's starting viewed area, in front of its cone (`./area.ts`). */
+export { areaAhead } from './area.js';
+
 /** The view cone of a photo: where the camera looked, how wide, and how far the cone is drawn. */
 export interface ViewCone {
     /** Degrees clockwise from north, `[0, 360)`. */

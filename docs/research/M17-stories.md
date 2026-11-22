@@ -86,7 +86,7 @@ trapezoid (taken at an angle). `viewedAreaSchema` (`packages/shared/src/schemas/
 quadrilateral that never crosses itself (`isConvexQuad`, `packages/shared/src/geo/area.ts`; refused with
 `validation.viewedArea`), the rules keep it a list of four and only on a placed photo, and the manifest carries it
 (`functions/src/publish/assemble.ts`). In the admin, the photo editor's *Place and direction* shows, for a placed aerial
-photo, **Draw the area in front of the camera** (`defaultViewedArea`: a trapezoid 100 to 400 m along the direction, as
+photo, **Draw the area in front of the camera** (`areaAhead`: a trapezoid 100 to 400 m along the direction, as
 wide as the field of view), then **Reset the area to the direction and field of view** and **Remove the area**; the map
 loads the area into the drawing tools beside the pin (`photo-area`, `packages/admin/src/photos/map.ts`), so each corner
 is dragged; a fifth corner or a crossing is refused with `adminContent.photos.area.refused`. The public map draws the

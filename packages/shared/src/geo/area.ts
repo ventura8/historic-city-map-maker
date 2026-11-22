@@ -39,7 +39,7 @@ export function isConvexQuad(corners: readonly LngLat[]): boolean {
  * along `bearing`, as wide as the field of view (capped below 180° so the sides stay apart). Corners go near left, far
  * left, far right, near right.
  */
-export function defaultViewedArea(location: LngLat, bearing: number, fov: number): LngLat[] {
+export function areaAhead(location: LngLat, bearing: number, fov: number): LngLat[] {
     const half = Math.min(Math.max(fov, 10), 170) / 2;
     const left = wrapBearing(bearing - half);
     const right = wrapBearing(bearing + half);
