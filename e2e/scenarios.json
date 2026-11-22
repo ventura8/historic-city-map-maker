@@ -19380,6 +19380,28 @@
             "notes": "2026-11-10 live bug (docs/LESSONS.md). Tests: pipeline/tests/unit/test_placing_owner.py."
         },
         {
+            "id": "S-P20-HAPPY-SINGLE-FULLRES",
+            "behaviour": "P20",
+            "area": "pipeline",
+            "path": "happy",
+            "title": "A parked single map is warped from its full-resolution original",
+            "asserts": "place copies the original as a tiled TIFF at its own size and warps it through the owner's pairs scaled from the scan, within 15 m",
+            "tier": "e2e-pipeline",
+            "status": "exists",
+            "notes": "2026-11-22 the 1:2000 mosaic published from its 6000 px working copy (docs/LESSONS.md). Tests: pipeline/tests/unit/test_placing_owner.py."
+        },
+        {
+            "id": "S-P20-BAD-SINGLE-FULLRES-GONE",
+            "behaviour": "P20",
+            "area": "pipeline",
+            "path": "bad",
+            "title": "A single map whose original is gone warps its kept picture",
+            "asserts": "no original.tif, the kept stitched picture is warped through the pairs within 15 m, the job still finishes",
+            "tier": "e2e-pipeline",
+            "status": "exists",
+            "notes": "2026-11-22 (docs/LESSONS.md). Tests: pipeline/tests/unit/test_placing_owner.py."
+        },
+        {
             "id": "S-P20-HAPPY-LINEART",
             "behaviour": "P20",
             "area": "pipeline",

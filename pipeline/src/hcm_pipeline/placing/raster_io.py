@@ -169,6 +169,20 @@ class WarpPlan:
     nearest: bool = False
 
 
+# gdalwarp's working buffer (-wm): a full-resolution mosaic is warped window by window within it, so modest computers can (M20 §3 c).
+WARP_MEMORY_MB: Final = 256
+
+
+def tiled_copy(source: Path, target: Path) -> Path:
+    """The original as a tiled 8-bit TIFF, streamed by GDAL (never read whole): a warp reads it window by window, which a JPEG cannot."""
+    vrt = normalised(source)
+    try:
+        gdal.Translate(str(target), vrt, format="GTiff", creationOptions=list(GTIFF_OPTIONS)).Close()
+    finally:
+        gdal.Unlink(vrt)
+    return target
+
+
 def warp_by_pairs(source: Path, target: Path, plan: WarpPlan) -> Path:
     """The scan warped to EPSG:3857 by its pairs, an alpha band last."""
     vrt = normalised(source)
@@ -177,7 +191,13 @@ def warp_by_pairs(source: Path, target: Path, plan: WarpPlan) -> Path:
     try:
         gdal.Translate(placed, vrt, format="VRT", GCPs=gcps, outputSRS=srs_wkt(WEB_MERCATOR)).Close()
         method = {"tps": True} if plan.tps else {"polynomialOrder": 1}
-        options = {"xRes": plan.resolution, "yRes": plan.resolution, "dstAlpha": True, "creationOptions": list(GTIFF_OPTIONS)}
+        options = {
+            "xRes": plan.resolution,
+            "yRes": plan.resolution,
+            "dstAlpha": True,
+            "creationOptions": list(GTIFF_OPTIONS),
+            "warpMemoryLimit": WARP_MEMORY_MB,
+        }
         resample = "near" if plan.nearest else "bilinear"
         gdal.Warp(str(target), placed, dstSRS=srs_wkt(WEB_MERCATOR), resampleAlg=resample, **method, **options).Close()
     finally:

@@ -4,10 +4,12 @@ A series that parked (`needs_gcps`) left its stitched picture as the version's `
 long), and the owner placed pairs on it in the georeferencer; `imagery.saveGcps` wrote them as the version's `georef` (`method: 'gcps'`)
 and queued `place` again. `place` then fits those pairs with their transform (`georef/transforms.py`, as `steps/georef.py` fits a
 frame's) and never runs the class's placer again, which only re-parked the series. The pairs are scaled from the scan's pixels to the
-kept `stitched.tif` (the job's work folder; the scan itself when that is gone), sampled into a lattice through the fit as `steps/warp.py`
-does for a polynomial (a thin-plate spline through its own enabled pairs), and warped into `warped.tif` at the series' `maxzoom`;
-the version's `georef` gets the fit's figures and `archive` its report (`method: 'gcps'`). Too few pairs, or pairs in a line, park the
-series again with its help as it was and the owner's pairs kept, so the georeferencer opens with them.
+kept `stitched.tif` (the job's work folder; the scan itself when that is gone), or, for a single map, to its original at full
+resolution (a tiled copy in the scratch folder: the parked picture is only its working copy, so the tiles would be a fifth as
+sharp), sampled into a lattice through the fit as `steps/warp.py` does for a polynomial (a thin-plate spline through its own
+enabled pairs), and warped into `warped.tif` at the series' `maxzoom`; the version's `georef` gets the fit's figures and
+`archive` its report (`method: 'gcps'`). Too few pairs, or pairs in a line, park the series again with its help as it was and the
+owner's pairs kept, so the georeferencer opens with them.
 """
 
 from dataclasses import dataclass
@@ -16,6 +18,7 @@ from typing import Final
 
 import numpy
 
+from hcm_pipeline.archive.magic import sniff_file
 from hcm_pipeline.documents import GeorefInfo, ScanInfo
 from hcm_pipeline.geo import to_mercator
 from hcm_pipeline.georef.lattice import sampled
@@ -23,14 +26,16 @@ from hcm_pipeline.georef.transforms import Fit, enabled_gcps, fit
 from hcm_pipeline.jobs import JobContext, StepResult, Waiting
 from hcm_pipeline.placing.checks import Checked, span_pct
 from hcm_pipeline.placing.output import Placement, finish, param_int, resolution_of
-from hcm_pipeline.placing.raster_io import Pair, WarpPlan, warp_by_pairs
-from hcm_pipeline.placing.series import ENCODINGS
+from hcm_pipeline.placing.raster_io import Pair, WarpPlan, tiled_copy, warp_by_pairs
+from hcm_pipeline.placing.series import ENCODINGS, series_of
 from hcm_pipeline.placing.stitched import STITCHED
 from hcm_pipeline.steps.common import gdal_step
+from hcm_pipeline.steps.gather import text_param
 from hcm_pipeline.steps.georef import recorded
 from hcm_pipeline.steps.warp import scan_size
 
 OWNER_METHOD: Final = "gcps"
+ORIGINAL: Final = "original.tif"
 PICTURE_GONE: Final = "the stitched picture is gone: the pairs are warped on the scan they were placed on"
 NOT_ENOUGH: Final = "Your points are too few, or lie almost in a line, for the chosen fit: add a few more, spread over the map."
 
@@ -49,8 +54,25 @@ class Picture:
     sy: float
 
 
+def _original(ctx: JobContext, scan: ScanInfo) -> Picture | None:
+    """A single map's original at full resolution (its parked `stitched.tif` is only the working copy, at most `LARGEST_WORKING_PX`
+    long), as a tiled copy in the scratch folder; None for another class, a PDF, or an original not on this computer."""
+    if text_param(ctx.job.params, "class") != "single":
+        return None
+    sheets = series_of(ctx).sheets
+    if not sheets or not sheets[0].path.is_file() or sniff_file(sheets[0].path) == "pdf":
+        return None
+    copy = tiled_copy(sheets[0].path, ctx.local(ORIGINAL))
+    width, height = scan_size(copy)
+    ctx.log.info(f"the pairs are warped on the original, {width} x {height} px", ctx.step)
+    return Picture(copy, width / max(scan.width, 1), height / max(scan.height, 1))
+
+
 def picture_of(ctx: JobContext, scan: ScanInfo) -> Picture:
-    """`stitched.tif` where this run or the parked one left it, else the scan the pairs were placed on."""
+    """A single map's original, else `stitched.tif` where this run or the parked one left it, else the scan the pairs were placed on."""
+    original = _original(ctx, scan)
+    if original is not None:
+        return original
     local = ctx.local(STITCHED)
     if not local.is_file() and ctx.services.objects.stat(ctx.work_file(STITCHED)) is not None:
         local = ctx.stage(ctx.work_file(STITCHED), STITCHED)

@@ -8,14 +8,15 @@ from hcm_pipeline.documents import GeorefInfo, ScanInfo
 from hcm_pipeline.geo import to_lnglat
 from hcm_pipeline.georef.transforms import Gcp
 from hcm_pipeline.jobs import Done, JobContext, Waiting
-from hcm_pipeline.placing.owner import NOT_ENOUGH, owner_pairs
+from hcm_pipeline.placing.owner import NOT_ENOUGH, ORIGINAL, owner_pairs
 from hcm_pipeline.placing.stitched import STITCHED
 from hcm_pipeline.raster import gdal
 from hcm_pipeline.steps.place import PlaceStep
+from hcm_pipeline.steps.warp import scan_size
 
 from tests.fakes.world import PipelineWorld
 from tests.synthetic.town import Drawing, draw_map, placement, town_lines, write_map
-from tests.unit.placing_support import series_context
+from tests.unit.placing_support import originals, series_context
 
 SIZE = (1100, 1000)
 # The georeferencer's scan of the stitched picture: half its size, so the pairs are in half its pixels.
@@ -152,3 +153,35 @@ def test_happy_path_a_stopped_series_tried_again_places_from_the_kept_pairs(worl
     report = version["archive"]
     assert isinstance(report, dict)
     assert report["method"] == "gcps"
+
+
+def single_parked(world: PipelineWorld, tmp_path: Path, original: bool) -> JobContext:
+    """A single map parked with only its working copy kept (half its size), its original in the archive or gone."""
+    ctx = parked(world, tmp_path, "affine", 8)
+    ctx = replace(ctx, job=replace(ctx.job, params={**ctx.job.params, "class": "single"}))
+    image = draw_map(town_lines(), drawing())
+    ctx.publish(write_map(tmp_path / "kept.tif", image[::2, ::2], grey=True), ctx.work_file(STITCHED), "image/tiff")
+    if original:
+        (originals(ctx) / "Harti").mkdir(parents=True, exist_ok=True)
+        write_map(originals(ctx) / "Harti" / "a.tif", image, grey=True)
+    return ctx
+
+
+def test_happy_path_a_single_map_is_warped_from_its_full_resolution_original(world: PipelineWorld, tmp_path: Path) -> None:
+    """Scenarios: S-P20-HAPPY-SINGLE-FULLRES"""
+    ctx = single_parked(world, tmp_path, original=True)
+
+    assert isinstance(PlaceStep().run(ctx), Done)
+    assert scan_size(tmp_path / "scratch" / ORIGINAL) == SIZE
+    for got, expected in zip(bounds(tmp_path / "scratch" / "warped.tif"), footprint(drawing()), strict=True):
+        assert abs(got - expected) < TOLERANCE_M
+
+
+def test_bad_path_a_single_map_without_its_original_warps_the_kept_picture(world: PipelineWorld, tmp_path: Path) -> None:
+    """Scenarios: S-P20-BAD-SINGLE-FULLRES-GONE"""
+    ctx = single_parked(world, tmp_path, original=False)
+
+    assert isinstance(PlaceStep().run(ctx), Done)
+    assert not (tmp_path / "scratch" / ORIGINAL).exists()
+    for got, expected in zip(bounds(tmp_path / "scratch" / "warped.tif"), footprint(drawing()), strict=True):
+        assert abs(got - expected) < TOLERANCE_M
