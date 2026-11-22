@@ -4310,6 +4310,28 @@
             "notes": "The owner's report of 2026-11-08. Tests: e2e/specs/viewer/map-labels.spec.ts, packages/engine/test/core/map-labels.test.ts, packages/engine/test/core/map-specs.test.ts."
         },
         {
+            "id": "S-V04-HAPPY-YEAR-MOVES-TO-LAYERS",
+            "behaviour": "V04",
+            "area": "viewer",
+            "path": "happy",
+            "title": "A year whose layers lie outside the view moves the map to them",
+            "asserts": "every layer of the chosen year has bounds north of the view -> after the timeline's key the map's camera sits inside them (the 1945 Otopeni sheet report)",
+            "tier": "e2e-viewer",
+            "status": "exists",
+            "notes": "Owner 2026-11-22. Tests: e2e/specs/viewer/year-view.spec.ts, packages/ui/test/viewer/year-view.test.ts."
+        },
+        {
+            "id": "S-V04-BAD-YEAR-NO-BOUNDS-STAYS",
+            "behaviour": "V04",
+            "area": "viewer",
+            "path": "bad",
+            "title": "A year whose layers have no bounds leaves the map where it is",
+            "asserts": "layers without bounds (they cover the city) -> the year changes, the camera stays",
+            "tier": "e2e-viewer",
+            "status": "exists",
+            "notes": "Owner 2026-11-22. Tests: e2e/specs/viewer/year-view.spec.ts, packages/ui/test/viewer/year-view.test.ts."
+        },
+        {
             "id": "S-V03-HAPPY-LAYER-SECTIONS",
             "behaviour": "V03",
             "area": "viewer",

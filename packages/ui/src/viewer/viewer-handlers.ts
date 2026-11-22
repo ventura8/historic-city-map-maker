@@ -9,6 +9,7 @@ import type { ViewerServices } from './services.js';
 import type { ViewerStorePort } from './store-port.js';
 import { closeSheet, isMenuAction, menuAction, selectPhoto, shareViewer, toggleCompare } from './viewer-actions.js';
 import type { OverlayOpacityDetail, ViewerHandlers } from './viewer-render.js';
+import { viewForYear } from './year-view.js';
 
 /** What the handlers need from the element. */
 export interface HandlerHost {
@@ -169,11 +170,21 @@ function zoomHandler(host: HandlerHost): Pick<ViewerHandlers, 'onZoom' | 'onComp
     };
 }
 
+/** A new year, and the camera to its layers when none covers the view (the owner, 2026-11-22: an empty 1945). */
+function setYearInView(store: ViewerStorePort, year: number | null): void {
+    store.setYear(year);
+    const state = store.getState();
+    const target = viewForYear(state.manifest, year, state.view, globalThis.innerWidth);
+    if (target !== null) {
+        store.flyTo(target);
+    }
+}
+
 export function createHandlers(host: HandlerHost): ViewerHandlers {
     const on = actingOn(host);
     return {
         onYearChange: on((store, event) => {
-            store.setYear(event.detail.year);
+            setYearInView(store, event.detail.year);
         }),
         onOverlayVisibility: on((store, event) => {
             store.toggleOverlay(event.detail.id, event.detail.visible);
