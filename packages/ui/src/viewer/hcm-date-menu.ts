@@ -175,7 +175,7 @@ export class HcmDateMenu extends LitElement {
 
             /* The layer drawn on top among the ticked ones (the owner, 2026-11-22: a tick for every plan that is on). */
             .item[data-front] .label {
-                font-weight: var(--md-sys-typescale-label-large-weight-prominent, 700);
+                font-weight: 700;
             }
 
             .text {
