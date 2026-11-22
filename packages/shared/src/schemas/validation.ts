@@ -30,7 +30,7 @@ const CODES = new Set<string>(
     [
         'required type tooSmall tooBig format value unknownKey httpsOnly assetUrl bounds zoomRange centerOutside duplicateId',
         'outsideCity yearRange datePart dateImpossible dateRange markdownLink cssValue tileTemplate manifestSource json ringClosed',
-        'reference invalid',
+        'reference invalid viewedArea',
     ]
         .join(' ')
         .split(' ')

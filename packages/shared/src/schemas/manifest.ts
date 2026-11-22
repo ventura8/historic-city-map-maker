@@ -16,6 +16,7 @@ import {
     coded,
     firebaseAppIdsSchema,
     fovSchema,
+    viewedAreaSchema,
     hexColorSchema,
     httpsUrlSchema,
     idSchema,
@@ -249,6 +250,8 @@ const photoObjectSchema = z
         location: latLngSchema,
         bearing: bearingSchema.optional(),
         fov: fovSchema.optional(),
+        /** An aerial photo's ground footprint, drawn while the photo is selected or hovered. */
+        viewedArea: viewedAreaSchema.optional(),
     })
     .refine(validYearRange, coded('validation.yearRange', ['yearEnd']));
 

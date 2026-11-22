@@ -105,6 +105,8 @@ export interface PhotoValuePort extends StickyPort {
     readonly location?: { readonly lat: number; readonly lng: number } | undefined;
     readonly bearing?: number | undefined;
     readonly fov?: number | undefined;
+    /** An aerial photo's viewed area: four corners on the ground, a rectangle or a trapezoid (the owner 2026-11-22). */
+    readonly viewedArea?: readonly { readonly lat: number; readonly lng: number }[] | undefined;
     readonly published: boolean;
     readonly rightsReview?: boolean | undefined;
     readonly credit?: string | undefined;

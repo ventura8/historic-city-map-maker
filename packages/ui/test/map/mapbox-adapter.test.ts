@@ -96,7 +96,14 @@ describe('Mapbox adapter', () => {
             attributionControl: true,
             config: { basemap: { show3dObjects: true } },
         });
-        expect(map.layerOrder).toEqual(['hcm-photos-cone-fill', 'hcm-photos-cone-line', 'hcm-photos-cluster', 'hcm-photos-marker']);
+        expect(map.layerOrder).toEqual([
+            'hcm-photos-area-fill',
+            'hcm-photos-area-line',
+            'hcm-photos-cone-fill',
+            'hcm-photos-cone-line',
+            'hcm-photos-cluster',
+            'hcm-photos-marker',
+        ]);
         expect([...map.images.keys()]).toEqual(['hcm-photo-aerial', 'hcm-photo-camera', 'hcm-photo-direction', 'hcm-photo-cluster']);
         expect(map.callsOf('updateImage')).toHaveLength(4);
         expect(env.observed).toBe(1);
@@ -327,6 +334,41 @@ describe('Mapbox adapter: photo data', () => {
             ],
         });
         expect(map.getSource('hcm-photos-cones')?.data).toEqual({ type: 'FeatureCollection', features: [] });
+    });
+});
+
+describe('Mapbox adapter: the viewed area of an aerial photo on hover', () => {
+    const AREA = {
+        type: 'Feature',
+        geometry: { type: 'Polygon', coordinates: [] },
+        properties: { id: 'p1', area: true },
+    } as const;
+
+    const focused = (map: Awaited<ReturnType<typeof mounted>>['map']): unknown =>
+        (map.getSource('hcm-photos-cones')?.data as { features: { properties: { focus?: true } }[] }).features[0]?.properties.focus;
+
+    it('happyPath_hoveringThePhotoShowsItsAreaAndLeavingHidesIt', async () => {
+        const { port, map } = await mounted();
+        port.setPhotosData({ type: 'FeatureCollection', features: [AREA] });
+
+        map.rendered = [{ layer: { id: 'hcm-photos-marker' }, properties: { id: 'p1' } }];
+        map.fire('mousemove', { point: { x: 1, y: 1 } });
+        expect(focused(map)).toBe(true);
+
+        map.rendered = [];
+        map.fire('mousemove', { point: { x: 2, y: 2 } });
+        expect(focused(map)).toBeUndefined();
+    });
+
+    it('badPath_hoverBeforeAnyPhotoDataDrawsNothing', async () => {
+        const { port, map } = await mounted();
+        map.rendered = [{ layer: { id: 'hcm-photos-marker' }, properties: { id: 'p1' } }];
+        map.fire('mousemove', { point: { x: 1, y: 1 } });
+        map.fire('mousemove', { point: { x: 1, y: 1 } });
+
+        port.setPhotosData({ type: 'FeatureCollection', features: [AREA] });
+
+        expect(focused(map)).toBe(true);
     });
 });
 

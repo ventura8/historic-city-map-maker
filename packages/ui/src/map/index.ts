@@ -15,6 +15,7 @@ export type {
     MapPadding,
     MapPort,
     MapSlot,
+    PhotoAreaFeature,
     PhotoConeFeature,
     PhotoFeatureCollection,
     PhotoPointFeature,

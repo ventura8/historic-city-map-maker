@@ -70,6 +70,8 @@ export interface PointerOptions {
     readonly select: (selection: Selection) => void;
     /** A click that selected nothing, at its position (the admin's picks and selection). */
     readonly miss?: (position: LngLat) => void;
+    /** What the pointer is over as it moves (null: nothing selectable), so a hovered aerial photo shows its area. */
+    readonly hover?: (selection: Selection | null) => void;
 }
 
 function query(map: MapboxMap, geometry: MapPoint | readonly [MapPoint, MapPoint], layers: readonly string[]): readonly MapboxFeature[] {
@@ -105,8 +107,9 @@ export function attachPointer(map: MapboxMap, options: PointerOptions): () => vo
         }
     };
     const onMove = (event: { readonly point?: MapPoint }): void => {
-        const hit = event.point !== undefined && pick(event.point) !== null;
-        canvas.style.cursor = hit ? 'pointer' : '';
+        const hit = event.point === undefined ? null : pick(event.point);
+        canvas.style.cursor = hit === null ? '' : 'pointer';
+        options.hover?.(hit);
     };
     const onKey = (event: KeyboardEvent): void => {
         const selection = event.key === 'Enter' || event.key === ' ' ? pick(centreBox(canvas)) : null;

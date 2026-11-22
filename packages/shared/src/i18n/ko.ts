@@ -29,6 +29,8 @@ export const ko: Messages = {
     'validation.manifestSource': '설정에는 manifestUrl 또는 manifest 항목 중 하나가 반드시 있어야 합니다.',
     'validation.json': '내용이 올바른 JSON이 아닙니다.',
     'validation.ringClosed': '다각형의 고리는 시작한 지점에서 끝나야 합니다.',
+    'validation.viewedArea':
+        '보이는 영역은 변이 서로 교차하지 않는 직사각형 또는 사다리꼴을 이루는 네 꼭짓점이 필요합니다. 꼭짓점을 끌어 옮기거나 영역을 재설정하세요.',
     'validation.reference': '값이 존재하지 않는 항목을 가리킵니다.',
     'validation.invalid': '값이 올바르지 않습니다.',
     'error.generic': '페이지 오류로 인해 지도가 시작되지 않았습니다(오류가 보고되었습니다). 페이지를 다시 로드하세요.',

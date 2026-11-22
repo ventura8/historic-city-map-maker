@@ -38,13 +38,19 @@ export interface DrawnPoint {
     readonly geometry: { readonly type: 'Point'; readonly coordinates: LngLat };
 }
 
+/** An aerial photo's viewed area in the drawing tools (`photo-area`): one closed ring of four corners. */
+export interface DrawnArea {
+    readonly id: string;
+    readonly geometry: { readonly type: 'Polygon'; readonly coordinates: readonly (readonly LngLat[])[] };
+}
+
 export interface DrawChange {
     readonly features: readonly { readonly id: string; readonly geometry: { readonly type: string; readonly coordinates: unknown } }[];
     /** False while a drag moves, true once it ends. */
     readonly final: boolean;
 }
 
-/** A position the drawing tools refused (`outside` the city's bounds plus the slack). */
+/** A position the drawing tools refused: `outside` the city's bounds plus the slack, or a broken viewed area. */
 export interface DrawRefusal {
     readonly kind: string;
 }
@@ -56,7 +62,7 @@ export interface PhotoDrawPort {
         options: { readonly limits: BBox; readonly color: string; readonly maxVertices: number; readonly maxRings: number },
     ): void;
     setMode(mode: 'static' | 'select'): void;
-    load(features: readonly DrawnPoint[]): void;
+    load(features: readonly (DrawnPoint | DrawnArea)[]): void;
     /** Selects the pin (dragged with Terra Draw, moved by a click on the map with the click tools). */
     select(id: string | null): void;
     pick(): Promise<LngLat | null>;

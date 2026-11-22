@@ -37,6 +37,11 @@ export interface EditingIntents {
     dismissVersion(kind: PhotoVersionKind): void;
 }
 
+/** Only an aerial photo shows its viewed area; a street photo keeps one it had, unseen, until it is aerial again. */
+function shownArea(value: PhotoValue): PhotoValue['viewedArea'] | null {
+    return value.kind === 'aerial' ? (value.viewedArea ?? null) : null;
+}
+
 export class PhotoEditing {
     readonly #context: AreaContext;
     #editor: PhotoEditor | null = null;
@@ -99,6 +104,16 @@ export class PhotoEditing {
         this.#syncPin();
     }
 
+    /** An aerial photo's viewed area was reshaped on the map: the draft's area follows. */
+    areaMoved(corners: NonNullable<PhotoValue['viewedArea']>): void {
+        const editor = this.#editor;
+        if (editor === null) {
+            return;
+        }
+        this.#pinFromMap = true;
+        editor.edit({ viewedArea: corners });
+    }
+
     /** The pin was dragged: the draft's place follows. */
     pinMoved(position: LngLat): void {
         const editor = this.#editor;
@@ -131,18 +146,26 @@ export class PhotoEditing {
 
     #showPin(map: NonNullable<ReturnType<AreaContext['map']>>): void {
         const open = this.#openPlace();
-        void map.editPin(open?.location ?? null);
+        if (open === null) {
+            void map.editPin(null);
+            return;
+        }
+        void map.editPin(open.location ?? null, open.area);
         // The open photo is brought into view once (PhotoMapSession.reveal).
-        if (open?.location !== undefined) {
+        if (open.location !== undefined) {
             map.reveal(open.id, open.location);
         }
     }
 
-    /** The open photo's id and place (its draft's), or null with no photo open or loaded. */
-    #openPlace(): { readonly id: string; readonly location: PhotoValue['location'] } | null {
+    /** The open photo's id, place and viewed area (its draft's), or null with no photo open or loaded. */
+    #openPlace(): {
+        readonly id: string;
+        readonly location: PhotoValue['location'];
+        readonly area: PhotoValue['viewedArea'] | null;
+    } | null {
         const editor = this.#editor;
         const value = editor === null ? null : editor.value;
-        return editor === null || value === null ? null : { id: editor.id, location: value.location };
+        return editor === null || value === null ? null : { id: editor.id, location: value.location, area: shownArea(value) };
     }
 
     #edit(patch: PhotoPatch): void {

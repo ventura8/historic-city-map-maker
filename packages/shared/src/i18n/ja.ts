@@ -29,6 +29,8 @@ export const ja: Messages = {
     'validation.manifestSource': '設定には、manifestUrl または manifest のいずれかを含める必要があります。',
     'validation.json': '内容が有効な JSON ではありません。',
     'validation.ringClosed': 'ポリゴンのリングは始点で閉じる必要があります。',
+    'validation.viewedArea':
+        '表示範囲には、辺が交差しない長方形または台形を作る4つの角が必要です。角をドラッグするか、範囲をリセットしてください。',
     'validation.reference': '存在しない項目を参照しています。',
     'validation.invalid': '値が無効です。',
     'error.generic': 'ページの不具合により、マップの読み込みに失敗しました（エラーが報告されています）。ページを再読み込みしてください。',

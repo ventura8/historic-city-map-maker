@@ -280,6 +280,47 @@ describe("assembleManifest: a photo's date and source", () => {
         ]);
     });
 
+    it('happyPath_anAerialPhotosViewedAreaReachesTheManifest @S-V77-HAPPY-MANIFEST', () => {
+        const viewedArea = [
+            { lat: 44.431, lng: 26.09 },
+            { lat: 44.433, lng: 26.089 },
+            { lat: 44.433, lng: 26.094 },
+            { lat: 44.431, lng: 26.093 },
+        ];
+        const manifest = manifestOf(
+            assembleManifest(
+                content({
+                    photos: result([
+                        ['air', photoDoc('air', { kind: 'aerial', viewedArea })],
+                        ['street', photoDoc('street')],
+                    ]),
+                }),
+                TEST_CONFIG.errorEndpoint,
+            ),
+        );
+
+        expect(manifest.photos.map((photo) => [photo.id, photo.viewedArea])).toEqual([
+            ['air', viewedArea],
+            ['street', undefined],
+        ]);
+    });
+
+    it('badPath_aCrossedViewedAreaKeepsThePhotoOffTheMap @S-V77-BAD-CROSSED', () => {
+        const crossed = [
+            { lat: 44.431, lng: 26.09 },
+            { lat: 44.433, lng: 26.094 },
+            { lat: 44.433, lng: 26.089 },
+            { lat: 44.431, lng: 26.093 },
+        ];
+        const assembly = assembleManifest(
+            content({ photos: result([['air', photoDoc('air', { kind: 'aerial', viewedArea: crossed })]]) }),
+            TEST_CONFIG.errorEndpoint,
+        );
+
+        expect(manifestOf(assembly).photos).toEqual([]);
+        expect(assembly.skipped).toEqual([{ entity: 'photo', id: 'air', code: 'validation.viewedArea', path: 'viewedArea' }]);
+    });
+
     it('happyPath_aPhotosVersionsAndTheirCreditsReachTheManifest', () => {
         const sha256 = 'b'.repeat(64);
         const image = {

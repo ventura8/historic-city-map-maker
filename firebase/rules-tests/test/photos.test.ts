@@ -82,6 +82,14 @@ afterAll(async () => {
     await world.close();
 });
 
+/** An aerial photo's viewed area: four corners of a trapezoid north of the city's centre. */
+const AREA = [
+    { lat: 44.431, lng: 26.099 },
+    { lat: 44.434, lng: 26.097 },
+    { lat: 44.434, lng: 26.103 },
+    { lat: 44.431, lng: 26.101 },
+];
+
 describe('create', () => {
     it('happyPath_adminCreatesAPhotoWithOnlyTheRequiredFields', async () => {
         expect(await verdict(world.db('admin').doc(nextPath()).set(minimal()))).toBe('allow');
@@ -153,6 +161,8 @@ describe('create', () => {
         ['a negative bearing', { bearing: -1 }],
         ['a field of view of 0', { fov: 0 }],
         ['a field of view over 180', { fov: 181 }],
+        ['a viewed area of three corners', { viewedArea: AREA.slice(0, 3) }],
+        ['a viewed area that is not a list', { viewedArea: { lat: 44.43, lng: 26.1 } }],
         ['an unknown licence', { license: 'GPL-3.0' }],
         ['an author over 200 characters', { author: 'x'.repeat(201) }],
         ['a rights holder that is not text', { rightsHolder: 42 }],
@@ -198,6 +208,14 @@ describe('create', () => {
 describe('update', () => {
     it('happyPath_adminEditsTextAndPlacement', async () => {
         expect(await update(processed(), { title: { ro: 'Calea Victoriei' }, bearing: 270, fov: 45 })).toBe('allow');
+    });
+
+    it('happyPath_adminSetsAnAerialPhotosViewedArea @S-A195-HAPPY-RULES', async () => {
+        expect(await update(processed(), { kind: 'aerial', viewedArea: AREA })).toBe('allow');
+    });
+
+    it('badPath_aViewedAreaNeedsAPlace @S-A195-BAD-NO-PLACE', async () => {
+        expect(await update(processed(), { location: deleted(), bearing: deleted(), fov: deleted(), viewedArea: AREA })).toBe('deny');
     });
 
     it.each([

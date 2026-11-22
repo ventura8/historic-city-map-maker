@@ -191,3 +191,17 @@ describe('MapSync: the stack (V15)', () => {
         expect(map.callsOf('setLayerOrder')).toEqual([]);
     });
 });
+
+describe('MapSync: a selection', () => {
+    const loaded = withManifest(initialState('ro', 'system', 'unknown'), manifest());
+
+    it('happyPath_aNewSelectionRedrawsOnlyThePhotos', () => {
+        // An aerial photo's viewed area shows while it is selected: the photos are drawn again, the POIs are not.
+        const map = new FakeMap();
+
+        new MapSync(map, undefined).update(loaded, { ...loaded, selectedPhotoId: 'mihai-voda-1978' });
+
+        expect(map.callsOf('setPhotosData')).toHaveLength(1);
+        expect(map.callsOf('addVectorOverlay')).toEqual([]);
+    });
+});

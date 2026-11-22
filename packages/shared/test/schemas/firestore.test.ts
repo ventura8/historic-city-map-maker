@@ -36,6 +36,14 @@ class FakeTimestamp {
     }
 }
 
+/** An aerial photo's viewed area: a trapezoid, corners in order. */
+const AREA = [
+    { lat: 44.431, lng: 26.089 },
+    { lat: 44.434, lng: 26.087 },
+    { lat: 44.434, lng: 26.093 },
+    { lat: 44.431, lng: 26.091 },
+];
+
 const now = new FakeTimestamp(1_760_000_000);
 const stamp = { updatedBy: 'uid-admin', updatedAt: now };
 
@@ -160,6 +168,10 @@ describe('Firestore documents: happy paths', () => {
         expect(check(schema, doc)).toMatchObject({ ok: true });
     });
 
+    it('happyPath_anAerialPhotoWithAViewedArea', () => {
+        expect(check(photoDocSchema, { ...docs.photo, kind: 'aerial', viewedArea: AREA })).toMatchObject({ ok: true });
+    });
+
     it('happyPath_aYearRange', () => {
         expect(check(photoDocSchema, { ...docs.photo, year: 1978, yearEnd: 1980 })).toMatchObject({ ok: true });
     });
@@ -188,6 +200,27 @@ describe('Firestore documents: bad paths', () => {
         ],
         ['a photo without processing state', photoDocSchema, { ...docs.photo, processing: undefined }, 'processing', 'validation.required'],
         ['an unknown photo field', photoDocSchema, { ...docs.photo, html: '<b>x</b>' }, 'html', 'validation.unknownKey'],
+        [
+            'a viewed area of three corners',
+            photoDocSchema,
+            { ...docs.photo, viewedArea: AREA.slice(0, 3) },
+            'viewedArea',
+            'validation.tooSmall',
+        ],
+        [
+            'a crossed viewed area',
+            photoDocSchema,
+            { ...docs.photo, viewedArea: [AREA[0], AREA[2], AREA[1], AREA[3]] },
+            'viewedArea',
+            'validation.viewedArea',
+        ],
+        [
+            'a viewed area without a place',
+            photoDocSchema,
+            { ...docs.photo, location: undefined, bearing: undefined, fov: undefined, viewedArea: AREA },
+            'bearing',
+            'validation.reference',
+        ],
         [
             'a photo end year without a year',
             photoDocSchema,

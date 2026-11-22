@@ -68,6 +68,7 @@ export const MANIFEST_FIELDS: Readonly<Record<HistoryEntity, readonly string[]>>
         'location',
         'bearing',
         'fov',
+        'viewedArea',
         'image',
         'versions',
         'versionCredits',

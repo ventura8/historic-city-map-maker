@@ -7,6 +7,7 @@ import type { UploadEnd, UploadPort, UploadProgress, UploadRequest } from '../..
 import type {
     DrawChange,
     DrawRefusal,
+    DrawnArea,
     DrawnPoint,
     PhotoDrawPort,
     PhotoFeatures,
@@ -74,7 +75,7 @@ class FakeUploads implements UploadPort {
 
 class FakeDraw implements PhotoDrawPort {
     readonly calls: string[] = [];
-    loaded: readonly DrawnPoint[] = [];
+    loaded: readonly (DrawnPoint | DrawnArea)[] = [];
     mode = 'static';
     selected: string | null = null;
     limits: unknown = null;
@@ -91,7 +92,7 @@ class FakeDraw implements PhotoDrawPort {
         this.mode = mode;
     }
 
-    load(features: readonly DrawnPoint[]): void {
+    load(features: readonly (DrawnPoint | DrawnArea)[]): void {
         this.loaded = features;
     }
 
@@ -132,9 +133,9 @@ class FakeDraw implements PhotoDrawPort {
         }
     }
 
-    emitRefused(): void {
+    emitRefused(kind = 'outside'): void {
         for (const handler of this.#refused) {
-            handler({ kind: 'outside' });
+            handler({ kind });
         }
     }
 

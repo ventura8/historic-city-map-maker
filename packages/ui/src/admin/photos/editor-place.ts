@@ -10,6 +10,7 @@ import { html, nothing, type TemplateResult } from 'lit';
 
 import type { FieldsLeft } from '../editing/number-fields.js';
 import { EMPTY } from '../shell/empty.js';
+import { areaFields } from './editor-area.js';
 import { numberField, numberOf } from './editor-fields.js';
 import { fieldIssue, localized, messageText, photoHref, photoText } from './photo-text.js';
 import type { PhotoEditorPort, PhotosIntentsPort, PhotoValuePort, ReplacePort, SuggestionPort } from './photos-port.js';
@@ -253,7 +254,7 @@ export function placeSection(input: PlaceInput): TemplateResult {
                   </div>`
                 : nothing
         }
-        ${suggestions(input)} ${value.location === undefined ? nothing : aimFields(input, fov, fovText)}
+        ${suggestions(input)} ${value.location === undefined ? nothing : aimFields(input, fov, fovText)} ${areaFields(input)}
     </fieldset>`;
 }
 

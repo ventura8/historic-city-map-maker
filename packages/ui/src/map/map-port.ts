@@ -59,10 +59,20 @@ export interface PhotoConeFeature {
     readonly properties: { readonly id: string };
 }
 
-/** Points and cones in one collection; the adapter splits them (points are clustered, cones are not). */
+/**
+ * An aerial photo's viewed area (the owner, 2026-11-22): the ground the photo shows, drawn only while the photo is
+ * selected (`focus`, set by the viewer) or hovered (set by the adapter).
+ */
+export interface PhotoAreaFeature {
+    readonly type: 'Feature';
+    readonly geometry: { readonly type: 'Polygon'; readonly coordinates: readonly (readonly LngLat[])[] };
+    readonly properties: { readonly id: string; readonly area: true; readonly focus?: true };
+}
+
+/** Points, cones and viewed areas in one collection; the adapter splits them (points are clustered, the rest are not). */
 export interface PhotoFeatureCollection {
     readonly type: 'FeatureCollection';
-    readonly features: readonly (PhotoPointFeature | PhotoConeFeature)[];
+    readonly features: readonly (PhotoPointFeature | PhotoConeFeature | PhotoAreaFeature)[];
 }
 
 /** One POI on the map; the title is already in the current locale (the label from zoom 16). */

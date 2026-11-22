@@ -14,6 +14,7 @@ import {
     poiInYear,
     type Basemap,
     type Layer,
+    type LngLat,
     type LayerSource,
     type ViewerLocale,
     type Manifest,
@@ -27,6 +28,7 @@ import { localizedCredit } from '@hcm/shared/credits';
 import { basemapLabels, MAP_LABEL_CONFIG, MAP_LABEL_KINDS, TRANSIT_LABELS, transitLabels, type MapLabels } from '@hcm/shared/map-labels';
 import type {
     MapOptions,
+    PhotoAreaFeature,
     PhotoConeFeature,
     PhotoFeatureCollection,
     PhotoPointFeature,
@@ -101,6 +103,17 @@ function photoCone(photo: Photo): PhotoConeFeature[] {
     const cone = { bearing: photo.bearing, fov: photo.fov ?? DEFAULT_FOV, distanceM: CONE_LENGTH_M };
     const ring = conePolygon([photo.location.lng, photo.location.lat], cone);
     return [{ type: 'Feature', geometry: { type: 'Polygon', coordinates: [ring] }, properties: { id: photo.id } }];
+}
+
+/** An aerial photo's viewed area, marked `focus` while it is the selected photo (the map shows only focused areas). */
+function photoArea(photo: Photo, focused: string | null): PhotoAreaFeature[] {
+    if (photo.viewedArea === undefined) {
+        return [];
+    }
+    const corners = photo.viewedArea.map(({ lat, lng }): LngLat => [lng, lat]);
+    const properties =
+        photo.id === focused ? { id: photo.id, area: true as const, focus: true as const } : { id: photo.id, area: true as const };
+    return [{ type: 'Feature', geometry: { type: 'Polygon', coordinates: [[...corners, ...corners.slice(0, 1)]] }, properties }];
 }
 
 /**
@@ -195,4 +208,14 @@ export function mapOptions(manifest: Manifest, { view, locale, reducedMotion, la
         locale,
         reducedMotion,
     };
+}
+
+/**
+ * `data` with the viewed area of each shown photo that has one (an aerial photo's, the owner 2026-11-22), the `focused`
+ * (selected) photo's marked to be drawn.
+ */
+export function withPhotoAreas(data: PhotoFeatureCollection, photos: readonly Photo[], focused: string | null): PhotoFeatureCollection {
+    const shown = new Set(data.features.filter((feature) => feature.geometry.type === 'Point').map((feature) => feature.properties.id));
+    const areas = photos.filter((photo) => shown.has(photo.id)).flatMap((photo) => photoArea(photo, focused));
+    return areas.length === 0 ? data : { type: 'FeatureCollection', features: [...data.features, ...areas] };
 }

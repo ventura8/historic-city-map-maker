@@ -26,6 +26,8 @@ export const ar: Messages = {
     'validation.manifestSource': 'يجب أن يحتوي الإعداد على manifestUrl أو manifest.',
     'validation.json': 'المحتوى ليس JSON صالحًا.',
     'validation.ringClosed': 'يجب أن تنتهي حلقة المضلع حيث تبدأ.',
+    'validation.viewedArea':
+        'تحتاج المنطقة المرئية إلى أربع زوايا تشكّل مستطيلًا أو شبه منحرف دون تقاطع الأضلاع: اسحب الزوايا أو أعد تعيين المنطقة.',
     'validation.reference': 'تشير القيمة إلى عنصر غير موجود.',
     'validation.invalid': 'القيمة غير صالحة.',
     'error.generic': 'لم يتم تحميل الخريطة بسبب وجود مشكلة في هذه الصفحة (تم الإبلاغ عنها). يرجى إعادة تحميل الصفحة.',
