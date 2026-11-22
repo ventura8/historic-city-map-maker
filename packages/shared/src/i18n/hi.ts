@@ -48,6 +48,7 @@ export const hi: Messages = {
     'error.photoImage': 'छवि लोड नहीं हो सकी।',
     'error.unknownPhoto': 'लिंक में दी गई तस्वीर मौजूद नहीं है।',
     'error.unknownStory': 'लिंक में दी गई कहानी मौजूद नहीं है।',
+    'error.unknownLayer': 'लिंक की परत मौजूद नहीं है या अब प्रकाशित नहीं है। नक्शा उसके बिना खुला; परतें में से एक परत चुनें।',
     'error.geolocate.denied': 'आपके स्थान तक पहुँच अस्वीकार कर दी गई।',
     'error.geolocate.outside': 'आप इस मानचित्र के क्षेत्र से बाहर हैं।',
     'error.geolocate.unavailable': 'आपका स्थान उपलब्ध नहीं है।',

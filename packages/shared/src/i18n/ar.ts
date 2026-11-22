@@ -49,6 +49,7 @@ export const ar: Messages = {
     'error.photoImage': 'تعذّر تحميل الصورة.',
     'error.unknownPhoto': 'الصورة الواردة في الرابط غير موجودة.',
     'error.unknownStory': 'القصة الواردة في الرابط غير موجودة.',
+    'error.unknownLayer': 'الطبقة في الرابط غير موجودة أو لم تعد منشورة. فُتحت الخريطة بدونها؛ اختر طبقة من الطبقات.',
     'error.geolocate.denied': 'رُفض الوصول إلى موقعك.',
     'error.geolocate.outside': 'أنت خارج نطاق هذه الخريطة.',
     'error.geolocate.unavailable': 'موقعك غير متاح.',

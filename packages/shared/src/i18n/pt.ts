@@ -51,6 +51,7 @@ export const pt: Messages = {
     'error.photoImage': 'Não foi possível carregar a imagem.',
     'error.unknownPhoto': 'A foto do link não existe.',
     'error.unknownStory': 'A história do link não existe.',
+    'error.unknownLayer': 'A camada do link não existe ou já não está publicada. O mapa abriu sem ela; escolha uma camada em Camadas.',
     'error.geolocate.denied': 'O acesso à sua localização foi negado.',
     'error.geolocate.outside': 'Você está fora da área deste mapa.',
     'error.geolocate.unavailable': 'Sua localização não está disponível.',

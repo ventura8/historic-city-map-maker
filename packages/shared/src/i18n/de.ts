@@ -54,6 +54,8 @@ export const de: Messages = {
     'error.photoImage': 'Das Bild konnte nicht geladen werden.',
     'error.unknownPhoto': 'Das Foto aus dem Link existiert nicht.',
     'error.unknownStory': 'Die Geschichte aus dem Link existiert nicht.',
+    'error.unknownLayer':
+        'Die Ebene im Link gibt es nicht oder sie ist nicht mehr veröffentlicht. Die Karte wurde ohne sie geöffnet; wähle eine Ebene unter Ebenen.',
     'error.geolocate.denied': 'Der Zugriff auf Ihren Standort wurde verweigert.',
     'error.geolocate.outside': 'Sie befinden sich außerhalb des Kartengebiets.',
     'error.geolocate.unavailable': 'Ihr Standort ist nicht verfügbar.',

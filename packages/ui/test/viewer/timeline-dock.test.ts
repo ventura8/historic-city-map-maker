@@ -301,7 +301,7 @@ describe('<hcm-map-viewer>: the year opacity sheet on a phone', () => {
         expect(part(mounted, '.frame').inert).toBe(false);
     });
 
-    it('badPath_aPressOnTheScrimOrBClosesItAndADateMenuReplacesIt', async () => {
+    it('badPath_aYearOfSeveralDatesOpensItsDatesInsteadOfTheSheet_BClosesThem', async () => {
         const mounted = await mountViewer(readyState(twoDates(), { year: 1966 }), COMPACT);
         press(timelineOf(mounted));
         await mounted.element.updateComplete;
@@ -309,16 +309,14 @@ describe('<hcm-map-viewer>: the year opacity sheet on a phone', () => {
             timelineOf(mounted).dispatchEvent(new CustomEvent('hcm-opacity-sheet', { bubbles: true, composed: true }));
             await mounted.element.updateComplete;
         };
+        // A year of several dates never shows the sheet alone: its dates come with the sliders (the owner, 2026-11-22).
         await open();
-        part(mounted, '.opacity-scrim').dispatchEvent(new PointerEvent('pointerdown', { bubbles: true, composed: true }));
-        await mounted.element.updateComplete;
         expect(mounted.element.shadowRoot?.querySelector('.opacity-sheet')).toBeNull();
-        expect(collapsed(mounted), "the scrim is the dock's: the card stays open").toBe(false);
-
-        await open();
+        expect(mounted.element.shadowRoot?.querySelector('hcm-date-menu')).not.toBeNull();
         mounted.element.runInput('close');
         await mounted.element.updateComplete;
-        expect(mounted.element.shadowRoot?.querySelector('.opacity-sheet')).toBeNull();
+        expect(mounted.element.shadowRoot?.querySelector('hcm-date-menu')).toBeNull();
+        expect(collapsed(mounted), 'the card stays open').toBe(false);
 
         await open();
         timelineOf(mounted).dispatchEvent(new KeyboardEvent('keydown', { key: 'Enter', bubbles: true, composed: true }));

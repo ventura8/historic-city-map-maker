@@ -52,6 +52,7 @@ export const es: Messages = {
     'error.photoImage': 'No se pudo cargar la imagen.',
     'error.unknownPhoto': 'La foto del enlace no existe.',
     'error.unknownStory': 'La historia del enlace no existe.',
+    'error.unknownLayer': 'La capa del enlace no existe o ya no está publicada. El mapa se abrió sin ella; elige una capa en Capas.',
     'error.geolocate.denied': 'Se denegó el acceso a su ubicación.',
     'error.geolocate.outside': 'Está fuera de la zona de este mapa.',
     'error.geolocate.unavailable': 'Su ubicación no está disponible.',

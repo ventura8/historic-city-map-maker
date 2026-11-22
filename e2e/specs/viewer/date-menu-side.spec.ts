@@ -3,7 +3,7 @@ import type { Page } from '@playwright/test';
 
 import { twoDatesOf1980 } from '../../fixtures/manifest.js';
 import { expect, test } from '../../support/test.js';
-import { callController, openTimelineCard, openViewer, serveManifest, t, viewer } from '../../support/viewer.js';
+import { callController, openViewer, serveManifest, t, viewer } from '../../support/viewer.js';
 
 /**
  * A year with several layers (the owner, 2026-11-22): its pill always shows the dates together with the opacity sliders,
@@ -15,9 +15,9 @@ async function restOnTheYear(page: Page, lang: Locale, width: number, height: nu
     await serveManifest(page, twoDatesOf1980());
     await openViewer(page, { lang, hash: '15/44.37000/25.97000' });
     await callController(page, 'setYear', 1980);
-    await openTimelineCard(page);
-    await page.mouse.move(0, 0);
-    await viewer(page).locator('hcm-timeline .thumb').hover();
+    // Enter on the year (a keyboard, a remote, a phone's pill): the same menu on every window (V13).
+    await page.getByRole('slider', { name: t(lang, 'timeline.label'), exact: true }).focus();
+    await page.keyboard.press('Enter');
 }
 
 function overlaps(a: { x: number; y: number; width: number; height: number }, b: typeof a): boolean {
@@ -27,6 +27,10 @@ function overlaps(a: { x: number; y: number; width: number; height: number }, b:
 for (const [width, height] of [
     [1440, 900],
     [1024, 768],
+    [768, 1024],
+    [412, 915],
+    [360, 800],
+    [800, 360],
 ] as const) {
     test(
         `The dates and the opacity sliders show together at ${String(width)} x ${String(height)}`,
@@ -37,6 +41,7 @@ for (const [width, height] of [
             const sliders = viewer(page).locator('hcm-date-menu .side');
             await expect(dates).toBeVisible();
             await expect(sliders).toBeVisible();
+            await expect(viewer(page).locator('.opacity-sheet')).toHaveCount(0);
             const datesBox = await dates.boundingBox();
             const slidersBox = await sliders.boundingBox();
             expect(datesBox !== null && slidersBox !== null && !overlaps(datesBox, slidersBox), 'the sliders sit beside the dates').toBe(

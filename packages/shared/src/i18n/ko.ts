@@ -52,6 +52,8 @@ export const ko: Messages = {
     'error.photoImage': '이미지를 불러올 수 없습니다.',
     'error.unknownPhoto': '링크의 사진이 존재하지 않습니다.',
     'error.unknownStory': '링크의 이야기가 존재하지 않습니다.',
+    'error.unknownLayer':
+        '링크의 레이어가 없거나 더 이상 게시되지 않습니다. 지도는 그 레이어 없이 열렸습니다. 레이어에서 레이어를 선택하세요.',
     'error.geolocate.denied': '위치 접근이 거부되었습니다.',
     'error.geolocate.outside': '현재 위치가 이 지도의 범위 밖에 있습니다.',
     'error.geolocate.unavailable': '위치를 확인할 수 없습니다.',

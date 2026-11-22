@@ -58,6 +58,8 @@ export const fr: Messages = {
     'error.photoImage': 'Impossible de charger l’image.',
     'error.unknownPhoto': 'La photo du lien n’existe pas.',
     'error.unknownStory': 'Le récit du lien n’existe pas.',
+    'error.unknownLayer':
+        'Le calque du lien n’existe pas ou n’est plus publié. La carte s’est ouverte sans lui ; choisissez un calque dans Calques.',
     'error.geolocate.denied': 'L’accès à votre position a été refusé.',
     'error.geolocate.outside': 'Vous êtes hors de la zone de cette carte.',
     'error.geolocate.unavailable': 'Votre position n’est pas disponible.',

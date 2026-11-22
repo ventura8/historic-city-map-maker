@@ -52,6 +52,8 @@ export const pl: Messages = {
     'error.photoImage': 'Nie udało się wczytać obrazu.',
     'error.unknownPhoto': 'Zdjęcie z linku nie istnieje.',
     'error.unknownStory': 'Opowieść z linku nie istnieje.',
+    'error.unknownLayer':
+        'Warstwa z linku nie istnieje lub nie jest już opublikowana. Mapa otworzyła się bez niej; wybierz warstwę w Warstwach.',
     'error.geolocate.denied': 'Odmówiono dostępu do Twojej lokalizacji.',
     'error.geolocate.outside': 'Jesteś poza obszarem tej mapy.',
     'error.geolocate.unavailable': 'Twoja lokalizacja jest niedostępna.',

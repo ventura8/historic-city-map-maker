@@ -20,7 +20,7 @@ import { html, type ReactiveController, type ReactiveControllerHost, type Templa
 
 import type { HcmTimeline, TimelineOrientation } from './hcm-timeline.js';
 import type { YearOpacity } from './timeline-opacity.js';
-import { dateCounts, dateItems, datesOpenEvent, frontOfYear, type DatesOpenDetail } from './timeline-dates.js';
+import { countOf, dateCounts, dateItems, datesOpenEvent, frontOfYear, type DatesOpenDetail } from './timeline-dates.js';
 import type { TimelineStop } from './timeline-model.js';
 import { LongPress } from './long-press.js';
 import { EMPTY } from './empty.js';
@@ -91,6 +91,9 @@ export class TimelineDock implements ReactiveController {
         if (!this.#opacity?.opacity) {
             return;
         }
+        if (this.#datesInstead()) {
+            return;
+        }
         this.dates = null;
         this.sheet = true;
         this.#host.requestUpdate();
@@ -98,6 +101,30 @@ export class TimelineDock implements ReactiveController {
             this.#host.renderRoot.querySelector<HTMLElement>('.opacity-sheet hcm-slider')?.focus();
         });
     };
+
+    /**
+     * A year of several dates shows its date menu with the sliders beside or under it, never the sheet alone (the owner,
+     * 2026-11-22): Enter on a phone's pill sent both, and the sheet's late focus closed the menu, so a press showed the
+     * sliders alone, the menu alone or nothing. True when the menu opens (or is open) in the sheet's place.
+     */
+    #datesInstead(): boolean {
+        const timeline = this.#timeline();
+        if (timeline === null || countOf(timeline.dateCounts, timeline.value) < 2) {
+            return false;
+        }
+        if (this.dates === null) {
+            this.#datesAtThumb(timeline);
+        }
+        return true;
+    }
+
+    /** Opens the date menu of the timeline's year beside its thumb. */
+    #datesAtThumb(timeline: HcmTimeline): void {
+        const thumb = timeline.renderRoot.querySelector('.thumb');
+        if (thumb !== null && timeline.value !== null) {
+            this.#openDates(datesOpenEvent(timeline.value, thumb).detail);
+        }
+    }
 
     /** Closes the opacity sheet; the focus goes back to the timeline once the frame is no longer inert. */
     readonly closeSheet = (): void => {

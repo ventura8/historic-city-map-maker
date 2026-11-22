@@ -55,6 +55,7 @@ export const ru: Messages = {
     'error.photoImage': 'Не удалось загрузить изображение.',
     'error.unknownPhoto': 'Фотографии из ссылки не существует.',
     'error.unknownStory': 'Истории из ссылки не существует.',
+    'error.unknownLayer': 'Слоя из ссылки нет или он больше не опубликован. Карта открыта без него; выберите слой в разделе «Слои».',
     'error.geolocate.denied': 'Доступ к вашему местоположению запрещён.',
     'error.geolocate.outside': 'Вы находитесь за пределами этой карты.',
     'error.geolocate.unavailable': 'Ваше местоположение недоступно.',

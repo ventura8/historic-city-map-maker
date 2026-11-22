@@ -38,14 +38,25 @@ export interface AppliedHash {
     readonly unknownPhoto: string | null;
     /** M17: a `story=` id the manifest does not have (`error.unknownStory`). */
     readonly unknownStory?: string;
+    /** A `layers=` id the manifest does not have, or no longer publishes (`error.unknownLayer`); the map opens without it. */
+    readonly unknownLayer?: string;
 }
 
 /** The toast a hash's unknown photo or story asks for, or null. */
-export function unknownToast(applied: AppliedHash): 'error.unknownPhoto' | 'error.unknownStory' | null {
+export function unknownToast(applied: AppliedHash): 'error.unknownPhoto' | 'error.unknownStory' | 'error.unknownLayer' | null {
     if (applied.unknownPhoto !== null) {
         return 'error.unknownPhoto';
     }
-    return applied.unknownStory === undefined ? null : 'error.unknownStory';
+    if (applied.unknownStory !== undefined) {
+        return 'error.unknownStory';
+    }
+    return applied.unknownLayer === undefined ? null : 'error.unknownLayer';
+}
+
+/** The first `layers=` id the manifest does not have. */
+function unknownLayerOf(state: ViewerState, layers: DecodedHash['layers']): string | undefined {
+    const known = new Set(state.manifest?.layers.map((layer) => layer.id) ?? []);
+    return layers?.find((id) => !known.has(id));
 }
 
 /**
@@ -114,7 +125,17 @@ export function applyDecodedHash(state: ViewerState, hash: DecodedHash): Applied
     const overlays = withHashOpacity(withLayers.overlays, hash);
     const withNear = hash.photosNear === undefined ? withLayers : { ...withLayers, photosNear: hash.photosNear };
     const withLang = hash.lang === undefined ? withNear : { ...withNear, locale: hash.lang };
-    return withHashStory(withHashPhoto(overlays === withLang.overlays ? withLang : { ...withLang, overlays }, hash), hash);
+    return withUnknownLayer(
+        withHashStory(withHashPhoto(overlays === withLang.overlays ? withLang : { ...withLang, overlays }, hash), hash),
+        state,
+        hash,
+    );
+}
+
+/** `applied` with the first `layers=` id the manifest does not have, if any. */
+function withUnknownLayer(applied: AppliedHash, state: ViewerState, hash: DecodedHash): AppliedHash {
+    const unknownLayer = unknownLayerOf(state, hash.layers);
+    return unknownLayer === undefined ? applied : { ...applied, unknownLayer };
 }
 
 /**

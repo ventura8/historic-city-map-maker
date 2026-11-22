@@ -43,4 +43,11 @@ describe('the opacity sliders beside the date menu', () => {
         expect(sideOrigin(menu, tall, { ...ROOM, floor: 470 }, false).y).toBe(70);
         expect(sideOrigin(menu, tall, ROOM, false).y).toBe(180);
     });
+
+    it('badPath_noRoomUnderOrBesideGoesAboveTheDatesNeverOverThem', () => {
+        // A phone lying (800 x 360): the menu over the timeline fills the width's middle, the sliders go above it.
+        const room = { width: 500, height: 360, floor: 250 };
+        const menu = { x: 130, y: 160, width: 240, height: 80 };
+        expect(sideOrigin(menu, { width: 240, height: 100 }, room, true)).toEqual({ x: 130, y: 52 });
+    });
 });

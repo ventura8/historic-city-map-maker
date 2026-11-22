@@ -51,6 +51,7 @@ export const tr: Messages = {
     'error.photoImage': 'Görsel yüklenemedi.',
     'error.unknownPhoto': 'Bağlantıdaki fotoğraf mevcut değil.',
     'error.unknownStory': 'Bağlantıdaki hikâye mevcut değil.',
+    'error.unknownLayer': 'Bağlantıdaki katman yok ya da artık yayında değil. Harita onsuz açıldı; Katmanlar’dan bir katman seçin.',
     'error.geolocate.denied': 'Konumunuza erişim reddedildi.',
     'error.geolocate.outside': 'Bu haritanın kapsadığı alanın dışındasınız.',
     'error.geolocate.unavailable': 'Konumunuz kullanılamıyor.',

@@ -52,6 +52,7 @@ export const zh: Messages = {
     'error.photoImage': '无法加载图片。',
     'error.unknownPhoto': '链接中的照片不存在。',
     'error.unknownStory': '链接中的故事不存在。',
+    'error.unknownLayer': '链接中的图层不存在或已不再发布。地图已在没有它的情况下打开；请在“图层”中选择一个图层。',
     'error.geolocate.denied': '访问您位置的请求被拒绝。',
     'error.geolocate.outside': '您不在此地图的范围内。',
     'error.geolocate.unavailable': '无法获取您的位置。',

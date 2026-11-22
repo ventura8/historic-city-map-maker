@@ -52,6 +52,8 @@ export const it: Messages = {
     'error.photoImage': 'Impossibile caricare l’immagine.',
     'error.unknownPhoto': 'La foto del link non esiste.',
     'error.unknownStory': 'La storia del link non esiste.',
+    'error.unknownLayer':
+        'Il livello nel link non esiste o non è più pubblicato. La mappa si è aperta senza; scegli un livello in Livelli.',
     'error.geolocate.denied': 'L’accesso alla tua posizione è stato negato.',
     'error.geolocate.outside': 'Sei fuori dall’area di questa mappa.',
     'error.geolocate.unavailable': 'La tua posizione non è disponibile.',

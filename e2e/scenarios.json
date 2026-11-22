@@ -2825,6 +2825,28 @@
             "notes": "The owner, 2026-11-13: \"the feature to follow the OS accent colours (and others available) is the new default\" (track/osaccent; DECISIONS-for-review.md §215). packages/ui/src/theme/device-accent.ts: the city's schemes turned to the accent's OKLCH hue with their WCAG luminance kept; Chrome exposes the device's AccentColor only to an installed app (a tab gets a constant), Safari a constant, Firefox the real one; a page names it with --hcm-device-accent. Tests: e2e/specs/viewer/device-accent.spec.ts; packages/ui/test/theme/device-accent.test.ts. The owner, 2026-11-14: the option did nothing on an Android phone and a laptop with no word why (docs/LESSONS.md 711); deviceAccentState and the accent.hidden / accent.grey notes."
         },
         {
+            "id": "S-V09-HAPPY-QUERY-LAYER",
+            "behaviour": "V09",
+            "area": "viewer",
+            "path": "happy",
+            "title": "A layer named in the link's query opens on, at its year, and the link round-trips",
+            "asserts": "?layer=<id>#<view> on first load -> the layer is on, the timeline at its year, the query moves into the hash (layers=), and the address bar's link opens the same state in a fresh page",
+            "tier": "e2e-viewer",
+            "status": "exists",
+            "notes": "Owner 2026-11-22: ?layer=ortofotoplan-2017-16-foi opened on today. Tests: e2e/specs/viewer/deep-link-query.spec.ts, packages/engine/test/core/deep-links.test.ts."
+        },
+        {
+            "id": "S-V09-BAD-UNKNOWN-LAYER",
+            "behaviour": "V09",
+            "area": "viewer",
+            "path": "bad",
+            "title": "An unknown or unpublished layer in a link opens the map without it and says so",
+            "asserts": "layers= or ?layer= naming an id the manifest does not have -> the map opens on today and a message (error.unknownLayer, ro and en) says the layer is missing and where to pick one",
+            "tier": "e2e-viewer",
+            "status": "exists",
+            "notes": "Owner 2026-11-22. Tests: e2e/specs/viewer/deep-link-query.spec.ts, packages/engine/test/core/deep-links.test.ts."
+        },
+        {
             "id": "S-V13-HAPPY-DATES-WITH-SLIDERS",
             "behaviour": "V13",
             "area": "viewer",

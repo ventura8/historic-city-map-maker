@@ -53,6 +53,8 @@ export const ja: Messages = {
     'error.photoImage': '画像を読み込めませんでした。',
     'error.unknownPhoto': 'リンク先の写真は存在しません。',
     'error.unknownStory': 'リンク先のストーリーは存在しません。',
+    'error.unknownLayer':
+        'リンクのレイヤーは存在しないか、公開が終了しています。地図はそのレイヤーなしで開きました。「レイヤー」から選んでください。',
     'error.geolocate.denied': '位置情報へのアクセスが拒否されました。',
     'error.geolocate.outside': '現在地はこの地図の範囲外です。',
     'error.geolocate.unavailable': '位置情報を取得できません。',

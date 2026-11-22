@@ -53,6 +53,7 @@ export const ro = {
     'error.photoImage': 'Imaginea nu s-a putut încărca.',
     'error.unknownPhoto': 'Fotografia din link nu există.',
     'error.unknownStory': 'Povestea din link nu există.',
+    'error.unknownLayer': 'Stratul din link nu există sau nu mai este publicat. Harta s-a deschis fără el; alege un strat din Straturi.',
     'error.geolocate.denied': 'Accesul la locație a fost refuzat.',
     'error.geolocate.outside': 'Ești în afara zonei acestei hărți.',
     'error.geolocate.unavailable': 'Locația nu este disponibilă.',

@@ -48,6 +48,7 @@ export const en: Messages = {
     'error.photoImage': 'The image could not be loaded.',
     'error.unknownPhoto': 'The photo in the link does not exist.',
     'error.unknownStory': 'The story in the link does not exist.',
+    'error.unknownLayer': 'The layer in the link does not exist or is no longer published. Pick a layer in Layers.',
     'error.geolocate.denied': 'Access to your location was denied.',
     'error.geolocate.outside': 'You are outside the area of this map.',
     'error.geolocate.unavailable': 'Your location is not available.',

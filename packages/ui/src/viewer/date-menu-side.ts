@@ -37,14 +37,21 @@ export function sideOrigin(
 ): { readonly x: number; readonly y: number } {
     // Never below `floor`: above a lying timeline, the sliders taller than the menu once reached down over it (owner, 2026-11-22).
     const bottom = Math.min(room.height - LEGAL_STRIP, room.floor ?? Number.POSITIVE_INFINITY);
-    const under = menu.y + menu.height + GAP;
-    if (stacked && under + side.height <= bottom) {
-        return { x: menu.x, y: under };
+    const centredY = within(menu.y + menu.height / 2 - side.height / 2, side.height, GAP, bottom);
+    const after = { x: menu.x + menu.width + GAP, y: centredY };
+    const before = { x: menu.x - GAP - side.width, y: centredY };
+    const under = { x: menu.x, y: menu.y + menu.height + GAP };
+    // Above the dates: a short or narrow window (a phone lying, 800 x 360) has no room under the menu nor beside it.
+    const over = { x: within(menu.x, side.width, GAP, room.width - GAP), y: menu.y - GAP - side.height };
+    const order = stacked ? [under, after, before, over] : [after, before, over, under];
+    const fits = (at: { x: number; y: number }): boolean =>
+        at.x >= GAP && at.x + side.width <= room.width - GAP && at.y >= GAP && at.y + side.height <= bottom;
+    const chosen = order.find(fits);
+    if (chosen !== undefined) {
+        return chosen;
     }
-    const after = menu.x + menu.width + GAP;
-    const x = after + side.width <= room.width - GAP ? after : menu.x - GAP - side.width;
-    const y = menu.y + menu.height / 2 - side.height / 2;
-    return { x: within(x, side.width, GAP, room.width - GAP), y: within(y, side.height, GAP, bottom) };
+    const x = after.x + side.width <= room.width - GAP ? after.x : before.x;
+    return { x: within(x, side.width, GAP, room.width - GAP), y: centredY };
 }
 
 /** Puts the sliders' box (`side`) by the menu; stacked, it takes the menu's width. */

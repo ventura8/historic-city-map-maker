@@ -51,6 +51,7 @@ export const uk: Messages = {
     'error.photoImage': 'Не вдалося завантажити зображення.',
     'error.unknownPhoto': 'Фотографії з посилання не існує.',
     'error.unknownStory': 'Історії з посилання не існує.',
+    'error.unknownLayer': 'Шару з посилання немає або його більше не опубліковано. Мапу відкрито без нього; виберіть шар у розділі «Шари».',
     'error.geolocate.denied': 'Доступ до вашого місцезнаходження заборонено.',
     'error.geolocate.outside': 'Ви поза межами цієї мапи.',
     'error.geolocate.unavailable': 'Ваше місцезнаходження недоступне.',
