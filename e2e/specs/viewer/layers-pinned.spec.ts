@@ -28,7 +28,7 @@ test(
         const pane = viewer(page).locator('.pane.leading hcm-layer-panel');
         const compare = pane.getByRole('button', { name: t(lang, 'compare.open'), exact: true });
         const streets = pane.getByRole('switch', { name: translateMapLabels(lang, 'mapLabels.streets'), exact: true });
-        const list = pane.locator('hcm-overlay-list');
+        const list = pane.locator('hcm-overlay-list').last();
 
         await expect(compare).toBeVisible();
         await expect(streets).toBeVisible();
@@ -69,9 +69,9 @@ test(
         await expect(page.getByRole('button', { name: t(lang, 'compare.open'), exact: true })).toHaveCount(0);
         await expect(page.getByRole('group', { name: translateMapLabels(lang, 'mapLabels.group'), exact: true })).toHaveCount(0);
         // The strip holds the Photos switch alone (2026-11-16): nothing of Compare, Map labels or a pinned category.
-        await expect(viewer(page).locator('hcm-layer-panel .pinned > :not(hcm-photos-control)')).toHaveCount(0);
+        await expect(viewer(page).locator('hcm-layer-panel .pinned .section-body > :not(hcm-photos-control)')).toHaveCount(0);
         await expect(viewer(page).locator('hcm-layer-panel .pinned hcm-photos-control')).toBeVisible();
-        await expect(viewer(page).locator('hcm-overlay-list')).toBeVisible();
+        await expect(viewer(page).locator('hcm-overlay-list').first()).toBeVisible();
     },
 );
 

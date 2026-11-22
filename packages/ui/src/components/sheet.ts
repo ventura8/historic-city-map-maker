@@ -222,6 +222,10 @@ export class HcmSheet extends LitElement {
                 padding: 0 24px 16px;
                 overflow: auto;
                 overscroll-behavior: contain;
+
+                /* M3 thin scrollbar, themed with the tokens (light and dark). */
+                scrollbar-width: thin;
+                scrollbar-color: var(--md-sys-color-outline-variant) transparent;
             }
 
             .actions {

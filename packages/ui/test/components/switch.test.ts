@@ -42,4 +42,21 @@ describe('<hcm-switch>', () => {
         expect(changes).toEqual([]);
         expect(toggle.checked).toBe(false);
     });
+
+    it('happyPath_compactIsTheThinVariantAndKeepsItsTouchTarget', async () => {
+        const toggle = await fixture<HcmSwitch>(html`<hcm-switch compact label="Streets"></hcm-switch>`);
+        const track = toggle.shadowRoot?.querySelector('button');
+
+        expect(toggle.hasAttribute('compact')).toBe(true);
+        expect(track?.getBoundingClientRect().width).toBe(40);
+        expect(track?.getBoundingClientRect().height).toBe(24);
+        expect(track?.classList.contains('touch-target')).toBe(true);
+    });
+
+    it('badPath_notCompactByDefault', async () => {
+        const toggle = await fixture<HcmSwitch>(html`<hcm-switch label="Streets"></hcm-switch>`);
+
+        expect(toggle.compact).toBe(false);
+        expect(toggle.shadowRoot?.querySelector('button')?.getBoundingClientRect().width).toBe(52);
+    });
 });

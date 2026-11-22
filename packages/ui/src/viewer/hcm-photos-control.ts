@@ -148,6 +148,7 @@ export class HcmPhotosControl extends LitElement {
                     <hcm-icon name=${this.open ? 'expand_less' : 'expand_more'}></hcm-icon>
                 </button>
                 <hcm-switch
+                    compact
                     .checked=${this.visible}
                     .label=${name}
                     @hcm-change=${this.#onSwitch}

@@ -4260,6 +4260,28 @@
             "notes": "The owner's report of 2026-11-08. Tests: e2e/specs/viewer/map-labels.spec.ts, packages/engine/test/core/map-labels.test.ts, packages/engine/test/core/map-specs.test.ts."
         },
         {
+            "id": "S-V03-HAPPY-LAYER-SECTIONS",
+            "behaviour": "V03",
+            "area": "viewer",
+            "path": "happy",
+            "title": "Layers shows pinned, Places and historical layers as collapsible sections, Layers collapsed at first",
+            "asserts": "Layers open -> three sections in the order pinned, Places, Layers; header buttons carry aria-expanded true, true, false; a layer switch is hidden until the Layers header is clicked; after a reload the expanded Layers section is remembered",
+            "tier": "e2e-viewer",
+            "status": "exists",
+            "notes": "Owner 2026-11-22. Tests: e2e/specs/viewer/layer-sections.spec.ts, packages/ui/test/viewer/layer-panel-sections.test.ts."
+        },
+        {
+            "id": "S-V03-BAD-LAYER-SECTIONS-NO-STORAGE",
+            "behaviour": "V03",
+            "area": "viewer",
+            "path": "bad",
+            "title": "With browser storage blocked the sections still open at their defaults and toggle",
+            "asserts": "localStorage throws -> no console error, pinned and Places expanded, Layers collapsed; a header click still collapses its section (only the memory is lost)",
+            "tier": "e2e-viewer",
+            "status": "exists",
+            "notes": "Owner 2026-11-22. Tests: e2e/specs/viewer/layer-sections.spec.ts, packages/ui/test/viewer/layer-panel-sections.test.ts."
+        },
+        {
             "id": "S-V03-HAPPY-LAYERS-PINNED",
             "behaviour": "V03",
             "area": "viewer",

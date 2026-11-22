@@ -55,6 +55,7 @@ export interface TestFixtures extends TestOptions {
     firewall: Recorder;
     consoleErrors: Recorder;
     placeholderGuard: undefined;
+    layerSections: undefined;
     instrumentation: Instrumentation;
     mockApis: MockApis;
     axe: Axe;
@@ -133,6 +134,22 @@ export const test = base.extend<TestFixtures, WorkerFixtures>({
         async ({ context }, use) => {
             await context.addInitScript(instrumentPage, ENGINE_EVENTS);
             await use({ read: readInstrumentation });
+        },
+        { auto: true },
+    ],
+    /*
+     * The Layers panel opens with its historical layers collapsed (owner, 2026-11-22). Specs written before that drive the
+     * layer switches directly, so every page starts with the three sections expanded; a spec tagged
+     * `@layer-sections-default` (layer-sections.spec.ts) sees the real defaults.
+     */
+    layerSections: [
+        async ({ context }, use, testInfo) => {
+            if (!testInfo.tags.includes('@layer-sections-default')) {
+                await context.addInitScript(() => {
+                    localStorage.setItem('hcm.layerPanel.sections', JSON.stringify({ pinned: true, places: true, layers: true }));
+                });
+            }
+            await use(undefined);
         },
         { auto: true },
     ],

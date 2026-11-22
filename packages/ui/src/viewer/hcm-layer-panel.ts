@@ -28,9 +28,10 @@ import { tabbableElements } from '../components/focus.js';
 import { stateLayer } from '../components/styles.js';
 import { EMPTY } from './empty.js';
 import type { OverlayListGroup } from '../components/overlay-list.js';
-import { labelsNote, listedOverlays, overlayGroups, overlayItems, pinnedIds, splitPinned, attributionLines } from './layer-panel-model.js';
+import { labelsNote, listedOverlays, overlayItems, pinnedIds, splitPinned, attributionLines } from './layer-panel-model.js';
 import type { SheetMode } from './layout.js';
 import { revealLayers, syncPinnedOffset } from './pinned-offset.js';
+import { loadSections, renderSection, saveSections, sectionStyles, type PanelSection, type SectionState } from './layer-panel-sections.js';
 import { closeEvent, renderSheetFrame } from './sheet-frame.js';
 import { baseStyles, sheetStyles } from './shared-styles.js';
 
@@ -72,6 +73,7 @@ export class HcmLayerPanel extends LitElement {
         baseStyles,
         sheetStyles,
         stateLayer,
+        sectionStyles,
         css`
             :host {
                 display: contents;
@@ -212,6 +214,8 @@ export class HcmLayerPanel extends LitElement {
     /** Design B: the photos' scope (null: every photo), for the Photos switch's popover. */
     declare photosNear: number | null;
     #pendingYear: number | null = null;
+    /** Which sections are expanded: pinned and Places by default, Layers collapsed (remembered per viewer). */
+    #sections: SectionState = loadSections();
 
     constructor() {
         super();
@@ -276,6 +280,7 @@ export class HcmLayerPanel extends LitElement {
             return;
         }
         this.#pendingYear = null;
+        this.#setSection('layers', true);
         const ids = this.manifest.layers.filter((layer) => layer.year === year).map((layer) => layer.id);
         void this.updateComplete.then(revealLayers.bind(null, this, this.renderRoot, ids));
     }
@@ -309,24 +314,52 @@ export class HcmLayerPanel extends LitElement {
             return EMPTY;
         }
         const locale = this.locale;
+        const listed = listedOverlays(this.overlays, manifest);
+        const places = listed.filter((overlay) => overlay.kind === 'poi');
+        const layers = listed.filter((overlay) => overlay.kind !== 'poi');
         return html`<div class="content">
             ${
                 this.#hasPinned(manifest)
-                    ? html`<div class="pinned">
-                          ${this.#compareButton(locale)}${this.#mapLabels(manifest, locale)}${this.#photos(manifest, locale)}${this.#pinnedList(manifest, locale)}
-                      </div>`
+                    ? this.#section(
+                          'pinned',
+                          'layers.group.pinned',
+                          html`${this.#compareButton(locale)}${this.#mapLabels(manifest, locale)}${this.#photos(manifest, locale)}${this.#pinnedList(manifest, locale)}`,
+                      )
                     : nothing
             }
-            ${
-                manifest.layers.length > 0
-                    ? nothing
-                    : html`<p class="empty"><hcm-icon name="timeline"></hcm-icon>${translate(locale, 'layers.empty')}</p>`
-            }
-            ${this.#list(listedOverlays(this.overlays, manifest), manifest, overlayGroups(manifest, locale))}
+            ${places.length > 0 ? this.#section('places', 'layers.group.places', this.#list(places, manifest, [])) : nothing}
+            ${this.#section('layers', 'layers.group.historical', html`${this.#emptyNote(manifest)}${this.#list(layers, manifest, [])}`)}
             <ul class="attribution">
                 ${attributionLines(this.overlays, manifest, locale).map((line) => html`<li>${line}</li>`)}
             </ul>
         </div>`;
+    }
+
+    #emptyNote(manifest: Manifest): TemplateResult {
+        return manifest.layers.length > 0
+            ? EMPTY
+            : html`<p class="empty"><hcm-icon name="timeline"></hcm-icon>${translate(this.locale, 'layers.empty')}</p>`;
+    }
+
+    #section(
+        id: PanelSection,
+        key: 'layers.group.pinned' | 'layers.group.places' | 'layers.group.historical',
+        body: TemplateResult,
+    ): TemplateResult {
+        const onToggle = (section: PanelSection): void => {
+            this.#setSection(section, !this.#sections[section]);
+        };
+        return renderSection({ id, label: translate(this.locale, key), expanded: this.#sections[id], onToggle }, body);
+    }
+
+    /** Expands or collapses one section, remembers it and re-renders. */
+    #setSection(id: PanelSection, expanded: boolean): void {
+        if (this.#sections[id] === expanded) {
+            return;
+        }
+        this.#sections = { ...this.#sections, [id]: expanded };
+        saveSections(this.#sections);
+        this.requestUpdate();
     }
 
     /** One overlay list; the pinned one has no group heading (the strip is its own group). */
@@ -392,7 +425,7 @@ export class HcmLayerPanel extends LitElement {
         };
         return html`<li>
             <span>${name}</span>
-            <hcm-switch .checked=${this.labels?.shown[kind] === true} .label=${name} @hcm-change=${onChange}></hcm-switch>
+            <hcm-switch compact .checked=${this.labels?.shown[kind] === true} .label=${name} @hcm-change=${onChange}></hcm-switch>
         </li>`;
     }
 

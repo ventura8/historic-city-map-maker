@@ -345,6 +345,7 @@ export class HcmOverlayList extends LitElement {
         return item.toggleable === false
             ? nothing
             : html`<hcm-switch
+                  compact
                   .checked=${item.visible}
                   ?disabled=${this.disabled}
                   label=${fillTemplate(this.toggleLabel, { name: item.label })}
