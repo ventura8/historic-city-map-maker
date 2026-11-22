@@ -24,7 +24,12 @@ const JOINABLE: ReadonlySet<LayerVersionState> = new Set<LayerVersionState>(['pu
  * stamp behind: its maps are offered again (live 2026-11-15, the 1974 and 1978 joins).
  */
 export function archiveJoinOffered(version: VersionViewPort | null, held: boolean | null = null): version is VersionViewPort {
-    return extendable(version) || (version?.archiveMap === true && usable(version) && !holds(version, held));
+    return extendable(version) || freeMap(version, held);
+}
+
+/** An archive map, usable and held by no live join. */
+function freeMap(version: VersionViewPort | null, held: boolean | null): boolean {
+    return version?.archiveMap === true && usable(version) && !holds(version, held);
 }
 
 /**
@@ -152,6 +157,10 @@ export class HcmArchiveJoin extends LitElement {
         if (this.candidates.length === 0 || !archiveJoinOffered(version, this.held)) {
             return rejoinable(version) ? this.#again() : html``;
         }
+        return this.#card(version);
+    }
+
+    #card(version: VersionViewPort): TemplateResult {
         const adding = extendable(version);
         return html`<section class="choices" data-archive-join=${adding ? 'add' : 'join'}>
             <h3>${this.#t(adding ? 'adminContent.imagery.join.addTitle' : 'adminContent.imagery.join.archiveTitle')}</h3>

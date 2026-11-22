@@ -58,9 +58,11 @@ function isLiveJoin(join: LayerVersionDoc | undefined): join is LayerVersionDoc 
  * published yet is left out: with a published frame it is that layer's newest version, and the frame is what "add a frame" takes again.
  */
 export function isUsablePart(version: LayerVersionDoc): boolean {
-    if (version.state === 'published' || isRejoinable(version)) {
-        return true;
-    }
+    return version.state === 'published' || isRejoinable(version) || liveFrame(version);
+}
+
+/** A frame (no join) that is `joined` or not ended. */
+function liveFrame(version: LayerVersionDoc): boolean {
     const live = version.state === 'joined' || !ENDED.has(version.state);
     return live && version.source?.kind !== 'join';
 }

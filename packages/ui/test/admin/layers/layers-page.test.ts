@@ -163,17 +163,6 @@ describe('<hcm-layers-page> editor', () => {
         expect(calls(layers)).toEqual(['edit {"defaultVisible":true}', 'edit {"published":false}']);
     });
 
-    it('happyPath_theKindIsChosenAndSaved @S-A33-HAPPY-LAYER-KIND', async () => {
-        const layers = area(layersState({ editor: editorOf() }));
-        const { element } = await page('layers', layers, { params: ['corona'] });
-
-        const kind = deep(element, '[data-layer-kind]');
-        expect(deepText(element)).toContain('Kind');
-        kind.dispatchEvent(new CustomEvent('hcm-change', { detail: { value: 'map' }, bubbles: true, composed: true }));
-
-        expect(calls(layers)).toEqual(['edit {"kind":"map"}']);
-    });
-
     it('badPath_issuesAreSaidAtTheirFieldsAndANotReadyLayerIsExplained', async () => {
         const issues = [
             { path: 'year', code: 'validation.type' },
@@ -567,5 +556,21 @@ describe('<hcm-layers-page> editor: a conflict and a revoked admin', () => {
         expect(off(deep(deep(element, '.list-head'), 'hcm-button'))).toBe(true);
         expect(deepAll(element, '.reorder-row .moves, .reorder-row .handle')).toEqual([]);
         expect(deepAll(element, '.reorder-row a.row')).toHaveLength(2);
+    });
+});
+
+describe('<hcm-layers-page> kind', () => {
+    beforeAll(defineAll);
+    afterEach(cleanup);
+
+    it('happyPath_theKindIsChosenAndSaved @S-A33-HAPPY-LAYER-KIND', async () => {
+        const layers = area(layersState({ editor: editorOf() }));
+        const { element } = await page('layers', layers, { params: ['corona'] });
+
+        const kind = deep(element, '[data-layer-kind]');
+        expect(deepText(element)).toContain('Kind');
+        kind.dispatchEvent(new CustomEvent('hcm-change', { detail: { value: 'map' }, bubbles: true, composed: true }));
+
+        expect(calls(layers)).toEqual(['edit {"kind":"map"}']);
     });
 });
