@@ -180,3 +180,34 @@ Built on `track/stories` (2026-11-08), as designed above, with these details:
 ## 11. At the merge with the improvements (2026-11-08)
 
 Home's *What needs you* (M18 item 7) lists the stories waiting in the review queue, *Stories to review*, a link to `#/review`; an uploader is not asked that count (S-A40-HAPPY-STORIES-TO-REVIEW, S-A40-BAD-UPLOADER-NO-STORY-COUNT; DECISIONS §104c).
+
+## 12. A place's media (the owner, 2026-11-22)
+
+A place (POI) shows its own media, sorted by kind: **old maps** of that place (small-area plans, the 1906 exhibition plan of
+Parcul Carol), **aerial** photos, **exterior** (street) photos and **interior** photos. Built on what exists:
+
+| Field | Where | Notes |
+| --- | --- | --- |
+| `kind` | photo document and manifest photo | `ground` (absent: street or exterior), `aerial`, and now `interior` (`PHOTO_KINDS`). |
+| `placeIds` | photo document and manifest photo (placed or unplaced) | 1 to 10 POI ids, each once (`placeIdsSchema`, `MAX_MEDIA_PLACES`); the rules check list, size and uniqueness. |
+| `placeIds` | layer document and manifest layer | The same, for a small-area map: a normal georeferenced layer whose footprint is its `bounds`. |
+| `photoIds` | place (existing) | The place's own ordered list; the place editor now moves each photo up or down. |
+
+- **The order** (`placeMedia`, `packages/shared/src/overlays/place-media.ts`): the place's `photoIds` first, in order, then the
+  photos naming it in `placeIds` by year; maps naming it by year. Unknown ids are skipped.
+- **The manifest**: the builder copies `placeIds` and drops ids of places it does not list (`stillListed`); the manifest rule
+  `mediaPlaces` refuses a `placeIds` entry that is not a place of `pois` (`validation.reference`). The viewer reads only the manifest.
+- **The viewer**: the place's sheet (`<hcm-poi-detail>`) has a **Media** section with one chip per kind it has (Hărți / Aeriene /
+  Exterior / Interior; `poi.media.*` in the 16 catalogues). A photo opens the photo sheet; a map fires `hcm-layer-show`, which
+  switches the layer on and to the front at its year (`pickLayer`) and fits its bounds (`viewForLayer`). The photo list gets an
+  Interior filter when a photo is interior.
+- **The admin**: the photo editor's kind (Street, Aerial, Interior) and **Places** (`placeLinksField`,
+  `packages/ui/src/admin/editing/place-links.ts`; the places read once, `readPlacePicks`); the layer editor's **Places** under
+  Display; the place editor's photos move up and down. The legacy bundle importer copies `kind` and `placeIds`; the GeoJSON place
+  importer already takes `photoIds`.
+- **Scenarios**: V80, A198, A199.
+
+**Next** (`reports/PLAN-live.md` → *Buildings and photos*): floor plans per level (a layer with `placeIds` and a `level`), a level
+picker in the place's sheet, interior photos placed on a level, the plan importer (trim, deskew, split floors), structured place
+facts (architect, years built and demolished, style, floors and height, uses, LMI code, addresses, related places), and a
+"Place media" entry in the Layers panel's Places section.

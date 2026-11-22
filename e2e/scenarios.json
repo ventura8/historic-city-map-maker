@@ -1394,6 +1394,27 @@
             "name": "The Wikipedia overlay's fetch on the server, its file and manifest entry, and Settings -> Wikipedia",
             "milestone": "M31",
             "source": "the owner, 2026-11-09 and 2026-11-22 (reports/PLAN-live.md, Wikipedia layer); docs/research/M31-wikipedia.md"
+        },
+        {
+            "id": "V80",
+            "area": "viewer",
+            "name": "A place's Media: its maps, aerial, exterior and interior photos by kind",
+            "milestone": "M17",
+            "source": "the owner, 2026-11-22: a place shows its own media by kind (maps, aerial, exterior, interior)"
+        },
+        {
+            "id": "A198",
+            "area": "admin",
+            "name": "A photo's kind (interior included) and places, and a place's photo order",
+            "milestone": "M17",
+            "source": "the owner, 2026-11-22: a place shows its own media by kind (maps, aerial, exterior, interior)"
+        },
+        {
+            "id": "A199",
+            "area": "admin",
+            "name": "A small-area map layer linked to its places",
+            "milestone": "M17",
+            "source": "the owner, 2026-11-22: a place shows its own media by kind (maps, aerial, exterior, interior)"
         }
     ],
     "scenarios": [
@@ -24826,6 +24847,105 @@
             "tier": "e2e-admin",
             "status": "exists",
             "notes": "Milestone M31 (docs/research/M31-wikipedia.md). Tests: e2e/admin/specs/settings/wikipedia.spec.ts, packages/admin/test/settings/wikipedia.test.ts, packages/ui/test/admin/settings/wikipedia-section.test.ts."
+        },
+        {
+            "id": "S-V80-HAPPY-PLACE-MEDIA",
+            "behaviour": "V80",
+            "area": "viewer",
+            "path": "happy",
+            "title": "A place's sheet lists its media by kind and shows a map on the map",
+            "asserts": "a place with a linked map, a listed photo and an interior photo naming it -> Media chips Maps, Exterior, Interior; the map's button switches it on (pickLayer) and fits its bounds; Interior shows one thumbnail; the photo list gets an Interior filter",
+            "tier": "unit",
+            "status": "exists",
+            "notes": "Tests: packages/ui/test/viewer/hcm-poi-detail.test.ts, packages/ui/test/viewer/hcm-map-viewer.test.ts, packages/ui/test/viewer/hcm-photo-list.test.ts, packages/shared/test/overlays/place-media.test.ts, functions/test/publish/assemble.test.ts. docs/research/M17-stories.md §12."
+        },
+        {
+            "id": "S-V80-BAD-NO-MEDIA",
+            "behaviour": "V80",
+            "area": "viewer",
+            "path": "bad",
+            "title": "A place without media shows no Media section",
+            "asserts": "a place with no photos and no layer naming it -> no .media section; a new place resets the chosen chip",
+            "tier": "unit",
+            "status": "exists",
+            "notes": "Test: packages/ui/test/viewer/hcm-poi-detail.test.ts."
+        },
+        {
+            "id": "S-V80-BAD-UNKNOWN-PLACE",
+            "behaviour": "V80",
+            "area": "viewer",
+            "path": "bad",
+            "title": "An unknown place or a map without bounds breaks nothing",
+            "asserts": "the builder drops a placeId the manifest does not list and keeps the photo; a manifest naming an unknown place is refused; a map without bounds or unknown leaves the camera alone",
+            "tier": "unit",
+            "status": "exists",
+            "notes": "Tests: functions/test/publish/assemble.test.ts, packages/shared/test/overlays/place-media.test.ts, packages/ui/test/viewer/hcm-map-viewer.test.ts."
+        },
+        {
+            "id": "S-A198-HAPPY-PHOTO-PLACES",
+            "behaviour": "A198",
+            "area": "admin",
+            "path": "happy",
+            "title": "An interior photo of two places is saved",
+            "asserts": "a create with kind interior and two placeIds is allowed",
+            "tier": "rules",
+            "status": "exists",
+            "notes": "Test: firebase/rules-tests/test/photos.test.ts. Editor: packages/ui/src/admin/editing/place-links.ts."
+        },
+        {
+            "id": "S-A198-BAD-PLACE-IDS",
+            "behaviour": "A198",
+            "area": "admin",
+            "path": "bad",
+            "title": "Repeated, empty or eleven places are refused",
+            "asserts": "placeIds with a repeat, none or eleven ids is denied",
+            "tier": "rules",
+            "status": "exists",
+            "notes": "Test: firebase/rules-tests/test/photos.test.ts."
+        },
+        {
+            "id": "S-A198-HAPPY-REORDER",
+            "behaviour": "A198",
+            "area": "admin",
+            "path": "happy",
+            "title": "A place's photos move up and down",
+            "asserts": "Move up on the last and Move down on the first each edit photoIds to the new order",
+            "tier": "unit",
+            "status": "exists",
+            "notes": "Test: packages/ui/test/admin/pois/poi-editor.test.ts."
+        },
+        {
+            "id": "S-A198-BAD-REORDER",
+            "behaviour": "A198",
+            "area": "admin",
+            "path": "bad",
+            "title": "The first photo cannot move up nor the last down",
+            "asserts": "the first Move up and the last Move down are disabled",
+            "tier": "unit",
+            "status": "exists",
+            "notes": "Test: packages/ui/test/admin/pois/poi-editor.test.ts."
+        },
+        {
+            "id": "S-A199-HAPPY-LAYER-PLACES",
+            "behaviour": "A199",
+            "area": "admin",
+            "path": "happy",
+            "title": "A map layer is linked to a place",
+            "asserts": "a layer update with placeIds [parcul-carol] is allowed",
+            "tier": "rules",
+            "status": "exists",
+            "notes": "Test: firebase/rules-tests/test/layers.test.ts. Editor: packages/ui/src/admin/layers/layer-editor.ts (placesRow)."
+        },
+        {
+            "id": "S-A199-BAD-LAYER-PLACES",
+            "behaviour": "A199",
+            "area": "admin",
+            "path": "bad",
+            "title": "A layer's places that are not a list are refused",
+            "asserts": "placeIds as a string is denied",
+            "tier": "rules",
+            "status": "exists",
+            "notes": "Test: firebase/rules-tests/test/layers.test.ts."
         }
     ]
 }

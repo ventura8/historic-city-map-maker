@@ -48,22 +48,6 @@ describe('<hcm-poi-editor>: the form', () => {
     beforeAll(defineAll);
     afterEach(cleanup);
 
-    it('happyPath_aPlacesPhotosMoveUpAndDownForItsMedia @S-A196-HAPPY-REORDER', async () => {
-        const { element, store } = await mounted(editor({ draft: draft({ value: { ...VALUE, photoIds: ['p1', 'p9'] } }) }));
-
-        press(deep(element, '.chosen li:last-child .move-up'));
-        press(deep(element, '.chosen li:first-child .move-down'));
-
-        expect(asked(store, 'edit')).toEqual(['edit {"photoIds":["p9","p1"]}', 'edit {"photoIds":["p9","p1"]}']);
-    });
-
-    it('badPath_theFirstPhotoCannotMoveUpNorTheLastDown @S-A196-BAD-REORDER', async () => {
-        const { element } = await mounted(editor({ draft: draft({ value: { ...VALUE, photoIds: ['p1', 'p9'] } }) }));
-
-        expect(deep(element, '.chosen li:first-child .move-up').hasAttribute('disabled')).toBe(true);
-        expect(deep(element, '.chosen li:last-child .move-down').hasAttribute('disabled')).toBe(true);
-    });
-
     it('happyPath_everyFieldEditsTheDraft', async () => {
         const { element, store } = await mounted(
             editor({
@@ -543,5 +527,26 @@ describe('<hcm-poi-editor>: required fields and a city without categories', () =
         expect(deepAll(element, 'select#category')).toHaveLength(1);
         expect(deepAll(element, '.add-starters')).toEqual([]);
         expect(deep(element, '#category-error').textContent).toBe('Choose a category');
+    });
+});
+
+describe("<hcm-poi-editor>: the place's photo order (M17 §12)", () => {
+    beforeAll(defineAll);
+    afterEach(cleanup);
+
+    it('happyPath_aPlacesPhotosMoveUpAndDownForItsMedia @S-A198-HAPPY-REORDER', async () => {
+        const { element, store } = await mounted(editor({ draft: draft({ value: { ...VALUE, photoIds: ['p1', 'p9'] } }) }));
+
+        press(deep(element, '.chosen li:last-child .move-up'));
+        press(deep(element, '.chosen li:first-child .move-down'));
+
+        expect(asked(store, 'edit')).toEqual(['edit {"photoIds":["p9","p1"]}', 'edit {"photoIds":["p9","p1"]}']);
+    });
+
+    it('badPath_theFirstPhotoCannotMoveUpNorTheLastDown @S-A198-BAD-REORDER', async () => {
+        const { element } = await mounted(editor({ draft: draft({ value: { ...VALUE, photoIds: ['p1', 'p9'] } }) }));
+
+        expect(deep(element, '.chosen li:first-child .move-up').hasAttribute('disabled')).toBe(true);
+        expect(deep(element, '.chosen li:last-child .move-down').hasAttribute('disabled')).toBe(true);
     });
 });
