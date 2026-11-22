@@ -4,7 +4,7 @@
  * and licences. Everything returned here is plain text that
  * the elements render with Lit templates, never as HTML.
  */
-import { formatPhotoDate, isHttpsUrl, localized, translate, type License, type Photo, type Poi, type ViewerLocale } from '@hcm/shared';
+import { formatPhotoDate, isHttpsUrl, localized, translate, WIKIPEDIA_CATEGORY_ID, type License, type Photo, type Poi, type ViewerLocale } from '@hcm/shared';
 
 /** A `{ro, en?}` data text (photo and POI texts: English is optional). */
 export interface DataText {
@@ -66,6 +66,19 @@ export function poiYearsText(poi: PoiSpan, locale: ViewerLocale): string | null 
         return translate(locale, 'poi.yearStart', { yearStart: String(yearStart) });
     }
     return openEndOrSeen(yearEnd, yearSeen, locale);
+}
+
+/**
+ * A place's years in its details: `poiYearsText`, or "Years unknown (research ongoing)" for a place with none (the
+ * owner's request of 2026-11-22: a railway imported before research dates it). A Wikipedia article (M31) has no years by
+ * nature and says nothing.
+ */
+export function placeYearsText(poi: PoiSpan & Pick<Poi, 'category'>, locale: ViewerLocale): string | null {
+    const years = poiYearsText(poi, locale);
+    if (years !== null || poi.category === WIKIPEDIA_CATEGORY_ID) {
+        return years;
+    }
+    return translate(locale, 'poi.yearsUnknown');
 }
 
 function openEndOrSeen(yearEnd: number | undefined, yearSeen: number | undefined, locale: ViewerLocale): string | null {

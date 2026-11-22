@@ -161,6 +161,7 @@ export const ru: Messages = {
     'poi.yearStart': 'С {yearStart} года',
     'poi.yearEnd': 'До {yearEnd} года',
     'poi.yearSeen': 'Видна на карте {year} года',
+    'poi.yearsUnknown': 'Годы неизвестны (исследование продолжается)',
     'poi.links': 'Ссылки',
     'poi.sources': 'Источники',
     'poi.sourceLayer': 'Отображается в: {layer}',

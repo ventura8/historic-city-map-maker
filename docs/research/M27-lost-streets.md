@@ -124,3 +124,23 @@ Traced streets have no inventable start or end year. An optional integer `yearSe
 `1921-mihai-pantea` → 1921). `hasPlaceYear` / `placeYearIssues`, the Firestore `dated` check, the GeoJSON import and
 `review.decide` treat it as a dated place; the viewer's place sheet shows `poi.yearSeen` ("Văzută pe harta din {year}" /
 "Seen on the {year} map"). Both traced seed files fill `yearSeen` from `sourceLayer`.
+
+## 7. Places without years (2026-11-22)
+
+The owner's request of 2026-11-22: a place of any category, above all a line such as a railway, may have no `yearStart`,
+no `yearEnd` and no `yearSeen`, so it is imported now and dated when research finishes (before it, an agent had to give
+about 200 railway lines a fake `yearSeen` of 2026). `placeYearIssues` only refuses a year after next year; the
+Firestore rules' `yearsInRange` (was `dated`) likewise; `review.decide` and `history.revert` no longer ask for a year
+(`apiError.review.placeYear` and `apiError.history.placeYear` are gone). The manifest lists such a place (and now copies
+`yearSeen`, which `assemble.ts` left out until then, so a yearSeen-only street said nothing of its years on the map);
+the viewer draws it at every timeline year (`map-specs.ts`, categories regardless of the year since 2026-11-22) and its
+sheet says `poi.yearsUnknown` ("Ani necunoscuți (cercetare în curs)" / "Years unknown (research ongoing)", in all 16
+viewer catalogues), except a Wikipedia article (M31), which has no years by nature. The admin's list marks it **Fără
+ani** / **No years**, and the **No years** chip filters the loaded page down to them: the research backlog.
+
+The GeoJSON import (`geojson.ts`, `importer.ts`) also: reads a year written as digits (`"1890"`) and refuses other text;
+finds the place a feature updates by its `id` or, failing that, `properties.id`; and clears, on update, the optional
+fields the file leaves out (years, description, `sourceLayer`). The bug of 2026-11-22 (a file mixing 9 updates and 2 new
+lines previewed only "New: 2" and changed nothing of the 9) is pinned by `S-A34-HAPPY-MIXED`. Scenarios:
+`S-A32-HAPPY-NO-YEARS-FILTER`, `S-A32-BAD-NO-YEARS-FILTER`, `S-A34-HAPPY-NO-YEARS`, `S-A34-BAD-NO-YEARS-TEXT`,
+`S-A34-BAD-MIXED-UNKNOWN-ID`, `S-V24-HAPPY-NO-YEARS`, `S-V24-BAD-NO-YEARS`, `S-A90-HAPPY-PLACE-NO-YEARS`.

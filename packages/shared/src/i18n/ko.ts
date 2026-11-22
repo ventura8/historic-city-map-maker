@@ -159,6 +159,7 @@ export const ko: Messages = {
     'poi.yearStart': '{yearStart}년부터',
     'poi.yearEnd': '{yearEnd}년까지',
     'poi.yearSeen': '{year}년 지도에서 확인됨',
+    'poi.yearsUnknown': '연도 미상 (조사 중)',
     'poi.links': '링크',
     'poi.sources': '출처',
     'poi.sourceLayer': '표시된 레이어: {layer}',

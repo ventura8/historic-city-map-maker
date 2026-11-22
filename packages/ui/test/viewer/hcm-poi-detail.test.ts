@@ -78,6 +78,18 @@ describe('<hcm-poi-detail>', () => {
         expect(tops[1]).toBe(tops[0]);
     });
 
+    it('happyPath_aPlaceWithNoYearsSaysTheyAreUnknown @S-V24-HAPPY-NO-YEARS', async () => {
+        const element = await detail({ poi: poi('eveniment'), category: category('evenimente'), locale: 'en' });
+
+        expect(element.shadowRoot?.querySelector('.years')?.textContent).toBe('Years unknown (research ongoing)');
+    });
+
+    it('badPath_aPlaceWithYearsNeverSaysTheyAreUnknown @S-V24-BAD-NO-YEARS', async () => {
+        const element = await detail({ poi: poi('casa-uranus'), category: category('cladiri'), locale: 'en' });
+
+        expect(shadowText(element)).not.toContain('Years unknown');
+    });
+
     it('badPath_markupInTheDescriptionIsText', async () => {
         const element = await detail({ poi: poi('casa-uranus'), category: category('cladiri') });
 
@@ -89,7 +101,7 @@ describe('<hcm-poi-detail>', () => {
         const element = await detail({ poi: poi('eveniment'), category: category('evenimente') });
 
         expect((shadowQuery(element, '.swatch hcm-icon') as HTMLElement & { name: string }).name).toBe('location_on');
-        expect(element.shadowRoot?.querySelector('.years')).toBeNull();
+        expect(element.shadowRoot?.querySelector('.years')?.textContent).toBe('Ani necunoscuți (cercetare în curs)');
         expect(element.shadowRoot?.querySelector('.description')).toBeNull();
         expect(element.shadowRoot?.querySelector('section')).toBeNull();
     });
@@ -179,6 +191,7 @@ describe('<hcm-poi-detail> a Wikipedia article', () => {
         const text = shadowText(element);
         expect(text).toContain('Sală de *concerte*.');
         expect(text).toContain('Sursa: Wikipedia (CC BY-SA 4.0)');
+        expect(text).not.toContain('Ani necunoscuți');
         expect(shadowQuery(element, 'a').textContent).toContain('Citește pe Wikipedia');
     });
 

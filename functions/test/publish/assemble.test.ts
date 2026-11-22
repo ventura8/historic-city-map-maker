@@ -164,6 +164,19 @@ describe('assembleManifest: the manifest', () => {
 
         expect(manifest.pois?.[0]?.photoIds).toBeUndefined();
     });
+
+    it('happyPath_aPlaceWithNoYearsOrOnlyTheYearSeenIsListed @S-V24-HAPPY-NO-YEARS', () => {
+        const pois = result([
+            ['cale-ferata', poiDoc({ yearStart: undefined, yearEnd: undefined, yearSeen: undefined })],
+            ['strada', poiDoc({ yearStart: undefined, yearEnd: undefined, yearSeen: 1939 })],
+        ]);
+        const manifest = manifestOf(assembleManifest(content({ pois }), TEST_CONFIG.errorEndpoint));
+
+        expect(manifest.pois?.map((poi) => [poi.id, poi.yearStart, poi.yearEnd, poi.yearSeen])).toEqual([
+            ['cale-ferata', undefined, undefined, undefined],
+            ['strada', undefined, undefined, 1939],
+        ]);
+    });
 });
 
 describe('assembleManifest: left out and reported', () => {

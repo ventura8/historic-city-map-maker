@@ -5,8 +5,8 @@
  * that arrives while editing merges the fields the draft does not change; one that changed a field the draft changed too
  * raises the conflict the admin resolves (keep mine, take theirs), never a silent overwrite. The whole document is
  * validated with `poiDocSchema`, the geometry against the city's limits, the category against the city's categories and
- * the years with `placeYearIssues` (one year at least, none after next year: a place stored without one opens, and Save
- * asks for it), before anything is sent.
+ * the years with `placeYearIssues` (none after next year; a place may have no years at all, the owner's request of
+ * 2026-11-22), before anything is sent.
  *
  * A new place counts as unsaved only once the admin changed it (finding 42 of `docs/research/manual-test-2026-10-25.md`):
  * typed text, a drawn shape, a field moved from its default. Its first value and a default the page fills in later

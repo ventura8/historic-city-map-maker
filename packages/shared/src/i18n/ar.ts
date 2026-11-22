@@ -155,6 +155,7 @@ export const ar: Messages = {
     'poi.yearStart': 'منذ {yearStart}',
     'poi.yearEnd': 'حتى {yearEnd}',
     'poi.yearSeen': 'شوهدت على خريطة {year}',
+    'poi.yearsUnknown': 'السنوات غير معروفة (البحث جارٍ)',
     'poi.links': 'روابط',
     'poi.sources': 'المصادر',
     'poi.sourceLayer': 'يظهر في: {layer}',

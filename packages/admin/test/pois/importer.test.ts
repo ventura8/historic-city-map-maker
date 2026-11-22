@@ -84,6 +84,44 @@ describe('the import dialog', () => {
         });
     });
 
+    it('happyPath_aFileMixingUpdatesAndNewPlacesCountsAndWritesBoth @S-A34-HAPPY-MIXED', async () => {
+        const world = poisWorld();
+        const old = (title: string): PoiValue => ({ category: 'biserici', geometry: POINT, title: { ro: title }, yearSeen: 2026, links: [], photoIds: [], published: true });
+        const existing = new Map<string, PoiValue>([
+            ['cf-1', old('Linia 1')],
+            ['cf-2', old('Linia 2')],
+        ]);
+        const { importer: subject } = importer(world, existing);
+        const features = [
+            { type: 'Feature', id: 'cf-1', geometry: POINT, properties: { category: 'biserici', title: 'Linia 1' } },
+            { type: 'Feature', geometry: POINT, properties: { id: 'cf-2', category: 'biserici', title: 'Linia 2' } },
+            { type: 'Feature', geometry: POINT, properties: { category: 'biserici', title: 'Linia 3' } },
+        ];
+
+        await subject.choose(file(JSON.stringify({ type: 'FeatureCollection', features })), null);
+        expect(subject.state?.plan?.created).toHaveLength(1);
+        expect(subject.state?.plan?.updated.map((place) => place.id)).toEqual(['cf-1', 'cf-2']);
+        await subject.commit();
+
+        const write = world.store.writes[0];
+        const writes = write?.kind === 'batch' ? write.writes : [];
+        expect(writes.map((item) => item.kind)).toEqual(['create', 'update', 'update']);
+        expect(writes[1]).toMatchObject({ path: FIRESTORE_PATHS.poi(CITY, 'cf-1'), fields: { title: { ro: 'Linia 1' } } });
+        expect(writes[1]?.kind === 'update' ? writes[1].fields : {}).toHaveProperty('yearSeen', undefined);
+        expect(subject.state).toMatchObject({ status: 'done', written: 3 });
+    });
+
+    it('badPath_anIdInThePropertiesNamingNoPlaceMakesANewPlace @S-A34-BAD-MIXED-UNKNOWN-ID', async () => {
+        const world = poisWorld();
+        const { importer: subject } = importer(world);
+        const text = JSON.stringify({ type: 'Feature', geometry: POINT, properties: { id: 'nu-exista', category: 'biserici', title: 'Nou' } });
+
+        await subject.choose(file(text), null);
+
+        expect(subject.state?.plan?.updated).toEqual([]);
+        expect(subject.state?.plan?.created).toHaveLength(1);
+    });
+
     it('happyPath_theCategoryForUncategorisedFeaturesPlansAgain', async () => {
         const world = poisWorld();
         const { importer: subject } = importer(world);

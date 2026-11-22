@@ -166,6 +166,7 @@ export const fr: Messages = {
     'poi.yearStart': 'Depuis {yearStart}',
     'poi.yearEnd': 'Jusqu’en {yearEnd}',
     'poi.yearSeen': 'Vue sur la carte de {year}',
+    'poi.yearsUnknown': 'Années inconnues (recherche en cours)',
     'poi.links': 'Liens',
     'poi.sources': 'Provenance',
     'poi.sourceLayer': 'Visible sur : {layer}',

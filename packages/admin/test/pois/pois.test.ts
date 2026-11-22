@@ -168,9 +168,7 @@ describe('places: adding and editing', () => {
         store.intents.edit({ title: { ro: 'Statuia' } });
         expect(store.hasUnsavedChanges()).toBe(true);
         store.intents.editVertex({ kind: 'add', index: -1, position: [26.1, 44.43] });
-        // Every place needs a year (the owner's request of 2026-11-12): Save waits for one.
-        expect(await store.intents.save()).toMatchObject({ ok: false, issues: [{ path: 'yearStart', code: 'validation.required' }] });
-        store.intents.edit({ yearStart: 1890 });
+        // A place may have no years (the owner's request of 2026-11-22): it saves without one.
         const outcome = await store.intents.save();
 
         expect(outcome).toEqual({ ok: true });

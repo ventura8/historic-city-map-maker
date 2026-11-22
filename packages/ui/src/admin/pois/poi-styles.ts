@@ -119,8 +119,8 @@ export const poiStyles = [
             align-self: flex-start;
             padding: 0 8px;
             border-radius: var(--md-sys-shape-corner-small, 8px);
-            background: var(--md-sys-color-error-container, Canvas);
-            color: var(--md-sys-color-on-error-container, CanvasText);
+            background: var(--md-sys-color-tertiary-container, Canvas);
+            color: var(--md-sys-color-on-tertiary-container, CanvasText);
             font-size: var(--md-sys-typescale-label-medium-size, 0.75rem);
             line-height: var(--md-sys-typescale-label-medium-line-height, 1rem);
         }

@@ -159,6 +159,7 @@ export const ro = {
     'poi.yearStart': 'Din {yearStart}',
     'poi.yearEnd': 'Până în {yearEnd}',
     'poi.yearSeen': 'Văzută pe harta din {year}',
+    'poi.yearsUnknown': 'Ani necunoscuți (cercetare în curs)',
     'poi.links': 'Legături',
     'poi.sources': 'Surse',
     'poi.sourceLayer': 'Se vede pe: {layer}',

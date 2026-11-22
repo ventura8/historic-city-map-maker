@@ -513,20 +513,13 @@ service cloud.firestore {
                 && stamped(data);
         }
 
-        // A place names a year at least (the owner's request of 2026-11-12; `placeYearIssues` of @hcm/shared): one year, an
-        // open start or end, a span, or only `yearSeen` (traced on a plan of that year). Every create needs one; a place
-        // stored before the rule keeps loading, and an update that only publishes, unpublishes or moves it to another
-        // category (the list's bulk actions) passes without one. No year is after next year (`latestPlaceYear`), as the
-        // editor and the import say.
-        function dated(data) {
-            return ('yearStart' in data || 'yearEnd' in data || 'yearSeen' in data)
-                && data.get('yearStart', 0) <= request.time.year() + 1
+        // A place's years are optional (the owner's request of 2026-11-22: a railway imported before research dates it shows
+        // at every timeline year, "Years unknown (research ongoing)"). A year it names is not after next year
+        // (`latestPlaceYear` of @hcm/shared), as the editor and the import say.
+        function yearsInRange(data) {
+            return data.get('yearStart', 0) <= request.time.year() + 1
                 && data.get('yearEnd', 0) <= request.time.year() + 1
                 && data.get('yearSeen', 0) <= request.time.year() + 1;
-        }
-
-        function datedOrOnlyFiled(data) {
-            return dated(data) || changedKeys().hasOnly(['published', 'category', 'updatedBy', 'updatedAt']);
         }
 
         // ---- Stories (CLIENT_WRITES.story; M17, docs/research/M17-stories.md §1) ----------
@@ -766,7 +759,7 @@ service cloud.firestore {
                         'yearSeen', 'links', 'photoIds', 'published', 'credit', 'sourceLayer', 'reviewStatus', 'createdAt', 'createdBy',
                         'updatedBy', 'updatedAt'])
                     && validPoi(request.resource.data)
-                    && dated(request.resource.data)
+                    && yearsInRange(request.resource.data)
                     && (isCityMember(city) || request.resource.data.published == false)
                     && created(request.resource.data);
                 allow update: if (isCityReviewer(city)
@@ -776,7 +769,7 @@ service cloud.firestore {
                     && changedKeys().hasOnly(['category', 'geometry', 'title', 'description', 'yearStart', 'yearEnd', 'yearSeen',
                         'links', 'photoIds', 'published', 'credit', 'sourceLayer', 'updatedBy', 'updatedAt'])
                     && validPoi(request.resource.data)
-                    && datedOrOnlyFiled(request.resource.data);
+                    && yearsInRange(request.resource.data);
                 allow delete: if isCityMember(city)
                     || (isCityUploader(city) && ownItem(resource.data) && resource.data.get('reviewStatus', '') in ['pending', 'refused']);
 

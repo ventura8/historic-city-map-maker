@@ -18,6 +18,11 @@ export interface PoisFilter {
     /** One category, or every one. */
     readonly category: string | null;
     readonly unpublished: boolean;
+    /**
+     * No years (the owner's request of 2026-11-22): the research backlog, places with no start, end or seen year. A
+     * missing field cannot be queried, so it filters the loaded page, as Unpublished within a category does.
+     */
+    readonly noYears?: boolean;
     /** Filters the loaded page by title. */
     readonly search: string;
 }
@@ -46,10 +51,17 @@ function matches(item: PoiItem, search: string): boolean {
     return search === '' || `${item.title.ro} ${item.title.en ?? ''}`.toLocaleLowerCase('ro').includes(search);
 }
 
-/** The places of a page that the filter shows (Unpublished within a category, and the search, apply here). */
+/** True when a place names no year at all (the research backlog of the No years filter). */
+export function hasNoYears(item: Pick<PoiItem, 'yearStart' | 'yearEnd' | 'yearSeen'>): boolean {
+    return item.yearStart === null && item.yearEnd === null && item.yearSeen === null;
+}
+
+/** The places of a page that the filter shows (Unpublished within a category, No years, and the search, apply here). */
 export function shownPlaces(items: readonly PoiItem[], filter: PoisFilter): readonly PoiItem[] {
     const search = filter.search.trim().toLocaleLowerCase('ro');
-    return items.filter((item) => (!filter.unpublished || !item.published) && matches(item, search));
+    return items.filter(
+        (item) => (!filter.unpublished || !item.published) && (filter.noYears !== true || hasNoYears(item)) && matches(item, search),
+    );
 }
 
 export function photoChoiceOf(doc: Stored<PhotoDoc>): PhotoChoice {

@@ -6,7 +6,6 @@ import {
     auditedDocumentPath,
     cityDocSchema,
     historyEntryDocSchema,
-    hasPlaceYear,
     historyEntryId,
     isStaffRole,
     layerDocSchema,
@@ -91,17 +90,6 @@ function checkedVersion(entity: HistoryEntity, version: Fields): Fields {
     return result.value;
 }
 
-/**
- * A place that names a year keeps one (the owner's request of 2026-11-12; `firestore.rules` → `datedOrOnlyFiled`): a
- * version without a year is not restored over a dated place (`history.placeYear`). An Undo of a delete, or a place that
- * never had a year, restores as before.
- */
-function requireKeptYear(entity: HistoryEntity, current: Fields | undefined, restored: Fields): void {
-    if (entity === 'poi' && current !== undefined && hasPlaceYear(current) && !hasPlaceYear(restored)) {
-        throw new ApiError('apiError.history.placeYear');
-    }
-}
-
 /** The entry `history.revert` writes with the version: the history triggers skip the write it describes. */
 function revertEntry(revert: Revert, current: Fields | undefined, restored: Fields): HistoryEntryDoc {
     return {
@@ -124,7 +112,6 @@ async function restore(transaction: DocumentTransaction, revert: Revert): Promis
     const path = auditedDocumentPath(audited);
     const current = await transaction.get(path, SCHEMAS[audited.entity]);
     const restored = checkedVersion(audited.entity, restoredVersion(revert, previous, current));
-    requireKeptYear(audited.entity, current, restored);
     const entryId = historyEntryId(revert.now, `revert-${revert.caller.uid}`);
     await cancelLayerDeletes(transaction, current === undefined ? revert.cancel : [], revert);
     await transaction.set(path, SCHEMAS[audited.entity], restored);
@@ -151,7 +138,7 @@ function requireEntityRight(caller: VerifiedCaller, data: CallableRequest<'histo
 /**
  * `history.revert` (admins; S-A23-HAPPY, S-A23-BAD-INVALID-SNAPSHOT, S-A23-BAD-CREATION-ENTRY): restores the version
  * one history entry kept. A version today's schema refuses is not written (`history.invalidSnapshot` with the number
- * of problems), nor a place's version without a year over a dated place (`history.placeYear`); the publish triggers
+ * of problems); a place's version without years restores (a place may have none, 2026-11-22); the publish triggers
  * rebuild the manifest as for any edit. A deleted layer comes back only while its tileset exists (its waiting
  * `layer-delete` job is cancelled, a finished one answers `history.layerGone`); a deleted
  * photo whose public files were swept meanwhile is processed again from its original (CR-M2c-5).

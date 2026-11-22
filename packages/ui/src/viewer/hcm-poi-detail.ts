@@ -26,7 +26,7 @@ import { creditLine } from './photo-rights.js';
 import { resolveAssetUrl } from './services.js';
 import { fallbackNote } from './fallback-note.js';
 import { baseStyles, detailStyles } from './shared-styles.js';
-import { localizedText, poiYearsText } from './text.js';
+import { localizedText, placeYearsText } from './text.js';
 
 export const HCM_POI_DETAIL_TAG = 'hcm-poi-detail';
 
@@ -140,7 +140,7 @@ export class HcmPoiDetail extends LitElement {
         if (poi === null) {
             return EMPTY;
         }
-        const years = poiYearsText(poi, this.locale);
+        const years = placeYearsText(poi, this.locale);
         return html`<div class="details">
             ${this.#category()} ${this.#thumbnail()} ${years === null ? nothing : html`<p class="years">${years}</p>`}
             ${

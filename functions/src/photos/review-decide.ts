@@ -3,7 +3,6 @@ import '../global-options.js';
 import {
     DERIVATIVE_WRITTEN_AT,
     FIRESTORE_PATHS,
-    hasPlaceYear,
     IMMUTABLE_CACHE_CONTROL,
     STORAGE_PATHS,
     photoDocSchema,
@@ -166,16 +165,6 @@ function requireStoryText(story: StoryDoc): void {
     }
 }
 
-/**
- * A place is approved with a year (owner request of 2026-11-12; `placeYearIssues` of @hcm/shared): the editor asks for
- * one before an uploader's Save, so only a place stored before the rule lacks it. Refusing it stays open.
- */
-function requirePlaceYear(place: PoiDoc): void {
-    if (!hasPlaceYear(place)) {
-        throw new ApiError('apiError.review.placeYear');
-    }
-}
-
 /** A place or a story: the verdict and `published` in one transaction. */
 async function decideText<Doc extends Decidable>(
     deps: ReviewDeps,
@@ -204,7 +193,6 @@ function decideItem(deps: ReviewDeps, caller: VerifiedCaller, data: Request): Pr
         ? decideText(deps, caller, data, {
               path: FIRESTORE_PATHS.poi(data.cityId, data.id),
               schema: poiDocSchema,
-              requireApprovable: requirePlaceYear,
           })
         : decideText(deps, caller, data, {
               path: FIRESTORE_PATHS.story(data.cityId, data.id),

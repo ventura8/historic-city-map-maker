@@ -132,28 +132,27 @@ describe('a place draft: years', () => {
         expect(draftIssues({ ...FRESH, yearStart: 1850, yearEnd: 1977 }, DATED)).toEqual([]);
     });
 
-    it('badPath_aPlaceWithoutAYearOrAfterNextYearIsAnIssue', () => {
-        expect(draftIssues(UNDATED, DATED)).toEqual([{ path: 'yearStart', code: 'validation.required' }]);
+    it('happyPath_aPlaceWithNoYearsSaves', () => {
+        expect(draftIssues(UNDATED, DATED)).toEqual([]);
+    });
+
+    it('badPath_aYearAfterNextYearIsAnIssue', () => {
         expect(draftIssues({ ...FRESH, yearStart: 2028 }, DATED)).toEqual([{ path: 'yearStart', code: 'validation.tooBig' }]);
         expect(draftIssues({ ...FRESH, yearStart: 2028 }, CONTEXT)).toEqual([]);
     });
 
-    it('happyPath_aStoredPlaceWithoutAYearOpensAndSavesOnceItHasOne', async () => {
+    it('happyPath_aStoredPlaceWithoutAYearSavesAndLaterGetsOne', async () => {
         const world = poisWorld();
         world.store.put(PATH, placeDoc(world, { yearStart: undefined }));
         const { draft } = draftOf(world, { base: stored(world) }, DATED);
 
-        expect(draft.state.issues).toEqual([{ path: 'yearStart', code: 'validation.required' }]);
+        expect(draft.state.issues).toEqual([]);
         draft.edit({ title: { ro: 'Stavropoleos (1724)' } });
-        expect(await draft.save()).toMatchObject({ ok: false, reason: 'invalid' });
-        expect(world.store.writes).toEqual([]);
+        expect(await draft.save()).toEqual({ ok: true });
 
         draft.edit({ yearStart: 1900 });
         expect(await draft.save()).toEqual({ ok: true });
-        expect(world.store.writes.at(-1)).toMatchObject({
-            kind: 'update',
-            fields: { title: { ro: 'Stavropoleos (1724)' }, yearStart: 1900 },
-        });
+        expect(world.store.writes.at(-1)).toMatchObject({ kind: 'update', fields: { yearStart: 1900 } });
     });
 });
 

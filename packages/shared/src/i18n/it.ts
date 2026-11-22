@@ -160,6 +160,7 @@ export const it: Messages = {
     'poi.yearStart': 'Dal {yearStart}',
     'poi.yearEnd': 'Fino al {yearEnd}',
     'poi.yearSeen': 'Vista sulla mappa del {year}',
+    'poi.yearsUnknown': 'Anni sconosciuti (ricerca in corso)',
     'poi.links': 'Collegamenti',
     'poi.sources': 'Fonti',
     'poi.sourceLayer': 'Visibile in: {layer}',

@@ -53,6 +53,7 @@ function visiblePlaces(view: PoisViewState): readonly PoiItemPort[] {
     return withDraft(view.list.items, view.editor).filter(
         (item) =>
             (!view.filter.unpublished || !item.published) &&
+            (view.filter.noYears !== true || yearMissing(item)) &&
             (search === '' || `${item.title.ro} ${item.title.en ?? ''}`.toLocaleLowerCase('ro').includes(search)),
     );
 }
@@ -213,6 +214,12 @@ export class HcmPoiList extends LitElement {
                     ?selected=${view.filter.unpublished}
                     @click=${() => this.intents?.setFilter({ unpublished: !view.filter.unpublished })}
                 ></hcm-chip>
+                <hcm-chip
+                    class="no-years"
+                    .label=${poiText(this.locale, 'adminContent.pois.filter.noYears')}
+                    ?selected=${view.filter.noYears === true}
+                    @click=${() => this.intents?.setFilter({ noYears: view.filter.noYears !== true })}
+                ></hcm-chip>
             </div>
             <div class="field">
                 <label for="search">${poiText(this.locale, 'adminContent.pois.search')}</label>
@@ -289,7 +296,7 @@ export class HcmPoiList extends LitElement {
         </li>`;
     }
 
-    /** The Year missing mark of a place stored without a year. */
+    /** The No years mark of a place with no years yet (research ongoing). */
     #yearMissing(place: PoiItemPort): TemplateResult {
         return yearMissing(place)
             ? html`<span class="year-missing">${poiText(this.locale, 'adminContent.pois.yearMissing')}</span>`
@@ -306,7 +313,7 @@ export class HcmPoiList extends LitElement {
     }
 }
 
-/** A place stored before every place needed a year (owner request of 2026-11-12): its row says so, and Save asks for one. */
+/** A place with no years yet (research ongoing; the owner's request of 2026-11-22): its row says No years, the filter finds it. */
 function yearMissing(place: Pick<PoiItemPort, 'yearStart' | 'yearEnd' | 'yearSeen'>): boolean {
     return place.yearStart === null && place.yearEnd === null && (place.yearSeen === null || place.yearSeen === undefined);
 }

@@ -195,14 +195,14 @@ the next call at once because they also require the document (S-A20-BAD-ADMIN-RE
 
 | Callable | Access | Request → response | Errors |
 | --- | --- | --- | --- |
-| `history.revert` | admin | `{cityId, entity, entityId, entryId}` → `{restoredFields}` | `history.notFound`, `history.nothingToRestore`, `history.invalidSnapshot` (`{count}`), `history.placeYear` |
+| `history.revert` | admin | `{cityId, entity, entityId, entryId}` → `{restoredFields}` | `history.notFound`, `history.nothingToRestore`, `history.invalidSnapshot` (`{count}`) |
 
 Admins read history with the Firestore SDK (`FIRESTORE_PATHS.history(document)`, ordered by id). A revert restores
 the client-editable fields (`CLIENT_WRITES[entity].update`) from `previous`, keeps the current value of every
 server-owned field (a revert never resurrects a rotated token or a replaced image; a deleted document comes back with
 its snapshot's), stamps the caller, and validates the result with the entity's schema first: a snapshot that today's
-schema refuses is not written (`invalidSnapshot` with the number of issues), nor a place's version without a year over
-a place that names one (`placeYear`, M2c §7.2). The entry of a create has nothing to
+schema refuses is not written (`invalidSnapshot` with the number of issues); a place's version without years restores
+(a place may have none, 2026-11-22). The entry of a create has nothing to
 restore.
 
 ### 3.3 `setup.*` (fn-setup; A03–A07, A22)

@@ -43,6 +43,21 @@ describe('the places list: queries and filters', () => {
         expect(shownPlaces(ITEMS, { category: null, unpublished: false, search: 'ALBĂ' }).map((place) => place.id)).toEqual(['a']);
     });
 
+    it('happyPath_noYearsShowsOnlyThePlacesWithoutAnyYear @S-A32-HAPPY-NO-YEARS-FILTER', () => {
+        const dated = { ...item('c', { ro: 'Gara de Nord' }, true), yearStart: 1872 };
+        const seen = { ...item('d', { ro: 'Strada Rozelor' }, true), yearSeen: 1939 };
+        const places = [...ITEMS, dated, seen];
+
+        expect(shownPlaces(places, { category: null, unpublished: false, noYears: true, search: '' }).map((place) => place.id)).toEqual(['a', 'b']);
+        expect(shownPlaces(places, { category: null, unpublished: false, noYears: false, search: '' })).toHaveLength(4);
+    });
+
+    it('badPath_noYearsWhenEveryPlaceIsDatedShowsNothing @S-A32-BAD-NO-YEARS-FILTER', () => {
+        const dated = [{ ...item('c', { ro: 'Gara de Nord' }, true), yearEnd: 1990 }];
+
+        expect(shownPlaces(dated, { category: null, unpublished: false, noYears: true, search: '' })).toEqual([]);
+    });
+
     it('badPath_aSearchThatMatchesNothingShowsNothing', () => {
         expect(shownPlaces(ITEMS, { category: null, unpublished: false, search: 'zzz' })).toEqual([]);
     });

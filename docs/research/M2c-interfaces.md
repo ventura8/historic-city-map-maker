@@ -729,32 +729,33 @@ removed its public files is processed again from its kept original by `history.r
 
 ### 7.1 The list
 
-Category chips (from `poiCategories`, with their icons and colours), Unpublished, a text search by title; each item:
-the category's icon on its colour, the title, the years, the shape (point, line, area). A place stored before every place
-needed a year (the owner's request of 2026-11-12) shows **Year missing** under its row instead of the years. From expanded, the overview map
+Category chips (from `poiCategories`, with their icons and colours), Unpublished, **No years**, a text search by title; each item:
+the category's icon on its colour, the title, the years, the shape (point, line, area). A place with no years (the
+owner's request of 2026-11-22: imported before research dates it) shows **No years** / **Fără ani** under its row instead
+of the years, and the **No years** chip (`filter.noYears`, `hasNoYears` of `places.ts`) shows only those places of the
+loaded page (a missing field cannot be queried, so it filters the page as Unpublished within a category does; **Show
+more** reaches the rest): the research backlog. From expanded, the overview map
 draws every place in its category's overlay; a click on a shape selects it (`onPoiClick`).
 
 ### 7.2 The editor
 
 - Category (a select over the city's categories; the last used one for a new place), title and description (RO, EN
   optional; the description in the Markdown subset with the DOM preview of `hcm-markdown-field`), start and end year
-  (at least one: a single year, an open start or end, a span from and to, or only `yearSeen` for a street traced on a
-  plan of that year, the end never before the start, each from 1800 to next year; `placeYearIssues` of `@hcm/shared`, the
-  owner's request of 2026-11-12), links (at most 5), photos (`hcm-photo-picker`, a dialog listing the city's photos by title with
+  (a single year, an open start or end, a span from and to, only `yearSeen` for a street traced on a plan of that year,
+  or none at all until research dates the place (the owner's request of 2026-11-22); the end never before the start,
+  each from 1500 to next year; `placeYearIssues` of `@hcm/shared`), links (at most 5), photos (`hcm-photo-picker`, a dialog listing the city's photos by title with
   thumbnails: at most `MAX_POI_PHOTOS`, 20), Published.
 - Geometry: drawn and edited on the map (§4.4) or in the vertex list (§4.6); the type is chosen when the place is added
   (Point, Line, Area) and changes only by redrawing ("Redraw as…" clears the geometry after the unsaved guard's
   question).
 - Save: `geometryToDoc(geometry)`, validated with `poiDocSchema`, the manifest's place rules (inside the city,
-  closed rings) and `placeYearIssues` (no year: `validation.required` at the start year, "Write a year, or the years from
-  and to", shown as the place opens; a year after next year by the admin's clock: `validation.tooBig`, "The year cannot be after next year" in the editor's
-  own words (`issue-text.ts`, an admin text, so the viewer's catalogue does not carry it), once the field is left), then §5.3. The stored schemas keep both years optional, so a place saved before the rule still loads in the
-  admin and still shows on the public map; its Save asks for a year. The Firestore rules ask the same (`dated`): every
-  create names a year, and an update without one only publishes, unpublishes or moves the place to another category
-  (the list's bulk actions); no year may be after next year by the server's clock (`request.time`). The GeoJSON import
-  checks both, by the admin's clock, as Save does. `review.decide` refuses to approve a place without one
-  (`apiError.review.placeYear`), and `history.revert` does not restore a version without a year over a place that names
-  one (`apiError.history.placeYear`); an Undo of a delete and a place that never had a year restore as before.
+  closed rings) and `placeYearIssues` (a year after next year by the admin's clock: `validation.tooBig`, "The year cannot
+  be after next year" in the editor's own words, `issue-text.ts`, once the field is left), then §5.3. A place may have
+  no years at all (2026-11-22; until then every place needed one, the owner's request of 2026-11-12): the Firestore rules
+  (`yearsInRange`) only refuse a year after next year by the server's clock (`request.time`), the GeoJSON import checks
+  the same by the admin's clock, `review.decide` approves a place without years and `history.revert` restores a version
+  without them. The viewer shows such a place at every timeline year, its details saying "Ani necunoscuți (cercetare în
+  curs)" / "Years unknown (research ongoing)" (`poi.yearsUnknown`).
 
 ### 7.3 Delete
 
@@ -771,9 +772,11 @@ Client delete with §9.5; bulk delete of a selection; places come back from Hist
 - **Import** (overflow menu, then a file): read as text (at most 5 MB, else refused before parsing: `S-A34-BAD-NOT-GEOJSON`),
   `JSON.parse` in a `try`, a `FeatureCollection` or a single `Feature`; each feature mapped field by field into a new
   object (never spread from the file) and validated with `geometrySchema`, `poiDocSchema` and the manifest's place
-  rules, and `placeYearIssues` without the clock (a feature naming no year and no `yearSeen` is refused as invalid at
-  `yearStart`). The
-  preview dialog counts **new**, **updated** (an `id` that names an existing place), **unchanged** and
+  rules, and `placeYearIssues` (a feature may name no year at all, 2026-11-22; a year written as digits, `"1890"`, reads
+  as the year, other text is refused as invalid). The
+  preview dialog counts **new**, **updated** (an `id` that names an existing place: the feature's own `id`, else `properties.id`; an update clears the
+  optional fields the file leaves out, such as a year, since 2026-11-22: before it, a file of updates with the id among
+  the properties made new places, and an update merged, so taking a year away changed nothing), **unchanged** and
   **refused** (each with its reason: an unsupported type such as `MultiPolygon`, a position with altitude, an open ring,
   a position outside the city, an unknown category, more than 500 positions; `S-A34-BAD-INVALID-FEATURES`), and draws the
   valid ones on the page's map. Features without a known category take the one category the admin chooses in the
@@ -895,8 +898,7 @@ callables are M2's (`admins.list`, `admins.invite`, `admins.revoke`, **done**); 
 - `#/history/<entity>/<id>`: the document's entries; the selected entry shows each changed field before and after, as
   text (a geometry as its type and position count, adjustments as percentages, a theme as its seed colour).
 - **Revert** (and **Restore**) asks first, then calls `history.revert` (**done**); a refusal shows its code as an alert
-  (`apiError.history.invalidSnapshot` with the count, `nothingToRestore`, the new `layerGone`, `placeYear` for a place's
-  version without a year over a dated place, §7.2) and changes nothing
+  (`apiError.history.invalidSnapshot` with the count, `nothingToRestore`, the new `layerGone`) and changes nothing
   (`S-A23-BAD-REFUSED-SHOWN`). A creation entry offers no Revert.
 
 ### 9.3 Jobs (A18)

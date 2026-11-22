@@ -233,6 +233,7 @@ function poiEntry(poi: PoiDoc, id: string, listed: Listed): unknown {
         description: poi.description,
         yearStart: poi.yearStart,
         yearEnd: poi.yearEnd,
+        yearSeen: poi.yearSeen,
         links: poi.links ?? [],
         photoIds: stillListed(poi.photoIds, listed.placed),
         credit: poi.credit,

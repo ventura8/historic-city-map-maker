@@ -47,8 +47,7 @@ statuses are `pending`, `approved`, `refused`; a document without the field is a
 - `reviewStatus`, `reviewNote`, `reviewedBy`, `reviewedAt` and `heldImage` are server-owned. The update rule refuses a change of
   `published` while the stored status is `pending` or `refused`, so approval has one door, `review.decide`.
 - `review.decide` (`cityReviewer`): `approve` publishes the item and, for a photo, moves its held pictures to the public bucket.
-  A place approved without a year answers `apiError.review.placeYear` (the owner's request of 2026-11-12: every place names a
-  year; refusing it stays open).
+  A place without years is approved like any other (the owner's request of 2026-11-22; `apiError.review.placeYear` is gone).
   `refuse` needs no note, keeps `published: false` and deletes the held pictures. Deciding a decided item answers
   `apiError.review.alreadyDecided`. A photo not processed yet answers `apiError.review.notReady`. A licence of `unknown` answers
   `apiError.review.licenseUnknown`.

@@ -38,7 +38,6 @@ export const en: Readonly<Record<AdminContentKitKey, string>> = {
     'adminContent.common.issue.category': 'Choose a category',
     'adminContent.common.issue.geometry': 'Draw the place on the map or add its positions',
     'adminContent.common.issue.year': 'Write the year as a number, such as 1966',
-    'adminContent.common.issue.placeYear': 'Write a year, or the years from and to',
     'adminContent.common.issue.yearLate': 'The year cannot be after next year.',
     'adminContent.common.readOnly': 'Read only: your access was removed.',
     // [end common]

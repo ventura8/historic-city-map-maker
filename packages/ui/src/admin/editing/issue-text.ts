@@ -35,8 +35,8 @@ const OWN_WORDS: ReadonlyMap<string, readonly OwnWords[]> = new Map<string, read
     ['category', [{ key: 'adminContent.common.issue.category', codes: null }]],
     ['geometry', [{ key: 'adminContent.common.issue.geometry', codes: ['validation.required'] }]],
     ['year', [{ key: 'adminContent.common.issue.year', codes: ['validation.required', 'validation.type'] }]],
-    // A place's years (owner request of 2026-11-12): Save wants one at least, reported at the start year, and none after next year.
-    ['yearStart', [{ key: 'adminContent.common.issue.placeYear', codes: ['validation.required'] }, YEAR_LATE]],
+    // A place's years: none after next year (a place may have no years at all, the owner's request of 2026-11-22).
+    ['yearStart', [YEAR_LATE]],
     ['yearEnd', [YEAR_LATE]],
     ['yearSeen', [YEAR_LATE]],
 ]);

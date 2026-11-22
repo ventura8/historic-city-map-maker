@@ -47,6 +47,14 @@ export interface ImporterDeps {
     readonly changed: (state: ImportState | null) => void;
 }
 
+/**
+ * An update's fields: the file's place whole, every optional field it leaves out cleared (`undefined` is the store's
+ * delete). Before 2026-11-22 an update merged, so a file that took a place's years or description away changed nothing.
+ */
+function updateFieldsOf(value: PoiValue): Readonly<Record<string, unknown>> {
+    return { description: undefined, yearStart: undefined, yearEnd: undefined, yearSeen: undefined, sourceLayer: undefined, ...docFieldsOf(value) };
+}
+
 function batches<T>(items: readonly T[], size: number): T[][] {
     return Array.from({ length: Math.ceil(items.length / size) }, (_unused, index) => items.slice(index * size, (index + 1) * size));
 }
@@ -177,7 +185,7 @@ export class Importer {
         const updated = plan.updated.map((place): BatchWrite => ({
             kind: 'update',
             path: FIRESTORE_PATHS.poi(cityId, place.id),
-            fields: docFieldsOf(place.value),
+            fields: updateFieldsOf(place.value),
         }));
         return [...created, ...updated];
     }

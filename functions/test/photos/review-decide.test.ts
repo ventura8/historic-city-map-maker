@@ -94,13 +94,12 @@ describe('review.decide', () => {
         });
     });
 
-    it('badPath_aPlaceWithoutAYearIsNotApprovedButCanBeRefused @S-A90-BAD-PLACE-YEAR', async () => {
+    it('happyPath_aPlaceWithoutYearsIsApproved @S-A90-HAPPY-PLACE-NO-YEARS', async () => {
         const world = await communityWorld();
         const path = FIRESTORE_PATHS.poi(CITY_ID, 'a');
         await world.documents.set(path, poiDocSchema, poiDoc({ published: false, reviewStatus: 'pending' }));
-        expect(await refusal(decide(world, 'u-owner', { entity: 'poi', id: 'a' }))).toBe('apiError.review.placeYear');
-        expect(await world.documents.get(path, poiDocSchema)).toMatchObject({ published: false, reviewStatus: 'pending' });
-        await expect(decide(world, 'u-owner', { entity: 'poi', id: 'a', decision: 'refuse' })).resolves.toEqual({ status: 'refused' });
+        await expect(decide(world, 'u-owner', { entity: 'poi', id: 'a' })).resolves.toEqual({ status: 'approved' });
+        expect(await world.documents.get(path, poiDocSchema)).toMatchObject({ published: true, reviewStatus: 'approved' });
     });
 });
 

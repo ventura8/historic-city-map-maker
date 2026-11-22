@@ -31,14 +31,14 @@ describe('<hcm-pois-page>: the list', () => {
         expect(await axeViolations(element)).toEqual([]);
     });
 
-    it('badPath_aPlaceStoredWithoutAYearSaysYearMissing', async () => {
+    it('happyPath_aPlaceWithoutYearsSaysNoYears', async () => {
         const undated = place({ id: 'undated', title: { ro: 'Hanul cu Tei' }, yearStart: null, yearEnd: null });
         const store = area(poisState({ list: ready([place(), undated]) }));
         const { element } = await poisPage(store);
 
         const rows = deepAll(element, 'a.row').map((row) => row.textContent.replace(/\s+/g, ' ').trim());
-        expect(rows).toEqual(['Stavropoleos Church Churches · from 1890 · Point', 'Hanul cu Tei Churches · Point Year missing']);
-        expect(deepAll(element, '.year-missing').map((badge) => badge.textContent)).toEqual(['Year missing']);
+        expect(rows).toEqual(['Stavropoleos Church Churches · from 1890 · Point', 'Hanul cu Tei Churches · Point No years']);
+        expect(deepAll(element, '.year-missing').map((badge) => badge.textContent)).toEqual(['No years']);
         expect(await axeViolations(element)).toEqual([]);
     });
 
@@ -61,9 +61,19 @@ describe('<hcm-pois-page>: the list', () => {
             'setFilter {"category":"biserici"}',
             'setFilter {"category":"parcuri"}',
             'setFilter {"unpublished":true}',
+            'setFilter {"noYears":true}',
             'setFilter {"search":"cis"}',
             'toggleSelected "stavropoleos"',
         ]);
+    });
+
+    it('happyPath_theNoYearsFilterShowsTheResearchBacklog @S-A32-HAPPY-NO-YEARS-FILTER', async () => {
+        const undated = place({ id: 'undated', title: { ro: 'Calea ferată' }, yearStart: null, yearEnd: null });
+        const store = area(poisState({ list: ready([place(), undated]), filter: { category: null, unpublished: false, noYears: true, search: '' } }));
+        const { element } = await poisPage(store);
+
+        expect(deepAll(element, 'a.row').map((row) => row.getAttribute('href'))).toEqual(['#/pois/undated']);
+        expect(deep(element, 'hcm-chip.no-years').hasAttribute('selected')).toBe(true);
     });
 
     it('happyPath_theFilterAndTheSearchShowOnlyTheirPlaces', async () => {

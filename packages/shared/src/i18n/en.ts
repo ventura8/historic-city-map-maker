@@ -154,6 +154,7 @@ export const en: Messages = {
     'poi.yearStart': 'From {yearStart}',
     'poi.yearEnd': 'Until {yearEnd}',
     'poi.yearSeen': 'Seen on the {year} map',
+    'poi.yearsUnknown': 'Years unknown (research ongoing)',
     'poi.links': 'Links',
     'poi.sources': 'Sources',
     'poi.sourceLayer': 'Seen on: {layer}',

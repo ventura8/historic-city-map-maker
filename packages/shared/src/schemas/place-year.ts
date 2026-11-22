@@ -1,10 +1,9 @@
 /**
- * A place's (point, line or area) years as Save wants them (the owner's request of 2026-11-12): one year, or a span from
- * and to, or (M27 traced streets) only `yearSeen` — the year of the plan the street was traced on, when start and end
- * are unknown. The stored schemas (`poiDocSchema`, the manifest's `poiSchema`) keep every year optional, so a place
- * written before the rule still loads in the admin and still shows on the public map; the admin's editor, the GeoJSON
- * import, the Firestore rules (`firebase/firestore.rules` → `dated`) and `review.decide` ask for at least one of those
- * before a place is written or approved, and `history.revert` keeps a dated place's years. The stored range stays 1500
+ * A place's (point, line or area) years: one year, a span from and to, (M27 traced streets) only `yearSeen` — the year
+ * of the plan the street was traced on — or none at all (the owner's request of 2026-11-22: lines such as railways are
+ * imported now and dated when research finishes). Every year is optional in the stored schemas (`poiDocSchema`, the
+ * manifest's `poiSchema`), the editor, the GeoJSON import, the Firestore rules (`firebase/firestore.rules` →
+ * `yearsInRange`), `review.decide` and `history.revert`; `hasPlaceYear` tells the dated from the research backlog. The stored range stays 1500
  * to 2100 (`yearSchema`): an engine already on jsDelivr validates every manifest against it. The editor, the import and
  * the rules also refuse a year after next year, which needs today's date, so it is a check here and not part of a schema.
  */
@@ -35,13 +34,11 @@ function lateYears(place: PlaceYears, latest: number): ValidationIssue[] {
 }
 
 /**
- * What Save says of a place's years beyond the schema: none at all (`validation.required` on `yearStart`), or a year after
- * `latest` (`validation.tooBig`, whose words the admin's editor gives per field; null: today is not known, nothing is checked). The order of the two and their range
- * (1500 to 2100) are the schema's. A place with only `yearSeen` is dated (traced on a plan of that year).
+ * What Save says of a place's years beyond the schema: a year after `latest` (`validation.tooBig`, whose words the admin's
+ * editor gives per field; null: today is not known, nothing is checked). A place with no years at all is valid (the
+ * owner's request of 2026-11-22): it is imported now and dated when research finishes, and the viewer shows it at every
+ * timeline year with "Years unknown (research ongoing)"; the admin's list finds it with the No years filter.
  */
 export function placeYearIssues(place: PlaceYears, latest: number | null): ValidationIssue[] {
-    if (!hasPlaceYear(place)) {
-        return [{ path: 'yearStart', code: 'validation.required' }];
-    }
     return latest === null ? [] : lateYears(place, latest);
 }

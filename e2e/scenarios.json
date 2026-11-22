@@ -3763,6 +3763,28 @@
             "notes": "Milestone M1. PLAN Addendum 3. Fixture: the POI set scripts/seed/e2e-pois.json in the e2e fixture manifest (docs/research/M1-interfaces.md §10)."
         },
         {
+            "id": "S-V24-HAPPY-NO-YEARS",
+            "behaviour": "V24",
+            "area": "viewer",
+            "path": "happy",
+            "title": "A place with no years shows at every stop and says its years are unknown",
+            "asserts": "a POI with no yearStart, yearEnd or yearSeen reaches the manifest, is drawn at every timeline stop, and its details say Years unknown (research ongoing) in the visitor's language; a place with only yearSeen keeps it in the manifest",
+            "tier": "e2e-viewer",
+            "status": "exists",
+            "notes": "The owner's request of 2026-11-22 (places with no years, docs/research/M27-lost-streets.md → Places without years). Tests: e2e/specs/viewer/pois.spec.ts, packages/ui/test/viewer/hcm-poi-detail.test.ts, functions/test/publish/assemble.test.ts."
+        },
+        {
+            "id": "S-V24-BAD-NO-YEARS",
+            "behaviour": "V24",
+            "area": "viewer",
+            "path": "bad",
+            "title": "A dated place or a Wikipedia article never says its years are unknown",
+            "asserts": "a POI with a year shows its years and no Years unknown line; a Wikipedia article (no years by nature) shows none either",
+            "tier": "e2e-viewer",
+            "status": "exists",
+            "notes": "The owner's request of 2026-11-22 (places with no years, docs/research/M27-lost-streets.md → Places without years). Tests: e2e/specs/viewer/pois.spec.ts, packages/ui/test/viewer/hcm-poi-detail.test.ts."
+        },
+        {
             "id": "S-V24-HAPPY-EVERY-STOP",
             "behaviour": "V24",
             "area": "viewer",
@@ -9366,22 +9388,44 @@
             "behaviour": "A32",
             "area": "admin",
             "path": "happy",
-            "title": "A place with one year or a span is saved, and an old place without one still loads",
-            "asserts": "a place with a single year, an open start or end, or a span from and to is created; a place stored without a year still reads, shows Year missing in the list, can be published, unpublished or moved to another category, and saves once it is given a year; an undated place's earlier version and an undone delete still restore",
+            "title": "A place with one year, a span, only the year seen or no years at all is saved",
+            "asserts": "a place with a single year, an open start or end, a span, only yearSeen, or no years at all is created and edited; a dated place may lose its years; a place without years reads, shows No years in the list, and history.revert restores a version without years; review.decide approves a place without years",
             "tier": "rules",
             "status": "exists",
-            "notes": "The owner's request of 2026-11-12: every place (point, line, area) names a year. Tests: firebase/rules-tests/test/pois.test.ts, functions/test/history/revert.test.ts; the editor, the list badge and the import: packages/admin/test/pois/draft.test.ts, packages/admin/test/pois/pois.test.ts, packages/admin/test/pois/geojson.test.ts, packages/ui/test/admin/pois/poi-editor.test.ts, packages/ui/test/admin/pois/pois-page.test.ts; docs/research/M2c-interfaces.md §7.2."
+            "notes": "The owner's request of 2026-11-22 (places with no years, docs/research/M27-lost-streets.md → Places without years). Tests: firebase/rules-tests/test/pois.test.ts, functions/test/history/revert.test.ts, packages/shared/test/schemas/place-year.test.ts, packages/admin/test/pois/draft.test.ts, packages/ui/test/admin/pois/pois-page.test.ts."
         },
         {
             "id": "S-A32-BAD-PLACE-YEAR",
             "behaviour": "A32",
             "area": "admin",
             "path": "bad",
-            "title": "A place without a year is not saved",
-            "asserts": "a new place without a year, an old place retitled or redrawn without one, or a place whose years are removed (by an edit or by history.revert, apiError.history.placeYear) is refused, as is a year after next year in the rules and the import; the editor says Write a year, or the years from and to under the start year at once and in Save's note, Save is off, and a year after next year says The year cannot be after next year",
+            "title": "A year after next year is not saved",
+            "asserts": "a start, end or seen year after next year is refused by the rules (the server's clock), the editor (The year cannot be after next year) and the import",
             "tier": "rules",
             "status": "exists",
-            "notes": "The owner's request of 2026-11-12: every place (point, line, area) names a year. Tests: firebase/rules-tests/test/pois.test.ts, functions/test/history/revert.test.ts; the editor, the list badge and the import: packages/admin/test/pois/draft.test.ts, packages/admin/test/pois/pois.test.ts, packages/admin/test/pois/geojson.test.ts, packages/ui/test/admin/pois/poi-editor.test.ts, packages/ui/test/admin/pois/pois-page.test.ts; docs/research/M2c-interfaces.md §7.2."
+            "notes": "The owner's request of 2026-11-22 (places with no years, docs/research/M27-lost-streets.md → Places without years). Tests: firebase/rules-tests/test/pois.test.ts, packages/shared/test/schemas/place-year.test.ts, packages/admin/test/pois/draft.test.ts."
+        },
+        {
+            "id": "S-A32-HAPPY-NO-YEARS-FILTER",
+            "behaviour": "A32",
+            "area": "admin",
+            "path": "happy",
+            "title": "The No years filter lists the research backlog",
+            "asserts": "the list's No years chip shows only the places with no start, end or seen year of the loaded page, each marked No years; the dated places are left out",
+            "tier": "e2e-admin",
+            "status": "exists",
+            "notes": "The owner's request of 2026-11-22 (places with no years, docs/research/M27-lost-streets.md → Places without years). Tests: e2e/admin/specs/pois/no-years.spec.ts, packages/admin/test/pois/places.test.ts, packages/ui/test/admin/pois/pois-page.test.ts."
+        },
+        {
+            "id": "S-A32-BAD-NO-YEARS-FILTER",
+            "behaviour": "A32",
+            "area": "admin",
+            "path": "bad",
+            "title": "No years leaves every dated place out",
+            "asserts": "the No years filter on a list whose places all name a year (start, end or seen) shows no row",
+            "tier": "e2e-admin",
+            "status": "exists",
+            "notes": "The owner's request of 2026-11-22 (places with no years, docs/research/M27-lost-streets.md → Places without years). Tests: e2e/admin/specs/pois/no-years.spec.ts, packages/admin/test/pois/places.test.ts."
         },
         {
             "id": "S-A33-HAPPY",
@@ -9635,6 +9679,50 @@
             "tier": "e2e-admin",
             "status": "exists",
             "notes": "2026-11-06 review of 66b1271; workstream admin. Test: e2e/admin/specs/pois/import-delete.spec.ts; packages/admin/test/pois/pois.test.ts."
+        },
+        {
+            "id": "S-A34-HAPPY-MIXED",
+            "behaviour": "A34",
+            "area": "admin",
+            "path": "happy",
+            "title": "A file mixing updates and new features counts and writes both",
+            "asserts": "a file of 2 features naming existing places (the id on the feature or in properties.id) and 1 new -> the preview says New: 1, Updated: 2 -> Import writes 3; an update clears the years the file leaves out",
+            "tier": "e2e-admin",
+            "status": "exists",
+            "notes": "Bug of 2026-11-22: a mixed file previewed only New: 2 and its 9 updates changed nothing. Tests: e2e/admin/specs/pois/no-years.spec.ts, packages/admin/test/pois/importer.test.ts."
+        },
+        {
+            "id": "S-A34-BAD-MIXED-UNKNOWN-ID",
+            "behaviour": "A34",
+            "area": "admin",
+            "path": "bad",
+            "title": "An id in the properties that names no place makes a new place",
+            "asserts": "properties.id naming no place of the city -> planned as new, never as an update",
+            "tier": "e2e-admin",
+            "status": "exists",
+            "notes": "Bug of 2026-11-22. Test: packages/admin/test/pois/importer.test.ts."
+        },
+        {
+            "id": "S-A34-HAPPY-NO-YEARS",
+            "behaviour": "A34",
+            "area": "admin",
+            "path": "happy",
+            "title": "Features without any year import",
+            "asserts": "railway lines with no yearStart, yearEnd or yearSeen (or null, or empty text) -> planned and written with no year; a year written as digits reads as the year",
+            "tier": "e2e-admin",
+            "status": "exists",
+            "notes": "The owner's request of 2026-11-22 (places with no years, docs/research/M27-lost-streets.md → Places without years). Tests: e2e/admin/specs/pois/no-years.spec.ts, packages/admin/test/pois/geojson.test.ts."
+        },
+        {
+            "id": "S-A34-BAD-NO-YEARS-TEXT",
+            "behaviour": "A34",
+            "area": "admin",
+            "path": "bad",
+            "title": "A year that is not a year is refused",
+            "asserts": "yearStart 'demult' -> refused with its reason, nothing written, no Import",
+            "tier": "e2e-admin",
+            "status": "exists",
+            "notes": "The owner's request of 2026-11-22 (places with no years, docs/research/M27-lost-streets.md → Places without years). Tests: e2e/admin/specs/pois/no-years.spec.ts, packages/admin/test/pois/geojson.test.ts."
         },
         {
             "id": "S-A35-HAPPY",
@@ -17150,15 +17238,15 @@
             "notes": "Milestone M13 (docs/research/M13-roles.md). Test: e2e/admin/specs/roles/roles.spec.ts, packages/admin/test/photos/store.test.ts, packages/admin/test/pois/pois.test.ts."
         },
         {
-            "id": "S-A90-BAD-PLACE-YEAR",
+            "id": "S-A90-HAPPY-PLACE-NO-YEARS",
             "behaviour": "A90",
             "area": "admin",
-            "path": "bad",
-            "title": "A place without a year is not approved",
-            "asserts": "apiError.review.placeYear, the place still pending and unpublished; refusing it still works",
+            "path": "happy",
+            "title": "A place without years is approved",
+            "asserts": "review.decide approves a pending place with no years: it is published and approved",
             "tier": "functions",
             "status": "exists",
-            "notes": "The owner's request of 2026-11-12: every place names a year. Test: functions/test/photos/review-decide.test.ts."
+            "notes": "The owner's request of 2026-11-22 (places with no years, docs/research/M27-lost-streets.md → Places without years). Test: functions/test/photos/review-decide.test.ts."
         },
         {
             "id": "S-A92-HAPPY-ASK-AGAIN",

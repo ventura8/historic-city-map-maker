@@ -172,12 +172,27 @@ function textOf(value: unknown): PoiText | null {
     return isObject(value) ? objectText(value) : null;
 }
 
-/** `{[field]: year}` when the property is a number, else nothing (the schema checks the range). */
+/** A year written as digits ("1890", as spreadsheets export it) reads as the number. */
+const YEAR_TEXT = /^\s*\d{1,4}\s*$/;
+
+/** A year property as a number: digits read as the year, other text as NaN (the schema refuses it), else null (no year). */
+function yearNumber(value: unknown): number | null {
+    if (typeof value === 'string' && value.trim() !== '') {
+        return YEAR_TEXT.test(value) ? Number(value) : Number.NaN;
+    }
+    return typeof value === 'number' ? value : null;
+}
+
+/**
+ * `{[field]: year}` when the property names one, else nothing: a place may have no years at all (the owner's request of
+ * 2026-11-22: a railway imported before research dates it). The schema checks the range.
+ */
 function yearOf(
     field: 'yearStart' | 'yearEnd' | 'yearSeen',
     value: unknown,
 ): Readonly<Partial<Record<'yearStart' | 'yearEnd' | 'yearSeen', number>>> {
-    return typeof value === 'number' ? { [field]: value } : {};
+    const year = yearNumber(value);
+    return year === null ? {} : { [field]: year };
 }
 
 function linksOf(value: unknown): PoiLink[] {
@@ -213,13 +228,22 @@ function valueOf(properties: Raw, geometry: Geometry, category: string): PoiValu
     };
 }
 
+/**
+ * The place id a feature names: the feature's own `id` (as Export writes it), else `properties.id` (as many tools write
+ * it). Before 2026-11-22 only the first was read, so a file of updates with the id among the properties made new places.
+ */
+function namedId(feature: Raw): string | null {
+    const properties = isObject(feature['properties']) ? feature['properties'] : {};
+    return stringOf(feature['id']) ?? stringOf(properties['id']);
+}
+
 function existingId(feature: Raw, existing: ReadonlyMap<string, PoiValue>): string | null {
-    const id = stringOf(feature['id']);
+    const id = namedId(feature);
     return id !== null && ID_PATTERN.test(id) && existing.has(id) ? id : null;
 }
 
 function namesUnreadable(feature: Raw, context: ImportContext): boolean {
-    const id = stringOf(feature['id']);
+    const id = namedId(feature);
     return id !== null && context.unreadable?.has(id) === true;
 }
 

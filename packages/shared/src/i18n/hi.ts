@@ -154,6 +154,7 @@ export const hi: Messages = {
     'poi.yearStart': '{yearStart} से',
     'poi.yearEnd': '{yearEnd} तक',
     'poi.yearSeen': '{year} के मानचित्र पर देखी गई',
+    'poi.yearsUnknown': 'वर्ष अज्ञात (शोध जारी है)',
     'poi.links': 'लिंक',
     'poi.sources': 'स्रोत',
     'poi.sourceLayer': '{layer} पर देखा गया',

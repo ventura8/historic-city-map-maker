@@ -20,11 +20,9 @@ describe('placeYearIssues', () => {
         expect(placeYearIssues(place, latestPlaceYear(NOW))).toEqual([]);
     });
 
-    it('badPath_aPlaceWithoutAYearAndWithoutYearSeen_asksForOneAtTheStartYear', () => {
+    it('happyPath_aPlaceWithNoYearsAtAll_isValidButUndated', () => {
         expect(hasPlaceYear({})).toBe(false);
-        expect(placeYearIssues({ yearStart: undefined, yearEnd: undefined, yearSeen: undefined }, 2027)).toEqual([
-            { path: 'yearStart', code: 'validation.required' },
-        ]);
+        expect(placeYearIssues({ yearStart: undefined, yearEnd: undefined, yearSeen: undefined }, 2027)).toEqual([]);
     });
 
     it('badPath_aYearAfterNextYear_isLate', () => {
@@ -35,10 +33,10 @@ describe('placeYearIssues', () => {
         ]);
     });
 
-    it('happyPath_withoutToday_onlyTheMissingYearIsChecked', () => {
+    it('happyPath_withoutToday_nothingIsChecked', () => {
         expect(placeYearIssues({ yearEnd: 2100 }, null)).toEqual([]);
         expect(placeYearIssues({ yearSeen: 1914 }, null)).toEqual([]);
-        expect(placeYearIssues({}, null)).toEqual([{ path: 'yearStart', code: 'validation.required' }]);
+        expect(placeYearIssues({}, null)).toEqual([]);
     });
 
     it('happyPath_theLatestYearIsNextYearInUtc', () => {
