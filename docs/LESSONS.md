@@ -4354,3 +4354,8 @@ Append a numbered entry to *Lessons from this repository* in the task that finds
     - Cause: `document.fullscreenElement` is the outermost shadow host (the admin shell), never the page itself; Esc arrived while `requestFullscreen` was still pending, so leaving found nothing to exit; Chromium refuses `setWindowBounds` in full screen.
     - Fix and pin: "left" is `fullscreenElement === null`; a request that resolves after the page already left exits again; the layout checkers run on the in-page cover (the refused path).
     - **Compare against null, not the element, behind shadow roots, and undo a pending async entry when the user already left.**
+
+745. **`map-static` on the aerial-photos commit failed e2e-matrix, stylelint, knip and radon, not the prettier/tsc/eslint names in the task title.**
+    - Seen: 2026-11-17, work-queue `map-static` at `c58e34f9` (after `e297495`): `docs/E2E_SCENARIOS.md` stale after new V76/A193 rows; `.over a.action:focus-visible` before `[data-costs] a.action` (`no-descending-specificity`); `photosOfKind` and `aerialPhotoManifest` exported but only used in-file; `mermaid_problems` radon B(9).
+    - Fix and pin: regenerate the scenarios doc; put the base link rule before the more specific focus rule; drop the unused `export`; split the Mermaid check into helpers under complexity 5.
+    - **Trust the work-queue log for which gates failed, and put a base selector before its `:focus-visible` override.**

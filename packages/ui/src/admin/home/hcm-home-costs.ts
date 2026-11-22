@@ -186,12 +186,6 @@ const costsStyles = css`
         color: var(--md-sys-color-on-error-container, CanvasText);
     }
 
-    /* On the error container the theme's focus colour is too faint (2.4:1): the ring takes the text's colour. */
-    .over a.action:focus-visible {
-        outline: 2px solid currentcolor;
-        outline-offset: 2px;
-    }
-
     [data-costs] a.action {
         display: inline-flex;
         gap: 4px;
@@ -201,6 +195,12 @@ const costsStyles = css`
         font-weight: var(--md-sys-typescale-label-large-weight, 500);
 
         --hcm-icon-size: 18px;
+    }
+
+    /* On the error container the theme's focus colour is too faint (2.4:1): the ring takes the text's colour. */
+    .over a.action:focus-visible {
+        outline: 2px solid currentcolor;
+        outline-offset: 2px;
     }
 `;
 

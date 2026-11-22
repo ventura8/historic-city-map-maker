@@ -24,7 +24,7 @@ export const AERIAL_PHOTO_STATES = {
 } as const satisfies Record<string, AerialPhotoState>;
 
 /** The fixture with its first photo taken from above, in 1944. */
-export function aerialPhotoManifest(): Json {
+function aerialPhotoManifest(): Json {
     const manifest = siteManifestData();
     const [first] = manifest['photos'] as [Json];
     Object.assign(first, { kind: 'aerial' });
