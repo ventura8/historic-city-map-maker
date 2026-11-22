@@ -8,6 +8,7 @@
 import type { AdminContentKey, ApiErrorCode, CityRole, FirestoreLicense, PhotoKind, ReviewStatus, ValidationIssue } from '@hcm/shared';
 
 import type { AssistActionsPort, AssistViewPort } from '../assist/assist-port.js';
+import type { PlacePickPort } from '../editing/place-links.js';
 
 /** A live list's or document's status (`LoadStatusPort` of `content-port.ts`, which imports this file). */
 type PhotosLoadStatusPort = 'loading' | 'ready' | 'error';
@@ -106,6 +107,8 @@ export interface PhotoValuePort extends StickyPort {
     readonly bearing?: number | undefined;
     readonly fov?: number | undefined;
     /** An aerial photo's viewed area: four corners on the ground, a rectangle or a trapezoid (the owner 2026-11-22). */
+    /** M17 §12: the places whose Media list the photo. */
+    readonly placeIds?: readonly string[] | undefined;
     readonly viewedArea?: readonly { readonly lat: number; readonly lng: number }[] | undefined;
     readonly published: boolean;
     readonly rightsReview?: boolean | undefined;
@@ -195,6 +198,8 @@ export interface PhotosViewState {
     readonly assist: AssistViewPort;
     /** M13: the admin's role in the city. */
     readonly role: CityRole | null;
+    /** M17 §12: the city's places the editor's place picker offers; null until read. */
+    readonly places: readonly PlacePickPort[] | null;
 }
 
 /** A chosen file, as the page hands it to the area (a `File`). */

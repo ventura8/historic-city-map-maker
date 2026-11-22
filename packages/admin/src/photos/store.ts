@@ -10,6 +10,7 @@ import { bboxCenter, bboxFromRecord, cityDocSchema, FIRESTORE_PATHS, type CityDo
 import type { Unsubscribe } from '../app/ports.js';
 import type { EditorAssists } from '../assist/editor-assists.js';
 import { LiveDoc } from '../content/doc.js';
+import { readPlacePicks } from '../content/place-picks.js';
 import { ownerOnlyOf, type Stored } from '../content/services.js';
 import { PhotoActions, type ActionIntents } from './actions.js';
 import { photoAssists, type PhotoAssistIntents } from './assists.js';
@@ -97,6 +98,7 @@ export class PhotosArea implements PhotosStore {
     readonly #cityDoc: LiveDoc<CityDoc>;
     #map: PhotoMapSession | null = null;
     #container: HTMLElement | null = null;
+    #placesLoading = false;
 
     constructor(services: PhotosServices) {
         this.#services = services;
@@ -191,6 +193,18 @@ export class PhotosArea implements PhotosStore {
             this.#cityDoc.show(FIRESTORE_PATHS.city(this.#services.cityId));
         }
         this.#editing.open(params[0] ?? null);
+        void this.#loadPlaces();
+    }
+
+    /** M17 §12: the place picker's places, read once per page visit that has none yet. */
+    async #loadPlaces(): Promise<void> {
+        if (this.#state.places !== null || this.#placesLoading) {
+            return;
+        }
+        this.#placesLoading = true;
+        const places = await readPlacePicks(this.#services);
+        this.#placesLoading = false;
+        this.#set({ places });
     }
 
     close(): void {

@@ -500,3 +500,37 @@ describe('assembleManifest: the tab icon flag', () => {
         expect(manifest.city.ownIcon).toBe(ownIcon);
     });
 });
+
+describe('assembleManifest: place media (docs/research/M17-stories.md §12)', () => {
+    it('happyPath_aPhotoAndAMapNameTheirPlace @S-V80-HAPPY-PLACE-MEDIA', () => {
+        const manifest = manifestOf(
+            assembleManifest(
+                content({
+                    layers: result([['flight-1940', layerDoc({ placeIds: ['enei'] })]]),
+                    photos: result([['p1', photoDoc('p1', { kind: 'interior', placeIds: ['enei'] })]]),
+                }),
+                TEST_CONFIG.errorEndpoint,
+            ),
+        );
+
+        expect(validateManifest(manifest).ok).toBe(true);
+        expect(manifest.layers[0]?.placeIds).toEqual(['enei']);
+        expect(manifest.photos[0]).toMatchObject({ kind: 'interior', placeIds: ['enei'] });
+    });
+
+    it('badPath_aPlaceTheManifestDoesNotListLeavesTheMediaNotThePhoto @S-V80-BAD-UNKNOWN-PLACE', () => {
+        const manifest = manifestOf(
+            assembleManifest(
+                content({
+                    layers: result([['flight-1940', layerDoc({ placeIds: ['gone'] })]]),
+                    photos: result([['p1', photoDoc('p1', { placeIds: ['gone', 'enei'] })]]),
+                }),
+                TEST_CONFIG.errorEndpoint,
+            ),
+        );
+
+        expect(validateManifest(manifest).ok).toBe(true);
+        expect(manifest.layers[0]?.placeIds).toBeUndefined();
+        expect(manifest.photos[0]?.placeIds).toEqual(['enei']);
+    });
+});

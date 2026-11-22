@@ -22,11 +22,16 @@ interface Identified {
     readonly id: string;
 }
 
+/** M17 §12: a photo or a layer may name the places whose Media list it. */
+interface Placed extends Identified {
+    readonly placeIds?: readonly string[] | undefined;
+}
+
 export interface CheckedManifest {
     readonly city: { readonly bounds: BBox };
-    readonly layers: readonly Identified[];
-    readonly photos: readonly (Identified & { readonly location: { readonly lat: number; readonly lng: number } })[];
-    readonly unplaced?: readonly Identified[] | undefined;
+    readonly layers: readonly Placed[];
+    readonly photos: readonly (Placed & { readonly location: { readonly lat: number; readonly lng: number } })[];
+    readonly unplaced?: readonly Placed[] | undefined;
     readonly poiCategories?: readonly Identified[] | undefined;
     readonly pois?:
         | readonly (Identified & {
@@ -111,6 +116,16 @@ function storyReferences(manifest: CheckedManifest): RuleIssue[] {
     ]);
 }
 
+/** M17 §12: the places a photo or a layer names must be places of the same manifest. */
+function mediaPlaces(manifest: CheckedManifest): RuleIssue[] {
+    const pois = new Set((manifest.pois ?? []).map((poi) => poi.id));
+    const check = (key: 'layers' | 'photos' | 'unplaced', items: readonly Placed[]) =>
+        items.flatMap((item, index) =>
+            (item.placeIds ?? []).flatMap((id, at) => (pois.has(id) ? [] : [{ path: [key, index, 'placeIds', at], code: 'validation.reference' } as const])),
+        );
+    return [...check('layers', manifest.layers), ...check('photos', manifest.photos), ...check('unplaced', manifest.unplaced ?? [])];
+}
+
 function unplacedClashes(manifest: CheckedManifest): RuleIssue[] {
     const placed = new Set(manifest.photos.map((photo) => photo.id));
     return [
@@ -136,5 +151,6 @@ export function manifestRuleIssues(manifest: CheckedManifest): RuleIssue[] {
         ...poiReferences(manifest),
         ...duplicates('stories', manifest.stories ?? []),
         ...storyReferences(manifest),
+        ...mediaPlaces(manifest),
     ];
 }

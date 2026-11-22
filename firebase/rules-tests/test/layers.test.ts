@@ -50,6 +50,7 @@ describe('presentation', () => {
         ['a corrected licence and author', { rights: { licence: 'CC-BY-SA-4.0', author: 'Institutul Geografic' } }],
         ['removed rights', { rights: deleted() }],
         ['a drawn map, once taken for an aerial photo', { kind: 'map' }],
+        ['a small-area map of a place @S-A197-HAPPY-LAYER-PLACES', { placeIds: ['parcul-carol'] }],
     ])('happyPath_adminSaves_%s', async (_label, changes) => {
         expect(await edit(changes)).toBe('allow');
     });
@@ -66,6 +67,7 @@ describe('presentation', () => {
         ['a visibility that is not a boolean', { defaultVisible: 'yes' }],
         ['a published flag that is not a boolean', { published: 1 }],
         ['a kind the viewer does not know', { kind: 'drawing' }],
+        ['places that are not a list @S-A197-BAD-LAYER-PLACES', { placeIds: 'parcul-carol' }],
         ['a label over 200 characters', { label: { ro: 'x'.repeat(201) } }],
         ['a label without Romanian', { label: { en: 'Corona 1966' } }],
         ['a removed label', { label: deleted() }],

@@ -28,7 +28,7 @@ import {
     PHOTO_KINDS,
 } from './manifest.js';
 import { ARCHIVE_PLACE_METHODS, layerRightsSchema } from './imagery-archive.js';
-import { iconNameSchema, MAX_POI_PHOTOS, photosOverlaySchema } from './poi.js';
+import { iconNameSchema, MAX_POI_PHOTOS, photosOverlaySchema, placeIdsSchema } from './poi.js';
 import { heldImageSchema, reviewFields } from './review.js';
 import { localizedStorySchema, storyFields } from './story.js';
 import {
@@ -224,6 +224,8 @@ const photoDocObjectSchema = z
     .strictObject({
         /** Absent on a street photo; `aerial` on a photo taken from above (Imagery → aerial photos, the owner 2026-11-16). */
         kind: z.enum(PHOTO_KINDS).optional(),
+        /** The places whose Media list the photo (M17 §12, the owner 2026-11-22). */
+        placeIds: placeIdsSchema.optional(),
         title: localizedPartial(200),
         description: localizedPartial(5000).optional(),
         year: yearSchema.optional(),
@@ -309,6 +311,8 @@ export const layerDocSchema = z.strictObject({
     opacity: opacitySchema,
     defaultVisible: z.boolean(),
     adjustments: layerAdjustmentsSchema.optional(),
+    /** A small-area map's places (M17 §12): their sheets list the layer under Media, Maps. */
+    placeIds: placeIdsSchema.optional(),
     /** M20 (`docs/research/M20-import-local.md` §7): an archive map's licence, author and source, copied into the manifest. */
     rights: layerRightsSchema.optional(),
     status: z.enum(LAYER_STATUSES),

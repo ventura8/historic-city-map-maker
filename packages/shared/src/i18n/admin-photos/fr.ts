@@ -138,6 +138,7 @@ export const fr: Readonly<Partial<Record<AdminPhotosKey, string>>> = {
     'adminContent.photos.field.kind': 'Type',
     'adminContent.photos.kind.ground': 'Photo de rue',
     'adminContent.photos.kind.aerial': 'Photo aérienne',
+    'adminContent.photos.kind.interior': 'Photo d’intérieur',
     'adminContent.photos.field.rightsHolder': 'Titulaire des droits',
     'adminContent.photos.field.sourceLabel': 'Nom de la source (facultatif)',
     'adminContent.photos.field.sourceLabelHint': 'Affiché sous forme de lien. Sans adresse, les visiteurs ne verront rien.',

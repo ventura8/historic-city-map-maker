@@ -137,6 +137,7 @@ export class HcmPhotosPage extends AreaPage<PhotosViewState, PhotosIntentsPort> 
             data-detail-heading
             .editor=${view.editor}
             .assist=${view.assist}
+            .places=${view.places}
             .intents=${this.intents}
             .locale=${locale}
             ?map-ready=${view.map === 'ready'}

@@ -145,6 +145,7 @@ export const en: Readonly<Record<AdminPhotosKey, string>> = {
     'adminContent.photos.field.kind': 'Kind',
     'adminContent.photos.kind.ground': 'Street photo',
     'adminContent.photos.kind.aerial': 'Aerial photo',
+    'adminContent.photos.kind.interior': 'Interior photo',
     'adminContent.photos.field.rightsHolder': 'Rights holder',
     'adminContent.photos.field.sourceLabel': 'Source name (optional)',
     'adminContent.photos.field.sourceLabelHint': 'Shown as the link. Without an address, visitors see nothing.',

@@ -8,7 +8,7 @@ import { z } from 'zod';
 import { bboxContains } from '../geo/bbox.js';
 import { isCspOrigin, isHttpsUrl } from '../text/urls.js';
 import { manifestRuleIssues } from './manifest-rules.js';
-import { photosOverlaySchema, poiCategorySchema, poiSchema, MAX_POI_CATEGORIES, MAX_POIS } from './poi.js';
+import { photosOverlaySchema, placeIdsSchema, poiCategorySchema, poiSchema, MAX_POI_CATEGORIES, MAX_POIS } from './poi.js';
 import {
     assetUrlSchema,
     bboxSchema,
@@ -182,6 +182,8 @@ export const layerSchema = z
         defaultVisible: z.boolean(),
         opacity: opacitySchema,
         adjustments: layerAdjustmentsSchema.optional(),
+        /** A small-area map's places (POI ids): the place's sheet lists it under Media, Maps (M17 §12). */
+        placeIds: placeIdsSchema.optional(),
     })
     .refine((layer) => layer.minzoom <= layer.maxzoom, coded('validation.zoomRange', ['maxzoom']))
     .refine((layer) => layer.date === undefined || layer.date.startsWith(String(layer.year)), coded('validation.value', ['date']));
@@ -206,10 +208,11 @@ const photoVersionSchema = photoImageSchema.extend({ credit: plainText(200).opti
 const photoSourceSchema = z.strictObject({ url: httpsUrlSchema, label: plainText(200).optional() });
 
 /**
- * What a photo shows (the owner, 2026-11-16): `ground`, taken on the street (the default, so a photo without `kind` is
- * one), or `aerial`, taken from above (Imagery → aerial photos land here as photos, never as map layers).
+ * What a photo shows (the owner, 2026-11-16): `ground`, taken on the street or outside a building (the default, so a photo
+ * without `kind` is one), `aerial`, taken from above (Imagery → aerial photos land here as photos, never as map layers), or
+ * (2026-11-22) `interior`, taken inside a building.
  */
-export const PHOTO_KINDS = ['ground', 'aerial'] as const;
+export const PHOTO_KINDS = ['ground', 'aerial', 'interior'] as const;
 export type PhotoKind = (typeof PHOTO_KINDS)[number];
 
 /** The kind of `photo`: `ground` when it says none. */
@@ -220,8 +223,10 @@ export function photoKindOf(photo: { readonly kind?: PhotoKind | undefined }): P
 /** What a photo says wherever it stands on the map or, unplaced (M13), in the gallery. */
 const photoFields = {
     id: idSchema,
-    /** Absent on a street photo (`ground`); `aerial` on a photo taken from above. */
+    /** Absent on a street photo (`ground`); `aerial` on a photo taken from above, `interior` inside a building. */
     kind: z.enum(PHOTO_KINDS).optional(),
+    /** The places (POI ids) whose Media the photo belongs to (M17 §12). */
+    placeIds: placeIdsSchema.optional(),
     title: localizedPartial(200),
     description: localizedPartial(5000).optional(),
     year: yearSchema.optional(),

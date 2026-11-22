@@ -13,6 +13,7 @@ import { LitElement, html, nothing, type TemplateResult } from 'lit';
 
 import { emit } from '../../components/internal.js';
 import type { AssistViewPort } from '../assist/assist-port.js';
+import type { PlacePickPort } from '../editing/place-links.js';
 import { assistStyles } from '../assist/assist-parts.js';
 import { conflictFields, NOBODY, savedByText, type WhoPort } from '../editing/conflict.js';
 import { cannotSaveText } from '../editing/issue-text.js';
@@ -68,6 +69,7 @@ export class HcmAdminPhotoEditor extends LitElement {
         readOnly: { type: Boolean, reflect: true, attribute: 'read-only' },
         who: { attribute: false },
         assist: { attribute: false },
+        places: { attribute: false },
     };
 
     static override readonly styles = [...photoStyles, ...assistStyles];
@@ -82,6 +84,8 @@ export class HcmAdminPhotoEditor extends LitElement {
     declare who: WhoPort;
     /** M4 (CR-M4-4): the title suggestions and translation drafts of the open photo (none: no assist slots). */
     declare assist: AssistViewPort | null;
+    /** M17 §12: the city's places the place picker offers; null while they load. */
+    declare places: readonly PlacePickPort[] | null;
     /** The list-detail layout asked for the focus before the heading was there (the photo still loading). */
     #wantsFocus = false;
     /** The number fields left since the photo opened (they say their problem from then on). */
@@ -98,6 +102,7 @@ export class HcmAdminPhotoEditor extends LitElement {
         this.readOnly = false;
         this.who = NOBODY;
         this.assist = null;
+        this.places = null;
     }
 
     /**
@@ -154,6 +159,7 @@ export class HcmAdminPhotoEditor extends LitElement {
             left,
             readOnly: this.readOnly,
             assist: this.assist === null || this.intents === null ? null : { view: this.assist, actions: this.intents },
+            places: this.places,
         };
         const place = {
             ...{ locale, editor, value, issues: editor.issues, intents: this.intents },

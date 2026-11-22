@@ -397,8 +397,14 @@ service cloud.firestore {
                 && data.license in ['CC0', 'CC-BY-4.0', 'CC-BY-SA-4.0', 'PD', 'permission', 'permission-legacy', 'unknown']
                 && data.published is bool
                 && data.get('rightsReview', false) is bool
-                && data.get('kind', 'ground') in ['ground', 'aerial']
+                && data.get('kind', 'ground') in ['ground', 'aerial', 'interior']
+                && validPlaceIds(data.get('placeIds', ['x']))
                 && stamped(data);
+        }
+
+        // M17 §12 (zod `placeIdsSchema`): the places whose Media list a photo or a map, one to ten ids, each once.
+        function validPlaceIds(ids) {
+            return ids is list && ids.size() >= 1 && ids.size() <= 10 && ids.toSet().size() == ids.size();
         }
 
         // Publishing needs processed derivatives (photos.onUpload wrote `image`) and a known licence.
@@ -450,6 +456,7 @@ service cloud.firestore {
                 && data.opacity >= 0 && data.opacity <= 1
                 && data.defaultVisible is bool
                 && validAdjustments(data.get('adjustments', {}))
+                && validPlaceIds(data.get('placeIds', ['x']))
                 && data.published is bool
                 && stamped(data);
         }
@@ -703,7 +710,7 @@ service cloud.firestore {
                     && isId(photo)
                     && request.resource.data.keys().hasOnly(['kind', 'title', 'description', 'year', 'yearEnd', 'month', 'day', 'dateText', 'author', 'license',
                         'rightsHolder', 'sourceUrl', 'sourceLabel', 'permissionNote', 'legacyId', 'links', 'location', 'bearing', 'fov', 'viewedArea',
-                        'published', 'rightsReview', 'credit', 'versionCredits', 'reviewStatus', 'processing', 'createdAt', 'createdBy',
+                        'placeIds', 'published', 'rightsReview', 'credit', 'versionCredits', 'reviewStatus', 'processing', 'createdAt', 'createdBy',
                         'updatedBy', 'updatedAt'])
                     && validPhoto(request.resource.data)
                     && ('location' in request.resource.data
@@ -719,7 +726,7 @@ service cloud.firestore {
                             && !changedKeys().hasAny(['published', 'legacyId', 'rightsReview'])))
                     && changedKeys().hasOnly(['kind', 'title', 'description', 'year', 'yearEnd', 'month', 'day', 'dateText', 'author', 'license',
                         'rightsHolder', 'sourceUrl', 'sourceLabel', 'permissionNote', 'legacyId', 'links', 'location', 'bearing', 'fov', 'viewedArea', 'published',
-                        'rightsReview', 'credit', 'versionCredits', 'versions', 'updatedBy', 'updatedAt'])
+                        'placeIds', 'rightsReview', 'credit', 'versionCredits', 'versions', 'updatedBy', 'updatedAt'])
                     && (!('versions' in changedKeys())
                         || (isCityReviewer(city)
                             && versionsOnlyRemoved(resource.data.get('versions', {}), request.resource.data.get('versions', {}))))
@@ -744,7 +751,7 @@ service cloud.firestore {
                 allow read: if isCityMember(city);
                 allow update: if isCityMember(city)
                     && changedKeys().hasOnly(['label', 'description', 'attribution', 'rights', 'year', 'date', 'order', 'opacity',
-                        'defaultVisible', 'adjustments', 'published', 'kind', 'updatedBy', 'updatedAt'])
+                        'defaultVisible', 'adjustments', 'published', 'kind', 'placeIds', 'updatedBy', 'updatedAt'])
                     && validLayer(request.resource.data);
 
                 match /history/{entry} {

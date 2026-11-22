@@ -22,6 +22,7 @@ import type { AssistViewPort } from '../assist/assist-port.js';
 import { draftAssist } from '../assist/assist-parts.js';
 import type { WhoPort } from '../editing/conflict.js';
 import { errorTemplate, loadingTemplate, reconnectingStatus } from '../editing/states.js';
+import { placeLinksField, type PlacePickPort } from '../editing/place-links.js';
 import { EMPTY } from '../shell/empty.js';
 import { contentText } from '../shell/text.js';
 import { conflictBanner, field, issueAt, saveBar, saveStateOf, sliderRow, type FieldSpec } from './form-parts.js';
@@ -56,6 +57,8 @@ export interface EditorContext {
     readonly crop: CropStatePort | null;
     /** M4 (CR-M4-4): the translation drafts of the open layer (null: no draft buttons). */
     readonly assist: AssistViewPort | null;
+    /** M17 §12: the city's places the place picker offers; null while they load (absent: no picker). */
+    readonly places?: readonly PlacePickPort[] | null;
 }
 
 /** The page's map, with the open layer drawn as saved and the draft's look previewed over it. */
@@ -212,6 +215,23 @@ function kindRow(context: EditorContext, layer: LayerDoc): TemplateResult {
         ></hcm-segmented-button>`;
 }
 
+/** M17 §12: a small-area map's places (the 1906 plan of Parcul Carol): their sheets list it under Media, Maps. */
+function placesRow(context: EditorContext, layer: LayerDoc): TemplateResult {
+    if (context.places === undefined) {
+        return html``;
+    }
+    return placeLinksField({
+        id: 'layer-places',
+        locale: context.locale,
+        ids: layer.placeIds ?? [],
+        places: context.places,
+        readOnly: context.readOnly,
+        change: (placeIds) => {
+            context.intents?.edit({ placeIds });
+        },
+    });
+}
+
 function displayGroup(context: EditorContext, editor: LayerEditorPort, layer: LayerDoc): TemplateResult {
     const { locale, intents } = context;
     const percent = (value: number): string => contentText(locale, 'adminContent.layers.percent', { percent: String(value) });
@@ -231,7 +251,7 @@ function displayGroup(context: EditorContext, editor: LayerEditorPort, layer: La
                 intents?.edit({ published: checked });
             },
         )}
-        ${kindRow(context, layer)}
+        ${kindRow(context, layer)} ${placesRow(context, layer)}
         ${
             layer.status === 'ready' && issueAt(editor.draft.issues, 'published') === null
                 ? nothing

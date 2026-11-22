@@ -10,7 +10,7 @@ import type { ViewerStorePort } from './store-port.js';
 import { closeSheet, isMenuAction, menuAction, selectPhoto, shareViewer, toggleCompare } from './viewer-actions.js';
 import type { OverlayOpacityDetail, ViewerHandlers } from './viewer-render.js';
 import { toggleMyLocation } from './my-location.js';
-import { viewForYear } from './year-view.js';
+import { viewForLayer, viewForYear } from './year-view.js';
 
 /** What the handlers need from the element. */
 export interface HandlerHost {
@@ -114,9 +114,23 @@ function photoHandlers(on: On, host: HandlerHost): PhotoHandlers {
     };
 }
 
-/** M17: a story to open (null: their list), and a place a story names. */
-function storyHandlers(on: On): Pick<ViewerHandlers, 'onStorySelect' | 'onPoiSelect'> {
+/** M17 §12: a place's map from its Media, switched on, brought to the front, its year on the timeline and fitted. */
+function showLayer(store: ViewerStorePort, layerId: string): void {
+    store.pickLayer(layerId);
+    const state = store.getState();
+    const layer = state.manifest?.layers.find((candidate) => candidate.id === layerId);
+    const target = layer === undefined ? null : viewForLayer(layer, state.view, globalThis.innerWidth);
+    if (target !== null) {
+        store.flyTo(target);
+    }
+}
+
+/** M17: a story to open (null: their list), and a place a story names; §12: a place's map to show. */
+function storyHandlers(on: On): Pick<ViewerHandlers, 'onStorySelect' | 'onPoiSelect' | 'onLayerShow'> {
     return {
+        onLayerShow: on((store, event) => {
+            showLayer(store, event.detail.layerId);
+        }),
         onStorySelect: on((store, event) => {
             store.openStory(event.detail.storyId);
         }),

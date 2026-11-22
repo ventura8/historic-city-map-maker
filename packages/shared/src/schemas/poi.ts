@@ -28,6 +28,19 @@ export const MAX_POI_CATEGORIES = 50;
 /** Photos one POI may show in its detail sheet (ids of manifest photos). */
 export const MAX_POI_PHOTOS = 20;
 
+/**
+ * Place media (`docs/research/M17-stories.md` §12, the owner 2026-11-22): the places a photo or a small-area map layer
+ * belongs to (`placeIds`), at most this many each; the place's sheet lists them under Media by kind.
+ */
+export const MAX_MEDIA_PLACES = 10;
+
+/** The `placeIds` of a photo or a layer: POI ids, each once. */
+export const placeIdsSchema = z
+    .array(idSchema)
+    .min(1)
+    .max(MAX_MEDIA_PLACES)
+    .refine((ids) => new Set(ids).size === ids.length, coded('validation.duplicateId'));
+
 /** A Material Symbols icon name (`account_balance`, `church`): lower case letters, digits and underscores. */
 export const ICON_NAME_PATTERN = /^[a-z0-9_]{1,64}$/;
 

@@ -12,6 +12,7 @@ import type { WriteOutcome } from '../content/services.js';
 import type { DraftState } from './draft.js';
 import type { DeletionState } from './deletion.js';
 import type { CropState } from './geometry/types.js';
+import type { PlacePick } from '../content/place-picks.js';
 import type { LayerTextField } from './fields.js';
 import type { LinkState } from './linker.js';
 import type { LinkForm } from './link.js';
@@ -32,11 +33,13 @@ export const LAYER_EDITABLE = [
     'adjustments',
     'published',
     'kind',
+    /** A small-area map's places (M17 §12). */
+    'placeIds',
 ] as const satisfies readonly (keyof LayerDoc)[];
 
 /** What the editor's fields change directly (the sliders have their own intents). */
 export type LayerPatch = Partial<
-    Pick<LayerDoc, 'label' | 'description' | 'attribution' | 'year' | 'date' | 'defaultVisible' | 'published' | 'kind'>
+    Pick<LayerDoc, 'label' | 'description' | 'attribution' | 'year' | 'date' | 'defaultVisible' | 'published' | 'kind' | 'placeIds'>
 >;
 
 export interface LayerEditorState {
@@ -63,6 +66,8 @@ export interface LayersState {
     readonly crop: CropState | null;
     /** M4 (CR-M4-4): the open layer's translation drafts. */
     readonly assist: AssistState;
+    /** M17 §12: the city's places the editor's place picker offers; null until read. */
+    readonly places: readonly PlacePick[] | null;
 }
 
 /** M4 (CR-M4-4): the layer editor's draft buttons (`assist.translateDraft`) ride with the area's intents. */
@@ -123,6 +128,7 @@ export const INITIAL: LayersState = {
     map: 'none',
     crop: null,
     assist: NO_ASSIST,
+    places: null,
 };
 
 type WriteFailure = Extract<WriteOutcome, { readonly ok: false }>['reason'];

@@ -10,6 +10,7 @@ import { html, nothing, type TemplateResult } from 'lit';
 import type { AssistActionsPort, AssistViewPort } from '../assist/assist-port.js';
 import { draftAssist, titleAssist } from '../assist/assist-parts.js';
 import type { FieldsLeft } from '../editing/number-fields.js';
+import { placeLinksField, type PlacePickPort } from '../editing/place-links.js';
 import { EMPTY } from '../shell/empty.js';
 import { dateParts, yearPatch } from './editor-date.js';
 import { areaField, numberField, numberOf, selectField, textField, textOf } from './editor-fields.js';
@@ -30,6 +31,8 @@ export interface SectionInput {
     readonly readOnly: boolean;
     /** M4 (CR-M4-4): the assists' state and intents; null: no assist slots. */
     readonly assist?: { readonly view: AssistViewPort; readonly actions: AssistActionsPort } | null;
+    /** M17 §12: the city's places the place picker offers; null while they load (absent: no picker). */
+    readonly places?: readonly PlacePickPort[] | null;
 }
 
 /** The draft button of a Romanian and English pair, when the editor has assists. */
@@ -93,7 +96,10 @@ function localizedPair(
 /** The one note above both "date as written" fields, which each name it. */
 const DATE_TEXT_HINT = partId('photo-dateText', 'hint');
 
-/** Street or aerial (the owner 2026-11-16): an aerial photo shows with its own marker and filter on the map. */
+/**
+ * Street, aerial (the owner 2026-11-16: its own marker and filter on the map) or interior (2026-11-22: a place's Media
+ * lists it under Interior). Street is the default and stored as no kind.
+ */
 function kindField(input: SectionInput): TemplateResult {
     const { locale, value, edit } = input;
     const options = PHOTO_KINDS.map((kind) => ({ value: kind, label: photoText(locale, `adminContent.photos.kind.${kind}`) }));
@@ -107,9 +113,27 @@ function kindField(input: SectionInput): TemplateResult {
             readOnly: input.readOnly,
         },
         (chosen) => {
-            edit({ kind: chosen === 'aerial' ? 'aerial' : undefined });
+            const kind = PHOTO_KINDS.find((candidate) => candidate === chosen);
+            edit({ kind: kind === 'ground' ? undefined : kind });
         },
     );
+}
+
+/** M17 §12: the places whose Media list the photo. */
+function placesField(input: SectionInput): TemplateResult {
+    if (input.places === undefined) {
+        return html``;
+    }
+    return placeLinksField({
+        id: 'photo-places',
+        locale: input.locale,
+        ids: input.value.placeIds ?? [],
+        places: input.places,
+        readOnly: input.readOnly,
+        change: (placeIds) => {
+            input.edit({ placeIds });
+        },
+    });
 }
 
 export function textsSection(input: SectionInput): TemplateResult {
@@ -117,7 +141,7 @@ export function textsSection(input: SectionInput): TemplateResult {
     const title = value.title;
     return html`<fieldset>
         <legend>${photoText(locale, 'adminContent.photos.section.texts')}</legend>
-        ${kindField(input)}
+        ${kindField(input)} ${placesField(input)}
         ${textField(
             {
                 id: 'photo-title-ro',

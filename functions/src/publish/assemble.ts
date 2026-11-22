@@ -148,7 +148,7 @@ function cityEntry(content: CityContent, errorEndpoint: string): unknown {
     };
 }
 
-function layerEntry(layer: LayerDoc, id: string): unknown {
+function layerEntry(layer: LayerDoc, id: string, listed: Listed): unknown {
     return {
         id,
         year: layer.year,
@@ -166,14 +166,17 @@ function layerEntry(layer: LayerDoc, id: string): unknown {
         defaultVisible: layer.defaultVisible,
         opacity: layer.opacity,
         adjustments: layer.adjustments,
+        // M17 §12: a place the manifest does not list leaves the map's Media, never the map.
+        placeIds: stillListed(layer.placeIds, listed.pois),
     };
 }
 
 /** What a photo says wherever it stands: on the map, or (M13) in the "Where was this taken?" gallery. */
-function photoCommon(photo: PhotoDoc & { readonly image: NonNullable<PhotoDoc['image']> }, id: string) {
+function photoCommon(photo: PhotoDoc & { readonly image: NonNullable<PhotoDoc['image']> }, id: string, listed: Listed) {
     return {
         id,
         kind: photo.kind,
+        placeIds: stillListed(photo.placeIds, listed.pois),
         title: photo.title,
         description: photo.description,
         year: photo.year,
@@ -207,8 +210,8 @@ function versionEntries({ versions, versionCredits }: PhotoDoc): unknown {
     return entries.length === 0 ? undefined : Object.fromEntries(entries);
 }
 
-function photoEntry(photo: PhotoDoc & { readonly image: NonNullable<PhotoDoc['image']> }, id: string): unknown {
-    return { ...photoCommon(photo, id), location: photo.location, bearing: photo.bearing, fov: photo.fov, viewedArea: photo.viewedArea };
+function photoEntry(photo: PhotoDoc & { readonly image: NonNullable<PhotoDoc['image']> }, id: string, listed: Listed): unknown {
+    return { ...photoCommon(photo, id, listed), location: photo.location, bearing: photo.bearing, fov: photo.fov, viewedArea: photo.viewedArea };
 }
 
 function poiCategoryEntry(category: PoiCategoryDoc, id: string): unknown {
@@ -282,13 +285,13 @@ function listsOf(content: CityContent): Lists {
     const items = (placed: boolean, entry: typeof photoEntry | typeof photoCommon) =>
         shown
             .filter(({ data }) => (data.location !== undefined) === placed)
-            .map(({ id, data }) => ({ id, entry: () => entry(data, id) }))
+            .map(({ id, data }) => ({ id, entry: (listed: Listed) => entry(data, id, listed) }))
             .toSorted(byId);
     return {
         layers: content.layers.documents
             .filter(({ data }) => data.published && data.status === 'ready')
             .toSorted(byOrder)
-            .map(({ id, data }) => ({ id, entry: () => layerEntry(data, id) })),
+            .map(({ id, data }) => ({ id, entry: (listed: Listed) => layerEntry(data, id, listed) })),
         photos: items(true, photoEntry),
         unplaced: items(false, photoCommon),
         poiCategories: content.poiCategories.documents

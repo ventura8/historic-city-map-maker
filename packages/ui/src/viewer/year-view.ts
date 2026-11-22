@@ -54,3 +54,16 @@ export function viewForYear(manifest: Manifest | null, year: number | null, view
     const center: [number, number] = [(box[0][0] + box[1][0]) / 2, (box[0][1] + box[1][1]) / 2];
     return { ...view, center, zoom: fitZoom(box, width, Math.max(view.zoom, MIN_ZOOM)) };
 }
+
+/**
+ * A place's map (M17 §12): the centre and zoom that fit `layer`'s bounds in a window `width` px wide, never zoomed out
+ * past 10 nor in past the layer's own `maxzoom`; null for a layer without bounds (it covers the city).
+ */
+export function viewForLayer(layer: Manifest['layers'][number], view: MapView, width: number): MapView | null {
+    if (layer.bounds === undefined) {
+        return null;
+    }
+    const box = layer.bounds as Box;
+    const center: [number, number] = [(box[0][0] + box[1][0]) / 2, (box[0][1] + box[1][1]) / 2];
+    return { ...view, center, zoom: fitZoom(box, width, layer.maxzoom) };
+}

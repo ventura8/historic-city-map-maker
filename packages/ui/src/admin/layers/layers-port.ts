@@ -8,6 +8,7 @@ import type { ApiErrorCode, LayerAdjustmentName, LayerAdjustments, LayerDoc, Lay
 
 import type { ListStatePort, LoadStatusPort, StoredPort, StoreFailurePort } from '../area-port.js';
 import type { AssistActionsPort, AssistViewPort } from '../assist/assist-port.js';
+import type { PlacePickPort } from '../editing/place-links.js';
 import type { CropStatePort } from './geometry/crop-port.js';
 
 export interface DraftConflictPort {
@@ -124,6 +125,8 @@ export interface LayersViewState {
     readonly crop: CropStatePort | null;
     /** M4 (CR-M4-4): the open layer's translation drafts. */
     readonly assist: AssistViewPort;
+    /** M17 §12: the city's places the editor's place picker offers; null until read. */
+    readonly places: readonly PlacePickPort[] | null;
 }
 
 export type LayerTextFieldPort =
@@ -132,7 +135,7 @@ export type LayerTextFieldPort =
 /** M4 (CR-M4-4): the draft buttons beside the name and the description ride with the area's intents. */
 export interface LayersIntentsPort extends AssistActionsPort {
     retry(): void;
-    edit(patch: Partial<Pick<LayerDoc, 'defaultVisible' | 'published' | 'kind'>>): void;
+    edit(patch: Partial<Pick<LayerDoc, 'defaultVisible' | 'published' | 'kind' | 'placeIds'>>): void;
     setField(field: LayerTextFieldPort, text: string): void;
     setOpacity(percent: number): void;
     setAdjustment(name: LayerAdjustmentName, percent: number): void;

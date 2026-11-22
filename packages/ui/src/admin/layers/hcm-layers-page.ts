@@ -167,6 +167,7 @@ export class HcmLayersPage extends AreaPage<LayersViewState, LayersIntentsPort> 
             who: { self: this.self, people: this.people },
             crop: view.crop,
             assist: view.assist,
+            places: view.places,
         };
         return layerEditor(context, editor, view.deletion);
     }

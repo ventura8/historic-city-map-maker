@@ -92,6 +92,8 @@ export interface ViewerHandlers extends LightboxHandlers, MapMenuHandlers {
     /** M17: a story to open (null: their list), and a place a story names. */
     readonly onStorySelect: (event: CustomEvent<{ readonly storyId: string | null }>) => void;
     readonly onPoiSelect: (event: CustomEvent<{ readonly poiId: string }>) => void;
+    /** M17 §12: a place's map, from the Media of its sheet. */
+    readonly onLayerShow: (event: CustomEvent<{ readonly layerId: string }>) => void;
     readonly onLightboxOpen: (event: Event) => void;
     /** The photo sheet's thumbnail was decoded (or failed): the `photo_timing` field measurement. */
     readonly onPhotoShown: (event: CustomEvent<{ readonly ok: boolean }>) => void;
@@ -413,6 +415,7 @@ function photoSheet(view: ViewerView, ready: Ready, placement: Placement, handle
         @hcm-photo-locate=${handlers.onPhotoLocate}
         @hcm-photo-select=${handlers.onPhotoSelect}
         @hcm-story-select=${handlers.onStorySelect}
+        @hcm-layer-show=${handlers.onLayerShow}
         @hcm-lightbox-open=${handlers.onLightboxOpen}
         @hcm-photo-shown=${handlers.onPhotoShown}
         @hcm-photo-version=${handlers.onPhotoVersion}

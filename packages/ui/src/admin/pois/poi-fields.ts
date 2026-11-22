@@ -328,10 +328,36 @@ export function linkFields(context: FieldContext): TemplateResult {
         </div>`;
 }
 
+/** `ids` with the one at `index` moved one step (`step` -1 up, +1 down): the place's Media shows its photos in this order. */
+function movedPhoto(ids: readonly string[], index: number, step: -1 | 1): string[] {
+    const next = [...ids];
+    const [taken] = next.splice(index, 1);
+    next.splice(index + step, 0, ...(taken === undefined ? [] : [taken]));
+    return next;
+}
+
 function chosenPhoto(context: FieldContext, id: string, title: string): TemplateResult {
     const ids = context.value.photoIds;
+    const index = ids.indexOf(id);
+    const move = (step: -1 | 1) => (): void => {
+        context.edit({ photoIds: movedPhoto(ids, index, step) });
+    };
     return html`<li>
         <span>${title}</span>
+        <hcm-icon-button
+            icon="arrow_upward"
+            class="move-up"
+            .label=${poiText(context.locale, 'adminContent.pois.field.movePhotoUp', { title })}
+            ?disabled=${context.readOnly || index === 0}
+            @click=${move(-1)}
+        ></hcm-icon-button>
+        <hcm-icon-button
+            icon="arrow_downward"
+            class="move-down"
+            .label=${poiText(context.locale, 'adminContent.pois.field.movePhotoDown', { title })}
+            ?disabled=${context.readOnly || index === ids.length - 1}
+            @click=${move(1)}
+        ></hcm-icon-button>
         <hcm-icon-button
             icon="close"
             .label=${poiText(context.locale, 'adminContent.pois.field.removePhoto', { title })}

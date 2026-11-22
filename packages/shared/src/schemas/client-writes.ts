@@ -58,6 +58,8 @@ const PHOTO_EDITABLE = [
     'rightsReview',
     /** Street (`ground`, the default) or `aerial` (the owner 2026-11-16). */
     'kind',
+    /** The places whose Media list the photo (M17 §12). */
+    'placeIds',
     /** M13: the optional credit name. */
     'credit',
     /** Who improved or colorized the photo (the owner 2026-11-09); the versions themselves are `photos.onUpload`'s. */
@@ -80,6 +82,8 @@ const LAYER_EDITABLE = [
     'published',
     /** Map, aerial photo or satellite image (live 2026-11-22: maps were listed as photos). */
     'kind',
+    /** A small-area map's places (M17 §12). */
+    'placeIds',
     ...STAMP,
 ] as const;
 

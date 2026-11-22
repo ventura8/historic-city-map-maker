@@ -7,6 +7,7 @@ import type { ApiErrorCode, CityRole, PhotoDoc, ValidationIssue } from '@hcm/sha
 
 import { NO_ASSIST, type AssistState } from '../assist/assist.js';
 import type { LoadStatus } from '../content/list.js';
+import type { PlacePick } from '../content/place-picks.js';
 import type { StoreFailure } from '../content/services.js';
 import type { Suggestion } from './autofill.js';
 import type { BulkReport } from './bulk.js';
@@ -87,6 +88,8 @@ export interface PhotosState {
     readonly assist: AssistState;
     /** M13: the admin's role in the city. */
     readonly role: CityRole | null;
+    /** M17 §12: the city's places the editor's place picker offers; null until read. */
+    readonly places: readonly PlacePick[] | null;
 }
 
 export const INITIAL_LIST: PhotosListState = {
@@ -113,5 +116,6 @@ export function initialPhotosState(sticky: StickyFields, role: CityRole | null =
         busy: false,
         assist: NO_ASSIST,
         role,
+        places: null,
     };
 }

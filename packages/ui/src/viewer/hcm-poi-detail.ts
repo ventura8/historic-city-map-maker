@@ -3,18 +3,25 @@
  * its category (icon and colour), years, the Markdown-subset description walked into DOM nodes (markup stays text),
  * its links and the thumbnails of its photos; a thumbnail fires `hcm-photo-select` to open that photo. M27
  * (`docs/research/M27-lost-streets.md`): its sources, as text: the historical layer it was traced on (`sourceLayer`, looked
- * up in `layers`; an unknown id says nothing) and the credit of its category's data (`attribution`).
+ * up in `layers`; an unknown id says nothing) and the credit of its category's data (`attribution`). M17 §12
+ * (`docs/research/M17-stories.md`): its Media, one chip per kind that has any (Maps, Aerial, Exterior, Interior, from
+ * `placeMedia`); a photo's thumbnail fires `hcm-photo-select`, a map's button `hcm-layer-show` (switch it on and fit it).
  */
 import {
     DEFAULT_LOCALE,
     localized,
+    placeMedia,
+    placeMediaKinds,
     poiIcon,
     shownLanguage,
     translate,
     type Layer,
     type ViewerLocale,
     type Photo,
+    type PlaceMedia,
+    type PlaceMediaKind,
     type Poi,
+    type UnplacedPhoto,
     type PoiCategory,
 } from '@hcm/shared';
 import { LitElement, css, html, nothing, type TemplateResult } from 'lit';
@@ -33,6 +40,11 @@ export const HCM_POI_DETAIL_TAG = 'hcm-poi-detail';
 /** Category colours come from the manifest (`#rrggbb`, schema-checked); anything else is ignored. */
 const HEX_COLOR = /^#[0-9a-f]{6}$/i;
 
+/** M17 §12: the viewer-internal event asking to show a place's map (switched on, at its year, fitted). */
+export function layerShowEvent(layerId: string): CustomEvent<{ readonly layerId: string }> {
+    return new CustomEvent('hcm-layer-show', { bubbles: true, composed: true, detail: { layerId } });
+}
+
 /** The viewer-internal event asking to open a photo. */
 export function photoSelectEvent(photoId: string): CustomEvent<{ readonly photoId: string }> {
     return new CustomEvent('hcm-photo-select', { bubbles: true, composed: true, detail: { photoId } });
@@ -47,6 +59,7 @@ export class HcmPoiDetail extends LitElement {
         photos: { attribute: false },
         locale: { type: String },
         manifestUrl: { type: String, attribute: 'manifest-url' },
+        mediaKind: { state: true },
     };
 
     static override readonly styles = [
@@ -104,6 +117,47 @@ export class HcmPoiDetail extends LitElement {
                 border-radius: var(--md-sys-shape-corner-medium);
             }
 
+            .kinds {
+                display: flex;
+                flex-wrap: wrap;
+                gap: 8px;
+                margin: 0 0 8px;
+                padding: 0;
+                border: 0;
+            }
+
+            .kinds label {
+                display: inline-flex;
+                align-items: center;
+                gap: 4px;
+                min-block-size: 48px;
+                padding-inline: 12px;
+                border: 1px solid var(--md-sys-color-outline);
+                border-radius: var(--md-sys-shape-corner-small);
+                cursor: pointer;
+            }
+
+            .kinds label:has(input:checked) {
+                background: var(--md-sys-color-secondary-container);
+                color: var(--md-sys-color-on-secondary-container);
+            }
+
+            .maps button {
+                display: flex;
+                align-items: center;
+                gap: 8px;
+                inline-size: 100%;
+                min-block-size: 48px;
+                padding-inline: 12px;
+                border: 1px solid var(--md-sys-color-outline-variant);
+                border-radius: var(--md-sys-shape-corner-medium);
+                background: var(--md-sys-color-surface-container-high);
+                color: var(--md-sys-color-on-surface);
+                font: inherit;
+                text-align: start;
+                cursor: pointer;
+            }
+
             .thumbs img {
                 display: block;
                 inline-size: 100%;
@@ -123,6 +177,8 @@ export class HcmPoiDetail extends LitElement {
     declare photos: readonly Photo[];
     declare locale: ViewerLocale;
     declare manifestUrl: string;
+    /** The Media chip chosen; null: the first kind the place has. */
+    declare mediaKind: PlaceMediaKind | null;
 
     constructor() {
         super();
@@ -133,6 +189,13 @@ export class HcmPoiDetail extends LitElement {
         this.photos = [];
         this.locale = DEFAULT_LOCALE;
         this.manifestUrl = '';
+        this.mediaKind = null;
+    }
+
+    override willUpdate(changed: Map<PropertyKey, unknown>): void {
+        if (changed.has('poi')) {
+            this.mediaKind = null;
+        }
     }
 
     override render(): TemplateResult {
@@ -151,7 +214,7 @@ export class HcmPoiDetail extends LitElement {
                       </div>`
             }
             ${fallbackNote(poi.title, this.locale)} ${creditLine(poi.credit, this.locale)} ${this.#sources(poi)} ${this.#links(poi)}
-            ${this.#photos(poi)}
+            ${this.#media(poi)}
         </div>`;
     }
 
@@ -204,21 +267,63 @@ export class HcmPoiDetail extends LitElement {
         </section>`;
     }
 
-    #photos(poi: Poi): TemplateResult {
-        const byId = new Map(this.photos.map((photo) => [photo.id, photo]));
-        const linked = (poi.photoIds ?? []).flatMap((id) => byId.get(id) ?? []);
-        if (linked.length === 0) {
+    /** M17 §12: the place's media by kind; nothing when it has none. */
+    #media(poi: Poi): TemplateResult {
+        const media = placeMedia(poi, { layers: this.layers, photos: this.photos });
+        const kinds = placeMediaKinds(media);
+        const first = kinds[0];
+        if (first === undefined) {
             return EMPTY;
         }
-        return html`<section>
-            <h3>${translate(this.locale, 'poi.photos')}</h3>
-            <ul class="thumbs">
-                ${linked.map((photo) => this.#thumb(photo))}
-            </ul>
+        const kind = this.mediaKind !== null && kinds.includes(this.mediaKind) ? this.mediaKind : first;
+        return html`<section class="media">
+            <h3>${translate(this.locale, 'poi.media')}</h3>
+            ${this.#kinds(kinds, kind)} ${this.#items(media, kind)}
         </section>`;
     }
 
-    #thumb(photo: Photo): TemplateResult {
+    #kinds(kinds: readonly PlaceMediaKind[], chosen: PlaceMediaKind): TemplateResult {
+        const choose = (kind: PlaceMediaKind) => (): void => {
+            this.mediaKind = kind;
+        };
+        return html`<fieldset class="kinds">
+            <legend class="visually-hidden">${translate(this.locale, 'poi.media')}</legend>
+            ${kinds.map(
+                (kind) =>
+                    html`<label
+                        ><input type="radio" name="media" .checked=${kind === chosen} @change=${choose(kind)} />${translate(
+                            this.locale,
+                            `poi.media.${kind}`,
+                        )}</label
+                    >`,
+            )}
+        </fieldset>`;
+    }
+
+    #items(media: PlaceMedia, kind: PlaceMediaKind): TemplateResult {
+        if (kind === 'maps') {
+            return html`<ul class="maps">
+                ${media.maps.map((layer) => this.#map(layer))}
+            </ul>`;
+        }
+        return html`<ul class="thumbs">
+            ${media[kind].map((photo) => this.#thumb(photo))}
+        </ul>`;
+    }
+
+    #map(layer: Layer): TemplateResult {
+        const title = localized(layer.label, this.locale);
+        const show = (): void => {
+            this.dispatchEvent(layerShowEvent(layer.id));
+        };
+        return html`<li>
+            <button type="button" aria-label=${translate(this.locale, 'poi.openMap', { title })} @click=${show}>
+                <hcm-icon name="map"></hcm-icon><span>${title} · ${String(layer.year)}</span>
+            </button>
+        </li>`;
+    }
+
+    #thumb(photo: Photo | UnplacedPhoto): TemplateResult {
         const title = localizedText(photo.title, this.locale);
         const src = resolveAssetUrl(photo.image.thumb, this.manifestUrl, document.baseURI) ?? '';
         const select = (): void => {

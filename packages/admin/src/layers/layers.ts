@@ -22,6 +22,7 @@ import type { EditorAssists } from '../assist/editor-assists.js';
 import type { AreaModule, AreaStore } from '../content/areas.js';
 import { LiveDoc, type DocState } from '../content/doc.js';
 import { LiveList } from '../content/list.js';
+import { readPlacePicks } from '../content/place-picks.js';
 import type { ContentServices, WriteOutcome } from '../content/services.js';
 import { Store } from '../state/store.js';
 import { layerAssists } from './assists.js';
@@ -49,6 +50,7 @@ import {
 class LayersStore implements AreaStore<LayersState, LayersIntents> {
     readonly #services: ContentServices;
     readonly #cell: Store<LayersState>;
+    #placesLoading = false;
     readonly #list: LiveList<LayerDoc, LayerItem>;
     readonly #doc: LiveDoc<LayerDoc>;
     readonly #preview = new PreviewLayer();
@@ -135,6 +137,18 @@ class LayersStore implements AreaStore<LayersState, LayersIntents> {
             this.#city.show(FIRESTORE_PATHS.city(this.#services.cityId));
         }
         this.#select(params[0] ?? null);
+        void this.#loadPlaces();
+    }
+
+    /** M17 §12: the place picker's places, read once while the page has none. */
+    async #loadPlaces(): Promise<void> {
+        if (this.#cell.state.places !== null || this.#placesLoading) {
+            return;
+        }
+        this.#placesLoading = true;
+        const places = await readPlacePicks(this.#services);
+        this.#placesLoading = false;
+        this.#cell.update({ places });
     }
 
     close(): void {
