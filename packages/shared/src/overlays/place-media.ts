@@ -52,15 +52,19 @@ function placePhotos(poi: Pick<Poi, 'id' | 'photoIds'>, photos: MediaSource['pho
     return [...listed, ...naming];
 }
 
-/** The leveled layers grouped by level (the first label of an order names it), each with the interior photos on it. */
+/** `levels` with `layer` added to its level (the first label of an order names it). */
+function withPlan(levels: Map<number, PlanLevel>, layer: Layer, level: NonNullable<Layer['level']>): void {
+    const known = levels.get(level.order);
+    const layers = known === undefined ? [layer] : [...known.layers, layer];
+    levels.set(level.order, { order: level.order, label: known?.label ?? level.label, layers, photos: [] });
+}
+
+/** The leveled layers grouped by level, lowest first, each with the interior photos taken on it. */
 function planLevels(layers: readonly Layer[], interior: readonly (Photo | UnplacedPhoto)[]): PlanLevel[] {
     const levels = new Map<number, PlanLevel>();
     for (const layer of layers) {
-        const level = layer.level;
-        if (level !== undefined) {
-            const known = levels.get(level.order);
-            const plans = known === undefined ? [layer] : [...known.layers, layer];
-            levels.set(level.order, { order: level.order, label: known?.label ?? level.label, layers: plans, photos: [] });
+        if (layer.level !== undefined) {
+            withPlan(levels, layer, layer.level);
         }
     }
     return [...levels.values()]
