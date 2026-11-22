@@ -1,0 +1,50 @@
+"""A single archive map's original at full resolution, for the warps that would otherwise read a reduced picture (docs/LESSONS.md 762).
+
+A single map that waited for points keeps only its working copy (at most `LARGEST_WORKING_PX` long) as `stitched.tif`, and the
+georeferencer's `scan` is smaller still. `place` from the owner's pairs (`placing/owner.py`) and a later `regeoref` (`steps/warp.py`,
+the points saved again on a version awaiting approval) both warp the original instead: a tiled copy in the scratch folder
+(`raster_io.tiled_copy`, streamed by GDAL). Only on the computer that holds the archive; anywhere else, or for another class, a PDF,
+or an original that is gone, the caller keeps its own picture.
+"""
+
+from dataclasses import replace
+from pathlib import Path
+from typing import Final
+
+from hcm_pipeline.archive.magic import sniff_file
+from hcm_pipeline.jobs import JobContext
+from hcm_pipeline.placing.raster_io import tiled_copy
+from hcm_pipeline.placing.series import series_of
+from hcm_pipeline.steps.gather import text_param
+
+ORIGINAL: Final = "original.tif"
+SINGLE: Final = "single"
+ARCHIVE_JOB: Final = "archive-series"
+
+
+def _raster(path: Path) -> bool:
+    return path.is_file() and sniff_file(path) != "pdf"
+
+
+def _single(ctx: JobContext) -> bool:
+    return ctx.services.archive_root is not None and text_param(ctx.job.params, "class") == SINGLE
+
+
+def single_original(ctx: JobContext) -> Path | None:
+    """The job's single map's original as a tiled copy, else None (`ctx.job` is the archive series' own job)."""
+    sheets = series_of(ctx).sheets if _single(ctx) else ()
+    return tiled_copy(sheets[0].path, ctx.local(ORIGINAL)) if sheets and _raster(sheets[0].path) else None
+
+
+def _base_params(ctx: JobContext, based_on: str) -> dict[str, object] | None:
+    """The base job's parameters when it is an archive series' job."""
+    base = ctx.services.store.get(f"cities/{ctx.city}/jobs/{based_on}") or {}
+    params = base.get("params")
+    return params if base.get("type") == ARCHIVE_JOB and isinstance(params, dict) else None
+
+
+def based_original(ctx: JobContext) -> Path | None:
+    """A `regeoref` job's base archive single map's original, else None: the base job's parameters and sheets are its own."""
+    based_on = ctx.job.params.get("basedOn") if ctx.job.type == "regeoref" else None
+    params = _base_params(ctx, based_on) if isinstance(based_on, str) and ctx.services.archive_root is not None else None
+    return None if params is None else single_original(replace(ctx, job=replace(ctx.job, id=str(based_on), params=params)))

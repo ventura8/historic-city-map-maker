@@ -18,24 +18,22 @@ from typing import Final
 
 import numpy
 
-from hcm_pipeline.archive.magic import sniff_file
 from hcm_pipeline.documents import GeorefInfo, ScanInfo
 from hcm_pipeline.geo import to_mercator
 from hcm_pipeline.georef.lattice import sampled
 from hcm_pipeline.georef.transforms import Fit, enabled_gcps, fit
 from hcm_pipeline.jobs import JobContext, StepResult, Waiting
 from hcm_pipeline.placing.checks import Checked, span_pct
+from hcm_pipeline.placing.original import single_original
 from hcm_pipeline.placing.output import Placement, finish, param_int, resolution_of
-from hcm_pipeline.placing.raster_io import Pair, WarpPlan, tiled_copy, warp_by_pairs
-from hcm_pipeline.placing.series import ENCODINGS, series_of
+from hcm_pipeline.placing.raster_io import Pair, WarpPlan, warp_by_pairs
+from hcm_pipeline.placing.series import ENCODINGS
 from hcm_pipeline.placing.stitched import STITCHED
 from hcm_pipeline.steps.common import gdal_step
-from hcm_pipeline.steps.gather import text_param
 from hcm_pipeline.steps.georef import recorded
 from hcm_pipeline.steps.warp import scan_size
 
 OWNER_METHOD: Final = "gcps"
-ORIGINAL: Final = "original.tif"
 PICTURE_GONE: Final = "the stitched picture is gone: the pairs are warped on the scan they were placed on"
 NOT_ENOUGH: Final = "Your points are too few, or lie almost in a line, for the chosen fit: add a few more, spread over the map."
 
@@ -55,14 +53,10 @@ class Picture:
 
 
 def _original(ctx: JobContext, scan: ScanInfo) -> Picture | None:
-    """A single map's original at full resolution (its parked `stitched.tif` is only the working copy, at most `LARGEST_WORKING_PX`
-    long), as a tiled copy in the scratch folder; None for another class, a PDF, or an original not on this computer."""
-    if text_param(ctx.job.params, "class") != "single":
+    """A single map's original at full resolution (its parked `stitched.tif` is only the working copy), else None."""
+    copy = single_original(ctx)
+    if copy is None:
         return None
-    sheets = series_of(ctx).sheets
-    if not sheets or not sheets[0].path.is_file() or sniff_file(sheets[0].path) == "pdf":
-        return None
-    copy = tiled_copy(sheets[0].path, ctx.local(ORIGINAL))
     width, height = scan_size(copy)
     ctx.log.info(f"the pairs are warped on the original, {width} x {height} px", ctx.step)
     return Picture(copy, width / max(scan.width, 1), height / max(scan.height, 1))

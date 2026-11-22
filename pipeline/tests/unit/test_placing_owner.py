@@ -8,7 +8,8 @@ from hcm_pipeline.documents import GeorefInfo, ScanInfo
 from hcm_pipeline.geo import to_lnglat
 from hcm_pipeline.georef.transforms import Gcp
 from hcm_pipeline.jobs import Done, JobContext, Waiting
-from hcm_pipeline.placing.owner import NOT_ENOUGH, ORIGINAL, owner_pairs
+from hcm_pipeline.placing.original import ORIGINAL
+from hcm_pipeline.placing.owner import NOT_ENOUGH, owner_pairs
 from hcm_pipeline.placing.stitched import STITCHED
 from hcm_pipeline.raster import gdal
 from hcm_pipeline.steps.place import PlaceStep

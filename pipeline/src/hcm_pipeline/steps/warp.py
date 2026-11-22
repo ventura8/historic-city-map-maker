@@ -8,14 +8,16 @@ camera's from `SENSOR_SPECS`, else the scan's own resolution rounded to a zoom),
 bilinear, an alpha band, and `-cutline` with `-crop_to_cutline` when the version has a crop ring. A frame fitted over terrain
 (`georef.terrain`, M15) renders through its RPC over the heights it carries (`-rpc -to RPC_DEM`, `attached`): each place straight to the
 scan at its height. The same `attached` is what a join (`join/warping.py`) and the next frame's ties (`steps/aligning.py`) read a frame
-through, so all of them show the one map the layer shows. A USGS frame renders no further than the city's window (`outputBounds`, M9 §5):
-a wide crop rendered 1,249 km² and a 500 compute-unit estimate for one city.
+through, so all of them show the one map the layer shows. A `regeoref` of an archive single map warps its original
+(`placing/original.py`, the points scaled to it), never the reduced scan the points were placed on. A USGS frame renders no
+further than the city's window (`outputBounds`, M9 §5): a wide crop rendered 1,249 km² and a 500 compute-unit estimate for one
+city.
 """
 
 import json
 import math
 from collections.abc import Callable
-from dataclasses import dataclass
+from dataclasses import dataclass, replace
 from pathlib import Path
 from typing import Final
 
@@ -26,6 +28,7 @@ from hcm_pipeline.georef.lattice import LatticeNode, sampled
 from hcm_pipeline.georef.transforms import enabled_gcps, fit_transform
 from hcm_pipeline.jobs import Done, JobContext, StepFailedError, StepResult
 from hcm_pipeline.join.canvas import aligned_box
+from hcm_pipeline.placing.original import based_original
 from hcm_pipeline.raster import gdal
 from hcm_pipeline.rasters import GTIFF_OPTIONS, warp_memory_mb
 from hcm_pipeline.steps.common import city_window, gdal_step
@@ -139,6 +142,25 @@ def clipped(ctx: JobContext, version: Version) -> dict[str, object]:
     return {"outputBounds": (box.left, box.bottom, box.right, box.top)}
 
 
+def scaled(georef: GeorefInfo, sx: float, sy: float) -> GeorefInfo:
+    """The map with its pixels `sx` by `sy` times larger: its points' and its lattice's."""
+    gcps = tuple(replace(gcp, x=gcp.x * sx, y=gcp.y * sy) for gcp in georef.gcps)
+    lattice = georef.lattice
+    if lattice is not None:
+        lattice = replace(lattice, nodes=tuple(replace(node, x=node.x * sx, y=node.y * sy) for node in lattice.nodes))
+    return replace(georef, gcps=gcps, lattice=lattice)
+
+
+def full_resolution(ctx: JobContext, scan: Path, georef: GeorefInfo) -> tuple[Path, GeorefInfo]:
+    """A `regeoref` of an archive single map warps its original with the points scaled to it (`placing/original.py`), else the scan."""
+    original = gdal_step(ctx, lambda: based_original(ctx), "copy the original") if georef.method == "gcps" else None
+    if original is None:
+        return scan, georef
+    (width, height), (scan_w, scan_h) = scan_size(original), scan_size(scan)
+    ctx.log.info(f"the points are warped on the original, {width} x {height} px", ctx.step)
+    return original, scaled(georef, width / scan_w, height / scan_h)
+
+
 class WarpStep:
     name = "warp"
 
@@ -146,8 +168,8 @@ class WarpStep:
         version = ctx.version
         if version.scan is None or version.georef is None:
             raise StepFailedError(Errors.NO_SCAN, "the version has no georeferenced scan")
-        scan = ctx.stage(version.scan.path, "scan.tif")
-        source, method = self._source(ctx, scan, version.georef)
+        scan, georef = full_resolution(ctx, ctx.stage(version.scan.path, "scan.tif"), version.georef)
+        source, method = self._source(ctx, scan, georef)
         native = gdal_step(ctx, lambda: native_zoom(source, method, ctx.local("probe.vrt")), "measure the scan")
         _, maxzoom = zooms(version, native)
         warped = ctx.local("warped.tif")
