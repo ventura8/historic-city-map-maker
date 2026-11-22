@@ -11,7 +11,7 @@ import { harvestDatasetSchema } from '../schemas/harvest-state.js';
 import { USGS_DATASETS } from '../schemas/firestore.js';
 import { cropRingSchema, enabledGcps, GEOREF_TRANSFORMS, gcpSchema, MAX_GCPS, MIN_GCPS } from '../schemas/georef.js';
 import { RECALIBRATE_MAX_POINTS, RECALIBRATE_STARTED, roughPointSchema } from '../schemas/imagery-recalibration.js';
-import { JOIN_MAX_PARTS } from '../schemas/imagery-settings.js';
+import { JOIN_MAX_FRAMES, JOIN_MAX_PARTS } from '../schemas/imagery-settings.js';
 import { LAYER_VERSION_STATES, PUBLISH_CHOICES } from '../schemas/imagery.js';
 import { cityIdSchema } from '../schemas/paths.js';
 import { coded, idSchema, isoDateSchema, plainText } from '../schemas/primitives.js';
@@ -231,7 +231,7 @@ export const imageryCropResponseSchema = z.strictObject({ jobId: idSchema, versi
  * each part keeping its own points; `docs/research/M8-join-interfaces.md` §20.
  */
 export const imageryJoinRequestSchema = z.union([
-    z.strictObject({ cityId: cityIdSchema, entityIds: z.array(idSchema).min(2).max(JOIN_MAX_PARTS) }),
+    z.strictObject({ cityId: cityIdSchema, entityIds: z.array(idSchema).min(2).max(JOIN_MAX_FRAMES) }),
     z.strictObject({ cityId: cityIdSchema, versionIds: z.array(idSchema).min(2).max(JOIN_MAX_PARTS) }),
 ]);
 export const imageryJoinResponseSchema = z.strictObject({ jobId: idSchema, versionId: idSchema, layerId: idSchema });

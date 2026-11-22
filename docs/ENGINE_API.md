@@ -432,6 +432,8 @@ Common rules:
 
 ### `layers[]`
 
+At most `MAX_LAYERS` (300; 100 until 2026-11-22, raised when the Bucharest manifest outgrew it) layers per manifest; more is `validation.tooBig` on `layers`, and the published manifest stays as it was.
+
 | Field | Type | Rule |
 | --- | --- | --- |
 | `id` | string | unique in the manifest; also an overlay id, so never `photos` and never a POI category id |

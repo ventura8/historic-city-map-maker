@@ -351,6 +351,7 @@ const EXPORTS = {
         'rankReasonSchema',
         'usgsBrowseUrlSchema',
         'DEFAULT_RMSE_THRESHOLD_M',
+        'JOIN_MAX_FRAMES',
         'JOIN_MAX_PARTS',
         'MAX_TARGET_YEARS',
         'RMSE_THRESHOLD_RANGE',

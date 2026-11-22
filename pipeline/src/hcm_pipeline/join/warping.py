@@ -9,6 +9,7 @@ smooth field alone and never the relief, which no spread of nodes holds (A001: 1
 measured: on Cloud Run the scratch folder is memory.
 """
 
+import uuid
 from collections.abc import Callable, Sequence
 from dataclasses import dataclass
 from pathlib import Path
@@ -21,7 +22,7 @@ from hcm_pipeline.documents import GeorefInfo
 from hcm_pipeline.geo import FloatArray, Grid, MercatorBox, to_mercator
 from hcm_pipeline.images import as_uint8
 from hcm_pipeline.jobs import JobContext
-from hcm_pipeline.join.canvas import COARSE_ZOOM, FINE_ZOOM, DatasetSource, Raster, level_grid
+from hcm_pipeline.join.canvas import COARSE_ZOOM, FINE_ZOOM, DatasetSource, Raster, level_grid, spilled
 from hcm_pipeline.join.correction import BaseTransform, Mapping, Node
 from hcm_pipeline.join.plan import Part
 from hcm_pipeline.join.room import out_of_room
@@ -187,7 +188,10 @@ class Warper:
             dataset = gdal.Warp("", str(source), **options)
             grey, alpha = as_uint8(dataset.GetRasterBand(1).ReadAsArray()), as_uint8(dataset.GetRasterBand(2).ReadAsArray())
             dataset.Close()
-            return Raster(grid, grey, alpha)
+            # Kept in scratch files, each under a new name: a rewarped preview must not overwrite the one still judged against.
+            name = f"{part.version.id}-preview-{uuid.uuid4().hex}"
+            kept_grey = as_uint8(spilled(self.ctx.local(f"{name}-grey.npy"), grey))
+            return Raster(grid, kept_grey, as_uint8(spilled(self.ctx.local(f"{name}-alpha.npy"), alpha)))
 
         raster = gdal_step(self.ctx, work, "warp a frame's preview")
         self.release(part)

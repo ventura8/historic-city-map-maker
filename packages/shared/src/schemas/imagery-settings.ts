@@ -21,10 +21,14 @@ export const RMSE_THRESHOLD_RANGE = { min: 1, max: 200 } as const;
 export const MAX_TARGET_YEARS = 20;
 
 /**
- * M8 (`docs/research/M8-join-interfaces.md` §2): at most this many frames of one date join into one layer. Here because
- * this module is a leaf: the layer document (`firestore.ts`) and the join's schemas (`imagery-join.ts`) both read it.
+ * M8 (`docs/research/M8-join-interfaces.md` §2): at most this many parts join into one layer: 64 since the owner's 48 sheets of
+ * the 1990 cadastral plan (2026-11-22; the worker keeps every part's levels in scratch files, so memory does not grow with them).
+ * Here because this module is a leaf: the layer document (`firestore.ts`) and the join's schemas (`imagery-join.ts`) both read it.
  */
-export const JOIN_MAX_PARTS = 8;
+export const JOIN_MAX_PARTS = 64;
+
+/** M8 §2: at most this many USGS frames of one date in a date plan or a frames join (camera frames are large; unchanged at 8). */
+export const JOIN_MAX_FRAMES = 8;
 
 /**
  * M9 (`docs/research/M9-calibration.md` §11): the share of the city a USGS frame or a join must cover to publish on its own, and

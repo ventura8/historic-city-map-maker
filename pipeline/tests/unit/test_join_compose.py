@@ -8,7 +8,7 @@ import pytest
 from hcm_pipeline.documents import JoinSeam
 from hcm_pipeline.geo import Grid
 from hcm_pipeline.jobs import InterruptedRunError
-from hcm_pipeline.join.canvas import DatasetSource, Patch, PixelBox
+from hcm_pipeline.join.canvas import DatasetSource, Patch, PixelBox, spilled
 from hcm_pipeline.join.compose import (
     BLEND_HALF_WIDTH_M,
     BLOCK_PX,
@@ -210,3 +210,14 @@ def test_bad_path_a_run_told_to_stop_stops_between_blocks(tmp_path: Path) -> Non
 
     with pytest.raises(InterruptedRunError):
         compose(tmp_path / "mosaic.tif", Grid(0.0, 0.0, 2.0, 128, 80), [layer(Flat(100), weights(owner, 0))], LEVELS, stop)
+
+
+def test_happy_path_a_spilled_level_reads_like_the_array_and_lives_in_its_file(tmp_path: Path) -> None:
+    level = numpy.arange(12, dtype=numpy.float32).reshape(3, 4)
+
+    kept = spilled(tmp_path / "weight-0.npy", level)
+
+    assert (tmp_path / "weight-0.npy").stat().st_size >= level.nbytes
+    assert kept.dtype == numpy.float32
+    numpy.testing.assert_array_equal(kept, level)
+    assert not kept.flags.writeable

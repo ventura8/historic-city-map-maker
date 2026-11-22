@@ -5762,6 +5762,28 @@
             "notes": "Milestone M2c (docs/research/M2c-interfaces.md §6.5; owner: photos)."
         },
         {
+            "id": "S-A10-HAPPY-MANIFEST-300-LAYERS",
+            "behaviour": "A10",
+            "area": "admin",
+            "path": "happy",
+            "title": "A city of up to 300 published layers still gets its manifest",
+            "asserts": "a manifest of 300 layers -> valid, the build publishes it",
+            "tier": "functions",
+            "status": "exists",
+            "notes": "Bucharest outgrew 100 layers on 2026-11-21 (DECISIONS §243, docs/LESSONS.md). Test: packages/shared/test/schemas/manifest.test.ts."
+        },
+        {
+            "id": "S-A10-BAD-MANIFEST-301-LAYERS",
+            "behaviour": "A10",
+            "area": "admin",
+            "path": "bad",
+            "title": "A manifest of more than 300 layers is refused",
+            "asserts": "301 layers -> validation.tooBig on layers; the published manifest stays as it was",
+            "tier": "functions",
+            "status": "exists",
+            "notes": "DECISIONS §243. Test: packages/shared/test/schemas/manifest.test.ts."
+        },
+        {
             "id": "S-A10-HAPPY-MANIFEST-BUILT",
             "behaviour": "A10",
             "area": "admin",
@@ -13845,6 +13867,28 @@
             "tier": "functions",
             "status": "exists",
             "notes": "Finding of 2026-11-14. Test: functions/test/imagery/join-archive.test.ts."
+        },
+        {
+            "id": "S-A65-HAPPY-ARCHIVE-48-SHEETS",
+            "behaviour": "A65",
+            "area": "admin",
+            "path": "happy",
+            "title": "A sheet series of 48 archive maps joins into one layer",
+            "asserts": "imagery.join {versionIds} of 48 (up to 64) archive maps -> accepted, layer-join params with 48 parts and maxzoom; the worker keeps each part's levels in scratch files (spilled) so memory stays at about one part's",
+            "tier": "functions",
+            "status": "exists",
+            "notes": "The owner's 1990 cadastral plan, 2026-11-22 (DECISIONS §243). Tests: packages/shared/test/schemas/imagery-join.test.ts, pipeline/tests/unit/test_join_compose.py."
+        },
+        {
+            "id": "S-A65-BAD-ARCHIVE-OVER-64",
+            "behaviour": "A65",
+            "area": "admin",
+            "path": "bad",
+            "title": "A join of more than 64 maps, or more than 8 camera frames, is refused",
+            "asserts": "65 archive parts -> params refused; 9 USGS frames (entityIds or sensor params) -> refused, so no date plan buys more frames than before",
+            "tier": "functions",
+            "status": "exists",
+            "notes": "DECISIONS §243. Test: packages/shared/test/schemas/imagery-join.test.ts."
         },
         {
             "id": "S-A65-BAD-ARCHIVE-NO-POINTS",

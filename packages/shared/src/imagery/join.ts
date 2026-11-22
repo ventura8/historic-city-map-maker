@@ -7,7 +7,7 @@
 import type { BoundsRecord } from '../geo/bbox.js';
 import { roundTo } from '../geo/math.js';
 import { DATE_PLAN_MAX_ROWS, type DatePlanRow } from '../schemas/imagery-plan.js';
-import { JOIN_MAX_PARTS } from '../schemas/imagery-settings.js';
+import { JOIN_MAX_FRAMES } from '../schemas/imagery-settings.js';
 import type { LayerVersionState } from '../schemas/imagery.js';
 import { CLOUDY_CITY_PERCENT, type Sensor, type UsgsSceneDoc } from '../schemas/usgs-scene.js';
 import { coverageRing, type FootprintVertex } from './coverage.js';
@@ -142,7 +142,7 @@ function bestOf(pool: readonly Candidate[], covered: ReadonlySet<number>, camera
 }
 
 function worthAdding(next: Candidate, covered: ReadonlySet<number>, chosen: number, total: number): boolean {
-    return chosen < JOIN_MAX_PARTS && covered.size < REACH * total && gainOf(next, covered) >= MIN_GAIN * total;
+    return chosen < JOIN_MAX_FRAMES && covered.size < REACH * total && gainOf(next, covered) >= MIN_GAIN * total;
 }
 
 /** `chosen` and, one at a time, the frame of `pool` that adds the most, until a stop of {@link worthAdding}. */
@@ -184,7 +184,7 @@ function sparesOf(pool: readonly Candidate[], chosen: readonly Candidate[]): str
     return pool
         .filter((candidate) => !chosen.includes(candidate))
         .sort((left, right) => right.cells.size - left.cells.size || left.frame.entityId.localeCompare(right.frame.entityId))
-        .slice(0, JOIN_MAX_PARTS)
+        .slice(0, JOIN_MAX_FRAMES)
         .map((candidate) => candidate.frame.entityId);
 }
 
@@ -234,7 +234,7 @@ export function planDate(frames: readonly DatePlanFrame[], bounds: BoundsRecord)
     }
     const grid = gridOf(bounds);
     const candidates = frames.map((frame) => candidateOf(frame, grid, (bounds.west + bounds.east) / 2));
-    const rendered = candidates.filter(isRendered).slice(0, JOIN_MAX_PARTS);
+    const rendered = candidates.filter(isRendered).slice(0, JOIN_MAX_FRAMES);
     const rest = candidates.filter((candidate) => !isRendered(candidate));
     const obtainable = rest.filter(isObtainable);
     const chosen = extended(rendered, obtainable, grid.length);

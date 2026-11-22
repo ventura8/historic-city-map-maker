@@ -142,7 +142,7 @@ MAX_GCPS: Final = 300
 MAX_SCAN_PIXELS: Final = 200_000
 MAX_JOB_LOGS: Final = 500
 # At most this many frames of one date join into one layer (`JOIN_MAX_PARTS`, docs/research/M8-join-interfaces.md §2).
-JOIN_MAX_PARTS: Final = 8
+JOIN_MAX_PARTS: Final = 64
 # M16 (docs/research/M16-recalibrate.md §1, §2): a recalibrated fit is better only by this much on the same checks (ground metres), and a
 # manual one compares on at least this many disabled pairs (`imagery-recalibration.ts`).
 RECALIBRATE_MIN_GAIN_M: Final = 1

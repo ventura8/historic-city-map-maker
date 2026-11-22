@@ -62,6 +62,8 @@ TEST_GLOBS = (
     "packages/admin/test/georef/*.test.ts",
     # Shared poly2 inverse parity (A16 / DECISIONS §144) lives in Vitest, not Playwright.
     "packages/shared/test/georef/*.test.ts",
+    # The manifest and join caps (DECISIONS §242) live in the shared schemas' Vitest.
+    "packages/shared/test/schemas/*.test.ts",
 )
 # Area -> section title, in the doc's order.
 AREAS = {

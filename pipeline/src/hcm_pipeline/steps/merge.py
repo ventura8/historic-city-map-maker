@@ -18,7 +18,7 @@ from hcm_pipeline.documents import JoinReport, city_bounds
 from hcm_pipeline.geo import Grid, MercatorBox, ground_scale, zoom_resolution
 from hcm_pipeline.images import UInt8Array, as_uint8
 from hcm_pipeline.jobs import Done, JobContext, StepResult
-from hcm_pipeline.join.canvas import OWNER_ZOOM, TONE_ZOOM, DatasetSource, Raster, level_grid
+from hcm_pipeline.join.canvas import OWNER_ZOOM, TONE_ZOOM, DatasetSource, Raster, level_grid, spilled
 from hcm_pipeline.join.compose import Layer, Levels, closes, compose, half_widths, weight_of
 from hcm_pipeline.join.plan import OWNER_FILE, PLAN_FILE, JoinPlan, Part, PlannedSeam, read_parts, used_parts
 from hcm_pipeline.join.room import needed_to_merge, require_room, scan_sizes, window_px
@@ -83,12 +83,18 @@ def _read_plan(ctx: JobContext) -> tuple[JoinPlan, UInt8Array]:
     return plan, as_uint8(read_band(ctx.stage(ctx.work_file(OWNER_FILE), OWNER_FILE)))
 
 
-def _layers(owner: UInt8Array, plan: JoinPlan, sources: Sequence[DatasetSource], tones: Sequence[Tone], ground: float) -> list[Layer]:
-    cell_m = zoom_resolution(OWNER_ZOOM) * ground
+def _layers(ctx: JobContext, owner: UInt8Array, plan: JoinPlan, sources: Sequence[DatasetSource], tones: Sequence[Tone]) -> list[Layer]:
+    """Each part's weight, tones and cover, kept in scratch files (`spilled`): with 64 parts they would not fit in memory."""
+    cell_m = zoom_resolution(OWNER_ZOOM) * ground_scale(plan.box.bounds().middle_lat)
     grid = level_grid(plan.box, OWNER_ZOOM)
     widths = half_widths(owner, [(seam.a, seam.b, seam.report) for seam in plan.seams], cell_m)
     return [
-        Layer(source, tone, weight_of(owner, index, widths, cell_m), source.averaged(grid).alpha > 0)
+        Layer(
+            source,
+            Tone(tone.line, numpy.asarray(spilled(ctx.local(f"tone-{index}.npy"), tone.field), numpy.float32)),
+            numpy.asarray(spilled(ctx.local(f"weight-{index}.npy"), weight_of(owner, index, widths, cell_m)), numpy.float32),
+            numpy.asarray(spilled(ctx.local(f"covers-{index}.npy"), source.averaged(grid).alpha > 0), numpy.bool_),
+        )
         for index, (source, tone) in enumerate(zip(sources, tones, strict=True))
     ]
 
@@ -106,7 +112,7 @@ class MergeStep:
         ground = ground_scale(plan.box.bounds().middle_lat)
         sources = [gdal_step(ctx, partial(DatasetSource, file), "read a warped frame") for file in files]
         tones = gdal_step(ctx, lambda: self._tones(owner, plan, sources, ground), "even out the tones")
-        layers = gdal_step(ctx, lambda: _layers(owner, plan, sources, tones, ground), "weigh the frames")
+        layers = gdal_step(ctx, lambda: _layers(ctx, owner, plan, sources, tones), "weigh the frames")
         target = ctx.local("warped.tif")
         levels = Levels(zoom_resolution(OWNER_ZOOM) / grid.resolution, zoom_resolution(TONE_ZOOM) / grid.resolution)
         gdal_step(ctx, lambda: compose(target, grid, layers, levels, lambda done: self._tick(ctx, done)), "composite the frames")

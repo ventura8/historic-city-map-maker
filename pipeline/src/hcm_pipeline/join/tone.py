@@ -137,7 +137,8 @@ class ToneSeam:
 def plan_tones(parts: Sequence[Raster], seams: Sequence[ToneSeam], anchor: int, cell_m: float) -> list[Tone]:
     """Every part's tones: the lines of the tree, then the fields of every seam, half on each side."""
     lines = linear_tones(parts, [(seam.a, seam.b) for seam in seams], anchor)
-    fields = [numpy.zeros(part.grey.shape, numpy.float64) for part in parts]
+    # float32, not float64: 64 parts' fields are held at once (the owner's 48 sheets, 2026-11-22).
+    fields = [numpy.zeros(part.grey.shape, numpy.float32) for part in parts]
     for seam in seams:
         first, second = parts[seam.a], parts[seam.b]
         a, b = lines[seam.a].of(first.grey.astype(numpy.float64)), lines[seam.b].of(second.grey.astype(numpy.float64))

@@ -15,7 +15,7 @@ import {
     layerJoinParamsSchema,
 } from '../../src/schemas/imagery-join.js';
 import { DATE_PLAN_MAX_ROWS, datePlanDocSchema, datePlanRowSchema } from '../../src/schemas/imagery-plan.js';
-import { JOIN_MAX_PARTS } from '../../src/schemas/imagery-settings.js';
+import { JOIN_MAX_FRAMES, JOIN_MAX_PARTS } from '../../src/schemas/imagery-settings.js';
 import { ENDED_VERSION_STATES, JOB_PARAMS_SCHEMAS, JOB_STEPS, layerVersionDocSchema, PIPELINE_STEPS } from '../../src/schemas/imagery.js';
 
 const PART = {
@@ -150,6 +150,24 @@ describe('the layer-join job', () => {
         expect(layerJoinParamsSchema.safeParse({ parts, sensor: 'KH-9-pan', extra: 1 }).success).toBe(false);
     });
 
+    it('happyPath_archiveMapsJoinUpTo64SheetsAndCameraFramesStayAt8 @S-A65-HAPPY-ARCHIVE-48-SHEETS @S-A65-BAD-ARCHIVE-OVER-64', () => {
+        const parts = (count: number) => Array.from({ length: count }, (_, index) => ({ versionId: `v${index}`, layerId: `l${index}` }));
+
+        expect(JOIN_MAX_PARTS).toBe(64);
+        expect(layerJoinParamsSchema.safeParse({ parts: parts(48), maxzoom: 17 }).success).toBe(true);
+        expect(layerJoinParamsSchema.safeParse({ parts: parts(JOIN_MAX_PARTS), maxzoom: 17 }).success).toBe(true);
+        expect(layerJoinParamsSchema.safeParse({ parts: parts(JOIN_MAX_PARTS + 1), maxzoom: 17 }).success).toBe(false);
+        expect(layerJoinParamsSchema.safeParse({ parts: parts(JOIN_MAX_FRAMES), sensor: 'KH-9-pan' }).success).toBe(true);
+        expect(layerJoinParamsSchema.safeParse({ parts: parts(JOIN_MAX_FRAMES + 1), sensor: 'KH-9-pan' }).success).toBe(false);
+        expect(
+            imageryJoinRequestSchema.safeParse({ cityId: 'bucharest', versionIds: parts(48).map((part) => part.versionId) }).success,
+        ).toBe(true);
+        expect(
+            imageryJoinRequestSchema.safeParse({ cityId: 'bucharest', entityIds: parts(JOIN_MAX_FRAMES + 1).map((part) => part.versionId) })
+                .success,
+        ).toBe(false);
+    });
+
     it('happyPath_aJoinIsBornWaitingForItsParts', () => {
         const job = {
             type: 'layer-join',
@@ -200,7 +218,7 @@ describe('the plan of the dates', () => {
 
     it('badPath_aRowRefusesAnImpossibleOne', () => {
         expect(datePlanRowSchema.safeParse({ ...ROW, coveragePct: 101 }).success).toBe(false);
-        expect(datePlanRowSchema.safeParse({ ...ROW, frames: Array.from({ length: JOIN_MAX_PARTS + 1 }, () => FRAME) }).success).toBe(
+        expect(datePlanRowSchema.safeParse({ ...ROW, frames: Array.from({ length: JOIN_MAX_FRAMES + 1 }, () => FRAME) }).success).toBe(
             false,
         );
         expect(datePlanRowSchema.safeParse({ ...ROW, paidFrames: Array.from({ length: 9 }, () => 'p') }).success).toBe(false);

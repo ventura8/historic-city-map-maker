@@ -45,7 +45,8 @@ The source: the owner, 2026-11-06. A KH-9 panoramic frame often holds only part 
 ```ts
 export const ENDED_VERSION_STATES = ['published', 'rejected', 'superseded', 'failed', 'cancelled', 'joined'] as const; // `joined` requires output
 export const VERSION_ORIGINS = ['usgs', 'upload', 'regeoref', 'crop', 'join'] as const;
-export const JOIN_MAX_PARTS = 8;
+export const JOIN_MAX_PARTS = 64; // 8 until 2026-11-22 (§20: the owner's 48 cadastral sheets)
+export const JOIN_MAX_FRAMES = 8; // a date plan, a frames join (`entityIds`, `sensor` params): camera frames stay at 8
 
 export const joinPartSchema = z.strictObject({
     versionId: idSchema,
@@ -669,7 +670,7 @@ scenarios `S-A65-HAPPY-JOINED-FRAME`, `S-A65-BAD-PART-GONE`.
 ## 20. Archive maps joined (2026-11-14)
 
 The owner's harti.zip maps include maps in parts: the n and S halves of 1978, 1974-01 and 1974-02, the 1:500 sets per year, sheet series.
-`imagery.join` also takes `{ cityId, versionIds }` (2 to `JOIN_MAX_PARTS` archive versions, `functions/src/imagery/join-archive.ts`):
+`imagery.join` also takes `{ cityId, versionIds }` (2 to `JOIN_MAX_PARTS`, 64 since 2026-11-22, archive versions, `functions/src/imagery/join-archive.ts`; the USGS `entityIds` form keeps `JOIN_MAX_FRAMES`, 8). With many parts the worker keeps each part's coarse preview, tone field, weight and cover in scratch files (`spilled`, `join/canvas.py`), paged in as read, so `align` and `merge` hold about one part's levels in memory, not 64:
 
 - each part is an archive map (`source.kind: 'archive'`, a regeoref of one included), usable (published, approved or awaiting approval),
   with a scan and points of its own (`georef`, not `embedded`; else `apiError.imagery.joinNeedsPoints {map}`), one version per map

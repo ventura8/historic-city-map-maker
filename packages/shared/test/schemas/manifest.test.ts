@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest';
 
-import { photoKindOf } from '../../src/schemas/manifest.js';
+import { MAX_LAYERS, photoKindOf } from '../../src/schemas/manifest.js';
 import { MAX_GEOMETRY_VERTICES, MAX_POLYGON_RINGS } from '../../src/schemas/geometry.js';
 import { MAX_LINKS } from '../../src/schemas/primitives.js';
 import { parseManifestJson, validateManifest, type ValidationIssue } from '../../src/schemas/validation.js';
@@ -37,6 +37,15 @@ function issuesOf(input: unknown): readonly ValidationIssue[] {
 describe('manifest v1: happy paths', () => {
     it('happyPath_theFixtureIsValid', () => {
         expect(issuesOf(validManifest())).toEqual([]);
+    });
+
+    it('happyPath_aCityOf300LayersPublishesAndOneMoreIsRefused @S-A10-HAPPY-MANIFEST-300-LAYERS @S-A10-BAD-MANIFEST-301-LAYERS', () => {
+        const layers = (count: number): unknown[] =>
+            Array.from({ length: count }, (_, index) => ({ ...validLayer(), id: `layer-${index}` }));
+
+        expect(MAX_LAYERS).toBe(300);
+        expect(issuesOf({ ...validManifest(), layers: layers(MAX_LAYERS) })).toEqual([]);
+        expect(issuesOf({ ...validManifest(), layers: layers(MAX_LAYERS + 1) }).map((issue) => issue.code)).toContain('validation.tooBig');
     });
 
     it('happyPath_anAerialPhotoAndAPhotoWithoutKindIsAStreetPhoto', () => {

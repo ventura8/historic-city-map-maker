@@ -52,7 +52,7 @@ export const LAYER_KINDS = ['satellite', 'aerial', 'map'] as const;
 /** The four generated colour schemes of a city theme. */
 export const THEME_SCHEMES = ['light', 'dark', 'highContrastLight', 'highContrastDark'] as const;
 
-export const MAX_LAYERS = 100;
+export const MAX_LAYERS = 300;
 export const MAX_PHOTOS = 5000;
 
 const MAPBOX_STYLE = /^mapbox:\/\/styles\/[A-Za-z0-9_-]{1,64}\/[A-Za-z0-9_-]{1,64}$/;

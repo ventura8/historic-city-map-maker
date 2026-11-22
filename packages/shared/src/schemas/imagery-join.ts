@@ -6,7 +6,7 @@
 import { z } from 'zod';
 
 import { USGS_DATASETS } from './firestore.js';
-import { JOIN_MAX_PARTS } from './imagery-settings.js';
+import { JOIN_MAX_FRAMES, JOIN_MAX_PARTS } from './imagery-settings.js';
 import { idSchema, isoDateSchema } from './primitives.js';
 import { SENSORS } from './usgs-scene.js';
 
@@ -38,7 +38,7 @@ export const layerJoinParamsSchema = z.union([
         parts: z
             .array(z.strictObject({ versionId: idSchema, layerId: idSchema }))
             .min(2)
-            .max(JOIN_MAX_PARTS),
+            .max(JOIN_MAX_FRAMES),
         sensor: z.enum(SENSORS),
     }),
     z.strictObject({

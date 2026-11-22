@@ -9,9 +9,10 @@ import math
 from collections.abc import Callable
 from dataclasses import dataclass
 from pathlib import Path
-from typing import Final, Protocol
+from typing import Any, Final, Protocol
 
 import numpy
+import numpy.typing
 
 from hcm_pipeline.geo import FloatArray, Grid, MercatorBox, zoom_resolution
 from hcm_pipeline.images import UInt8Array, as_uint8
@@ -21,6 +22,17 @@ TONE_ZOOM: Final = 12
 OWNER_ZOOM: Final = 13
 COARSE_ZOOM: Final = 14
 FINE_ZOOM: Final = 16
+
+
+def spilled(path: Path, array: numpy.typing.NDArray[Any]) -> numpy.typing.NDArray[Any]:
+    """`array` kept in a file of the scratch folder and paged in as it is read: a join of up to `JOIN_MAX_PARTS` (64) parts holds
+    a whole level per part, which together would not fit a modest computer's memory (M8 §3, the owner's 48 sheets, 2026-11-22).
+    The file must not be written again while the result is in use, so every caller names a new one."""
+    kept = numpy.lib.format.open_memmap(path, mode="w+", dtype=array.dtype, shape=array.shape)
+    kept[...] = array
+    kept.flush()
+    del kept
+    return numpy.asarray(numpy.lib.format.open_memmap(path, mode="r"))
 
 
 def aligned_box(window: MercatorBox) -> MercatorBox:

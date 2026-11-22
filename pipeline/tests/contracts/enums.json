@@ -235,7 +235,7 @@
     },
     "MAX_GCPS": 300,
     "MAX_SCAN_PIXELS": 200000,
-    "JOIN_MAX_PARTS": 8,
+    "JOIN_MAX_PARTS": 64,
     "RECALIBRATE_MIN_GAIN_M": 1,
     "RECALIBRATE_MIN_CHECKS": 3,
     "S2_CHECK_STATUSES": ["agreed", "unchecked", "disputed"],

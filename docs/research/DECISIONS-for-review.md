@@ -7294,3 +7294,17 @@ No new chunk. Headroom about 10 %. Verify: `PIPELINE_STAGE=build`.
 ## 242. The Wikipedia overlay's chunks get budgets — APPLIED 2026-11-22 (owner: "implement wikipedia layer already")
 
 M31 (`docs/research/M31-wikipedia.md`) adds three lazy chunks, each a new row of `scripts/ci/check_bundle_budget.py` (a new chunk is a reviewed decision; no existing row rose): the engine's `wikipedia` (ES) and `extra-wikipedia` (IIFE extra), 2 KB each, fetched the first time a visitor switches the overlay on; the admin's `wikipedia-section`, 3 KB, fetched when Settings → Wikipedia opens, so `settings` keeps its 22 KB. The engine's entry gains `wikipediaFileSchema` and `validate` on the extras' host (`packages/engine/src/extras/host-shared.ts`) so the chunk carries no zod. No gate was loosened. Verify: `PIPELINE_STAGE=build`.
+
+## 243. `MAX_LAYERS` 100 → 300 and `JOIN_MAX_PARTS` 8 → 64 (2026-11-22) — APPLIED (owner approved in chat: "Continue. U do all")
+
+The Bucharest manifest stopped rebuilding on 2026-11-21 21:22: `publish-buildmanifest` refused it with `layers: validation.tooBig`,
+the city now publishing more than 100 layers (the 48 sheets of the 1990 cadastral plan among them). The owner approved raising the cap
+to 300 and joining the 48 sheets into one layer, which needs a join of more than 8 parts.
+
+- `MAX_LAYERS` = 300 (`packages/shared/src/schemas/manifest.ts`); the admin's list pages follow it; the viewer has no own cap.
+- `JOIN_MAX_PARTS` = 64 for archive joins (`versionIds`, `maxzoom` params, `source.parts`, `usgsParts`, the Python twin and `enums.json`);
+  the new `JOIN_MAX_FRAMES` = 8 keeps the USGS date plan and the frames join (`entityIds`, `sensor` params) where they were, so no plan
+  buys more frames than before.
+- Memory: the worker spills each part's preview, tone field, weight and cover to scratch files (`spilled`), so a 48-part join fits a
+  modest computer; tone fields accumulate in float32.
+- `scripts/ci/check_e2e_matrix.py` also reads `packages/shared/test/schemas/*.test.ts` for scenario tags (the caps' tests live there).
