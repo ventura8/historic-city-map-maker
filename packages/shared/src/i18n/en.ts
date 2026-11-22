@@ -26,6 +26,8 @@ export const en: Messages = {
     'validation.manifestSource': 'The configuration must contain either manifestUrl or manifest.',
     'validation.json': 'The content is not valid JSON.',
     'validation.ringClosed': 'A polygon ring must end where it starts.',
+    'validation.viewedArea':
+        'The viewed area needs four corners forming a rectangle or a trapezoid, with no side crossing another: drag the corners back into shape or reset the area.',
     'validation.reference': 'The value refers to an item that does not exist.',
     'validation.invalid': 'The value is not valid.',
     'error.generic': 'The map did not start because of a fault in this page (it is reported). Reload the page.',

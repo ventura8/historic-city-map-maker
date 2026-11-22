@@ -30,6 +30,8 @@ export const fr: Messages = {
     'validation.manifestSource': 'La configuration doit contenir manifestUrl ou manifest.',
     'validation.json': 'Le contenu n’est pas du JSON valide.',
     'validation.ringClosed': 'Un anneau de polygone doit se terminer là où il commence.',
+    'validation.viewedArea':
+        'La zone visible doit avoir quatre coins formant un rectangle ou un trapèze, sans côtés qui se croisent : replacez les coins ou réinitialisez la zone.',
     'validation.reference': 'La valeur renvoie à un élément qui n’existe pas.',
     'validation.invalid': 'La valeur n’est pas valide.',
     'error.generic':

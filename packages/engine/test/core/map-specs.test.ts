@@ -10,6 +10,7 @@ import {
     poiSpecs,
     rasterSpec,
     resolveAssetUrl,
+    withPhotoAreas,
     type MapMoment,
 } from '../../src/core/map-specs.js';
 import { cityView } from '../../src/core/state.js';
@@ -269,5 +270,41 @@ describe('map specs: aerial photos', () => {
 
         expect(data.features[0]?.properties).toMatchObject({ aerial: true });
         expect(data.features[1]?.properties).not.toHaveProperty('aerial');
+    });
+});
+
+describe('withPhotoAreas: the viewed area of an aerial photo', () => {
+    it('happyPath_anAerialPhotosViewedAreaIsAClosedRingFocusedWhileSelected', () => {
+        const viewedArea = [
+            { lat: 44.431, lng: 26.09 },
+            { lat: 44.433, lng: 26.089 },
+            { lat: 44.433, lng: 26.094 },
+            { lat: 44.431, lng: 26.093 },
+        ];
+        const aerial = photo({ kind: 'aerial', viewedArea });
+
+        const idle = withPhotoAreas(photoFeatures([aerial], 'ro'), [aerial], null).features[2];
+        const selected = withPhotoAreas(photoFeatures([aerial], 'ro'), [aerial], aerial.id).features[2];
+
+        expect(idle?.properties).toEqual({ id: aerial.id, area: true });
+        expect(selected?.properties).toEqual({ id: aerial.id, area: true, focus: true });
+        expect(selected?.geometry.coordinates).toEqual([
+            [
+                [26.09, 44.431],
+                [26.089, 44.433],
+                [26.094, 44.433],
+                [26.093, 44.431],
+                [26.09, 44.431],
+            ],
+        ]);
+    });
+
+    it('badPath_aPhotoWithoutAViewedAreaDrawsNoArea', () => {
+        const plain = photoFeatures([photo()], 'ro');
+        const aerial = photo({ year: 1900, kind: 'aerial', viewedArea: [] });
+
+        expect(withPhotoAreas(plain, [photo()], photo().id)).toBe(plain);
+        // A photo the timeline's scope hides keeps its area hidden too.
+        expect(withPhotoAreas({ type: 'FeatureCollection', features: [] }, [aerial], aerial.id).features).toEqual([]);
     });
 });

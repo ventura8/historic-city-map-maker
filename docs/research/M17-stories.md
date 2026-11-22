@@ -80,6 +80,19 @@ body, yearStart?, yearEnd?, photoIds?, poiIds?, credit?}`, the texts `{ro, en?}`
 A story may link aerial photos as it links any photo: since 2026-11-16 an aerial photo is a photo of the kind `aerial`
 (`docs/research/M28-sources.md` → *Aerial photos are photos*), never a layer, so `photoIds` covers both kinds.
 
+**An aerial photo's viewed area** (the owner, 2026-11-22): beside its cone (direction and field of view), an aerial photo
+has `viewedArea`, the ground it shows: four `{lat, lng}` corners in order, a rectangle (taken straight down) or a
+trapezoid (taken at an angle). `viewedAreaSchema` (`packages/shared/src/schemas/primitives.ts`) keeps it a convex
+quadrilateral that never crosses itself (`isConvexQuad`, `packages/shared/src/geo/area.ts`; refused with
+`validation.viewedArea`), the rules keep it a list of four and only on a placed photo, and the manifest carries it
+(`functions/src/publish/assemble.ts`). In the admin, the photo editor's *Place and direction* shows, for a placed aerial
+photo, **Draw the area in front of the camera** (`defaultViewedArea`: a trapezoid 100 to 400 m along the direction, as
+wide as the field of view), then **Reset the area to the direction and field of view** and **Remove the area**; the map
+loads the area into the drawing tools beside the pin (`photo-area`, `packages/admin/src/photos/map.ts`), so each corner
+is dragged; a fifth corner or a crossing is refused with `adminContent.photos.area.refused`. The public map draws the
+area translucent and dashed-outlined (`hcm-photos-area-fill` / `-line`, `packages/ui/src/map/photos.ts`) only while the
+photo is selected (the engine's `focus`) or hovered (the adapter's), at every zoom. Scenarios A195, V77.
+
 - **Where a story is found**: a Stories item in the map's menu (when the city has any) opens the list, newest year last; a
   photo's sheet and a place's sheet list the stories that name them; a story's own link is the hash `#story=<id>` (and
   `&story=<id>` after the view), which the Share button copies while a story is open.

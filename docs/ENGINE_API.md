@@ -465,6 +465,7 @@ At most `MAX_LAYERS` (300; 100 until 2026-11-22, raised when the Bucharest manif
 | `links` | `[{url, label}]` | at most 5, https only (legacy HTML was converted to these) |
 | `location` | `{lat, lng}` | within the city bounds plus 0.5° |
 | `bearing?`, `fov?` | number | 0 to 360 and 1 to 180; a photo with a bearing gets a view cone (default field of view 60°) |
+| `viewedArea?` | four `{lat, lng}` | an aerial photo's ground footprint, corners in order: a convex rectangle or trapezoid (`validation.viewedArea` otherwise); drawn while the photo is selected or hovered (the owner, 2026-11-22) |
 | `image` | `{web, thumb, w, h}` | WebP derivatives (2048 px and 400 px on the long edge), metadata stripped; `w`, `h` of `web` |
 | `versions?` | `{improved?, colorized?}` | each `{web, thumb, w, h, credit?}`: the improved and the colorized version beside the original `image`, made as `image` is; `credit` at most 200 characters ([Photo versions](#photo-versions)) |
 

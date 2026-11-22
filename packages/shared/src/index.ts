@@ -18,6 +18,7 @@ export { PHOTO_KINDS, PHOTO_VIEWS, photoKindOf, type PhotoKind, type PhotoVersio
 export { bearingBetween, destinationPoint, distanceMeters } from './geo/bearing.js';
 export { DEFAULT_FOV, MAX_FOV, MIN_FOV, angularSpan, coneFromPolygon, conePolygon, findConeApex, openRing } from './geo/cone.js';
 export type { MeasuredCone, ViewCone } from './geo/cone.js';
+export { AREA_FAR_M, AREA_NEAR_M, VIEWED_AREA_CORNERS, defaultViewedArea, isConvexQuad } from './geo/area.js';
 export { bboxCenter, bboxContains, bboxExpand, bboxFromRecord, bboxIntersects, bboxOf, bboxToRecord, clampToBBox } from './geo/bbox.js';
 export type { BBox, BoundsRecord } from './geo/bbox.js';
 

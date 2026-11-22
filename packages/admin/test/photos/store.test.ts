@@ -232,6 +232,49 @@ describe('the photos area: the editor and its map', () => {
     });
 });
 
+describe('the photos area: the viewed area of an aerial photo', () => {
+    const CORNERS = [
+        { lat: 44.43, lng: 26.1 },
+        { lat: 44.44, lng: 26.09 },
+        { lat: 44.44, lng: 26.11 },
+        { lat: 44.43, lng: 26.105 },
+    ];
+    const ring = CORNERS.map(({ lat, lng }) => [lng, lat]);
+
+    it('happyPath_theAreaIsDrawnOnTheMapAndItsDraggedCornersReachTheDraft', async () => {
+        const { world, store } = area();
+        seedPhoto(world, 'p1', { kind: 'aerial', viewedArea: CORNERS });
+        store.open(['p1']);
+        store.intents.attachMap(CONTAINER, () => undefined);
+        await settle();
+        expect(world.maps.draw.loaded[1]?.geometry.type).toBe('Polygon');
+
+        const moved = [{ lat: 44.429, lng: 26.1 }, ...CORNERS.slice(1)];
+        world.maps.draw.emitChange({
+            features: [
+                { id: 'photo-area', geometry: { type: 'Polygon', coordinates: [[[26.1, 44.429], ...ring.slice(1), [26.1, 44.429]]] } },
+            ],
+            final: true,
+        });
+        await settle();
+
+        expect(store.state.editor?.value?.viewedArea).toEqual(moved);
+    });
+
+    it('badPath_aStreetPhotoShowsNoAreaAndABrokenAreaIsRefusedWithItsMessage', async () => {
+        const { world, store } = area();
+        seedPhoto(world, 'p1', { viewedArea: CORNERS });
+        store.open(['p1']);
+        store.intents.attachMap(CONTAINER, () => undefined);
+        await settle();
+
+        world.maps.draw.emitRefused('too-many-vertices');
+
+        expect(world.maps.draw.loaded).toHaveLength(1);
+        expect(world.notices.at(-1)).toEqual({ key: 'adminContent.photos.area.refused' });
+    });
+});
+
 describe('the photos area: the editor without a map', () => {
     it('badPath_aPinDraggedOutsideTheCityIsRefusedWithAMessage', async () => {
         const { world, store } = area();

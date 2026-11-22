@@ -19,13 +19,35 @@ import {
 } from '@hcm/shared';
 
 import type { Unsubscribe } from '../app/ports.js';
-import type { DrawChange, PhotoCone, PhotoDrawPort, PhotoFeatures, PhotoMapFactory, PhotoMapHandle, PhotoPoint } from './ports.js';
+import type {
+    DrawChange,
+    DrawnArea,
+    DrawnPoint,
+    PhotoCone,
+    PhotoDrawPort,
+    PhotoFeatures,
+    PhotoMapFactory,
+    PhotoMapHandle,
+    PhotoPoint,
+} from './ports.js';
 
 /** The length of a cone's sides, as the viewer draws them (the engine's `CONE_LENGTH_M`). */
 const CONE_LENGTH_M = 60;
 
 /** Our id of the edited photo's pin in the drawing tools. */
 export const PIN_FEATURE_ID = 'photo-location';
+
+/** Our id of an aerial photo's viewed area in the drawing tools. */
+export const AREA_FEATURE_ID = 'photo-area';
+
+/** A viewed area's closed ring has its four corners and the first again. */
+const AREA_RING_POSITIONS = 5;
+
+/** A corner of a viewed area, as the draft stores it. */
+export interface AreaCorner {
+    readonly lat: number;
+    readonly lng: number;
+}
 
 /** The pin's colour on the map (the drawing tools take a hex colour). */
 const PIN_COLOR = '#B3261E';
@@ -78,8 +100,10 @@ export interface PhotoMapEvents {
     readonly select: (photoId: string) => void;
     /** The pin moves (`final` once the drag ends). */
     readonly pin: (position: LngLat, final: boolean) => void;
-    /** The pin was dragged outside the city: it went back, the admin is told. */
-    readonly refused: () => void;
+    /** An aerial photo's viewed area moves: its corners in order (`final` once the drag ends). */
+    readonly area?: (corners: readonly AreaCorner[], final: boolean) => void;
+    /** The pin was dragged outside the city, or the area lost its shape: it went back, the admin is told which. */
+    readonly refused: (kind: string) => void;
 }
 
 /** The pin's position from a change of the drawing tools, if the change carries it. */
@@ -87,6 +111,37 @@ function pinOf(change: DrawChange): LngLat | null {
     const feature = change.features.find((candidate) => candidate.id === PIN_FEATURE_ID);
     const coordinates = feature?.geometry.type === 'Point' ? feature.geometry.coordinates : null;
     return Array.isArray(coordinates) && coordinates.length >= 2 ? rounded([Number(coordinates[0]), Number(coordinates[1])]) : null;
+}
+
+/** The outer ring of the feature `id` of a change, if it is a polygon. */
+function outerRingOf(change: DrawChange, id: string): unknown[] {
+    const feature = change.features.find((candidate) => candidate.id === id);
+    const rings: unknown = feature?.geometry.type === 'Polygon' ? feature.geometry.coordinates : null;
+    const ring: unknown = Array.isArray(rings) ? rings[0] : null;
+    return Array.isArray(ring) ? ring : [];
+}
+
+function cornerOf(position: unknown): AreaCorner {
+    const [lng, lat] = rounded([Number((position as unknown[])[0]), Number((position as unknown[])[1])]);
+    return { lat, lng };
+}
+
+/** The viewed area's corners from a change of the drawing tools, if the change carries it. */
+export function areaOf(change: DrawChange): AreaCorner[] | null {
+    const corners = outerRingOf(change, AREA_FEATURE_ID).slice(0, -1).map(cornerOf);
+    return corners.length === AREA_RING_POSITIONS - 1 ? corners : null;
+}
+
+/** The area as the drawing tools load a polygon: closed, the first corner again at the end. */
+function areaFeature(area: readonly AreaCorner[]): DrawnArea {
+    const corners = area.map(({ lat, lng }): LngLat => [lng, lat]);
+    return { id: AREA_FEATURE_ID, geometry: { type: 'Polygon', coordinates: [[...corners, ...corners.slice(0, 1)]] } };
+}
+
+/** The pin, and the viewed area when there is one. */
+function editedFeatures(location: AreaCorner, area: readonly AreaCorner[] | null): (DrawnPoint | DrawnArea)[] {
+    const pin: DrawnPoint = { id: PIN_FEATURE_ID, geometry: { type: 'Point', coordinates: [location.lng, location.lat] } };
+    return area === null ? [pin] : [pin, areaFeature(area)];
 }
 
 export class PhotoMapSession {
@@ -175,8 +230,11 @@ export class PhotoMapSession {
         return this.#handle?.port.getView().center ?? null;
     }
 
-    /** Shows the edited photo's pin, draggable; null takes it away. */
-    async editPin(location: { readonly lat: number; readonly lng: number } | null): Promise<void> {
+    /** Shows the edited photo's pin, draggable, and an aerial photo's viewed area with its corners; null takes them away. */
+    async editPin(
+        location: { readonly lat: number; readonly lng: number } | null,
+        area: readonly AreaCorner[] | null = null,
+    ): Promise<void> {
         if (location === null) {
             this.#revealed = null;
         }
@@ -189,7 +247,7 @@ export class PhotoMapSession {
             draw.setMode('static');
             return;
         }
-        draw.load([{ id: PIN_FEATURE_ID, geometry: { type: 'Point', coordinates: [location.lng, location.lat] } }]);
+        draw.load(editedFeatures(location, area));
         draw.setMode('select');
         // Selected: it is dragged (Terra Draw), or a click on the map puts it there (the click tools, WCAG 2.5.7).
         draw.select(PIN_FEATURE_ID);
@@ -213,13 +271,13 @@ export class PhotoMapSession {
             return this.#draw;
         }
         const draw = await handle.draw();
-        draw.attach(handle.port, { limits: this.#limits, color: PIN_COLOR, maxVertices: 1, maxRings: 1 });
+        draw.attach(handle.port, { limits: this.#limits, color: PIN_COLOR, maxVertices: AREA_RING_POSITIONS, maxRings: 1 });
         this.#stops.push(
             draw.on('change', (change) => {
                 this.#changed(change);
             }),
-            draw.on('refused', () => {
-                this.#events.refused();
+            draw.on('refused', (refusal) => {
+                this.#events.refused(refusal.kind);
             }),
         );
         this.#draw = draw;
@@ -230,6 +288,10 @@ export class PhotoMapSession {
         const position = pinOf(change);
         if (position !== null) {
             this.#events.pin(position, change.final);
+        }
+        const area = areaOf(change);
+        if (area !== null) {
+            this.#events.area?.(area, change.final);
         }
     }
 

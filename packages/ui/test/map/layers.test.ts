@@ -222,24 +222,49 @@ describe('photo layers', () => {
         ]);
     });
 
+    it('happyPath_theHoveredPhotosViewedAreaIsFocused', () => {
+        const area = (id: string) =>
+            ({
+                type: 'Feature',
+                geometry: { type: 'Polygon', coordinates: [] },
+                properties: { id, area: true },
+            }) as const;
+        const { cones } = splitPhotoData({ type: 'FeatureCollection', features: [area('a'), area('b')] }, 'b');
+
+        expect((cones as { features: { properties: unknown }[] }).features.map((feature) => feature.properties)).toEqual([
+            { id: 'a', area: true },
+            { id: 'b', area: true, focus: true },
+        ]);
+    });
+
+    it('badPath_aHoveredConeIsNotAnArea', () => {
+        const { cones } = splitPhotoData(data, 'a');
+
+        expect((cones as { features: { properties: unknown }[] }).features.map((feature) => feature.properties)).toEqual([{ id: 'a' }]);
+    });
+
     it('happyPath_conesFromZoom17AndMarkersRotatedByBearing', () => {
         const layers = photoLayers('top', false, 0.5);
 
         expect(layers.map((layer) => [layer['id'], layer['type'], layer['minzoom']])).toEqual([
+            ['hcm-photos-area-fill', 'fill', undefined],
+            ['hcm-photos-area-line', 'line', undefined],
             ['hcm-photos-cone-fill', 'fill', CONE_MIN_ZOOM],
             ['hcm-photos-cone-line', 'line', CONE_MIN_ZOOM],
             ['hcm-photos-cluster', 'symbol', undefined],
             ['hcm-photos-marker', 'symbol', undefined],
         ]);
-        expect(layers[0]?.['paint']).toEqual({ 'fill-color': '#ffb74d', 'fill-emissive-strength': 1, 'fill-opacity': 0.125 });
-        expect(layers[1]?.['paint']).toMatchObject({ 'line-opacity': 0.4 });
-        expect(layers[3]?.['layout']).toMatchObject({
+        expect(layers[0]?.['filter']).toEqual(['has', 'focus']);
+        expect(layers[2]?.['filter']).toEqual(['!', ['has', 'area']]);
+        expect(layers[2]?.['paint']).toEqual({ 'fill-color': '#ffb74d', 'fill-emissive-strength': 1, 'fill-opacity': 0.125 });
+        expect(layers[3]?.['paint']).toMatchObject({ 'line-opacity': 0.4 });
+        expect(layers[5]?.['layout']).toMatchObject({
             visibility: 'none',
             'icon-image': ['case', ['has', 'aerial'], 'hcm-photo-aerial', ['has', 'bearing'], 'hcm-photo-direction', 'hcm-photo-camera'],
             'icon-rotate': ['coalesce', ['get', 'bearing'], 0],
             'icon-rotation-alignment': 'map',
         });
-        expect(layers[3]?.['paint']).toEqual({ 'icon-opacity': 0.5, 'text-opacity': 0.5 });
+        expect(layers[5]?.['paint']).toEqual({ 'icon-opacity': 0.5, 'text-opacity': 0.5 });
         expect(photoEntry(true, 1)).toMatchObject({ kind: 'photos', layers: PHOTO_MAP_LAYERS, visible: true, opacity: 1 });
     });
 });

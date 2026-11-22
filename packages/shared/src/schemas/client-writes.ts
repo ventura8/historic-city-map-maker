@@ -52,6 +52,8 @@ const PHOTO_EDITABLE = [
     'location',
     'bearing',
     'fov',
+    /** An aerial photo's viewed area (the owner 2026-11-22). */
+    'viewedArea',
     'published',
     'rightsReview',
     /** Street (`ground`, the default) or `aerial` (the owner 2026-11-16). */

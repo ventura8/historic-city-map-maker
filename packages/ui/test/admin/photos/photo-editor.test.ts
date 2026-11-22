@@ -579,3 +579,47 @@ describe('<hcm-admin-photo-editor>: M13', () => {
         expect(photos.calls).toContain('placeAtCentre');
     });
 });
+
+describe('<hcm-admin-photo-editor>: the viewed area of an aerial photo', () => {
+    beforeAll(defineAll);
+    afterEach(cleanup);
+
+    it('happyPath_anAerialPhotoDrawsResetsAndRemovesItsViewedArea', async () => {
+        const iconButton = (element: HTMLElement, icon: string) =>
+            deepAll(deep(element, '[data-area]'), 'hcm-button').find((button) => button.getAttribute('icon') === icon);
+        const fresh = await editorOf(editor({ value: { ...VALUE, kind: 'aerial', bearing: 0, fov: 60 } }));
+        expect(deepText(fresh.element)).toContain('This aerial photo has no viewed area yet.');
+        iconButton(fresh.element, 'crop_free')?.click();
+        const call = fresh.photos.calls.at(-1) ?? '';
+        expect(call).toMatch(/^edit \{"viewedArea":\[/);
+        expect((JSON.parse(call.slice(5)) as { viewedArea: unknown[] }).viewedArea).toHaveLength(4);
+        cleanup();
+
+        const corners = [
+            { lat: 44.43, lng: 26.1 },
+            { lat: 44.44, lng: 26.09 },
+            { lat: 44.44, lng: 26.11 },
+            { lat: 44.43, lng: 26.105 },
+        ];
+        const drawn = await editorOf(editor({ value: { ...VALUE, kind: 'aerial', viewedArea: corners } }), { locale: 'ro' });
+        expect(deepText(drawn.element)).toContain('Zona văzută');
+        iconButton(drawn.element, 'refresh')?.click();
+        iconButton(drawn.element, 'delete')?.click();
+        expect(drawn.photos.calls.at(-1)).toBe('edit {}');
+        expect(drawn.photos.calls).toHaveLength(2);
+    });
+
+    it('badPath_aBrokenAreaSaysWhyAndAStreetPhotoHasNoAreaSection', async () => {
+        const broken = await editorOf(
+            editor({
+                value: { ...VALUE, kind: 'aerial', viewedArea: [] },
+                issues: [{ path: 'viewedArea', code: 'validation.viewedArea' }],
+            }),
+        );
+        expect(deep(broken.element, '[data-area] [role="alert"]').textContent).toContain('rectangle or a trapezoid');
+        cleanup();
+
+        const street = await editorOf(editor());
+        expect(deepAll(street.element, '[data-area]')).toEqual([]);
+    });
+});

@@ -220,6 +220,20 @@ describe('pointer selection', () => {
         expect(map.canvas.listenerCount('keydown')).toBe(0);
     });
 
+    it('happyPath_hoverReportsWhatThePointerIsOver', () => {
+        const map = mapboxMap();
+        const hovered: (Selection | null)[] = [];
+        attachPointer(map, { layers: () => ['hcm-photos-marker'], select: () => undefined, hover: (selection) => hovered.push(selection) });
+
+        map.rendered = [photo];
+        map.fire('mousemove', { point: { x: 1, y: 1 } });
+        map.rendered = [];
+        map.fire('mousemove', { point: { x: 2, y: 2 } });
+        map.fire('mousemove', {});
+
+        expect(hovered).toEqual([{ kind: 'photo', id: 'p1' }, null, null]);
+    });
+
     it('badPath_missesAndOtherKeysSelectNothing', () => {
         const map = mapboxMap();
         const selected: Selection[] = [];

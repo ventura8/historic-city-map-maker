@@ -13,7 +13,7 @@ import type { MyLocationFix, ViewerMapPort } from '@hcm/ui/map';
 
 import { drawMapLabels } from './map-labels.js';
 import { drawMapLight, mapLight } from './map-light.js';
-import { photoFeatures, photosScope, poiSpecs, rasterSpec, withArticles } from './map-specs.js';
+import { photoFeatures, photosScope, poiSpecs, rasterSpec, withArticles, withPhotoAreas } from './map-specs.js';
 import { stackOrder } from './stack.js';
 import { displayedOverlays, type MyLocationState, type ViewerState } from './state.js';
 
@@ -120,6 +120,9 @@ export class MapSync {
             this.#features(manifest, next);
         } else if (featuresChanged(previous, next)) {
             this.#features(manifest, next);
+        } else if (next.selectedPhotoId !== previous.selectedPhotoId) {
+            // The selected photo's viewed area shows (an aerial photo's); the POIs stay as they are.
+            this.#map.setPhotosData(this.#photoData(manifest, next));
         }
     }
 
@@ -141,9 +144,14 @@ export class MapSync {
         }
     }
 
+    #photoData(manifest: Manifest, state: ViewerState): ReturnType<typeof photoFeatures> {
+        const data = photoFeatures(manifest.photos, state.locale, state.year, photosScope(state.photosNear));
+        return withPhotoAreas(data, manifest.photos, state.selectedPhotoId);
+    }
+
     /** The photo markers of the current stop and every POI, titles in the current language. */
     #features(manifest: Manifest, state: ViewerState): void {
-        this.#map.setPhotosData(photoFeatures(manifest.photos, state.locale, state.year, photosScope(state.photosNear)));
+        this.#map.setPhotosData(this.#photoData(manifest, state));
         const places = withArticles(manifest, state.wikipedia.articles, state.locale);
         for (const spec of poiSpecs(places, state.overlays, state.locale)) {
             this.#map.addVectorOverlay(spec, 'top');

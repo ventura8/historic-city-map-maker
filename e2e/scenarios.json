@@ -1347,6 +1347,20 @@
             "source": "the owner, 2026-11-16: aerial photos come in as photos of the kind aerial, never as layer candidates"
         },
         {
+            "id": "A195",
+            "area": "admin",
+            "name": "An aerial photo's viewed area, four corners dragged on the photo editor's map",
+            "milestone": "M17",
+            "source": "the owner, 2026-11-22: aerial photos also have a viewed area, a rectangle or a trapezoid the admin draws"
+        },
+        {
+            "id": "V77",
+            "area": "viewer",
+            "name": "An aerial photo's viewed area drawn on the map while the photo is selected or hovered",
+            "milestone": "M17",
+            "source": "the owner, 2026-11-22: the viewer shows the ground an aerial photo covers beside its cone"
+        },
+        {
             "id": "A194",
             "area": "admin",
             "name": "Visitor numbers on the dashboard",
@@ -24042,6 +24056,94 @@
             "tier": "e2e-admin",
             "status": "exists",
             "notes": "The owner's request, 2026-11-16. Test: e2e/admin/specs/ops/statistics.spec.ts; unit: packages/ui/test/admin/home/visitors.test.ts, packages/admin/test/home/visitors.test.ts."
+        },
+        {
+            "id": "S-A195-HAPPY-RULES",
+            "behaviour": "A195",
+            "area": "admin",
+            "path": "happy",
+            "title": "An admin saves an aerial photo's viewed area",
+            "asserts": "a processed photo -> an update with kind aerial and four viewedArea corners is allowed",
+            "tier": "rules",
+            "status": "exists",
+            "notes": "Test: firebase/rules-tests/test/photos.test.ts. The owner, 2026-11-22. firebase/firestore.rules (validPhoto); unit: packages/admin/test/photos/store.test.ts, packages/admin/test/photos/map.test.ts, packages/ui/test/admin/photos/photo-editor.test.ts. packages/shared/src/geo/area.ts (isConvexQuad, defaultViewedArea), packages/shared/src/schemas/primitives.ts (viewedAreaSchema)."
+        },
+        {
+            "id": "S-A195-BAD-NO-PLACE",
+            "behaviour": "A195",
+            "area": "admin",
+            "path": "bad",
+            "title": "A viewed area without a place, or of three corners, is refused",
+            "asserts": "an update that removes the place but sets a viewedArea is denied; a create with three corners or a non-list area is denied; the editor shows 'The viewed area needs four corners forming a rectangle or a trapezoid' for a crossed or bent shape",
+            "tier": "rules",
+            "status": "exists",
+            "notes": "Test: firebase/rules-tests/test/photos.test.ts. The owner, 2026-11-22. unit: packages/ui/test/admin/photos/photo-editor.test.ts (the message), packages/shared/test/schemas/firestore.test.ts, packages/shared/test/geo/area.test.ts."
+        },
+        {
+            "id": "S-A195-HAPPY-DRAW",
+            "behaviour": "A195",
+            "area": "admin",
+            "path": "happy",
+            "title": "The admin draws an aerial photo's area in front of the camera and drags its corners",
+            "asserts": "photo editor, kind Aerial photo -> Draw the area in front of the camera puts a four-corner trapezoid on the map; dragging a corner changes the draft; Save writes viewedArea",
+            "tier": "e2e-admin",
+            "status": "planned",
+            "notes": "The owner, 2026-11-22. Unit coverage today: packages/admin/test/photos/store.test.ts, packages/ui/test/admin/photos/photo-editor.test.ts."
+        },
+        {
+            "id": "S-A195-BAD-SHAPE",
+            "behaviour": "A195",
+            "area": "admin",
+            "path": "bad",
+            "title": "Adding a fifth corner or crossing the area is refused with its message",
+            "asserts": "photo editor, an aerial photo's area -> dragging a midpoint is refused with 'The viewed area keeps exactly four corners and must not cross itself'; the area stays four corners",
+            "tier": "e2e-admin",
+            "status": "planned",
+            "notes": "The owner, 2026-11-22. Unit coverage today: packages/admin/test/photos/store.test.ts (area.refused)."
+        },
+        {
+            "id": "S-V77-HAPPY-MANIFEST",
+            "behaviour": "V77",
+            "area": "viewer",
+            "path": "happy",
+            "title": "An aerial photo's viewed area reaches the public manifest",
+            "asserts": "a published aerial photo with four viewedArea corners -> its manifest entry carries them; a street photo carries none",
+            "tier": "functions",
+            "status": "exists",
+            "notes": "Test: functions/test/publish/assemble.test.ts. The owner, 2026-11-22. functions/src/publish/assemble.ts, fields.ts; viewer: packages/engine/test/core/map-specs.test.ts, map-sync.test.ts, packages/ui/test/map/layers.test.ts, mapbox-adapter.test.ts, parts.test.ts."
+        },
+        {
+            "id": "S-V77-BAD-CROSSED",
+            "behaviour": "V77",
+            "area": "viewer",
+            "path": "bad",
+            "title": "A crossed viewed area keeps the photo off the map with its reason",
+            "asserts": "a published aerial photo whose corners cross -> the manifest leaves it out and reports validation.viewedArea at viewedArea",
+            "tier": "functions",
+            "status": "exists",
+            "notes": "Test: functions/test/publish/assemble.test.ts. The owner, 2026-11-22."
+        },
+        {
+            "id": "S-V77-HAPPY-HOVER",
+            "behaviour": "V77",
+            "area": "viewer",
+            "path": "happy",
+            "title": "Selecting or hovering an aerial photo draws its viewed area",
+            "asserts": "a manifest with an aerial photo and a viewedArea -> hovering its marker or opening it fills and outlines the area (hcm-photos-area-fill / -line); leaving it hides the area",
+            "tier": "e2e-viewer",
+            "status": "planned",
+            "notes": "The owner, 2026-11-22. Unit coverage today: packages/ui/test/map/mapbox-adapter.test.ts, packages/engine/test/core/map-specs.test.ts."
+        },
+        {
+            "id": "S-V77-BAD-NO-AREA",
+            "behaviour": "V77",
+            "area": "viewer",
+            "path": "bad",
+            "title": "A photo without a viewed area draws none",
+            "asserts": "the fixture manifest's street photos -> hovering or selecting one draws no area feature",
+            "tier": "e2e-viewer",
+            "status": "planned",
+            "notes": "The owner, 2026-11-22. Unit coverage today: packages/engine/test/core/map-specs.test.ts (badPath_aPhotoWithoutAViewedAreaDrawsNoArea)."
         },
         {
             "id": "S-A194-BAD-NOT-READ",

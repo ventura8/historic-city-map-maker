@@ -26,6 +26,8 @@ export const pt: Messages = {
     'validation.manifestSource': 'A configuração deve conter manifestUrl ou manifest.',
     'validation.json': 'O conteúdo não é um JSON válido.',
     'validation.ringClosed': 'O anel de um polígono deve terminar onde começa.',
+    'validation.viewedArea':
+        'A área visível precisa de quatro cantos formando um retângulo ou um trapézio, sem lados que se cruzem: arraste os cantos ou redefina a área.',
     'validation.reference': 'O valor se refere a um item que não existe.',
     'validation.invalid': 'O valor não é válido.',
     'error.generic': 'O mapa não foi carregado devido a um erro nesta página (o erro foi reportado). Recarregue a página.',

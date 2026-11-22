@@ -30,6 +30,7 @@ export const zh: Messages = {
     'validation.manifestSource': '配置文件中必须包含 manifestUrl 或 manifest 这两个字段中的一个。',
     'validation.json': '内容不是有效的 JSON。',
     'validation.ringClosed': '多边形的环必须在起点处闭合。',
+    'validation.viewedArea': '可见区域需要四个角组成矩形或梯形，且各边不相交：请拖动角点或重置区域。',
     'validation.reference': '该值引用了一个不存在的条目。',
     'validation.invalid': '该值无效。',
     'error.generic': '由于页面出现故障，地图未能加载（已报告）。请重新加载页面。',

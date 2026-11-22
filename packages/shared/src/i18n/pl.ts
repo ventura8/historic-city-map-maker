@@ -26,6 +26,8 @@ export const pl: Messages = {
     'validation.manifestSource': 'Konfiguracja musi zawierać manifestUrl albo manifest.',
     'validation.json': 'Treść nie jest prawidłowym JSON-em.',
     'validation.ringClosed': 'Pierścień wielokąta musi kończyć się tam, gdzie się zaczyna.',
+    'validation.viewedArea':
+        'Widoczny obszar wymaga czterech narożników tworzących prostokąt lub trapez, bez krzyżujących się boków: przeciągnij narożniki lub zresetuj obszar.',
     'validation.reference': 'Wartość odwołuje się do nieistniejącego elementu.',
     'validation.invalid': 'Wartość jest nieprawidłowa.',
     'error.generic': 'Mapa nie załadowała się z powodu błędu strony (został zgłoszony). Prosimy odświeżyć stronę.',

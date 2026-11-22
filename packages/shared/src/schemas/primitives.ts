@@ -8,6 +8,7 @@ import { z } from 'zod';
 
 import type { MessageKey } from '../i18n/index.js';
 import { parseMarkdown } from '../text/markdown.js';
+import { isConvexQuad } from '../geo/area.js';
 import { isHttpsUrl, isRelativeUrl, MAX_URL_LENGTH } from '../text/urls.js';
 
 /**
@@ -107,6 +108,15 @@ export const lngLatSchema = z.tuple([lngSchema, latSchema]);
 
 /** `{lat, lng}`: a photo location, the shape Firestore and the rules use. */
 export const latLngSchema = z.strictObject({ lat: latSchema, lng: lngSchema });
+
+/**
+ * The viewed area of an aerial photo: four `{lat, lng}` corners in order around the ground it shows, a convex
+ * quadrilateral (a rectangle or a trapezoid) that never crosses itself.
+ */
+export const viewedAreaSchema = z
+    .array(latLngSchema)
+    .length(4)
+    .refine((corners) => isConvexQuad(corners.map(({ lat, lng }) => [lng, lat] as const)), coded('validation.viewedArea'));
 
 /** `[[west, south], [east, north]]` with west < east and south < north (no antimeridian crossing). */
 export const bboxSchema = z

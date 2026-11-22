@@ -392,6 +392,8 @@ service cloud.firestore {
                 && validLinks(data.get('links', []))
                 && data.get('bearing', 0) >= 0 && data.get('bearing', 0) <= 360
                 && data.get('fov', 1) >= 1 && data.get('fov', 1) <= 180
+                // zod `viewedAreaSchema`: an aerial photo's footprint has four corners (convexity is the admin's and zod's check).
+                && data.get('viewedArea', [0, 0, 0, 0]) is list && data.get('viewedArea', [0, 0, 0, 0]).size() == 4
                 && data.license in ['CC0', 'CC-BY-4.0', 'CC-BY-SA-4.0', 'PD', 'permission', 'permission-legacy', 'unknown']
                 && data.published is bool
                 && data.get('rightsReview', false) is bool
@@ -703,13 +705,14 @@ service cloud.firestore {
                             && !('legacyId' in request.resource.data)))
                     && isId(photo)
                     && request.resource.data.keys().hasOnly(['kind', 'title', 'description', 'year', 'yearEnd', 'month', 'day', 'dateText', 'author', 'license',
-                        'rightsHolder', 'sourceUrl', 'sourceLabel', 'permissionNote', 'legacyId', 'links', 'location', 'bearing', 'fov',
+                        'rightsHolder', 'sourceUrl', 'sourceLabel', 'permissionNote', 'legacyId', 'links', 'location', 'bearing', 'fov', 'viewedArea',
                         'published', 'rightsReview', 'credit', 'versionCredits', 'reviewStatus', 'processing', 'createdAt', 'createdBy',
                         'updatedBy', 'updatedAt'])
                     && validPhoto(request.resource.data)
                     && ('location' in request.resource.data
                         ? inCity(request.resource.data.location, city)
-                        : !('bearing' in request.resource.data) && !('fov' in request.resource.data))
+                        : !('bearing' in request.resource.data) && !('fov' in request.resource.data)
+                            && !('viewedArea' in request.resource.data))
                     && request.resource.data.processing == 'pending'
                     && request.resource.data.published == false
                     && created(request.resource.data);
@@ -718,7 +721,7 @@ service cloud.firestore {
                         : (isCityUploader(city) && ownItem(resource.data) && resource.data.get('reviewStatus', '') == 'pending'
                             && !changedKeys().hasAny(['published', 'legacyId', 'rightsReview'])))
                     && changedKeys().hasOnly(['kind', 'title', 'description', 'year', 'yearEnd', 'month', 'day', 'dateText', 'author', 'license',
-                        'rightsHolder', 'sourceUrl', 'sourceLabel', 'permissionNote', 'legacyId', 'links', 'location', 'bearing', 'fov', 'published',
+                        'rightsHolder', 'sourceUrl', 'sourceLabel', 'permissionNote', 'legacyId', 'links', 'location', 'bearing', 'fov', 'viewedArea', 'published',
                         'rightsReview', 'credit', 'versionCredits', 'versions', 'updatedBy', 'updatedAt'])
                     && (!('versions' in changedKeys())
                         || (isCityReviewer(city)
@@ -727,7 +730,8 @@ service cloud.firestore {
                     && (!('location' in changedKeys()) || inCity(request.resource.data.location, city))
                     // zod `aimedOnlyIfPlaced`, as on create: a document the server's schema refuses gets stuck in every callable.
                     && ('location' in request.resource.data
-                        || (!('bearing' in request.resource.data) && !('fov' in request.resource.data)))
+                        || (!('bearing' in request.resource.data) && !('fov' in request.resource.data)
+                            && !('viewedArea' in request.resource.data)))
                     && (!changedKeys().hasAny(['published', 'license']) || publishable(request.resource.data));
                 // M13: a moderator unpublishes and never deletes; an uploader takes back their own until it is approved.
                 allow delete: if isCityMember(city)

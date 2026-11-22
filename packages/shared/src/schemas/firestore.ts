@@ -37,6 +37,7 @@ import {
     boundsRecordSchema,
     coded,
     fovSchema,
+    viewedAreaSchema,
     hexColorSchema,
     httpsUrlSchema,
     idSchema,
@@ -170,8 +171,13 @@ const photoImageDocSchema = z.strictObject({
 
 /** The original upload, kept in the private bucket (`STORAGE_PATHS.photoOriginal`): uploads/ expire after 7 days. */
 /** M13: a direction or a field of view means nothing without a place. */
-function aimedOnlyIfPlaced(photo: { readonly location?: unknown; readonly bearing?: unknown; readonly fov?: unknown }): boolean {
-    return photo.location !== undefined || (photo.bearing === undefined && photo.fov === undefined);
+function aimedOnlyIfPlaced(photo: {
+    readonly location?: unknown;
+    readonly bearing?: unknown;
+    readonly fov?: unknown;
+    readonly viewedArea?: unknown;
+}): boolean {
+    return photo.location !== undefined || (photo.bearing === undefined && photo.fov === undefined && photo.viewedArea === undefined);
 }
 
 const photoOriginalDocSchema = z.strictObject({
@@ -239,6 +245,8 @@ const photoDocObjectSchema = z
         exif: z.record(z.string().max(64), z.union([z.string().max(500), z.number()])).optional(),
         processing: z.enum(PROCESSING_STATES),
         /** Why the last processing failed (`apiError.photo.*`), set with `processing: 'failed'`. */
+        /** An aerial photo's ground footprint: four corners, a rectangle or a trapezoid (the owner 2026-11-22). */
+        viewedArea: viewedAreaSchema.optional(),
         processingError: apiErrorCodeSchema.optional(),
         /** The photo whose original has the same SHA-256 (flagged, never processed twice: S-A08-BAD-DUPLICATE). */
         duplicateOf: idSchema.optional(),

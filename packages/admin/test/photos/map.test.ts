@@ -2,7 +2,17 @@
 // the direction, and every reason there is no map.
 import { describe, expect, it } from 'vitest';
 
-import { PhotoMapSession, PIN_FEATURE_ID, photoFeatures, rounded, type MapPhoto, type MapStatus } from '../../src/photos/map.js';
+import {
+    AREA_FEATURE_ID,
+    areaOf,
+    PhotoMapSession,
+    PIN_FEATURE_ID,
+    photoFeatures,
+    rounded,
+    type AreaCorner,
+    type MapPhoto,
+    type MapStatus,
+} from '../../src/photos/map.js';
 import { CONTAINER, FakeMaps, settle } from './world.js';
 
 const BOUNDS = [
@@ -178,5 +188,65 @@ describe('PhotoMapSession', () => {
         expect(statuses.at(-1)).toBe('none');
         map.show([PHOTO]);
         map.cancelPick();
+    });
+});
+
+describe('PhotoMapSession: the viewed area of an aerial photo', () => {
+    it('happyPath_anAerialPhotosAreaIsLoadedBesideThePinAndReportsItsCorners', async () => {
+        const maps = new FakeMaps();
+        const areas: { corners: readonly AreaCorner[]; final: boolean }[] = [];
+        const refusals: string[] = [];
+        const map = new PhotoMapSession(maps, {
+            status: () => undefined,
+            select: () => undefined,
+            pin: () => undefined,
+            area: (corners, final) => areas.push({ corners, final }),
+            refused: (kind) => refusals.push(kind),
+        });
+        await map.attach(CONTAINER, OPTIONS);
+        const corners = [
+            { lat: 44.43, lng: 26.1 },
+            { lat: 44.44, lng: 26.09 },
+            { lat: 44.44, lng: 26.11 },
+            { lat: 44.43, lng: 26.105 },
+        ];
+
+        await map.editPin({ lat: 44.42, lng: 26.1 }, corners);
+
+        const ring = [
+            [26.1, 44.43],
+            [26.09, 44.44],
+            [26.11, 44.44],
+            [26.105, 44.43],
+            [26.1, 44.43],
+        ];
+        expect(maps.draw.loaded[1]).toEqual({ id: AREA_FEATURE_ID, geometry: { type: 'Polygon', coordinates: [ring] } });
+        maps.draw.emitChange({ features: [{ id: AREA_FEATURE_ID, geometry: { type: 'Polygon', coordinates: [ring] } }], final: true });
+        maps.draw.emitRefused();
+        expect(areas).toEqual([{ corners, final: true }]);
+        expect(refusals).toEqual(['outside']);
+    });
+
+    it('badPath_anAreaChangeWithoutFourCornersIsIgnored', () => {
+        const change = (coordinates: unknown) => ({
+            features: [{ id: AREA_FEATURE_ID, geometry: { type: 'Polygon', coordinates } }],
+            final: true,
+        });
+
+        expect(
+            areaOf(
+                change([
+                    [
+                        [0, 0],
+                        [1, 0],
+                        [0, 1],
+                        [0, 0],
+                    ],
+                ]),
+            ),
+        ).toBeNull();
+        expect(areaOf(change('none'))).toBeNull();
+        expect(areaOf({ features: [], final: true })).toBeNull();
+        expect(areaOf({ features: [{ id: AREA_FEATURE_ID, geometry: { type: 'Point', coordinates: [0, 0] } }], final: true })).toBeNull();
     });
 });

@@ -35,6 +35,8 @@ const PHOTO_EDITABLE = [
     'location',
     'bearing',
     'fov',
+    /** An aerial photo's viewed area. */
+    'viewedArea',
     'published',
     'rightsReview',
     'credit',

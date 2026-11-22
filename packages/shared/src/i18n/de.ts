@@ -26,6 +26,8 @@ export const de: Messages = {
     'validation.manifestSource': 'Die Konfiguration muss entweder manifestUrl oder manifest enthalten.',
     'validation.json': 'Der Inhalt ist kein gültiges JSON.',
     'validation.ringClosed': 'Ein Polygonring muss dort enden, wo er beginnt.',
+    'validation.viewedArea':
+        'Der sichtbare Bereich braucht vier Ecken, die ein Rechteck oder Trapez bilden, ohne sich kreuzende Seiten: Ziehen Sie die Ecken zurecht oder setzen Sie den Bereich zurück.',
     'validation.reference': 'Der Wert verweist auf ein Element, das nicht existiert.',
     'validation.invalid': 'Der Wert ist ungültig.',
     'error.generic':

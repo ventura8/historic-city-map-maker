@@ -34,7 +34,7 @@ import { classifyError, mapboxLanguage, mapboxOptions, relabelMapbox, removeWhen
 import type { MapboxEvent, MapboxGl, MapboxMap } from './mapbox-types.js';
 import { OverlayRegistry } from './overlay-registry.js';
 import {
-    PHOTO_CONE_FILL_LAYER,
+    PHOTO_AREA_FILL_LAYER,
     PHOTO_CONES_SOURCE,
     PHOTO_POINTS_SOURCE,
     photoEntry,
@@ -73,6 +73,11 @@ interface Session {
     failed: boolean;
 }
 
+/** The photo a hover is over, or null. */
+function hoveredPhoto(selection: Selection | null): string | null {
+    return selection?.kind === 'photo' ? selection.id : null;
+}
+
 class MapboxPort implements MapPort {
     /** Mapbox GL once the page has it (it may load after the engine: `createMapboxPort`); the first mount waits for it. */
     #gl: MapboxGl | null;
@@ -85,6 +90,10 @@ class MapboxPort implements MapPort {
     /** Kept across mounts: the compact editor sets it before its map exists. */
     #padding: MapPadding | null = null;
     #session: Session | null = null;
+    /** The last photo data, so a hover can show its photo's viewed area without the engine (the owner 2026-11-22). */
+    #photoData: PhotoFeatureCollection | null = null;
+    /** The photo under the pointer, or null. */
+    #hovered: string | null = null;
     #loaded = false;
     #loads = 0;
     #lastView: MapView = DEFAULT_VIEW;
@@ -215,7 +224,10 @@ class MapboxPort implements MapPort {
         const miss = (position: LngLat): void => {
             this.#mapClicks.emit(position);
         };
-        session.cleanups.push(attachPointer(map, { layers, select, miss }));
+        const hover = (selection: Selection | null): void => {
+            this.#hover(session, selection);
+        };
+        session.cleanups.push(attachPointer(map, { layers, select, miss, hover }));
     }
 
     #ensureIcon(session: Session, id: string): void {
@@ -297,7 +309,7 @@ class MapboxPort implements MapPort {
             session.map.addSource(id, source);
         }
         // In the photos' slot the POIs go below the photo markers and cones, which stay the topmost thing to click.
-        const beforeId = slot === PHOTO_SLOT ? PHOTO_CONE_FILL_LAYER : undefined;
+        const beforeId = slot === PHOTO_SLOT ? PHOTO_AREA_FILL_LAYER : undefined;
         for (const layer of poiLayers(spec, slot)) {
             session.map.addLayer(layer, beforeId);
         }
@@ -352,9 +364,20 @@ class MapboxPort implements MapPort {
         if (session === null) {
             return;
         }
-        const { points, cones } = splitPhotoData(data);
+        this.#photoData = data;
+        const { points, cones } = splitPhotoData(data, this.#hovered);
         session.map.getSource(PHOTO_POINTS_SOURCE)?.setData(points);
         session.map.getSource(PHOTO_CONES_SOURCE)?.setData(cones);
+    }
+
+    /** The pointer moved onto another photo, or off every photo: only the cones' source (with the areas) is drawn again. */
+    #hover(session: Session, selection: Selection | null): void {
+        const hovered = hoveredPhoto(selection);
+        const changed = hovered !== this.#hovered;
+        this.#hovered = hovered;
+        if (changed && this.#photoData !== null) {
+            session.map.getSource(PHOTO_CONES_SOURCE)?.setData(splitPhotoData(this.#photoData, hovered).cones);
+        }
     }
 
     onPhotoClick(handler: (photoId: string) => void): Unsubscribe {

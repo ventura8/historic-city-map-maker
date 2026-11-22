@@ -275,8 +275,11 @@ export class PhotosArea implements PhotosStore {
             pin: (position) => {
                 this.#editing.pinMoved(position);
             },
-            refused: () => {
-                this.#services.notify({ key: 'adminContent.photos.pin.outside' });
+            area: (corners) => {
+                this.#editing.areaMoved([...corners]);
+            },
+            refused: (kind) => {
+                this.#services.notify({ key: kind === 'outside' ? 'adminContent.photos.pin.outside' : 'adminContent.photos.area.refused' });
             },
         });
         void this.#attachWhenReady();

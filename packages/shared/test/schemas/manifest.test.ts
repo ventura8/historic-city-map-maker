@@ -290,6 +290,18 @@ const RULES = [
     ['a photo far outside the city', ['photos', 0, 'location'], { lat: 46, lng: 26.1 }, 'photos[0].location', 'validation.outsideCity'],
     ['a bearing over 360', ['photos', 0, 'bearing'], 361, 'photos[0].bearing', 'validation.tooBig'],
     ['a zero field of view', ['photos', 0, 'fov'], 0, 'photos[0].fov', 'validation.tooSmall'],
+    [
+        'a viewed area bent inward',
+        ['photos', 0, 'viewedArea'],
+        [
+            { lat: 44.43, lng: 26.09 },
+            { lat: 44.44, lng: 26.09 },
+            { lat: 44.432, lng: 26.092 },
+            { lat: 44.43, lng: 26.1 },
+        ],
+        'photos[0].viewedArea',
+        'validation.viewedArea',
+    ],
     ['a fractional width', ['photos', 0, 'image', 'w'], 10.5, 'photos[0].image.w', 'validation.type'],
     ['a photos overlay opacity below 0', ['photosOverlay', 'defaultOpacity'], -0.1, 'photosOverlay.defaultOpacity', 'validation.tooSmall'],
     ['an unknown photos overlay key', ['photosOverlay', 'visible'], false, 'photosOverlay.visible', 'validation.unknownKey'],
