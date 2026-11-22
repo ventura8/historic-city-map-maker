@@ -29,10 +29,18 @@ export const ARCHIVE_RETURNS_MAX = 5;
 /** How many jobs waiting for a copy one claim looks at. */
 const COPY_SCAN = 20;
 
-/** The local archive a job reads its files from, or undefined: only an archive series needs one. */
+/**
+ * The local archive a job reads its files from, or undefined: an archive series, and (M20 §19.18) a regeoref of an archive version,
+ * which warps the series' originals (`originalArchiveId`).
+ */
 export function archiveOf(job: JobDoc): string | undefined {
-    const value = job.type === 'archive-series' ? job.params['archiveId'] : undefined;
+    const value = job.type === 'archive-series' ? job.params['archiveId'] : job.params['originalArchiveId'];
     return typeof value === 'string' ? value : undefined;
+}
+
+/** The series whose sheets a job reads (`seriesId` of an archive series, `originalSeriesId` of a regeoref). */
+function seriesOf(job: JobDoc): string {
+    return String(job.type === 'archive-series' ? job.params['seriesId'] : job.params['originalSeriesId']);
 }
 
 /** The worker whose scan reported the archive, or undefined when the archive has no record. */
@@ -43,15 +51,22 @@ async function reporterOf(reader: DocumentReader, cityId: string, archiveId: str
 /**
  * Whether a worker may take `job` for the local archive it needs: a series waiting for its sheets' copy (`archive-copy`) goes only
  * to a worker that holds its archive whole (M20 §22: the holder runs it itself when it cannot share it, e.g. past today's limit); a
- * regeoref naming `originalArchiveId` goes only to a worker that holds that archive whole; every other job, to any worker.
+ * regeoref of an archive version (M20 §19.18) goes to a worker that holds the archive whole, or to any worker once the holder has
+ * put the series in the bucket (`archiveCopy`): never to one that would warp the reduced scan; every other job, to any worker.
  */
 export function archiveHere(job: JobDoc, archives: readonly string[] | undefined): boolean {
-    const held = archives ?? [];
-    const original = job.params['originalArchiveId'];
-    if (typeof original === 'string' && !held.includes(original)) {
-        return false;
-    }
-    return job.waitReason !== 'archive-copy' || held.includes(String(archiveOf(job)));
+    const held = (archives ?? []).includes(String(archiveOf(job)));
+    return held || (originalsElsewhere(job) ? copyReady(job) : job.waitReason !== 'archive-copy');
+}
+
+/** A regeoref of an archive version (M20 §19.18): it warps originals that only the holder, or its copy, has. */
+function originalsElsewhere(job: JobDoc): boolean {
+    return job.type === 'regeoref' && archiveOf(job) !== undefined;
+}
+
+/** The holder's copy of the job's series is in the bucket, and no worker handed the job back for a new one. */
+function copyReady(job: JobDoc): boolean {
+    return job.archiveCopy !== undefined && job.waitReason !== 'archive-copy';
 }
 
 /** A queued archive series waiting for its sheets' copy. */
@@ -78,7 +93,7 @@ export type Copy = NonNullable<CallableResponse<'worker.claim'>['copy']>;
 
 /** The copy duty of a job of an archive series (its archive and series from its parameters). */
 function dutyOf(jobId: string, job: JobDoc): Copy {
-    return { jobId, archiveId: String(archiveOf(job)), seriesId: String(job.params['seriesId']) };
+    return { jobId, archiveId: String(archiveOf(job)), seriesId: seriesOf(job) };
 }
 
 /** The oldest series waiting for a copy whose archive the claiming worker holds whole, or undefined. */

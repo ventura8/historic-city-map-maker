@@ -150,12 +150,22 @@ def fetch_copy(ctx: JobContext, store: ArchiveStore, archive_id: str, series_id:
     return read
 
 
+# The parameters naming the archive and series a job reads: an archive series', and (M20 §19.18) a regeoref of an archive version's,
+# which warps the series' originals and fetches them from the holder's copy when this computer does not hold the archive.
+SERIES_KEYS: Final[Mapping[str, tuple[str, str]]] = {
+    ARCHIVE_SERIES: ("archiveId", "seriesId"),
+    "regeoref": ("originalArchiveId", "originalSeriesId"),
+}
+
+
 def _local_series(ctx: JobContext) -> tuple[ArchiveStore, str, str] | None:
-    """The store, archive and series of an archive series run on a worker (Cloud Run has no store: `gather` says so); else None."""
+    """The store, archive and series of an archive series (or a regeoref of one) run on a worker (Cloud Run has no store: `gather`
+    says so); else None."""
     root, params = ctx.services.archive_root, ctx.job.params
-    archive_id, series_id = params.get("archiveId"), params.get("seriesId")
-    if ctx.job.type != ARCHIVE_SERIES or root is None:
+    keys = SERIES_KEYS.get(ctx.job.type)
+    if keys is None or root is None:
         return None
+    archive_id, series_id = params.get(keys[0]), params.get(keys[1])
     return (ArchiveStore(root), archive_id, series_id) if isinstance(archive_id, str) and isinstance(series_id, str) else None
 
 

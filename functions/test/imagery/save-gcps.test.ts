@@ -505,6 +505,8 @@ describe('imagery.saveGcps on an archive version', () => {
 
         const response = await save(world, { versionId: CORONA, gcps: pairs(6, 20480, 16384) });
 
-        expect((await readJob(world, response.jobId))?.params).toEqual({ basedOn: CORONA, originalArchiveId: ARCHIVE });
+        const job = await readJob(world, response.jobId);
+        expect(job?.params).toEqual({ basedOn: CORONA, originalArchiveId: ARCHIVE, originalSeriesId: seriesIdOf(1) });
+        expect(job).toMatchObject({ runOn: 'local', localOnly: true });
     });
 });

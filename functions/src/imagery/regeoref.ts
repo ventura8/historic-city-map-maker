@@ -177,10 +177,16 @@ async function regeorefIn(transaction: DocumentTransaction, regeoref: Regeoref, 
 
 /** Parameters for a regeoref job: an archive version also names its archive so only a worker holding it whole claims it. */
 function paramsOf(base: LayerVersionDoc): Record<string, unknown> {
-    if (base.source?.kind === 'archive' && typeof base.source.archiveId === 'string') {
-        return { basedOn: base.jobId, originalArchiveId: base.source.archiveId };
+    const source = base.source;
+    if (source?.kind === 'archive' && typeof source.archiveId === 'string' && typeof source.seriesId === 'string') {
+        return { basedOn: base.jobId, originalArchiveId: source.archiveId, originalSeriesId: source.seriesId };
     }
     return { basedOn: base.jobId };
+}
+
+/** M20 §19.18: a regeoref of an archive version warps its originals, which only the owner's computers have. */
+function localOf(base: LayerVersionDoc): Pick<NewWork, 'runOn' | 'localOnly'> {
+    return base.source?.kind === 'archive' ? { runOn: 'local', localOnly: true } : {};
 }
 
 /** Starts the new rendition after the creator's checks; its job id is also its version id. */
@@ -200,6 +206,7 @@ export async function startRegeoref(deps: RegeorefDeps, regeoref: Regeoref): Pro
         jobId,
         type: 'regeoref',
         params: paramsOf(base),
+        ...localOf(base),
         layerId: base.layerId,
         createdBy: regeoref.by,
         now,

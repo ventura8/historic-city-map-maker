@@ -54,6 +54,18 @@ def test_happy_path_another_computer_runs_the_series_from_its_copy(world: Pipeli
     ensure_series(ctx)
 
 
+def test_happy_path_a_regeoref_of_an_archive_version_reads_the_series_from_its_copy(world: PipelineWorld, tmp_path: Path) -> None:
+    """Scenarios: S-P20-HAPPY-REGEOREF-SHARED"""
+    ctx, other, archive_id, series_id = copied_context(world, tmp_path)
+    params = {"basedOn": "ar-1", "originalArchiveId": archive_id, "originalSeriesId": series_id}
+    ctx.job = replace(ctx.job, type="regeoref", params=params)
+
+    ensure_series(ctx)
+
+    assert other.has_series(archive_id, series_id)
+    assert not other.holds(archive_id)
+
+
 def test_happy_path_the_holder_names_its_whole_archives_and_sends_each_sheet_once(world: PipelineWorld, tmp_path: Path) -> None:
     """Scenarios: S-P20-HAPPY-ARCHIVE-COPY"""
     holder, archive_id, series_id = archive(tmp_path / "holder")

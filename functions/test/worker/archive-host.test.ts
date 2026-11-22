@@ -113,6 +113,26 @@ describe('archive series on any computer', () => {
         await expect(failureOf(urls(`tmp/archive-copies/${CITY}/${JOB}/../x`))).resolves.toBeDefined();
     });
 
+    it('happyPath_aRegeorefOfAnArchiveVersionReadsItsOwnCopy @S-P20-HAPPY-REGEOREF-SHARED', async () => {
+        const made = await workerWorld();
+        await seedHeld(made, { type: 'regeoref', params: { basedOn: 'ar-1', originalArchiveId: ARCHIVE, originalSeriesId: 's-0123456789ab' } });
+        const urls = (path: string) =>
+            callAs(made, urlsFunction, { workerId: WORKER, jobId: JOB, request: { kind: 'objects', objects: [{ path, method: 'GET' }] } });
+
+        await expect(urls(`tmp/archive-copies/${CITY}/${JOB}/manifest.json`)).resolves.toMatchObject({ objects: [{ exists: false }] });
+    });
+
+    it('badPath_aRegeorefOfAFrameReadsNoArchiveCopy @S-P20-BAD-REGEOREF-NOT-HOLDER', async () => {
+        const made = await workerWorld();
+        await seedHeld(made, { type: 'regeoref', params: { basedOn: 'im-1' } });
+        const urls = (path: string) =>
+            callAs(made, urlsFunction, { workerId: WORKER, jobId: JOB, request: { kind: 'objects', objects: [{ path, method: 'GET' }] } });
+
+        await expect(failureOf(urls(`tmp/archive-copies/${CITY}/${JOB}/manifest.json`))).resolves.toMatchObject({
+            details: { code: 'apiError.worker.refused' },
+        });
+    });
+
     it('badPath_aCopyIsSignedOnlyForASeriesThatStillTakesItAndOnlyItsOwnFiles @S-A120-BAD-ARCHIVE-COPY', async () => {
         const made = await world({ status: 'succeeded' });
         const put = (path: string) => ({ kind: 'objects', objects: [{ path, method: 'PUT', contentType: 'application/octet-stream' }] });

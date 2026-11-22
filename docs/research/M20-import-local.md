@@ -1028,7 +1028,10 @@ automatic or owner layout), so its tiles were a fraction as sharp as its scans a
   composite stages it beside the scan and warps the originals through the saved points at the zoom the version was published at
   (`steps/warp.py` `composite_originals`); a crop ring, a map over terrain, no record or no published zoom keeps the usual warp.
   A regeoref of an archive version names its archive (`originalArchiveId`), and only a worker that holds that archive whole
-  claims it (`functions/src/worker/archive-host.ts` `archiveHere`); it waits otherwise, never warping a reduced copy.
+  claims it (`functions/src/worker/archive-host.ts` `archiveHere`), or any worker once the holder has put the series in the bucket:
+  the regeoref runs on the owner's computers (`runOn: 'local'`), names its series (`originalSeriesId`), and the holder's share
+  thread sends it like a queued series (§22, `archiveOf` / `preseedFor`); the worker fetches the sheets before the warp
+  (`archive/copy.py` `ensure_series`). Never a reduced copy: with no holder online the job waits.
 
 Scenarios: S-P20-HAPPY-FULLRES, S-P20-BAD-FULLRES-ORIGINAL-GONE (`pipeline/tests/unit/test_placing_fullres.py`).
 

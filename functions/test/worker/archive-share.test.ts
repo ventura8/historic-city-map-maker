@@ -32,6 +32,7 @@ import {
 const SERIES = 's-0123456789ab';
 const PARAMS = { archiveId: ARCHIVE, seriesId: SERIES, class: 'grid', sheets: 4, encoding: 'lineart', order: 0, referenceLayerIds: [] };
 const SHA = 'b'.repeat(64);
+const REGEOREF_PARAMS = { basedOn: 'ar-1', originalArchiveId: ARCHIVE, originalSeriesId: SERIES };
 const TODAY = NOW.slice(0, 10);
 const BUSY_AND_PRESSED: Partial<WorkerDoc> = {
     state: 'busy',
@@ -125,7 +126,7 @@ describe('sharing scanned maps while busy', () => {
     it('happyPath_theHolderMayClaimARegeorefOfItsArchive @S-P20-HAPPY-REGEOREF-HOLDER', async () => {
         const made = await world();
         await seedWorker(made, WORKER);
-        const regeoref = localJob({ type: 'regeoref', params: { basedOn: 'ar-1', originalArchiveId: ARCHIVE } });
+        const regeoref = localJob({ type: 'regeoref', params: REGEOREF_PARAMS });
         await seedJob(made, 'rg-archive', regeoref);
 
         expect(archiveHere(regeoref, [ARCHIVE])).toBe(true);
@@ -197,7 +198,7 @@ describe('sharing refused or idle', () => {
 
     it('badPath_anotherWorkerOrOneWithNoArchivesCannotClaimAnArchiveRegeoref @S-P20-BAD-REGEOREF-NOT-HOLDER', async () => {
         const made = await world();
-        const regeoref = localJob({ type: 'regeoref', params: { basedOn: 'ar-1', originalArchiveId: ARCHIVE } });
+        const regeoref = localJob({ type: 'regeoref', params: REGEOREF_PARAMS });
         await seedJob(made, 'rg-archive', regeoref);
 
         expect(archiveHere(regeoref, ['ar-fedcba9876543210'])).toBe(false);
@@ -207,5 +208,24 @@ describe('sharing refused or idle', () => {
             job: null,
         });
         await expect(callAs(made, claimFunction, { workerId: OTHER_WORKER, archives: [] }, OTHER)).resolves.toEqual({ job: null });
+    });
+
+    it('happyPath_theHolderSharesARegeorefsSeriesAndAnyWorkerRunsItFromTheCopy @S-P20-HAPPY-REGEOREF-SHARED', async () => {
+        const made = await world();
+        await seedJob(made, 'rg-archive', localJob({ type: 'regeoref', params: REGEOREF_PARAMS }));
+
+        await expect(wanted(made)).resolves.toEqual({ copy: { jobId: 'rg-archive', archiveId: ARCHIVE, seriesId: SERIES }, computers: 1 });
+        await expect(share(made, { kind: 'done', bytes: 5 }, 'rg-archive')).resolves.toEqual({ status: 'queued' });
+        await expect(callAs(made, claimFunction, { workerId: OTHER_WORKER, archives: [] }, OTHER)).resolves.toEqual({
+            job: { jobId: 'rg-archive' },
+        });
+    });
+
+    it('badPath_aRegeorefHandedBackForACopyWaitsForTheHolderAgain @S-P20-BAD-REGEOREF-NOT-HOLDER', () => {
+        const copiedOnce = localJob({ type: 'regeoref', params: REGEOREF_PARAMS, archiveCopy: { by: WORKER, at: minutes(-5), bytes: 5 } });
+
+        expect(archiveHere(copiedOnce, [])).toBe(true);
+        expect(archiveHere({ ...copiedOnce, waitReason: 'archive-copy' }, [])).toBe(false);
+        expect(archiveHere({ ...copiedOnce, waitReason: 'archive-copy' }, [ARCHIVE])).toBe(true);
     });
 });

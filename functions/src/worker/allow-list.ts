@@ -17,7 +17,7 @@ import {
     type LayerVersionState,
 } from '@hcm/shared';
 
-import { ARCHIVE_COPY_FILE } from './archive-host.js';
+import { ARCHIVE_COPY_FILE, archiveOf } from './archive-host.js';
 
 /**
  * The job fields a run writes (`pipeline/src/hcm_pipeline/{runner,lease,jobs}.py`: the lease and its heartbeat, the step
@@ -256,10 +256,10 @@ function isCityAlignImage({ cityId }: ObjectScope, path: string): boolean {
     return city === cityId && isId(layer) && isId(version);
 }
 
-/** M20 (2026-11-13): one file of the copy of an archive series' sheets that its job reads (`ARCHIVE_COPY_FILE`). */
+/** M20 (2026-11-13): one file of the copy of an archive series' sheets that its job (or a regeoref of it, §19.18) reads. */
 function isOwnArchiveCopy({ cityId, jobId, job }: ObjectScope, path: string): boolean {
     const folder = `tmp/archive-copies/${cityId}/${jobId}/`;
-    return job.type === 'archive-series' && path.startsWith(folder) && ARCHIVE_COPY_FILE.test(path.slice(folder.length));
+    return archiveOf(job) !== undefined && path.startsWith(folder) && ARCHIVE_COPY_FILE.test(path.slice(folder.length));
 }
 
 /** True when the run may read `path`: a file of its version, one of its inputs, a frame's image of its city (M15), its archive copy. */
