@@ -99,6 +99,45 @@ def test_bad_path_a_georeference_that_disagrees_with_openstreetmap_waits_for_a_l
     assert "disagrees with OpenStreetMap" in str(help_item["note"])
 
 
+class _Scattered:
+    """Junctions found poorly, as in an aerial photo: `count` of them anywhere on the picture."""
+
+    def __init__(self, count: int, size: int) -> None:
+        self._found = numpy.random.default_rng(7).uniform(0, size, (count, 2))
+
+    def junctions(self) -> numpy.ndarray:
+        return self._found
+
+
+def test_happy_path_junctions_found_poorly_in_a_photo_are_no_disagreement(
+    world: PipelineWorld, tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    """Scenarios: S-P20-HAPPY-EMBEDDED-PHOTO"""
+    ctx = series_context(world, tmp_path, ["photo.tif"], {"class": "georeferenced", "encoding": "colour"})
+    town_geotiff(originals(ctx) / "photo.tif")
+    monkeypatch.setattr(embedded, "street_network", lambda grey: _Scattered(400, max(grey.shape)))
+
+    result = PlaceStep().run(ctx)
+
+    assert isinstance(result, Done)
+
+
+def test_bad_path_a_handful_of_checks_says_nothing_either_way(
+    world: PipelineWorld, tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    """Scenarios: S-P20-HAPPY-EMBEDDED-PHOTO"""
+    ctx = series_context(world, tmp_path, ["few.tif"], {"class": "georeferenced", "encoding": "grey"})
+    path = town_geotiff(originals(ctx) / "few.tif", shift_m=60.0)
+    monkeypatch.setattr(embedded, "street_network", lambda grey: _Scattered(3, max(grey.shape)))
+    window = reference.city_window(ctx)
+    assert window is not None
+    system = embedded.system_of(path, window)
+    assert system is not None
+    warped = embedded.warp_embedded(path, system, tmp_path / "w.tif", 5.0, False)
+
+    assert embedded.ruler(ctx, warped).shift_m == 0.0
+
+
 def test_bad_path_a_world_file_whose_system_cannot_be_told_waits(world: PipelineWorld, tmp_path: Path) -> None:
     ctx = series_context(world, tmp_path, ["nowhere.tif"], {"class": "georeferenced", "encoding": "grey"})
     path = originals(ctx) / "nowhere.tif"

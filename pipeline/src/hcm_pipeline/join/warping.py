@@ -21,7 +21,7 @@ from hcm_pipeline.documents import GeorefInfo
 from hcm_pipeline.geo import FloatArray, Grid, MercatorBox, to_mercator
 from hcm_pipeline.images import as_uint8
 from hcm_pipeline.jobs import JobContext
-from hcm_pipeline.join.canvas import COARSE_ZOOM, FINE_ZOOM, DatasetSource, Raster, level_grid
+from hcm_pipeline.join.canvas import COARSE_ZOOM, COLOUR_BANDS, FINE_ZOOM, RGB, DatasetSource, Raster, level_grid, luma
 from hcm_pipeline.join.correction import BaseTransform, Mapping, Node
 from hcm_pipeline.join.plan import Part
 from hcm_pipeline.join.room import out_of_room
@@ -185,7 +185,10 @@ class Warper:
 
         def work() -> Raster:
             dataset = gdal.Warp("", str(source), **options)
-            grey, alpha = as_uint8(dataset.GetRasterBand(1).ReadAsArray()), as_uint8(dataset.GetRasterBand(2).ReadAsArray())
+            # The alpha is the last band: a colour part's second band is its green (bug of 2026-11-22).
+            alpha = as_uint8(dataset.GetRasterBand(dataset.RasterCount).ReadAsArray())
+            bands = [as_uint8(dataset.GetRasterBand(index).ReadAsArray()) for index in range(1, min(dataset.RasterCount, COLOUR_BANDS))]
+            grey = luma(numpy.dstack(bands)) if len(bands) == RGB else bands[0]
             dataset.Close()
             return Raster(grid, grey, alpha)
 

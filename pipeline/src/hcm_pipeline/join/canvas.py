@@ -71,10 +71,11 @@ class PixelBox:
 
 @dataclass(frozen=True)
 class Patch:
-    """Grey pixels and their alpha (0: no data)."""
+    """Grey pixels and their alpha (0: no data); a colour part's red, green and blue too, when they were asked for."""
 
     grey: UInt8Array
     alpha: UInt8Array
+    colour: UInt8Array | None = None
 
     def valid_share(self) -> float:
         return float(numpy.count_nonzero(self.alpha)) / max(self.alpha.size, 1)
@@ -89,16 +90,23 @@ class TileSource(Protocol):
 Fetch = Callable[[int, int, int, int], Patch]
 
 
-def padded(box: PixelBox, size: tuple[int, int], fetch: Fetch) -> Patch:
+def padded(box: PixelBox, size: tuple[int, int], fetch: Fetch, with_colour: bool = False) -> Patch:
     """`box` read through `fetch`, only over the `size` the source has; what lies outside is no data."""
     x0, y0, x1, y1 = max(box.x0, 0), max(box.y0, 0), min(box.x1, size[0]), min(box.y1, size[1])
     width, height = box.size
     grey, alpha = numpy.zeros((height, width), numpy.uint8), numpy.zeros((height, width), numpy.uint8)
+    colour = numpy.zeros((height, width, 3), numpy.uint8) if with_colour else None
     if x1 > x0 and y1 > y0:
         found = fetch(x0, y0, x1 - x0, y1 - y0)
         place = (slice(y0 - box.y0, y1 - box.y0), slice(x0 - box.x0, x1 - box.x0))
         grey[place], alpha[place] = found.grey, found.alpha
-    return Patch(grey, alpha)
+        _place_colour(colour, place, found.colour)
+    return Patch(grey, alpha, colour)
+
+
+def _place_colour(colour: UInt8Array | None, place: tuple[slice, slice], found: UInt8Array | None) -> None:
+    if colour is not None and found is not None:
+        colour[place] = found
 
 
 @dataclass(frozen=True)
@@ -116,25 +124,64 @@ class Raster:
         return padded(box, (self.grid.width, self.grid.height), fetch)
 
 
+COLOUR_BANDS: Final = 4
+RGB: Final = 3
+# ITU-R BT.601 luma: a colour part's grey, so its tones and seams are measured as a grey part's are.
+LUMA: Final = (0.299, 0.587, 0.114)
+
+
+def luma(colour: UInt8Array) -> UInt8Array:
+    """The grey of red, green and blue (the last axis)."""
+    weighted = colour[..., 0] * LUMA[0] + colour[..., 1] * LUMA[1] + colour[..., 2] * LUMA[2]
+    return as_uint8(numpy.clip(weighted + 0.5, 0, 255))
+
+
 class DatasetSource:
-    """Grey and last-band alpha of a warped file or warped VRT: only what is asked for is read (GDAL's cache is bounded)."""
+    """Grey and last-band alpha of a warped file or warped VRT: only what is asked for is read (GDAL's cache is bounded).
+
+    A colour part (red, green, blue and alpha) reads as its luma, and `read_colour` gives its three bands as well (bug of
+    2026-11-22: the 2017 orthophoto joined grey).
+    """
 
     def __init__(self, path: Path) -> None:
         self._dataset = gdal.Open(str(path))
         self._size = self._dataset.RasterXSize, self._dataset.RasterYSize
-        self._grey = self._dataset.GetRasterBand(1)
+        self.colour = self._dataset.RasterCount >= COLOUR_BANDS
+        self._bands = [self._dataset.GetRasterBand(index) for index in ((1, 2, 3) if self.colour else (1,))]
+        self._grey = self._bands[0]
         self._alpha = self._dataset.GetRasterBand(self._dataset.RasterCount)
 
-    def read(self, box: PixelBox) -> Patch:
-        def fetch(x: int, y: int, width: int, height: int) -> Patch:
-            return Patch(as_uint8(self._grey.ReadAsArray(x, y, width, height)), as_uint8(self._alpha.ReadAsArray(x, y, width, height)))
+    def _rgb(self, x: int, y: int, width: int, height: int) -> UInt8Array:
+        return numpy.dstack([as_uint8(band.ReadAsArray(x, y, width, height)) for band in self._bands])
 
-        return padded(box, self._size, fetch)
+    def _rgb_on(self, grid: Grid) -> UInt8Array:
+        """The three bands shrunk to `grid`, each cell the mean of its pixels."""
+        size = {"buf_xsize": grid.width, "buf_ysize": grid.height, "resample_alg": gdal.GRIORA_Average}
+        return numpy.dstack([as_uint8(band.ReadAsArray(**size)) for band in self._bands])
+
+    def _fetch(self, with_colour: bool) -> Fetch:
+        def fetch(x: int, y: int, width: int, height: int) -> Patch:
+            alpha = as_uint8(self._alpha.ReadAsArray(x, y, width, height))
+            if not self.colour:
+                return Patch(as_uint8(self._grey.ReadAsArray(x, y, width, height)), alpha)
+            rgb = self._rgb(x, y, width, height)
+            return Patch(luma(rgb), alpha, rgb if with_colour else None)
+
+        return fetch
+
+    def read(self, box: PixelBox) -> Patch:
+        return padded(box, self._size, self._fetch(False))
+
+    def read_colour(self, box: PixelBox) -> Patch:
+        """`box` with the part's red, green and blue (a grey part's grey three times)."""
+        patch = padded(box, self._size, self._fetch(True), with_colour=self.colour)
+        return patch if patch.colour is not None else Patch(patch.grey, patch.alpha, numpy.dstack([patch.grey] * 3))
 
     def averaged(self, grid: Grid) -> Raster:
         """The whole source shrunk to `grid` (each cell the mean of its pixels; a cell only partly covered has an alpha under 255)."""
         size = {"buf_xsize": grid.width, "buf_ysize": grid.height, "resample_alg": gdal.GRIORA_Average}
-        return Raster(grid, as_uint8(self._grey.ReadAsArray(**size)), as_uint8(self._alpha.ReadAsArray(**size)))
+        grey = luma(self._rgb_on(grid)) if self.colour else as_uint8(self._grey.ReadAsArray(**size))
+        return Raster(grid, grey, as_uint8(self._alpha.ReadAsArray(**size)))
 
     def alpha_of(self, x: int, y: int, width: int, height: int, size: tuple[int, int]) -> UInt8Array:
         """A box of the alpha band resampled to `size`."""

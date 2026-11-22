@@ -1,6 +1,9 @@
 """The block compositor: every part's pixels, weighted over the valid ones (docs/research/M8-join-interfaces.md §3, `merge` 3 and 4).
 
-`grey = Σ w·a·tone(p) / Σ w·a` and `alpha = any a`: normalising over the valid pixels leaves neither the translucent line of a
+`grey = Σ w·a·tone(p) / Σ w·a` and `alpha = any a`, per band: red, green and blue when any part is in colour (a grey part counts
+as grey in each), else one grey band, so a join of grey USGS frames stays small (bug of 2026-11-22: the 2017 orthophoto went
+live grey). A colour mosaic is composed in smaller blocks (`COLOUR_BLOCK_PX`), so it needs no more memory than a grey one.
+ normalising over the valid pixels leaves neither the translucent line of a
 feathered cutline nor a feather running into no data. Only the parts whose weight is not zero in a block are read; where those
 leave a hole (a corrected frame's edge moved off a cell it owned), any other part that covers it fills it.
 """
@@ -18,13 +21,14 @@ import numpy.typing
 from hcm_pipeline.documents import JoinSeam
 from hcm_pipeline.geo import FloatArray, Grid
 from hcm_pipeline.images import UInt8Array, as_uint8
-from hcm_pipeline.join.canvas import PixelBox, TileSource
+from hcm_pipeline.join.canvas import RGB, DatasetSource, Patch, PixelBox, TileSource
 from hcm_pipeline.join.seams import pair_boundary
 from hcm_pipeline.join.tone import Tone
 from hcm_pipeline.raster import gdal
 from hcm_pipeline.rasters import WEB_MERCATOR, driver_of, srs_wkt
 
 BLOCK_PX: Final = 4096
+COLOUR_BLOCK_PX: Final = 2048
 MOSAIC_OPTIONS: Final = ("COMPRESS=DEFLATE", "TILED=YES", "BIGTIFF=YES")
 # The half-width of the blend across a seam: a wide one where the seam closed, else a hard cut, which beats double streets.
 BLEND_HALF_WIDTH_M: Final = 48.0
@@ -94,39 +98,60 @@ class Levels:
     tone_ratio: float
 
 
-def _toned(layer: Layer, grey: UInt8Array, box: PixelBox, levels: Levels) -> FloatImage:
+def _toned(layer: Layer, bands: UInt8Array, box: PixelBox, levels: Levels) -> FloatImage:
+    """The part's pixels (one band, or a last axis of three) through its tone line and field."""
     line = layer.tone.line
     gain = numpy.exp(upsampled(layer.tone.field, levels.tone_ratio, box))
-    return numpy.asarray((grey.astype(numpy.float32) * line.gain + line.offset) * gain, numpy.float32)
+    if bands.ndim == RGB:
+        gain = gain[:, :, None]
+    return numpy.asarray((bands.astype(numpy.float32) * line.gain + line.offset) * gain, numpy.float32)
+
+
+def is_colour(layers: Sequence[Layer]) -> bool:
+    """Any part in colour makes the mosaic red, green and blue."""
+    return any(isinstance(layer.source, DatasetSource) and layer.source.colour for layer in layers)
+
+
+def _read(source: TileSource, box: PixelBox, colour: bool) -> tuple[Patch, UInt8Array]:
+    """A part's patch and the bands the mosaic sums: its colour (a grey part's grey three times), else its grey."""
+    if not colour:
+        patch = source.read(box)
+        return patch, patch.grey
+    patch = source.read_colour(box) if isinstance(source, DatasetSource) else source.read(box)
+    return patch, patch.colour if patch.colour is not None else numpy.dstack([patch.grey] * 3)
 
 
 @dataclass
 class Totals:
-    """A block's running sums."""
+    """A block's running sums: one band, or three for a colour mosaic."""
 
     box: PixelBox
     levels: Levels
+    colour: bool = False
     total: FloatImage = field(init=False)
     weights: FloatImage = field(init=False)
     any_alpha: numpy.typing.NDArray[numpy.bool_] = field(init=False)
 
     def __post_init__(self) -> None:
         width, height = self.box.size
-        self.total = numpy.zeros((height, width), numpy.float32)
+        self.total = numpy.zeros((height, width, 3) if self.colour else (height, width), numpy.float32)
         self.weights = numpy.zeros((height, width), numpy.float32)
         self.any_alpha = numpy.zeros((height, width), numpy.bool_)
 
     def add(self, layer: Layer, weight: FloatImage) -> None:
         """The part's valid pixels with `weight`."""
-        patch = layer.source.read(self.box)
+        patch, bands = _read(layer.source, self.box, self.colour)
         counted = weight * (patch.alpha.astype(numpy.float32) / float(FULL_ALPHA))
-        self.total += counted * _toned(layer, patch.grey, self.box, self.levels)
+        toned = _toned(layer, bands, self.box, self.levels)
+        self.total += (counted[:, :, None] if self.colour else counted) * toned
         self.weights += counted
         self.any_alpha |= patch.alpha > 0
 
     def result(self) -> tuple[UInt8Array, UInt8Array]:
-        grey = self.total / numpy.maximum(self.weights, 1e-6)
-        return as_uint8(numpy.clip(grey + 0.5, 0, 255)), as_uint8(self.any_alpha) * 255
+        """The block's bands (grey, or a last axis of red, green and blue) and its alpha."""
+        weights = numpy.maximum(self.weights, 1e-6)
+        mean = self.total / (weights[:, :, None] if self.colour else weights)
+        return as_uint8(numpy.clip(mean + 0.5, 0, 255)), as_uint8(self.any_alpha) * 255
 
 
 def _weight_touches(layer: Layer, box: PixelBox, ratio: float) -> bool:
@@ -146,9 +171,9 @@ def _fill_holes(layers: Sequence[Layer], totals: Totals) -> None:
                 totals.add(layer, holes.astype(numpy.float32))
 
 
-def compose_block(layers: Sequence[Layer], box: PixelBox, levels: Levels) -> tuple[UInt8Array, UInt8Array]:
-    """One block of the mosaic (grey, alpha): the parts with a weight here first, then whichever covers what they left."""
-    totals = Totals(box, levels)
+def compose_block(layers: Sequence[Layer], box: PixelBox, levels: Levels, colour: bool = False) -> tuple[UInt8Array, UInt8Array]:
+    """One block of the mosaic (its bands, alpha): the parts with a weight here first, then whichever covers what they left."""
+    totals = Totals(box, levels, colour)
     for layer in layers:
         if _weight_touches(layer, box, levels.owner_ratio):
             totals.add(layer, upsampled(layer.weight, levels.owner_ratio, box))
@@ -161,17 +186,33 @@ def blocks(width: int, height: int, size: int = BLOCK_PX) -> list[PixelBox]:
     return [PixelBox(x, y, min(x + size, width), min(y + size, height)) for y in range(0, height, size) for x in range(0, width, size)]
 
 
-def compose(target: Path, grid: Grid, layers: Sequence[Layer], levels: Levels, tick: Callable[[float], None]) -> Path:
-    """The mosaic as a grey and alpha BIGTIFF, one block in memory at a time; `tick` hears how far it is (and may stop the run)."""
-    dataset = driver_of("GTiff").Create(str(target), grid.width, grid.height, 2, gdal.GDT_Byte, list(MOSAIC_OPTIONS))
+def _write(dataset: gdal.Dataset, bands: UInt8Array, alpha: UInt8Array, box: PixelBox) -> None:
+    planes = [bands[:, :, index] for index in range(RGB)] if bands.ndim == RGB else [bands]
+    for index, plane in enumerate([*planes, alpha], start=1):
+        dataset.GetRasterBand(index).WriteArray(plane, box.x0, box.y0)
+
+
+def _created(target: Path, grid: Grid, colour: bool) -> gdal.Dataset:
+    """The empty mosaic: grey and alpha, or red, green, blue and alpha."""
+    meanings = (gdal.GCI_RedBand, gdal.GCI_GreenBand, gdal.GCI_BlueBand) if colour else (gdal.GCI_GrayIndex,)
+    count = len(meanings) + 1
+    dataset = driver_of("GTiff").Create(str(target), grid.width, grid.height, count, gdal.GDT_Byte, list(MOSAIC_OPTIONS))
     dataset.SetGeoTransform(grid.geotransform())
     dataset.SetProjection(srs_wkt(WEB_MERCATOR))
-    dataset.GetRasterBand(2).SetColorInterpretation(gdal.GCI_AlphaBand)
-    every = blocks(grid.width, grid.height)
+    for index, meaning in enumerate((*meanings, gdal.GCI_AlphaBand), start=1):
+        dataset.GetRasterBand(index).SetColorInterpretation(meaning)
+    return dataset
+
+
+def compose(target: Path, grid: Grid, layers: Sequence[Layer], levels: Levels, tick: Callable[[float], None]) -> Path:
+    """The mosaic as a BIGTIFF (grey and alpha, or red, green, blue and alpha when any part is in colour), one block in memory at a
+    time; `tick` hears how far it is (and may stop the run)."""
+    colour = is_colour(layers)
+    dataset = _created(target, grid, colour)
+    every = blocks(grid.width, grid.height, COLOUR_BLOCK_PX if colour else BLOCK_PX)
     for index, box in enumerate(every):
-        grey, alpha = compose_block(layers, box, levels)
-        dataset.GetRasterBand(1).WriteArray(grey, box.x0, box.y0)
-        dataset.GetRasterBand(2).WriteArray(alpha, box.x0, box.y0)
+        bands, alpha = compose_block(layers, box, levels, colour)
+        _write(dataset, bands, alpha, box)
         tick((index + 1) / len(every))
     dataset.Close()
     return target

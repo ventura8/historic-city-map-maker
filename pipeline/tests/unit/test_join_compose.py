@@ -26,6 +26,7 @@ from hcm_pipeline.join.compose import (
 )
 from hcm_pipeline.join.tone import Linear, Tone
 from hcm_pipeline.raster import gdal
+from hcm_pipeline.rasters import driver_of
 
 CELLS = (10, 16)
 RATIO = 8.0
@@ -210,3 +211,52 @@ def test_bad_path_a_run_told_to_stop_stops_between_blocks(tmp_path: Path) -> Non
 
     with pytest.raises(InterruptedRunError):
         compose(tmp_path / "mosaic.tif", Grid(0.0, 0.0, 2.0, 128, 80), [layer(Flat(100), weights(owner, 0))], LEVELS, stop)
+
+
+def _rgba_part(path: Path, rgb: tuple[int, int, int], x1: int) -> Path:
+    """A warped colour part on the 128 x 80 grid: red, green, blue and alpha, valid left of `x1`."""
+    dataset = driver_of("GTiff").Create(str(path), 128, 80, 4, gdal.GDT_Byte)
+    alpha = numpy.zeros((80, 128), numpy.uint8)
+    alpha[:, :x1] = 255
+    for index, value in enumerate(rgb, start=1):
+        dataset.GetRasterBand(index).WriteArray(numpy.where(alpha > 0, value, 0).astype(numpy.uint8))
+    dataset.GetRasterBand(4).WriteArray(alpha)
+    dataset.Close()
+    return path
+
+
+def test_happy_path_a_colour_part_keeps_its_colour_and_a_grey_part_joins_it_as_grey(tmp_path: Path) -> None:
+    """Scenarios: S-P05-HAPPY-JOIN-COLOUR"""
+    owner = owner_split(8)
+    grid = Grid(100.0, 200.0, 2.0, 128, 80)
+    colour = DatasetSource(_rgba_part(tmp_path / "colour.tif", (200, 100, 50), 64))
+    layers = [
+        layer(Flat(90, 64, 128), weights(owner, 1, CUT_HALF_WIDTH_M)),
+        Layer(colour, Tone(Linear(), numpy.zeros(CELLS, numpy.float32)), weights(owner, 0, CUT_HALF_WIDTH_M), owner == 1),
+    ]
+
+    target = compose(tmp_path / "mosaic.tif", grid, layers, LEVELS, lambda _done: None)
+
+    dataset = gdal.Open(str(target))
+    assert dataset.RasterCount == 4
+    assert dataset.GetRasterBand(1).GetColorInterpretation() == gdal.GCI_RedBand
+    assert dataset.GetRasterBand(4).GetColorInterpretation() == gdal.GCI_AlphaBand
+    assert [int(dataset.GetRasterBand(band).ReadAsArray()[10, 10]) for band in (1, 2, 3)] == [200, 100, 50]
+    assert [int(dataset.GetRasterBand(band).ReadAsArray()[10, 120]) for band in (1, 2, 3)] == [90, 90, 90]
+    dataset.Close()
+    assert colour.colour
+    assert colour.read(PixelBox(0, 0, 1, 1)).grey.tolist() == [[124]]
+    assert colour.averaged(Grid(100.0, 200.0, 16.0, 16, 10)).grey[1, 1] == 124
+    colour.close()
+
+
+def test_bad_path_all_grey_parts_stay_one_grey_band_and_alpha(tmp_path: Path) -> None:
+    """Scenarios: S-P05-BAD-JOIN-COLOUR"""
+    owner = owner_split(16)
+    grey = compose(tmp_path / "grey.tif", Grid(0.0, 0.0, 2.0, 128, 80), [layer(Flat(70), weights(owner, 0))], LEVELS, lambda _d: None)
+    source = DatasetSource(grey)
+
+    assert not source.colour
+    assert source.read_colour(PixelBox(0, 0, 1, 1)).colour is not None
+    assert compose_block([layer(Flat(70), weights(owner, 0))], BOX, LEVELS, colour=True)[0].shape == (80, 128, 3)
+    source.close()

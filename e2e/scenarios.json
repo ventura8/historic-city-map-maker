@@ -14292,6 +14292,28 @@
             "notes": "M8 (docs/research/M8-join-interfaces.md §8). Test: pipeline/tests/integration/test_join_job.py."
         },
         {
+            "id": "S-P05-HAPPY-JOIN-COLOUR",
+            "behaviour": "P05",
+            "area": "pipeline",
+            "path": "happy",
+            "title": "A join keeps colour when any part is in colour",
+            "asserts": "an RGB+alpha part composes to a red, green, blue and alpha mosaic with its colours; a grey part in it counts as grey in each band; the part reads as its luma for tones and seams",
+            "tier": "e2e-pipeline",
+            "status": "exists",
+            "notes": "Owner bug of 2026-11-22 (the 2017 orthophoto went live grey). Tests: pipeline/tests/unit/test_join_compose.py."
+        },
+        {
+            "id": "S-P05-BAD-JOIN-COLOUR",
+            "behaviour": "P05",
+            "area": "pipeline",
+            "path": "bad",
+            "title": "A join of grey frames stays one grey band and alpha",
+            "asserts": "all-grey parts compose to two bands, so USGS joins stay small; a colour block of grey parts repeats the grey",
+            "tier": "e2e-pipeline",
+            "status": "exists",
+            "notes": "Owner bug of 2026-11-22. Tests: pipeline/tests/unit/test_join_compose.py."
+        },
+        {
             "id": "S-P05-HAPPY-OFF-NADIR",
             "behaviour": "P05",
             "area": "pipeline",
@@ -19647,6 +19669,17 @@
             "tier": "e2e-pipeline",
             "status": "exists",
             "notes": "M20 paths (docs/research/M20-import-local.md §3, §15). Tests: pipeline/tests/unit/test_placing_embedded.py."
+        },
+        {
+            "id": "S-P20-HAPPY-EMBEDDED-PHOTO",
+            "behaviour": "P20",
+            "area": "pipeline",
+            "path": "happy",
+            "title": "An aerial photo's correct georeference is not failed by poorly found junctions",
+            "asserts": "junctions that point every way (a photo) have no shared shift and the file is placed; fewer than MIN_CHECKS checks say nothing; a shifted drawn map still waits",
+            "tier": "e2e-pipeline",
+            "status": "exists",
+            "notes": "Owner bug of 2026-11-22 (13 of 16 cells of the 2017 orthophoto flagged 59-261 m). Tests: pipeline/tests/unit/test_placing_embedded.py."
         },
         {
             "id": "S-P20-HAPPY-LADDER",
