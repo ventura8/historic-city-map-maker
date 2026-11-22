@@ -172,7 +172,7 @@ export const pl: Messages = {
     'poi.sourceLayer': 'Widoczne na: {layer}',
     'poi.photos': 'Zdjęcia tego miejsca',
     'poi.openPhoto': 'Otwórz zdjęcie: {title}',
-    'poi.media': 'Media',
+    'poi.media': 'Multimedia',
     'poi.media.maps': 'Mapy',
     'poi.media.aerial': 'Lotnicze',
     'poi.media.ground': 'Na zewnątrz',

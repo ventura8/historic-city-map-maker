@@ -8,7 +8,7 @@ import type { ApiErrorCode, LayerAdjustmentName, LayerAdjustments, LayerDoc, Lay
 
 import type { ListStatePort, LoadStatusPort, StoredPort, StoreFailurePort } from '../area-port.js';
 import type { AssistActionsPort, AssistViewPort } from '../assist/assist-port.js';
-import type { PlacePickPort } from '../editing/place-links.js';
+import type { PlacePickPort } from '../editing/place-pick-port.js';
 import type { CropStatePort } from './geometry/crop-port.js';
 
 export interface DraftConflictPort {

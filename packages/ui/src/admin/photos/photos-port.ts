@@ -8,7 +8,7 @@
 import type { AdminContentKey, ApiErrorCode, CityRole, FirestoreLicense, PhotoKind, ReviewStatus, ValidationIssue } from '@hcm/shared';
 
 import type { AssistActionsPort, AssistViewPort } from '../assist/assist-port.js';
-import type { PlacePickPort } from '../editing/place-links.js';
+import type { PlacePickPort } from '../editing/place-pick-port.js';
 
 /** A live list's or document's status (`LoadStatusPort` of `content-port.ts`, which imports this file). */
 type PhotosLoadStatusPort = 'loading' | 'ready' | 'error';

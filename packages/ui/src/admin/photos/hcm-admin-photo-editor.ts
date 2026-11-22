@@ -13,7 +13,7 @@ import { LitElement, html, nothing, type TemplateResult } from 'lit';
 
 import { emit } from '../../components/internal.js';
 import type { AssistViewPort } from '../assist/assist-port.js';
-import type { PlacePickPort } from '../editing/place-links.js';
+import type { PlacePickPort } from '../editing/place-pick-port.js';
 import { assistStyles } from '../assist/assist-parts.js';
 import { conflictFields, NOBODY, savedByText, type WhoPort } from '../editing/conflict.js';
 import { cannotSaveText } from '../editing/issue-text.js';

@@ -6,12 +6,8 @@ import { MAX_MEDIA_PLACES, type UiLocale } from '@hcm/shared';
 import { html, type TemplateResult } from 'lit';
 
 import { contentText } from '../shell/text.js';
+import type { PlacePickPort } from './place-pick-port.js';
 
-/** A place the picker offers. */
-export interface PlacePickPort {
-    readonly id: string;
-    readonly title: { readonly ro: string; readonly en?: string | undefined };
-}
 
 export interface PlaceLinksInput {
     /** The field's id prefix (`photo-places`, `layer-places`). */

@@ -41,7 +41,7 @@ export const HCM_POI_DETAIL_TAG = 'hcm-poi-detail';
 const HEX_COLOR = /^#[0-9a-f]{6}$/i;
 
 /** M17 §12: the viewer-internal event asking to show a place's map (switched on, at its year, fitted). */
-export function layerShowEvent(layerId: string): CustomEvent<{ readonly layerId: string }> {
+function layerShowEvent(layerId: string): CustomEvent<{ readonly layerId: string }> {
     return new CustomEvent('hcm-layer-show', { bubbles: true, composed: true, detail: { layerId } });
 }
 

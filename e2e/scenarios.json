@@ -24855,7 +24855,7 @@
             "path": "happy",
             "title": "A place's sheet lists its media by kind and shows a map on the map",
             "asserts": "a place with a linked map, a listed photo and an interior photo naming it -> Media chips Maps, Exterior, Interior; the map's button switches it on (pickLayer) and fits its bounds; Interior shows one thumbnail; the photo list gets an Interior filter",
-            "tier": "unit",
+            "tier": "functions",
             "status": "exists",
             "notes": "Tests: packages/ui/test/viewer/hcm-poi-detail.test.ts, packages/ui/test/viewer/hcm-map-viewer.test.ts, packages/ui/test/viewer/hcm-photo-list.test.ts, packages/shared/test/overlays/place-media.test.ts, functions/test/publish/assemble.test.ts. docs/research/M17-stories.md §12."
         },
@@ -24866,8 +24866,8 @@
             "path": "bad",
             "title": "A place without media shows no Media section",
             "asserts": "a place with no photos and no layer naming it -> no .media section; a new place resets the chosen chip",
-            "tier": "unit",
-            "status": "exists",
+            "tier": "e2e-viewer",
+            "status": "planned",
             "notes": "Test: packages/ui/test/viewer/hcm-poi-detail.test.ts."
         },
         {
@@ -24877,7 +24877,7 @@
             "path": "bad",
             "title": "An unknown place or a map without bounds breaks nothing",
             "asserts": "the builder drops a placeId the manifest does not list and keeps the photo; a manifest naming an unknown place is refused; a map without bounds or unknown leaves the camera alone",
-            "tier": "unit",
+            "tier": "functions",
             "status": "exists",
             "notes": "Tests: functions/test/publish/assemble.test.ts, packages/shared/test/overlays/place-media.test.ts, packages/ui/test/viewer/hcm-map-viewer.test.ts."
         },
@@ -24910,8 +24910,8 @@
             "path": "happy",
             "title": "A place's photos move up and down",
             "asserts": "Move up on the last and Move down on the first each edit photoIds to the new order",
-            "tier": "unit",
-            "status": "exists",
+            "tier": "e2e-admin",
+            "status": "planned",
             "notes": "Test: packages/ui/test/admin/pois/poi-editor.test.ts."
         },
         {
@@ -24921,8 +24921,8 @@
             "path": "bad",
             "title": "The first photo cannot move up nor the last down",
             "asserts": "the first Move up and the last Move down are disabled",
-            "tier": "unit",
-            "status": "exists",
+            "tier": "e2e-admin",
+            "status": "planned",
             "notes": "Test: packages/ui/test/admin/pois/poi-editor.test.ts."
         },
         {
