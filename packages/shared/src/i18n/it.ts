@@ -26,8 +26,7 @@ export const it: Messages = {
     'validation.manifestSource': 'La configurazione deve contenere manifestUrl oppure manifest.',
     'validation.json': 'Il contenuto non è un JSON valido.',
     'validation.ringClosed': 'Un anello del poligono deve terminare dove inizia.',
-    'validation.viewedArea':
-        "L'area visibile richiede quattro angoli che formino un rettangolo o un trapezio, senza lati che si incrociano: trascina gli angoli o reimposta l'area.",
+    'validation.viewedArea': "L'area visibile ha quattro angoli, senza lati che si incrociano: trascina gli angoli o reimposta l'area.",
     'validation.reference': 'Il valore fa riferimento a un elemento che non esiste.',
     'validation.invalid': 'Il valore non è valido.',
     'error.generic': 'La mappa non si è caricata a causa di un errore nella pagina (è stato segnalato). Ricarichi la pagina.',

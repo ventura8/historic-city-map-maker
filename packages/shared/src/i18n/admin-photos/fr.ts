@@ -183,14 +183,12 @@ export const fr: Readonly<Partial<Record<AdminPhotosKey, string>>> = {
     'adminContent.photos.direction.cancel': 'Annuler le choix de direction',
     'adminContent.photos.direction.centre': 'Vers le centre de la carte',
     'adminContent.photos.area.title': 'Zone visible',
-    'adminContent.photos.area.note':
-        'Le terrain que montre cette photo aérienne. Faites glisser les quatre coins sur la carte en rectangle (photo prise à la verticale) ou en trapèze (photo prise en oblique).',
+    'adminContent.photos.area.note': 'Le terrain que montre la photo aérienne : déplacez ses quatre coins sur la carte.',
     'adminContent.photos.area.none': "Cette photo aérienne n'a pas encore de zone visible.",
     'adminContent.photos.area.draw': "Dessiner la zone devant l'appareil",
     'adminContent.photos.area.reset': 'Refaire la zone selon la direction et le champ de vision',
     'adminContent.photos.area.remove': 'Supprimer la zone',
-    'adminContent.photos.area.refused':
-        'La zone visible garde exactement quatre coins et ne doit pas se croiser : déplacez un coin au lieu d’en ajouter un, ou refaites la zone.',
+    'adminContent.photos.area.refused': 'La zone visible garde quatre coins sans se croiser : déplacez un coin ou refaites la zone.',
     'adminContent.photos.pin.outside': 'Le lieu doit se trouver dans la ville ou à une distance maximale d’un demi-degré de celle-ci.',
     'adminContent.photos.block.processing': 'Elle peut être publiée une fois le traitement terminé.',
     'adminContent.photos.block.failed': 'L’image a été rejetée : remplacez-la pour pouvoir la publier.',

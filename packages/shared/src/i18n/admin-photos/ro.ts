@@ -189,14 +189,12 @@ export const ro = {
     'adminContent.photos.direction.cancel': 'Anulează alegerea direcției',
     'adminContent.photos.direction.centre': 'Spre centrul hărții',
     'adminContent.photos.area.title': 'Zona văzută',
-    'adminContent.photos.area.note':
-        'Terenul pe care îl arată această fotografie aeriană. Trage cele patru colțuri pe hartă într-un dreptunghi (fotografie făcută drept în jos) sau un trapez (fotografie făcută oblic).',
+    'adminContent.photos.area.note': 'Terenul arătat de fotografia aeriană: trage cele patru colțuri pe hartă.',
     'adminContent.photos.area.none': 'Această fotografie aeriană nu are încă o zonă văzută.',
     'adminContent.photos.area.draw': 'Desenează zona în fața aparatului',
     'adminContent.photos.area.reset': 'Refă zona după direcție și unghiul de vedere',
     'adminContent.photos.area.remove': 'Șterge zona',
-    'adminContent.photos.area.refused':
-        'Zona văzută păstrează exact patru colțuri și nu se poate încrucișa: trage un colț în loc să adaugi unul, sau refă zona.',
+    'adminContent.photos.area.refused': 'Zona văzută păstrează patru colțuri și nu se încrucișează: trage un colț sau refă zona.',
     'adminContent.photos.pin.outside': 'Locul trebuie să fie în oraș sau la cel mult o jumătate de grad de el.',
     'adminContent.photos.block.processing': 'Poate fi publicată după procesare.',
     'adminContent.photos.block.failed': 'Imaginea a fost refuzată: înlocuiește-o ca să o poți publica.',

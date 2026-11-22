@@ -26,8 +26,7 @@ export const tr: Messages = {
     'validation.manifestSource': 'Yapılandırma ya manifestUrl ya da manifest içermelidir.',
     'validation.json': 'İçerik geçerli bir JSON değil.',
     'validation.ringClosed': 'Çokgen halkası başladığı yerde bitmelidir.',
-    'validation.viewedArea':
-        'Görünen alan, kenarları kesişmeyen bir dikdörtgen veya yamuk oluşturan dört köşe gerektirir: köşeleri sürükleyin veya alanı sıfırlayın.',
+    'validation.viewedArea': 'Görünen alan, kenarları kesişmeyen dört köşeye sahiptir: köşeleri sürükleyin veya alanı sıfırlayın.',
     'validation.reference': 'Değer, var olmayan bir öğeye başvuruyor.',
     'validation.invalid': 'Değer geçerli değil.',
     'error.generic': 'Harita, bu sayfadaki bir sorun nedeniyle yüklenemedi (bildirildi). Lütfen sayfayı yeniden yükleyin.',
