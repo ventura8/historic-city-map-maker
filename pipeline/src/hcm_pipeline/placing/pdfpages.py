@@ -18,8 +18,8 @@ from typing import Final
 import pikepdf
 
 from hcm_pipeline.contract import Errors
-from hcm_pipeline.placing.pdfcompose import compose, is_as_stored, placements
 from hcm_pipeline.jobs import StepFailedError
+from hcm_pipeline.placing.pdfcompose import compose, is_as_stored, placements
 
 LOCKED_REASON: Final = "pdf-password"
 
