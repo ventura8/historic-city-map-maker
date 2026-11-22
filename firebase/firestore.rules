@@ -446,6 +446,7 @@ service cloud.firestore {
                 && data.get('attribution', 'x').matches('[\\s\\S]{1,500}')
                 && validLayerRights(data.get('rights', {'licence': 'PD'}))
                 && data.order is int
+                && data.kind in ['satellite', 'aerial', 'map']
                 && data.opacity >= 0 && data.opacity <= 1
                 && data.defaultVisible is bool
                 && validAdjustments(data.get('adjustments', {}))
@@ -742,12 +743,12 @@ service cloud.firestore {
                 }
             }
 
-            // Layers are created by the pipeline; admins edit presentation, opacity and adjustments.
+            // Layers are created by the pipeline; admins edit presentation, kind, opacity and adjustments.
             match /layers/{layer} {
                 allow read: if isCityMember(city);
                 allow update: if isCityMember(city)
                     && changedKeys().hasOnly(['label', 'description', 'attribution', 'rights', 'year', 'date', 'order', 'opacity',
-                        'defaultVisible', 'adjustments', 'published', 'updatedBy', 'updatedAt'])
+                        'defaultVisible', 'adjustments', 'published', 'kind', 'updatedBy', 'updatedAt'])
                     && validLayer(request.resource.data);
 
                 match /history/{entry} {

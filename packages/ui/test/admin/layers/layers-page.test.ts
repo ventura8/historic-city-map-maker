@@ -163,6 +163,17 @@ describe('<hcm-layers-page> editor', () => {
         expect(calls(layers)).toEqual(['edit {"defaultVisible":true}', 'edit {"published":false}']);
     });
 
+    it('happyPath_theKindIsChosenAndSaved @S-A33-HAPPY-LAYER-KIND', async () => {
+        const layers = area(layersState({ editor: editorOf() }));
+        const { element } = await page('layers', layers, { params: ['corona'] });
+
+        const kind = deep(element, '[data-layer-kind]');
+        expect(deepText(element)).toContain('What it is');
+        kind.dispatchEvent(new CustomEvent('hcm-change', { detail: { value: 'map' }, bubbles: true, composed: true }));
+
+        expect(calls(layers)).toEqual(['edit {"kind":"map"}']);
+    });
+
     it('badPath_issuesAreSaidAtTheirFieldsAndANotReadyLayerIsExplained', async () => {
         const issues = [
             { path: 'year', code: 'validation.type' },

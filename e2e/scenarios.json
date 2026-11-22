@@ -14048,6 +14048,50 @@
             "notes": "Owner bug of 2026-11-22 (Ortofotoplan 2017). Tests: functions/test/imagery/join-archive.test.ts, join-finalize.test.ts."
         },
         {
+            "id": "S-A65-HAPPY-ARCHIVE-ADD-SHEETS",
+            "behaviour": "A65",
+            "area": "admin",
+            "path": "happy",
+            "title": "A published join of archive maps takes a sheet more on its own layer",
+            "asserts": "Add sheets to this join on a published archive join -> imagery.join with all its parts plus the one picked; the part the old join was published into (superseded, partOf set) is taken and the join stays on that layer",
+            "tier": "functions",
+            "status": "exists",
+            "notes": "Live 2026-11-22, the 1990 cadastral plan's 48th sheet. Tests: functions/test/imagery/join-archive.test.ts, packages/ui/test/admin/imagery/archive-join.test.ts."
+        },
+        {
+            "id": "S-A65-BAD-ARCHIVE-ADD-SHEETS",
+            "behaviour": "A65",
+            "area": "admin",
+            "path": "bad",
+            "title": "A superseded map no join took, or a join not published or of camera frames, adds no sheets",
+            "asserts": "a superseded map without partOf -> apiError.imagery.joinPartGone; a USGS frame join or one awaiting approval -> no Add sheets card",
+            "tier": "functions",
+            "status": "exists",
+            "notes": "Live 2026-11-22. Tests: functions/test/imagery/join-archive.test.ts, packages/ui/test/admin/imagery/archive-join.test.ts."
+        },
+        {
+            "id": "S-A33-HAPPY-LAYER-KIND",
+            "behaviour": "A33",
+            "area": "admin",
+            "path": "happy",
+            "title": "The layer page sets what a layer is: map, aerial photo or satellite image",
+            "asserts": "the What it is control edits kind on the layer; the rules allow kind in satellite/aerial/map; an upload named as a map (impartirea, administrativ, sistematizare, plan...) or without a photo word finalizes as a map",
+            "tier": "unit",
+            "status": "exists",
+            "notes": "Live 2026-11-22 (1966 and 1935 maps listed as photos). Tests: packages/ui/test/admin/layers/layers-page.test.ts, firebase/rules-tests/test/layers.test.ts, functions/test/imagery/finalize.test.ts."
+        },
+        {
+            "id": "S-A33-BAD-LAYER-KIND",
+            "behaviour": "A33",
+            "area": "admin",
+            "path": "bad",
+            "title": "A kind the viewer does not know is refused; a photo upload stays aerial",
+            "asserts": "kind 'drawing' -> rules deny; an upload named Ortofoto -> aerial",
+            "tier": "unit",
+            "status": "exists",
+            "notes": "Live 2026-11-22. Tests: firebase/rules-tests/test/layers.test.ts, functions/test/imagery/finalize.test.ts."
+        },
+        {
             "id": "S-A65-BAD-ARCHIVE-CREDIT",
             "behaviour": "A65",
             "area": "admin",

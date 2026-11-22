@@ -24,7 +24,20 @@ const JOINABLE: ReadonlySet<LayerVersionState> = new Set<LayerVersionState>(['pu
  * stamp behind: its maps are offered again (live 2026-11-15, the 1974 and 1978 joins).
  */
 export function archiveJoinOffered(version: VersionViewPort | null, held: boolean | null = null): version is VersionViewPort {
-    return version?.archiveMap === true && usable(version) && !holds(version, held);
+    return extendable(version) || (version?.archiveMap === true && usable(version) && !holds(version, held));
+}
+
+/**
+ * A published join of archive maps (each part's entity is its own version id), offered **Add sheets to this join** (live 2026-11-22:
+ * a 1990 sheet was missing from the 47 joined): a new join of its parts plus the one picked, on the same layer.
+ */
+export function extendable(version: VersionViewPort | null): version is VersionViewPort {
+    return (
+        version?.origin === 'join' &&
+        version.state === 'published' &&
+        version.parts.length > 0 &&
+        version.parts.every((part) => part.entityId === part.versionId)
+    );
 }
 
 /** Usable, with points of its own. */
@@ -117,7 +130,8 @@ export class HcmArchiveJoin extends LitElement {
             return;
         }
         this.busy = true;
-        this.started = await this.intents.joinArchive([version.id, candidate.id]);
+        const own = extendable(version) ? version.parts.map((part) => part.versionId) : [version.id];
+        this.started = await this.intents.joinArchive([...own, candidate.id]);
         this.busy = false;
     }
 
@@ -130,9 +144,14 @@ export class HcmArchiveJoin extends LitElement {
         if (!archiveJoinOffered(version, this.held) || this.candidates.length === 0) {
             return html``;
         }
-        return html`<section class="choices" data-archive-join>
-            <h3>${this.#t('adminContent.imagery.join.archiveTitle')}</h3>
-            <p class="note">${this.#t('adminContent.imagery.join.archiveIntro', { year: String(version.year) })}</p>
+        const adding = extendable(version);
+        return html`<section class="choices" data-archive-join=${adding ? 'add' : 'join'}>
+            <h3>${this.#t(adding ? 'adminContent.imagery.join.addTitle' : 'adminContent.imagery.join.archiveTitle')}</h3>
+            <p class="note">
+                ${this.#t(adding ? 'adminContent.imagery.join.addIntro' : 'adminContent.imagery.join.archiveIntro', {
+                    year: String(version.year),
+                })}
+            </p>
             ${this.started === null ? this.#buttons() : this.#startedLink(this.started)}
         </section>`;
     }
@@ -147,10 +166,14 @@ export class HcmArchiveJoin extends LitElement {
                         data-join-with=${candidate.id}
                         ?disabled=${this.busy}
                         @click=${() => void this.#join(candidate)}
-                        >${this.#t('adminContent.imagery.join.archiveWith', { map: labelText(candidate.label, this.locale) })}</hcm-button
+                        >${this.#t(this.#withKey(), { map: labelText(candidate.label, this.locale) })}</hcm-button
                     >`,
             )}
         </div>`;
+    }
+
+    #withKey(): 'adminContent.imagery.join.addWith' | 'adminContent.imagery.join.archiveWith' {
+        return extendable(this.version) ? 'adminContent.imagery.join.addWith' : 'adminContent.imagery.join.archiveWith';
     }
 
     #startedLink(joinId: string): TemplateResult {

@@ -194,6 +194,24 @@ function percentOf(opacity: number): number {
     return Math.round(opacity * 100);
 }
 
+const KIND_CHOICES = ['map', 'aerial', 'satellite'] as const satisfies readonly LayerDoc['kind'][];
+
+/** Live 2026-11-22: what the layer is (a drawn map, an aerial photo, a satellite image); the viewer's manifest follows it. */
+function kindRow(context: EditorContext, layer: LayerDoc): TemplateResult {
+    const { locale, intents } = context;
+    const label = contentText(locale, 'adminContent.layers.kind');
+    return html`<p class="note" id="layer-kind">${label}</p>
+        <hcm-segmented-button
+            data-layer-kind
+            .label=${label}
+            .options=${KIND_CHOICES.map((value) => ({ value, label: contentText(locale, `adminContent.layers.kind.${value}`) }))}
+            .value=${layer.kind}
+            @hcm-change=${(event: CustomEvent<{ value: LayerDoc['kind'] }>) => {
+                intents?.edit({ kind: event.detail.value });
+            }}
+        ></hcm-segmented-button>`;
+}
+
 function displayGroup(context: EditorContext, editor: LayerEditorPort, layer: LayerDoc): TemplateResult {
     const { locale, intents } = context;
     const percent = (value: number): string => contentText(locale, 'adminContent.layers.percent', { percent: String(value) });
@@ -213,6 +231,7 @@ function displayGroup(context: EditorContext, editor: LayerEditorPort, layer: La
                 intents?.edit({ published: checked });
             },
         )}
+        ${kindRow(context, layer)}
         ${
             layer.status === 'ready' && issueAt(editor.draft.issues, 'published') === null
                 ? nothing

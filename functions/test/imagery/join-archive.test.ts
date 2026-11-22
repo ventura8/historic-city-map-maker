@@ -127,6 +127,24 @@ describe('imagery.join: archive maps', () => {
         expect((await failureOf(join(ready, [NORTH, SOUTH]))).details).toMatchObject({ code: 'apiError.imagery.joinPartGone' });
     });
 
+    it('happyPath_aJoinRebuiltWithASheetMoreStaysOnItsLayer @S-A65-HAPPY-ARCHIVE-ADD-SHEETS', async () => {
+        const ready = await world({ state: 'joined', partOf: 'old-join' });
+        await seedVersion(ready, NORTH, archiveMap('n', 'N', { state: 'superseded', partOf: 'old-join' }));
+        await seedVersion(ready, 'old-join', archiveMap('n', 'N + S', { origin: 'join', source: { kind: 'join', parts: [] } }));
+        await seedVersion(ready, 'ar-west', archiveMap('w', 'W'));
+
+        const answer = await join(ready, [SOUTH, NORTH, 'ar-west']);
+
+        expect(answer.layerId).toBe('n');
+        expect((await readVersion(ready, 'ar-west'))?.partOf).toBe(answer.jobId);
+    });
+
+    it('badPath_aSupersededMapNoJoinHeldIsGone @S-A65-BAD-ARCHIVE-ADD-SHEETS', async () => {
+        const ready = await world({ state: 'superseded' });
+
+        expect((await failureOf(join(ready, [NORTH, SOUTH]))).details).toMatchObject({ code: 'apiError.imagery.joinPartGone' });
+    });
+
     it('badPath_oneMapAloneIsNoJoin', async () => {
         const ready = await world();
 

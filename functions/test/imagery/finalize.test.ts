@@ -103,16 +103,34 @@ describe('finalizeVersion', () => {
         const { world } = await finish(
             uploaded({
                 source: { kind: 'upload', uploadPath: 'uploads/rasters/bucharest/u/up-plan1911/Qx7mP2rT9w.tif', bytes: 10 },
-                label: { ro: 'Zbor deasupra Cotrocenilor' },
+                label: { ro: 'Fotografie aeriană deasupra Cotrocenilor' },
                 georef: undefined,
                 estimate: { computeUnits: 2, precision: '30cm', areaKm2: 50, at: at(NOW) },
             }),
         );
 
         const layer = await readLayer(world, LAYER);
-        expect(layer).toMatchObject({ kind: 'aerial', attribution: 'Zbor deasupra Cotrocenilor' });
+        expect(layer).toMatchObject({ kind: 'aerial', attribution: 'Fotografie aeriană deasupra Cotrocenilor' });
         expect(layer?.provenance).toEqual({});
         expect((await readUsage(world, '2026-10'))?.computeUnits).toBe(2);
+    });
+
+    it.each([
+        ['Împărțirea administrativă a Bucureștilor', 'map'],
+        ['Planul de sistematizare, 1935', 'map'],
+        ['Zbor deasupra Cotrocenilor', 'map'],
+        ['Ortofoto 2005', 'aerial'],
+    ])('happyPath_anUploadNamed_%s_isA_%s', async (name, kind) => {
+        const { world } = await finish(
+            uploaded({
+                source: { kind: 'upload', uploadPath: 'uploads/rasters/bucharest/u/up-plan1911/Qx7mP2rT9w.tif', bytes: 10 },
+                label: { ro: name },
+                georef: undefined,
+                estimate: { computeUnits: 2, precision: '30cm', areaKm2: 50, at: at(NOW) },
+            }),
+        );
+
+        expect((await readLayer(world, LAYER))?.kind).toBe(kind);
     });
 
     it('happyPath_aRenditionWithoutASourceKeepsTheLayersProvenance', async () => {

@@ -693,3 +693,14 @@ The owner's harti.zip maps include maps in parts: the n and S halves of 1978, 19
   clamp), English labels, a cancelled or missing pending job, embedded georeference, no scan, and a live `partOf` hold;
   `packages/admin/test/imagery/archive-join.test.ts` covers `archiveJoinIntents` and a failed candidates read; busy join
   detection lives in `join-busy.ts`.
+
+## 12. Adding sheets to a published archive join (live 2026-11-22)
+
+A published join of archive maps offers **Add sheets to this join** on its version page: one click calls `imagery.join` with
+`versionIds` = all its parts plus the sheet picked. The part the earlier join was published into had its own version superseded by
+that publish; a superseded version that a join stamped (`partOf` set) still serves a join (`isRejoinable`, `join-parts.ts`), and the
+new join becomes a version of that part's layer, so the layer, its name and its credit stay. `JOIN_MAX_PARTS` (64) is the one limit
+for both the callable and the job's parameters. Scenarios: S-A65-HAPPY/BAD-ARCHIVE-ADD-SHEETS.
+
+The layer page also sets a layer's **kind** (map, aerial photo, satellite image; S-A33-HAPPY/BAD-LAYER-KIND): the rules allow `kind`,
+and the manifest follows the layer. An upload finalizes as a map unless its name says it is a photo from above (`finalize.ts`).

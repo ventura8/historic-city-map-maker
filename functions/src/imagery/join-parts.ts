@@ -31,6 +31,7 @@ const READY: ReadonlySet<LayerVersionState> = new Set<LayerVersionState>([
     'publishing',
     'published',
     'joined',
+    'superseded',
 ]);
 /**
  * The ended states in which a frame still serves a new join: published, or `joined` (rendered and used by an earlier join). Live
@@ -38,6 +39,14 @@ const READY: ReadonlySet<LayerVersionState> = new Set<LayerVersionState>([
  * Import any more, so the owner was stuck. Only rejected, superseded, failed and cancelled frames are gone.
  */
 const ENDED_YET_USABLE: ReadonlySet<LayerVersionState> = new Set<LayerVersionState>(['published', 'joined']);
+
+/**
+ * A part an earlier join published into its own layer (live 2026-11-22: the 1990 cadastral plan's sheets): that publish superseded
+ * the part's own version, yet its scan and points still serve a rebuilt join of the same sheets plus more.
+ */
+export function isRejoinable(version: LayerVersionDoc): boolean {
+    return version.state === 'superseded' && version.partOf !== undefined && version.source?.kind !== 'join';
+}
 
 /** A version not ended; only such a join holds its frames. */
 function isLiveJoin(join: LayerVersionDoc | undefined): join is LayerVersionDoc {
@@ -49,7 +58,7 @@ function isLiveJoin(join: LayerVersionDoc | undefined): join is LayerVersionDoc 
  * published yet is left out: with a published frame it is that layer's newest version, and the frame is what "add a frame" takes again.
  */
 export function isUsablePart(version: LayerVersionDoc): boolean {
-    if (version.state === 'published') {
+    if (version.state === 'published' || isRejoinable(version)) {
         return true;
     }
     const live = version.state === 'joined' || !ENDED.has(version.state);
@@ -98,7 +107,7 @@ const HOLD: PartsReady = { kind: 'hold' };
  * frame `joined` by an earlier join (live 2026-11-12).
  */
 function partGone(part: LayerVersionDoc): boolean {
-    return !ENDED_YET_USABLE.has(part.state) && ENDED.has(part.state);
+    return !ENDED_YET_USABLE.has(part.state) && ENDED.has(part.state) && !isRejoinable(part);
 }
 
 function partReady(part: LayerVersionDoc, joinId: string): PartsReady {

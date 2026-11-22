@@ -25,7 +25,7 @@ import { ApiError } from '../api/api-error.js';
 import type { DocumentTransaction } from '../ports/documents.js';
 import type { Ports } from '../ports/index.js';
 import { asJoinLayerBusy } from './join-busy.js';
-import { isUsablePart, refuseHeldPart } from './join-parts.js';
+import { isRejoinable, isUsablePart, refuseHeldPart } from './join-parts.js';
 import { refuseBusyLayer, refuseRasterJobs, type Placement } from './limits.js';
 import { requireCity, requireVersion, stampOf } from './records.js';
 import { createWork, jobIdFor, reserveLayerIds, type NewWork } from './versions.js';
@@ -190,9 +190,12 @@ export function rightsOf(parts: readonly Pick<Part, 'version'>[]): LayerVersionD
     return parts.find(({ version }) => version.rights !== undefined)?.version.rights;
 }
 
-/** The part whose layer the join becomes a new version of: the first published, else none (a new layer). */
+/**
+ * The part whose layer the join becomes a new version of: a part an earlier join was published into (a rebuilt join keeps its
+ * layer), else the first published, else none (a new layer).
+ */
 function publishedPart(parts: readonly Part[]): Part | undefined {
-    return parts.find(({ version }) => version.state === 'published');
+    return parts.find(({ version }) => isRejoinable(version)) ?? parts.find(({ version }) => version.state === 'published');
 }
 
 function sourceOf(parts: readonly Part[]): NonNullable<LayerVersionDoc['source']> {

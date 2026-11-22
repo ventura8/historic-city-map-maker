@@ -49,6 +49,7 @@ describe('presentation', () => {
         ['an old city plan (Specht, 1790)', { year: 1790 }],
         ['a corrected licence and author', { rights: { licence: 'CC-BY-SA-4.0', author: 'Institutul Geografic' } }],
         ['removed rights', { rights: deleted() }],
+        ['a drawn map, once taken for an aerial photo', { kind: 'map' }],
     ])('happyPath_adminSaves_%s', async (_label, changes) => {
         expect(await edit(changes)).toBe('allow');
     });
@@ -64,6 +65,7 @@ describe('presentation', () => {
         ['a fractional order', { order: 1.5 }],
         ['a visibility that is not a boolean', { defaultVisible: 'yes' }],
         ['a published flag that is not a boolean', { published: 1 }],
+        ['a kind the viewer does not know', { kind: 'drawing' }],
         ['a label over 200 characters', { label: { ro: 'x'.repeat(201) } }],
         ['a label without Romanian', { label: { en: 'Corona 1966' } }],
         ['a removed label', { label: deleted() }],

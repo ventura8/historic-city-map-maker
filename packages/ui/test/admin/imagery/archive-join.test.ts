@@ -103,6 +103,29 @@ describe('<hcm-archive-join>', () => {
         expect(deepAll(element, '[data-archive-join]')).toEqual([]);
     });
 
+    it('happyPath_aPublishedJoinAddsASheetWithAllItsParts @S-A65-HAPPY-ARCHIVE-ADD-SHEETS', async () => {
+        const parts = [
+            { versionId: 'ar-north', layerId: 'n', entityId: 'ar-north' },
+            { versionId: 'rg-west', layerId: 'w', entityId: 'rg-west' },
+        ];
+        const joined = versionView({ id: 'jn-n', layerId: 'n', year: 1978, origin: 'join', state: 'published', parts, partOf: null });
+        const { element, asked } = await mount(joined, [SOUTH]);
+
+        expect(deepText(element)).toContain('Add sheets to this join');
+        expect(deepText(element)).toContain('Add S');
+        click(deep(element, '[data-join-with="rg-south"]'));
+        await updated(element);
+
+        expect(asked.joins).toEqual([['ar-north', 'rg-west', 'rg-south']]);
+    });
+
+    it('badPath_aJoinOfCameraFramesOrNotPublishedIsOfferedNoSheets @S-A65-BAD-ARCHIVE-ADD-SHEETS', () => {
+        const frames = [{ versionId: 'v1', layerId: 'a', entityId: 'DS1' }];
+        expect(archiveJoinOffered(versionView({ origin: 'join', state: 'published', parts: frames, archiveMap: false }))).toBe(false);
+        const parts = [{ versionId: 'v1', layerId: 'a', entityId: 'v1' }];
+        expect(archiveJoinOffered(versionView({ origin: 'join', state: 'awaiting_approval', parts, archiveMap: false }))).toBe(false);
+    });
+
     it('badPath_withNoOtherMapOfItsYearNothingShows', async () => {
         const { element } = await mount(NORTH, []);
 

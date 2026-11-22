@@ -71,7 +71,18 @@ type Output = NonNullable<LayerVersionDoc['output']>;
 
 /** A file name or label that says it shows a plan or a map (else an aerial photograph). */
 const MAP_OPACITY = 0.85;
-const MAP_WORDS = /\b(?:plan|planul|harta|hart[aă]|map)\b/i;
+/**
+ * Words of a drawn map in an upload's name (live 2026-11-22: "Împărțirea administrativă a Bucureștilor" and a 1935 systematisation
+ * plan were listed as aerial photos). Matched without diacritics, at a word's start.
+ */
+const MAP_WORDS = /(?:^|[^a-z])(?:plan|hart|harta|map|carte|atlas|impartire|impartirea|administrativ|sistematizare|cadastr|topograf)/u;
+/** Words of a photo from above: an upload so named stays aerial (or satellite) rather than a map. */
+const AERIAL_WORDS = /(?:^|[^a-z])(?:aerian|aerial|ortofoto|orthophoto|foto|photo|satelit|satellite)/u;
+
+/** Lower case, without diacritics, so "Împărțirea" reads "impartirea". */
+function plainName(name: string): string {
+    return name.normalize('NFD').replaceAll(/\p{M}/gu, '').toLowerCase();
+}
 
 type Apply = (transaction: DocumentTransaction) => Promise<void>;
 
@@ -93,7 +104,15 @@ function knownKindOf(version: LayerVersionDoc): LayerDoc['kind'] | undefined {
 }
 
 function kindOf(version: LayerVersionDoc): LayerDoc['kind'] {
-    return knownKindOf(version) ?? (MAP_WORDS.test(nameOf(version)) ? 'map' : 'aerial');
+    return knownKindOf(version) ?? uploadKindOf(plainName(nameOf(version)));
+}
+
+/** An upload is a drawn map unless its name says it is a photo from above (live 2026-11-22: maps were listed as photos). */
+function uploadKindOf(name: string): LayerDoc['kind'] {
+    if (MAP_WORDS.test(name)) {
+        return 'map';
+    }
+    return AERIAL_WORDS.test(name) ? 'aerial' : 'map';
 }
 
 /** M20 (§9): a drawn map starts at 0.85, so the streets beneath it show; every other layer at 1. */
