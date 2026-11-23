@@ -98,8 +98,15 @@ export function renderSubgroups(
 }
 
 export const subgroupStyles = css`
+    /*
+     * Beside the opacity slider, in the swatch's column of its row: on a row of its own it made a category 144 px tall
+     * where a Places row is 96 (layers-date.spec.ts, docs/LESSONS.md).
+     */
     .subgroups-toggle {
         display: inline-grid;
+        grid-row: 2;
+        grid-column: 1;
+        justify-self: center;
         place-items: center;
         inline-size: 48px;
         block-size: 48px;
