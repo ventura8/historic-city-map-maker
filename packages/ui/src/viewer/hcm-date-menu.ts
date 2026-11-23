@@ -292,6 +292,8 @@ export class HcmDateMenu extends LitElement {
         const widest = this.side ? PAIR_MAX_WIDTH : MAX_WIDTH;
         pair.style.setProperty('max-inline-size', `${String(sideRoom(anchor, host.width, side, widest))}px`);
         pair.style.setProperty('max-block-size', `${String(pairHeight(anchor, host.height, side))}px`);
+        // Measured at the corner: an absolute box shrinks to the room past its left, so a box placed right was measured narrow.
+        pair.style.setProperty('left', '0px');
         const size = { width: pair.offsetWidth, height: pair.offsetHeight };
         const wanted = { ...dateMenuOrigin(anchor, size, host, side), ...size };
         const origin = clearOf(wanted, [anchor, ...this.avoid().map(local)], host, LEGAL_STRIP);

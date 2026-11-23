@@ -94,7 +94,7 @@ describe('<hcm-map-viewer>: the peek of a year of several dates (V13)', () => {
 
     it('happyPath_theMouseOnItsWayToTheMenuKeepsItThenLeavingBothClosesIt', async () => {
         const mounted = await peeking();
-        const box = shadowQuery(part(mounted, 'hcm-date-menu'), '.menu');
+        const box = shadowQuery(part(mounted, 'hcm-date-menu'), '.pair');
 
         await peek(mounted, null, true);
         vi.advanceTimersByTime(PEEK_LEAVE_MS - 1);
