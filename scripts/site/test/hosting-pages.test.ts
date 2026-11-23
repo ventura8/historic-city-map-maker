@@ -207,6 +207,7 @@ function iconPage(
     loads: readonly string[],
     manifest: 'ok' | '404' | 'offline' = 'ok',
 ): CityIconScope & {
+    readonly ready: () => void;
     readonly icons: IconLink[];
     readonly appended: { rel: string; href: string }[];
     readonly probed: string[];
@@ -217,6 +218,7 @@ function iconPage(
     const probed: string[] = [];
     const fetched: string[] = [];
     const ownIcon = loads.includes('icon-own-32.png') ? true : undefined;
+    const readyListeners: (() => void)[] = [];
     class Probe {
         onload: (() => void) | null = null;
         set src(value: string) {
@@ -231,6 +233,14 @@ function iconPage(
         appended,
         probed,
         fetched,
+        ready: () => {
+            readyListeners.splice(0).forEach((listener) => {
+                listener();
+            });
+        },
+        addEventListener: (_type, listener) => {
+            readyListeners.push(listener);
+        },
         fetch: (address: string) => {
             fetched.push(address);
             if (manifest === 'offline') {
@@ -272,6 +282,7 @@ describe('the generic city page', () => {
         const page = iconPage(['icon-own-32.png', 'icon-180.png']);
 
         showCityIcon(page, before);
+        page.ready();
         await settle();
 
         // The city's own icon in every theme: one link, without a scheme.
@@ -286,6 +297,7 @@ describe('the generic city page', () => {
         const page = iconPage([]);
 
         showCityIcon(page, before);
+        page.ready();
         await settle();
 
         expect(page.icons.map((icon) => [icon.href, icon.media, icon.removed])).toEqual([
@@ -301,6 +313,7 @@ describe('the generic city page', () => {
             const page = iconPage(['icon-180.png'], manifest);
 
             showCityIcon(page, before);
+            page.ready();
             await settle();
 
             // A request for a file the bucket lacks is blocked by the browser (ORB) and logged as an error.
@@ -313,10 +326,25 @@ describe('the generic city page', () => {
         },
     );
 
+    it('badPath_aCityWhoseMapNeverGetsReadyNeverAsksForItsManifestAgain @S-V54-BAD-NOREQUEST', async () => {
+        const page = iconPage(['icon-own-32.png', 'icon-180.png']);
+
+        showCityIcon(page, before);
+        await settle();
+
+        // The engine's own request is the only one: a missing manifest gives one 404 line, not two.
+        expect(page.fetched).toEqual([]);
+        expect(page.icons.map((icon) => [icon.href, icon.removed])).toEqual([
+            ['data:image/png;base64,light', false],
+            ['data:image/png;base64,dark', false],
+        ]);
+    });
+
     it('happyPath_aCityOnTheDefaultKeepsTheThemedTabIconAndGivesThePhoneItsOwnColour @S-V55-HAPPY', async () => {
         const page = iconPage(['icon-180.png']);
 
         showCityIcon(page, before);
+        page.ready();
         await settle();
 
         expect(page.icons.map((icon) => [icon.href, icon.removed])).toEqual([

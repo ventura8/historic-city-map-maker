@@ -53,6 +53,7 @@ export interface CityIconScope {
     };
     readonly Image: new () => { onload: (() => void) | null; src: string };
     readonly fetch: (address: string) => Promise<{ readonly ok: boolean; json(): Promise<unknown> }>;
+    addEventListener(type: 'hcm-ready', listener: () => void, options: { readonly once: true }): void;
 }
 
 /**
@@ -62,7 +63,9 @@ export interface CityIconScope {
  * for a missing file, which the browser blocks as an opaque error), the tab shows it in every theme: the first icon link takes its
  * address and loses its `media`, the others go, and `paintTabIcon` leaves a link that is no `data:` address alone. A
  * phone's home screen gets the city's 180 px icon (`icon-180.png`: the upload, or the default in the city's colour) once
- * that has loaded. A city without either keeps the page's default. Self-contained, like `configureCityPage`, after
+ * that has loaded. A city without either keeps the page's default. The manifest is read only after the engine's
+ * `hcm-ready`, so it comes from the browser's cache and a city whose manifest is missing is asked for it once, by the
+ * engine (lesson: the second 404 line). Self-contained, like `configureCityPage`, after
  * which it runs; it builds elements, never HTML.
  */
 export function showCityIcon(scope: CityIconScope, before: string): void {
@@ -85,15 +88,21 @@ export function showCityIcon(scope: CityIconScope, before: string): void {
         });
     };
     if (typeof manifestUrl === 'string') {
-        scope
-            .fetch(manifestUrl)
-            .then(async (response) => (response.ok ? response.json() : undefined))
-            .then((manifest) => {
-                if ((manifest as { readonly city?: { readonly ownIcon?: unknown } } | undefined)?.city?.ownIcon === true) {
-                    showOwn();
-                }
-            })
-            .catch(() => undefined);
+        scope.addEventListener(
+            'hcm-ready',
+            () => {
+                scope
+                    .fetch(manifestUrl)
+                    .then(async (response) => (response.ok ? response.json() : undefined))
+                    .then((manifest) => {
+                        if ((manifest as { readonly city?: { readonly ownIcon?: unknown } } | undefined)?.city?.ownIcon === true) {
+                            showOwn();
+                        }
+                    })
+                    .catch(() => undefined);
+            },
+            { once: true },
+        );
     }
     whenLoaded(`${folder}icon-180.png`, () => {
         const touch = scope.document.createElement('link');
