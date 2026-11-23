@@ -85,7 +85,10 @@ export async function photoMarker(page: Page, photoId: string): Promise<LngLat |
 
 /** The ids of the features a vector overlay of the admin map holds (`hcm-import`: an import's preview). */
 export async function overlayFeatureIds(page: Page, overlayId: string): Promise<string[]> {
-    const features = await page.evaluate(sourceFeaturesInPage, `hcm-source-${overlayId}`);
+    // A category's shapes and its points are two sources since points cluster (d6906378): `-points` holds the points.
+    const shapes = await page.evaluate(sourceFeaturesInPage, `hcm-source-${overlayId}`);
+    const points = await page.evaluate(sourceFeaturesInPage, `hcm-source-${overlayId}-points`);
+    const features = [...shapes, ...points];
     return features.map((feature) => String(feature.properties?.['id'])).sort((a, b) => a.localeCompare(b));
 }
 
