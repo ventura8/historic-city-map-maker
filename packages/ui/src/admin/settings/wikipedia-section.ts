@@ -80,7 +80,7 @@ function articleRow(context: SectionContext, article: WikipediaListedArticle, hi
             variant="text"
             icon=${hidden ? 'visibility' : 'visibility_off'}
             ?disabled=${off}
-            aria-label=${contentText(locale, `${key}Named`, { title: article.title })}
+            .label=${contentText(locale, `${key}Named`, { title: article.title })}
             @click=${toggle}
             >${contentText(locale, key)}</hcm-button
         >
