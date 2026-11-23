@@ -117,8 +117,7 @@ const visitorsStyles = css`
         gap: 12px;
     }
 
-    p,
-    dl.top {
+    p {
         margin: 0;
     }
 
@@ -126,6 +125,7 @@ const visitorsStyles = css`
         display: grid;
         grid-template-columns: repeat(auto-fill, minmax(min(100%, 220px), 1fr));
         gap: 8px 24px;
+        margin: 0;
     }
 
     dl.top dd {

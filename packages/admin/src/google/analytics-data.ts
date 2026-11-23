@@ -261,7 +261,7 @@ async function findProperty(transport: GoogleTransport, measurementId: string): 
 }
 
 /** Reads Home's Visitors card with the same property and names (`analytics-summary.ts` `summaryOf`). */
-export type SummaryReader = (transport: GoogleTransport, property: string, ask: Ask) => Promise<VisitorSummary>;
+type SummaryReader = (transport: GoogleTransport, property: string, ask: Ask) => Promise<VisitorSummary>;
 
 /** Every number of the Statistics view for the last `days`; rejects with a `GoogleApiError` or a {@link StatisticsProblem}. */
 export async function readStatistics(
