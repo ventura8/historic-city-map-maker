@@ -190,7 +190,7 @@ describe('<hcm-date-menu> as a peek (a pointer resting on the year)', () => {
     it('happyPath_theMouseEnteringAndLeavingSaysSoAFingerDoesNot', async () => {
         const element = await menu({ peek: true });
         const events = recordEvents(element, 'hcm-date-menu-pointer');
-        const box = shadowQuery(element, '.menu');
+        const box = shadowQuery(element, '.pair');
 
         box.dispatchEvent(new PointerEvent('pointerenter', { pointerType: 'mouse' }));
         box.dispatchEvent(new PointerEvent('pointerleave', { pointerType: 'mouse' }));

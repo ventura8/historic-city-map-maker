@@ -221,25 +221,11 @@ export class HcmDateMenu extends LitElement {
             return EMPTY;
         }
         return html`${this.#scrim()}
-            <div class="pair">
-                <div
-                    class="menu"
-                    role="menu"
-                    aria-label=${this.label}
-                    data-layout-check="date-menu"
-                    @keydown=${this.#onKey}
-                    @pointerenter=${this.#onPointer}
-                    @pointerleave=${this.#onPointer}
-                >
+            <div class="pair" @pointerenter=${this.#onPointer} @pointerleave=${this.#onPointer}>
+                <div class="menu" role="menu" aria-label=${this.label} data-layout-check="date-menu" @keydown=${this.#onKey}>
                     ${this.items.map((item) => this.#item(item))}
                 </div>
-                ${
-                    this.side
-                        ? html`<div class="side" @keydown=${this.#onSideKey} @pointerenter=${this.#onPointer} @pointerleave=${this.#onPointer}>
-                              <slot></slot>
-                          </div>`
-                        : EMPTY
-                }
+                ${this.side ? html`<div class="side" @keydown=${this.#onSideKey}><slot></slot></div>` : EMPTY}
             </div>`;
     }
 
