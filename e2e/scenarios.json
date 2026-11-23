@@ -9321,6 +9321,28 @@
             "notes": "Milestone M2c follow-up (DECISIONS-for-review.md §34b: each area's page is a lazy chunk; owner: ops-screens). e2e/tour/admin-jobs.tour.ts; the state admin.page-failed."
         },
         {
+            "id": "S-A29-HAPPY-STALE-CHUNK-RELOAD",
+            "behaviour": "A29",
+            "area": "admin",
+            "path": "happy",
+            "title": "After a redeploy, a page whose old chunk is gone reloads the tab once into the newer admin",
+            "asserts": "a tab running release A opens a page whose chunk Hosting answers with index.html; runtime.json now names release B -> the tab writes B into sessionStorage (hcm-admin-reloaded-for) and reloads once; the shell never shows the failure",
+            "tier": "e2e-admin",
+            "status": "exists",
+            "notes": "Live 2026-11-24 (LESSONS 794). packages/admin/test/app/stale-chunk.test.ts; packages/admin/src/app/stale-chunk.ts, wired in mount.ts loadPage."
+        },
+        {
+            "id": "S-A29-BAD-STALE-CHUNK-NO-LOOP",
+            "behaviour": "A29",
+            "area": "admin",
+            "path": "bad",
+            "title": "A page that still does not load after the reload says why in plain words and never reloads again",
+            "asserts": "the tab already reloaded for release B, or its storage forgets the write, or Hosting still serves this release, or runtime.json cannot be read -> no reload; the page area says the page did not load because the connection dropped or the admin was just updated, with Try again (ro + en)",
+            "tier": "e2e-admin",
+            "status": "exists",
+            "notes": "Live 2026-11-24 (LESSONS 794). packages/admin/test/app/stale-chunk.test.ts; packages/ui/test/admin/shell/pages.test.ts (the message)."
+        },
+        {
             "id": "S-A31-HAPPY",
             "behaviour": "A31",
             "area": "admin",

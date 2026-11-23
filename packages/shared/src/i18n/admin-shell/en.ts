@@ -82,7 +82,7 @@ export const en: AdminShellMessages = {
     'adminShell.language.unavailable': 'The texts in {language} could not be loaded. The language stays as it was.',
     'adminShell.nav.close': 'Close',
     'adminShell.page.unavailable': 'This page is not available yet.',
-    'adminShell.page.failed': 'The page did not load. Check the internet connection and try again.',
+    'adminShell.page.failed': 'The page did not load: the connection dropped or the admin was just updated. Try again, or reload the tab.',
     'adminShell.page.retry': 'Try again',
     'adminShell.admins.intro': 'Invite someone by their Google account address; you send them the link yourself.',
     'adminShell.admins.email': 'Google account address',

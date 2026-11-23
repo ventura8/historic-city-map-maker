@@ -38,6 +38,7 @@ import { adminLanguage } from './language.js';
 import { shellWatches, type ShellWatchSources } from './shell-watches.js';
 import { destinationOf, RETURN_TO_KEY } from '../routing/router.js';
 import type { Clock, HashLocation, KeyValueStore, PageVisibility, Unsubscribe } from './ports.js';
+import { reloadOnStaleChunk } from './stale-chunk.js';
 import { guardCallables, type AdminProject, type SetupModuleSpec, type ShellServices } from './services.js';
 import type { AdminTelemetry, Measure } from './telemetry.js';
 
@@ -413,7 +414,7 @@ export function mount<Setup, SetupIntents>(deps: AdminDeps<Setup, SetupIntents>)
         },
         subscribe: (listener) => store.subscribe(listener),
         intents,
-        loadPage: (id) => deps.pages.load(id),
+        loadPage: reloadOnStaleChunk((id: AdminRouteId) => deps.pages.load(id), deps),
         telemetry,
         content: content.stores,
         hasUnsavedChanges: unsaved,

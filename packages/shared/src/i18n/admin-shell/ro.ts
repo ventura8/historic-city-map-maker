@@ -85,7 +85,7 @@ export const ro = {
     'adminShell.language.unavailable': 'Textele în {language} nu s-au putut încărca. Limba rămâne aceeași.',
     'adminShell.nav.close': 'Închide',
     'adminShell.page.unavailable': 'Pagina nu este încă disponibilă.',
-    'adminShell.page.failed': 'Pagina nu s-a încărcat. Verifică legătura la internet și încearcă din nou.',
+    'adminShell.page.failed': 'Pagina nu s-a încărcat: legătura a căzut sau administrarea s-a actualizat. Reîncearcă sau reîncarcă fila.',
     'adminShell.page.retry': 'Încearcă din nou',
     'adminShell.admins.intro': 'Invită pe cineva cu adresa contului său Google; linkul i-l trimiți tu.',
     'adminShell.admins.email': 'Adresa contului Google',

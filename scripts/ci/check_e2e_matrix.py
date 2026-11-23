@@ -68,6 +68,9 @@ TEST_GLOBS = (
     "packages/ui/test/admin/georef/*.test.ts",
     # The viewer's boot timings of a hidden page (V19, LESSONS 773) are timing logic, pinned in the engine's Vitest.
     "packages/engine/test/telemetry/*.test.ts",
+    # A page chunk removed by a redeploy reloads the tab once (A29, LESSONS 794): the admin's and the shell's Vitest.
+    "packages/admin/test/app/*.test.ts",
+    "packages/ui/test/admin/shell/pages.test.ts",
 )
 # Area -> section title, in the doc's order.
 AREAS = {

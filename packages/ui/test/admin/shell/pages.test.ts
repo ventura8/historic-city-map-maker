@@ -68,7 +68,7 @@ describe('<hcm-page-outlet>', () => {
         expect((deep(outlet, 'hcm-test-page') as TestPage).state?.route.id).toBe('admins');
     });
 
-    it('badPath_aPageWhoseChunkDoesNotLoadSaysSoAndRetryLoadsItAgain', async () => {
+    it('badPath_aPageWhoseChunkDoesNotLoadSaysSoAndRetryLoadsItAgain @S-A29-BAD-STALE-CHUNK-NO-LOOP', async () => {
         const app = new FakeAdminApp(adminState({ route: { id: 'photos', params: [] }, locale: 'ro' }));
         app.pages = { photos: 'hcm-test-page' };
         vi.spyOn(app, 'loadPage').mockRejectedValueOnce(new TypeError('Failed to fetch dynamically imported module'));
@@ -76,7 +76,7 @@ describe('<hcm-page-outlet>', () => {
         await updated(outlet);
 
         expect(deep(outlet, '[role="alert"] p').textContent).toBe(
-            'Pagina nu s-a încărcat. Verifică legătura la internet și încearcă din nou.',
+            'Pagina nu s-a încărcat: legătura a căzut sau administrarea s-a actualizat. Reîncearcă sau reîncarcă fila.',
         );
         expect(await axeViolations(outlet)).toEqual([]);
         deep(outlet, 'hcm-button').click();
