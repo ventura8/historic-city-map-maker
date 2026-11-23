@@ -102,6 +102,7 @@ function layerOf(request: Request, order: number, caller: VerifiedCaller, now: D
         adjustments: undefined,
         placeIds: undefined,
         level: undefined,
+        shotDirection: undefined,
         rights: undefined,
         status: 'ready',
         published: false,

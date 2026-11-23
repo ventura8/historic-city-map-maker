@@ -74,6 +74,7 @@ export const it: Messages = {
     'viewer.zoomIn': 'Ingrandisci',
     'viewer.zoomOut': 'Riduci',
     'viewer.compass': 'Bussola: orienta la mappa verso nord',
+    'viewer.shotDirection': "Ruota la mappa nella direzione di ripresa dell'immagine ({degrees}°)",
     'viewer.compassNorth': 'La mappa è orientata a nord.',
     'viewer.compassTurned': 'La mappa è ruotata di {degrees}° rispetto al nord.',
     'viewer.compassTilted': 'La mappa è ruotata di {degrees}° rispetto al nord e inclinata di {tilt}°.',

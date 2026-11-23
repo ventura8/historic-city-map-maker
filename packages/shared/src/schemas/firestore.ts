@@ -326,6 +326,8 @@ export const layerDocSchema = z.strictObject({
     placeIds: placeIdsSchema.optional(),
     /** A building plan's level (M17 §14). */
     level: planLevelSchema.optional(),
+    /** The shot direction of a satellite or aerial image (degrees from north, 0–360); the viewer turns the map to it. */
+    shotDirection: bearingSchema.optional(),
     /** M20 (`docs/research/M20-import-local.md` §7): an archive map's licence, author and source, copied into the manifest. */
     rights: layerRightsSchema.optional(),
     status: z.enum(LAYER_STATUSES),

@@ -219,6 +219,10 @@ export class FakeStore implements ViewerStorePort {
         this.#record('resetNorth');
     }
 
+    faceBearing(bearing: number): void {
+        this.#record('faceBearing', bearing);
+    }
+
     /** The compass's camera: `moveCamera` plays a frame of the map's `move` to every watcher. */
     camera: MapCamera = { bearing: 0, pitch: 0 };
     readonly #cameraWatchers = new Set<(camera: MapCamera) => void>();

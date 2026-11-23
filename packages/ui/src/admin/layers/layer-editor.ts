@@ -30,6 +30,7 @@ import { conflictBanner, field, issueAt, saveBar, saveStateOf, sliderRow, type F
 import type { CropStatePort } from './geometry/crop-port.js';
 import { geometryGroup } from './geometry-group.js';
 import { levelRow } from './level-row.js';
+import { shotDirectionRow } from './shot-direction-row.js';
 import { licenceSelect } from './rights-group.js';
 import {
     labelOf,
@@ -217,6 +218,16 @@ function kindRow(context: EditorContext, layer: LayerDoc): TemplateResult {
         ></hcm-segmented-button>`;
 }
 
+/** V93: a satellite or aerial image's shot direction, the dial and the degrees; its USGS scene's direction offered. */
+function shotRow(context: EditorContext, editor: LayerEditorPort, layer: LayerDoc): TemplateResult {
+    return shotDirectionRow({
+        ...{ locale: context.locale, layer, suggestion: editor.shotSuggestion, readOnly: context.readOnly },
+        change: (shotDirection) => {
+            context.intents?.edit({ shotDirection });
+        },
+    });
+}
+
 /** M17 §12: a small-area map's places (the 1906 plan of Parcul Carol): their sheets list it under Media, Maps. */
 function placesRow(context: EditorContext, layer: LayerDoc): TemplateResult {
     if (context.places === undefined) {
@@ -253,7 +264,7 @@ function displayGroup(context: EditorContext, editor: LayerEditorPort, layer: La
                 intents?.edit({ published: checked });
             },
         )}
-        ${kindRow(context, layer)} ${placesRow(context, layer)}
+        ${kindRow(context, layer)} ${shotRow(context, editor, layer)} ${placesRow(context, layer)}
         ${levelRow({
             locale: context.locale,
             level: layer.level,

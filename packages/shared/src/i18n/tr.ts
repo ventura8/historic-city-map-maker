@@ -72,6 +72,7 @@ export const tr: Messages = {
     'viewer.zoomIn': 'Yakınlaştır',
     'viewer.zoomOut': 'Haritayı uzaklaştır',
     'viewer.compass': 'Pusula: haritayı kuzeye çevir',
+    'viewer.shotDirection': 'Haritayı görüntünün çekim yönüne çevir ({degrees}°)',
     'viewer.compassNorth': 'Harita kuzeye bakıyor.',
     'viewer.compassTurned': 'Harita kuzeyden {degrees}° döndürülmüş.',
     'viewer.compassTilted': 'Harita kuzeyden {degrees}° döndürülmüş ve {tilt}° eğilmiş.',

@@ -169,6 +169,7 @@ function layerEntry(layer: LayerDoc, id: string, listed: Listed): unknown {
         // M17 §12: a place the manifest does not list leaves the map's Media, never the map.
         placeIds: stillListed(layer.placeIds, listed.pois),
         level: layer.level,
+        shotDirection: layer.shotDirection,
     };
 }
 

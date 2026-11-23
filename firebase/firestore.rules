@@ -508,6 +508,8 @@ service cloud.firestore {
                 && validAdjustments(data.get('adjustments', {}))
                 && (!('placeIds' in data) || validPlaceIds(data.placeIds))
                 && (!('level' in data) || validLevel(data.level))
+                // zod `bearingSchema`: the shot direction of a satellite or aerial image, degrees from north.
+                && (!('shotDirection' in data) || (data.shotDirection is number && data.shotDirection >= 0 && data.shotDirection <= 360))
                 && data.published is bool
                 && stamped(data);
         }
@@ -788,7 +790,8 @@ service cloud.firestore {
                 allow read: if isCityMember(city);
                 allow update: if isCityMember(city)
                     && changedKeys().hasOnly(['label', 'description', 'attribution', 'rights', 'year', 'date', 'order', 'opacity',
-                        'defaultVisible', 'adjustments', 'published', 'kind', 'placeIds', 'level', 'updatedBy', 'updatedAt'])
+                        'defaultVisible', 'adjustments', 'published', 'kind', 'placeIds', 'level', 'shotDirection', 'updatedBy',
+                        'updatedAt'])
                     && validLayer(request.resource.data);
 
                 match /history/{entry} {

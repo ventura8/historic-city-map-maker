@@ -26,7 +26,7 @@ import type { Measurement } from '../telemetry/telemetry-port.js';
 import { Boot, type BootHost } from './boot.js';
 import { CompareDriver, type CompareDriverHost } from './compare-driver.js';
 import { setOverlayGroup, setOverlayOpacityOf } from './overlay-groups.js';
-import { resetNorth, watchCamera, zoomBy, type CompassActions } from './compass.js';
+import { faceBearing, resetNorth, watchCamera, zoomBy, type CompassActions } from './compass.js';
 import { inputLogger, measureToast, shareLogger } from './viewer-analytics.js';
 import { withWindowSize } from './window-size.js';
 import type { MountedMap } from './compare-port.js';
@@ -407,6 +407,7 @@ class Store implements ViewerStore, BootHost, CompareDriverHost {
     }
 
     readonly resetNorth: CompassActions['resetNorth'] = () => resetNorth(this.deps.map, this.#boot, this.deps.telemetry);
+    readonly faceBearing: CompassActions['faceBearing'] = (bearing) => faceBearing(this.deps.map, this.#boot, bearing);
     readonly watchCamera: CompassActions['watchCamera'] = (listener) => watchCamera(this.deps.map, listener);
 
     zoomBy(step: number): void {

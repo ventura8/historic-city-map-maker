@@ -148,6 +148,8 @@ export interface ViewerStorePort {
     zoomBy(step: number): void;
     /** The compass (V64): back to north up and level, animated unless reduced motion; already there, nothing moves. */
     resetNorth(): void;
+    /** The shot direction button (V93): the camera turned to `bearing`, animated unless reduced motion. */
+    faceBearing(bearing: number): void;
     /** The compass's needle: the camera now and on every frame it moves; the result stops it. */
     watchCamera(listener: (camera: MapCamera) => void): Unsubscribe;
     /** Logs the `share` analytics event after the page was shared or its link copied. */

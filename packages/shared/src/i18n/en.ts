@@ -69,6 +69,7 @@ export const en: Messages = {
     'viewer.zoomIn': 'Zoom in',
     'viewer.zoomOut': 'Zoom out',
     'viewer.compass': 'Compass: turn the map north up',
+    'viewer.shotDirection': "Turn the map to the image's shot direction ({degrees}°)",
     'viewer.compassNorth': 'The map faces north.',
     'viewer.compassTurned': 'The map is turned {degrees}° from north.',
     'viewer.compassTilted': 'The map is turned {degrees}° from north and tilted {tilt}°.',

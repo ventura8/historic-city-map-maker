@@ -88,6 +88,8 @@ const LAYER_EDITABLE = [
     'placeIds',
     /** A building plan's level (M17 §14). */
     'level',
+    /** A satellite or aerial image's shot direction (the owner, 2026-11-23). */
+    'shotDirection',
     ...STAMP,
 ] as const;
 

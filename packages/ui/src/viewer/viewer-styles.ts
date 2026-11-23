@@ -127,7 +127,7 @@ export const viewerStyles = [
          * reachable by Tab but not seen. Mapbox's legal line stays and rises above the sheet (below).
          */
         .frame[data-layers-sheet]
-            :is(.skip, .dock.chip, .dock.compass, .dock.locate, .dock.zoom, .dock.timeline, .dock.timeline-note, .dock.menu) {
+            :is(.skip, .dock.chip, .dock.compass, .dock.locate, .dock.shot, .dock.zoom, .dock.timeline, .dock.timeline-note, .dock.menu) {
             visibility: hidden;
         }
 

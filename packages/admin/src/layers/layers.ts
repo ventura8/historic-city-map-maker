@@ -35,6 +35,7 @@ import type { LinkForm } from './link.js';
 import { AreaMap, frameOf, rasterOf } from './map-session.js';
 import { layerItemOf, moved, moveTarget, opacityFromPercent, orderChanges, topFirst, type LayerItem } from './model.js';
 import { PreviewLayer } from './preview.js';
+import { ShotSuggestion } from './shot-suggestion.js';
 import {
     INITIAL,
     LAYER_EDITABLE,
@@ -60,6 +61,7 @@ class LayersStore implements AreaStore<LayersState, LayersIntents> {
     readonly #linker: LayerLinker;
     readonly #crop: CropSlot;
     readonly #assists: EditorAssists;
+    readonly #shot: ShotSuggestion;
     #draft: EditDraft<LayerDoc> | null = null;
     /** The saved version the map shows (`<id>@<version>`, '' for none). */
     #shown = '';
@@ -120,6 +122,7 @@ class LayersStore implements AreaStore<LayersState, LayersIntents> {
                 this.#cell.update({ assist });
             },
         });
+        this.#shot = this.#shotSuggestion(services);
         this.intents = { ...this.#intents(), ...this.#cropIntents(), ...this.#assists.intents };
     }
 
@@ -320,6 +323,7 @@ class LayersStore implements AreaStore<LayersState, LayersIntents> {
         this.#deletion.cancel();
         this.#crop.close();
         this.#assists.reset();
+        this.#shot.stop();
         this.#draft = null;
         this.#shown = '';
         this.#map.show([]);
@@ -357,12 +361,31 @@ class LayersStore implements AreaStore<LayersState, LayersIntents> {
         if (state.status === 'ready') {
             this.#draft?.load(state.doc);
         }
+        this.#suggestShot(state);
         // Read after the load: the draft's own update of the editor must not be overwritten.
         const editor = this.#cell.state.editor;
         if (editor !== null) {
             const { status, reconnecting, failure } = state;
             this.#cell.update({ editor: { ...editor, doc: { status, reconnecting, failure }, notFound: missing(state, editor) } });
         }
+    }
+
+    /** V93: the open layer's USGS scene, read once for its shot direction. */
+    #suggestShot(state: DocState<LayerDoc>): void {
+        const id = this.#editorId();
+        if (id !== null && state.doc !== null) {
+            this.#shot.load(id, state.doc.data);
+        }
+    }
+
+    /** V93: what the USGS scene suggests lands on the editor of the layer it was read for. */
+    #shotSuggestion(services: ContentServices): ShotSuggestion {
+        return new ShotSuggestion(services, (id, shotSuggestion) => {
+            const editor = this.#cell.state.editor;
+            if (editor?.id === id) {
+                this.#cell.update({ editor: { ...editor, shotSuggestion } });
+            }
+        });
     }
 
     #draftChanged(id: string, draft: DraftState<LayerDoc>): void {

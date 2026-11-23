@@ -10,6 +10,7 @@ import type { ViewerStorePort } from './store-port.js';
 import { closeSheet, isMenuAction, menuAction, selectPhoto, shareViewer, toggleCompare } from './viewer-actions.js';
 import type { OverlayOpacityDetail, ViewerHandlers } from './viewer-render.js';
 import { toggleMyLocation } from './my-location.js';
+import { frontShotDirection } from './shot-direction.js';
 import { viewForLayer, viewForYear } from './year-view.js';
 
 /** What the handlers need from the element. */
@@ -175,7 +176,7 @@ function mapMenuHandlers(host: HandlerHost): Pick<ViewerHandlers, 'onMapMenuClos
  * The zoom buttons (V52): one level in (1) or out (-1); the compass (V64): north up and level. A click is no event of a
  * part, nothing to stop.
  */
-function zoomHandler(host: HandlerHost): Pick<ViewerHandlers, 'onZoom' | 'onCompass' | 'onLocate' | 'onOverlayGroup'> {
+function zoomHandler(host: HandlerHost): Pick<ViewerHandlers, 'onZoom' | 'onCompass' | 'onLocate' | 'onShotDirection' | 'onOverlayGroup'> {
     return {
         // A place category's sub-group switch (the owner, 2026-11-22).
         onOverlayGroup: (event) => {
@@ -197,6 +198,16 @@ function zoomHandler(host: HandlerHost): Pick<ViewerHandlers, 'onZoom' | 'onComp
         onCompass: () => {
             host.act(null, (store) => {
                 store.resetNorth();
+            });
+        },
+        // V93: the map turned to the shot direction of the image on top (the owner, 2026-11-23).
+        onShotDirection: () => {
+            host.act(null, (store) => {
+                const state = store.getState();
+                const shot = frontShotDirection(state.manifest, state);
+                if (shot !== null) {
+                    store.faceBearing(shot);
+                }
             });
         },
     };

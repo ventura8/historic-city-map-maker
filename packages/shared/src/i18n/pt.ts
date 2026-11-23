@@ -72,6 +72,7 @@ export const pt: Messages = {
     'viewer.zoomIn': 'Aumentar',
     'viewer.zoomOut': 'Diminuir o zoom',
     'viewer.compass': 'Bússola: orientar o mapa para norte',
+    'viewer.shotDirection': 'Rodar o mapa para a direção em que a imagem foi captada ({degrees}°)',
     'viewer.compassNorth': 'O mapa aponta para norte.',
     'viewer.compassTurned': 'O mapa está rodado {degrees}° em relação ao norte.',
     'viewer.compassTilted': 'O mapa está rodado {degrees}° em relação ao norte e inclinado {tilt}°.',

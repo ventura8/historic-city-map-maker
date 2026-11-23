@@ -204,6 +204,7 @@ function newLayer(version: LayerVersionDoc, order: number, stamp: Stamp): Omit<L
         adjustments: undefined,
         placeIds: undefined,
         level: undefined,
+        shotDirection: undefined,
         rights: version.rights === undefined ? undefined : layerRightsOf(version.rights),
         published: true,
         provenance: undefined,

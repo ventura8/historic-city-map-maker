@@ -80,6 +80,7 @@ export const fr: Messages = {
     'viewer.zoomIn': 'Zoom avant',
     'viewer.zoomOut': 'Zoom arrière',
     'viewer.compass': 'Boussole : orienter la carte vers le nord',
+    'viewer.shotDirection': "Tourner la carte dans la direction de prise de vue de l'image ({degrees}°)",
     'viewer.compassNorth': 'La carte est orientée au nord.',
     'viewer.compassTurned': 'La carte est tournée de {degrees}° par rapport au nord.',
     'viewer.compassTilted': 'La carte est tournée de {degrees}° par rapport au nord et inclinée de {tilt}°.',

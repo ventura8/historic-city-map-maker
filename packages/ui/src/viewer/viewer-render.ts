@@ -118,6 +118,8 @@ export interface ViewerHandlers extends LightboxHandlers, MapMenuHandlers, Place
     readonly onCompass: () => void;
     /** Show my location's icon button (V10), above the compass. */
     readonly onLocate: () => void;
+    /** V93: the shot direction button, under Show my location. */
+    readonly onShotDirection: () => void;
     /** The help panel's switch of the single-key shortcuts. */
     readonly onShortcuts: (event: CustomEvent<{ readonly enabled: boolean }>) => void;
     /** About's button to the help panel. */
@@ -338,7 +340,7 @@ function controls(view: ViewerView, ready: Ready, handlers: ViewerHandlers): Tem
                 @hcm-select=${handlers.onMenuSelect}
             ></hcm-fab-menu>
         </div>
-        ${state.webgl ? zoomButtons({ ...view, locating: state.myLocation !== null }, state.view, manifest, handlers) : nothing}
+        ${state.webgl ? zoomButtons({ ...view, locating: state.myLocation !== null }, state, manifest, handlers) : nothing}
         ${consent ? renderConsentBanner(view.locale, handlers.onConsent) : nothing}
         ${toastDock(view.locale, state.toast, handlers.onToastDismiss, view.update)} ${mapMenu(view, state, handlers)}`;
 }

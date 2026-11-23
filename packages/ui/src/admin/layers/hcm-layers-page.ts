@@ -175,6 +175,10 @@ export class HcmLayersPage extends AreaPage<LayersViewState, LayersIntentsPort> 
 
 /** Registers `<hcm-layers-page>` (its kit elements are the editing kit's, `defineEditingElements`). */
 export function defineHcmLayersPage(registry: CustomElementRegistry = customElements): void {
+    // V93: the shot direction's fields are their own chunk, defined once the page is (the layers chunk stays within its budget).
+    void import('./hcm-shot-direction.js').then(({ defineHcmShotDirection }) => {
+        defineHcmShotDirection(registry);
+    });
     if (registry.get(HCM_LAYERS_PAGE_TAG) === undefined) {
         registry.define(HCM_LAYERS_PAGE_TAG, HcmLayersPage);
     }

@@ -76,6 +76,7 @@ export const de: Messages = {
     'viewer.zoomIn': 'Karte vergrößern',
     'viewer.zoomOut': 'Karte verkleinern',
     'viewer.compass': 'Kompass: Karte nach Norden ausrichten',
+    'viewer.shotDirection': 'Karte in die Aufnahmerichtung des Bildes drehen ({degrees}°)',
     'viewer.compassNorth': 'Die Karte zeigt nach Norden.',
     'viewer.compassTurned': 'Die Karte ist um {degrees}° gegenüber Norden gedreht.',
     'viewer.compassTilted': 'Die Karte ist um {degrees}° gegenüber Norden gedreht und um {tilt}° geneigt.',

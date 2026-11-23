@@ -51,7 +51,8 @@ export const dockStyles = css`
     .note,
     .dock.zoom,
     .dock.compass,
-    .dock.locate {
+    .dock.locate,
+    .dock.shot {
         display: inline-flex;
         align-items: center;
         gap: 8px;
@@ -107,7 +108,8 @@ export const dockStyles = css`
 
     .dock.zoom,
     .dock.compass,
-    .dock.locate {
+    .dock.locate,
+    .dock.shot {
         inset-inline-end: calc(var(--hcm-gutter) + 4px);
         inset-block-end: var(--hcm-zoom-end);
         flex-direction: column;
@@ -126,20 +128,34 @@ export const dockStyles = css`
         inset-block-end: calc(var(--hcm-zoom-end) + 2 * var(--hcm-control-size, 40px) + 16px + var(--hcm-dock-gap));
     }
 
-    /* Show my location (V10, the owner 2026-11-22): its 48 px pill 8 px over the compass's. */
-    .dock.locate {
+    /*
+     * Show my location (V10, the owner 2026-11-22): its 48 px pill 8 px over the compass's. The shot direction (V93, the
+     * owner 2026-11-23) takes that place while the image on top has one, and Show my location goes one pill higher.
+     */
+    .dock.locate,
+    .dock.shot {
         inset-block-end: calc(var(--hcm-zoom-end) + 2 * var(--hcm-control-size, 40px) + 16px + 48px + 2 * var(--hcm-dock-gap));
+    }
+
+    .dock.locate.over-shot {
+        inset-block-end: calc(var(--hcm-zoom-end) + 2 * var(--hcm-control-size, 40px) + 16px + 96px + 3 * var(--hcm-dock-gap));
     }
 
     @container hcm-viewer (height < 600px) {
         .dock.compass,
-        .dock.locate {
+        .dock.locate,
+        .dock.shot {
             inset-inline-end: calc(var(--hcm-gutter) + 4px + 48px + var(--hcm-dock-gap));
             inset-block-end: calc(var(--hcm-zoom-end) + 48px);
         }
 
-        .dock.locate {
+        .dock.locate,
+        .dock.shot {
             inset-block-end: calc(var(--hcm-zoom-end) + 96px + var(--hcm-dock-gap));
+        }
+
+        .dock.locate.over-shot {
+            inset-block-end: calc(var(--hcm-zoom-end) + 144px + 2 * var(--hcm-dock-gap));
         }
     }
 
@@ -247,7 +263,8 @@ export const dockStyles = css`
 
     /* There the compass is beside the group's Zoom in on its trailing side, towards the map (a short map: under 600 px). */
     .frame[data-compact-height] .dock.compass,
-    .frame[data-compact-height] .dock.locate {
+    .frame[data-compact-height] .dock.locate,
+    .frame[data-compact-height] .dock.shot {
         inset-inline: calc(var(--hcm-gutter) + 4px + 48px + var(--hcm-dock-gap)) auto;
     }
 
@@ -260,15 +277,15 @@ export const dockStyles = css`
      * The open menu grows over the group and the compass: they step aside until it closes (the tour's overlap check). The
      * frame is marked by the menu's own toggle (viewer-render.ts): Safari did not apply the :has() sibling rule.
      */
-    .frame[data-menu-open] :is(.dock.zoom, .dock.compass, .dock.locate),
-    .dock.menu:has(> [open]) ~ :is(.dock.zoom, .dock.compass, .dock.locate) {
+    .frame[data-menu-open] :is(.dock.zoom, .dock.compass, .dock.locate, .dock.shot),
+    .dock.menu:has(> [open]) ~ :is(.dock.zoom, .dock.compass, .dock.locate, .dock.shot) {
         visibility: hidden;
         opacity: 0;
         transition: none;
     }
 
     @media (prefers-reduced-motion: reduce) {
-        .frame :is(.dock.zoom, .dock.compass, .dock.locate) {
+        .frame :is(.dock.zoom, .dock.compass, .dock.locate, .dock.shot) {
             transition: none;
         }
     }

@@ -219,6 +219,8 @@ export const layerSchema = z
         placeIds: placeIdsSchema.optional(),
         /** A building plan's level (M17 §14): the place's sheet lists it under Plans, by level. */
         level: planLevelSchema.optional(),
+        /** A satellite or aerial image's shot direction (the owner, 2026-11-23): degrees clockwise from north the camera looked toward. */
+        shotDirection: bearingSchema.optional(),
     })
     .refine((layer) => layer.minzoom <= layer.maxzoom, coded('validation.zoomRange', ['maxzoom']))
     .refine((layer) => layer.date === undefined || layer.date.startsWith(String(layer.year)), coded('validation.value', ['date']));

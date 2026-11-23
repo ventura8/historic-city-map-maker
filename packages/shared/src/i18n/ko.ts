@@ -74,6 +74,7 @@ export const ko: Messages = {
     'viewer.zoomIn': '지도 확대',
     'viewer.zoomOut': '지도 축소',
     'viewer.compass': '나침반: 지도를 북쪽이 위로 오게 돌리기',
+    'viewer.shotDirection': '지도를 이미지의 촬영 방향으로 돌리기 ({degrees}°)',
     'viewer.compassNorth': '지도가 북쪽을 향하고 있습니다.',
     'viewer.compassTurned': '지도가 북쪽에서 {degrees}° 회전되어 있습니다.',
     'viewer.compassTilted': '지도가 북쪽에서 {degrees}° 회전되고 {tilt}° 기울어져 있습니다.',

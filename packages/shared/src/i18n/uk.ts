@@ -72,6 +72,7 @@ export const uk: Messages = {
     'viewer.zoomIn': 'Збільшити мапу',
     'viewer.zoomOut': 'Зменшити мапу',
     'viewer.compass': 'Компас: повернути мапу на північ',
+    'viewer.shotDirection': 'Повернути мапу за напрямком зйомки знімка ({degrees}°)',
     'viewer.compassNorth': 'Мапа орієнтована на північ.',
     'viewer.compassTurned': 'Мапу повернуто на {degrees}° відносно півночі.',
     'viewer.compassTilted': 'Мапу повернуто на {degrees}° відносно півночі й нахилено на {tilt}°.',

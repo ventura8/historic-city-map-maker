@@ -70,6 +70,7 @@ export const ar: Messages = {
     'viewer.zoomIn': 'تكبير',
     'viewer.zoomOut': 'تصغير',
     'viewer.compass': 'البوصلة: وجّه الخريطة نحو الشمال',
+    'viewer.shotDirection': 'أدر الخريطة إلى اتجاه التقاط الصورة ({degrees}°)',
     'viewer.compassNorth': 'الخريطة موجّهة نحو الشمال.',
     'viewer.compassTurned': 'الخريطة مُدوَّرة بمقدار {degrees}° عن الشمال.',
     'viewer.compassTilted': 'الخريطة مُدوَّرة بمقدار {degrees}° عن الشمال ومائلة بمقدار {tilt}°.',

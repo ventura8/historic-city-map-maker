@@ -74,6 +74,7 @@ export const pl: Messages = {
     'viewer.zoomIn': 'Powiększ',
     'viewer.zoomOut': 'Pomniejsz mapę',
     'viewer.compass': 'Kompas: obróć mapę na północ',
+    'viewer.shotDirection': 'Obróć mapę w kierunku wykonania zdjęcia ({degrees}°)',
     'viewer.compassNorth': 'Mapa jest skierowana na północ.',
     'viewer.compassTurned': 'Mapa jest obrócona o {degrees}° względem północy.',
     'viewer.compassTilted': 'Mapa jest obrócona o {degrees}° względem północy i nachylona o {tilt}°.',

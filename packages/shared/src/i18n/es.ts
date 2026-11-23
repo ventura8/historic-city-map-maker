@@ -73,6 +73,7 @@ export const es: Messages = {
     'viewer.zoomIn': 'Acercar',
     'viewer.zoomOut': 'Alejar',
     'viewer.compass': 'Brújula: orientar el mapa hacia el norte',
+    'viewer.shotDirection': 'Girar el mapa hacia la dirección de toma de la imagen ({degrees}°)',
     'viewer.compassNorth': 'El mapa está orientado al norte.',
     'viewer.compassTurned': 'El mapa está girado {degrees}° respecto al norte.',
     'viewer.compassTilted': 'El mapa está girado {degrees}° respecto al norte e inclinado {tilt}°.',

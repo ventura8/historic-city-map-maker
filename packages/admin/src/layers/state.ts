@@ -37,13 +37,25 @@ export const LAYER_EDITABLE = [
     'placeIds',
     /** A building plan's level (M17 §14). */
     'level',
+    /** A satellite or aerial image's shot direction (the owner, 2026-11-23). */
+    'shotDirection',
 ] as const satisfies readonly (keyof LayerDoc)[];
 
 /** What the editor's fields change directly (the sliders have their own intents). */
 export type LayerPatch = Partial<
     Pick<
         LayerDoc,
-        'label' | 'description' | 'attribution' | 'year' | 'date' | 'defaultVisible' | 'published' | 'kind' | 'placeIds' | 'level'
+        | 'label'
+        | 'description'
+        | 'attribution'
+        | 'year'
+        | 'date'
+        | 'defaultVisible'
+        | 'published'
+        | 'kind'
+        | 'placeIds'
+        | 'level'
+        | 'shotDirection'
     >
 >;
 
@@ -54,6 +66,8 @@ export interface LayerEditorState {
     /** Read, and no such layer. */
     readonly notFound: boolean;
     readonly draft: DraftState<LayerDoc>;
+    /** V93: the shot direction the layer's USGS scene suggests (`shot-suggestion.ts`), once read. */
+    readonly shotSuggestion?: number | undefined;
 }
 
 export interface LayersState {

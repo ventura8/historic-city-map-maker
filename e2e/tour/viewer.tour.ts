@@ -122,9 +122,19 @@ test(
 
 test(
     'The compass on a turned map and north up again',
-    { tag: ['@S-V15-HAPPY', '@S-V15-BAD-TEXT-SPACING', '@S-V15-BAD-REFLOW-320', '@S-V14-HAPPY-EVERY-STATE', '@S-V64-HAPPY-TOUR'] },
+    {
+        tag: ['@S-V15-HAPPY', '@S-V15-BAD-TEXT-SPACING', '@S-V15-BAD-REFLOW-320', '@S-V14-HAPPY-EVERY-STATE', '@S-V64-HAPPY-TOUR'],
+    },
     async ({ page, context, lang }) => {
         await expectJourneySound({ page, context, lang }, journey('compass'));
+    },
+);
+
+test(
+    'The shot direction button on an aerial image, and the map turned to it',
+    { tag: ['@S-V15-HAPPY', '@S-V14-HAPPY-EVERY-STATE', '@S-V93-HAPPY-TOUR'] },
+    async ({ page, context, lang }) => {
+        await expectJourneySound({ page, context, lang }, journey('shot-direction'));
     },
 );
 

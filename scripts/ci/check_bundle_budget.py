@@ -121,6 +121,8 @@ ADMIN_CHUNK_BUDGETS: Mapping[str, int] = {
     # 21 since 2026-11-13 (§222, under the owner's §215 raise): 20.2 KB after the 25 languages' merge.
     "settings": 22,  # §215 (the owner confirmed, 2026-11-14)
     "layers": 10,
+    # V93 (2026-11-23): the layer editor's shot direction fields and dial, split from "layers" so that chunk stays within 10.
+    "hcm-shot-direction": 3,
     "history": 8,
     "admins": 6,
     "home": 5,

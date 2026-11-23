@@ -55,6 +55,9 @@ describe('presentation', () => {
             'a building plan of the ground floor @S-A201-HAPPY-LEVEL',
             { placeIds: ['hotel-dunarea'], level: { order: 0, label: { ro: 'Parter' } } },
         ],
+        ['a shot direction @S-A233-HAPPY-SHOT-DIAL', { shotDirection: 135 }],
+        ['north as 360', { shotDirection: 360 }],
+        ['a removed shot direction', { shotDirection: deleted() }],
     ])('happyPath_adminSaves_%s', async (_label, changes) => {
         expect(await edit(changes)).toBe('allow');
     });
@@ -73,6 +76,9 @@ describe('presentation', () => {
         ['a kind the viewer does not know @S-A33-BAD-LAYER-KIND', { kind: 'drawing' }],
         ['places that are not a list @S-A199-BAD-LAYER-PLACES', { placeIds: 'parcul-carol' }],
         ['a level without a name @S-A201-BAD-LEVEL', { level: { order: 0 } }],
+        ['a shot direction over 360 @S-A233-BAD-SHOT-DIAL', { shotDirection: 361 }],
+        ['a negative shot direction', { shotDirection: -1 }],
+        ['a shot direction that is not a number', { shotDirection: 'north' }],
         ['a level with an unknown field', { level: { order: 0, label: { ro: 'Parter' }, floor: 'x' } }],
         ['a label over 200 characters', { label: { ro: 'x'.repeat(201) } }],
         ['a label without Romanian', { label: { en: 'Corona 1966' } }],

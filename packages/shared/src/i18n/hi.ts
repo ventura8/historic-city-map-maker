@@ -69,6 +69,7 @@ export const hi: Messages = {
     'viewer.zoomIn': 'मानचित्र बड़ा करें',
     'viewer.zoomOut': 'मानचित्र छोटा करें',
     'viewer.compass': 'कम्पास: मानचित्र को उत्तर की ओर घुमाएँ',
+    'viewer.shotDirection': 'मानचित्र को छवि की खींचने की दिशा में घुमाएँ ({degrees}°)',
     'viewer.compassNorth': 'मानचित्र उत्तर की ओर है।',
     'viewer.compassTurned': 'मानचित्र उत्तर से {degrees}° घुमाया गया है।',
     'viewer.compassTilted': 'मानचित्र उत्तर से {degrees}° घुमाया गया है और {tilt}° झुका हुआ है।',

@@ -73,6 +73,7 @@ export const zh: Messages = {
     'viewer.zoomIn': '放大',
     'viewer.zoomOut': '缩小地图',
     'viewer.compass': '指南针：将地图转为北向朝上',
+    'viewer.shotDirection': '将地图转到图像的拍摄方向（{degrees}°）',
     'viewer.compassNorth': '地图朝向北方。',
     'viewer.compassTurned': '地图相对北方旋转了 {degrees}°。',
     'viewer.compassTilted': '地图相对北方旋转了 {degrees}°，并倾斜了 {tilt}°。',

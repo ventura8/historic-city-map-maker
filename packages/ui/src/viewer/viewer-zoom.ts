@@ -7,10 +7,12 @@
  * Zoom out's limit is the higher of `city.minZoom` and the zoom at which the city's bounds just cover the map: Mapbox keeps
  * the view inside `maxBounds`, so on most screens it stops there first (Bucharest: about 10.8 on a phone, 11.6 at 1440 px).
  */
-import { translate, type BBox, type ViewerLocale, type Manifest, type MapView } from '@hcm/shared';
+import { translate, type BBox, type ViewerLocale, type Manifest } from '@hcm/shared';
 import { html, nothing, type TemplateResult } from 'lit';
 
 import type { CameraSource } from './hcm-compass.js';
+import { frontShotDirection } from './shot-direction.js';
+import type { ViewerState } from './store-port.js';
 
 /**
  * One button: its name is also its tooltip; at the limit it is soft-disabled and its press never reaches the store (Zoom
@@ -48,6 +50,8 @@ export interface MapControlHandlers {
     readonly onZoom: (step: number) => void;
     readonly onCompass: () => void;
     readonly onLocate: () => void;
+    /** V93: the map turned to the shot direction of the image on top. */
+    readonly onShotDirection: () => void;
 }
 
 /**
@@ -69,14 +73,17 @@ export function zoomButtons(
         readonly camera: CameraSource | null;
         readonly locating: boolean;
     },
-    view: MapView,
+    state: Pick<ViewerState, 'view' | 'year' | 'front' | 'overlays'>,
     manifest: Manifest,
-    { onZoom, onCompass, onLocate }: MapControlHandlers,
+    { onZoom, onCompass, onLocate, onShotDirection }: MapControlHandlers,
 ): TemplateResult {
     const { maxZoom, bounds } = manifest.city;
+    const { view } = state;
+    // V93: the shot direction of the image on top, or null (no button).
+    const shot = frontShotDirection(manifest, state);
     const minZoom = Math.max(manifest.city.minZoom, mapSize === null ? 0 : coverZoom(bounds, mapSize) + 0.01);
     const locate = translate(locale, 'action.locate');
-    return html`<div class="dock locate" data-layout-check="locate">
+    return html`<div class="dock locate ${shot === null ? '' : 'over-shot'}" data-layout-check="locate">
             <hcm-icon-button
                 icon="my_location"
                 toggle
@@ -86,6 +93,7 @@ export function zoomButtons(
                 @click=${onLocate}
             ></hcm-icon-button>
         </div>
+        ${shotButton(locale, shot, onShotDirection)}
         <div class="dock compass" data-layout-check="compass">
             <hcm-compass .source=${camera} locale=${locale} title=${translate(locale, 'viewer.compass')} @click=${onCompass}></hcm-compass>
         </div>
@@ -97,6 +105,17 @@ export function zoomButtons(
                 onZoom(-1);
             })}
         </div>`;
+}
+
+/** V93: the round button that turns the map to the image's shot direction, its name its tooltip; none without one. */
+function shotButton(locale: ViewerLocale, shot: number | null, onClick: () => void): TemplateResult {
+    if (shot === null) {
+        return html``;
+    }
+    const label = translate(locale, 'viewer.shotDirection', { degrees: String(Math.round(shot) % 360) });
+    return html`<div class="dock shot" data-layout-check="shot-direction">
+        <hcm-icon-button icon="explore" .label=${label} title=${label} @click=${onClick}></hcm-icon-button>
+    </div>`;
 }
 
 /**

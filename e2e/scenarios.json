@@ -1471,6 +1471,20 @@
             "name": "Licence and citation: the map's own licence, each layer's and photo's rights, a citation to copy and the downloads our licence allows",
             "milestone": "M32",
             "source": "the owner, 2026-11-23 (reports/similar-sites-2026-11-23.md, Licence and download)"
+        },
+        {
+            "id": "V93",
+            "area": "viewer",
+            "name": "Shot direction: a round button under Show my location turns the map to the way the image on top was shot",
+            "milestone": "M32",
+            "source": "the owner, 2026-11-23: satellite and aerial layers get an optional shot direction; the viewer turns the map to it"
+        },
+        {
+            "id": "A233",
+            "area": "admin",
+            "name": "A satellite or aerial layer's shot direction: a compass dial, the degrees typed, Clear, and the USGS scene's direction offered",
+            "milestone": "M32",
+            "source": "the owner, 2026-11-23: satellite and aerial layers get an optional shot direction; the viewer turns the map to it"
         }
     ],
     "scenarios": [
@@ -25431,6 +25445,94 @@
             "tier": "e2e-viewer",
             "status": "exists",
             "notes": "Milestone M32 (the owner, 2026-11-23). Tests: e2e/specs/viewer/favorites-licence.spec.ts, packages/ui/test/viewer/licence.test.ts."
+        },
+        {
+            "id": "S-V93-HAPPY-TURN",
+            "behaviour": "V93",
+            "area": "viewer",
+            "path": "happy",
+            "title": "A click on the shot direction turns the map to the way the image was shot",
+            "asserts": "the 1966 layer with shotDirection 135 on top -> a button named and titled \"Turn the map to the image's shot direction (135°)\"; a click -> the address 14/lat/lng/135 and the camera at bearing 135",
+            "tier": "e2e-viewer",
+            "status": "exists",
+            "notes": "The owner, 2026-11-23. Tests: e2e/specs/viewer/shot-direction.spec.ts, packages/ui/test/viewer/shot-direction.test.ts, packages/engine/test/core/store-shot-direction.test.ts, functions/test/publish/assemble.test.ts."
+        },
+        {
+            "id": "S-V93-HAPPY-TOUR",
+            "behaviour": "V93",
+            "area": "viewer",
+            "path": "happy",
+            "title": "The shot direction button passes the layout and accessibility checks on every window class",
+            "asserts": "expectStateSound on the shot direction journey (focused under Show my location, then the map turned to 135° with the focus kept)",
+            "tier": "e2e-viewer",
+            "status": "exists",
+            "notes": "The owner, 2026-11-23. Test: e2e/tour/viewer.tour.ts (e2e/tour/compass-states.ts)."
+        },
+        {
+            "id": "S-V93-BAD-NO-DIRECTION",
+            "behaviour": "V93",
+            "area": "viewer",
+            "path": "bad",
+            "title": "A layer without a shot direction shows no button",
+            "asserts": "the 1966 layer without shotDirection on top -> Show my location visible, no shot direction dock; today, a drawn map or no manifest -> none",
+            "tier": "e2e-viewer",
+            "status": "exists",
+            "notes": "The owner, 2026-11-23. Tests: e2e/specs/viewer/shot-direction.spec.ts, packages/ui/test/viewer/shot-direction.test.ts, functions/test/publish/assemble.test.ts."
+        },
+        {
+            "id": "S-V93-BAD-ALREADY",
+            "behaviour": "V93",
+            "area": "viewer",
+            "path": "bad",
+            "title": "Already facing the shot direction, a click leaves the map where it is",
+            "asserts": "#14/.../90 with a 90° layer -> a click keeps the address and the bearing 90; the store flies nowhere",
+            "tier": "e2e-viewer",
+            "status": "exists",
+            "notes": "The owner, 2026-11-23. Tests: e2e/specs/viewer/shot-direction.spec.ts, packages/engine/test/core/store-shot-direction.test.ts."
+        },
+        {
+            "id": "S-A233-HAPPY-SHOT-DIAL",
+            "behaviour": "A233",
+            "area": "admin",
+            "path": "happy",
+            "title": "The dial and the degrees set the shot direction, and Save writes it",
+            "asserts": "the dial is a slider named Shot direction; an arrow key turns it a degree; 270 typed; Save -> layers/<id>.shotDirection 45 then 270; the rules allow 0–360",
+            "tier": "e2e-admin",
+            "status": "exists",
+            "notes": "The owner, 2026-11-23. Tests: e2e/admin/specs/layers/shot-direction.spec.ts, packages/ui/test/admin/layers/shot-direction-row.test.ts, packages/ui/test/admin/layers/layer-editor-places.test.ts, firebase/rules-tests/test/layers.test.ts."
+        },
+        {
+            "id": "S-A233-HAPPY-SHOT-USGS",
+            "behaviour": "A233",
+            "area": "admin",
+            "path": "happy",
+            "title": "A layer from a USGS scene with corners offers the frame's direction",
+            "asserts": "the scene's corners (south-west to north-west) -> \"Use the USGS direction (44°)\"; a click fills 44 in the draft only",
+            "tier": "e2e-admin",
+            "status": "exists",
+            "notes": "The owner, 2026-11-23. Tests: e2e/admin/specs/layers/shot-direction.spec.ts, packages/admin/test/layers/shot-suggestion.test.ts."
+        },
+        {
+            "id": "S-A233-BAD-SHOT-DIAL",
+            "behaviour": "A233",
+            "area": "admin",
+            "path": "bad",
+            "title": "Clear removes the shot direction, a drawn map has none, and the rules refuse one out of range",
+            "asserts": "Clear + Save -> no shotDirection; kind Map -> no dial; 361, -1 or text denied by the rules; typed text that is no degree is NaN for the schema",
+            "tier": "e2e-admin",
+            "status": "exists",
+            "notes": "The owner, 2026-11-23. Tests: e2e/admin/specs/layers/shot-direction.spec.ts, packages/ui/test/admin/layers/shot-direction-row.test.ts, firebase/rules-tests/test/layers.test.ts."
+        },
+        {
+            "id": "S-A233-BAD-SHOT-USGS",
+            "behaviour": "A233",
+            "area": "admin",
+            "path": "bad",
+            "title": "No scene, no corners or a failed read offers no USGS direction",
+            "asserts": "a layer with no USGS scene, a scene without corners, a drawn map or a refused read -> no Use the USGS direction button",
+            "tier": "e2e-admin",
+            "status": "exists",
+            "notes": "The owner, 2026-11-23. Tests: e2e/admin/specs/layers/shot-direction.spec.ts, packages/admin/test/layers/shot-suggestion.test.ts."
         }
     ]
 }

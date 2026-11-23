@@ -17,7 +17,7 @@ import { MAP_LABEL_JOURNEY, MAP_LABEL_STATES } from './map-labels-states.js';
 import { ERROR_STATES, expectErrorCard } from './error-states.js';
 import { MY_LOCATION_STATES } from './my-location-states.js';
 import { ZOOM_JOURNEY, ZOOM_STATES } from './zoom-states.js';
-import { COMPASS_JOURNEY, COMPASS_STATES } from './compass-states.js';
+import { COMPASS_JOURNEY, COMPASS_STATES, SHOT_DIRECTION_JOURNEY, SHOT_DIRECTION_STATES } from './compass-states.js';
 import { TIMELINE_JOURNEY, TIMELINE_STATES } from './timeline-states.js';
 import { TIMELINE_CHIP_JOURNEY, TIMELINE_CHIP_STATES, TIMELINE_SCROLL_JOURNEY } from './timeline-chip-states.js';
 import { TIMELINE_OPACITY_JOURNEY, TIMELINE_OPACITY_STATES } from './timeline-opacity-states.js';
@@ -122,6 +122,7 @@ const VIEWER_STATES = {
     ...MY_LOCATION_STATES,
     ...ZOOM_STATES,
     ...COMPASS_STATES,
+    ...SHOT_DIRECTION_STATES,
     ...TIMELINE_STATES,
     ...TIMELINE_CHIP_STATES,
     ...TIMELINE_OPACITY_STATES,
@@ -438,6 +439,7 @@ const VIEWER_JOURNEYS: readonly Journey[] = [
     ...INPUT_JOURNEYS,
     ZOOM_JOURNEY,
     COMPASS_JOURNEY,
+    SHOT_DIRECTION_JOURNEY,
     TIMELINE_JOURNEY,
     TIMELINE_CHIP_JOURNEY,
     TIMELINE_OPACITY_JOURNEY,

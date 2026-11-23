@@ -28,6 +28,8 @@ async function editor(overrides: Partial<EditorContext>): Promise<HTMLElement> {
     const element = await mount<HTMLElement>(
         html`<div>${layerEditor(context(overrides), editorOf(layerDoc({ placeIds: ['p1'] })), { phase: 'idle' })}</div>`,
     );
+    await customElements.whenDefined('hcm-shot-direction');
+    await element.querySelector('hcm-shot-direction')?.updateComplete;
     await updated(element);
     return element;
 }
@@ -72,5 +74,22 @@ describe('the layer editor: places and level', () => {
         expect(element.querySelector('#layer-places')).toBeNull();
         change(element, '#layer-level-order', '1');
         expect(element.querySelector('#layer-level-order')).not.toBeNull();
+    });
+
+    it('happyPath_theShotDirectionTypedIsAnEdit @S-A233-HAPPY-SHOT-DIAL', async () => {
+        const store = new FakeArea<LayersViewState, LayersIntentsPort>(layersState());
+        const element = await editor({ intents: store.intents });
+
+        change(element, '#layer-shot-degrees', '90');
+        change(element, '#layer-shot-degrees', '');
+
+        expect(store.calls.filter((call) => call.startsWith('edit'))).toEqual(['edit {"shotDirection":90}', 'edit {}']);
+    });
+
+    it('badPath_withoutIntentsTheShotDirectionWritesNothing @S-A233-BAD-SHOT-DIAL', async () => {
+        const element = await editor({});
+
+        change(element, '#layer-shot-degrees', '90');
+        expect(element.querySelector('hcm-direction-dial')).not.toBeNull();
     });
 });

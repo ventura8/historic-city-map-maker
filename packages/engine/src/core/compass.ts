@@ -43,6 +43,11 @@ export interface CompassActions {
      * already there, nothing moves. The hash follows from the camera's `moveend`; in swipe compare the second map follows.
      */
     resetNorth(): void;
+    /**
+     * The shot direction button (V93, the owner 2026-11-23): turns the camera to `bearing` (the active satellite or aerial
+     * image's shot direction), animated unless reduced motion, the tilt kept; already facing it, nothing moves. True when it moved.
+     */
+    faceBearing(bearing: number): boolean;
     /** The compass's needle: `listener` gets the camera's bearing and tilt now and on every frame the camera moves. */
     watchCamera(listener: (camera: MapCamera) => void): Unsubscribe;
 }
@@ -62,6 +67,22 @@ export function resetNorth(map: ViewerMapPort, flyer: Flyer, telemetry: Pick<Tel
     }
     flyer.flyMap({ bearing: 0 }, { pitch: 0 });
     telemetry.logEvent({ name: 'compass_reset' });
+    return true;
+}
+
+/** The smallest turn between two bearings, in degrees (0 to 180). */
+export function bearingGap(from: number, to: number): number {
+    const gap = Math.abs(from - to) % 360;
+    return Math.min(gap, 360 - gap);
+}
+
+/** The shot direction's press: the camera turned to `bearing` (0 to 360, 360 is north); true when it moved. */
+export function faceBearing(map: ViewerMapPort, flyer: Flyer, bearing: number): boolean {
+    const target = bearing % 360;
+    if (bearingGap(map.getView().bearing, target) < NORTH_TOLERANCE) {
+        return false;
+    }
+    flyer.flyMap({ bearing: target });
     return true;
 }
 

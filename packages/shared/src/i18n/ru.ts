@@ -76,6 +76,7 @@ export const ru: Messages = {
     'viewer.zoomIn': 'Увеличить',
     'viewer.zoomOut': 'Уменьшить масштаб',
     'viewer.compass': 'Компас: повернуть карту на север',
+    'viewer.shotDirection': 'Повернуть карту по направлению съёмки снимка ({degrees}°)',
     'viewer.compassNorth': 'Карта ориентирована на север.',
     'viewer.compassTurned': 'Карта повёрнута на {degrees}° относительно севера.',
     'viewer.compassTilted': 'Карта повёрнута на {degrees}° относительно севера и наклонена на {tilt}°.',

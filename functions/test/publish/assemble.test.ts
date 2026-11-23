@@ -535,6 +535,24 @@ describe('assembleManifest: place media (docs/research/M17-stories.md §12)', ()
     });
 });
 
+describe('assembleManifest: the shot direction (V93)', () => {
+    it('happyPath_aLayersShotDirectionReachesTheManifest @S-V93-HAPPY-TURN', () => {
+        const layers = result([['flight-1940', layerDoc({ kind: 'aerial', shotDirection: 135 })]]);
+        const manifest = manifestOf(assembleManifest(content({ layers }), TEST_CONFIG.errorEndpoint));
+
+        expect(validateManifest(manifest).ok).toBe(true);
+        expect(manifest.layers[0]?.shotDirection).toBe(135);
+    });
+
+    it('badPath_aLayerWithoutOneHasNone @S-V93-BAD-NO-DIRECTION', () => {
+        const manifest = manifestOf(
+            assembleManifest(content({ layers: result([['flight-1940', layerDoc()]]) }), TEST_CONFIG.errorEndpoint),
+        );
+
+        expect(manifest.layers[0]?.shotDirection).toBeUndefined();
+    });
+});
+
 describe('assembleManifest: place facts (docs/research/M17-stories.md §13)', () => {
     it('happyPath_aPlacesFactsReachTheManifestAndAnUnlistedRelatedPlaceLeaves @S-V81-HAPPY-FACTS', () => {
         const facts = { architects: ['Ion Mincu'], yearBuilt: 1906, relatedPlaceIds: ['enei', 'gone'] };

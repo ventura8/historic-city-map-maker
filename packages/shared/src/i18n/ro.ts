@@ -74,6 +74,7 @@ export const ro = {
     'viewer.zoomIn': 'Mărește harta',
     'viewer.zoomOut': 'Micșorează harta',
     'viewer.compass': 'Busolă: orientează harta spre nord',
+    'viewer.shotDirection': 'Rotește harta în direcția din care a fost făcută imaginea ({degrees}°)',
     'viewer.compassNorth': 'Harta este orientată spre nord.',
     'viewer.compassTurned': 'Harta este rotită cu {degrees}° față de nord.',
     'viewer.compassTilted': 'Harta este rotită cu {degrees}° față de nord și înclinată cu {tilt}°.',

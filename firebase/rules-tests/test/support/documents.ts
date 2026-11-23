@@ -13,6 +13,7 @@ import { CLIENT_WRITES, STORAGE_PATHS, publicObjectUrl, type ClientCollection } 
 
 import { archiveJobFields } from './archive-fields.js';
 import { derivative, footprint, reviewedFields, versionEdits, versionFields } from './photo-fields.js';
+import { LAYER_EDITS } from './layer-edits.js';
 import { POI_CATEGORY_EDITS } from './poi-categories.js';
 import { STORY_EDITS } from './stories.js';
 import { later, past, serverTime, stampedBy, systemStamp, type Data } from './world.js';
@@ -203,9 +204,10 @@ export function layerDoc(): Data {
         opacity: 0.8,
         defaultVisible: true,
         adjustments: { brightnessMin: 0.1, brightnessMax: 0.9, contrast: 0.2, saturation: -0.5 },
-        // M17 §12 and §14: a small-area map's places and a building plan's level.
+        // M17 §12 and §14: a small-area map's places and a building plan's level; V93: the way the camera looked.
         placeIds: ['poi-1'],
         level: { order: 0, label: { ro: 'Parter', en: 'Ground floor' } },
+        shotDirection: 135,
         // M20 (docs/research/M20-import-local.md §7): a drawn map's licence, author and source, written by finalize.
         rights: { licence: 'PD', author: 'IGA', source: { label: 'Idei Urbane – DocuBucurești', url: 'https://ideiurbane.ro/' } },
         status: 'ready',
@@ -655,22 +657,7 @@ export const EDITS: Readonly<Record<ClientCollection, Readonly<Data>>> = {
         credit: 'Maria Popescu',
         ...versionEdits(),
     },
-    layer: {
-        label: { ro: 'București, 1966' },
-        description: { ro: 'Corona KH-4A.' },
-        attribution: 'USGS',
-        rights: { licence: 'CC-BY-SA-4.0', author: 'Institutul Geografic', source: { label: 'Biblioteca Națională' } },
-        year: 1967,
-        date: '1967-05-31',
-        order: 2,
-        opacity: 0,
-        defaultVisible: false,
-        adjustments: { brightnessMin: 0, brightnessMax: 1, contrast: -1, saturation: 1 },
-        published: false,
-        kind: 'map',
-        placeIds: ['poi-1', 'poi-2'],
-        level: { order: 0.5, label: { ro: 'Mezanin' } },
-    },
+    layer: LAYER_EDITS,
     poi: {
         category: 'strazi',
         geometry: { type: 'LineString', points: line(500) },

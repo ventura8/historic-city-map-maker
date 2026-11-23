@@ -75,6 +75,7 @@ export const ja: Messages = {
     'viewer.zoomIn': '地図を拡大',
     'viewer.zoomOut': '地図を縮小',
     'viewer.compass': 'コンパス：地図を北向きにする',
+    'viewer.shotDirection': '地図を画像の撮影方向に回転（{degrees}°）',
     'viewer.compassNorth': '地図は北を向いています。',
     'viewer.compassTurned': '地図は北から{degrees}°回転しています。',
     'viewer.compassTilted': '地図は北から{degrees}°回転し、{tilt}°傾いています。',
