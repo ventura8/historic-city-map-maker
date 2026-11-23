@@ -134,6 +134,7 @@ const EXPORTS = {
         'jobDocSchema',
         'layerDocSchema',
         'photoDocSchema',
+        'storedPhotoDocSchema',
         'poiCategoryDocSchema',
         'poiDocSchema',
         'setupStatusDocSchema',

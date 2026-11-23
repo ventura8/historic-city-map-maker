@@ -225,74 +225,76 @@ const photoReplacementSchema = z.strictObject({
 /** The photo document, its viewed area checked by `viewedArea` (convex on save and publish, any four corners on read). */
 const photoDocObject = (viewedArea: typeof storedViewedAreaSchema) =>
     z
-    .strictObject({
-        /** Absent on a street photo; `aerial` on a photo taken from above (Imagery → aerial photos, the owner 2026-11-16). */
-        kind: z.enum(PHOTO_KINDS).optional(),
-        /** The places whose Media list the photo (M17 §12, the owner 2026-11-22). */
-        placeIds: placeIdsSchema.optional(),
-        /** An interior photo's level (M17 §14). */
-        level: levelOrderSchema.optional(),
-        title: localizedPartial(200),
-        description: localizedPartial(5000).optional(),
-        year: yearSchema.optional(),
-        yearEnd: yearSchema.optional(),
-        /** The date's precision beyond the year (`docs/research/photo-date-source.md`). */
-        month: monthSchema.optional(),
-        day: daySchema.optional(),
-        /** The legacy dating as written (`Iulie 1936`), shown when present (CR-1). */
-        dateText: localizedPartial(100).optional(),
-        author: plainText(200).optional(),
-        license: z.enum(FIRESTORE_LICENSES),
-        rightsHolder: plainText(200).optional(),
-        sourceUrl: httpsUrlSchema.optional(),
-        sourceLabel: plainText(200).optional(),
-        permissionNote: plainText(2000).optional(),
-        legacyId: plainText(64).optional(),
-        links: z.array(linkSchema).max(MAX_LINKS).optional(),
-        /** M13: absent while the photo waits for a place (`docs/research/M13-roles.md` §5); the map lists it apart. */
-        location: latLngSchema.optional(),
-        bearing: bearingSchema.optional(),
-        fov: fovSchema.optional(),
-        /** An aerial photo's ground footprint: four corners, a rectangle or a trapezoid (the owner 2026-11-22). */
-        viewedArea: viewedArea.optional(),
-        published: z.boolean(),
-        rightsReview: z.boolean().optional(),
-        image: photoImageDocSchema.optional(),
-        exif: z.record(z.string().max(64), z.union([z.string().max(500), z.number()])).optional(),
-        processing: z.enum(PROCESSING_STATES),
-        /** Why the last processing failed (`apiError.photo.*`), set with `processing: 'failed'`. */
-        processingError: apiErrorCodeSchema.optional(),
-        /** The photo whose original has the same SHA-256 (flagged, never processed twice: S-A08-BAD-DUPLICATE). */
-        duplicateOf: idSchema.optional(),
-        suggested: photoSuggestionsSchema.optional(),
-        original: photoOriginalDocSchema.optional(),
-        replacement: photoReplacementSchema.optional(),
-        /**
-         * The improved and colorized versions, written by `photos.onUpload` from an upload whose metadata names the version; a
-         * reviewer may only remove one (`firestore.rules`). Their credits are the admin's `versionCredits`.
-         */
-        versions: z.strictObject({ improved: photoVersionDocSchema.optional(), colorized: photoVersionDocSchema.optional() }).optional(),
-        versionCredits: z.strictObject({ improved: plainText(200).optional(), colorized: plainText(200).optional() }).optional(),
-        /**
-         * The latest finalized upload per slot (`photos.onUpload`), so an older upload finishing late never overwrites a
-         * newer image or version.
-         */
-        latestUploads: z
-            .strictObject({
-                image: photoLatestUploadSchema.optional(),
-                improved: photoLatestUploadSchema.optional(),
-                colorized: photoLatestUploadSchema.optional(),
-            })
-            .optional(),
-        /** M13: a pending photo's derivatives, in the private bucket until `review.decide` moves them. */
-        heldImage: heldImageSchema.optional(),
-        ...reviewFields,
-        createdAt: timestampSchema.optional(),
-        createdBy: uidSchema.optional(),
-        ...stamp,
-    })
-    .refine(validYearRange, coded('validation.yearRange', ['yearEnd']))
-    .refine(aimedOnlyIfPlaced, coded('validation.reference', ['bearing']));
+        .strictObject({
+            /** Absent on a street photo; `aerial` on a photo taken from above (Imagery → aerial photos, the owner 2026-11-16). */
+            kind: z.enum(PHOTO_KINDS).optional(),
+            /** The places whose Media list the photo (M17 §12, the owner 2026-11-22). */
+            placeIds: placeIdsSchema.optional(),
+            /** An interior photo's level (M17 §14). */
+            level: levelOrderSchema.optional(),
+            title: localizedPartial(200),
+            description: localizedPartial(5000).optional(),
+            year: yearSchema.optional(),
+            yearEnd: yearSchema.optional(),
+            /** The date's precision beyond the year (`docs/research/photo-date-source.md`). */
+            month: monthSchema.optional(),
+            day: daySchema.optional(),
+            /** The legacy dating as written (`Iulie 1936`), shown when present (CR-1). */
+            dateText: localizedPartial(100).optional(),
+            author: plainText(200).optional(),
+            license: z.enum(FIRESTORE_LICENSES),
+            rightsHolder: plainText(200).optional(),
+            sourceUrl: httpsUrlSchema.optional(),
+            sourceLabel: plainText(200).optional(),
+            permissionNote: plainText(2000).optional(),
+            legacyId: plainText(64).optional(),
+            links: z.array(linkSchema).max(MAX_LINKS).optional(),
+            /** M13: absent while the photo waits for a place (`docs/research/M13-roles.md` §5); the map lists it apart. */
+            location: latLngSchema.optional(),
+            bearing: bearingSchema.optional(),
+            fov: fovSchema.optional(),
+            /** An aerial photo's ground footprint: four corners, a rectangle or a trapezoid (the owner 2026-11-22). */
+            viewedArea: viewedArea.optional(),
+            published: z.boolean(),
+            rightsReview: z.boolean().optional(),
+            image: photoImageDocSchema.optional(),
+            exif: z.record(z.string().max(64), z.union([z.string().max(500), z.number()])).optional(),
+            processing: z.enum(PROCESSING_STATES),
+            /** Why the last processing failed (`apiError.photo.*`), set with `processing: 'failed'`. */
+            processingError: apiErrorCodeSchema.optional(),
+            /** The photo whose original has the same SHA-256 (flagged, never processed twice: S-A08-BAD-DUPLICATE). */
+            duplicateOf: idSchema.optional(),
+            suggested: photoSuggestionsSchema.optional(),
+            original: photoOriginalDocSchema.optional(),
+            replacement: photoReplacementSchema.optional(),
+            /**
+             * The improved and colorized versions, written by `photos.onUpload` from an upload whose metadata names the version; a
+             * reviewer may only remove one (`firestore.rules`). Their credits are the admin's `versionCredits`.
+             */
+            versions: z
+                .strictObject({ improved: photoVersionDocSchema.optional(), colorized: photoVersionDocSchema.optional() })
+                .optional(),
+            versionCredits: z.strictObject({ improved: plainText(200).optional(), colorized: plainText(200).optional() }).optional(),
+            /**
+             * The latest finalized upload per slot (`photos.onUpload`), so an older upload finishing late never overwrites a
+             * newer image or version.
+             */
+            latestUploads: z
+                .strictObject({
+                    image: photoLatestUploadSchema.optional(),
+                    improved: photoLatestUploadSchema.optional(),
+                    colorized: photoLatestUploadSchema.optional(),
+                })
+                .optional(),
+            /** M13: a pending photo's derivatives, in the private bucket until `review.decide` moves them. */
+            heldImage: heldImageSchema.optional(),
+            ...reviewFields,
+            createdAt: timestampSchema.optional(),
+            createdBy: uidSchema.optional(),
+            ...stamp,
+        })
+        .refine(validYearRange, coded('validation.yearRange', ['yearEnd']))
+        .refine(aimedOnlyIfPlaced, coded('validation.reference', ['bearing']));
 
 export const photoDocSchema = withPhotoDate(photoDocObject(viewedAreaSchema));
 

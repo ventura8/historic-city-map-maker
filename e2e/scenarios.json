@@ -24704,7 +24704,7 @@
             "asserts": "an aerial photo whose stored area crosses itself -> the Viewed area section shows the validation.viewedArea message; Reset clears it",
             "tier": "e2e-admin",
             "status": "exists",
-            "notes": "Test: e2e/admin/specs/photos/viewed-area.spec.ts. The owner, 2026-11-22. Unit coverage today: packages/admin/test/photos/store.test.ts (area.refused)."
+            "notes": "Test: e2e/admin/specs/photos/viewed-area.spec.ts. The owner, 2026-11-22. Unit coverage today: packages/admin/test/photos/store.test.ts (area.refused); packages/shared/test/schemas/firestore.test.ts (a stored crossed area is read, storedPhotoDocSchema)."
         },
         {
             "id": "S-V77-HAPPY-MANIFEST",

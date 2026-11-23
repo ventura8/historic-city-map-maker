@@ -70,7 +70,7 @@ export type { PhotosOverlay, Poi, PoiCategory, PoiIcon } from './schemas/poi.js'
 export * from './schemas/place-facts.js';
 export * from './overlays/place-media.js';
 export { hasPlaceYear, latestPlaceYear, placeYearIssues, type PlaceYears } from './schemas/place-year.js';
-export { storyDocSchema, type StoryDoc } from './schemas/firestore.js';
+export { storedPhotoDocSchema, storyDocSchema, type StoryDoc } from './schemas/firestore.js';
 export { MAX_STORIES, MAX_STORY_LINKS, MAX_STORY_TEXT, storySchema, type Story } from './schemas/story.js';
 // M31 (docs/research/M31-wikipedia.md): the Wikipedia overlay's file, state, settings and its articles as places.
 export * from './schemas/wikipedia.js';
@@ -112,7 +112,6 @@ export {
     layerDocSchema,
     mapboxTokenIdSchema,
     photoDocSchema,
-    storedPhotoDocSchema,
     poiCategoryDocSchema,
     poiDocSchema,
 } from './schemas/firestore.js';

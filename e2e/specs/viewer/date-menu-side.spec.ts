@@ -78,8 +78,9 @@ for (const [width, height] of [
             const datesBox = await dates.boundingBox();
             const slidersBox = await sliders.boundingBox();
             expect(datesBox !== null && slidersBox !== null && sideBySide(datesBox, slidersBox), 'one row').toBe(true);
-            const bottoms = datesBox !== null && slidersBox !== null ? Math.abs(datesBox.y + datesBox.height - (slidersBox.y + slidersBox.height)) : 99;
-            expect(bottoms, 'the dates and the sliders end on one line').toBeLessThanOrEqual(1);
+            const bottomOf = (box: { readonly y: number; readonly height: number } | null): number =>
+                (box?.y ?? Number.NaN) + (box?.height ?? 0);
+            expect(Math.abs(bottomOf(datesBox) - bottomOf(slidersBox)), 'the dates and the sliders end on one line').toBeLessThanOrEqual(1);
             for (const box of [datesBox, slidersBox]) {
                 expect(box !== null && box.x >= 0 && box.x + box.width <= width, 'inside the window').toBe(true);
             }
