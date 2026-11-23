@@ -553,7 +553,16 @@ describe('manifest v1: every rule reports a localized code', () => {
 describe('the licences', () => {
     it('happyPath_everyCreativeCommonsLicenceHasItsLegalCode @S-A232-HAPPY-LICENCES', () => {
         const cc = LICENSES.filter((license) => license.startsWith('CC'));
-        expect(cc).toEqual(['CC0', 'CC-BY-4.0', 'CC-BY-SA-4.0', 'CC-BY-3.0', 'CC-BY-SA-3.0', 'CC-BY-SA-3.0-RO', 'CC-BY-2.0', 'CC-BY-SA-2.0']);
+        expect(cc).toEqual([
+            'CC0',
+            'CC-BY-4.0',
+            'CC-BY-SA-4.0',
+            'CC-BY-3.0',
+            'CC-BY-SA-3.0',
+            'CC-BY-SA-3.0-RO',
+            'CC-BY-2.0',
+            'CC-BY-SA-2.0',
+        ]);
         expect(cc.every((license) => LICENSE_URLS[license]?.startsWith('https://creativecommons.org/') === true)).toBe(true);
         expect(LICENSE_URLS['CC-BY-SA-3.0-RO']).toBe('https://creativecommons.org/licenses/by-sa/3.0/ro/');
     });

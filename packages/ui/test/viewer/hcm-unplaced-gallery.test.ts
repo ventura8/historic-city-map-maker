@@ -53,7 +53,10 @@ describe('<hcm-unplaced-gallery>', () => {
 
     it('happyPath_aCreativeCommonsLicenceLinksToItsLegalCode @S-A232-HAPPY-LICENCES', async () => {
         const element = await mountElement<HcmUnplacedGallery>(HCM_UNPLACED_GALLERY_TAG, {
-            photos: [{ ...unplaced(), id: 'cc', license: 'CC-BY-SA-3.0-RO' }, { ...unplaced(), id: 'pd', license: 'PD' }],
+            photos: [
+                { ...unplaced(), id: 'cc', license: 'CC-BY-SA-3.0-RO' },
+                { ...unplaced(), id: 'pd', license: 'PD' },
+            ],
             manifestUrl: TEST_MANIFEST_URL,
             contributeUrl: null,
             locale: 'en',

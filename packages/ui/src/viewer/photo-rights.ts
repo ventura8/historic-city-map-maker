@@ -22,8 +22,7 @@ function licenseLine(license: License, locale: ViewerLocale): TemplateResult {
 export function photoRights(photo: Photo | UnplacedPhoto, locale: ViewerLocale): TemplateResult {
     const { author, rightsHolder: holder } = photo;
     return html`${line(author === undefined ? undefined : translate(locale, 'photo.author', { author }))}
-        ${licenseLine(photo.license, locale)}
-        ${line(holder === undefined ? undefined : translate(locale, 'photo.rightsHolder', { holder }))}
-        ${photo.rightsReview === true ? html`<p class="note">${translate(locale, 'photo.rightsReview')}</p>` : nothing}
-        ${creditLine(photo.credit, locale)}`;
+    ${licenseLine(photo.license, locale)} ${line(holder === undefined ? undefined : translate(locale, 'photo.rightsHolder', { holder }))}
+    ${photo.rightsReview === true ? html`<p class="note">${translate(locale, 'photo.rightsReview')}</p>` : nothing}
+    ${creditLine(photo.credit, locale)}`;
 }
