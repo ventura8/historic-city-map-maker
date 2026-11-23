@@ -167,6 +167,31 @@ describe('the draft slot', () => {
         expect(deep(deep(busy, '.actions'), 'hcm-button').hasAttribute('disabled')).toBe(true);
     });
 
+    it('happyPath_anUntruncatedRomanianDraftKeepsItsNoteAndReadOnlyDisablesTheButton', async () => {
+        const view: AssistViewPort = {
+            ...IDLE,
+            drafts: { 'dateText.ro': { status: 'done', model: null, truncated: false, error: null } },
+        };
+        const drafted = await render(
+            draftAssist({
+                locale: 'en',
+                view,
+                actions: actions(),
+                field: 'dateText',
+                text: { ro: '1930', en: '1930' },
+                readOnly: false,
+            }),
+        );
+        expect(deepText(deep(drafted, '[data-draft-note]'))).toBe('Automatic draft: check it before you save.');
+        expect(deepAll(drafted, '.actions')).toHaveLength(0);
+        expect(deep(drafted, '[role="status"]').textContent).toBe('');
+
+        const locked = await render(
+            draftAssist({ locale: 'en', view: IDLE, actions: actions(), field: 'title', text: { ro: 'Ateneul' }, readOnly: true }),
+        );
+        expect(deep(deep(locked, '.actions'), 'hcm-button').hasAttribute('disabled')).toBe(true);
+    });
+
     it('badPath_anEmptyPairOffersNothing', async () => {
         const element = await render(
             draftAssist({ locale: 'en', view: IDLE, actions: actions(), field: 'title', text: undefined, readOnly: false }),
