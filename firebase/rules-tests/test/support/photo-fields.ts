@@ -54,5 +54,10 @@ export function versionEdits(): Data {
 export function footprint(north: number, west: number): Data[] {
     const east = west + 0.002;
     const south = north - 0.002;
-    return [{ lat: north, lng: west }, { lat: north, lng: east }, { lat: south, lng: east }, { lat: south, lng: west }];
+    return [
+        { lat: north, lng: west },
+        { lat: north, lng: east },
+        { lat: south, lng: east },
+        { lat: south, lng: west },
+    ];
 }
