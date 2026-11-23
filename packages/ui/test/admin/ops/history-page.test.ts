@@ -244,7 +244,7 @@ describe('<hcm-history-page>: its other states and the values as text', () => {
             'Area, positions: 4',
         );
         expect(describeValue('en', 'geometry', { type: 'Polygon' })).toBe('Area, positions: 0');
-        expect(describeValue('ro', 'geometry', { type: 'LineString', points: [{}, {}] })).toBe('Linie, poziții: 2');
+        expect(describeValue('ro', 'geometry', { type: 'LineString', points: [{}, {}] })).toBe('Traseu, poziții: 2');
         expect(describeValue('en', 'geometry', { type: 'MultiPoint' })).toBe('MultiPoint, positions: 0');
         expect(describeValue('en', 'adjustments', { contrast: 0.2, saturation: 'x' })).toBe('contrast 20%, saturation ?');
         expect(describeValue('en', 'adjustments', {})).toBe('(none)');

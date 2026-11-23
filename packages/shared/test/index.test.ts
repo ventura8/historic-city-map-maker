@@ -380,6 +380,7 @@ const EXPORTS = {
         'georefSchema',
         'pixelSchema',
         'placeFactsSchema',
+        'categoryLabel',
         'placeMedia',
         'placeMediaGroup',
         'placeMediaKinds',

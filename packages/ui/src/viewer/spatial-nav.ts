@@ -123,6 +123,12 @@ function inColumn(element: HTMLElement, start: Box): boolean {
     return start.left <= middle && middle <= start.right;
 }
 
+/** From the map: the controls in its column when there are any, else every one. */
+function columnFirst(reachable: readonly HTMLElement[], start: Box): readonly HTMLElement[] {
+    const column = reachable.filter((element) => inColumn(element, start));
+    return column.length > 0 ? column : reachable;
+}
+
 /** Whether `element` shows inside `screen`: a control scrolled out of a pane (past the screen's bottom) is not on screen. */
 function onScreen(element: HTMLElement, screen: Box): boolean {
     const box = element.getBoundingClientRect();
@@ -140,8 +146,7 @@ export function moveFocus(viewer: HTMLElement, direction: Direction): boolean {
     const from = control === null ? mapStart(viewer, root) : control.getBoundingClientRect();
     const screen = viewer.getBoundingClientRect();
     const reachable = tabbableElements(root).filter((element) => element !== active && !isInert(element) && onScreen(element, screen));
-    const column = control === null ? reachable.filter((element) => inColumn(element, from)) : [];
-    const target = nearest(from, column.length > 0 ? column : reachable, direction);
+    const target = nearest(from, control === null ? columnFirst(reachable, from) : reachable, direction);
     target?.focus();
     return target !== null;
 }

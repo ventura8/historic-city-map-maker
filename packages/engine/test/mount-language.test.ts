@@ -1,6 +1,7 @@
 /** The public API in the viewer's sixteen languages: `setLang`, and a boot error in a language fetched first (V11, V17). */
 import { registerCatalogue, type ViewerLocale } from '@hcm/shared';
 import { VIEWER_CATALOGUES } from '@hcm/shared/viewer-catalogues';
+import type { HcmMapViewer } from '@hcm/ui';
 import { describe, expect, it } from 'vitest';
 
 import type { CatalogueLoader } from '../src/core/catalogues.js';
@@ -101,7 +102,7 @@ describe('a boot error in a language not bundled', () => {
 
         mount(new FakeContainer().element, undefined, world.env);
         // Connected before its card has its texts, as a page's container appends it: the declared bootstrap leaves it be.
-        bootDeclaredIn(() => world.env)(world.viewer);
+        bootDeclaredIn(() => world.env)(world.viewer as unknown as HcmMapViewer);
         await settle();
 
         expect(world.viewer.bootError).toEqual({ code: 'error.config.missing', retryable: false });
