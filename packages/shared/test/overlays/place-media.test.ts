@@ -114,6 +114,27 @@ describe('withPlaceMedia (M17 §15)', () => {
         expect(withPlaceMedia(shown)).toBe(shown);
     });
 
+    it('happyPath_aPlanIsItsFootprintAndAMapWithNoBoundsIsThePlaceItself @S-V83-HAPPY-PLACE-MEDIA-LAYER', () => {
+        const raw = validManifest() as { layers: Record<string, unknown>[] };
+        const first = raw.layers[0] ?? {};
+        const unbounded = Object.fromEntries(Object.entries(first).filter(([key]) => key !== 'bounds'));
+        raw.layers = [
+            { ...first, placeIds: ['casa-uranus'], level: { order: 0, label: { ro: 'Parter' } } },
+            { ...unbounded, id: 'fara-margini', placeIds: ['casa-uranus'] },
+        ];
+        const shown = withPlaceMedia(manifestSchema.parse(raw));
+
+        const entries = (shown.pois ?? []).filter((poi) => poi.category === PLACE_MEDIA_CATEGORY);
+        expect(entries.map((poi) => [poi.group, poi.geometry.type])).toContainEqual(['media:maps', 'Point']);
+        expect(entries.map((poi) => [poi.group, poi.geometry.type])).toContainEqual(['media:plans', 'Polygon']);
+    });
+
+    it('badPath_aManifestWithNoPlacesCategoriesOrUnplacedPhotosIsKept @S-V83-BAD-NO-MEDIA', () => {
+        const bare = { layers: [], photos: [] };
+
+        expect(withPlaceMedia(bare)).toBe(bare);
+    });
+
     it('badPath_aCityWithoutMediaKeepsItsManifest @S-V83-BAD-NO-MEDIA', () => {
         const raw = validManifest() as { pois: Record<string, unknown>[] };
         raw.pois[0] = { ...raw.pois[0], photoIds: [] };

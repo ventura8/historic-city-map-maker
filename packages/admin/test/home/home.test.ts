@@ -1,5 +1,5 @@
 import { FIRESTORE_PATHS } from '@hcm/shared';
-import { describe, expect, it } from 'vitest';
+import { beforeAll, describe, expect, it } from 'vitest';
 
 import { RECONNECT_DELAYS_MS } from '../../src/content/live.js';
 import { healthChipsOf, HOME_MODULE, publicMapOf } from '../../src/home/home.js';
@@ -50,6 +50,12 @@ async function settled(): Promise<void> {
         await Promise.resolve();
     }
 }
+
+// The dashboard fetches its Monthly costs and Visitors chunks without waiting: loaded here first, so a slow first load never
+// lands after the file's environment is torn down (EnvironmentTeardownError on a busy machine, 2026-11-23).
+beforeAll(async () => {
+    await Promise.all([import('../../src/home/costs.js'), import('../../src/home/visitors.js')]);
+});
 
 describe('the dashboard', () => {
     it('happyPath_countsTheCityAndWhatWaitsAndFollowsTheServicesAndThePublicMap', async () => {

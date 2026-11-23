@@ -1,7 +1,7 @@
 import { decodeHash } from '@hcm/shared';
 import { describe, expect, it } from 'vitest';
 
-import { adoptQueryLink } from '../../src/core/page-sources.js';
+import { adoptQueryLink, locationOf } from '../../src/core/page-sources.js';
 import { initialState, withManifest } from '../../src/core/state.js';
 import { applyDecodedHash, hashLimits, unknownToast } from '../../src/core/url-sync.js';
 import { manifest } from './fixtures.js';
@@ -45,5 +45,25 @@ describe('deep links', () => {
         expect(applied.unknownLayer).toBeUndefined();
         expect(unknownToast(applied)).toBeNull();
         expect(applied.state.year).toBe(1966);
+    });
+
+    it('happyPath_thePageAddressAdoptsItsQueryLinkOnceAtMount', () => {
+        const page = {
+            location: { pathname: '/', search: '?layer=kh9-1980', hash: '#15/1/2' },
+            history: {
+                state: null,
+                replaceState: (_state: unknown, _title: string, url: string) => {
+                    const [path = '', hash = ''] = url.split('#');
+                    const [, search = ''] = path.split('?');
+                    page.location.search = search === '' ? '' : `?${search}`;
+                    page.location.hash = `#${hash}`;
+                },
+            },
+        };
+
+        const location = locationOf(page as unknown as Window);
+
+        expect(page.location.search).toBe('');
+        expect(location.hash).toBe('#15/1/2&layers=kh9-1980');
     });
 });

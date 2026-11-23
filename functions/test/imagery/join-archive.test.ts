@@ -163,11 +163,7 @@ describe('imagery.join: archive maps', () => {
         const ready = await readyWorld();
         await seedVersion(ready, NORTH, archiveMap('n', 'N', { state: 'joined', partOf: 'old-join' }));
         await seedVersion(ready, SOUTH, archiveMap('s', 'S', { state: 'joined', partOf: 'old-join' }));
-        await seedVersion(
-            ready,
-            'old-join',
-            archiveMap('both', 'N + S', { origin: 'join', state: 'rejected', source: OLD_JOIN }),
-        );
+        await seedVersion(ready, 'old-join', archiveMap('both', 'N + S', { origin: 'join', state: 'rejected', source: OLD_JOIN }));
 
         const answer = await join(ready, [NORTH, SOUTH]);
 
@@ -242,5 +238,15 @@ describe('a join of archive maps: its title and credit', () => {
         expect(labelOf(parts).ro).toBe('N + S');
         expect(rightsOf(parts)).toBeUndefined();
         expect(commonTitle([])).toBe('');
+    });
+
+    it('badPath_aLongSeriesWithNoSharedTitleBecomesItsCommonStartAndCount', () => {
+        const sheets = (prefix: string) => Array.from({ length: 15 }, (_, index) => part(`${prefix}${String(index)} foaia lungă de hartă`));
+
+        // The labels share " Plan" inside their first word: cut back to the space before it, then trimmed away.
+        expect(labelOf(sheets(' Plan'))).toEqual({ ro: '(15 foi)', en: '(15 sheets)' });
+        expect(labelOf(sheets('Plan')).ro).toBe('(15 foi)');
+        // A first label that is all the labels share is the start as it is.
+        expect(labelOf([part(''), ...sheets('Z')]).ro).toBe('(16 foi)');
     });
 });

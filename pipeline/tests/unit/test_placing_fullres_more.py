@@ -165,3 +165,15 @@ def test_happy_path_each_layout_rebuilds_its_record(world: PipelineWorld, tmp_pa
     monkeypatch.setattr(rebuild, "series_of", lambda _ctx: series)
     world.store.update(world.version_path(), {"help": {"stitched": {"method": "atlas"}}})
     assert rebuild.rebuilt(ctx, tmp_path / "x.tif", (40, 20)) is False
+
+
+def test_happy_path_a_framed_grid_rebuilds_its_record(world: PipelineWorld, tmp_path: Path, monkeypatch: pytest.MonkeyPatch) -> None:
+    """Scenarios: S-P20-HAPPY-FULLRES"""
+    ctx, _scan = regeoref(world, tmp_path, sheets=3)
+    record = fullres.Recorded((fullres.Part(tmp_path / "a.tif", (0, 0, 10, 10), numpy.eye(3)),), (20, 10))
+    monkeypatch.setattr(grid, "parsed", lambda _series: SimpleNamespace(cells=["cell"], scheme="scheme"))
+    monkeypatch.setattr(grid, "framed", lambda cells, _scheme: list(cells))
+    monkeypatch.setattr(grid, "quarter_order", lambda _rectified, _scheme: 0)
+    monkeypatch.setattr(grid, "mosaic_of", lambda _rectified, _scheme, _order: SimpleNamespace(record=record))
+
+    assert rebuild.BUILDERS["grid"](ctx, cast(SeriesJob, SimpleNamespace(sheets=()))) == record

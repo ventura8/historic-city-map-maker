@@ -13,6 +13,12 @@ describe('<hcm-crashes-list-page>', () => {
     beforeAll(defineAll);
     afterEach(cleanup);
 
+    it('badPath_withoutTheCrashesStoreThePageShowsNothing', async () => {
+        const { element } = await page('crashes', null);
+
+        expect(deepAll(element, 'hcm-list-detail')).toEqual([]);
+    });
+
     it('happyPath_theGroupsOfAPeriodAndTheSelectedGroupsDetailWithTheConsoleLink', async () => {
         const crashes = new FakeArea<CrashesViewState, CrashesIntentsPort>(crashesState({ selected: 'g1', nextPageToken: 'next' }));
         const { element } = await page('crashes', crashes);

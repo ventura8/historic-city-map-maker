@@ -24,14 +24,17 @@ function turn(a: LngLat, b: LngLat, c: LngLat): number {
  * With four corners that also means the edges never cross (a crossed "bow tie" turns both ways).
  */
 export function isConvexQuad(corners: readonly LngLat[]): boolean {
-    if (corners.length !== VIEWED_AREA_CORNERS) {
+    if (!isQuad(corners)) {
         return false;
     }
-    const next = [...corners.slice(1), ...corners.slice(0, 1)];
-    const after = [...corners.slice(2), ...corners.slice(0, 2)];
-    const turns = corners.map((corner, index) => turn(corner, next[index] ?? corner, after[index] ?? corner));
-    const first = turns[0] ?? 0;
-    return first !== 0 && turns.every((sign) => sign === first);
+    const [one, two, three, four] = corners;
+    const first = turn(one, two, three);
+    return first !== 0 && [turn(two, three, four), turn(three, four, one), turn(four, one, two)].every((sign) => sign === first);
+}
+
+/** Exactly four corners, typed as such. */
+function isQuad(corners: readonly LngLat[]): corners is readonly [LngLat, LngLat, LngLat, LngLat] {
+    return corners.length === VIEWED_AREA_CORNERS;
 }
 
 /**

@@ -130,3 +130,12 @@ def test_bad_path_an_atlas_title_index_and_legend_pages_stay_out_of_the_order() 
     assert len(grid.cells) == 18
     assert sheetnames.titled(["a1.tif", "b2.tif"]) == ()
     assert sheetnames.titled([]) == ()
+
+
+def test_bad_path_two_sheets_that_barely_meet_once_placed_prove_nothing(monkeypatch: pytest.MonkeyPatch) -> None:
+    images = {0: numpy.full((40, 40), 128, numpy.uint8), 1: numpy.full((40, 40), 128, numpy.uint8)}
+    link = overlaps.Link(0, 1, 0.0, 1.0, (20.0, 20.0), (20.0, 20.0), 50)
+    placed = overlaps.placed([link], {0: 0.0, 1: 0.0}, dict.fromkeys((0, 1), (40, 40)))
+    monkeypatch.setattr(featured, "_between", lambda _placed, _link, _cell: numpy.asarray([[1.0, 0.0, 39.0], [0.0, 1.0, 39.0]]))
+
+    assert featured.proof(images, placed, link, (40, 40)) == 0.0
