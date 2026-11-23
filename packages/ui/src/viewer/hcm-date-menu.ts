@@ -86,12 +86,12 @@ export class HcmDateMenu extends LitElement {
                 pointer-events: auto;
             }
 
-            /* The dates and the sliders in one row, placed as one box: never stacked, never over each other. */
+            /* The dates and the sliders in one row, placed as one box: never stacked, never over each other; their bottoms aligned. */
             .pair {
                 position: absolute;
                 display: flex;
                 gap: 8px;
-                align-items: flex-start;
+                align-items: flex-end;
                 box-sizing: border-box;
                 max-inline-size: calc(100% - 16px);
                 max-block-size: calc(100% - 58px);
