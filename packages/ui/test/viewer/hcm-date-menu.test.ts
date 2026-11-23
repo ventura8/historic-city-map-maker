@@ -258,6 +258,7 @@ describe('<hcm-date-menu> as a peek (a pointer resting on the year)', () => {
         const sliders = document.createElement('div');
         sliders.style.cssText = 'height: 900px';
         element.append(sliders);
+        element.anchor = { ...ANCHOR, y: ANCHOR.y + 1 };
         await element.updateComplete;
         const pair = shadowQuery(element, '.pair').getBoundingClientRect();
         expect(pair.bottom - element.getBoundingClientRect().top).toBeLessThanOrEqual(card.y - 8 + 0.5);

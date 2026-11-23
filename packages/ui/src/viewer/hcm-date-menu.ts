@@ -36,7 +36,7 @@ type Box = DatesOpenDetail['anchor'];
 /** The properties that move or resize the menu or its sliders. */
 const PLACING: readonly (keyof HcmDateMenu)[] = ['anchor', 'side', 'items', 'vertical'];
 
-/** The top of the box the anchor lies in (the timeline's card around its thumb), else the anchor's own. */
+/** The top of the box the anchor lies in (the card around its thumb): above a lying card the row starts there, never over it. */
 function cardTop(anchor: Box, boxes: readonly Box[]): number {
     const x = anchor.x + anchor.width / 2;
     const y = anchor.y + anchor.height / 2;
@@ -299,14 +299,13 @@ export class HcmDateMenu extends LitElement {
         const local = (box: Box): Box => ({ x: box.x - host.x, y: box.y - host.y, width: box.width, height: box.height });
         const avoided = this.avoid().map(local);
         const side = this.#side();
-        // Above a lying card: from the card's top, not the thumb's, so the row never reaches down over the card.
         const thumb = local(at);
         const top = side === 'above' ? cardTop(thumb, avoided) : thumb.y;
         const anchor = { ...thumb, y: top, height: thumb.y + thumb.height - top };
         const widest = this.side ? PAIR_MAX_WIDTH : MAX_WIDTH;
         pair.style.setProperty('max-inline-size', `${String(sideRoom(anchor, host.width, side, widest))}px`);
         pair.style.setProperty('max-block-size', `${String(pairHeight(anchor, host.height, side))}px`);
-        // Measured at the corner: an absolute box shrinks to the room past its left, so a box placed right was measured narrow.
+        // Measured at the corner: an absolute box shrinks to the room past its left (a box placed right measured narrow).
         pair.style.setProperty('left', '0px');
         const size = { width: pair.offsetWidth, height: pair.offsetHeight };
         const wanted = { ...dateMenuOrigin(anchor, size, host, side), ...size };
