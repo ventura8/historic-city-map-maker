@@ -201,6 +201,21 @@ function fixTilesButton(shown: Shown): TemplateResult {
     return action(shown, { offered, icon: 'tune', label: 'adminContent.imagery.fixTiles' }, () => shown.context.intents?.fixTiles?.());
 }
 
+/** States a single map may be drawn again in, from its original with its own points. */
+const REDRAWABLE: ReadonlySet<string> = new Set(['published', 'awaiting_approval']);
+
+/** 2026-11-23: a single map placed by points (not a join, not a series laid out by tiles), on the map or waiting for approval. */
+export function redrawable(version: VersionViewPort | null): boolean {
+    const georef = version?.georef;
+    const placed = georef !== null && georef !== undefined && georef.method !== 'embedded' && georef.pairs > 0;
+    return placed && version !== null && version.origin !== 'join' && version.relayoutable !== true && REDRAWABLE.has(version.state);
+}
+
+function redrawButton(shown: Shown): TemplateResult {
+    const offered = redrawable(shown.version);
+    return action(shown, { offered, icon: 'replay', label: 'adminContent.imagery.redraw' }, () => shown.context.intents?.redraw?.());
+}
+
 /** An upload the server refused: the Upload view again, with nothing chosen. */
 function uploadAnother({ context, job }: Shown): TemplateResult {
     const again = (): void => {
@@ -467,7 +482,7 @@ function body(shown: Shown): TemplateResult {
     return html`<div class="pane" data-version=${page.id} data-state=${stateOf(version, job)}>
         ${heading(shown)} ${reconnectingStatus(locale, reconnecting)} ${progress(locale, job)} ${failure(shown)}
         <div class="actions">
-            ${retryButton(shown)} ${locateButton(shown)} ${fixTilesButton(shown)} ${uploadAnother(shown)} ${mapboxSetupLink(shown)}
+            ${retryButton(shown)} ${locateButton(shown)} ${fixTilesButton(shown)} ${redrawButton(shown)} ${uploadAnother(shown)} ${mapboxSetupLink(shown)}
             ${tilesLink(shown)} ${georefLink(shown)} ${deleteVersionButton(shown)}
             ${makeLiveAction(shown.context, shown.page, shown.version)}
         </div>

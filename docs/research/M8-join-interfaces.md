@@ -725,3 +725,15 @@ pipeline (`join/plan.py`). Scenarios: S-A65-HAPPY/BAD-ARCHIVE-JOIN-AGAIN.
 **A layer's bounds are its data's** (live 2026-11-22): `export` writes the alpha's extent (`valid_bounds`), finalize takes the box of
 the measured `outline` when there is one (`layer-bounds.ts`), and `imagery.tick`'s `bounds` part corrects, once, every layer published
 with the city's window as its bounds. Scenarios: S-A65-HAPPY/BAD-DATA-BOUNDS, S-P06-HAPPY/BAD-VALID-BOUNDS.
+
+## 21. Replacing a join's sheets on its layer (2026-11-23)
+
+`imagery.join` with `versionIds` takes an optional `targetLayerId`: the parts join onto that layer as its next version, and only
+they are its parts (the old sheets drop out; their layers stay as they are). A join of the target still waiting for a person
+(`needs_gcps`, `awaiting_approval`, `approved`) is rejected first; a version still running refuses with `joinLayerBusy`. The new
+sheets' own layers retire when the join publishes (`finalize-join.ts`, `retired`), hidden from the map and never deleted. The
+admin offers it on a published archive join as **Replace the sheets of this join** (`hcm-archive-join.ts`): tick at least two
+sheets, then **Join the N sheets onto this layer**. Scenarios: S-A65-HAPPY-JOIN-TARGET, S-A65-BAD-JOIN-TARGET.
+
+A single map placed by points is offered **Redraw at full resolution** on its version page: `imagery.saveGcps` with its own
+transform, points and crop, so the warp runs again from the original (S-A16-HAPPY-REDRAW).

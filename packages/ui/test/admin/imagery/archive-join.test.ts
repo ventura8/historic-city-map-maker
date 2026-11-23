@@ -26,6 +26,7 @@ const NORTH = versionView({
 interface Asked {
     readonly candidates: string[];
     readonly joins: (readonly string[])[];
+    readonly targets: (string | undefined)[];
 }
 
 function intents(asked: Asked, found: readonly ArchiveJoinCandidatePort[], joined: string | null): ImageryIntentsPort {
@@ -34,8 +35,9 @@ function intents(asked: Asked, found: readonly ArchiveJoinCandidatePort[], joine
             asked.candidates.push(version.id);
             return Promise.resolve(found);
         },
-        joinArchive: (versionIds) => {
+        joinArchive: (versionIds, targetLayerId) => {
             asked.joins.push(versionIds);
+            asked.targets.push(targetLayerId);
             return Promise.resolve(joined);
         },
     };
@@ -43,7 +45,7 @@ function intents(asked: Asked, found: readonly ArchiveJoinCandidatePort[], joine
 }
 
 async function mount(version: VersionViewPort, found: readonly ArchiveJoinCandidatePort[], joined: string | null = 'jn-n') {
-    const asked: Asked = { candidates: [], joins: [] };
+    const asked: Asked = { candidates: [], joins: [], targets: [] };
     const element = document.createElement(HCM_ARCHIVE_JOIN_TAG);
     element.locale = 'en';
     element.intents = intents(asked, found, joined);
@@ -117,6 +119,58 @@ describe('<hcm-archive-join>', () => {
         await updated(element);
 
         expect(asked.joins).toEqual([['ar-north', 'rg-west', 'rg-south']]);
+    });
+
+    it('happyPath_aPublishedJoinsSheetsAreReplacedByTheTickedOnesOnItsLayer @S-A65-HAPPY-JOIN-TARGET', async () => {
+        const parts = [
+            { versionId: 'ar-north', layerId: 'n', entityId: 'ar-north' },
+            { versionId: 'rg-west', layerId: 'w', entityId: 'rg-west' },
+        ];
+        const east: ArchiveJoinCandidatePort = { id: 'rg-east', layerId: 'e', label: { ro: 'E' }, year: 1978, state: 'awaiting_approval' };
+        const joined = versionView({ id: 'jn-n', layerId: 'n', year: 1978, origin: 'join', state: 'published', parts, partOf: null });
+        const { element, asked } = await mount(joined, [SOUTH, east]);
+        const run = () => deep(element, '[data-replace-run]') as HTMLElement & { disabled: boolean };
+
+        expect(deepText(element)).toContain('Replace the sheets of this join');
+        for (const id of ['rg-south', 'rg-east', 'rg-east']) {
+            const box = deep(element, `[data-replace-with="${id}"]`) as HTMLInputElement;
+            box.checked = !box.checked;
+            box.dispatchEvent(new Event('change'));
+            await updated(element);
+        }
+        expect(run().disabled).toBe(true);
+        const east2 = deep(element, '[data-replace-with="rg-east"]') as HTMLInputElement;
+        east2.checked = true;
+        east2.dispatchEvent(new Event('change'));
+        await updated(element);
+        click(run());
+        await updated(element);
+
+        expect(asked.joins).toEqual([['rg-south', 'rg-east']]);
+        expect(asked.targets).toEqual(['n']);
+        expect(deep(element, '[data-state="archive-join-started"]')).not.toBeNull();
+    });
+
+    it('badPath_aRefusedReplacementKeepsTheChoice @S-A65-BAD-JOIN-TARGET', async () => {
+        const parts = [
+            { versionId: 'ar-north', layerId: 'n', entityId: 'ar-north' },
+            { versionId: 'rg-west', layerId: 'w', entityId: 'rg-west' },
+        ];
+        const east: ArchiveJoinCandidatePort = { id: 'rg-east', layerId: 'e', label: { ro: 'E' }, year: 1978, state: 'published' };
+        const joined = versionView({ id: 'jn-n', layerId: 'n', year: 1978, origin: 'join', state: 'published', parts, partOf: null });
+        const { element, asked } = await mount(joined, [SOUTH, east], null);
+        for (const id of ['rg-south', 'rg-east']) {
+            const box = deep(element, `[data-replace-with="${id}"]`) as HTMLInputElement;
+            box.checked = true;
+            box.dispatchEvent(new Event('change'));
+            await updated(element);
+        }
+        click(deep(element, '[data-replace-run]'));
+        await updated(element);
+        await updated(element);
+
+        expect(asked.targets).toEqual(['n']);
+        expect(deep(element, '[data-replace-run]')).not.toBeNull();
     });
 
     it('badPath_aJoinOfCameraFramesOrNotPublishedIsOfferedNoSheets @S-A65-BAD-ARCHIVE-ADD-SHEETS', () => {

@@ -235,11 +235,12 @@ export const imageryCropResponseSchema = z.strictObject({ jobId: idSchema, versi
  * `imagery.join` (M8, `docs/research/M8-join-interfaces.md` §2, §5): join frames of one date and one camera into one layer.
  * It imports the frames not imported yet and queues a `layer-join` job that waits for them; only this callable queues one. Finding of
  * 2026-11-14 (the owner's harti.zip maps): `versionIds` joins archive maps that are parts of one map (two halves, two sheets of a set),
- * each part keeping its own points; `docs/research/M8-join-interfaces.md` §20.
+ * each part keeping its own points; `docs/research/M8-join-interfaces.md` §20. 2026-11-23: `targetLayerId` joins the parts onto that
+ * layer as its next version, replacing its parts; a join of it still waiting for approval is rejected first.
  */
 export const imageryJoinRequestSchema = z.union([
     z.strictObject({ cityId: cityIdSchema, entityIds: z.array(idSchema).min(2).max(JOIN_MAX_FRAMES) }),
-    z.strictObject({ cityId: cityIdSchema, versionIds: z.array(idSchema).min(2).max(JOIN_MAX_PARTS) }),
+    z.strictObject({ cityId: cityIdSchema, versionIds: z.array(idSchema).min(2).max(JOIN_MAX_PARTS), targetLayerId: idSchema.optional() }),
 ]);
 export const imageryJoinResponseSchema = z.strictObject({ jobId: idSchema, versionId: idSchema, layerId: idSchema });
 

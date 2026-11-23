@@ -189,6 +189,34 @@ describe('imagery.join: archive maps', () => {
         expect((await failureOf(join(ready, [NORTH, SOUTH]))).details).toMatchObject({ code: 'apiError.imagery.joinLayerBusy' });
     });
 
+    it('happyPath_newSheetsJoinOntoATargetLayerAndAWaitingJoinGivesWay @S-A65-HAPPY-JOIN-TARGET', async () => {
+        const ready = await world();
+        await seedLayer(ready, 'plan-1911', { currentVersion: 'jn-old' });
+        await seedJob(ready, 'jn-wait', runningJob({ type: 'layer-join', status: 'awaiting_approval', layerId: 'plan-1911' }));
+        await seedVersion(ready, 'jn-wait', renderedVersion({ jobId: 'jn-wait', layerId: 'plan-1911', origin: 'join', source: OLD_JOIN, state: 'awaiting_approval' }));
+        await seedLayer(ready, 'plan-1911', { currentVersion: 'jn-old', pendingVersion: 'jn-wait' });
+
+        const answer = await joinFunction(() => ready.deps).run(adminCall({ cityId: CITY, versionIds: [NORTH, SOUTH], targetLayerId: 'plan-1911' }));
+
+        expect(answer.layerId).toBe('plan-1911');
+        expect((await readVersion(ready, 'jn-wait'))?.state).toBe('rejected');
+        expect((await readJob(ready, 'jn-wait'))?.status).toBe('cancelled');
+        expect((await readLayer(ready, 'plan-1911'))?.pendingVersion).toBe(answer.versionId);
+        expect((await readJob(ready, answer.jobId))?.layerId).toBe('plan-1911');
+    });
+
+    it('badPath_aMissingTargetOrOneWithARunningVersionRefusesTheJoin @S-A65-BAD-JOIN-TARGET', async () => {
+        const ready = await world();
+        const onto = (targetLayerId: string) =>
+            joinFunction(() => ready.deps).run(adminCall({ cityId: CITY, versionIds: [NORTH, SOUTH], targetLayerId }));
+        expect((await failureOf(onto('gone'))).details).toMatchObject({ code: 'apiError.notFound' });
+
+        await seedJob(ready, 'rg-run', runningJob({ layerId: 'busy' }));
+        await seedLayer(ready, 'busy', { currentVersion: NORTH, pendingVersion: 'rg-run' });
+        expect((await failureOf(onto('busy'))).details).toMatchObject({ code: 'apiError.imagery.joinLayerBusy' });
+        expect((await readJob(ready, 'rg-run'))?.status).not.toBe('cancelled');
+    });
+
     it('happyPath_aJoinThatFailedHoldsTheLayerNoMore @S-A65-HAPPY-ARCHIVE', async () => {
         const ready = await world();
         await seedJob(ready, 'jn-failed', runningJob({ status: 'failed' }));

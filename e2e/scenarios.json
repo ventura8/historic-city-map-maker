@@ -14609,6 +14609,50 @@
             "notes": "Live 2026-11-23. Test: functions/test/imagery/layer-bounds.test.ts."
         },
         {
+            "id": "S-A65-HAPPY-JOIN-TARGET",
+            "behaviour": "A65",
+            "area": "admin",
+            "path": "happy",
+            "title": "New sheets join onto a published join's layer, replacing its sheets",
+            "asserts": "the ticked sheets, Join onto this layer -> imagery.join with targetLayerId: a new version of that layer with only those sheets; a join of it still waiting for approval is rejected first",
+            "tier": "functions",
+            "status": "exists",
+            "notes": "Owner 2026-11-23 (the 1911 plan's four sheets). Tests: functions/test/imagery/join-archive.test.ts, packages/ui/test/admin/imagery/archive-join.test.ts."
+        },
+        {
+            "id": "S-A65-BAD-JOIN-TARGET",
+            "behaviour": "A65",
+            "area": "admin",
+            "path": "bad",
+            "title": "A missing or running target layer refuses the join",
+            "asserts": "a target that does not exist -> not found; one with a version still running -> the layer is busy, nothing cancelled; a refused join keeps the choice",
+            "tier": "functions",
+            "status": "exists",
+            "notes": "Owner 2026-11-23. Tests: functions/test/imagery/join-archive.test.ts, packages/ui/test/admin/imagery/archive-join.test.ts."
+        },
+        {
+            "id": "S-A16-HAPPY-REDRAW",
+            "behaviour": "A16",
+            "area": "admin",
+            "path": "happy",
+            "title": "A single map is redrawn at full resolution with its own points",
+            "asserts": "Redraw at full resolution on a map placed by points -> imagery.saveGcps with its transform, points and crop: a new version warped from the original",
+            "tier": "functions",
+            "status": "exists",
+            "notes": "Owner 2026-11-23 (the 1974 cadastral plan). Tests: packages/admin/test/imagery/version.test.ts, packages/ui/test/admin/imagery/imagery-fix-tiles.test.ts."
+        },
+        {
+            "id": "S-A16-BAD-REDRAW",
+            "behaviour": "A16",
+            "area": "admin",
+            "path": "bad",
+            "title": "No redraw for a join, a series, a file placed by itself or a map with no points",
+            "asserts": "those versions offer no Redraw; a version without points sends nothing",
+            "tier": "functions",
+            "status": "exists",
+            "notes": "Owner 2026-11-23. Tests: packages/admin/test/imagery/version.test.ts, packages/ui/test/admin/imagery/imagery-fix-tiles.test.ts."
+        },
+        {
             "id": "S-A65-BAD-DATA-BOUNDS",
             "behaviour": "A65",
             "area": "admin",

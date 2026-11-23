@@ -79,6 +79,7 @@ export class HcmArchiveJoin extends LitElement {
         candidates: { state: true },
         busy: { state: true },
         started: { state: true },
+        chosen: { state: true },
     };
 
     static override readonly styles = editingStyles;
@@ -94,6 +95,8 @@ export class HcmArchiveJoin extends LitElement {
     declare busy: boolean;
     /** The join started here, linked. */
     declare started: string | null;
+    /** 2026-11-23: the sheets picked to replace the join's parts, on its own layer. */
+    declare chosen: ReadonlySet<string>;
     #askedFor: string | null = null;
 
     constructor() {
@@ -106,6 +109,7 @@ export class HcmArchiveJoin extends LitElement {
         this.candidates = [];
         this.busy = false;
         this.started = null;
+        this.chosen = new Set();
     }
 
     protected override willUpdate(changed: PropertyValues<this>): void {
@@ -124,6 +128,7 @@ export class HcmArchiveJoin extends LitElement {
         this.#askedFor = key;
         this.candidates = [];
         this.started = null;
+        this.chosen = new Set();
         if (key !== null && version !== null) {
             this.#load(key, version);
         }
@@ -148,6 +153,51 @@ export class HcmArchiveJoin extends LitElement {
         this.busy = false;
     }
 
+    /** The chosen sheets joined onto the open join's layer as its next version, its old parts dropped. */
+    async #replace(): Promise<void> {
+        const version = this.version;
+        if (version === null || this.intents === null) {
+            return;
+        }
+        this.busy = true;
+        this.started = await this.intents.joinArchive([...this.chosen], version.layerId);
+        this.busy = false;
+    }
+
+    #toggle(id: string, on: boolean): void {
+        const next = new Set(this.chosen);
+        if (on) {
+            next.add(id);
+        } else {
+            next.delete(id);
+        }
+        this.chosen = next;
+    }
+
+    #replacing(): TemplateResult {
+        return html`<div class="replace" data-archive-join="replace">
+            <h3>${this.#t('adminContent.imagery.join.replaceTitle')}</h3>
+            <p class="note">${this.#t('adminContent.imagery.join.replaceIntro')}</p>
+            ${this.candidates.map(
+                (candidate) =>
+                    html`<label class="choice"
+                        ><input
+                            type="checkbox"
+                            data-replace-with=${candidate.id}
+                            .checked=${this.chosen.has(candidate.id)}
+                            @change=${(event: Event) => this.#toggle(candidate.id, (event.target as HTMLInputElement).checked)}
+                        />
+                        ${labelText(candidate.label, this.locale)}</label
+                    >`,
+            )}
+            <div class="actions">
+                <hcm-button variant="filled" icon="layers" data-replace-run ?disabled=${this.busy || this.chosen.size < 2} @click=${() => void this.#replace()}
+                    >${this.#t('adminContent.imagery.join.replaceRun', { count: String(this.chosen.size) })}</hcm-button
+                >
+            </div>
+        </div>`;
+    }
+
     #t(key: Parameters<typeof contentText>[1], params?: Readonly<Record<string, string>>): string {
         return contentText(this.locale, key, params);
     }
@@ -170,6 +220,7 @@ export class HcmArchiveJoin extends LitElement {
                 })}
             </p>
             ${this.started === null ? this.#buttons() : this.#startedLink(this.started)}
+            ${adding && this.started === null ? this.#replacing() : nothing}
         </section>`;
     }
 

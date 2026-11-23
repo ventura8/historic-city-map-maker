@@ -301,6 +301,7 @@ type VersionActionPort =
     | 'retry'
     | 'locate'
     | 'fixTiles'
+    | 'redraw'
     | 'cancel'
     | 'recalibrate';
 
@@ -411,6 +412,8 @@ export interface ImageryIntentsPort {
     locateAgain(): Promise<boolean>;
     /** M20 §19.13: `imagery.relayout` of the open version, an archive series on the map or waiting for approval. */
     fixTiles?(): Promise<boolean>;
+    /** 2026-11-23: Redraw at full resolution, a new version warped from the original with the version's own points. */
+    redraw?(): Promise<boolean>;
     cancelJob(): Promise<boolean>;
     resumeGuard(): Promise<boolean>;
     chooseFile(file: ChosenFilePort): Promise<void>;
@@ -438,7 +441,8 @@ export interface ImageryIntentsPort {
         readonly layerId: string;
         readonly year: number;
     }): Promise<readonly ArchiveJoinCandidatePort[]>;
-    joinArchive(versionIds: readonly string[]): Promise<string | null>;
+    /** 2026-11-23: `targetLayerId` joins the parts onto that layer as its next version, replacing its parts. */
+    joinArchive(versionIds: readonly string[], targetLayerId?: string): Promise<string | null>;
     addTargetYear(year: number): Promise<boolean>;
     /** M20 (`docs/research/M20-import-local.md` §8): Import local files' feed and elements, from the lazy `archive` chunk. */
     archive(): Promise<ArchiveFeedPort>;

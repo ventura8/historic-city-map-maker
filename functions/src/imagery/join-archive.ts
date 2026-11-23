@@ -24,6 +24,7 @@ import type { VerifiedCaller } from '../api/access.js';
 import { ApiError } from '../api/api-error.js';
 import type { DocumentTransaction } from '../ports/documents.js';
 import type { Ports } from '../ports/index.js';
+import { endWork } from './end.js';
 import { asJoinLayerBusy } from './join-busy.js';
 import { isRejoinable, isUsablePart, refuseHeldPart } from './join-parts.js';
 import { refuseBusyLayer, refuseRasterJobs, type Placement } from './limits.js';
@@ -42,6 +43,8 @@ export type ArchiveJoinDeps = Pick<Ports, 'documents' | 'clock' | 'log'>;
 export interface ArchiveJoinRequest {
     readonly cityId: string;
     readonly versionIds: readonly string[];
+    /** The layer the parts join onto as its next version, replacing its parts (2026-11-23). */
+    readonly targetLayerId?: string | undefined;
 }
 
 /** One part as read: its version id and document. */
@@ -298,6 +301,31 @@ async function existingLayer(deps: ArchiveJoinDeps, cityId: string, parts: reado
     return publishedPart(parts)?.version.layerId ?? (await earlierLayer(deps, cityId, parts));
 }
 
+/** The states of a join that waits for a person: one a new join onto its layer replaces. */
+const SUPERSEDABLE: ReadonlySet<string> = new Set(['needs_gcps', 'awaiting_approval', 'approved']);
+
+function supersedable(job: { readonly status: string }, version: LayerVersionDoc | undefined): boolean {
+    return job.status !== 'mts_processing' && version?.source?.kind === 'join' && SUPERSEDABLE.has(version.state);
+}
+
+/**
+ * The target layer the parts join onto (it must exist); a join of it still waiting for approval is rejected first, so it
+ * does not hold the layer (live 2026-11-23: `jn-mwtfz6r6` on the 1911 plan's layer).
+ */
+async function targetLayer(deps: ArchiveJoinDeps, caller: VerifiedCaller, cityId: string, layerId: string): Promise<string> {
+    const layer = await deps.documents.get(FIRESTORE_PATHS.layer(cityId, layerId), layerDocSchema);
+    if (layer === undefined) {
+        throw new ApiError('apiError.notFound');
+    }
+    const pending = layer.pendingVersion;
+    if (pending !== undefined) {
+        const ending = { status: 'cancelled', versionState: 'rejected', by: caller.uid, accept: supersedable } as const;
+        const ended = await endWork(deps, cityId, pending, ending);
+        deps.log.info('a waiting join gives way to the new one', { cityId, layerId, pending, ended });
+    }
+    return layerId;
+}
+
 /** The archive maps' join: every check, then one transaction. */
 export async function joinArchive(
     deps: ArchiveJoinDeps,
@@ -308,7 +336,10 @@ export async function joinArchive(
     const parts = await readParts(deps, request);
     const now = deps.clock.now();
     const placement = await refuseRasterJobs(deps.documents, now, request.cityId, 1);
-    const existing = await existingLayer(deps, request.cityId, parts);
+    const existing =
+        request.targetLayerId === undefined
+            ? await existingLayer(deps, request.cityId, parts)
+            : await targetLayer(deps, caller, request.cityId, request.targetLayerId);
     await requireFreeLayer(deps, request.cityId, existing);
     const layerId = existing ?? (await reserveLayerIds(deps.documents, request.cityId))(labelOf(parts).ro);
     const jobId = jobIdFor('jn', now, parts[0]?.version.layerId ?? 'archive');

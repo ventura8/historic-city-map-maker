@@ -238,6 +238,7 @@ class ImageryStore implements AreaStore<ImageryState, ImageryIntents> {
         | 'retryJob'
         | 'locateAgain'
         | 'fixTiles'
+        | 'redraw'
         | 'cancelJob'
         | 'setPreviewOpacity'
         | 'actualPixels'
@@ -257,7 +258,7 @@ class ImageryStore implements AreaStore<ImageryState, ImageryIntents> {
             },
             ...{ deleteVersion: () => version.deleteVersion(), makeLive: () => version.makeLive() },
             ...{ studioDone: () => version.studioDone(), download: () => version.download(), retryJob: () => version.retry() },
-            ...{ locateAgain: () => version.locateAgain(), fixTiles: () => version.fixTiles(), cancelJob: () => version.cancel() },
+            ...{ locateAgain: () => version.locateAgain(), fixTiles: () => version.fixTiles(), redraw: () => version.redraw(), cancelJob: () => version.cancel() },
             setPreviewOpacity: (percent) => {
                 this.#setOpacity(percent);
             },

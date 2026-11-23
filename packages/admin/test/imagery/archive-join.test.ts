@@ -113,6 +113,8 @@ describe('Join with… on an archive map', () => {
 
         await expect(found).resolves.toMatchObject([{ id: 'rg-south', layerId: 's' }]);
         await expect(intents.joinArchive(['ar-north', 'rg-south'])).resolves.toBe('jn-n');
+        await expect(intents.joinArchive(['rg-a', 'rg-b'], 'plan-1911')).resolves.toBe('jn-n');
+        expect(callsOf(world.callables, 'imagery.join').at(-1)).toEqual({ cityId: CITY, versionIds: ['rg-a', 'rg-b'], targetLayerId: 'plan-1911' });
     });
 
     it('badPath_aFailedReadOffersNoCandidate', async () => {

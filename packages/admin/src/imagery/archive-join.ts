@@ -94,9 +94,15 @@ export async function archiveJoinCandidates(services: ContentServices, base: Arc
 }
 
 /** `imagery.join` of archive maps: the join version's id, or null with the refusal in plain words in the snackbar. */
-export async function joinArchiveMaps(services: ContentServices, versionIds: readonly string[]): Promise<string | null> {
+export async function joinArchiveMaps(
+    services: ContentServices,
+    versionIds: readonly string[],
+    targetLayerId?: string,
+): Promise<string | null> {
+    const target = targetLayerId === undefined ? {} : { targetLayerId };
     try {
-        return (await callImagery(services.callables, 'imagery.join', { cityId: services.cityId, versionIds: [...versionIds] })).versionId;
+        return (await callImagery(services.callables, 'imagery.join', { cityId: services.cityId, versionIds: [...versionIds], ...target }))
+            .versionId;
     } catch (error) {
         services.notify(refusalOf(error));
         return null;
@@ -106,10 +112,10 @@ export async function joinArchiveMaps(services: ContentServices, versionIds: rea
 /** The Imagery area's two intents for **Join with…**. */
 export function archiveJoinIntents(services: ContentServices): {
     archiveJoinCandidates(version: ArchiveJoinBase): Promise<ArchiveJoinCandidate[]>;
-    joinArchive(versionIds: readonly string[]): Promise<string | null>;
+    joinArchive(versionIds: readonly string[], targetLayerId?: string): Promise<string | null>;
 } {
     return {
         archiveJoinCandidates: (version) => archiveJoinCandidates(services, version),
-        joinArchive: (versionIds) => joinArchiveMaps(services, versionIds),
+        joinArchive: (versionIds, targetLayerId) => joinArchiveMaps(services, versionIds, targetLayerId),
     };
 }

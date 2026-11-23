@@ -145,6 +145,8 @@ export interface ImageryIntents {
     locateAgain(): Promise<boolean>;
     /** `imagery.relayout` of the open version (Fix the tiles). */
     fixTiles(): Promise<boolean>;
+    /** `imagery.saveGcps` of the open version with its own points (Redraw at full resolution). */
+    redraw(): Promise<boolean>;
     /** Turns the budget guard green again (`imagery.resumeGuard`); true once it is. */
     resumeGuard(): Promise<boolean>;
     cancelJob(): Promise<boolean>;
@@ -174,7 +176,7 @@ export interface ImageryIntents {
     joinFrames(entityIds: readonly string[]): Promise<string | null>;
     /** Finding of 2026-11-14: the year's archive maps the open one may be joined with (`archive-join.ts`), and their join. */
     archiveJoinCandidates(version: ArchiveJoinBase): Promise<readonly ArchiveJoinCandidate[]>;
-    joinArchive(versionIds: readonly string[]): Promise<string | null>;
+    joinArchive(versionIds: readonly string[], targetLayerId?: string): Promise<string | null>;
     /** M8: Add {year} to target years, then search again; true once it is saved. */
     addTargetYear(year: number): Promise<boolean>;
     /** M20 (`docs/research/M20-import-local.md` §8): Import local files' feed, from the lazy `archive` chunk. */

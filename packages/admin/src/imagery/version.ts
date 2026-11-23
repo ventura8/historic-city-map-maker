@@ -43,6 +43,7 @@ export type VersionAction =
     | 'retry'
     | 'locate'
     | 'fixTiles'
+    | 'redraw'
     | 'cancel'
     | 'recalibrate';
 
@@ -304,6 +305,21 @@ export class VersionPage {
         return this.#act('fixTiles', 'imagery.relayout', (id) => ({ cityId: this.#services.cityId, versionId: id }), {
             key: 'adminContent.imagery.notice.fixingTiles',
         });
+    }
+
+    /**
+     * 2026-11-23: Redraw at full resolution, the version's own points sent again (`imagery.saveGcps`): a new version warped from
+     * the original, with no point moved (the georeferencer's Save waits for a change, Fix the tiles places the sheets again).
+     */
+    redraw(): Promise<boolean> {
+        const data = this.#version.state.doc?.data;
+        const georef = data?.georef;
+        if (georef === undefined) {
+            return Promise.resolve(false);
+        }
+        const crop = data?.crop === undefined ? {} : { crop: data.crop };
+        const request = (id: string) => ({ cityId: this.#services.cityId, versionId: id, transform: georef.transform, gcps: georef.gcps, ...crop });
+        return this.#act('redraw', 'imagery.saveGcps', request, { key: 'adminContent.imagery.notice.redrawing' });
     }
 
     /** Saves the Studio file under the tileset's name, so Studio names the tileset after it (§7.5). */

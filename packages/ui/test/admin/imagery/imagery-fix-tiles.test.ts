@@ -61,6 +61,33 @@ describe('imagery: Fix the tiles', () => {
     });
 });
 
+describe('imagery: Redraw at full resolution', () => {
+    beforeAll(defineImagery);
+    afterEach(cleanup);
+
+    const placed = { method: 'gcps', transform: 'poly1' as const, pairs: 8, fitRmseM: 3, checkpointRmseM: null, checkpointCount: null, checkpointKind: null };
+
+    it('happyPath_aSingleMapPlacedByPointsIsRedrawn @S-A16-HAPPY-REDRAW', async () => {
+        const { element, area } = await placedSeries({ relayoutable: false, georef: placed });
+
+        click(button(element, 'Redraw at full resolution'));
+
+        expect(calls(area)).toEqual(['redraw']);
+    });
+
+    it.each([
+        ['a series laid out by tiles', { georef: placed }],
+        ['a join', { relayoutable: false, origin: 'join', georef: placed }],
+        ['a file placed by itself', { relayoutable: false, georef: { ...placed, method: 'embedded' } }],
+        ['no points', { relayoutable: false, georef: null }],
+        ['a version not on the map', { relayoutable: false, state: 'rejected', georef: placed }],
+    ] as const)('badPath_noRedrawFor_%s @S-A16-BAD-REDRAW', async (_name, overrides) => {
+        const { element } = await placedSeries(overrides as Partial<VersionViewPort>);
+
+        expect(deepAll(element, 'hcm-button').some((found) => found.textContent.includes('Redraw at full resolution'))).toBe(false);
+    });
+});
+
 describe('the georeferencer of an archive series', () => {
     beforeAll(defineImagery);
     afterEach(cleanup);

@@ -451,4 +451,30 @@ describe('a job view at its attempt cap (live report of 2026-11-12)', () => {
         expect(view({ ...atCap, runOn: 'cloud' }).retryable).toBe(false);
         expect(view(atCap).retryable).toBe(false);
     });
+
+    it('happyPath_redrawSendsTheVersionsOwnPointsAgain @S-A16-HAPPY-REDRAW', async () => {
+        const { version, store, callables, notices } = page();
+        const doc = versionDoc();
+        store.docs.set(VERSIONS(ID), { ...doc, crop: [{ x: 0, y: 0 }, { x: 10, y: 0 }, { x: 10, y: 10 }] });
+        answer(callables, 'imagery.saveGcps', () => ({ jobId: 'rg-new', versionId: 'rg-new', resumed: false }));
+        version.show(ID);
+
+        expect(await version.redraw()).toBe(true);
+        const georef = (doc as { georef: { transform: string; gcps: unknown[] } }).georef;
+        expect(callsOf(callables, 'imagery.saveGcps')).toEqual([
+            { cityId: CITY, versionId: ID, transform: georef.transform, gcps: georef.gcps, crop: [{ x: 0, y: 0 }, { x: 10, y: 0 }, { x: 10, y: 10 }] },
+        ]);
+        expect(notices.map((notice) => notice.key)).toEqual(['adminContent.imagery.notice.redrawing']);
+    });
+
+    it('badPath_aVersionWithNoPointsIsNotRedrawn @S-A16-BAD-REDRAW', async () => {
+        const { version, store, callables } = page();
+        const doc = { ...versionDoc() } as Record<string, unknown>;
+        delete doc['georef'];
+        store.docs.set(VERSIONS(ID), doc);
+        version.show(ID);
+
+        expect(await version.redraw()).toBe(false);
+        expect(callsOf(callables, 'imagery.saveGcps')).toEqual([]);
+    });
 });
