@@ -23,6 +23,12 @@ afterEach(() => {
     vi.resetModules();
 });
 
+/** The module loaded again, so it reads the remembered groups anew. */
+async function freshSubgroups(): Promise<unknown> {
+    vi.resetModules();
+    return import('../../src/components/overlay-subgroups.js');
+}
+
 describe('small viewer pieces', () => {
     it('happyPath_theLocateItemIsAnUncheckedSwitchByDefault_andSubgroupsFallBackToTheRowsId', () => {
         expect(menuItem('locate', 'en')).toMatchObject({ value: 'locate', checked: false });
@@ -43,7 +49,7 @@ describe('small viewer pieces', () => {
 
     it('badPath_rememberedGroupsThatAreNotAListOrNotNamesAreIgnored', async () => {
         localStorage.setItem('hcm.layerPanel.groupsOpen', '{"row-3":true}');
-        const fresh = (await import('../../src/components/overlay-subgroups.js?object')) as Subgroups;
+        const fresh = (await freshSubgroups()) as Subgroups;
         const groups = [
             { id: 'a', label: 'A', visible: true },
             { id: 'b', label: 'B', visible: true },
@@ -52,7 +58,7 @@ describe('small viewer pieces', () => {
         expect(closed.querySelector('button')?.getAttribute('aria-expanded')).toBe('false');
 
         localStorage.setItem('hcm.layerPanel.groupsOpen', '[1, "row-4"]');
-        const mixed = (await import('../../src/components/overlay-subgroups.js?mixed')) as Subgroups;
+        const mixed = (await freshSubgroups()) as Subgroups;
         const open = rendered(mixed.renderSubgroups(host, { id: 'row-4', subgroups: groups }, (name) => name));
         expect(open.querySelector('button')?.getAttribute('aria-expanded')).toBe('true');
     });

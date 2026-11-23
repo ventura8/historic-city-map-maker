@@ -30,13 +30,13 @@ import {
 const NORTH = 'ar-mw993zri-s-c7549c8348b5';
 const SOUTH = 'rg-mwgrposm-s';
 /** The earlier join's source: a join version names at least two parts, as `joinSourceSchema` requires. */
-const OLD_JOIN = {
+const OLD_JOIN: LayerVersionDoc['source'] = {
     kind: 'join',
     parts: [
         { versionId: NORTH, layerId: 'n', entityId: NORTH },
         { versionId: SOUTH, layerId: 's', entityId: SOUTH },
     ],
-} as const;
+};
 
 function archiveMap(layerId: string, label: string, overrides: Partial<LayerVersionDoc> = {}): LayerVersionDoc {
     return renderedVersion({

@@ -12,7 +12,7 @@
 import { CLIENT_WRITES, STORAGE_PATHS, publicObjectUrl, type ClientCollection } from '@hcm/shared';
 
 import { archiveJobFields } from './archive-fields.js';
-import { derivative, reviewedFields, versionEdits, versionFields } from './photo-fields.js';
+import { derivative, footprint, reviewedFields, versionEdits, versionFields } from './photo-fields.js';
 import { POI_CATEGORY_EDITS } from './poi-categories.js';
 import { STORY_EDITS } from './stories.js';
 import { later, past, serverTime, stampedBy, systemStamp, type Data } from './world.js';
@@ -110,12 +110,7 @@ export function photoDoc(cityId: string, photoId: string, creator: string): Data
         location: { lat: 44.4462, lng: 26.0969 },
         bearing: 90,
         fov: 60,
-        viewedArea: [
-            { lat: 44.447, lng: 26.096 },
-            { lat: 44.447, lng: 26.098 },
-            { lat: 44.445, lng: 26.098 },
-            { lat: 44.445, lng: 26.096 },
-        ],
+        viewedArea: footprint(44.447, 26.096),
         kind: 'ground',
         published: false,
         rightsReview: false,
@@ -178,12 +173,7 @@ export function newPhoto(uid: string): Data {
         location: { lat: 44.4462, lng: 26.0969 },
         bearing: 360,
         fov: 180,
-        viewedArea: [
-            { lat: 44.447, lng: 26.096 },
-            { lat: 44.447, lng: 26.098 },
-            { lat: 44.445, lng: 26.098 },
-            { lat: 44.445, lng: 26.096 },
-        ],
+        viewedArea: footprint(44.447, 26.096),
         kind: 'ground',
         published: false,
         rightsReview: true,
@@ -656,12 +646,7 @@ export const EDITS: Readonly<Record<ClientCollection, Readonly<Data>>> = {
         location: { lat: 44.3 - 0.5, lng: 26.3 + 0.5 },
         bearing: 0,
         fov: 1,
-        viewedArea: [
-            { lat: 43.81, lng: 26.79 },
-            { lat: 43.81, lng: 26.81 },
-            { lat: 43.79, lng: 26.81 },
-            { lat: 43.79, lng: 26.79 },
-        ],
+        viewedArea: footprint(43.81, 26.79),
         kind: 'aerial',
         placeIds: ['poi-3'],
         level: -1,

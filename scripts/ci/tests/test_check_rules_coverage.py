@@ -175,7 +175,7 @@ def test_bad_path_an_outcome_seen_in_no_report_stays_uncovered(repo: Path) -> No
 def test_bad_path_a_shard_of_other_rules_is_stale(repo: Path) -> None:
     save(repo, full_report(), shard=full_report(content=RULES_TEXT.replace("bucuresti", "cluj")))
 
-    with pytest.raises(coverage.CoverageError, match="firestore-coverage-demo-hcm-b.json was produced from different rules"):
+    with pytest.raises(coverage.CoverageError, match=r"firestore-coverage-demo-hcm-b\.json was produced from different rules"):
         coverage.check_report(repo)
 
 

@@ -266,11 +266,14 @@ def report_expressions(root: Path, path: Path, rules: str) -> list[Expression]:
     return expressions(report, content)
 
 
+def every_expression(root: Path, rules: str) -> list[Expression]:
+    return [item for path in report_paths() for item in report_expressions(root, path, rules)]
+
+
 def check_report(root: Path) -> list[str]:
     """Every coverage problem of the saved reports, as `firebase/firestore.rules:LINE:COL reason: snippet`."""
     rules = (root / RULES).read_text(encoding="utf-8")
-    every = [item for path in report_paths() for item in report_expressions(root, path, rules)]
-    found = [(expression, problem(expression)) for expression in joined(every)]
+    found = [(expression, problem(expression)) for expression in joined(every_expression(root, rules))]
     return [f"{item.where()} {reason}: {item.text[:SNIPPET_LENGTH]}" for item, reason in found if reason is not None]
 
 
