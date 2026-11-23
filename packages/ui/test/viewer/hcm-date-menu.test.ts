@@ -263,6 +263,45 @@ describe('<hcm-date-menu> as a peek (a pointer resting on the year)', () => {
         const pair = shadowQuery(element, '.pair').getBoundingClientRect();
         expect(pair.bottom - element.getBoundingClientRect().top).toBeLessThanOrEqual(card.y - 8 + 0.5);
     });
+});
+
+describe('<hcm-date-menu> placed by its year (the owner, 2026-11-23: never in the corner)', () => {
+    afterEach(() => {
+        document.body.replaceChildren();
+    });
+
+    it('happyPath_menuBoxCentredOnPillAt1440x900And360x800', () => {
+        const widePill = { x: 688, y: 780, width: 64, height: 40 };
+        expect(dateMenuOrigin(widePill, { width: 400, height: 160 }, { width: 1440, height: 900 }, 'above')).toEqual({
+            x: 520,
+            y: 612,
+        });
+
+        const phonePill = { x: 16, y: 360, width: 68, height: 40 };
+        expect(dateMenuOrigin(phonePill, { width: 260, height: 160 }, { width: 360, height: 800 }, 'end')).toEqual({
+            x: 92,
+            y: 300,
+        });
+    });
+
+    it('badPath_pillNearRightEdgeClampsAndShiftsAlongTimelineNotCorner', async () => {
+        const element = await menu({ side: true });
+        element.parentElement?.style.setProperty('width', '1440px');
+        element.parentElement?.style.setProperty('height', '900px');
+        const sliders = document.createElement('div');
+        sliders.style.cssText = 'height: 120px';
+        element.append(sliders);
+        const card = { x: 400, y: 780, width: 960, height: 72 };
+        const control = { x: 1384, y: 620, width: 40, height: 100 };
+        element.avoid = () => [card, control];
+        element.anchor = { x: 1300, y: 792, width: 56, height: 40 };
+        await element.updateComplete;
+        const pair = shadowQuery(element, '.pair').getBoundingClientRect();
+        const host = element.getBoundingClientRect();
+        expect(pair.right - host.left).toBeLessThanOrEqual(control.x - 8 + 0.5);
+        expect(pair.left - host.left).toBeGreaterThanOrEqual(8 - 0.5);
+        expect(Math.abs(card.y - 8 - (pair.bottom - host.top))).toBeLessThanOrEqual(1);
+    });
 
     it('badPath_pairHeightKeepsAMinimumAndUsesTheViewerBesideAStandingTimeline', () => {
         expect(pairHeight({ ...ANCHOR, y: 40 }, 700, 'above')).toBe(96);

@@ -83,7 +83,7 @@ test('A year without a layer snaps to the nearest stop', { tag: '@S-V04-BAD-YEAR
 
     // A tap between two stops on the track lands on the nearer one (a fifth of the way from 1966: up a phone's standing one).
     await openTimelineCard(page);
-    const track = viewer(page).locator('hcm-timeline .track');
+    const track = viewer(page).locator('hcm-timeline .track:not([part])');
     const box = (await track.boundingBox()) ?? EMPTY_BOX;
     expect(box.width).toBeGreaterThan(0);
     const standing = box.height > box.width;

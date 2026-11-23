@@ -96,7 +96,7 @@ describe('<hcm-timeline> selecting a year of several dates (V13, the owner 2026-
         expect(await asked(element, events)).toEqual([]);
     });
 
-    it('happyPath_aClickOnAYearWithSeveralDatesAsksForThemBesideTheThumb', async () => {
+    it('happyPath_aClickOnAYearWithSeveralDatesAsksForThemBesideItsStop', async () => {
         const element = await timeline();
         const events = recordEvents(element, 'hcm-dates-open');
 
@@ -107,7 +107,9 @@ describe('<hcm-timeline> selecting a year of several dates (V13, the owner 2026-
         expect(await asked(element, events)).toEqual([1980]);
         const anchor = (events[0]?.detail as { anchor: { x: number; width: number } }).anchor;
         const thumb = shadowQuery(element, '.thumb').getBoundingClientRect();
-        expect([anchor.x, anchor.width]).toEqual([thumb.x, thumb.width]);
+        const stop = shadowQuery(element, '.stop.selected').getBoundingClientRect();
+        // By the year chosen, where the gliding thumb comes to rest, not where it still is (the owner, 2026-11-23).
+        expect([anchor.x + anchor.width / 2, anchor.width]).toEqual([stop.x + stop.width / 2, thumb.width]);
     });
 
     it('happyPath_aDeliberateSecondClickOnTheSameYearAsksAgainOncePerClick', async () => {

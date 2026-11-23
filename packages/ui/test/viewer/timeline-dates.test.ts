@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest';
 
-import { countOf, dateCounts, dateItems, dateText, datesValueText, frontOfYear } from '../../src/viewer/timeline-dates.js';
+import { countOf, dateCounts, dateItems, dateText, datesOpenEvent, datesValueText, frontOfYear } from '../../src/viewer/timeline-dates.js';
 
 /** V13: the years with several dates, the badge's count, the picker's entries and the layer on top. */
 const LAYERS = [
@@ -49,5 +49,36 @@ describe('timeline dates', () => {
     it('happyPath_theSliderSaysHowManyDatesAndThatEnterListsThem', () => {
         expect(datesValueText('en', 'Year 1966', 3)).toBe('Year 1966, several dates (3), Enter lists them');
         expect(datesValueText('ro', 'Anul 1980', 1)).toBe('Anul 1980');
+    });
+
+    it('happyPath_theMenuOpensByTheSelectedYearNotWhereTheGlidingThumbStillIs', () => {
+        const root = document.createElement('div');
+        document.body.append(root);
+        const box = (x: number, width: number): string =>
+            `position:fixed;left:${String(x)}px;top:700px;width:${String(width)}px;height:40px`;
+        for (const [x, selected] of [
+            [100, false],
+            [500, true],
+        ] as const) {
+            const stop = document.createElement('i');
+            stop.className = selected ? 'stop selected' : 'stop';
+            stop.style.cssText = box(x, 8);
+            root.append(stop);
+        }
+        const thumb = document.createElement('b');
+        thumb.style.cssText = box(1700, 64);
+        root.append(thumb);
+
+        expect(datesOpenEvent(2017, thumb).detail).toEqual({ year: 2017, anchor: { x: 472, y: 700, width: 64, height: 40 } });
+        root.remove();
+    });
+
+    it('badPath_withNoSelectedStopTheMenuOpensByTheThumb', () => {
+        const thumb = document.createElement('b');
+        thumb.style.cssText = 'position:fixed;left:30px;top:50px;width:64px;height:40px';
+        document.body.append(thumb);
+
+        expect(datesOpenEvent(1966, thumb).detail.anchor).toEqual({ x: 30, y: 50, width: 64, height: 40 });
+        thumb.remove();
     });
 });

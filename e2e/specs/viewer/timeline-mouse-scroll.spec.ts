@@ -34,7 +34,7 @@ async function scrollingCard(page: Page, lang: 'ro' | 'en') {
         throw new Error('the timeline card has no box');
     }
     // On the track itself: since the 56 px labels (198edc45) the scroller's bottom 16 px lie below it.
-    const track = await page.locator('hcm-timeline .track').boundingBox();
+    const track = await page.locator('hcm-timeline .track:not([part])').boundingBox();
     return { thumb, y: track === null ? box.y + box.height / 2 : track.y + track.height / 2, box };
 }
 

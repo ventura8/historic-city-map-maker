@@ -31,10 +31,20 @@ export interface DatesOpenDetail {
     readonly anchor: { readonly x: number; readonly y: number; readonly width: number; readonly height: number };
 }
 
-/** The event that asks for the picker of `year`, beside `from` (the slider's thumb). */
+/**
+ * The event that asks for the picker of `year`, beside `from` (the slider's thumb). The thumb glides to a new year for
+ * 350 ms, so read at once it still lay on the year before (the owner, 2026-11-23: the menu of 2017 opened by "today", in
+ * the corner by the map's buttons): the box is the thumb's size centred on the selected year's stop, where it comes to rest.
+ */
 export function datesOpenEvent(year: number, from: Element): CustomEvent<DatesOpenDetail> {
     const box = from.getBoundingClientRect();
-    const anchor = { x: box.x, y: box.y, width: box.width, height: box.height };
+    const stop = (from.getRootNode() as ParentNode).querySelector('.stop.selected')?.getBoundingClientRect() ?? box;
+    const anchor = {
+        x: stop.x + stop.width / 2 - box.width / 2,
+        y: stop.y + stop.height / 2 - box.height / 2,
+        width: box.width,
+        height: box.height,
+    };
     return new CustomEvent('hcm-dates-open', { bubbles: true, composed: true, detail: { year, anchor } });
 }
 

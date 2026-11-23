@@ -337,6 +337,46 @@ describe('<hcm-map-viewer>: the year opacity sheet on a phone', () => {
         menu?.shadowRoot?.querySelector('.side')?.dispatchEvent(new KeyboardEvent('keydown', { key: 'a', bubbles: true, composed: true }));
     });
 
+    it('happyPath_theGamepadsBClosesTheSheetAndAnotherCommandLeavesItOpen', async () => {
+        const mounted = await mountViewer(readyState(testManifest(), { year: 1966 }), COMPACT);
+        press(timelineOf(mounted));
+        await mounted.element.updateComplete;
+        timelineOf(mounted).dispatchEvent(new CustomEvent('hcm-opacity-sheet', { bubbles: true, composed: true }));
+        await mounted.element.updateComplete;
+        expect(part(mounted, '.opacity-sheet').getAttribute('role')).toBe('dialog');
+
+        mounted.element.runInput('opacity-up');
+        await mounted.element.updateComplete;
+        expect(mounted.element.shadowRoot?.querySelector('.opacity-sheet'), 'only a close closes it').not.toBeNull();
+        mounted.element.runInput('close');
+        await mounted.element.updateComplete;
+        expect(mounted.element.shadowRoot?.querySelector('.opacity-sheet')).toBeNull();
+        expect(part(mounted, '.frame').inert).toBe(false);
+    });
+
+    it('badPath_aSecondSheetRequestWhileTheDatesAreOpenKeepsThemAndBWithNothingOpenDoesNothing', async () => {
+        const mounted = await mountViewer(readyState(twoDates(), { year: 1966 }), COMPACT);
+        press(timelineOf(mounted));
+        await mounted.element.updateComplete;
+        const ask = async (): Promise<void> => {
+            timelineOf(mounted).dispatchEvent(new CustomEvent('hcm-opacity-sheet', { bubbles: true, composed: true }));
+            await mounted.element.updateComplete;
+        };
+        await ask();
+        const first = mounted.element.shadowRoot?.querySelector('hcm-date-menu')?.anchor;
+        await ask();
+        expect(mounted.element.shadowRoot?.querySelector('hcm-date-menu')?.anchor, 'the open menu stays where it is').toEqual(first);
+        expect(mounted.element.shadowRoot?.querySelector('.opacity-sheet')).toBeNull();
+
+        mounted.element.runInput('close');
+        await mounted.element.updateComplete;
+        expect(mounted.element.shadowRoot?.querySelector('hcm-date-menu')).toBeNull();
+        mounted.element.runInput('close');
+        await mounted.element.updateComplete;
+        expect(mounted.element.shadowRoot?.querySelector('hcm-date-menu')).toBeNull();
+        expect(mounted.store.callsOf('pickLayer')).toEqual([]);
+    });
+
     it('badPath_todayHasNoSheetAndTheFrameStaysLive', async () => {
         const mounted = await mountViewer(readyState(testManifest(), { year: null }), COMPACT);
         timelineOf(mounted).dispatchEvent(new CustomEvent('hcm-opacity-sheet', { bubbles: true, composed: true }));

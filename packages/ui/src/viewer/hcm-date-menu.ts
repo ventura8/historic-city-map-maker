@@ -309,7 +309,7 @@ export class HcmDateMenu extends LitElement {
         pair.style.setProperty('left', '0px');
         const size = { width: pair.offsetWidth, height: pair.offsetHeight };
         const wanted = { ...dateMenuOrigin(anchor, size, host, side), ...size };
-        const origin = clearOf(wanted, [anchor, ...avoided], host, LEGAL_STRIP);
+        const origin = clearOf(wanted, [anchor, ...avoided], host, { foot: LEGAL_STRIP, axis: side === 'above' ? 'x' : 'y' });
         pair.style.setProperty('left', `${String(origin.x)}px`);
         pair.style.setProperty('top', `${String(origin.y)}px`);
     }

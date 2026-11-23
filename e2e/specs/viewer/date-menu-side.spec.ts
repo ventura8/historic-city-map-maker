@@ -1,5 +1,5 @@
 import type { Locale } from '@hcm/shared';
-import type { Page } from '@playwright/test';
+import type { Locator, Page } from '@playwright/test';
 
 import { twoDatesOf1980 } from '../../fixtures/manifest.js';
 import { expect, test } from '../../support/test.js';
@@ -19,6 +19,17 @@ async function restOnTheYear(page: Page, lang: Locale, width: number, height: nu
     // Enter on the year (a keyboard, a remote, a phone's pill): the same menu on every window (V13).
     await page.getByRole('slider', { name: t(lang, 'timeline.label'), exact: true }).focus();
     await page.keyboard.press('Enter');
+}
+
+async function boxOrNull(locator: Locator): Promise<{ x: number; y: number; width: number; height: number }> {
+    const box = await locator.boundingBox();
+    expect(box, 'on screen').not.toBeNull();
+    return box ?? { x: 0, y: 0, width: 0, height: 0 };
+}
+
+/** The px between the row and the timeline: past a standing one, above a lying one (negative: over it). */
+function gapBeside(pair: { x: number; y: number; width: number; height: number }, card: typeof pair, standing: boolean): number {
+    return standing ? pair.x - (card.x + card.width) : card.y - (pair.y + pair.height);
 }
 
 function overlaps(a: { x: number; y: number; width: number; height: number }, b: typeof a): boolean {
@@ -70,6 +81,13 @@ for (const [width, height] of [
             for (const box of [datesBox, slidersBox]) {
                 expect(box !== null && box.x >= 0 && box.x + box.width <= width, 'inside the window').toBe(true);
             }
+            const pair = await boxOrNull(viewer(page).locator('hcm-date-menu .pair'));
+            const card = await boxOrNull(viewer(page).locator('hcm-timeline'));
+            const standing = (await viewer(page).locator('hcm-timeline').getAttribute('orientation')) === 'vertical';
+            // Beside the timeline (above a lying one, past a standing one), never moved off to a corner (the owner, 2026-11-23).
+            const gap = gapBeside(pair, card, standing);
+            expect(gap, 'the row is beside the timeline').toBeGreaterThanOrEqual(0);
+            expect(gap, 'the row is beside the timeline, not in a corner').toBeLessThanOrEqual(24);
         },
     );
 
@@ -105,5 +123,27 @@ test(
             const lone = (await sliders.count()) > 0 && (await dates.count()) === 0;
             expect(lone, 'no sliders without their dates').toBe(false);
         }).toPass();
+    },
+);
+
+test(
+    'A click on another year opens its dates by that year, not by the year the thumb glides from',
+    { tag: '@S-V13-BAD-MENU-BY-OLD-THUMB' },
+    async ({ page, lang }) => {
+        await page.setViewportSize({ width: 1440, height: 900 });
+        await serveManifest(page, twoDatesOf1980());
+        await openViewer(page, { lang, hash: '15/44.37000/25.97000' });
+        await callController(page, 'setYear', null);
+        const stop = await boxOrNull(viewer(page).locator('hcm-timeline .stop').first());
+        await page.mouse.click(stop.x + stop.width / 2, stop.y + stop.height / 2);
+        const pair = viewer(page).locator('hcm-date-menu .pair');
+        await expect(pair).toBeVisible();
+        const row = await boxOrNull(pair);
+        const card = await boxOrNull(viewer(page).locator('hcm-timeline'));
+        // The thumb glided from "today" at the far end for 350 ms: the row is by 1980 all the same (the owner, 2026-11-23).
+        // By 1980's end of the timeline (moved along it only past the photos chip), never by today's at the other end.
+        expect(row.x + row.width / 2, 'the row is by 1980').toBeLessThan(card.x + card.width / 2);
+        expect(gapBeside(row, card, false), 'just above the timeline').toBeGreaterThanOrEqual(0);
+        expect(gapBeside(row, card, false), 'just above the timeline').toBeLessThanOrEqual(24);
     },
 );

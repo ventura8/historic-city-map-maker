@@ -2983,11 +2983,11 @@
             "behaviour": "V13",
             "area": "viewer",
             "path": "happy",
-            "title": "The dates and the opacity sliders sit side by side",
-            "asserts": "Enter on the selected pill of a year of two dates -> the dates menu and the sliders share one row (apart along it, overlapping in height) and both lie inside the window (1440 x 900 down to 360 x 800 and 800 x 360)",
+            "title": "The dates and the opacity sliders sit side by side, anchored to the year pill",
+            "asserts": "Enter on the selected pill of a year of two dates -> the dates menu and the sliders share one row (apart along it, overlapping in height), lie inside the window and stay adjacent to the timeline (above a lying one, beside a standing one, never jumped to a corner) (1440 x 900 down to 360 x 800 and 800 x 360)",
             "tier": "e2e-viewer",
             "status": "exists",
-            "notes": "Owner 2026-11-23: the sliders were stacked over the dates with cut labels. One flex row placed as one box (hcm-date-menu.ts .pair); on a narrow phone the two columns share the width and their labels wrap. Tests: e2e/specs/viewer/date-menu-side.spec.ts, packages/ui/test/viewer/hcm-date-menu.test.ts; tour state timeline-opacity-several."
+            "notes": "Owner 2026-11-23: the sliders were stacked over the dates with cut labels, and clearing map controls could jump the row to the top-right corner. One flex row placed as one box (hcm-date-menu.ts .pair, date-menu-clear.ts axis-first shift); on a narrow phone the two columns share the width and their labels wrap. Tests: e2e/specs/viewer/date-menu-side.spec.ts, packages/ui/test/viewer/hcm-date-menu.test.ts; tour state timeline-opacity-several."
         },
         {
             "id": "S-V13-BAD-SLIDERS-ALONE",
@@ -2999,6 +2999,17 @@
             "tier": "e2e-viewer",
             "status": "exists",
             "notes": "Owner 2026-11-23: a mouse on the pill (or back on it after the menu's scrim closed the menu) showed the timeline's card alone. OpacityReveal never shows for a year of several dates (timeline-opacity.ts). Tests: e2e/specs/viewer/date-menu-side.spec.ts, packages/ui/test/viewer/hcm-timeline-opacity.test.ts."
+        },
+        {
+            "id": "S-V13-BAD-MENU-BY-OLD-THUMB",
+            "behaviour": "V13",
+            "area": "viewer",
+            "path": "bad",
+            "title": "A click on another year opens its dates by that year, not by today",
+            "asserts": "at 1440 x 900 on today, a click on 1980 (two dates) -> the dates and sliders row lies on the 1980 half of the timeline (moved along it only past the photos chip), 0 to 24 px above it, though the thumb still glides from today",
+            "tier": "e2e-viewer",
+            "status": "exists",
+            "notes": "Owner 2026-11-23: a click on 2017 opened its menu by the map buttons in the top-right corner: the anchor was the thumb read mid-glide (350 ms). datesOpenEvent (timeline-dates.ts) centres on the selected .stop; clearOf moves along the timeline first (date-menu-clear.ts). LESSONS 779. Tests: e2e/specs/viewer/date-menu-side.spec.ts, packages/ui/test/viewer/timeline-dates.test.ts, hcm-timeline-dates.test.ts."
         },
         {
             "id": "S-V13-BAD-SLIDERS-OVER-TIMELINE",
