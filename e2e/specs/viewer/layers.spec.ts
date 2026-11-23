@@ -219,7 +219,8 @@ test('The layer slider draws the layer at 100 % and not at all at 0 %', { tag: '
     await expect(slider).toHaveAttribute('aria-valuetext', t(lang, 'layers.opacityValue', { percent: '0' }));
     await closePanel(page, lang);
     await expectColourAt(page, probe, BASEMAP_BACKGROUND, 'the layer at 0 %');
-    await expect.poll(() => hashParam(page, 'op')).toBe(`${E2E_TILESET_LAYER.id}:0`);
+    // Opacity 0 is never written into the link (S-V23-BAD-ZERO-NOT-WRITTEN): a shared link reopens it at its default.
+    await expect.poll(() => hashParam(page, 'op')).toBeNull();
 });
 
 test('An opacity out of range in the hash is clamped', { tag: '@S-V05-BAD-HASH-OUT-OF-RANGE' }, async ({ page, lang }) => {
@@ -230,11 +231,12 @@ test('An opacity out of range in the hash is clamped', { tag: '@S-V05-BAD-HASH-O
     await page.evaluate((layer) => {
         location.hash = `15/44.37000/25.97000&layers=${layer}&opacity=-2.5`;
     }, E2E_TILESET_LAYER.id);
-    await expectColourAt(page, probe, BASEMAP_BACKGROUND, 'opacity=-2.5 draws it at 0 %');
+    // -2.5 clamps to 0, and a layer a link turns on is never invisible (S-V23-HAPPY-ON-NEVER-INVISIBLE): it opens at its
+    // default opacity, and neither the legacy `opacity=` nor a zero `op` stays in the link.
     await openLayers(page, lang);
-    await expect(opacitySlider(page, lang, LAYER_LABEL)).toHaveAttribute('aria-valuenow', '0');
+    await expect(opacitySlider(page, lang, LAYER_LABEL)).not.toHaveAttribute('aria-valuenow', '0');
     await expect.poll(() => currentHash(page)).not.toContain('opacity=');
-    await expect.poll(() => hashParam(page, 'op')).toBe(`${E2E_TILESET_LAYER.id}:0`);
+    await expect.poll(() => hashParam(page, 'op')).toBeNull();
 });
 
 test("A layer's stored adjustments are drawn: brighter and greyer than its raw tiles", { tag: '@S-V25-HAPPY' }, async ({ page, lang }) => {
