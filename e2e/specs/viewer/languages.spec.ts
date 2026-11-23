@@ -103,11 +103,14 @@ test.describe('the viewer in any of its languages', () => {
                 .locator('.map')
                 .evaluate((map) => getComputedStyle(map).direction),
         ).toBe('ltr');
-        // Today, the timeline's last stop, is on the left right to left.
+        // Today, the timeline's last stop, is left of the first right to left. The stops sit together at the card's start
+        // (the card spans the map's width since b0b535a6), so the thumb is compared with the stops, not the card's middle.
         const slider = page.getByRole('slider', { name: t('ar', 'timeline.label'), exact: true });
-        const track = await viewer(page).locator('hcm-timeline').boundingBox();
+        const stops = await viewer(page)
+            .locator('hcm-timeline .stops > li')
+            .evaluateAll((items) => items.map((item) => item.getBoundingClientRect().x + item.getBoundingClientRect().width / 2));
         const thumb = await slider.boundingBox();
-        expect(thumb !== null && track !== null && thumb.x + thumb.width / 2 < track.x + track.width / 2).toBe(true);
+        expect(thumb !== null && thumb.x + thumb.width / 2 < Math.max(...stops)).toBe(true);
         await expect(menuButton(page, 'ar')).toBeVisible();
         expect(await i18nLeaks(page, 'ar')).toEqual([]);
     });

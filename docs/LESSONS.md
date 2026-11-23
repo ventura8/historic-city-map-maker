@@ -4527,3 +4527,38 @@ Append a numbered entry to *Lessons from this repository* in the task that finds
     - Cause: `OpacityReveal.onThumbUp` called a tap any lift within 10 px of the press, never looking at the way between, so today → 1980 → today was a tap on the selected pill: the phone's modal sheet opened and took the focus.
     - Fix and pin: `onThumbMove` forgets the press once the finger leaves the slop (`timeline-opacity.ts`; `hcm-timeline-opacity.test.ts` `badPath_aFingerThatSweptAwayAndBackIsNotATap`, S-V68-BAD-DWELL-SWEEP).
     - **A tap is a press that never left its slop, not one that ends near where it began.**
+
+781. **A place category with sub-groups was a 144 px row in Layers, where every other row is 96 px** (2026-11-23, the full `all` run: `layers-date.spec.ts` at every viewer project).
+    - Cause: the sub-groups' chevron (`overlay-subgroups.ts`, 4deabaec) came last in the row's grid with no place of its own, so auto-placement gave it a third row under the opacity slider; the spec's "an undated Places row" was that row.
+    - Fix and pin: the chevron sits in the swatch's column of the slider's row (`grid-row: 2; grid-column: 1`), the row back to 96 px (S-V03-HAPPY-LAYER-DATE, S-V03-BAD-LAYER-NO-DATE).
+    - **A new item in a grid row gets an explicit cell: auto-placement adds a row when the existing ones are full.**
+
+782. **About 30 admin-flow and viewer rows waited for "Opțiunile fotografiilor", which a city without photos never draws** (2026-11-23, publish, settings/map and others in the full `all` run).
+    - Cause: e2e `openLayers` took the Photos switch's options button as the sign that Layers is open (2026-11-16); since e39defda a city without photos draws no Photos switch, and the admin flows seed a city without photos. The page looked chrome-less in the failure snapshot only because the panel never opened.
+    - Fix and pin: `openLayers` waits for the Layers region itself (`e2e/support/viewer.ts`); `settings/map.spec.ts` checks the photos' default in the manifest, since that city has no Photos slider.
+    - **A helper's "it is open" marker is the thing that opened, never a control inside it that depends on the data.**
+
+783. **Setup's install states opened the Sources step, not the pipeline, so 16 rows waited for a card that was never open** (2026-11-23, `install/states.spec.ts`).
+    - Cause: M28 added Sources, a required step done once the city holds `sources`; a3f85a92 seeded it in the install step specs but not in `specs/install/states.spec.ts`, whose first not-done step became Sources.
+    - Fix and pin: the spec seeds the city with its sources chosen (`seedClaimedCity(..., true)`).
+    - **A new required step is seeded in every spec that counts on "the first step not done", found with a search for the seeding helper.**
+
+784. **An aerial photo with a crossed viewed area vanished from the admin, so the editor could never say what was wrong** (2026-11-23, S-A195-BAD-SHAPE).
+    - Cause: the admin read photos with `photoDocSchema`, whose `viewedArea` must be convex; the rules accept any four corners, so a crossed area written outside the admin failed the read and the store dropped the whole photo ("does not match its schema and is not shown").
+    - Fix and pin: the admin's photo list and editor read with `storedPhotoDocSchema` (any four corners, as the rules); Save still validates with `photoDocSchema`, which flags `validation.viewedArea`; the manifest still skips the photo (S-V77-BAD-CROSSED).
+    - **A read schema is no stricter than the rules: what the store may hold must open, so the editor can say why it cannot be saved.**
+
+785. **The Wikipedia card's Hide buttons had no name naming their article** (2026-11-23, S-A230-HAPPY-SAVE timing out on the click).
+    - Cause: `wikipedia-section.ts` set `aria-label` on `<hcm-button>`'s host, which names nothing: the kit's inner button carries the name from the `label` property.
+    - Fix and pin: `.label=` on the button; the spec finds "Hide Palatul CEC from the map" by role and name.
+    - **On a kit button the accessible name goes through its `label` property; ARIA on a custom element's host names nothing.**
+
+786. **The GeoJSON import's preview read as empty on the admin map** (2026-11-23, `pois/import-delete.spec.ts:153`).
+    - Cause: since points cluster (d6906378) a category's points live in `hcm-source-<id>-points` and only its lines and areas in `hcm-source-<id>`; the e2e helper `overlayFeatureIds` still read only the second, so a preview of points counted none.
+    - Fix and pin: the helper reads both sources (`e2e/admin/support/map.ts`; S-A34-HAPPY).
+    - **When a source splits in two, every reader of the old one is updated in the same change: search for the id's prefix, tests included.**
+
+787. **Eight viewer specs still asserted what the viewer did before the week's changes** (2026-11-23, the full `all` run: year-reveal, layers-pinned, layers, photos, pois, languages).
+    - Cause: 03537533 moved two docked-pane specs to 1280 x 720, where Layers is a sheet (only extra-large docks it); 47d99317 stopped writing opacity 0 into the link and opens a linked layer visible; f730d877 renamed the place's photos heading to its media; b3e760f0 put aerial layers in their own section; a year-only photo reads "Year 1944"; b0b535a6 spread the timeline card over the map's width, so the RTL check against the card's middle no longer said where today is.
+    - Fix and pin: each spec asserts the current behaviour (1680 x 720, no `op` at 0, `poi.media`, `layers.group.aerial`, `photo.year`, today left of the stops).
+    - **A change of behaviour runs the e2e specs of its surface in the same task; a unit test of the new rule does not reveal the specs that pinned the old one.**
