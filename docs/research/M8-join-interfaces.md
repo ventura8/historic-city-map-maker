@@ -181,6 +181,16 @@ Warping stays memory-bounded (`warpMemoryLimit`, `flags.gdal_progress`).
 ### Step `merge` (output `work/{city}/{job}/warped.tif`)
 
 1. **Warp used parts.** One at a time, `scan.tif` through its plan at `SENSOR_SPECS` maxzoom, `targetAlignedPixels`, clipped, `GTIFF_OPTIONS`; `unstage` each scan.
+   - **From the original** (2026-11-23, Planul IGA 1911 joined from its 6000 px copies): an archive single map's `scan.tif` is
+     only its working copy (`LARGEST_WORKING_PX`), so `Warper.full` copies the part's original (`placing/original.py`
+     `version_original`, from the part version's `source`, on the computer that holds the archive) as a tiled TIFF and scales the
+     part's points and the plan's nodes from the copy's pixels to the original's, as a single map's `regeoref` does; GDAL's cache is
+     held to `fullres.CACHE_BYTES` and the warp to `warp_memory_mb()`. The output grid stays the job's `maxzoom`. An original gone,
+     unreadable, on another machine (a cloud run), or a part over terrain or without points warps the stored copy. The log names the
+     choice per part: `part X warped on the original, W x H px` or `part X warped on its N px copy (original missing)`
+     (`S-P05-HAPPY-JOIN-FULLRES`, `S-P05-BAD-JOIN-FULLRES-COPY`). `align` and its previews stay on the copy: they only measure.
+     **Join again** of the same sheets reruns `align` and `merge` on the parts' saved points, so an existing join is rebuilt from
+     the originals with no new points; the georeferencer's `EDITABLE_STATES` stays as it is.
 2. **Tone at z12 (38 m).**
    - The anchor is the largest owned area, then BFS across seams. A seam off the tree is only measured.
    - Linear gain + offset from p2/p98 in the overlap, gain clamped to 0.5–2.

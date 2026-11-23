@@ -7,6 +7,12 @@ pixels (`ground_grid`, at `FINE_ZOOM`, moved to each level's grid: `regridded`) 
 smooth field alone and never the relief, which no spread of nodes holds (A001: 11 m RMS through 17 x 17). Warps stay memory-bounded
 (`rasters.warp_memory_mb`) and stop with the run (`gdal_progress`). A scan is staged only while it is warped, or while a seam it lies on is
 measured: on Cloud Run the scratch folder is memory.
+
+The merge warps each part at full resolution (`Warper.full`): a part placed on its working copy (an archive single map's copy is at
+most `LARGEST_WORKING_PX` long) is warped from its original on the computer that holds the archive, its points and nodes scaled from
+the copy's pixels to the original's, as a single map's `regeoref` does (`steps/warp.py` `full_resolution`); GDAL's block cache is held
+to `fullres.CACHE_BYTES` and the warp reads window by window. An original that is gone or unreadable leaves the stored copy warped;
+the job's log names which one each part used. Align and its previews stay on the copy: they only measure the seams.
 """
 
 import uuid
@@ -21,15 +27,17 @@ import numpy.typing
 from hcm_pipeline.documents import GeorefInfo
 from hcm_pipeline.geo import FloatArray, Grid, MercatorBox, to_mercator
 from hcm_pipeline.images import as_uint8
-from hcm_pipeline.jobs import JobContext
+from hcm_pipeline.jobs import JobContext, StepFailedError
 from hcm_pipeline.join.canvas import COARSE_ZOOM, COLOUR_BANDS, FINE_ZOOM, RGB, DatasetSource, Raster, level_grid, luma, spilled
 from hcm_pipeline.join.correction import BaseTransform, Mapping, Node
 from hcm_pipeline.join.plan import Part
 from hcm_pipeline.join.room import out_of_room
+from hcm_pipeline.placing.fullres import CACHE_BYTES
+from hcm_pipeline.placing.original import version_original
 from hcm_pipeline.raster import gdal
 from hcm_pipeline.rasters import GTIFF_OPTIONS, WEB_MERCATOR, driver_of, srs_wkt, warp_memory_mb
 from hcm_pipeline.steps.common import gdal_step
-from hcm_pipeline.steps.warp import attached, cutline, rendered_points
+from hcm_pipeline.steps.warp import attached, cutline, rendered_points, scaled, scan_size
 
 FLAT_GROUND: Final = 0.0
 DST_SRS: Final = "DST_SRS=EPSG:3857"
@@ -126,6 +134,17 @@ def node_reverse(nodes: Sequence[Node], size: tuple[int, int]) -> Mapping:
     return _mapping(_transformer(gcps, size, TPS_METHOD), REVERSE)
 
 
+@dataclass(frozen=True)
+class Sharpest:
+    """What a part is warped from in the merge: its picture, and its map and nodes in that picture's pixels."""
+
+    picture: Path
+    georef: GeorefInfo
+    nodes: tuple[Node, ...]
+    # The original's tiled copy is the merge's own scratch file, deleted once warped; the staged copy is released as before.
+    original: bool = False
+
+
 @dataclass
 class Warper:
     """A join's warps of its parts over one box."""
@@ -160,17 +179,42 @@ class Warper:
     def release(self, part: Part) -> None:
         self.ctx.unstage(part.scan.path)
 
-    def attached(self, part: Part, grid: Grid, nodes: Sequence[Node] = ()) -> tuple[Path, dict[str, object]]:
-        """The staged scan as a VRT with its own map, or with its nodes (a thin-plate warp); a part over terrain with nodes is read
-        onto `grid` first, its nodes moved to that grid."""
-        scan = self._scan(part)
+    def full(self, part: Part, nodes: Sequence[Node]) -> Sharpest:
+        """What the merge warps (module docstring): the part's original with its points and nodes scaled to it, else its stored copy;
+        the choice logged per part."""
+        original = self._original(part) if part.georef.method == "gcps" and part.georef.terrain is None else None
+        if original is None:
+            longest = max(part.scan.width, part.scan.height)
+            self.ctx.log.info(f"part {part.entity_id} warped on its {longest} px copy (original missing)", self.ctx.step)
+            return Sharpest(self._scan(part), part.georef, tuple(nodes))
+        width, height = scan_size(original)
+        sx, sy = width / part.scan.width, height / part.scan.height
+        self.ctx.log.info(f"part {part.entity_id} warped on the original, {width} x {height} px", self.ctx.step)
+        moved = tuple((u * sx, v * sy, x, y) for u, v, x, y in nodes)
+        return Sharpest(original, scaled(part.georef, sx, sy), moved, original=True)
+
+    def _original(self, part: Part) -> Path | None:
+        """`version_original`, or None when reading it fails: the merge never fails on an original."""
+        try:
+            return version_original(self.ctx, part.version)
+        except (StepFailedError, RuntimeError) as error:
+            self.ctx.log.warn(f"the original of part {part.entity_id} could not be read ({error})", self.ctx.step)
+            return None
+
+    def attached(
+        self, part: Part, grid: Grid, nodes: Sequence[Node] = (), sharpest: Sharpest | None = None
+    ) -> tuple[Path, dict[str, object]]:
+        """The staged scan (or `sharpest`'s picture) as a VRT with its own map, or with its nodes (a thin-plate warp); a part over
+        terrain with nodes is read onto `grid` first, its nodes moved to that grid."""
+        scan = self._scan(part) if sharpest is None else sharpest.picture
+        georef = part.georef if sharpest is None else sharpest.georef
 
         def local(name: str) -> Path:
             return self.ctx.local(f"{part.version.id}-{name}")
 
         reference = ground_grid(part, self.box)
         if not nodes:
-            found = gdal_step(self.ctx, lambda: attached(scan, part.georef, local), "attach the map")
+            found = gdal_step(self.ctx, lambda: attached(scan, georef, local), "attach the map")
             return found.source, found.method
         if reference is None:
             return gdal_step(self.ctx, lambda: node_source(scan, nodes, local("nodes.vrt")), "attach the nodes"), {"tps": True}
@@ -210,8 +254,9 @@ class Warper:
         return gdal_step(self.ctx, lambda: DatasetSource(target), "open a frame's fine level")
 
     def rendered(self, part: Part, nodes: Sequence[Node], grid: Grid) -> Path:
-        """The part on `grid` as a local file; its scan is released."""
-        source, method = self.attached(part, grid, nodes)
+        """The part on `grid` as a local file, warped from its original when it can be read (`full`); its scan is released."""
+        sharpest = self.full(part, nodes)
+        source, method = self.attached(part, grid, sharpest.nodes, sharpest)
         target = self.ctx.local(f"{part.version.id}-warped.tif")
         options = {
             **self._options(part, grid, method),
@@ -219,6 +264,17 @@ class Warper:
             "creationOptions": list(GTIFF_OPTIONS),
             "callback": self.ctx.flags.gdal_progress,
         }
-        gdal_step(self.ctx, lambda: gdal.Warp(str(target), str(source), **options).Close(), "warp a frame")
-        self.release(part)
+        previous = gdal.GetCacheMax()
+        gdal.SetCacheMax(CACHE_BYTES)
+        try:
+            gdal_step(self.ctx, lambda: gdal.Warp(str(target), str(source), **options).Close(), "warp a frame")
+        finally:
+            gdal.SetCacheMax(previous)
+        self.done_with(part, sharpest)
         return target
+
+    def done_with(self, part: Part, sharpest: Sharpest) -> None:
+        """The staged copy released and the original's tiled copy deleted: the scratch folder may be memory."""
+        self.release(part)
+        if sharpest.original:
+            sharpest.picture.unlink(missing_ok=True)

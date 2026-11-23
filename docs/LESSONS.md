@@ -4566,3 +4566,8 @@ Append a numbered entry to *Lessons from this repository* in the task that finds
     - Cause: b96b782b made the page's tab-icon script (`showCityIcon`, `scripts/site/src/hosting/city-page.ts`) fetch the city's manifest at load to read `city.ownIcon`, beside the engine's own request; the engine never retries a 404, but the page asked twice.
     - Fix and pin: the script reads the manifest only after the engine's `hcm-ready`, from the browser's cache; a missing manifest is asked for once. Unit test `badPath_aCityWhoseMapNeverGetsReadyNeverAsksForItsManifestAgain`.
     - **A page script that needs the city's data waits for the engine's event instead of fetching the same file again.**
+
+789. **A multi-sheet join was blurry: every part was warped from its 6000 px working copy** (2026-11-23, Planul IGA 1911, join `jn-mws4mpvv-planul-iga-1911-foaia-1`, four sheets of about 7904 x 6660 px): the single maps had been fixed to warp their originals, but the join's `merge` still staged each part's `version.scan`.
+    - Cause: `join/warping.py` `Warper._scan` read `part.scan.path`, the reduced copy the points were placed on; only `steps/warp.py` (`full_resolution`) and `placing/fullres.py` knew about originals.
+    - Fix and pin: `Warper.full` copies each part's original (`placing/original.py` `version_original`) and scales its points and nodes to it, falling back to the copy with a per-part log line (`test_join_fullres.py`, S-P05-HAPPY-JOIN-FULLRES, S-P05-BAD-JOIN-FULLRES-COPY). **Join again** rebuilds existing joins with no new points.
+    - **Every warp that publishes reads the original; a working copy is only for placing and measuring.**

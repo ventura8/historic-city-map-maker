@@ -15214,6 +15214,28 @@
             "notes": "M9 (docs/research/M9-calibration.md §15). Test: pipeline/tests/unit/test_calibrate_edges.py, e2e/admin/specs/imagery/join-pipeline.spec.ts."
         },
         {
+            "id": "S-P05-HAPPY-JOIN-FULLRES",
+            "behaviour": "P05",
+            "area": "pipeline",
+            "path": "happy",
+            "title": "A join's merge warps each archive part from its full-resolution original",
+            "asserts": "the part's original (twice its copy's size) is copied tiled and warped, its points and nodes scaled from the copy, the log says 'part X warped on the original, 440 x 400 px', and the copy is deleted after",
+            "tier": "e2e-pipeline",
+            "status": "exists",
+            "notes": "2026-11-23 Planul IGA 1911 joined from its 6000 px copies (docs/LESSONS.md). Test: pipeline/tests/unit/test_join_fullres.py."
+        },
+        {
+            "id": "S-P05-BAD-JOIN-FULLRES-COPY",
+            "behaviour": "P05",
+            "area": "pipeline",
+            "path": "bad",
+            "title": "A join part whose original cannot be reached is warped from its stored copy",
+            "asserts": "an original gone, unreadable, on another computer or a part without points warps the stored copy, the job goes on and the log says 'part X warped on its 220 px copy (original missing)'",
+            "tier": "e2e-pipeline",
+            "status": "exists",
+            "notes": "2026-11-23 (docs/LESSONS.md). Test: pipeline/tests/unit/test_join_fullres.py."
+        },
+        {
             "id": "S-P06-HAPPY-VOTES",
             "behaviour": "P06",
             "area": "pipeline",
