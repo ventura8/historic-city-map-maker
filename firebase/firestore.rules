@@ -394,7 +394,8 @@ service cloud.firestore {
                 && data.get('fov', 1) >= 1 && data.get('fov', 1) <= 180
                 // zod `viewedAreaSchema`: an aerial photo's footprint has four corners (convexity is the admin's and zod's check).
                 && (!('viewedArea' in data) || (data.viewedArea is list && data.viewedArea.size() == 4))
-                && data.license in ['CC0', 'CC-BY-4.0', 'CC-BY-SA-4.0', 'PD', 'permission', 'permission-legacy', 'unknown']
+                && data.license in ['CC0', 'CC-BY-4.0', 'CC-BY-SA-4.0', 'CC-BY-3.0', 'CC-BY-SA-3.0', 'CC-BY-SA-3.0-RO', 'CC-BY-2.0',
+                    'CC-BY-SA-2.0', 'PD', 'permission', 'permission-legacy', 'unknown']
                 && data.published is bool
                 && data.get('rightsReview', false) is bool
                 && data.get('kind', 'ground') in ['ground', 'aerial', 'interior']

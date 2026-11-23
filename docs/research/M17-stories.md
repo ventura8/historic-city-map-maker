@@ -236,7 +236,11 @@ A place carries structured facts, `facts` on its document and in the manifest (`
   style in both languages, floors, height, the LMI code, uses and addresses one per line (`1906-1940: Pavilion`,
   `azi: Str. …`; `facts-text.ts`) and the related places from the loaded list. A field writes when the admin leaves it.
 - **Import**: a GeoJSON feature's `properties.facts` (the content agent's facts.json, per place, in the same shape) is taken
-  when `placeFactsSchema` accepts it, else dropped with the place kept; the export writes it back.
+  when `placeFactsSchema` accepts it, else dropped with the place kept; the export writes it back. A `null` part or an
+  empty list means "not known" and is dropped before the check (2026-11-23: `"yearEnd": null` cost a researched file all
+  its facts). A feature with no `title` takes `name` as its title (what OSM and most GIS tools write).
+- **An import updates the whole place**: a feature naming an existing id replaces its title, links, photo ids and
+  categories with the file's; to change only the facts of a live place, use the editor's *About the place*.
 - **Scenarios**: V81, A200.
 
 ## 14. Building plans per level (the owner, 2026-11-22)

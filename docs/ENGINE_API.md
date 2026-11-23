@@ -459,7 +459,7 @@ At most `MAX_LAYERS` (300; 100 until 2026-11-22, raised when the Bucharest manif
 | `month?`, `day?` | integer | 1 to 12 and 1 to 31: the date's precision beyond the year. A month needs a `year` (and a `yearEnd`, when present, equal to it), a day needs a month and must exist in it, leap years counted (`validation.datePart`, `validation.dateRange`, `validation.dateImpossible`). The viewer reads them through `Intl`: `12 iulie 1936`, `12 July 1936`, `Iulie 1936`, `July 1936`; the timeline keeps using the year |
 | `dateText?` | `{ro, en?}` | the source's own dating, such as `Vara lui 1936`; when present it is what the visitor reads, before any other date |
 | `author?`, `rightsHolder?` | string | at most 200 characters |
-| `license` | enum | `CC0`, `CC-BY-4.0`, `CC-BY-SA-4.0`, `PD`, `permission`, `permission-legacy` |
+| `license` | enum | `CC0`, `CC-BY-4.0`, `CC-BY-SA-4.0`, `CC-BY-3.0`, `CC-BY-SA-3.0`, `CC-BY-SA-3.0-RO`, `CC-BY-2.0`, `CC-BY-SA-2.0`, `PD`, `permission`, `permission-legacy`; a Creative Commons licence shows as a link to its legal code (`LICENSE_URLS`) |
 | `rightsReview?` | boolean | the rights of a migrated photo are being confirmed (the viewer shows a note) |
 | `source?` | `{url, label?}` | where the photo comes from: https only, a label of at most 200 characters; the sheet shows a plain link in a new tab (`rel` with `noopener`), its text the label or else the address's host |
 | `links` | `[{url, label}]` | at most 5, https only (legacy HTML was converted to these) |

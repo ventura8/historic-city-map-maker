@@ -55,7 +55,31 @@ import { wikipediaRefSchema } from './wikipedia.js';
 export const MANIFEST_VERSION = 1;
 
 /** Photo licences that may be published (`unknown` exists only in Firestore and is never published). */
-export const LICENSES = ['CC0', 'CC-BY-4.0', 'CC-BY-SA-4.0', 'PD', 'permission', 'permission-legacy'] as const;
+export const LICENSES = [
+    'CC0',
+    'CC-BY-4.0',
+    'CC-BY-SA-4.0',
+    'CC-BY-3.0',
+    'CC-BY-SA-3.0',
+    'CC-BY-SA-3.0-RO',
+    'CC-BY-2.0',
+    'CC-BY-SA-2.0',
+    'PD',
+    'permission',
+    'permission-legacy',
+] as const;
+
+/** The legal code of each Creative Commons licence (2026-11-23: Wikimedia Commons photos come under the older versions too). */
+export const LICENSE_URLS: Readonly<Partial<Record<(typeof LICENSES)[number], string>>> = {
+    CC0: 'https://creativecommons.org/publicdomain/zero/1.0/',
+    'CC-BY-4.0': 'https://creativecommons.org/licenses/by/4.0/',
+    'CC-BY-SA-4.0': 'https://creativecommons.org/licenses/by-sa/4.0/',
+    'CC-BY-3.0': 'https://creativecommons.org/licenses/by/3.0/',
+    'CC-BY-SA-3.0': 'https://creativecommons.org/licenses/by-sa/3.0/',
+    'CC-BY-SA-3.0-RO': 'https://creativecommons.org/licenses/by-sa/3.0/ro/',
+    'CC-BY-2.0': 'https://creativecommons.org/licenses/by/2.0/',
+    'CC-BY-SA-2.0': 'https://creativecommons.org/licenses/by-sa/2.0/',
+};
 
 export const LAYER_KINDS = ['satellite', 'aerial', 'map'] as const;
 

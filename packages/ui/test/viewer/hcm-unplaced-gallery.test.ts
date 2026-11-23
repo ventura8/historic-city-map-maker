@@ -51,6 +51,20 @@ describe('<hcm-unplaced-gallery>', () => {
         }
     });
 
+    it('happyPath_aCreativeCommonsLicenceLinksToItsLegalCode @S-A232-HAPPY-LICENCES', async () => {
+        const element = await mountElement<HcmUnplacedGallery>(HCM_UNPLACED_GALLERY_TAG, {
+            photos: [{ ...unplaced(), id: 'cc', license: 'CC-BY-SA-3.0-RO' }, { ...unplaced(), id: 'pd', license: 'PD' }],
+            manifestUrl: TEST_MANIFEST_URL,
+            contributeUrl: null,
+            locale: 'en',
+        });
+        await expect.element(page.getByText('CC BY-SA 3.0 RO', { exact: true })).toBeVisible();
+        const links = shadowQueryAll(element, 'a[rel="license noopener"]');
+        expect(links.map((link) => [link.getAttribute('href'), link.textContent])).toEqual([
+            ['https://creativecommons.org/licenses/by-sa/3.0/ro/', 'CC BY-SA 3.0 RO'],
+        ]);
+    });
+
     it('badPath_noAuthorOrCreditLeavesNoEmptyLine @S-V40-HAPPY-RIGHTS', async () => {
         const gone = new Set(['author', 'rightsHolder', 'rightsReview', 'credit']);
         const bare = Object.fromEntries(Object.entries(unplaced()).filter(([key]) => !gone.has(key))) as unknown as UnplacedPhoto;

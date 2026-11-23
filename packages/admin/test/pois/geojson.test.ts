@@ -371,4 +371,34 @@ describe("GeoJSON: a place's facts (docs/research/M17-stories.md §13)", () => {
         const plan = planImport([feature({ category: 'biserici', title: { ro: 'A' }, facts: { lmiCode: 'nu' } })], CONTEXT);
         expect(plan.created.map((place) => place.value.facts)).toEqual([undefined]);
     });
+
+    it('happyPath_nullAndEmptyPartsAreNotKnown @S-A200-HAPPY-FACTS-IMPORT', () => {
+        const facts = {
+            yearBuilt: 1940,
+            yearDemolished: null,
+            uses: [{ use: { ro: 'hotel', en: 'hotel' }, yearStart: 1940, yearEnd: null }],
+            addresses: [{ text: 'Calea Griviței 138B', yearStart: null, current: true }],
+            relatedPlaceIds: [],
+        };
+        const plan = planImport([feature({ category: 'biserici', title: { ro: 'Hotel' }, facts })], CONTEXT);
+        expect(plan.created[0]?.value.facts).toEqual({
+            yearBuilt: 1940,
+            uses: [{ use: { ro: 'hotel', en: 'hotel' }, yearStart: 1940 }],
+            addresses: [{ text: 'Calea Griviței 138B', current: true }],
+        });
+    });
+});
+
+describe('GeoJSON: `name` stands for `title`', () => {
+    it('happyPath_nameIsTheTitleWhenThereIsNoTitle @S-A34-HAPPY', () => {
+        const named = feature({ category: 'biserici', name: { ro: 'Hala Matache', en: 'Matache Hall' } });
+        const both = feature({ category: 'biserici', title: { ro: 'Titlu' }, name: 'Nume' });
+        const plan = planImport([named, both], CONTEXT);
+        expect(plan.created.map((place) => place.value.title)).toEqual([{ ro: 'Hala Matache', en: 'Matache Hall' }, { ro: 'Titlu' }]);
+    });
+
+    it('badPath_noTitleAndNoNameIsRefused @S-A34-BAD-INVALID-FEATURES', () => {
+        const plan = planImport([feature({ category: 'biserici', name: 3 })], CONTEXT);
+        expect(plan.refused.map((refusal) => [refusal.title, refusal.reason])).toEqual([[null, 'invalid']]);
+    });
 });

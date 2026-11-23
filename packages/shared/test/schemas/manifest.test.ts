@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest';
 
-import { MAX_LAYERS, photoKindOf } from '../../src/schemas/manifest.js';
+import { LICENSE_URLS, LICENSES, MAX_LAYERS, photoKindOf } from '../../src/schemas/manifest.js';
 import { MAX_GEOMETRY_VERTICES, MAX_POLYGON_RINGS } from '../../src/schemas/geometry.js';
 import { MAX_LINKS } from '../../src/schemas/primitives.js';
 import { parseManifestJson, validateManifest, type ValidationIssue } from '../../src/schemas/validation.js';
@@ -547,5 +547,18 @@ describe('manifest v1: every rule reports a localized code', () => {
 
     it('badPath_notAnObject', () => {
         expect(issuesOf(null)).toEqual([{ path: '', code: 'validation.type' }]);
+    });
+});
+
+describe('the licences', () => {
+    it('happyPath_everyCreativeCommonsLicenceHasItsLegalCode @S-A232-HAPPY-LICENCES', () => {
+        const cc = LICENSES.filter((license) => license.startsWith('CC'));
+        expect(cc).toEqual(['CC0', 'CC-BY-4.0', 'CC-BY-SA-4.0', 'CC-BY-3.0', 'CC-BY-SA-3.0', 'CC-BY-SA-3.0-RO', 'CC-BY-2.0', 'CC-BY-SA-2.0']);
+        expect(cc.every((license) => LICENSE_URLS[license]?.startsWith('https://creativecommons.org/') === true)).toBe(true);
+        expect(LICENSE_URLS['CC-BY-SA-3.0-RO']).toBe('https://creativecommons.org/licenses/by-sa/3.0/ro/');
+    });
+
+    it('badPath_aLicenceWithoutALegalCodeHasNoUrl @S-A232-BAD-LICENCES', () => {
+        expect([LICENSE_URLS.PD, LICENSE_URLS.permission, LICENSE_URLS['permission-legacy']]).toEqual([undefined, undefined, undefined]);
     });
 });

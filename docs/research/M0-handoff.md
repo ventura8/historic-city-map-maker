@@ -402,7 +402,7 @@ lines (one 95% branch file); `scripts/ci/check_rules_coverage.py` is at 100%.
 - `cities/{c}`: `name{ro,en}` (≤100), `bounds{west,south,east,north}` (degrees, west ≤ east,
   south ≤ north), `published`; `id`, `mapbox`, `createdAt` are server-owned.
 - `photos/{p}`: required `title`, `location{lat,lng}` (inside the city bounds ±0.5°), `license`
-  (`CC0`, `CC-BY-4.0`, `CC-BY-SA-4.0`, `PD`, `permission`, `permission-legacy`, `unknown`),
+  (`CC0`, `CC-BY-4.0`, `CC-BY-SA-4.0`, `CC-BY-3.0`, `CC-BY-SA-3.0`, `CC-BY-SA-3.0-RO`, `CC-BY-2.0`, `CC-BY-SA-2.0`, `PD`, `permission`, `permission-legacy`, `unknown`),
   `published`, `updatedBy`, `updatedAt`; optional `description{ro,en}` (≤5000), `year`/`yearEnd`
   (ints 1800–2100), `author`, `rightsHolder`, `sourceLabel` (≤200), `sourceUrl` (https only),
   `permissionNote` (≤2000), `legacyId` (≤64), `links` (list ≤5), `bearing` 0–360, `fov` 1–180,

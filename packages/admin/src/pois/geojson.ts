@@ -216,10 +216,30 @@ function groupOf(value: unknown): Readonly<Partial<Record<'group', string>>> {
     return text.length > 0 && text.length <= 60 ? { group: text } : {};
 }
 
-/** M17 §13: `{facts}` when the property is a valid facts object (`placeFactsSchema`), else nothing. */
+/** A fact or a dated item without its empty parts: `null` and `[]` mean "not known", as spreadsheets and scripts write it. */
+function withoutEmpty(value: unknown): unknown {
+    if (Array.isArray(value)) {
+        return value.map(withoutEmpty);
+    }
+    if (!isObject(value)) {
+        return value;
+    }
+    const kept = Object.entries(value).filter(([, item]) => item !== null && !(Array.isArray(item) && item.length === 0));
+    return Object.fromEntries(kept.map(([key, item]) => [key, withoutEmpty(item)]));
+}
+
+/**
+ * M17 §13: `{facts}` when the property is a valid facts object (`placeFactsSchema`) once its `null` and empty parts are
+ * dropped (2026-11-23: a researched file with `"yearEnd": null` lost all its facts), else nothing.
+ */
 function factsOf(value: unknown): Readonly<Partial<Record<'facts', PlaceFacts>>> {
-    const parsed = placeFactsSchema.safeParse(value);
+    const parsed = placeFactsSchema.safeParse(withoutEmpty(value));
     return parsed.success ? { facts: parsed.data } : {};
+}
+
+/** The feature's title: `title`, else `name` (what OSM and most GIS tools write; 2026-11-23). */
+function titleOf(properties: Raw): PoiText | null {
+    return textOf(properties['title']) ?? textOf(properties['name']);
 }
 
 /** A feature's properties as a place's value, field by field. */
@@ -228,7 +248,7 @@ function valueOf(properties: Raw, geometry: Geometry, category: string): PoiValu
     return {
         category,
         geometry,
-        title: textOf(properties['title']) ?? { ro: '' },
+        title: titleOf(properties) ?? { ro: '' },
         ...(description === null ? {} : { description }),
         ...yearOf('yearStart', properties['yearStart']),
         ...yearOf('yearEnd', properties['yearEnd']),
@@ -312,7 +332,7 @@ function checked(
 
 function mapFeature(raw: unknown, number: number, context: ImportContext): Mapped {
     const { feature, properties } = partsOf(raw);
-    const title = textOf(properties['title'])?.ro ?? null;
+    const title = titleOf(properties)?.ro ?? null;
     const refuse = (reason: ImportRefusalReason, path: string | null): Mapped => ({ refusal: { number, title, reason, path } });
     const geometry = geometryOf(feature['geometry']);
     if ('reason' in geometry) {

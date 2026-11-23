@@ -1450,6 +1450,13 @@
             "name": "Make a superseded version the live one again, while its own tiles are still public",
             "milestone": "M12",
             "source": "the owner, 2026-11-22: bring back an earlier version of the Borroczyn 1846 layer without uploading and calibrating it again (lesson 759)"
+        },
+        {
+            "id": "A232",
+            "area": "admin",
+            "name": "Photos under the older Creative Commons licences (CC BY 2.0 and 3.0, CC BY-SA 2.0, 3.0 and 3.0 RO)",
+            "milestone": "M17",
+            "source": "the owner, 2026-11-23: the Hala Matache photos from Wikimedia Commons had no licence to choose"
         }
     ],
     "scenarios": [
@@ -9852,7 +9859,7 @@
             "area": "admin",
             "path": "happy",
             "title": "A GeoJSON file is previewed and imported as places",
-            "asserts": "a FeatureCollection chosen -> the preview counts new, updated and refused features and shows them on the map -> one category chosen for the uncategorised -> Import -> batched writes; the list and the map show them; one manifest build; inputBudget 3",
+            "asserts": "a FeatureCollection chosen -> the preview counts new, updated and refused features and shows them on the map -> one category chosen for the uncategorised -> Import -> batched writes; the list and the map show them; one manifest build; inputBudget 3; a feature with name and no title takes name as its title",
             "tier": "e2e-admin",
             "status": "exists",
             "notes": "Milestone M2c (docs/research/M2c-interfaces.md §7.4; owner: pois)."
@@ -9885,7 +9892,7 @@
             "area": "admin",
             "path": "bad",
             "title": "Invalid features are listed and left out",
-            "asserts": "a MultiPolygon, a position with altitude, an open ring, a position outside the city and an unknown category -> each refused with its reason; the valid features import",
+            "asserts": "a MultiPolygon, a position with altitude, an open ring, a position outside the city and an unknown category -> each refused with its reason; the valid features import; a feature with neither title nor name is refused",
             "tier": "e2e-admin",
             "status": "exists",
             "notes": "Milestone M2c (docs/research/M2c-interfaces.md §7.4; owner: pois). Covered by e2e/tour/admin-places.tour.ts."
@@ -25010,7 +25017,7 @@
             "area": "admin",
             "path": "happy",
             "title": "A GeoJSON file's facts are imported and exported",
-            "asserts": "properties.facts valid -> the planned place carries them and the export writes them back; the place editor's About the place edits them",
+            "asserts": "properties.facts valid -> the planned place carries them and the export writes them back; the place editor's About the place edits them; null parts and empty lists in the file mean not known and are dropped, the rest kept",
             "tier": "rules",
             "status": "exists",
             "notes": "Test: firebase/rules-tests/test/pois.test.ts. Unit: packages/admin/test/pois/geojson.test.ts, packages/ui/test/admin/pois/facts-text.test.ts; rules: firebase/rules-tests/test/pois.test.ts."
@@ -25113,6 +25120,28 @@
             "tier": "functions",
             "status": "exists",
             "notes": "M12 (docs/research/M12-own-tiles.md, Make this version the live one). Tests: functions/test/imagery/make-live.test.ts, packages/admin/test/imagery/version-make-live.test.ts, packages/ui/test/admin/imagery/make-live.test.ts."
+        },
+        {
+            "id": "S-A232-HAPPY-LICENCES",
+            "behaviour": "A232",
+            "area": "admin",
+            "path": "happy",
+            "title": "A photo under CC BY-SA 3.0 RO is saved and its licence links to its legal code",
+            "asserts": "a photo with license CC-BY-SA-3.0-RO is allowed; every CC licence has its creativecommons.org URL; the viewer shows \"CC BY-SA 3.0 RO\" as a link to it",
+            "tier": "rules",
+            "status": "exists",
+            "notes": "Tests: firebase/rules-tests/test/photos.test.ts, packages/shared/test/schemas/manifest.test.ts, packages/ui/test/viewer/hcm-unplaced-gallery.test.ts."
+        },
+        {
+            "id": "S-A232-BAD-LICENCES",
+            "behaviour": "A232",
+            "area": "admin",
+            "path": "bad",
+            "title": "A licence the map does not list is refused",
+            "asserts": "a photo with license CC-BY-SA-3.0-FR is denied; public domain and permission show as text, with no link",
+            "tier": "rules",
+            "status": "exists",
+            "notes": "Tests: firebase/rules-tests/test/photos.test.ts, packages/shared/test/schemas/manifest.test.ts, packages/ui/test/viewer/hcm-unplaced-gallery.test.ts."
         }
     ]
 }

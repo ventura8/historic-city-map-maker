@@ -15,6 +15,7 @@ export { EARTH_RADIUS_M, MAX_MERCATOR_LAT, bearingDelta, clamp, roundTo, toDegre
 export type { LngLat } from './geo/math.js';
 export { streetViewUrl } from './geo/street-view.js';
 export { PHOTO_KINDS, PHOTO_VIEWS, photoKindOf, type PhotoKind, type PhotoVersion, type PhotoView } from './schemas/manifest.js';
+export { LICENSE_URLS } from './schemas/manifest.js';
 export { bearingBetween, destinationPoint, distanceMeters } from './geo/bearing.js';
 export { DEFAULT_FOV, MAX_FOV, MIN_FOV, angularSpan, areaAhead, coneFromPolygon, conePolygon, findConeApex, openRing } from './geo/cone.js';
 export type { MeasuredCone, ViewCone } from './geo/cone.js';
@@ -209,7 +210,6 @@ export { cloudEstimateSchema, rankReasonSchema, usgsBrowseUrlSchema } from './sc
 export type { CloudEstimate, RankReason, RankReasonEntry, Sensor, SensorSpec, UnusableReason, UsgsDataset } from './schemas/usgs-scene.js';
 export { AUTO_MIN_MEASURED_PCT, CITY_MIN_COVERAGE_PCT, DEFAULT_RMSE_THRESHOLD_M, JOIN_MAX_PARTS } from './schemas/imagery-settings.js';
 export { MAX_TARGET_YEARS, RMSE_THRESHOLD_RANGE, cityImagerySchema, imagerySettingsOf } from './schemas/imagery-settings.js';
-export { JOIN_MAX_FRAMES } from './schemas/imagery-settings.js';
 // M25 (docs/research/M25-landsat.md): named, never `export *` (a star re-export costs the engine bytes: docs/LESSONS.md 532).
 export { DECLASS_DATASETS, DEFAULT_LANDSAT_YEARS, ETM_SLC_OFF_DATE, LANDSAT_ATTRIBUTION } from './schemas/landsat.js';
 export { LANDSAT_AUTO_MAX_CLOUD, LANDSAT_AUTO_MAX_PER_TICK, LANDSAT_AUTO_PER_TICK, LANDSAT_DATASETS } from './schemas/landsat.js';
@@ -217,7 +217,7 @@ export { LANDSAT_MAX_CITY_CLOUD_PCT, LANDSAT_MAX_OFFSET_PX, landsatClear } from 
 export { LANDSAT_MONTHS, LANDSAT_SEARCH_MAX_CLOUD, LEAF_ON_MONTHS, USGS_DATASETS } from './schemas/landsat.js';
 export { isLandsatDataset, landsatReportSchema, landsatYearsOf } from './schemas/landsat.js';
 export type * from './schemas/landsat.js';
-export type { CityImagery, ImagerySettings } from './schemas/imagery-settings.js';
+export { JOIN_MAX_FRAMES, type CityImagery, type ImagerySettings } from './schemas/imagery-settings.js';
 export {
     CHECKPOINT_KINDS,
     GCP_ORIGINS,

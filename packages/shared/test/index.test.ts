@@ -78,6 +78,7 @@ const EXPORTS = {
         'LAYER_ADJUSTMENT_RANGES',
         'LAYER_KINDS',
         'LICENSES',
+        'LICENSE_URLS',
         'MANIFEST_VERSION',
         'MAX_LAYERS',
         'LMI_CODE_PATTERN',
