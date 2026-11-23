@@ -14,7 +14,7 @@ import { openLayers, openViewer, serveManifest, t, viewer, waitForEngineEvent } 
  */
 
 async function bootWide(page: Page, lang: Locale): Promise<void> {
-    await page.setViewportSize({ width: 1280, height: 720 });
+    await page.setViewportSize({ width: 1680, height: 720 });
     await page.goto(sitePath('bucharest', { lang, hash: '15/44.42700/26.08530&layers=e2e-1966' }));
     await waitForEngineEvent(page, 'hcm-ready');
     await mapIdle(page);
