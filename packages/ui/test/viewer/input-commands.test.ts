@@ -46,7 +46,7 @@ describe('commandAllowed', () => {
     });
 
     it('badPath_aDialogKeepsHelpAndClose', () => {
-        for (const sheet of ['about', 'help', 'settings'] as const) {
+        for (const sheet of ['about', 'help', 'settings', 'licence'] as const) {
             const state = readyState(layered(), { sheet });
 
             expect(isDialogSheet(sheet)).toBe(true);

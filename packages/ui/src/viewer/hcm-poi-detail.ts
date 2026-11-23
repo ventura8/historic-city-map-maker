@@ -216,6 +216,7 @@ export class HcmPoiDetail extends LitElement {
         }
         const years = placeYearsText(poi, this.locale);
         return html`<div class="details">
+            <hcm-favorite-star row kind="poi" item-id=${poi.id} .locale=${this.locale}></hcm-favorite-star>
             ${this.#category()} ${this.#thumbnail()} ${years === null ? nothing : html`<p class="years">${years}</p>`}
             ${
                 poi.description === undefined

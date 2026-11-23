@@ -6,6 +6,7 @@ import { ADMIN_SECTION_STATES } from './admin-sections.js';
 import { COMPARE_STATES, openComparing } from './compare-states.js';
 import { LAYER_SECTIONS_STATES } from './layer-sections-states.js';
 import { UNPLACED_JOURNEY, unplacedStates } from './unplaced-states.js';
+import { FAVORITES_JOURNEY, favoritesStates } from './favorites-states.js';
 import { STORY_JOURNEY, storyStates } from './story-states.js';
 import { INPUT_JOURNEYS, INPUT_STATES } from './input-states.js';
 import { CJK_JOURNEY, LANGUAGE_STATES, RTL_JOURNEY } from './language-states.js';
@@ -162,6 +163,7 @@ const VIEWER_STATES = {
     },
     ...unplacedStates(sheetEscape),
     ...storyStates(sheetEscape),
+    ...favoritesStates(sheetEscape),
     'near-year-photos': {
         title: 'The photos near the year, from the chip',
         enter: async ({ page, lang }) => {
@@ -462,6 +464,7 @@ const VIEWER_JOURNEYS: readonly Journey[] = [
     },
     UNPLACED_JOURNEY,
     STORY_JOURNEY,
+    FAVORITES_JOURNEY,
     {
         title: 'A toast',
         id: 'toast',

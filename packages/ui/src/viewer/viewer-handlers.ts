@@ -45,8 +45,10 @@ function actingOn(host: HandlerHost): On {
     };
 }
 
-/** The Layers panel's Map labels and its rail, the help panel's switch, and About's button to the panel. */
-function inputHandlers(on: On): Pick<ViewerHandlers, 'onMapLabel' | 'onPhotosNear' | 'onLayersMinimize' | 'onShortcuts' | 'onHelpOpen'> {
+/** The Layers panel's Map labels and its rail, the help panel's switch, and About's buttons to the help and licence panels. */
+function inputHandlers(
+    on: On,
+): Pick<ViewerHandlers, 'onMapLabel' | 'onPhotosNear' | 'onLayersMinimize' | 'onShortcuts' | 'onHelpOpen' | 'onLicenceOpen'> {
     return {
         onMapLabel: on((store, event) => {
             store.setMapLabels({ [event.detail.kind]: event.detail.visible });
@@ -62,6 +64,9 @@ function inputHandlers(on: On): Pick<ViewerHandlers, 'onMapLabel' | 'onPhotosNea
         }),
         onHelpOpen: on((store) => {
             store.openSheet('help');
+        }),
+        onLicenceOpen: on((store) => {
+            store.openSheet('licence');
         }),
     };
 }

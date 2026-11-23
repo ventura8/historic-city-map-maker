@@ -1457,6 +1457,20 @@
             "name": "Photos under the older Creative Commons licences (CC BY 2.0 and 3.0, CC BY-SA 2.0, 3.0 and 3.0 RO)",
             "milestone": "M17",
             "source": "the owner, 2026-11-23: the Hala Matache photos from Wikimedia Commons had no licence to choose"
+        },
+        {
+            "id": "V91",
+            "area": "viewer",
+            "name": "Favourites: a star on places, photos, layers and stories, kept in the visitor's browser and listed in the menu",
+            "milestone": "M32",
+            "source": "the owner, 2026-11-23 (reports/similar-sites-2026-11-23.md, Favourites)"
+        },
+        {
+            "id": "V92",
+            "area": "viewer",
+            "name": "Licence and citation: the map's own licence, each layer's and photo's rights, a citation to copy and the downloads our licence allows",
+            "milestone": "M32",
+            "source": "the owner, 2026-11-23 (reports/similar-sites-2026-11-23.md, Licence and download)"
         }
     ],
     "scenarios": [
@@ -25186,6 +25200,72 @@
             "tier": "rules",
             "status": "exists",
             "notes": "Tests: firebase/rules-tests/test/photos.test.ts, packages/shared/test/schemas/manifest.test.ts, packages/ui/test/viewer/hcm-unplaced-gallery.test.ts."
+        },
+        {
+            "id": "S-V91-HAPPY-SAVE",
+            "behaviour": "V91",
+            "area": "viewer",
+            "path": "happy",
+            "title": "A star in a place's sheet keeps it in Favourites, after a reload, and its row opens the place",
+            "asserts": "the star is a toggle button (aria-pressed true, name Remove from favourites); after a reload the Favourites sheet lists one row; the row opens the place's sheet",
+            "tier": "e2e-viewer",
+            "status": "exists",
+            "notes": "Milestone M32 (the owner, 2026-11-23). Tests: e2e/specs/viewer/favorites-licence.spec.ts, packages/ui/test/viewer/hcm-favorites.test.ts, packages/ui/test/viewer/favorites.test.ts."
+        },
+        {
+            "id": "S-V91-HAPPY-LAYER",
+            "behaviour": "V91",
+            "area": "viewer",
+            "path": "happy",
+            "title": "A saved layer opens from Favourites and shows on the map",
+            "asserts": "a layer saved in localStorage is listed; its row switches it on (layers= in the hash) and the sheet steps aside",
+            "tier": "e2e-viewer",
+            "status": "exists",
+            "notes": "Milestone M32 (the owner, 2026-11-23). Tests: e2e/specs/viewer/favorites-licence.spec.ts."
+        },
+        {
+            "id": "S-V91-BAD-STORAGE",
+            "behaviour": "V91",
+            "area": "viewer",
+            "path": "bad",
+            "title": "Blocked site data: the star works for the page and the list says how to keep favourites",
+            "asserts": "setItem throws; the star still saves for the page, the sheet lists the item and says the list lasts this page only and where to allow site data",
+            "tier": "e2e-viewer",
+            "status": "exists",
+            "notes": "Milestone M32 (the owner, 2026-11-23). Tests: e2e/specs/viewer/favorites-licence.spec.ts, packages/ui/test/viewer/favorites.test.ts."
+        },
+        {
+            "id": "S-V91-BAD-EMPTY",
+            "behaviour": "V91",
+            "area": "viewer",
+            "path": "bad",
+            "title": "A saved item the city removed is left out; with none, the sheet says how to save one",
+            "asserts": "a favourite whose photo is gone is not listed; the empty text names the star",
+            "tier": "e2e-viewer",
+            "status": "exists",
+            "notes": "Milestone M32 (the owner, 2026-11-23). Tests: e2e/specs/viewer/favorites-licence.spec.ts."
+        },
+        {
+            "id": "S-V92-HAPPY-PANEL",
+            "behaviour": "V92",
+            "area": "viewer",
+            "path": "happy",
+            "title": "Licence and citation states each layer's rights, cites the view and downloads our USGS layer",
+            "asserts": "the menu opens the panel in About's dialog; the USGS layer offers its PMTiles file from the bucket; the view's citation holds the page address and the date; Copy citation puts the layer's link (layers=<id>) on the clipboard and says so",
+            "tier": "e2e-viewer",
+            "status": "exists",
+            "notes": "Milestone M32 (the owner, 2026-11-23). Tests: e2e/specs/viewer/favorites-licence.spec.ts, packages/ui/test/viewer/licence.test.ts."
+        },
+        {
+            "id": "S-V92-BAD-NO-DOWNLOAD",
+            "behaviour": "V92",
+            "area": "viewer",
+            "path": "bad",
+            "title": "A third-party scan offers no download, and a refused clipboard shows the citation to copy by hand",
+            "asserts": "the archive layer has no download link and says its licence does not allow one; a clipboard that refuses shows the failure in words and the citation as text",
+            "tier": "e2e-viewer",
+            "status": "exists",
+            "notes": "Milestone M32 (the owner, 2026-11-23). Tests: e2e/specs/viewer/favorites-licence.spec.ts, packages/ui/test/viewer/licence.test.ts."
         }
     ]
 }

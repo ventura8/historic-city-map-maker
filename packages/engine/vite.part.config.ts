@@ -14,9 +14,17 @@ import { KIT_ID, sidePartKitPlugin } from '../../scripts/site/src/side-part.js';
  */
 const VIEWER = fileURLToPath(new URL('../ui/src/viewer/', import.meta.url));
 const OWN = new Set(
-    ['extras-part.ts', 'hcm-lightbox.ts', 'lightbox-styles.ts', 'zoom.ts', 'map-menu.ts', 'hcm-about-dialog.ts', 'shortcuts-help.ts'].map(
-        (file) => `${VIEWER}${file}`,
-    ),
+    [
+        'extras-part.ts',
+        'hcm-lightbox.ts',
+        'lightbox-styles.ts',
+        'zoom.ts',
+        'map-menu.ts',
+        'hcm-about-dialog.ts',
+        'shortcuts-help.ts',
+        'hcm-licence-panel.ts',
+        'licence.ts',
+    ].map((file) => `${VIEWER}${file}`),
 );
 
 export default defineConfig({

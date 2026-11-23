@@ -13,7 +13,9 @@ import { html, nothing, type TemplateResult } from 'lit';
 
 import { cssProperties, type CssPropertyValues } from '../components/css-properties.js';
 import type { CameraOffset } from '../map/mapbox-types.js';
+import { dockedSheet } from './docked-sheet.js';
 import { EMPTY } from './empty.js';
+import { loadCityFavorites } from './favorites.js';
 import type { MapLabelDetail } from './hcm-layer-panel.js';
 import { dialogMode, isDialogSheet } from './input-commands.js';
 import { DOCKED_OPEN, type Placement, type SheetMode, type ViewerLayout } from './layout.js';
@@ -28,6 +30,7 @@ import type { MenuPoint } from './map-menu-trigger.js';
 import { lightbox, mapMenu, type LightboxHandlers, type MapMenuHandlers } from './viewer-lightbox.js';
 import { menuActions, menuItem } from './viewer-menu.js';
 import { nearYearChip, textChip } from './viewer-near-year.js';
+import { favoritesSheet } from './viewer-favorites.js';
 import { storiesSheet, type PlaceHandlers } from './viewer-stories.js';
 import { unplacedSheet } from './viewer-unplaced.js';
 import { statusOrCard } from './viewer-wordless.js';
@@ -119,6 +122,8 @@ export interface ViewerHandlers extends LightboxHandlers, MapMenuHandlers, Place
     readonly onShortcuts: (event: CustomEvent<{ readonly enabled: boolean }>) => void;
     /** About's button to the help panel. */
     readonly onHelpOpen: (event: Event) => void;
+    /** About's button to the Licence and citation panel (V92). */
+    readonly onLicenceOpen: (event: Event) => void;
     readonly onSkip: () => void;
     readonly onNearYear: () => void;
     /** V13: a date picked in the timeline's date picker. */
@@ -133,29 +138,15 @@ interface Ready {
 
 function readyOf(view: ViewerView): Ready | null {
     const state = view.state;
+    // V91: the city's favourites, read once per city from this browser (a no-op after the first render).
+    loadCityFavorites(state);
     return state?.status === 'ready' && state.manifest !== null ? { state, manifest: state.manifest } : null;
-}
-
-type DockedSheet = 'layers' | 'photo' | 'poi' | 'photos' | 'unplaced' | 'stories';
-
-/** About is always a dialog; the layers panel has its own pane when it is always docked. */
-function isDockable(sheet: ViewerState['sheet'], layersDocked: boolean): sheet is DockedSheet {
-    return ['photo', 'poi', 'photos', 'unplaced', 'stories'].includes(sheet) || (sheet === 'layers' && !layersDocked);
-}
-
-/** The sheet that shows in the docked trailing pane, if any. */
-function dockedSheet(view: ViewerView, ready: Ready | null): DockedSheet | 'none' {
-    if (ready === null || view.layout.sheetMode !== 'docked') {
-        return 'none';
-    }
-    const sheet = ready.state.sheet;
-    return isDockable(sheet, view.layout.layersDocked) ? sheet : 'none';
 }
 
 type Panes = 'none' | 'leading' | 'trailing' | 'both';
 
 function panes(view: ViewerView, ready: Ready | null): Panes {
-    const trailing = dockedSheet(view, ready) !== 'none';
+    const trailing = dockedSheet(view.layout, ready) !== 'none';
     if (ready !== null && view.layout.layersDocked) {
         return trailing ? 'both' : 'leading';
     }
@@ -441,7 +432,7 @@ function photosSheet(view: ViewerView, ready: Ready, placement: Placement, handl
 }
 
 function trailingPane(view: ViewerView, ready: Ready | null, handlers: ViewerHandlers): TemplateResult {
-    const sheet = dockedSheet(view, ready);
+    const sheet = dockedSheet(view.layout, ready);
     if (ready === null || sheet === 'none') {
         return EMPTY;
     }
@@ -452,6 +443,7 @@ function trailingPane(view: ViewerView, ready: Ready | null, handlers: ViewerHan
         photo: () => photoSheet(view, ready, DOCKED_OPEN, handlers),
         poi: () => photoSheet(view, ready, DOCKED_OPEN, handlers),
         stories: () => storiesSheet({ ...view, storyId: ready.state.selectedStoryId }, ready.manifest, DOCKED_OPEN, handlers),
+        favorites: () => favoritesSheet(view.locale, ready.manifest, DOCKED_OPEN, handlers),
     }[sheet];
     return html`<div class="pane trailing">${content()}</div>`;
 }
@@ -466,6 +458,8 @@ function overlays(view: ViewerView, ready: Ready, handlers: ViewerHandlers): Tem
             .mode=${dialogMode(state.sheet)}
             .shortcuts=${state.shortcuts}
             .city=${manifest.city}
+            .manifest=${manifest}
+            .manifestUrl=${view.manifestUrl}
             .locale=${view.locale}
             .engineVersion=${view.engineVersion}
             .consent=${state.consent}
@@ -479,6 +473,7 @@ function overlays(view: ViewerView, ready: Ready, handlers: ViewerHandlers): Tem
             @hcm-theme-change=${handlers.onThemeChange}
             @hcm-shortcuts-change=${handlers.onShortcuts}
             @hcm-help-open=${handlers.onHelpOpen}
+            @hcm-licence-open=${handlers.onLicenceOpen}
         ></hcm-about-dialog>
         ${lightbox(state, manifest.photos, view, handlers)}
         ${dateMenu(
@@ -498,5 +493,6 @@ function modalSheets(view: ViewerView, ready: Ready, mode: SheetMode, handlers: 
     ${photoSheet(view, ready, { mode, open: sheet === 'photo' || sheet === 'poi', inert }, handlers)}
     ${photosSheet(view, ready, { mode, open: sheet === 'photos', inert }, handlers)}
     ${unplacedSheet(view, ready.manifest, { mode, open: sheet === 'unplaced', inert }, handlers.onSheetClose)}
-    ${storiesSheet({ ...view, storyId: ready.state.selectedStoryId }, ready.manifest, { mode, open: sheet === 'stories', inert }, handlers)}`;
+    ${storiesSheet({ ...view, storyId: ready.state.selectedStoryId }, ready.manifest, { mode, open: sheet === 'stories', inert }, handlers)}
+    ${favoritesSheet(view.locale, ready.manifest, { mode, open: sheet === 'favorites', inert }, handlers)}`;
 }

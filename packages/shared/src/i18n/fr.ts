@@ -289,4 +289,37 @@ export const fr: Messages = {
     'consent.denied': 'Statistiques anonymes : refusées',
     'geolocate.locating': 'Recherche de votre position…',
     'geolocate.shown': 'Votre position : ±{meters} m',
+    'favorites.title': 'Favoris',
+    'favorites.add': 'Ajouter aux favoris',
+    'favorites.remove': 'Retirer des favoris',
+    'licence.title': 'Licence et citation',
+    'licence.summary': 'Ce que vous pouvez réutiliser de cette carte, comment la citer et quelles couches télécharger.',
+    'licence.open': 'Ouvrir la licence et la citation',
+    'licence.ours.title': 'Le travail propre de cette carte',
+    'licence.layers': 'Les couches et leurs sources',
+    'licence.layerPd':
+        'Domaine public : faite par nous à partir d’images de l’U.S. Geological Survey. Libre à télécharger et à réutiliser.',
+    'licence.downloadPmtiles': 'Télécharger le fichier de la carte (PMTiles)',
+    'licence.geotiffPlanned': 'Un fichier GeoTIFF est prévu.',
+    'licence.downloadPlanned': 'Téléchargement prévu : le fichier n’est pas encore publié.',
+    'licence.noDownload': 'Pas de téléchargement : la licence de la numérisation ne le permet pas.',
+    'licence.photos': 'Photographies',
+    'licence.photosNote': 'La page de chaque photo indique son auteur et sa licence. Nombre de photos par licence :',
+    'cite.view': 'Citer cette vue',
+    'cite.mapKind': 'Carte historique interactive',
+    'cite.text': '{title}. {map}. {url} (consulté le {date}).',
+    'cite.copy': 'Copier la citation',
+    'cite.copied': 'Citation copiée. Collez-la où vous en avez besoin.',
+    'favorites.empty':
+        'Pas encore de favoris. Appuyez sur l’étoile d’un lieu, d’une photo, d’une couche ou d’un récit pour le garder ici, dans ce navigateur.',
+    'favorites.notSaved': 'Ce navigateur ne garde pas les données du site : vos favoris disparaîtront à la fermeture de la page.',
+    'favorites.notSavedFix':
+        'Pour les garder, autorisez les données de ce site dans les paramètres de confidentialité de votre navigateur.',
+    'licence.oursUsgs':
+        'Les couches que nous avons faites à partir d’images de l’U.S. Geological Survey sont dans le domaine public : réutilisez-les librement, même commercialement.',
+    'licence.oursScans':
+        'Les numérisations de cartes anciennes appartiennent aux archives nommées sous chaque couche ; chaque photo garde la licence indiquée avec elle.',
+    'licence.oursTexts': 'Pour réutiliser les textes et récits de la carte, citez la carte avec un lien vers elle.',
+    'licence.layerSource': 'Les droits restent à la source nommée ci-dessus : demandez-lui avant de réutiliser cette numérisation.',
+    'cite.copyFailed': 'Le navigateur a bloqué le presse-papiers. Sélectionnez la citation ci-dessous et copiez-la vous-même.',
 };

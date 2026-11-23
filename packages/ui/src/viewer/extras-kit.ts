@@ -11,6 +11,7 @@ export { live } from 'lit/directives/live.js';
 export {
     DEFAULT_LOCALE,
     LANGUAGE_NAMES,
+    LICENSE_URLS,
     LOCALES,
     localized,
     resolveLocale,
@@ -33,4 +34,4 @@ export { baseStyles, detailStyles } from './shared-styles.js';
 export { externalLink, renderMarkdown } from './markdown.js';
 export { SHORTCUT_ROWS } from './viewer-keyboard.js';
 export { closeEvent } from './sheet-frame.js';
-export { localizedText } from './text.js';
+export { licenseText, localizedText, photoCountText } from './text.js';

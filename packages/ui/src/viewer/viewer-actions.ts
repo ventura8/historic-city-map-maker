@@ -12,7 +12,19 @@ import type { ViewerState, ViewerStorePort } from './store-port.js';
 import { localizedText } from './text.js';
 
 /** The FAB menu's actions (`settings`: the language and the theme, out of About since 2026-11-08). */
-const MENU_ACTIONS = ['layers', 'photos', 'unplaced', 'stories', 'locate', 'share', 'contribute', 'about', 'settings'] as const;
+const MENU_ACTIONS = [
+    'layers',
+    'photos',
+    'unplaced',
+    'stories',
+    'favorites',
+    'locate',
+    'share',
+    'contribute',
+    'about',
+    'licence',
+    'settings',
+] as const;
 
 export type MenuAction = (typeof MENU_ACTIONS)[number];
 
@@ -133,6 +145,12 @@ export function menuAction(store: ViewerStorePort, services: ViewerServices, act
         },
         about: () => {
             store.openSheet('about');
+        },
+        favorites: () => {
+            store.openSheet('favorites');
+        },
+        licence: () => {
+            store.openSheet('licence');
         },
         share: () => {
             void shareViewer(store, services);

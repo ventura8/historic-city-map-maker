@@ -24,6 +24,7 @@ import {
     translate,
     type City,
     type Credit,
+    type Manifest,
     type ViewerLocale,
 } from '@hcm/shared';
 import { LitElement, css, html, type PropertyValues, type TemplateResult } from 'lit';
@@ -48,9 +49,9 @@ const THEMES: readonly ThemeMode[] = ['system', 'light', 'dark'];
 const ACCENTS: readonly AccentChoice[] = ['device', 'map'];
 
 /** What the dialog shows: About, the help panel or Settings (`dialogMode` of the open sheet). */
-export type AboutMode = 'about' | 'help' | 'settings';
+export type AboutMode = 'about' | 'help' | 'settings' | 'licence';
 
-const HEADLINES = { about: 'about.title', help: 'input.help', settings: 'settings.title' } as const;
+const HEADLINES = { about: 'about.title', help: 'input.help', settings: 'settings.title', licence: 'licence.title' } as const;
 
 /** A credit line: a link when the credit names a page. */
 function creditText(credit: Credit, locale: ViewerLocale): TemplateResult | string {
@@ -90,6 +91,8 @@ export class HcmAboutDialog extends LitElement {
         mode: { type: String },
         shortcuts: { type: Boolean },
         city: { attribute: false },
+        manifest: { attribute: false },
+        manifestUrl: { attribute: false },
         locale: { type: String },
         engineVersion: { type: String, attribute: 'engine-version' },
         consent: { type: String },
@@ -132,6 +135,9 @@ export class HcmAboutDialog extends LitElement {
     /** The single-key shortcuts are on (the help panel's switch). */
     declare shortcuts: boolean;
     declare city: City | null;
+    /** The manifest and its address: the Licence and citation panel's layers and photos (V92). */
+    declare manifest: Manifest | null;
+    declare manifestUrl: string;
     declare locale: ViewerLocale;
     declare engineVersion: string;
     declare consent: ConsentState;
@@ -150,6 +156,8 @@ export class HcmAboutDialog extends LitElement {
         this.mode = 'about';
         this.shortcuts = true;
         this.city = null;
+        this.manifest = null;
+        this.manifestUrl = '';
         this.locale = DEFAULT_LOCALE;
         this.engineVersion = '';
         this.consent = 'unknown';
@@ -196,6 +204,13 @@ export class HcmAboutDialog extends LitElement {
         if (this.mode === 'settings') {
             return this.#preferences();
         }
+        if (this.mode === 'licence') {
+            return html`<hcm-licence-panel
+                .manifest=${this.manifest}
+                .manifestUrl=${this.manifestUrl}
+                .locale=${this.locale}
+            ></hcm-licence-panel>`;
+        }
         if (this.mode === 'help') {
             return renderShortcutsHelp(this.locale, this.shortcuts, (event) => {
                 event.stopPropagation();
@@ -213,7 +228,20 @@ export class HcmAboutDialog extends LitElement {
                 <div lang=${shownLanguage(city.about, locale)}>${renderMarkdown(localized(city.about, locale))}</div>
                 ${fallbackNote(city.about, locale)}
             </section>
-            ${this.#credits(city.credits)} ${this.#inputAndAccessibility()}
+            ${this.#credits(city.credits)}
+            <section>
+                <h3>${translate(locale, 'licence.title')}</h3>
+                <p>${translate(locale, 'licence.summary')}</p>
+                <hcm-button
+                    variant="outlined"
+                    data-licence-open
+                    @click=${() => {
+                        this.#emit('hcm-licence-open', {});
+                    }}
+                    >${translate(locale, 'licence.open')}</hcm-button
+                >
+            </section>
+            ${this.#inputAndAccessibility()}
             <section>
                 <h3>${translate(locale, 'about.privacy')}</h3>
                 <div lang=${shownLanguage(city.privacy, locale)}>${renderMarkdown(localized(city.privacy, locale))}</div>

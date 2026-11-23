@@ -55,6 +55,21 @@ describe('<hcm-about-dialog>', () => {
         expect(shadowText(element)).not.toContain('Theme');
     });
 
+    it('happyPath_aboutLeadsToTheLicencePanelWhichShowsTheManifest @S-V92-HAPPY-PANEL', async () => {
+        const element = await about({ locale: 'en' });
+        const events = recordEvents(element, 'hcm-licence-open');
+        shadowQuery(element, '[data-licence-open]').click();
+        expect(events).toHaveLength(1);
+        element.mode = 'licence';
+        element.manifest = testManifest();
+        await element.updateComplete;
+        expect(
+            shadowQuery(element, 'hcm-dialog').getAttribute('headline') ??
+                (shadowQuery(element, 'hcm-dialog') as unknown as { headline: string }).headline,
+        ).toBe(translate('en', 'licence.title'));
+        expect((shadowQuery(element, 'hcm-licence-panel') as unknown as { manifest: unknown }).manifest).toBe(element.manifest);
+    });
+
     it('happyPath_englishAndFullScreen', async () => {
         const element = await about({ locale: 'en', fullscreen: true });
 

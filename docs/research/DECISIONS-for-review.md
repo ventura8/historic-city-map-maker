@@ -7321,3 +7321,16 @@ The engine's ES module build now emits three shared chunks (`locales`, `manifest
 | `join-card` (admin) | 4 | 5 | Reached the 4.0 KB ceiling; 5 KB is the smallest whole-KB step in `ADMIN_CHUNK_BUDGETS` |
 
 Verify: `PIPELINE_STAGE=build`.
+
+## 245. Viewer favourites, licence and citation; dark mode already shipped (2026-11-23) — APPLIED (owner request)
+
+The owner asked for three viewer features from `reports/similar-sites-2026-11-23.md`. Decisions taken without asking:
+
+- **Dark mode** needed no new work: Settings' theme (Follow my device, Light, Dark; V12), remembered per city in localStorage (`hcm:<cityId>:theme`), the Material 3 dark tokens on every panel and sheet, and the basemap's `lightPreset` following the theme on the same map (V38: no extra map load) were already live.
+- **Favourites** (V91) live in `localStorage` only (`hcm:<cityId>:favorites`, at most 500), never in Firestore: the public viewer stays static and account-free. The star of a layer rides a new generic `OverlayListItem.trailing` of the kit's overlay list, so the kit imports nothing of the viewer.
+- **Public domain** (V92) is read from a layer's credit (`USGS` or `Landsat` in `attribution`), since `layers[]` has no licence field: every USGS-derived layer the admin publishes already credits USGS EROS or Landsat. A `license` field in the manifest would be the cleaner contract; it waits for an owner decision because it changes the manifest builder and the admin. Downloads offer the PMTiles archive the map already reads; GeoTIFF is listed as planned. A third-party scan never offers a file, whatever its credit says.
+- **Our own texts' licence** is not stated as Creative Commons: the panel asks for a citation with a link. Choosing a licence for the city's texts and stories is the owner's call.
+- `packages/engine/vite.part.config.ts`: `hcm-licence-panel.ts` and `licence.ts` join the side-loaded part's `OWN` list (the panel loads with About, not in the IIFE); `extras-kit.ts` exports `LICENSE_URLS`, `licenseText` and `photoCountText` for them.
+- The icon font gains `star` and `copyright` (`packages/ui/src/icons.ts`, rebuilt with `fonts:build`).
+
+Verify: `PIPELINE_STAGE=static`, `PIPELINE_STAGE=build`, the touched Vitest files and `e2e/specs/viewer/favorites-licence.spec.ts`.

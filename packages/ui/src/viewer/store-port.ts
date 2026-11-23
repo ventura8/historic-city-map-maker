@@ -24,7 +24,8 @@ export interface ThemeChoice {
 }
 
 export type ViewerStatus = 'idle' | 'loading' | 'ready' | 'error';
-export type SheetName = 'none' | 'layers' | 'photo' | 'poi' | 'photos' | 'unplaced' | 'stories' | 'about' | 'help' | 'settings';
+export type SheetName =
+    'none' | 'layers' | 'photo' | 'poi' | 'photos' | 'unplaced' | 'stories' | 'favorites' | 'about' | 'help' | 'settings' | 'licence';
 export type ConsentState = 'unknown' | 'granted' | 'denied';
 export type Unsubscribe = () => void;
 

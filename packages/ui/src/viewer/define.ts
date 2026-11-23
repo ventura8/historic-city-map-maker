@@ -7,6 +7,8 @@
 import { defineHcmCompass, HCM_COMPASS_TAG } from './hcm-compass.js';
 import { defineHcmDateMenu, HCM_DATE_MENU_TAG } from './hcm-date-menu.js';
 import { defineHcmErrorCard, HCM_ERROR_CARD_TAG } from './hcm-error-card.js';
+import { defineHcmFavoriteStar, HCM_FAVORITE_STAR_TAG } from './hcm-favorite-star.js';
+import { defineHcmFavorites, HCM_FAVORITES_TAG } from './hcm-favorites.js';
 import { defineHcmLayerPanel, HCM_LAYER_PANEL_TAG } from './hcm-layer-panel.js';
 import { defineHcmMapViewer, HCM_MAP_VIEWER_TAG } from './hcm-map-viewer.js';
 import { defineHcmPhotosControl, HCM_PHOTOS_CONTROL_TAG } from './hcm-photos-control.js';
@@ -31,6 +33,8 @@ export const VIEWER_TAGS = [
     HCM_COMPASS_TAG,
     HCM_DATE_MENU_TAG,
     HCM_PHOTOS_CONTROL_TAG,
+    HCM_FAVORITE_STAR_TAG,
+    HCM_FAVORITES_TAG,
 ] as const;
 
 const DEFINERS: readonly ((registry: CustomElementRegistry) => void)[] = [
@@ -46,6 +50,8 @@ const DEFINERS: readonly ((registry: CustomElementRegistry) => void)[] = [
     defineHcmCompass,
     defineHcmDateMenu,
     defineHcmPhotosControl,
+    defineHcmFavoriteStar,
+    defineHcmFavorites,
 ];
 
 /** Registers the viewer elements in `registry`; calling it again is a no-op. */

@@ -240,6 +240,7 @@ export class HcmPhotoSheet extends LitElement {
     #photoDetails(photo: Photo): TemplateResult {
         const locale = this.locale;
         return html`<div class="details">
+            <hcm-favorite-star row kind="photo" item-id=${photo.id} .locale=${locale}></hcm-favorite-star>
             ${this.#back()} ${this.#image(photo)} ${this.#locate(photo)}
             <p class="link">${externalLink(streetViewUrl(photo.location, photo.bearing), translate(locale, 'mapMenu.streetView'))}</p>
             ${this.#date(photo)} ${photoRights(photo, locale)} ${this.#source(photo)}

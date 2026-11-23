@@ -261,6 +261,14 @@ test(
 );
 
 test(
+    'Favourites and the licence: the saved list and the Licence and citation panel',
+    { tag: ['@S-V15-HAPPY', '@S-V14-HAPPY-EVERY-STATE', '@S-V91-HAPPY-SAVE', '@S-V92-HAPPY-PANEL'] },
+    async ({ page, context, lang }) => {
+        await expectJourneySound({ page, context, lang }, journey('favorites-licence'));
+    },
+);
+
+test(
     'Bucharest today: no layers yet and the consent banner',
     { tag: ['@S-V15-HAPPY', '@S-V15-BAD-TEXT-SPACING', '@S-V15-BAD-REFLOW-320', '@S-V14-HAPPY-EVERY-STATE'] },
     async ({ page, context, lang }) => {

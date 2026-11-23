@@ -233,6 +233,7 @@ export class HcmStories extends LitElement {
     #story(story: Story): TemplateResult {
         const years = poiYearsText(story, this.locale);
         return html`<article class="details" tabindex="-1">
+            <hcm-favorite-star row kind="story" item-id=${story.id} .locale=${this.locale}></hcm-favorite-star>
             ${years === null ? EMPTY : html`<p class="years">${years}</p>`}
             <div class="text">${parseStory(localizedText(story.body, this.locale)).map((block) => this.#block(block))}</div>
             ${creditLine(story.credit, this.locale)} ${this.#places(story)} ${this.#photos(story)}

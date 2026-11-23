@@ -43,6 +43,8 @@ export interface OverlayListItem {
     readonly expandLabel?: string;
     /** On with only some sub-groups on: the switch shows dimmed. */
     readonly mixed?: boolean;
+    /** A control the app adds at the end of the slider's line (the viewer's favourite star, V91); none by default. */
+    readonly trailing?: unknown;
 }
 
 /** A group heading (`layers.group.historical`, `layers.group.places`); a kind without one is listed without heading. */
@@ -335,6 +337,7 @@ export class HcmOverlayList extends LitElement {
                     }}
                 ></hcm-slider>
                 <span class="value body-medium" aria-hidden="true">${valueText}</span>
+                ${item.trailing ?? nothing}
             </div>
             ${renderSubgroups(this, item, (name) => fillTemplate(this.toggleLabel, { name }))}
         </li>`;

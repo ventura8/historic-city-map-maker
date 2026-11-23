@@ -130,7 +130,7 @@ describe('<hcm-map-viewer>: boot', () => {
 
         expect(store.callsOf('openPhoto')).toEqual([['uranus-1984']]);
         const items = (part({ element, store }, 'hcm-fab-menu') as HTMLElement & { items: readonly { value: string }[] }).items;
-        expect(items.map((item) => item.value)).toEqual(['photos', 'share', 'settings', 'about']);
+        expect(items.map((item) => item.value)).toEqual(['photos', 'favorites', 'share', 'settings', 'about']);
     });
 
     it('happyPath_theSheetsDecodedThumbnailEndsThePhotoMeasurement', async () => {
@@ -420,6 +420,14 @@ describe('the keyboard and the gamepad on <hcm-map-viewer>', () => {
         expect(mounted.store.getState().sheet).toBe('help');
         fireKitEvent(about, 'hcm-shortcuts-change', { enabled: false });
         expect(mounted.store.getState().shortcuts).toBe(false);
+    });
+
+    it('happyPath_aboutOpensTheLicencePanelAndTheFavouritesSheetDocks @S-V92-HAPPY-PANEL', async () => {
+        const mounted = await mountViewer(readyState(testManifest(), { sheet: 'about' }));
+        fireKitEvent(part(mounted, 'hcm-about-dialog'), 'hcm-licence-open');
+        expect(mounted.store.getState().sheet).toBe('licence');
+        const wide = await mountViewer(readyState(testManifest(), { sheet: 'favorites' }), { width: 800, height: 1280 });
+        expect(part(wide, '.pane.trailing .favorites-sheet')).toBeTruthy();
     });
 });
 

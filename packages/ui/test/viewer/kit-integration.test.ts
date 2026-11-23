@@ -200,8 +200,8 @@ describe("<hcm-map-viewer> floating controls with the real kit (the user's repor
 
         const frame = element.getBoundingClientRect();
         const items = [...(element.shadowRoot?.querySelector('hcm-fab-menu')?.shadowRoot?.querySelectorAll('[role^="menuitem"]') ?? [])];
-        // Show my location is an icon button over the compass, no longer an item (2026-11-22).
-        expect(items).toHaveLength(5);
+        // Show my location is an icon button over the compass, no longer an item (2026-11-22); Favourites is one (V91).
+        expect(items).toHaveLength(6);
         for (const item of items) {
             expect(item.getBoundingClientRect().top).toBeGreaterThanOrEqual(frame.top);
         }

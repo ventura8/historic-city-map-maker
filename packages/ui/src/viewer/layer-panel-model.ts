@@ -15,6 +15,8 @@ import {
 import { creditParts } from '@hcm/shared/credits';
 import { translateMapLabels } from '@hcm/shared/map-labels';
 
+import { html } from 'lit';
+
 import type { OverlayListGroup, OverlayListItem } from '../components/overlay-list.js';
 import { dateText } from './timeline-dates.js';
 
@@ -33,7 +35,13 @@ export function overlayItems(overlays: readonly Overlay[], manifest: Manifest, l
             label: overlayLabel(overlay, locale),
             visible: overlay.visible,
             opacity: overlay.opacity,
-            ...(layer === undefined ? {} : { detail: dateText(layer, locale) }),
+            ...(layer === undefined
+                ? {}
+                : {
+                      detail: dateText(layer, locale),
+                      // V91: a historical layer can be saved to the visitor's favourites.
+                      trailing: html`<hcm-favorite-star kind="layer" item-id=${layer.id} .locale=${locale}></hcm-favorite-star>`,
+                  }),
         };
         const category = overlay.kind === 'poi' ? categories.get(overlay.id) : undefined;
         return category === undefined

@@ -28,9 +28,9 @@ export function isDialogSheet(sheet: ViewerState['sheet']): boolean {
     return sheet === 'about' || dialogMode(sheet) !== 'about';
 }
 
-/** What the dialog shows while `sheet` is open: the help panel, Settings, or About. */
-export function dialogMode(sheet: ViewerState['sheet']): 'about' | 'help' | 'settings' {
-    return sheet === 'help' || sheet === 'settings' ? sheet : 'about';
+/** What the dialog shows while `sheet` is open: the help panel, Settings, Licence and citation (V92), or About. */
+export function dialogMode(sheet: ViewerState['sheet']): 'about' | 'help' | 'settings' | 'licence' {
+    return sheet === 'help' || sheet === 'settings' || sheet === 'licence' ? sheet : 'about';
 }
 
 /** What a modal surface in front keeps for itself, or null with none. */
