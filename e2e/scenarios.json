@@ -15068,15 +15068,26 @@
             "notes": "Finding of 2026-11-14 (docs/research/M8-join-interfaces.md §11). Test: pipeline/tests/integration/test_join_archive.py."
         },
         {
-            "id": "S-P05-BAD-ARCHIVE-APART",
+            "id": "S-P05-HAPPY-ARCHIVE-APART",
+            "behaviour": "P05",
+            "area": "pipeline",
+            "path": "happy",
+            "title": "An archive map apart from the others joins the layer on its own fit",
+            "asserts": "an archive join whose part shares no seam -> done, the log names it kept on its own fit, awaiting_approval",
+            "tier": "e2e-pipeline",
+            "status": "exists",
+            "notes": "Finding of 2026-11-23 (Vârteju 3 of the 1990 cadastral plan; was S-P05-BAD-ARCHIVE-APART, a failure). Test: pipeline/tests/integration/test_join_archive.py."
+        },
+        {
+            "id": "S-P05-BAD-SHEET-COVERED",
             "behaviour": "P05",
             "area": "pipeline",
             "path": "bad",
-            "title": "Archive maps that never meet are refused in plain words",
-            "asserts": "an archive join whose part shares no seam -> failed, apiError.imagery.joinMapsApart naming both maps",
+            "title": "A sheet others cover adds nothing and is left out, a small sheet that alone covers its ground is kept",
+            "asserts": "a part owning under 1 % of its own frame -> omitted; many small sheets each under 1 % of the window -> all kept",
             "tier": "e2e-pipeline",
             "status": "exists",
-            "notes": "Finding of 2026-11-14 (docs/research/M8-join-interfaces.md §11). Test: pipeline/tests/integration/test_join_archive.py."
+            "notes": "Finding of 2026-11-23 (5 of 48 sheets of 1990 left out). Test: pipeline/tests/unit/test_join_seams.py."
         },
         {
             "id": "S-P05-BAD-UNMEASURED",

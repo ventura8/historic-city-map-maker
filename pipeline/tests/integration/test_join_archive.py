@@ -5,7 +5,6 @@ from dataclasses import replace
 from pathlib import Path
 
 import pytest
-from hcm_pipeline.contract import Errors
 from hcm_pipeline.runner import RunOutcome
 
 from tests.contracts_loader import record, records
@@ -39,10 +38,6 @@ def seams_of(world: PipelineWorld) -> list[dict[str, object]]:
     return records(dig(world.version(JOB), "join", "seams"))
 
 
-def error_code(world: PipelineWorld) -> object:
-    return dig(world.job(JOB), "error", "code")
-
-
 def test_happy_path_archive_maps_join_measures_the_seam_and_keeps_each_fit(world: PipelineWorld, ground: World, tmp_path: Path) -> None:
     """Scenarios: S-P05-HAPPY-ARCHIVE
 
@@ -60,13 +55,18 @@ def test_happy_path_archive_maps_join_measures_the_seam_and_keeps_each_fit(world
     assert world.version(JOB)["state"] == "awaiting_approval"
 
 
-def test_bad_path_archive_maps_that_never_meet_say_so(world: PipelineWorld, ground: World, tmp_path: Path) -> None:
-    """Scenarios: S-P05-BAD-ARCHIVE-APART"""
+def test_happy_path_archive_maps_that_never_meet_are_joined_each_on_its_own_fit(
+    world: PipelineWorld, ground: World, tmp_path: Path
+) -> None:
+    """Scenarios: S-P05-HAPPY-ARCHIVE-APART
+
+    Finding of 2026-11-23: a sheet of the same plan a few kilometres off (Vârteju 3, 1990) joins the layer instead of failing it."""
     size = (1300, 1000)
     frames = [Frame("west", (-8500.0, 0.0), size=size), Frame("east", (8500.0, 0.0), size=size)]
     seed_parts(world, tmp_path, ground, frames, CITY_HALF)
     seed_join(world, frames, archive=True)
 
-    assert run_join(world) is RunOutcome.FAILED
+    assert run_join(world) is RunOutcome.DONE
 
-    assert error_code(world) == Errors.JOIN_MAPS_APART
+    assert any(line.startswith("apart from the others, kept on its own fit: ") for line in world.log_lines(JOB))
+    assert world.version(JOB)["state"] == "awaiting_approval"

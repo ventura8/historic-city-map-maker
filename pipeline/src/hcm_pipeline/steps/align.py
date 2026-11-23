@@ -273,7 +273,7 @@ def _aligned(run: Aligning, box: MercatorBox, seams: Sequence[Seam], omitted: tu
     too far apart ends the job) and reported, and no part moves (finding of 2026-11-14)."""
     keeps_fits = JoinParams.of(run.ctx.job.params).keeps_fits
     if keeps_fits:
-        require_meeting(run.parts, seams)
+        log_apart(run.ctx, run.parts, seams)
     measured = run.measure(seams)
     if keeps_fits:
         settled = Settled(set(), {}, [() for _part in run.parts])
@@ -282,19 +282,14 @@ def _aligned(run: Aligning, box: MercatorBox, seams: Sequence[Seam], omitted: tu
     return _plan_of(run, box, measured, settled, omitted)
 
 
-def require_meeting(parts: Sequence[Part], seams: Sequence[Seam]) -> None:
-    """Every part of an archive maps' join shares a seam with another: one that meets none lies apart (`joinMapsApart`), and a
-    layer of pieces that never touch would show gaps the owner did not ask for."""
-    alone = _alone(len(parts), seams)
-    if alone is not None:
-        apart, other = parts[alone].version.id, parts[1 if alone == 0 else 0].version.id
-        raise StepFailedError(Errors.JOIN_MAPS_APART, f"{apart} shares no edge with any other part of the join", {"a": apart, "b": other})
-
-
-def _alone(count: int, seams: Sequence[Seam]) -> int | None:
-    """The first part no seam touches, or None."""
+def log_apart(ctx: JobContext, parts: Sequence[Part], seams: Sequence[Seam]) -> None:
+    """An archive maps' join keeps a part that meets no other (a sheet of the same plan a few kilometres off, Vârteju 3 of the 1990
+    cadastral plan): every part keeps its own fit, so nothing is measured against it and it is drawn where its own points put it. It
+    used to end the job (`joinMapsApart`), which left such a sheet on a second layer of the same year (finding of 2026-11-23)."""
     met = {index for seam in seams for index in (seam.a, seam.b)}
-    return next((index for index in range(count) if index not in met), None)
+    apart = [part.version.id for index, part in enumerate(parts) if index not in met]
+    if apart:
+        ctx.log.info(f"apart from the others, kept on its own fit: {', '.join(apart)}", "align")
 
 
 def _log(ctx: JobContext, step: str, plan: JoinPlan) -> None:

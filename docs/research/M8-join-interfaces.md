@@ -686,7 +686,9 @@ The owner's harti.zip maps include maps in parts: the n and S halves of 1978, 19
 - its `layer-join` parameters carry `maxzoom` (the parts' largest) instead of a camera; the parts in its `source` have no dataset, camera
   or date, and their `entityId` is their version id;
 - `align` keeps every part on its own fit: the seams are measured and reported (`applied: false`, `maxShiftM: 0`), a seam too far apart
-  fails as before (`joinSeamTooFar`), and a part that shares no seam with another fails with `apiError.imagery.joinMapsApart {a, b}`;
+  fails as before (`joinSeamTooFar`), and a part that shares no seam with another is kept on its own fit and named in the log ("apart from
+  the others, kept on its own fit"; until 2026-11-23 it failed with `apiError.imagery.joinMapsApart`); a part is left out ("left out,
+  adding nothing") only when it owns under 1 % of its own frame, not of the whole window;
 - the version page of an archive map offers **Join with…** (`<hcm-archive-join>`): one button per other map of its year that the join can
   take, then a link to the join. A map a failed (or otherwise ended) join stamped is offered again (lesson 738). Scenarios: S-A65-HAPPY-ARCHIVE, S-A65-BAD-ARCHIVE-NO-POINTS, S-A65-*-ARCHIVE-OFFER, S-P05-*-ARCHIVE*.
   Coverage (2026-11-20): `functions/test/imagery/join-archive.test.ts` also drives `maxzoomOf` (default and

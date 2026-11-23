@@ -52,10 +52,27 @@ def test_happy_path_a_frame_inside_another_owns_nothing_and_is_left_out() -> Non
     assert set(numpy.unique(found.owner).tolist()) == {1, 2}
 
 
-def test_bad_path_a_sliver_under_one_percent_is_left_out_too() -> None:
+def test_happy_path_a_sliver_that_alone_covers_its_ground_is_kept() -> None:
     found = assign([frame(0, 99), frame(99, 100, 0, 79)])
 
-    assert (found.kept, found.omitted) == ((0,), (1,))
+    assert (found.kept, found.omitted) == ((0, 1), ())
+
+
+def test_happy_path_many_small_sheets_each_under_one_percent_of_the_window_are_all_kept() -> None:
+    """Scenarios: S-P05-BAD-SHEET-COVERED
+
+    Finding of 2026-11-23: 5 of the 48 cadastral sheets of 1990 were left out as under 1 % of the window, leaving holes."""
+    sheets = [frame(x, x + 8, y, y + 8) for x in range(0, 96, 8) for y in range(0, 80, 8)]
+
+    found = assign(sheets)
+
+    assert (len(found.kept), found.omitted) == (len(sheets), ())
+
+
+def test_bad_path_a_sheet_another_covers_but_for_a_sliver_is_left_out() -> None:
+    found = assign([frame(0, 100), frame(0, 100, 0, 80), frame(10, 30, 10, 30)])
+
+    assert found.omitted == (1, 2)
 
 
 def test_happy_path_two_small_sheets_in_a_large_window_are_both_kept() -> None:

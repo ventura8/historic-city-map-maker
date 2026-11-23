@@ -4507,3 +4507,8 @@ Append a numbered entry to *Lessons from this repository* in the task that finds
     - Cause: the importer passed the file's facts to the schema as they were; `null` and `[]` are how scripts and spreadsheets write "not known".
     - Fix and pin: `withoutEmpty` drops `null` parts and empty lists before the check (`packages/admin/src/pois/geojson.ts`; S-A200-HAPPY-FACTS-IMPORT); `name` stands for a missing `title`.
     - **An importer reads "not known" in every spelling a tool writes it, before the strict schema sees it.**
+
+777. **The 1990 cadastral plan showed twice and had holes** (2026-11-23): the owner saw the 1990 1:2000 cadastral plan "doubled and with missing tiles": a second 1990 layer, *Vârteju (sud)*, beside the joined plan, and the live join drawing 42 of its 47 sheets; the 48-sheet join had failed.
+    - Cause: `align` failed an archive join with `joinMapsApart` when one sheet (Vârteju 3, about 1 km off) met no other, so it stayed on a layer of its own; and `assign` left out every part owning under 1 % of the *whole window*, which in a join of 48 small sheets dropped five (21, 25, 5, Berceni, Cernica) whatever ground only they covered.
+    - Fix and pin: an archive join keeps a part apart from the others on its own fit and logs it ("apart from the others, kept on its own fit"); a part is left out only when it owns under 1 % of its *own* frame (`pipeline/src/hcm_pipeline/steps/align.py`, `join/seams.py`; S-P05-HAPPY-ARCHIVE-APART, S-P05-BAD-SHEET-COVERED).
+    - **A threshold meant to drop parts that add nothing is measured against the part itself, not the whole: a share of the total drops every small part once there are enough of them.**

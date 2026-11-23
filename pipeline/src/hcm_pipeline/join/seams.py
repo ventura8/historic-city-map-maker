@@ -54,10 +54,15 @@ class Ownership:
 
 
 def assign(alphas: Sequence[UInt8Array]) -> Ownership:
-    """The owners, with every part owning under `MIN_OWNED_SHARE` of the covered cells left out and its cells given to the others."""
+    """The owners, with every part owning under `MIN_OWNED_SHARE` of its own frame left out and its cells given to the others.
+
+    The share is of the part's own frame, not of the whole covered window: in a join of many small sheets (48 cadastral sheets of
+    1990) each owns well under 1 % of the window, and a share of the window left out sheets that alone cover their ground (finding of
+    2026-11-23). A part another covers almost entirely still adds nothing and is left out."""
     owner = owners(alphas)
     counts = numpy.bincount(owner.ravel(), minlength=len(alphas) + 1)[1:]
-    shares = counts / max(int(counts.sum()), 1)
+    framed = numpy.array([int(numpy.count_nonzero(alpha)) for alpha in alphas], numpy.float64)
+    shares = counts / numpy.maximum(framed, 1.0)
     kept = numpy.flatnonzero(shares >= MIN_OWNED_SHARE).tolist()
     omitted = numpy.flatnonzero(shares < MIN_OWNED_SHARE).tolist()
     return Ownership(_among(alphas, kept) if omitted and kept else owner, tuple(kept), tuple(omitted))

@@ -2,7 +2,7 @@
  * `imagery.join` with `versionIds` (finding of 2026-11-14, the owner's harti.zip maps; `docs/research/M8-join-interfaces.md` §11):
  * archive maps that are parts of one map (the n and S halves of 1978, 1974-01 and -02, a set's sheets) become one layer. Each part
  * keeps its own fit: the `layer-join` job measures the seams on their overlap and moves nothing (`maxzoom` in its parameters, no
- * camera), and fails with `apiError.imagery.joinMapsApart` when a part meets none of the others. Every check comes before anything
+ * camera); a part that meets none of the others keeps its own fit too, since 2026-11-23. Every check comes before anything
  * is written: each part is an archive map with a scan and points of its own (`joinNeedsPoints`), usable (published, approved or
  * awaiting approval), one per map (`joinSameLayer`), and held by no live join. The join is a new version of the first published
  * part's layer, so its tileset and presentation stay; the other parts' layers retire when it publishes (`finalize-join.ts`).
