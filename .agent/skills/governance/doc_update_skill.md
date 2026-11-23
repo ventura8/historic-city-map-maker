@@ -9,6 +9,7 @@ Every task updates the documentation that describes it, in the same task: applic
 | `README.md` | What the project is (in English only, short), badges, the one-command quick start, links to every doc. No counts, no tool versions. |
 | `AGENTS.md` | Commands, boundaries, global rules, project hard constraints (budget 24,000 bytes). |
 | `docs/ARCHITECTURE.md` | Components, data model, buckets, functions, the raster pipeline, the viewer and admin, security and cost guards, analytics and crashes. The *why* of each shape. |
+| `docs/openapi.yaml` | OpenAPI 3.1 of every Firebase callable and HTTPS endpoint (access, App Check, request/response) and the viewer's static bucket paths. Keep aligned with `@hcm/shared`'s registry. |
 | `docs/CI_PIPELINE.md` | The file-type to gates table, CI workflows, tool versions, held dependencies. Stages are summarised and link to `.agent/skills/quality/pipeline_skill.md` → *Stages*. |
 | `docs/TESTING.md` | Test tiers, fakes and seams, emulators, the scenario registry, the coverage gate, how to run each tier. |
 | `docs/SETUP.md` | Developer setup: Docker, the quality image, npm in a container, git hooks, `.env.local`, the Sonar token, emulators, what the user does once. |

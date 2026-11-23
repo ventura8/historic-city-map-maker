@@ -58,6 +58,7 @@ PIPELINE_STAGE=build bash scripts/ci/run-all-checks.sh    # engine and admin bun
 
 - [Architecture](docs/ARCHITECTURE.md)
 - [Engine API](docs/ENGINE_API.md) (config.js, the element, the JavaScript API, the URL hash, City Manifest v1)
+- [OpenAPI 3.1](docs/openapi.yaml) (every Firebase callable and HTTPS endpoint, App Check, and the viewer's static contract)
 - [CI pipeline](docs/CI_PIPELINE.md)
 - [Testing](docs/TESTING.md)
 - [Manual test plan and the local stack](docs/MANUAL_TEST_PLAN.md)

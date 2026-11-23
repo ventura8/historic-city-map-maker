@@ -136,7 +136,7 @@ The city's tab icon (the owner, 2026-11-08): `cities/{city}.icon` records it (se
 
 ## Cloud Functions
 
-Firebase Functions v2 (Node 24, `us-central1`), one codebase deployed from `functions/dist/`. Every function is one row of the registry in `@hcm/shared` (`CALLABLES`, `HTTP_ENDPOINTS`, `BACKGROUND_FUNCTIONS`: its access rule, App Check mode, instance cap and request/response schemas); every failure reaches the admin as an error code with Romanian and English messages. Contracts, ports and ownership: [research/M2-interfaces.md](research/M2-interfaces.md).
+Firebase Functions v2 (Node 24, `us-central1`), one codebase deployed from `functions/dist/`. Every function is one row of the registry in `@hcm/shared` (`CALLABLES`, `HTTP_ENDPOINTS`, `BACKGROUND_FUNCTIONS`: its access rule, App Check mode, instance cap and request/response schemas); every failure reaches the admin as an error code with Romanian and English messages. Contracts, ports and ownership: [research/M2-interfaces.md](research/M2-interfaces.md). The OpenAPI 3.1 surface of every callable and HTTPS endpoint (and the viewer's static bucket paths) is [openapi.yaml](openapi.yaml).
 
 | Group (deployed as `<group>-<name>`) | Functions | Trigger | Runs as |
 | --- | --- | --- | --- |
