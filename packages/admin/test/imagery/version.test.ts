@@ -455,14 +455,14 @@ describe('a job view at its attempt cap (live report of 2026-11-12)', () => {
     it('happyPath_redrawSendsTheVersionsOwnPointsAgain @S-A16-HAPPY-REDRAW', async () => {
         const { version, store, callables, notices } = page();
         const doc = versionDoc();
-        store.docs.set(VERSIONS(ID), { ...doc, crop: [{ x: 0, y: 0 }, { x: 10, y: 0 }, { x: 10, y: 10 }] });
+        store.docs.set(VERSIONS(ID), { ...doc, crop: [{ lat: 44.4, lng: 26.0 }, { lat: 44.5, lng: 26.0 }, { lat: 44.5, lng: 26.1 }] });
         answer(callables, 'imagery.saveGcps', () => ({ jobId: 'rg-new', versionId: 'rg-new', resumed: false }));
         version.show(ID);
 
         expect(await version.redraw()).toBe(true);
         const georef = (doc as { georef: { transform: string; gcps: unknown[] } }).georef;
         expect(callsOf(callables, 'imagery.saveGcps')).toEqual([
-            { cityId: CITY, versionId: ID, transform: georef.transform, gcps: georef.gcps, crop: [{ x: 0, y: 0 }, { x: 10, y: 0 }, { x: 10, y: 10 }] },
+            { cityId: CITY, versionId: ID, transform: georef.transform, gcps: georef.gcps, crop: [{ lat: 44.4, lng: 26.0 }, { lat: 44.5, lng: 26.0 }, { lat: 44.5, lng: 26.1 }] },
         ]);
         expect(notices.map((notice) => notice.key)).toEqual(['adminContent.imagery.notice.redrawing']);
     });

@@ -192,7 +192,7 @@ describe('imagery.join: archive maps', () => {
     it('happyPath_newSheetsJoinOntoATargetLayerAndAWaitingJoinGivesWay @S-A65-HAPPY-JOIN-TARGET', async () => {
         const ready = await world();
         await seedLayer(ready, 'plan-1911', { currentVersion: 'jn-old' });
-        await seedJob(ready, 'jn-wait', runningJob({ type: 'layer-join', status: 'awaiting_approval', layerId: 'plan-1911' }));
+        await seedJob(ready, 'jn-wait', runningJob({ type: 'layer-join', status: 'awaiting_approval', layerId: 'plan-1911', versionId: 'jn-wait' }));
         await seedVersion(ready, 'jn-wait', renderedVersion({ jobId: 'jn-wait', layerId: 'plan-1911', origin: 'join', source: OLD_JOIN, state: 'awaiting_approval' }));
         await seedLayer(ready, 'plan-1911', { currentVersion: 'jn-old', pendingVersion: 'jn-wait' });
 
