@@ -39,6 +39,7 @@ import { fallbackNote } from './fallback-note.js';
 import { baseStyles, detailStyles, sheetStyles } from './shared-styles.js';
 import { photoRights } from './photo-rights.js';
 import { hasVersions, shownView, versionSwitch, viewCredit, viewImage } from './photo-version.js';
+import { openStreetView } from './street-view-opener.js';
 import { localizedText, photoDateText, photoSourceText } from './text.js';
 import type { TimelineStop } from './timeline-model.js';
 
@@ -239,9 +240,17 @@ export class HcmPhotoSheet extends LitElement {
 
     #photoDetails(photo: Photo): TemplateResult {
         const locale = this.locale;
+        const streetView = streetViewUrl(photo.location, photo.bearing);
+        const onStreetView = (event: MouseEvent): void => {
+            openStreetView(streetView, event);
+        };
         return html`<div class="details">
             ${this.#back()} ${this.#image(photo)} ${this.#locate(photo)}
-            <p class="link">${externalLink(streetViewUrl(photo.location, photo.bearing), translate(locale, 'mapMenu.streetView'))}</p>
+            <p class="link">
+                <a href=${streetView} target="_blank" rel="noopener noreferrer" @click=${onStreetView}
+                    >${translate(locale, 'mapMenu.streetView')}</a
+                >
+            </p>
             ${this.#date(photo)} ${photoRights(photo, locale)} ${this.#source(photo)}
             ${
                 photo.description === undefined

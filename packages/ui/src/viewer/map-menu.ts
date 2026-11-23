@@ -17,6 +17,7 @@ import { EMPTY } from './empty.js';
 import type { MenuPoint } from './map-menu-trigger.js';
 import { closeEvent } from './sheet-frame.js';
 import { baseStyles } from './shared-styles.js';
+import { openStreetView } from './street-view-opener.js';
 
 export const HCM_MAP_MENU_TAG = 'hcm-map-menu';
 
@@ -219,14 +220,21 @@ export class HcmMapMenu extends LitElement {
         const label = translate(this.locale, item.label);
         const content = html`<hcm-icon name=${item.icon}></hcm-icon><span>${label}</span>`;
         if (item.href !== undefined) {
+            const url = item.href(place);
+            const onClick = (event: MouseEvent): void => {
+                if (item.id === 'street-view') {
+                    openStreetView(url, event);
+                }
+                this.#close();
+            };
             return html`<a
                 class="item"
                 role="menuitem"
                 data-item=${item.id}
-                href=${item.href(place)}
+                href=${url}
                 target="_blank"
                 rel="noopener noreferrer"
-                @click=${this.#close}
+                @click=${onClick}
                 >${content}</a
             >`;
         }
