@@ -393,13 +393,14 @@ service cloud.firestore {
                 && data.get('bearing', 0) >= 0 && data.get('bearing', 0) <= 360
                 && data.get('fov', 1) >= 1 && data.get('fov', 1) <= 180
                 // zod `viewedAreaSchema`: an aerial photo's footprint has four corners (convexity is the admin's and zod's check).
-                && data.get('viewedArea', [0, 0, 0, 0]) is list && data.get('viewedArea', [0, 0, 0, 0]).size() == 4
+                && (!('viewedArea' in data) || (data.viewedArea is list && data.viewedArea.size() == 4))
                 && data.license in ['CC0', 'CC-BY-4.0', 'CC-BY-SA-4.0', 'PD', 'permission', 'permission-legacy', 'unknown']
                 && data.published is bool
                 && data.get('rightsReview', false) is bool
                 && data.get('kind', 'ground') in ['ground', 'aerial', 'interior']
-                && validPlaceIds(data.get('placeIds', ['x']))
-                && data.get('level', 0) is number && data.get('level', 0) >= -10 && data.get('level', 0) <= 200
+                // An absent optional field costs one expression: a request's rules evaluate at most 1,000 (the largest place and photo).
+                && (!('placeIds' in data) || validPlaceIds(data.placeIds))
+                && (!('level' in data) || (data.level is number && data.level >= -10 && data.level <= 200))
                 && stamped(data);
         }
 
@@ -415,14 +416,17 @@ service cloud.firestore {
             return facts is map
                 && facts.keys().hasOnly(['architects', 'yearBuilt', 'yearDemolished', 'yearAbandoned', 'style', 'floors', 'heightM',
                     'uses', 'lmiCode', 'addresses', 'relatedPlaceIds'])
-                && facts.get('architects', []) is list && facts.get('architects', []).size() <= 10
-                && isYear(facts.get('yearBuilt', 1900)) && isYear(facts.get('yearDemolished', 1900)) && isYear(facts.get('yearAbandoned', 1900))
-                && facts.get('floors', 0) is int && facts.get('floors', 0) >= 0 && facts.get('floors', 0) <= 200
-                && facts.get('heightM', 0) is number && facts.get('heightM', 0) >= 0 && facts.get('heightM', 0) <= 1000
-                && facts.get('uses', []) is list && facts.get('uses', []).size() <= 20
-                && facts.get('addresses', []) is list && facts.get('addresses', []).size() <= 20
-                && facts.get('lmiCode', 'B-II-m-A-00000').matches('[A-Z]{1,2}-(I|II|III|IV)-[masf]-[AB]-[0-9]{5}([.][0-9]{1,3}){0,2}')
-                && facts.get('relatedPlaceIds', []) is list && facts.get('relatedPlaceIds', []).size() <= 20;
+                // Each field is read only when present: a request's rules evaluate at most 1,000 expressions.
+                && (!('architects' in facts) || (facts.architects is list && facts.architects.size() <= 10))
+                && (!('yearBuilt' in facts) || isYear(facts.yearBuilt))
+                && (!('yearDemolished' in facts) || isYear(facts.yearDemolished))
+                && (!('yearAbandoned' in facts) || isYear(facts.yearAbandoned))
+                && (!('floors' in facts) || (facts.floors is int && facts.floors >= 0 && facts.floors <= 200))
+                && (!('heightM' in facts) || (facts.heightM is number && facts.heightM >= 0 && facts.heightM <= 1000))
+                && (!('uses' in facts) || (facts.uses is list && facts.uses.size() <= 20))
+                && (!('addresses' in facts) || (facts.addresses is list && facts.addresses.size() <= 20))
+                && (!('lmiCode' in facts) || facts.lmiCode.matches('[A-Z]{1,2}-(I|II|III|IV)-[masf]-[AB]-[0-9]{5}([.][0-9]{1,3}){0,2}'))
+                && (!('relatedPlaceIds' in facts) || (facts.relatedPlaceIds is list && facts.relatedPlaceIds.size() <= 20));
         }
 
         // M17 §12 (zod `placeIdsSchema`): the places whose Media list a photo or a map, one to ten ids, each once.
@@ -431,6 +435,28 @@ service cloud.firestore {
         }
 
         // Publishing needs processed derivatives (photos.onUpload wrote `image`) and a known licence.
+        // A photo's update; `changed` (its affected keys) and `reviewer` are worked out once: a request's rules evaluate at most 1,000
+        // expressions, and a photo with every field and five links comes close.
+        function validPhotoUpdate(city, changed, reviewer) {
+            return (reviewer
+                    ? (!('published' in changed) || resource.data.get('reviewStatus', 'approved') == 'approved')
+                    : (isCityUploader(city) && ownItem(resource.data) && resource.data.get('reviewStatus', '') == 'pending'
+                        && !changed.hasAny(['published', 'legacyId', 'rightsReview'])))
+                && changed.hasOnly(['kind', 'title', 'description', 'year', 'yearEnd', 'month', 'day', 'dateText', 'author', 'license',
+                    'rightsHolder', 'sourceUrl', 'sourceLabel', 'permissionNote', 'legacyId', 'links', 'location', 'bearing', 'fov', 'viewedArea', 'published',
+                    'placeIds', 'level', 'rightsReview', 'credit', 'versionCredits', 'versions', 'updatedBy', 'updatedAt'])
+                && (!('versions' in changed)
+                    || (reviewer
+                        && versionsOnlyRemoved(resource.data.get('versions', {}), request.resource.data.get('versions', {}))))
+                && validPhoto(request.resource.data)
+                && (!('location' in changed) || inCity(request.resource.data.location, city))
+                // zod `aimedOnlyIfPlaced`, as on create: a document the server's schema refuses gets stuck in every callable.
+                && ('location' in request.resource.data
+                    || (!('bearing' in request.resource.data) && !('fov' in request.resource.data)
+                        && !('viewedArea' in request.resource.data)))
+                && (!changed.hasAny(['published', 'license']) || publishable(request.resource.data));
+        }
+
         function publishable(data) {
             return data.published == false
                 || (resource.data.processing == 'done' && 'image' in resource.data && data.license != 'unknown');
@@ -479,8 +505,8 @@ service cloud.firestore {
                 && data.opacity >= 0 && data.opacity <= 1
                 && data.defaultVisible is bool
                 && validAdjustments(data.get('adjustments', {}))
-                && validPlaceIds(data.get('placeIds', ['x']))
-                && validLevel(data.get('level', {'order': 0, 'label': {'ro': 'x'}}))
+                && (!('placeIds' in data) || validPlaceIds(data.placeIds))
+                && (!('level' in data) || validLevel(data.level))
                 && data.published is bool
                 && stamped(data);
         }
@@ -542,7 +568,8 @@ service cloud.firestore {
                 && isId(data.get('sourceLayer', 'x'))
                 // A sub-group of the category (bridges, lakes…; 2026-11-22).
                 && data.get('group', 'x').matches('[\\s\\S]{1,60}')
-                && validFacts(data.get('facts', {}))
+                // An absent optional field costs one expression: a request's rules evaluate at most 1,000 (the largest place and photo).
+                && (!('facts' in data) || validFacts(data.facts))
                 && data.published is bool
                 && stamped(data);
         }
@@ -745,23 +772,7 @@ service cloud.firestore {
                     && request.resource.data.processing == 'pending'
                     && request.resource.data.published == false
                     && created(request.resource.data);
-                allow update: if (isCityReviewer(city)
-                        ? publishedStaysTheServers()
-                        : (isCityUploader(city) && ownItem(resource.data) && resource.data.get('reviewStatus', '') == 'pending'
-                            && !changedKeys().hasAny(['published', 'legacyId', 'rightsReview'])))
-                    && changedKeys().hasOnly(['kind', 'title', 'description', 'year', 'yearEnd', 'month', 'day', 'dateText', 'author', 'license',
-                        'rightsHolder', 'sourceUrl', 'sourceLabel', 'permissionNote', 'legacyId', 'links', 'location', 'bearing', 'fov', 'viewedArea', 'published',
-                        'placeIds', 'level', 'rightsReview', 'credit', 'versionCredits', 'versions', 'updatedBy', 'updatedAt'])
-                    && (!('versions' in changedKeys())
-                        || (isCityReviewer(city)
-                            && versionsOnlyRemoved(resource.data.get('versions', {}), request.resource.data.get('versions', {}))))
-                    && validPhoto(request.resource.data)
-                    && (!('location' in changedKeys()) || inCity(request.resource.data.location, city))
-                    // zod `aimedOnlyIfPlaced`, as on create: a document the server's schema refuses gets stuck in every callable.
-                    && ('location' in request.resource.data
-                        || (!('bearing' in request.resource.data) && !('fov' in request.resource.data)
-                            && !('viewedArea' in request.resource.data)))
-                    && (!changedKeys().hasAny(['published', 'license']) || publishable(request.resource.data));
+                allow update: if validPhotoUpdate(city, changedKeys(), isCityReviewer(city));
                 // M13: a moderator unpublishes and never deletes; an uploader takes back their own until it is approved.
                 allow delete: if isCityMember(city)
                     || (isCityUploader(city) && ownItem(resource.data) && resource.data.get('reviewStatus', '') in ['pending', 'refused']);

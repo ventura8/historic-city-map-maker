@@ -34,6 +34,8 @@ const MEMORY_MB: Readonly<Record<string, number>> = {
     'publish.buildManifest': 512,
     // `imagery.markScene` rewrites the date plan after each mark (259 MiB used on 256 MiB; Crashes, 2026-11-20).
     'imagery.markScene': 512,
+    // `imagery.browse` makes the browse copy of a scan; two at a time ran out of 256 MiB (2026-11-23).
+    'imagery.browse': 512,
 };
 
 /** The reviewed timeouts that are not the default 60 s. */
@@ -43,7 +45,8 @@ const TIMEOUT_SECONDS: Readonly<Record<string, number>> = {
     'imagery.publish': 1800,
     'imagery.tick': 540,
     'ops.tick': 540,
-    'publish.buildManifest': 300,
+    // Wikipedia keeps every article: a large city's manifest takes longer than 300 s (d6906378).
+    'publish.buildManifest': 540,
     'assist.geocode': 60,
     'imagery.onRasterUpload': 120,
     'imagery.search': 540,

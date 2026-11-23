@@ -110,6 +110,12 @@ export function photoDoc(cityId: string, photoId: string, creator: string): Data
         location: { lat: 44.4462, lng: 26.0969 },
         bearing: 90,
         fov: 60,
+        viewedArea: [
+            { lat: 44.447, lng: 26.096 },
+            { lat: 44.447, lng: 26.098 },
+            { lat: 44.445, lng: 26.098 },
+            { lat: 44.445, lng: 26.096 },
+        ],
         kind: 'ground',
         published: false,
         rightsReview: false,
@@ -157,6 +163,9 @@ function photoText(): Data {
         sourceLabel: 'Arhiva familiei',
         permissionNote: 'Permisiune scrisă pentru proiect.',
         legacyId: 'ci9e9tn7b0356kzkuzlkncngf',
+        // M17 §12 and §14: the places whose Media list it, and an interior photo's level.
+        placeIds: ['poi-1', 'poi-2'],
+        level: 1,
     };
 }
 
@@ -169,6 +178,12 @@ export function newPhoto(uid: string): Data {
         location: { lat: 44.4462, lng: 26.0969 },
         bearing: 360,
         fov: 180,
+        viewedArea: [
+            { lat: 44.447, lng: 26.096 },
+            { lat: 44.447, lng: 26.098 },
+            { lat: 44.445, lng: 26.098 },
+            { lat: 44.445, lng: 26.096 },
+        ],
         kind: 'ground',
         published: false,
         rightsReview: true,
@@ -198,6 +213,9 @@ export function layerDoc(): Data {
         opacity: 0.8,
         defaultVisible: true,
         adjustments: { brightnessMin: 0.1, brightnessMax: 0.9, contrast: 0.2, saturation: -0.5 },
+        // M17 §12 and §14: a small-area map's places and a building plan's level.
+        placeIds: ['poi-1'],
+        level: { order: 0, label: { ro: 'Parter', en: 'Ground floor' } },
         // M20 (docs/research/M20-import-local.md §7): a drawn map's licence, author and source, written by finalize.
         rights: { licence: 'PD', author: 'IGA', source: { label: 'Idei Urbane – DocuBucurești', url: 'https://ideiurbane.ro/' } },
         status: 'ready',
@@ -227,6 +245,8 @@ function poiText(): Data {
         sourceLayer: 'plan-1911',
         links: links(2),
         photoIds: ['p1', 'p2'],
+        group: 'Poduri',
+        facts: { architects: ['Ion Mincu'], yearBuilt: 1850, yearDemolished: 1977 },
     };
 }
 
@@ -636,7 +656,15 @@ export const EDITS: Readonly<Record<ClientCollection, Readonly<Data>>> = {
         location: { lat: 44.3 - 0.5, lng: 26.3 + 0.5 },
         bearing: 0,
         fov: 1,
+        viewedArea: [
+            { lat: 43.81, lng: 26.79 },
+            { lat: 43.81, lng: 26.81 },
+            { lat: 43.79, lng: 26.81 },
+            { lat: 43.79, lng: 26.79 },
+        ],
         kind: 'aerial',
+        placeIds: ['poi-3'],
+        level: -1,
         published: true,
         rightsReview: true,
         credit: 'Maria Popescu',
@@ -654,6 +682,9 @@ export const EDITS: Readonly<Record<ClientCollection, Readonly<Data>>> = {
         defaultVisible: false,
         adjustments: { brightnessMin: 0, brightnessMax: 1, contrast: -1, saturation: 1 },
         published: false,
+        kind: 'map',
+        placeIds: ['poi-1', 'poi-2'],
+        level: { order: 0.5, label: { ro: 'Mezanin' } },
     },
     poi: {
         category: 'strazi',
@@ -664,6 +695,8 @@ export const EDITS: Readonly<Record<ClientCollection, Readonly<Data>>> = {
         links: links(5),
         photoIds: Array.from({ length: 20 }, (_, index) => `p${String(index)}`),
         ...{ published: false, credit: 'Maria Popescu', sourceLayer: 'plan-1911' },
+        group: 'Lacuri',
+        facts: { floors: 3, lmiCode: 'B-II-m-A-18001' },
     },
     poiCategory: POI_CATEGORY_EDITS,
     story: STORY_EDITS,

@@ -10,7 +10,10 @@ the measure (docs/research/design-review-testability.md §3.5). Two subcommands:
   every evaluation of the run (about 290 MB of JSON), so only the JSON is asked for: the HTML view of the
   same report doubled that work and, asked at once, ran the emulator out of memory
   (docs/research/DECISIONS-for-review.md §180g). While the emulators run, `curl` gives it by hand.
-* `check` (the `rules-coverage` gate) reads the saved JSON report and fails when
+  The emulator keeps one report per project id, and one report past about 750 MB fails to build (HTTP 500, an integer overflow
+  in the emulator, 2026-11-23), so some rules test files run as `SHARD_PROJECTS` (firebase/rules-tests/test/support/world.ts):
+  each project's report is saved beside the first, as firestore-coverage-<project>.json.
+* `check` (the `rules-coverage` gate) reads the saved JSON reports, joins each expression's outcomes, and fails when
   1. an expression was never evaluated (an operand skipped by `&&`/`||` short-circuiting does not
      count as evaluated), or
   2. an `allow ...: if <condition>` never allowed a request or never denied one (a constant
@@ -42,6 +45,8 @@ ROOT = Path(__file__).resolve().parents[2]
 RULES = Path("firebase", "firestore.rules")
 JSON_REPORT = Path("reports", "rules", "firestore-coverage.json")
 DEFAULT_PROJECT = "demo-hcm"
+# The other project ids the rules tests use (`SHARD_PROJECT` of firebase/rules-tests/test/support/world.ts).
+SHARD_PROJECTS = ("demo-hcm-b",)
 TIMEOUT_SECONDS = 30
 CHUNK_BYTES = 1 << 20
 # The keys of one `values` entry of the report: the evaluated value and how often it was seen.
@@ -102,14 +107,25 @@ def fetch_http(host: str, path: str, target: Path) -> None:
         part.unlink(missing_ok=True)
 
 
+def shard_report(project: str) -> Path:
+    """Where a shard project's report is saved, beside the first one."""
+    return JSON_REPORT.with_name(f"firestore-coverage-{project}.json")
+
+
+def report_paths() -> list[Path]:
+    return [JSON_REPORT, *(shard_report(project) for project in SHARD_PROJECTS)]
+
+
 def save_report(root: Path, env: Mapping[str, str], fetch: Fetch) -> Path:
-    """Fetches the JSON coverage report from the running emulator into reports/rules/firestore-coverage.json."""
+    """Fetches each project's JSON coverage report from the running emulator into reports/rules/ (the first one's path)."""
     host = env.get("FIRESTORE_EMULATOR_HOST")
     if not host:
         raise CoverageError("FIRESTORE_EMULATOR_HOST is not set: run inside `firebase emulators:exec`")
     project = env.get("GCLOUD_PROJECT") or DEFAULT_PROJECT
     target = root / JSON_REPORT
     fetch(host, f"/emulator/v1/projects/{project}:ruleCoverage", target)
+    for shard in SHARD_PROJECTS:
+        fetch(host, f"/emulator/v1/projects/{shard}:ruleCoverage", root / shard_report(shard))
     return target
 
 
@@ -232,13 +248,29 @@ def load_report(path: Path) -> Mapping[str, object]:
     return data
 
 
-def check_report(root: Path) -> list[str]:
-    """Every coverage problem of the saved report, as `firebase/firestore.rules:LINE:COL reason: snippet`."""
-    report = load_report(root / JSON_REPORT)
+def joined(found: Sequence[Expression]) -> list[Expression]:
+    """One expression per place in the rules, with the outcomes every report recorded for it."""
+    places: dict[tuple[int, int, str], Expression] = {}
+    for item in found:
+        key = (item.line, item.column, item.text)
+        known = places.get(key)
+        places[key] = item if known is None else Expression(**{**vars(known), "outcomes": known.outcomes | item.outcomes})
+    return list(places.values())
+
+
+def report_expressions(root: Path, path: Path, rules: str) -> list[Expression]:
+    report = load_report(root / path)
     content = report_rules(report)
-    if content != (root / RULES).read_text(encoding="utf-8"):
-        raise CoverageError(f"{JSON_REPORT} was produced from different rules than {RULES}: rerun the tests stage")
-    found = [(expression, problem(expression)) for expression in expressions(report, content)]
+    if content != rules:
+        raise CoverageError(f"{path} was produced from different rules than {RULES}: rerun the tests stage")
+    return expressions(report, content)
+
+
+def check_report(root: Path) -> list[str]:
+    """Every coverage problem of the saved reports, as `firebase/firestore.rules:LINE:COL reason: snippet`."""
+    rules = (root / RULES).read_text(encoding="utf-8")
+    every = [item for path in report_paths() for item in report_expressions(root, path, rules)]
+    found = [(expression, problem(expression)) for expression in joined(every)]
     return [f"{item.where()} {reason}: {item.text[:SNIPPET_LENGTH]}" for item, reason in found if reason is not None]
 
 

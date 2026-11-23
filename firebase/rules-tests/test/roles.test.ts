@@ -236,7 +236,7 @@ const WRITES: readonly Row[] = [
         run: (a, s) =>
             dbOf(a)
                 .doc(FIRESTORE_PATHS.photo(CITY, s))
-                .set(without(uploaderPhoto(a), 'location', 'bearing', 'fov')),
+                .set(without(uploaderPhoto(a), 'location', 'bearing', 'fov', 'viewedArea')),
     },
     {
         name: "staff's new photo with no location",
@@ -244,7 +244,7 @@ const WRITES: readonly Row[] = [
         run: (a, s) =>
             dbOf(a)
                 .doc(FIRESTORE_PATHS.photo(CITY, s))
-                .set(without(newPhoto(uid(a)), 'location', 'bearing', 'fov')),
+                .set(without(newPhoto(uid(a)), 'location', 'bearing', 'fov', 'viewedArea')),
     },
     {
         name: "an uploader's update aiming their own unplaced photo @S-A94-BAD-AIMED-UNPLACED",

@@ -88,10 +88,14 @@ def log(caplog: pytest.LogCaptureFixture) -> pytest.LogCaptureFixture:
     return caplog
 
 
-def save(repo: Path, report: Mapping[str, object] | str) -> None:
+def save(repo: Path, report: Mapping[str, object] | str, shard: Mapping[str, object] | None = None) -> None:
+    """Saves `report` as the first project's, and `shard` (default: the same rules, nothing evaluated) as each shard's."""
     target = repo / coverage.JSON_REPORT
     target.parent.mkdir(parents=True, exist_ok=True)
     target.write_text(report if isinstance(report, str) else json.dumps(report), encoding="utf-8")
+    other = {**full_report(), "report": []} if shard is None else shard
+    for project in coverage.SHARD_PROJECTS:
+        (repo / coverage.shard_report(project)).write_text(json.dumps(other), encoding="utf-8")
 
 
 def errors(log: pytest.LogCaptureFixture) -> list[str]:
@@ -154,6 +158,27 @@ def test_bad_path_conditions_must_allow_and_deny(repo: Path, values: Sequence[Ma
     assert coverage.check_report(repo) == [f"firebase/firestore.rules:11:28 {reason}: signedIn() && city == 'bucuresti'"]
 
 
+def test_happy_path_the_shards_outcomes_join_the_first_reports(repo: Path) -> None:
+    save(repo, full_report(condition=(TRUE,)), shard=full_report(condition=(FALSE,), city=None))
+
+    assert coverage.check_report(repo) == []
+
+
+def test_bad_path_an_outcome_seen_in_no_report_stays_uncovered(repo: Path) -> None:
+    save(repo, full_report(condition=(TRUE,)), shard=full_report(condition=(TRUE,)))
+
+    assert [line.split(" ", 1)[1] for line in coverage.check_report(repo)] == [
+        "condition never denied a request: signedIn() && city == 'bucuresti'"
+    ]
+
+
+def test_bad_path_a_shard_of_other_rules_is_stale(repo: Path) -> None:
+    save(repo, full_report(), shard=full_report(content=RULES_TEXT.replace("bucuresti", "cluj")))
+
+    with pytest.raises(coverage.CoverageError, match="firestore-coverage-demo-hcm-b.json was produced from different rules"):
+        coverage.check_report(repo)
+
+
 def test_bad_path_a_report_of_other_rules_is_stale(repo: Path, log: pytest.LogCaptureFixture) -> None:
     save(repo, full_report(content=RULES_TEXT.replace("bucuresti", "cluj")))
 
@@ -210,9 +235,15 @@ def test_happy_path_save_writes_only_the_json_report(repo: Path, log: pytest.Log
     assert coverage.main(["save", "--root", str(repo)], env=env, fetch=fetch) == 0
 
     # The HTML view of the same report doubled the emulator's work and ran it out of memory: never asked for.
-    assert fetch.calls == [("127.0.0.1:8080", "/emulator/v1/projects/demo-other:ruleCoverage")]
+    assert fetch.calls == [
+        ("127.0.0.1:8080", "/emulator/v1/projects/demo-other:ruleCoverage"),
+        ("127.0.0.1:8080", "/emulator/v1/projects/demo-hcm-b:ruleCoverage"),
+    ]
     assert (repo / coverage.JSON_REPORT).read_text(encoding="utf-8") == "report for /emulator/v1/projects/demo-other:ruleCoverage"
-    assert sorted(path.name for path in (repo / coverage.JSON_REPORT).parent.iterdir()) == ["firestore-coverage.json"]
+    assert sorted(path.name for path in (repo / coverage.JSON_REPORT).parent.iterdir()) == [
+        "firestore-coverage-demo-hcm-b.json",
+        "firestore-coverage.json",
+    ]
     assert log.messages == ["rules coverage report saved: reports/rules/firestore-coverage.json"]
 
 
@@ -221,7 +252,7 @@ def test_happy_path_save_defaults_to_the_demo_project(repo: Path) -> None:
 
     assert coverage.save_report(repo, {"FIRESTORE_EMULATOR_HOST": "127.0.0.1:8080"}, fetch) == repo / coverage.JSON_REPORT
 
-    assert fetch.calls == [("127.0.0.1:8080", "/emulator/v1/projects/demo-hcm:ruleCoverage")]
+    assert fetch.calls[0] == ("127.0.0.1:8080", "/emulator/v1/projects/demo-hcm:ruleCoverage")
 
 
 def test_bad_path_a_failed_report_fails_the_save(repo: Path, log: pytest.LogCaptureFixture) -> None:

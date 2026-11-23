@@ -155,6 +155,7 @@ describe('createDeps', () => {
                 'translator',
                 'uploads',
                 'usgs',
+                'wiki',
                 'writer',
             ].sort((a, b) => a.localeCompare(b)),
         );

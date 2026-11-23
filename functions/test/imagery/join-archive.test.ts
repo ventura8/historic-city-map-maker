@@ -29,6 +29,14 @@ import {
 
 const NORTH = 'ar-mw993zri-s-c7549c8348b5';
 const SOUTH = 'rg-mwgrposm-s';
+/** The earlier join's source: a join version names at least two parts, as `joinSourceSchema` requires. */
+const OLD_JOIN = {
+    kind: 'join',
+    parts: [
+        { versionId: NORTH, layerId: 'n', entityId: NORTH },
+        { versionId: SOUTH, layerId: 's', entityId: SOUTH },
+    ],
+} as const;
 
 function archiveMap(layerId: string, label: string, overrides: Partial<LayerVersionDoc> = {}): LayerVersionDoc {
     return renderedVersion({
@@ -130,7 +138,7 @@ describe('imagery.join: archive maps', () => {
     it('happyPath_aJoinRebuiltWithASheetMoreStaysOnItsLayer @S-A65-HAPPY-ARCHIVE-ADD-SHEETS', async () => {
         const ready = await world({ state: 'joined', partOf: 'old-join' });
         await seedVersion(ready, NORTH, archiveMap('n', 'N', { state: 'superseded', partOf: 'old-join' }));
-        await seedVersion(ready, 'old-join', archiveMap('n', 'N + S', { origin: 'join', source: { kind: 'join', parts: [] } }));
+        await seedVersion(ready, 'old-join', archiveMap('n', 'N + S', { origin: 'join', source: OLD_JOIN }));
         await seedVersion(ready, 'ar-west', archiveMap('w', 'W'));
 
         const answer = await join(ready, [SOUTH, NORTH, 'ar-west']);
@@ -142,7 +150,7 @@ describe('imagery.join: archive maps', () => {
     it('happyPath_aJoinRunAgainWithTheSamePartsStaysOnItsOwnLayer @S-A65-HAPPY-ARCHIVE-JOIN-AGAIN', async () => {
         const ready = await world({ state: 'joined', partOf: 'old-join' });
         await seedVersion(ready, NORTH, archiveMap('n', 'N', { state: 'joined', partOf: 'old-join' }));
-        await seedVersion(ready, 'old-join', archiveMap('both', 'N + S', { origin: 'join', source: { kind: 'join', parts: [] } }));
+        await seedVersion(ready, 'old-join', archiveMap('both', 'N + S', { origin: 'join', source: OLD_JOIN }));
         await seedLayer(ready, 'both', { currentVersion: 'old-join' });
 
         const answer = await join(ready, [NORTH, SOUTH]);
@@ -158,7 +166,7 @@ describe('imagery.join: archive maps', () => {
         await seedVersion(
             ready,
             'old-join',
-            archiveMap('both', 'N + S', { origin: 'join', state: 'rejected', source: { kind: 'join', parts: [] } }),
+            archiveMap('both', 'N + S', { origin: 'join', state: 'rejected', source: OLD_JOIN }),
         );
 
         const answer = await join(ready, [NORTH, SOUTH]);

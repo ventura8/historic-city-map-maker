@@ -17,6 +17,19 @@ import { vi } from 'vitest';
 
 const PROJECT_ID = 'demo-hcm';
 
+/**
+ * The emulator keeps one rule-coverage report per project id, and one report past about 750 MB fails to build (HTTP 500,
+ * 2026-11-23). These files' worlds use a second project id (the same rules: the emulator loads them for every project), and
+ * `check_rules_coverage.py` saves both reports and joins them (its `SHARD_PROJECTS`). Their scopes touch no Storage rule.
+ */
+const SHARD_PROJECT = 'demo-hcm-b';
+const SHARDED_SCOPES: ReadonlySet<string> = new Set(['matrix', 'limits', 'pois', 'photos', 'jobs', 'notify', 'layers']);
+
+/** The project id a scope's world uses. */
+function projectOf(scope: string): string {
+    return SHARDED_SCOPES.has(scope) ? SHARD_PROJECT : PROJECT_ID;
+}
+
 // The SDK logs every PERMISSION_DENIED it receives; denials are the expected outcome of half the matrix.
 firebase.firestore.setLogLevel('silent');
 
@@ -237,7 +250,7 @@ function holdOwner(env: RulesTestEnvironment): Owner {
 }
 
 export async function createWorld(scope: string): Promise<World> {
-    const env = await initializeTestEnvironment({ projectId: PROJECT_ID });
+    const env = await initializeTestEnvironment({ projectId: projectOf(scope) });
     const uid = (persona: Persona): string => `${scope}-${persona}`;
     const email = (persona: Persona): string => `${uid(persona)}@example.test`;
     // One context per persona: every context starts its own Firebase app, which costs more than the request.
