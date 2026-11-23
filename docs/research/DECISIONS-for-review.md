@@ -7334,3 +7334,7 @@ The owner asked for three viewer features from `reports/similar-sites-2026-11-23
 - The icon font gains `star` and `copyright` (`packages/ui/src/icons.ts`, rebuilt with `fonts:build`).
 
 Verify: `PIPELINE_STAGE=static`, `PIPELINE_STAGE=build`, the touched Vitest files and `e2e/specs/viewer/favorites-licence.spec.ts`.
+
+## 246. Admin total bundle budget 850 → 900 KB (2026-11-23) — APPLIED
+
+The owner's decision ("also rize size limits!!!!"): favourites and the licence and citation panel's 16-catalogue strings took the admin total to 850.3 KB (`ADMIN_TOTAL_KB`, `scripts/ci/check_bundle_budget.py`). Raised to 900 KB; the admin entry's 450 KB budget, what an admin waits for, is unchanged. Verify: `PIPELINE_STAGE=build`.

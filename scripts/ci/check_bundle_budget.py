@@ -345,7 +345,9 @@ ADMIN_CHUNK_BUDGETS: Mapping[str, int] = {
 # 770 since 2026-11-13 (§222, under the owner's §215 raise): 764.6 KB with the device accent (about 1.5 KB) and the merge.
 # 820 since 2026-11-14 (§215b, M28): 805.7 KB with the Platform and Sources cards, free translation and the country finder
 # (their own `sources-cards` chunk, 34.7 KB, most of it the catalogue's texts in two languages) and the merge of origin.
-ADMIN_TOTAL_KB = 850
+# 900 since 2026-11-23 (§246), the owner's decision ("also rize size limits!!!!"): favourites and the licence and citation
+# panel's strings took the total to 850.3 KB; the entry's 450 KB still caps what an admin waits for.
+ADMIN_TOTAL_KB = 900
 
 # M6: the install bundle's folder in the deployed Hosting tree, and each tarball's budget in KB as served (it is gzip
 # already): the contract's ceilings (docs/research/M6-interfaces.md §1.3; DECISIONS-for-review.md §71). Since §73k
