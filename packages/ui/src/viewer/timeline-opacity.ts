@@ -120,6 +120,7 @@ export class OpacityReveal {
             },
             true,
         );
+        root.addEventListener('pointermove', this.onThumbMove);
         root.addEventListener('pointerup', onThumb(this.onThumbUp));
         root.addEventListener('focusin', onThumb(this.onFocusIn));
         root.addEventListener('focusout', onThumb(this.onFocusOut));
@@ -153,7 +154,15 @@ export class OpacityReveal {
         this.#down = event.pointerType === 'touch' ? { x: event.clientX, y: event.clientY } : null;
     };
 
-    /** A finger lifted where it went down: a tap on the selected year opens or closes the card. */
+    /** A finger that went past the slop is a sweep, not a tap, even if it comes back where it went down (S-V68-BAD-DWELL-SWEEP). */
+    readonly onThumbMove = (event: PointerEvent): void => {
+        const down = this.#down;
+        if (down !== null && Math.hypot(event.clientX - down.x, event.clientY - down.y) > TAP_SLOP_PX) {
+            this.#down = null;
+        }
+    };
+
+    /** A finger lifted where it went down, never having left it: a tap on the selected year opens or closes the card. */
     readonly onThumbUp = (event: PointerEvent): void => {
         const down = this.#down;
         this.#down = null;

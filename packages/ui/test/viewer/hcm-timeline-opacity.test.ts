@@ -341,3 +341,26 @@ describe('the opacity card on a phone', () => {
         expect(element.shadowRoot?.querySelector('.opacity-open')).toBeNull();
     });
 });
+
+describe('the timeline opacity card under a sweeping finger (S-V68)', () => {
+    afterEach(() => {
+        document.body.replaceChildren();
+    });
+
+    it('badPath_aFingerThatSweptAwayAndBackIsNotATap', async () => {
+        const element = await timeline();
+        pointer(thumb(element), 'pointerdown', 'touch');
+        pointer(thumb(element), 'pointermove', 'touch', 14, 12);
+        pointer(thumb(element), 'pointermove', 'touch', 90, 10);
+        pointer(thumb(element), 'pointermove', 'touch', 10, 10);
+        pointer(thumb(element), 'pointerup', 'touch', 10, 10);
+        await element.updateComplete;
+        expect(card(element), 'a sweep back to the pill opens nothing').toBeNull();
+
+        pointer(thumb(element), 'pointerdown', 'touch');
+        pointer(thumb(element), 'pointermove', 'touch', 13, 12);
+        pointer(thumb(element), 'pointerup', 'touch', 12, 11);
+        await element.updateComplete;
+        expect(card(element), 'a finger that stayed within the slop taps').not.toBeNull();
+    });
+});

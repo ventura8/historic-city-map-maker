@@ -22567,7 +22567,7 @@
             "asserts": "at 360x800 and 768x1024: a finger sweeping from today across 1980 and back opens nothing after a second; resting on 1980 opens it, moving on to today closes it while the scrub goes on (the slider on today), and lifting there opens nothing",
             "tier": "e2e-viewer",
             "status": "exists",
-            "notes": "The owner, 2026-11-13 (DECISIONS-for-review.md §195i). packages/ui/src/viewer/timeline-peek.ts, hcm-timeline.ts, timeline-scrub.ts, timeline-dock.ts, hcm-date-menu.ts (peek, touchAt); unit tests in packages/ui/test/viewer/timeline-peek.test.ts, hcm-timeline-peek.test.ts, timeline-dock-peek.test.ts and hcm-date-menu.test.ts. Test: e2e/specs/viewer/timeline-peek.spec.ts."
+            "notes": "The owner, 2026-11-13 (DECISIONS-for-review.md §195i). packages/ui/src/viewer/timeline-peek.ts, hcm-timeline.ts, timeline-scrub.ts, timeline-dock.ts, hcm-date-menu.ts (peek, touchAt); unit tests in packages/ui/test/viewer/timeline-peek.test.ts, hcm-timeline-peek.test.ts, timeline-dock-peek.test.ts and hcm-date-menu.test.ts. Test: e2e/specs/viewer/timeline-peek.spec.ts. 2026-11-23: a sweep back to the selected pill counted as a tap and opened the phone's opacity sheet (timeline-opacity.ts onThumbMove; LESSONS 780)."
         },
         {
             "id": "S-V68-HAPPY-TOUR",
