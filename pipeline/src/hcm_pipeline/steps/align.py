@@ -286,10 +286,15 @@ def log_apart(ctx: JobContext, parts: Sequence[Part], seams: Sequence[Seam]) -> 
     """An archive maps' join keeps a part that meets no other (a sheet of the same plan a few kilometres off, Vârteju 3 of the 1990
     cadastral plan): every part keeps its own fit, so nothing is measured against it and it is drawn where its own points put it. It
     used to end the job (`joinMapsApart`), which left such a sheet on a second layer of the same year (finding of 2026-11-23)."""
-    met = {index for seam in seams for index in (seam.a, seam.b)}
-    apart = [part.version.id for index, part in enumerate(parts) if index not in met]
+    apart = _apart_ids(parts, seams)
     if apart:
         ctx.log.info(f"apart from the others, kept on its own fit: {', '.join(apart)}", "align")
+
+
+def _apart_ids(parts: Sequence[Part], seams: Sequence[Seam]) -> list[str]:
+    """The ids of the parts that no seam meets."""
+    met = {index for seam in seams for index in (seam.a, seam.b)}
+    return [part.version.id for index, part in enumerate(parts) if index not in met]
 
 
 def _log(ctx: JobContext, step: str, plan: JoinPlan) -> None:
