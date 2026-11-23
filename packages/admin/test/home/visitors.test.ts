@@ -4,8 +4,7 @@
  */
 import { describe, expect, it } from 'vitest';
 
-import type { StatisticsSource } from '../../src/crashes/statistics.js';
-import { NO_STATISTICS_SOURCE } from '../../src/crashes/statistics.js';
+import { NO_STATISTICS_SOURCE, type StatisticsSource } from '../../src/crashes/statistics.js';
 import { HOME_MODULE } from '../../src/home/home.js';
 import { contentWorld } from '../content/world.js';
 
