@@ -33,12 +33,14 @@ def test_happy_path_the_merge_warps_a_part_from_its_original_points_and_nodes_sc
 
     sharpest = warper.full(part, NODES)
 
-    assert sharpest.original and sharpest.picture == tmp_path / "scratch" / f"{ctx.version.id}-original.tif"
+    assert sharpest.original
+    assert sharpest.picture == tmp_path / "scratch" / f"{ctx.version.id}-original.tif"
     assert sharpest.nodes == ((20.0, 40.0, 1000.0, 2000.0),)
     assert [(gcp.x, gcp.y) for gcp in sharpest.georef.gcps] == [(20.0, 40.0), (200.0, 300.0)]
     assert said == ["part sheet-1 warped on the original, 440 x 400 px"]
     warper.done_with(part, sharpest)
-    assert not sharpest.picture.exists() and scan.exists()
+    assert not sharpest.picture.exists()
+    assert scan.exists()
 
 
 @pytest.mark.parametrize("case", ["gone", "broken", "corners", "elsewhere"])
