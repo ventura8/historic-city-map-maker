@@ -119,7 +119,7 @@ test(
             'href',
             'https://example.org/poi/cladire',
         );
-        await expect(details.getByRole('heading', { name: t(lang, 'poi.photos') })).toBeVisible();
+        await expect(details.getByRole('heading', { name: t(lang, 'poi.media') })).toBeVisible();
         expect(await engineEvents(page, 'hcm-poi-open')).toEqual([{ poiId: 'fixture-cladire' }]);
 
         await details.getByRole('button', { name: t(lang, 'poi.openPhoto', { title: LINKED_PHOTO.title }) }).click();
@@ -303,7 +303,7 @@ test('A city without POIs has no Places group and no POI map layers', { tag: '@S
 
     expect((await mapFacts(page)).layers.filter((id) => id.startsWith('hcm-poi-'))).toEqual([]);
     await openLayers(page, lang);
-    await expect(viewer(page).getByRole('heading', { name: t(lang, 'layers.group.historical') })).toBeVisible();
+    await expect(viewer(page).getByRole('heading', { name: t(lang, 'layers.group.aerial') })).toBeVisible();
     await expect(viewer(page).getByRole('heading', { name: t(lang, 'layers.group.places') })).toHaveCount(0);
     await expect(page.getByRole('slider', { name: t(lang, 'layers.opacity', { name: TITLES.category[lang] }) })).toHaveCount(0);
 });

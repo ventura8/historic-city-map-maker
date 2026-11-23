@@ -553,7 +553,7 @@ test(
 
         await list.getByRole('radio', { name: t(lang, 'photos.filter.aerial'), exact: true }).check();
         await expect(list.getByRole('button')).toHaveCount(1);
-        await expect(list.locator('.date')).toHaveText(`${t(lang, 'photos.kind.aerial')} · 1944`);
+        await expect(list.locator('.date')).toHaveText(`${t(lang, 'photos.kind.aerial')} · ${t(lang, 'photo.year', { year: '1944' })}`);
         await list.getByRole('radio', { name: t(lang, 'photos.filter.ground'), exact: true }).check();
         await expect(list.getByRole('button')).toHaveCount(PHOTOS.length - 1);
     },
