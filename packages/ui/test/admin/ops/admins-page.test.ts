@@ -73,6 +73,16 @@ describe('<hcm-admins-page>', () => {
         expect(app.named('navigate')).toEqual(['navigate {"id":"admins","params":[]}']);
     });
 
+    it('happyPath_goingBackFromDetailReturnsToTheList', async () => {
+        const admins = area(adminsState({ selected: { kind: 'admin', uid: 'admin-uid' } }));
+        const { element, app } = await page('admins', admins, { params: ['admin-uid'] });
+
+        deep(element, 'hcm-list-detail').dispatchEvent(new CustomEvent('hcm-back'));
+        await updated(element);
+
+        expect(app.named('navigate')).toEqual(['navigate {"id":"admins","params":[]}']);
+    });
+
     it('badPath_aReadOnlyPageNeitherInvitesNorRemoves', async () => {
         const admins = area(adminsState({ selected: { kind: 'admin', uid: 'admin-uid' } }));
         const { element } = await page('admins', admins, { params: ['admin-uid'], revoked: true });
