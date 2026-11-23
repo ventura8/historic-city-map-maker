@@ -11,8 +11,9 @@
  * stays where it was, the frame stays live. The mouse entering or leaving it says so (`hcm-date-menu-pointer`), so the dock
  * keeps it open on the way from the year; a finger sliding over it marks the date under it (`touchAt`) and lifting picks it.
  *
- * With `side` (a menu of the selected year, a peek too) the year's opacity sliders, slotted, sit beside the menu, centred on it,
- * or under it on a phone (`stacked`), placed by `date-menu-side.ts`; Tab goes from the dates to them, Esc in them closes.
+ * With `side` (a menu of the selected year, a peek too) the year's opacity sliders, slotted, sit beside the dates in one row
+ * (`.pair`, the owner 2026-11-23: never stacked, never over each other), placed as one box; on a narrow phone the two columns
+ * share the width and their labels wrap instead of being cut. Tab goes from the dates to them, Esc in them closes.
  *
  * Events (viewer-internal): `hcm-date-pick` (`{layerId}`), `hcm-close`, `hcm-date-menu-pointer` (`{inside}`).
  */
@@ -20,56 +21,24 @@ import { LitElement, css, html, type PropertyValues, type TemplateResult } from 
 
 import { EMPTY } from './empty.js';
 import { clearOf } from './date-menu-clear.js';
-import { placeSide } from './date-menu-side.js';
+import { dateMenuOrigin, MAX_WIDTH, PAIR_MAX_WIDTH, pairHeight, sideRoom, type Side } from './date-menu-place.js';
 import { closeEvent } from './sheet-frame.js';
 import { baseStyles } from './shared-styles.js';
 import type { DateItem, DatesOpenDetail } from './timeline-dates.js';
 
 export const HCM_DATE_MENU_TAG = 'hcm-date-menu';
 
-/** Px kept from the viewer's edges, and from the anchor. */
-const EDGE = 8;
 /** The strip at the foot of the map kept for Mapbox's logo and attribution (`--hcm-map-chrome`). */
 const LEGAL_STRIP = 42;
-/** The menu's width limits (M3 menus: 112 to 280 px). */
-const MIN_WIDTH = 112;
-const MAX_WIDTH = 280;
 
 type Box = DatesOpenDetail['anchor'];
 
 /** The properties that move or resize the menu or its sliders. */
-const PLACING: readonly (keyof HcmDateMenu)[] = ['anchor', 'side', 'stacked', 'items', 'vertical'];
-
-/** The side of the timeline the menu opens on: above a lying one, past or before a standing one. */
-type Side = 'above' | 'end' | 'start';
-
-/** Where the menu's corner goes in the viewer (px from its top-left): beside the anchor, moved back inside when it would leave. */
-export function dateMenuOrigin(
-    anchor: Box,
-    menu: { readonly width: number; readonly height: number },
-    room: { readonly width: number; readonly height: number },
-    side: Side,
-): { readonly x: number; readonly y: number } {
-    const centreX = anchor.x + anchor.width / 2 - menu.width / 2;
-    const centreY = anchor.y + anchor.height / 2 - menu.height / 2;
-    const wanted = {
-        above: { x: centreX, y: anchor.y - EDGE - menu.height },
-        end: { x: anchor.x + anchor.width + EDGE, y: centreY },
-        start: { x: anchor.x - EDGE - menu.width, y: centreY },
-    }[side];
-    const within = (at: number, length: number, end: number): number => Math.max(EDGE, Math.min(at, end - length));
-    return { x: within(wanted.x, menu.width, room.width - EDGE), y: within(wanted.y, menu.height, room.height - LEGAL_STRIP) };
-}
+const PLACING: readonly (keyof HcmDateMenu)[] = ['anchor', 'side', 'items', 'vertical'];
 
 /** Whether the point (`x`, `y`) is in `rect`, its edges included. */
 function contains(rect: DOMRect, x: number, y: number): boolean {
     return x >= rect.left && x <= rect.right && y >= rect.top && y <= rect.bottom;
-}
-
-/** The widest the menu may be (px) beside a standing timeline (the room past it), or above a lying one (the viewer). */
-export function sideRoom(anchor: Box, width: number, side: Side): number {
-    const room = { above: width, end: width - (anchor.x + anchor.width), start: anchor.x }[side] - 2 * EDGE;
-    return Math.max(MIN_WIDTH, Math.min(MAX_WIDTH, room));
 }
 
 const NEXT: Readonly<Record<string, (index: number, count: number) => number>> = {
@@ -87,7 +56,6 @@ export class HcmDateMenu extends LitElement {
         label: { type: String },
         anchor: { attribute: false },
         side: { type: Boolean },
-        stacked: { type: Boolean },
         avoid: { attribute: false },
         vertical: { type: Boolean },
         peek: { type: Boolean },
@@ -110,14 +78,26 @@ export class HcmDateMenu extends LitElement {
                 pointer-events: auto;
             }
 
-            .menu {
+            /* The dates and the sliders in one row, placed as one box: never stacked, never over each other. */
+            .pair {
                 position: absolute;
                 display: flex;
+                gap: 8px;
+                align-items: flex-start;
+                box-sizing: border-box;
+                max-inline-size: calc(100% - 16px);
+                max-block-size: calc(100% - 58px);
+                pointer-events: none;
+            }
+
+            .menu {
+                display: flex;
+                flex: 0 1 auto;
                 flex-direction: column;
                 box-sizing: border-box;
-                min-inline-size: 112px;
-                max-inline-size: min(280px, calc(100% - 16px));
-                max-block-size: calc(100% - 58px);
+                min-inline-size: 0;
+                max-inline-size: 280px;
+                max-block-size: inherit;
                 padding-block: 8px;
                 overflow: auto;
                 border-radius: var(--md-sys-shape-corner-extra-small);
@@ -128,12 +108,14 @@ export class HcmDateMenu extends LitElement {
             }
 
             .side {
-                position: absolute;
                 display: flex;
+                flex: 0 1 240px;
                 flex-direction: column;
                 box-sizing: border-box;
-                inline-size: 240px;
+                min-inline-size: 0;
+                max-block-size: inherit;
                 padding: 8px 16px;
+                overflow: auto;
                 border-radius: var(--md-sys-shape-corner-large);
                 background: var(--md-sys-color-surface-container);
                 color: var(--md-sys-color-on-surface);
@@ -175,6 +157,8 @@ export class HcmDateMenu extends LitElement {
 
             .text {
                 display: grid;
+                min-inline-size: 0;
+                overflow-wrap: anywhere;
             }
 
             .date {
@@ -216,10 +200,8 @@ export class HcmDateMenu extends LitElement {
     declare vertical: boolean;
     /** Shown by a resting pointer, not by selecting the year: not modal. */
     declare peek: boolean;
-    /** The year's opacity sliders are slotted: they show beside the menu (not on a peek). */
+    /** The year's opacity sliders are slotted: they show beside the dates, in the same row. */
     declare side: boolean;
-    /** On a phone: the sliders go under the menu, one sheet. */
-    declare stacked: boolean;
 
     constructor() {
         super();
@@ -232,7 +214,6 @@ export class HcmDateMenu extends LitElement {
         this.vertical = false;
         this.peek = false;
         this.side = false;
-        this.stacked = false;
     }
 
     override render(): TemplateResult {
@@ -240,24 +221,26 @@ export class HcmDateMenu extends LitElement {
             return EMPTY;
         }
         return html`${this.#scrim()}
-            <div
-                class="menu"
-                role="menu"
-                aria-label=${this.label}
-                data-layout-check="date-menu"
-                @keydown=${this.#onKey}
-                @pointerenter=${this.#onPointer}
-                @pointerleave=${this.#onPointer}
-            >
-                ${this.items.map((item) => this.#item(item))}
-            </div>
-            ${
-                this.side
-                    ? html`<div class="side" @keydown=${this.#onSideKey} @pointerenter=${this.#onPointer} @pointerleave=${this.#onPointer}>
-                          <slot></slot>
-                      </div>`
-                    : EMPTY
-            }`;
+            <div class="pair">
+                <div
+                    class="menu"
+                    role="menu"
+                    aria-label=${this.label}
+                    data-layout-check="date-menu"
+                    @keydown=${this.#onKey}
+                    @pointerenter=${this.#onPointer}
+                    @pointerleave=${this.#onPointer}
+                >
+                    ${this.items.map((item) => this.#item(item))}
+                </div>
+                ${
+                    this.side
+                        ? html`<div class="side" @keydown=${this.#onSideKey} @pointerenter=${this.#onPointer} @pointerleave=${this.#onPointer}>
+                              <slot></slot>
+                          </div>`
+                        : EMPTY
+                }
+            </div>`;
     }
 
     /** Esc in the sliders closes the menu as in the dates. */
@@ -275,9 +258,9 @@ export class HcmDateMenu extends LitElement {
 
     /** Places the menu again when it or the viewer changes size (a window resized, larger text spacing). */
     readonly #resize = new ResizeObserver(() => {
-        const menu = this.renderRoot.querySelector<HTMLElement>('.menu');
-        if (menu !== null && this.anchor !== null) {
-            this.#place(menu, this.anchor);
+        const pair = this.renderRoot.querySelector<HTMLElement>('.pair');
+        if (pair !== null && this.anchor !== null) {
+            this.#place(pair, this.anchor);
         }
     });
 
@@ -292,27 +275,18 @@ export class HcmDateMenu extends LitElement {
     }
 
     protected override updated(changed: PropertyValues<this>): void {
-        const menu = this.renderRoot.querySelector<HTMLElement>('.menu');
-        if (menu === null || this.anchor === null) {
+        const pair = this.renderRoot.querySelector<HTMLElement>('.pair');
+        if (pair === null || this.anchor === null) {
             return;
         }
-        this.#observe(menu);
+        this.#resize.observe(pair);
         // Placed again on every change that moves or resizes it, not only a new anchor: a year's sliders slotted after the
         // anchor (side turned on, new items) kept their unplaced corner, over the dates, so only the opacity panel showed.
         if (PLACING.some((key) => changed.has(key))) {
-            this.#place(menu, this.anchor);
+            this.#place(pair, this.anchor);
         }
         if (changed.has('anchor')) {
             this.#focusChecked();
-        }
-    }
-
-    /** Watches the menu's and the sliders' sizes: each change places them again. */
-    #observe(menu: HTMLElement): void {
-        this.#resize.observe(menu);
-        const sliders = this.renderRoot.querySelector<HTMLElement>('.side');
-        if (sliders !== null) {
-            this.#resize.observe(sliders);
         }
     }
 
@@ -323,24 +297,20 @@ export class HcmDateMenu extends LitElement {
         }
     }
 
-    /** Beside `at` (client px), inside the viewer, clear of the controls to avoid. */
-    #place(menu: HTMLElement, at: Box): void {
+    /** The dates and the sliders as one box beside `at` (client px), inside the viewer, clear of the controls to avoid. */
+    #place(pair: HTMLElement, at: Box): void {
         const host = this.getBoundingClientRect();
         const local = (box: Box): Box => ({ x: box.x - host.x, y: box.y - host.y, width: box.width, height: box.height });
         const anchor = local(at);
         const side = this.#side();
-        menu.style.setProperty('max-inline-size', `${String(sideRoom(anchor, host.width, side))}px`);
-        const size = { width: menu.offsetWidth, height: menu.offsetHeight };
+        const widest = this.side ? PAIR_MAX_WIDTH : MAX_WIDTH;
+        pair.style.setProperty('max-inline-size', `${String(sideRoom(anchor, host.width, side, widest))}px`);
+        pair.style.setProperty('max-block-size', `${String(pairHeight(anchor, host.height, side))}px`);
+        const size = { width: pair.offsetWidth, height: pair.offsetHeight };
         const wanted = { ...dateMenuOrigin(anchor, size, host, side), ...size };
         const origin = clearOf(wanted, [anchor, ...this.avoid().map(local)], host, LEGAL_STRIP);
-        menu.style.setProperty('left', `${String(origin.x)}px`);
-        menu.style.setProperty('top', `${String(origin.y)}px`);
-        const sliders = this.renderRoot.querySelector<HTMLElement>('.side');
-        if (sliders !== null) {
-            const blocked = this.avoid().map(local);
-            const room = { width: host.width, height: host.height, blocked, ...(side === 'above' ? { floor: anchor.y - EDGE } : {}) };
-            placeSide(sliders, { ...origin, ...size }, room, this.stacked);
-        }
+        pair.style.setProperty('left', `${String(origin.x)}px`);
+        pair.style.setProperty('top', `${String(origin.y)}px`);
     }
 
     #side(): Side {

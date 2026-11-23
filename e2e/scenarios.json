@@ -2976,7 +2976,29 @@
             "asserts": "a mouse resting on the selected pill of a year of two dates -> the dates menu and the sliders are both visible and do not overlap (1440 x 900, 1024 x 768)",
             "tier": "e2e-viewer",
             "status": "exists",
-            "notes": "Owner 2026-11-22: the sliders kept their unplaced corner, over the dates, when they were slotted after the anchor; now placed on every change of anchor, side, stacked, items and vertical, and when their size changes. Tests: e2e/specs/viewer/date-menu-side.spec.ts, packages/ui/test/viewer/hcm-date-menu.test.ts; tour state timeline-opacity-several."
+            "notes": "Owner 2026-11-22: the sliders kept their unplaced corner, over the dates, when they were slotted after the anchor; now placed on every change of anchor, side, items and vertical, and when their size changes; since 2026-11-23 the dates and the sliders are one box, side by side. Tests: e2e/specs/viewer/date-menu-side.spec.ts, packages/ui/test/viewer/hcm-date-menu.test.ts; tour state timeline-opacity-several."
+        },
+        {
+            "id": "S-V13-HAPPY-DATES-SIDE-BY-SIDE",
+            "behaviour": "V13",
+            "area": "viewer",
+            "path": "happy",
+            "title": "The dates and the opacity sliders sit side by side",
+            "asserts": "Enter on the selected pill of a year of two dates -> the dates menu and the sliders share one row (apart along it, overlapping in height) and both lie inside the window (1440 x 900 down to 360 x 800 and 800 x 360)",
+            "tier": "e2e-viewer",
+            "status": "exists",
+            "notes": "Owner 2026-11-23: the sliders were stacked over the dates with cut labels. One flex row placed as one box (hcm-date-menu.ts .pair); on a narrow phone the two columns share the width and their labels wrap. Tests: e2e/specs/viewer/date-menu-side.spec.ts, packages/ui/test/viewer/hcm-date-menu.test.ts; tour state timeline-opacity-several."
+        },
+        {
+            "id": "S-V13-BAD-SLIDERS-ALONE",
+            "behaviour": "V13",
+            "area": "viewer",
+            "path": "bad",
+            "title": "The sliders of a year of several dates never show without its dates",
+            "asserts": "the date menu closed, the mouse back on the selected pill of a year of two dates -> the timeline's own opacity card stays hidden, and the sliders never show while the dates do not",
+            "tier": "e2e-viewer",
+            "status": "exists",
+            "notes": "Owner 2026-11-23: a mouse on the pill (or back on it after the menu's scrim closed the menu) showed the timeline's card alone. OpacityReveal never shows for a year of several dates (timeline-opacity.ts). Tests: e2e/specs/viewer/date-menu-side.spec.ts, packages/ui/test/viewer/hcm-timeline-opacity.test.ts."
         },
         {
             "id": "S-V13-BAD-SLIDERS-OVER-TIMELINE",
@@ -2984,10 +3006,10 @@
             "area": "viewer",
             "path": "bad",
             "title": "Tall opacity sliders never cover the timeline",
-            "asserts": "the sliders beside a menu above a lying timeline -> their box ends above the timeline's top (date-menu-side.ts floor)",
+            "asserts": "the sliders beside a menu above a lying timeline -> their box ends above the timeline's top (date-menu-place.ts pairHeight)",
             "tier": "e2e-viewer",
             "status": "exists",
-            "notes": "Owner 2026-11-22. Tests: e2e/specs/viewer/date-menu-side.spec.ts, packages/ui/test/viewer/date-menu-side.test.ts, packages/ui/test/viewer/hcm-date-menu.test.ts; tour state timeline-opacity-several (occlusion)."
+            "notes": "Owner 2026-11-22. Tests: e2e/specs/viewer/date-menu-side.spec.ts, packages/ui/test/viewer/hcm-date-menu.test.ts; tour state timeline-opacity-several (occlusion)."
         },
         {
             "id": "S-V13-HAPPY-PICKED-YEAR-IN-VIEW",

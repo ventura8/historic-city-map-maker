@@ -381,7 +381,6 @@ export function dateMenu(
         .vertical=${view.orientation === 'vertical'}
         .peek=${dock.peek}
         .side=${side !== null}
-        .stacked=${dock.phone}
         @hcm-date-pick=${onPick}
         @hcm-date-menu-pointer=${dock.onMenuPointer}
         @hcm-close=${dock.closeDates}

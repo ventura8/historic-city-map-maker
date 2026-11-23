@@ -15,7 +15,7 @@ import { overlayLabel, translate, type Layer, type Overlay, type ViewerLocale } 
 import { html, nothing, type TemplateResult } from 'lit';
 
 import { opacitySliders, type YearLayer, type YearOpacity } from './timeline-opacity-card.js';
-import { dateItems } from './timeline-dates.js';
+import { countOf, dateItems } from './timeline-dates.js';
 import { LongPress } from './long-press.js';
 import { placeTip } from './timeline-tip.js';
 
@@ -45,6 +45,9 @@ export function yearOpacity(
 /** What the reveal needs from its timeline. */
 export interface OpacityHost extends EventTarget {
     readonly renderRoot: HTMLElement | DocumentFragment;
+    /** The selected year and the years' date counts: a year of several dates never shows this card (its date menu does). */
+    readonly value?: number | null;
+    readonly dateCounts?: ReadonlyMap<number, number>;
     requestUpdate(): void;
 }
 
@@ -228,7 +231,16 @@ export class OpacityReveal {
         return target instanceof Element && target.closest('.thumb, .opacity') !== null && this.host.renderRoot.contains(target);
     }
 
-    #set(shown: boolean): void {
+    /**
+     * A year of several dates shows its sliders beside its date menu, never this card alone (the owner, 2026-11-23): a mouse
+     * resting on its pill, or back on it after a press on the menu's scrim closed the menu, showed the sliders without the dates.
+     */
+    #severalDates(): boolean {
+        return countOf(this.host.dateCounts ?? new Map<number, number>(), this.host.value ?? null) >= 2;
+    }
+
+    #set(wanted: boolean): void {
+        const shown = wanted && !this.#severalDates();
         this.#held &&= shown;
         if (this.shown === shown) {
             return;

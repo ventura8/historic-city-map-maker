@@ -251,12 +251,19 @@ describe('the timeline opacity card of a year with several layers', () => {
         ]);
     });
 
-    it('badPath_theDateMenuOpeningHidesTheCardSoTheyNeverOverlap', async () => {
+    it('badPath_aYearOfSeveralDatesNeverShowsTheCardAloneItsDateMenuOpensInstead', async () => {
         const element = await timeline(TWO);
         element.dateCounts = new Map([[1977, 2]]);
+        await element.updateComplete;
+        // The owner, 2026-11-23: a mouse on the pill (or back on it after the menu's scrim closed the menu) showed the
+        // sliders without the dates. The sliders of such a year live beside its date menu only.
         pointer(thumb(element), 'pointerover', 'mouse');
         await element.updateComplete;
-        expect(card(element)).not.toBeNull();
+        expect(card(element)).toBeNull();
+        thumb(element).focus();
+        thumb(element).dispatchEvent(new KeyboardEvent('keydown', { key: 'Enter', bubbles: true, composed: true }));
+        await element.updateComplete;
+        expect(card(element)).toBeNull();
         const opened = recordEvents(element, 'hcm-dates-open');
         thumb(element).dispatchEvent(new MouseEvent('click', { detail: 0, bubbles: true, composed: true }));
         await element.updateComplete;

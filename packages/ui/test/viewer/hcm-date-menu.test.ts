@@ -1,7 +1,8 @@
 import { afterEach, describe, expect, it } from 'vitest';
 import { page } from 'vitest/browser';
 
-import { HCM_DATE_MENU_TAG, HcmDateMenu, dateMenuOrigin, defineHcmDateMenu, sideRoom } from '../../src/viewer/hcm-date-menu.js';
+import { dateMenuOrigin, pairHeight, sideRoom } from '../../src/viewer/date-menu-place.js';
+import { HCM_DATE_MENU_TAG, HcmDateMenu, defineHcmDateMenu } from '../../src/viewer/hcm-date-menu.js';
 import { recordEvents, shadowQuery, shadowQueryAll } from './doubles.js';
 
 const ITEMS = [
@@ -203,9 +204,13 @@ describe('<hcm-date-menu> as a peek (a pointer resting on the year)', () => {
         return a.left < b.right && b.left < a.right && a.top < b.bottom && b.top < a.bottom;
     }
 
-    it('happyPath_slidersTurnedOnAfterTheAnchorArePlacedBesideTheDatesNotOverThem', async () => {
+    /** The two boxes sit in one row: apart along it, sharing some of their height. */
+    function sideBySide(a: DOMRect, b: DOMRect): boolean {
+        return !overlaps(a, b) && a.top < b.bottom && b.top < a.bottom;
+    }
+
+    it('happyPath_slidersTurnedOnAfterTheAnchorSitBesideTheDatesInOneRow', async () => {
         const element = await menu();
-        // A window wide enough for the 240 px sliders beside the menu (a phone stacks them under it).
         element.parentElement?.style.setProperty('width', '1000px');
         const sliders = document.createElement('div');
         sliders.style.cssText = 'height: 300px';
@@ -214,19 +219,43 @@ describe('<hcm-date-menu> as a peek (a pointer resting on the year)', () => {
         await element.updateComplete;
         const dates = shadowQuery(element, '.menu').getBoundingClientRect();
         const side = shadowQuery(element, '.side').getBoundingClientRect();
-        expect(overlaps(dates, side), 'the dates stay visible beside the sliders').toBe(false);
-        expect(shadowQuery(element, '.side').style.top).not.toBe('');
+        expect(sideBySide(dates, side), 'the dates and the sliders side by side').toBe(true);
+        expect(shadowQuery(element, '.pair').style.top).not.toBe('');
+    });
+
+    it('happyPath_onANarrowPhoneBothColumnsShareTheWidthAndStayInside', async () => {
+        const element = await menu({ side: true });
+        element.parentElement?.style.setProperty('width', '360px');
+        const sliders = document.createElement('div');
+        sliders.style.cssText = 'height: 200px';
+        sliders.textContent = 'KH-9 Hexagon (mapping camera), 30 martie 1978';
+        element.append(sliders);
+        element.anchor = { ...ANCHOR, x: 150 };
+        await element.updateComplete;
+        const dates = shadowQuery(element, '.menu').getBoundingClientRect();
+        const side = shadowQuery(element, '.side').getBoundingClientRect();
+        const host = element.getBoundingClientRect();
+        expect(sideBySide(dates, side)).toBe(true);
+        expect(Math.min(dates.left, side.left)).toBeGreaterThanOrEqual(host.left + 8 - 0.5);
+        expect(Math.max(dates.right, side.right)).toBeLessThanOrEqual(host.right - 8 + 0.5);
     });
 
     it('badPath_tallSlidersAboveALyingTimelineNeverReachDownOverIt', async () => {
         const element = await menu({ side: true });
         const sliders = document.createElement('div');
-        sliders.style.cssText = 'width: 120px; height: 460px';
+        sliders.style.cssText = 'width: 120px; height: 900px';
         element.append(sliders);
         element.anchor = { ...ANCHOR, y: ANCHOR.y + 1 };
         await element.updateComplete;
         const side = shadowQuery(element, '.side').getBoundingClientRect();
         const host = element.getBoundingClientRect();
         expect(side.bottom - host.top).toBeLessThanOrEqual(ANCHOR.y + 1 - 8 + 0.5);
+    });
+
+    it('badPath_pairHeightKeepsAMinimumAndUsesTheViewerBesideAStandingTimeline', () => {
+        expect(pairHeight({ ...ANCHOR, y: 40 }, 700, 'above')).toBe(96);
+        expect(pairHeight(ANCHOR, 700, 'above')).toBe(484);
+        expect(pairHeight(ANCHOR, 700, 'end')).toBe(650);
+        expect(sideRoom(ANCHOR, 1440, 'above', 568)).toBe(568);
     });
 });
