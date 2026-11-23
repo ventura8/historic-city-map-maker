@@ -25246,6 +25246,17 @@
             "notes": "Milestone M32 (the owner, 2026-11-23). Tests: e2e/specs/viewer/favorites-licence.spec.ts."
         },
         {
+            "id": "S-V91-HAPPY-GLYPH",
+            "behaviour": "V91",
+            "area": "viewer",
+            "path": "happy",
+            "title": "The favourite star draws as one glyph, loaded from the icon font's content-hashed URL",
+            "asserts": "the star's icon is one glyph 1 em wide (not the letters star); every request for the icon font ends in ?v= and its 12-digit hash",
+            "tier": "e2e-viewer",
+            "status": "exists",
+            "notes": "The live star drawn as letters (2026-11-23): a stale cached subset. Tests: e2e/specs/viewer/favorites-licence.spec.ts, packages/ui/test/fonts/font-faces.test.ts."
+        },
+        {
             "id": "S-V91-BAD-STORAGE",
             "behaviour": "V91",
             "area": "viewer",
@@ -25255,6 +25266,17 @@
             "tier": "e2e-viewer",
             "status": "exists",
             "notes": "Milestone M32 (the owner, 2026-11-23). Tests: e2e/specs/viewer/favorites-licence.spec.ts, packages/ui/test/viewer/favorites.test.ts."
+        },
+        {
+            "id": "S-V91-BAD-STALE-FONT",
+            "behaviour": "V91",
+            "area": "viewer",
+            "path": "bad",
+            "title": "A stale icon font under the old plain URL is never used: the star still draws",
+            "asserts": "the plain font URL answers with a broken font; the viewer asks for the hashed URL instead and the star is one glyph 1 em wide",
+            "tier": "e2e-viewer",
+            "status": "exists",
+            "notes": "The live star drawn as letters (2026-11-23). Tests: e2e/specs/viewer/favorites-licence.spec.ts."
         },
         {
             "id": "S-V91-BAD-EMPTY",

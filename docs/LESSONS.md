@@ -4571,3 +4571,8 @@ Append a numbered entry to *Lessons from this repository* in the task that finds
     - Cause: `join/warping.py` `Warper._scan` read `part.scan.path`, the reduced copy the points were placed on; only `steps/warp.py` (`full_resolution`) and `placing/fullres.py` knew about originals.
     - Fix and pin: `Warper.full` copies each part's original (`placing/original.py` `version_original`) and scales its points and nodes to it, falling back to the copy with a per-part log line (`test_join_fullres.py`, S-P05-HAPPY-JOIN-FULLRES, S-P05-BAD-JOIN-FULLRES-COPY). **Join again** rebuilds existing joins with no new points.
     - **Every warp that publishes reads the original; a working copy is only for placing and measuring.**
+
+790. **The favourite star showed as letters on the live viewer** (2026-11-23, every layer row and place sheet).
+    - Cause: the icon subset `packages/ui/fonts/material-symbols-rounded.woff2` was rebuilt with `star` but kept its plain URL, served with `max-age=3600`; browsers kept the older subset without the ligature, so `<hcm-icon>` drew the text "star".
+    - Fix and pin: `build-fonts.mjs` writes `packages/ui/src/fonts/font-versions.ts` (each file's SHA-256 prefix, checked by the `fonts` gate) and `installFonts` loads `…woff2?v=<hash>`. Unit tests in `font-faces.test.ts`, S-V91-HAPPY-GLYPH and S-V91-BAD-STALE-FONT.
+    - **A file whose content changes under a fixed name carries its content hash in the URL.**

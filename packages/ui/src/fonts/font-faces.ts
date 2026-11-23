@@ -5,15 +5,23 @@
  * allow the engine's origin). A face loads lazily, the first time text needs it.
  */
 import { FONT_FILES, ICON_FONT_FAMILY, type FontFile } from './font-files.js';
+import { FONT_VERSIONS } from './font-versions.js';
 
 /** The FontFace constructor (injectable for tests). */
 export type FontFaceConstructor = new (family: string, source: string, descriptors?: FontFaceDescriptors) => FontFace;
 
 const installed = new WeakMap<Document, Map<string, readonly FontFace[]>>();
 
-/** `url("…")` of `file` under `baseUrl` (resolved against the document); the URL parser percent-encodes quotes. */
-export function fontUrl(baseUrl: string, file: string, documentUrl: string): string {
-    return new URL(file, new URL(baseUrl, documentUrl)).href;
+/**
+ * `url("…")` of `file` under `baseUrl` (resolved against the document); the URL parser percent-encodes quotes. With
+ * `version` (the file's content hash, `FONT_VERSIONS`) the URL ends in `?v=<hash>`: a rebuilt font is a new URL, never a stale cache hit.
+ */
+export function fontUrl(baseUrl: string, file: string, documentUrl: string, version?: string): string {
+    const url = new URL(file, new URL(baseUrl, documentUrl));
+    if (version !== undefined) {
+        url.searchParams.set('v', version);
+    }
+    return url.href;
 }
 
 function descriptorsOf(font: FontFile): FontFaceDescriptors {
@@ -34,7 +42,12 @@ export function installFonts(doc: Document, baseUrl: string, FontFaceClass: Font
         return existing;
     }
     const faces = FONT_FILES.map(
-        (font) => new FontFaceClass(font.family, `url("${fontUrl(baseUrl, font.file, doc.baseURI)}") format("woff2")`, descriptorsOf(font)),
+        (font) =>
+            new FontFaceClass(
+                font.family,
+                `url("${fontUrl(baseUrl, font.file, doc.baseURI, FONT_VERSIONS[font.file])}") format("woff2")`,
+                descriptorsOf(font),
+            ),
     );
     for (const face of faces) {
         doc.fonts.add(face);

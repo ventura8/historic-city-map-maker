@@ -111,3 +111,40 @@ test(
         await expect(panel.locator('[data-cite-fallback]')).toContainText('http');
     },
 );
+
+/** The star's glyph width over its font size: a ligature is one glyph 1 em wide, the letters "star" are not. */
+async function starGlyphRatio(page: import('@playwright/test').Page): Promise<number> {
+    const span = viewer(page).locator('hcm-photo-sheet hcm-favorite-star hcm-icon span');
+    await expect(span).toHaveText('star');
+    await page.evaluate(async () => document.fonts.ready);
+    return span.evaluate((el) => el.getBoundingClientRect().width / Number.parseFloat(getComputedStyle(el).fontSize));
+}
+
+test("The star draws as one glyph, from the icon font's content-hashed URL", { tag: '@S-V91-HAPPY-GLYPH' }, async ({ page }) => {
+    const fontUrls: string[] = [];
+    page.on('request', (request) => {
+        if (request.url().includes('material-symbols-rounded.woff2')) {
+            fontUrls.push(request.url());
+        }
+    });
+    await openViewer(page, { lang: 'en' });
+    await callController(page, 'openPoi', POI);
+    await expect.poll(() => starGlyphRatio(page)).toBeCloseTo(1, 1);
+    expect(fontUrls.length).toBeGreaterThan(0);
+    expect(fontUrls.every((url) => /\?v=[0-9a-f]{12}$/.test(url))).toBe(true);
+});
+
+test(
+    'A stale icon font kept under the old plain URL is never used: the star still draws',
+    { tag: '@S-V91-BAD-STALE-FONT' },
+    async ({ page }) => {
+        // The stale copy a browser kept from before the star: the plain URL now answers with a font that has no glyph.
+        await page.route(
+            (url) => url.pathname.endsWith('/material-symbols-rounded.woff2') && url.search === '',
+            (route) => route.fulfill({ status: 200, contentType: 'font/woff2', body: 'stale' }),
+        );
+        await openViewer(page, { lang: 'en' });
+        await callController(page, 'openPoi', POI);
+        await expect.poll(() => starGlyphRatio(page)).toBeCloseTo(1, 1);
+    },
+);

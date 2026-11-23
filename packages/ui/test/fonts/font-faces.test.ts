@@ -2,6 +2,7 @@ import { POI_ICONS } from '@hcm/shared';
 import { afterEach, describe, expect, it } from 'vitest';
 
 import { fontUrl, installFonts, loadIconFont } from '../../src/fonts/font-faces.js';
+import { FONT_VERSIONS } from '../../src/fonts/font-versions.js';
 import { FONT_FILES, ICON_FONT_AXES, ICON_FONT_FAMILY, TEXT_FONT_FAMILY, TEXT_FONT_STACK } from '../../src/fonts/font-files.js';
 import { ICONS } from '../../src/icons-sorted.js';
 import { UI_ICONS, isBundledIcon } from '../../src/icons.js';
@@ -90,6 +91,19 @@ describe('installFonts', () => {
     it('happyPath_fontUrlsResolveAgainstTheDocumentAndEncodeQuotes', () => {
         expect(fontUrl('fonts/', 'a.woff2', 'https://city.example/map/index.html')).toBe('https://city.example/map/fonts/a.woff2');
         expect(fontUrl('https://cdn.example/e"x/', 'a.woff2', 'https://city.example/')).toBe('https://cdn.example/e%22x/a.woff2');
+    });
+
+    it('happyPath_eachFontUrlCarriesItsContentHash', () => {
+        expect(fontUrl('fonts/', 'a.woff2', 'https://city.example/', 'abc123')).toBe('https://city.example/fonts/a.woff2?v=abc123');
+        for (const font of FONT_FILES) {
+            expect(FONT_VERSIONS[font.file]).toMatch(/^[0-9a-f]{12}$/);
+        }
+    });
+
+    it('badPath_aFileWithoutAVersionKeepsItsPlainUrl', () => {
+        expect(fontUrl('fonts/', 'unknown.woff2', 'https://city.example/', FONT_VERSIONS['unknown.woff2'])).toBe(
+            'https://city.example/fonts/unknown.woff2',
+        );
     });
 
     it('happyPath_usesTheInjectedFontFaceClass', () => {
