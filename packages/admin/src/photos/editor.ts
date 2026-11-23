@@ -3,7 +3,7 @@
  * document, its draft, its replacement upload, the EXIF suggestions not applied yet, and the direction pick. The
  * store creates one per routed photo and closes it when the route leaves it.
  */
-import { FIRESTORE_PATHS, photoDocSchema, type BBox, type PhotoDoc } from '@hcm/shared';
+import { FIRESTORE_PATHS, storedPhotoDocSchema, type BBox, type PhotoDoc } from '@hcm/shared';
 
 import { LiveDoc, type DocState } from '../content/doc.js';
 import type { Stored, WriteOutcome } from '../content/services.js';
@@ -110,7 +110,7 @@ export class PhotoEditor {
         this.#doc = new LiveDoc({
             store: services.store,
             clock: services.clock,
-            schema: photoDocSchema,
+            schema: storedPhotoDocSchema,
             changed: (doc) => {
                 this.#read(doc);
             },

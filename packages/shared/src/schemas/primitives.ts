@@ -118,6 +118,12 @@ export const viewedAreaSchema = z
     .length(4)
     .refine((corners) => isConvexQuad(corners.map(({ lat, lng }) => [lng, lat] as const)), coded('validation.viewedArea'));
 
+/**
+ * A viewed area as the rules accept it: any four corners. The admin reads a stored photo with it, so a crossed area written
+ * outside the admin still opens in the editor, which says why it cannot be saved (`viewedAreaSchema`).
+ */
+export const storedViewedAreaSchema = z.array(latLngSchema).length(4);
+
 /** `[[west, south], [east, north]]` with west < east and south < north (no antimeridian crossing). */
 export const bboxSchema = z
     .tuple([lngLatSchema, lngLatSchema])

@@ -3,7 +3,7 @@
  * `LiveList`: 50 photos a page, More one page longer, "Reconnecting…" while the listener comes back, an error with Try
  * again), the search over the loaded photos, and the bulk selection.
  */
-import { FIRESTORE_PATHS, photoDocSchema, type PhotoDoc } from '@hcm/shared';
+import { FIRESTORE_PATHS, storedPhotoDocSchema, type PhotoDoc } from '@hcm/shared';
 
 import type { Clock } from '../app/ports.js';
 import { LiveList, type ListState } from '../content/list.js';
@@ -37,7 +37,7 @@ export class PhotoList {
             clock: deps.clock,
             collection: FIRESTORE_PATHS.photos(deps.cityId),
             whole: true,
-            schema: photoDocSchema,
+            schema: storedPhotoDocSchema,
             map: (stored) => stored,
             changed: (list) => {
                 this.#loaded(list);

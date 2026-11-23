@@ -112,6 +112,7 @@ export {
     layerDocSchema,
     mapboxTokenIdSchema,
     photoDocSchema,
+    storedPhotoDocSchema,
     poiCategoryDocSchema,
     poiDocSchema,
 } from './schemas/firestore.js';

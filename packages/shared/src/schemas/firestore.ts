@@ -51,6 +51,7 @@ import {
     MAX_LINKS,
     opacitySchema,
     plainText,
+    storedViewedAreaSchema,
     validYearRange,
     validYearSpan,
     versionSchema,
@@ -221,7 +222,9 @@ const photoReplacementSchema = z.strictObject({
  * `original` and `replacement` are owned by `photos.onUpload`; `createdAt` and `createdBy` are set once by the client
  * that creates it.
  */
-const photoDocObjectSchema = z
+/** The photo document, its viewed area checked by `viewedArea` (convex on save and publish, any four corners on read). */
+const photoDocObject = (viewedArea: typeof storedViewedAreaSchema) =>
+    z
     .strictObject({
         /** Absent on a street photo; `aerial` on a photo taken from above (Imagery → aerial photos, the owner 2026-11-16). */
         kind: z.enum(PHOTO_KINDS).optional(),
@@ -251,7 +254,7 @@ const photoDocObjectSchema = z
         bearing: bearingSchema.optional(),
         fov: fovSchema.optional(),
         /** An aerial photo's ground footprint: four corners, a rectangle or a trapezoid (the owner 2026-11-22). */
-        viewedArea: viewedAreaSchema.optional(),
+        viewedArea: viewedArea.optional(),
         published: z.boolean(),
         rightsReview: z.boolean().optional(),
         image: photoImageDocSchema.optional(),
@@ -291,7 +294,10 @@ const photoDocObjectSchema = z
     .refine(validYearRange, coded('validation.yearRange', ['yearEnd']))
     .refine(aimedOnlyIfPlaced, coded('validation.reference', ['bearing']));
 
-export const photoDocSchema = withPhotoDate(photoDocObjectSchema);
+export const photoDocSchema = withPhotoDate(photoDocObject(viewedAreaSchema));
+
+/** A photo as the admin reads it: a crossed viewed area still opens, for the editor to say why it cannot be saved. */
+export const storedPhotoDocSchema = withPhotoDate(photoDocObject(storedViewedAreaSchema));
 
 /**
  * `cities/{city}/layers/{layer}`: a layer that has tiles. Created by `layers.link` or, in M3, by the publish of its first

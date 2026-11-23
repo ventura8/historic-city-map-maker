@@ -9,6 +9,7 @@ import {
     photoDocSchema,
     poiCategoryDocSchema,
     poiDocSchema,
+    storedPhotoDocSchema,
 } from '../../src/schemas/firestore.js';
 import { validate, type ValidationResult } from '../../src/schemas/validation.js';
 
@@ -170,6 +171,12 @@ describe('Firestore documents: happy paths', () => {
 
     it('happyPath_anAerialPhotoWithAViewedArea', () => {
         expect(check(photoDocSchema, { ...docs.photo, kind: 'aerial', viewedArea: AREA })).toMatchObject({ ok: true });
+    });
+
+    it('happyPath_aStoredCrossedViewedAreaIsReadForTheEditorToFlag @S-A195-BAD-SHAPE', () => {
+        const crossed = { ...docs.photo, kind: 'aerial', viewedArea: [AREA[0], AREA[2], AREA[1], AREA[3]] };
+        expect(check(storedPhotoDocSchema, crossed)).toMatchObject({ ok: true });
+        expect(check(storedPhotoDocSchema, { ...docs.photo, viewedArea: AREA.slice(0, 3) })).toMatchObject({ ok: false });
     });
 
     it('happyPath_aYearRange', () => {
