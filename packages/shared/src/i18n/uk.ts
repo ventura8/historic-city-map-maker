@@ -284,7 +284,6 @@ export const uk: Messages = {
     'favorites.add': 'Додати до обраного',
     'favorites.remove': 'Прибрати з обраного',
     'licence.title': 'Ліцензія та цитування',
-    'licence.summary': 'Що можна повторно використати з цієї карти, як її цитувати і які шари можна завантажити.',
     'licence.open': 'Відкрити ліцензію та цитування',
     'licence.ours.title': 'Власна робота цієї карти',
     'licence.layers': 'Шари та їхні джерела',

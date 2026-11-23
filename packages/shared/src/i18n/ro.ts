@@ -285,7 +285,6 @@ export const ro = {
     'favorites.add': 'Salvează la favorite',
     'favorites.remove': 'Scoate din favorite',
     'licence.title': 'Licență și citare',
-    'licence.summary': 'Ce poți refolosi de pe această hartă, cum o citezi și ce straturi poți descărca.',
     'licence.open': 'Deschide licența și citarea',
     'licence.ours.title': 'Munca proprie a hărții',
     'licence.layers': 'Straturile și sursele lor',

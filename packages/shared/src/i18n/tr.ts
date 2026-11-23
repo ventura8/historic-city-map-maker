@@ -284,7 +284,6 @@ export const tr: Messages = {
     'favorites.add': 'Favorilere kaydet',
     'favorites.remove': 'Favorilerden kaldır',
     'licence.title': 'Lisans ve kaynak gösterme',
-    'licence.summary': 'Bu haritadan neleri yeniden kullanabileceğiniz, nasıl kaynak göstereceğiniz ve hangi katmanları indirebileceğiniz.',
     'licence.open': 'Lisans ve kaynak göstermeyi aç',
     'licence.ours.title': 'Bu haritanın kendi çalışması',
     'licence.layers': 'Katmanlar ve kaynakları',

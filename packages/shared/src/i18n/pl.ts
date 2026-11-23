@@ -286,7 +286,6 @@ export const pl: Messages = {
     'favorites.add': 'Dodaj do ulubionych',
     'favorites.remove': 'Usuń z ulubionych',
     'licence.title': 'Licencja i cytowanie',
-    'licence.summary': 'Co możesz ponownie wykorzystać z tej mapy, jak ją cytować i które warstwy możesz pobrać.',
     'licence.open': 'Otwórz licencję i cytowanie',
     'licence.ours.title': 'Własna praca tej mapy',
     'licence.layers': 'Warstwy i ich źródła',

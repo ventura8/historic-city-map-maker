@@ -287,7 +287,6 @@ export const ja: Messages = {
     'favorites.add': 'お気に入りに保存',
     'favorites.remove': 'お気に入りから削除',
     'licence.title': 'ライセンスと引用',
-    'licence.summary': 'この地図から再利用できるもの、引用のしかた、ダウンロードできるレイヤー。',
     'licence.open': 'ライセンスと引用を開く',
     'licence.ours.title': 'この地図独自の成果',
     'licence.layers': 'レイヤーとその出典',

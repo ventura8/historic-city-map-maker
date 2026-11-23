@@ -280,7 +280,6 @@ export const hi: Messages = {
     'favorites.add': 'पसंदीदा में सहेजें',
     'favorites.remove': 'पसंदीदा से हटाएँ',
     'licence.title': 'लाइसेंस और उद्धरण',
-    'licence.summary': 'इस मानचित्र से आप क्या दोबारा उपयोग कर सकते हैं, इसका उद्धरण कैसे दें और कौन-सी परतें डाउनलोड कर सकते हैं।',
     'licence.open': 'लाइसेंस और उद्धरण खोलें',
     'licence.ours.title': 'इस मानचित्र का अपना काम',
     'licence.layers': 'परतें और उनके स्रोत',

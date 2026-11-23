@@ -284,7 +284,6 @@ export const pt: Messages = {
     'favorites.add': 'Guardar nos favoritos',
     'favorites.remove': 'Remover dos favoritos',
     'licence.title': 'Licença e citação',
-    'licence.summary': 'O que pode reutilizar deste mapa, como citá-lo e que camadas pode transferir.',
     'licence.open': 'Abrir licença e citação',
     'licence.ours.title': 'O trabalho próprio deste mapa',
     'licence.layers': 'Camadas e as suas fontes',

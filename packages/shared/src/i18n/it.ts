@@ -287,7 +287,6 @@ export const it: Messages = {
     'favorites.add': 'Salva nei preferiti',
     'favorites.remove': 'Rimuovi dai preferiti',
     'licence.title': 'Licenza e citazione',
-    'licence.summary': 'Cosa puoi riutilizzare di questa mappa, come citarla e quali livelli puoi scaricare.',
     'licence.open': 'Apri licenza e citazione',
     'licence.ours.title': 'Il lavoro proprio di questa mappa',
     'licence.layers': 'Livelli e loro fonti',

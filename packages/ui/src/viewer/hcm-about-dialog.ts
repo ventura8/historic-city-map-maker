@@ -231,7 +231,6 @@ export class HcmAboutDialog extends LitElement {
             ${this.#credits(city.credits)}
             <section>
                 <h3>${translate(locale, 'licence.title')}</h3>
-                <p>${translate(locale, 'licence.summary')}</p>
                 <hcm-button
                     variant="outlined"
                     data-licence-open

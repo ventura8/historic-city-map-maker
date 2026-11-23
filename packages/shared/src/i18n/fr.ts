@@ -293,7 +293,6 @@ export const fr: Messages = {
     'favorites.add': 'Ajouter aux favoris',
     'favorites.remove': 'Retirer des favoris',
     'licence.title': 'Licence et citation',
-    'licence.summary': 'Ce que vous pouvez réutiliser de cette carte, comment la citer et quelles couches télécharger.',
     'licence.open': 'Ouvrir la licence et la citation',
     'licence.ours.title': 'Le travail propre de cette carte',
     'licence.layers': 'Les couches et leurs sources',

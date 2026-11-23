@@ -282,7 +282,6 @@ export const ar: Messages = {
     'favorites.add': 'احفظ في المفضلة',
     'favorites.remove': 'أزل من المفضلة',
     'licence.title': 'الترخيص والاستشهاد',
-    'licence.summary': 'ما يمكنك إعادة استخدامه من هذه الخريطة، وكيف تستشهد بها، وأي الطبقات يمكنك تنزيلها.',
     'licence.open': 'افتح الترخيص والاستشهاد',
     'licence.ours.title': 'العمل الخاص بهذه الخريطة',
     'licence.layers': 'الطبقات ومصادرها',

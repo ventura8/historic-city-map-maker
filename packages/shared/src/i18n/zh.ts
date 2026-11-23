@@ -284,7 +284,6 @@ export const zh: Messages = {
     'favorites.add': '加入收藏',
     'favorites.remove': '从收藏中移除',
     'licence.title': '许可与引用',
-    'licence.summary': '你可以重复使用本地图的哪些内容、如何引用，以及可以下载哪些图层。',
     'licence.open': '打开许可与引用',
     'licence.ours.title': '本地图自己的成果',
     'licence.layers': '图层及其来源',

@@ -289,7 +289,6 @@ export const de: Messages = {
     'favorites.add': 'Zu Favoriten hinzufügen',
     'favorites.remove': 'Aus Favoriten entfernen',
     'licence.title': 'Lizenz und Zitieren',
-    'licence.summary': 'Was Sie von dieser Karte weiterverwenden dürfen, wie Sie sie zitieren und welche Ebenen Sie herunterladen können.',
     'licence.open': 'Lizenz und Zitieren öffnen',
     'licence.ours.title': 'Eigene Arbeit dieser Karte',
     'licence.layers': 'Ebenen und ihre Quellen',

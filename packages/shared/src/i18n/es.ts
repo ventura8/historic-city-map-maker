@@ -285,7 +285,6 @@ export const es: Messages = {
     'favorites.add': 'Guardar en favoritos',
     'favorites.remove': 'Quitar de favoritos',
     'licence.title': 'Licencia y cita',
-    'licence.summary': 'Qué puedes reutilizar de este mapa, cómo citarlo y qué capas puedes descargar.',
     'licence.open': 'Abrir licencia y cita',
     'licence.ours.title': 'El trabajo propio de este mapa',
     'licence.layers': 'Capas y sus fuentes',

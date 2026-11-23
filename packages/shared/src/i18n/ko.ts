@@ -286,7 +286,6 @@ export const ko: Messages = {
     'favorites.add': '즐겨찾기에 저장',
     'favorites.remove': '즐겨찾기에서 삭제',
     'licence.title': '라이선스 및 인용',
-    'licence.summary': '이 지도에서 재사용할 수 있는 것, 인용 방법, 내려받을 수 있는 레이어.',
     'licence.open': '라이선스 및 인용 열기',
     'licence.ours.title': '이 지도의 자체 작업',
     'licence.layers': '레이어와 출처',

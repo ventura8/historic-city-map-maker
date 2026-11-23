@@ -280,7 +280,6 @@ export const en: Messages = {
     'favorites.add': 'Save to favourites',
     'favorites.remove': 'Remove from favourites',
     'licence.title': 'Licence and citation',
-    'licence.summary': 'What you may reuse from this map, how to cite it and which layers you can download.',
     'licence.open': 'Open licence and citation',
     'licence.ours.title': 'This map’s own work',
     'licence.layers': 'Layers and their sources',
