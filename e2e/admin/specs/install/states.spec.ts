@@ -61,7 +61,7 @@ async function play(page: Page, upstream: UpstreamControl, scenario: 'start' | '
 
 test.beforeEach(async ({ page, adminWorld, upstream }) => {
     trackRecords(page);
-    await seedClaimedCity(adminWorld.emulators, adminWorld.accounts.owner.uid);
+    await seedClaimedCity(adminWorld.emulators, adminWorld.accounts.owner.uid, true);
     await seedSetupStatus(adminWorld.emulators, adminWorld.accounts.owner.uid, { mapbox: { ...OK, user: 'e2e-mapbox' }, usgs: OK });
     await upstream.scenario('google.provisioned', 'server');
     await upstream.scenario('google.provisioned', 'browser');
