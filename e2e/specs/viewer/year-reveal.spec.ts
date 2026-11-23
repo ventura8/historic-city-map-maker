@@ -39,11 +39,17 @@ test(
         const row = pane.locator('li[data-overlay="e2e-1980"]');
         await expect(row).toBeVisible();
         await expect.poll(() => rowOnTop(row)).toBe(true);
-        const body = await pane.evaluate((panel) => panel.shadowRoot?.querySelector('.body')?.getBoundingClientRect().toJSON() as DOMRect);
-        const box = await row.boundingBox();
-        expect((box?.y ?? -1) >= body.y - 1 && (box?.y ?? 0) + (box?.height ?? 0) <= body.y + body.height + 1, 'inside the pane').toBe(
-            true,
-        );
+        // Polled: the pane scrolls the row in smoothly, so one read may land mid-scroll.
+        const inside = async (): Promise<boolean> => {
+            const body = await pane.evaluate(
+                (panel) => panel.shadowRoot?.querySelector('.body')?.getBoundingClientRect().toJSON() as DOMRect,
+            );
+            return row.evaluate((element, frame) => {
+                const box = element.getBoundingClientRect();
+                return box.y >= frame.y - 1 && box.y + box.height <= frame.y + frame.height + 1;
+            }, body);
+        };
+        await expect.poll(inside, { message: 'inside the pane' }).toBe(true);
     },
 );
 

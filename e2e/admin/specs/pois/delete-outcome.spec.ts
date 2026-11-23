@@ -41,8 +41,9 @@ test(
         await confirm.click();
         const retry = page.getByRole('button', { name: contentText(lang, 'adminContent.common.retry') });
         await expect(retry).toBeVisible({ timeout: 60_000 });
-        // Still listed (on a phone the open place covers the list, so it is in the list rather than on screen).
-        await expect(list.getByRole('link', { name: /Hala Obor/ })).toHaveCount(1);
+        // The place stays: in the store and open (a phone shows the open place instead of the list, which it draws later).
+        expect(Object.keys(await content.collection('pois')).sort((a, b) => a.localeCompare(b))).toEqual(['gara', 'obor']);
+        await expect(page.getByRole('heading', { level: 2, name: 'Hala Obor' })).toBeVisible();
         await page.unroute(COMMIT);
         await retry.click();
         await expect.poll(async () => Object.keys(await content.collection('pois'))).toEqual(['gara']);
