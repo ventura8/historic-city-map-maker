@@ -119,7 +119,9 @@ describe('installFonts', () => {
         installFonts(doc, 'https://cdn.example.test/e/', RecordingFontFace);
 
         expect(created).toHaveLength(FONT_FILES.length);
-        expect(created[0]).toBe('url("https://cdn.example.test/e/roboto-flex-latin-wght.woff2") format("woff2")');
+        expect(created[0]).toBe(
+            `url("https://cdn.example.test/e/roboto-flex-latin-wght.woff2?v=${FONT_VERSIONS['roboto-flex-latin-wght.woff2']}") format("woff2")`,
+        );
     });
 });
 
