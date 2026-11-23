@@ -1,5 +1,5 @@
 /**
- * 2026-11-23 (LESSONS 791): a single map placed by points is offered **Redraw at full resolution** on its version page, its own
+ * 2026-11-23 (LESSONS 792): a single map placed by points is offered **Redraw at full resolution** on its version page, its own
  * points warped again from the original as a new version; a join, a series laid out by tiles, a file placed by itself, a map
  * with no points or one not on the map is not.
  */
