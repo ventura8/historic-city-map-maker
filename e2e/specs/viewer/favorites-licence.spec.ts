@@ -1,3 +1,5 @@
+import type { Page } from '@playwright/test';
+
 import { licenceManifest, openFavorites, openLicence, seedFavorites } from '../../tour/favorites-states.js';
 import { siteManifestData } from '../../fixtures/manifest.js';
 import { E2E_TILESET_LAYER, E2E_XYZ_LAYER } from '../../fixtures/world.js';
@@ -113,7 +115,7 @@ test(
 );
 
 /** The star's glyph width over its font size: a ligature is one glyph 1 em wide, the letters "star" are not. */
-async function starGlyphRatio(page: import('@playwright/test').Page): Promise<number> {
+async function starGlyphRatio(page: Page): Promise<number> {
     const span = viewer(page).locator('hcm-photo-sheet hcm-favorite-star hcm-icon span');
     await expect(span).toHaveText('star');
     await page.evaluate(async () => document.fonts.ready);
