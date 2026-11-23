@@ -71,12 +71,18 @@ function deletionOf(job: JobDoc): { readonly layerId: string; readonly status: J
  * Mapbox and a revert can bring the layer back). A new layer must not take such an id, nor its scene be freed.
  */
 export async function deletionsPending(documents: DocumentStore, cityId: string): Promise<string[]> {
+    return (await deletionStates(documents, cityId)).pending;
+}
+
+/** The deleted layers' ids: those whose deletion is still {@link deletionsPending}, and those whose deletion has run. */
+export async function deletionStates(documents: DocumentStore, cityId: string): Promise<{ pending: string[]; done: Set<string> }> {
     const jobs = await documents.query(FIRESTORE_PATHS.jobs(cityId), jobDocSchema, { where: [['type', '==', 'layer-delete']] });
     const deletions = jobs.documents.map((job) => deletionOf(job.data)).filter((deletion) => deletion !== null);
     const done = new Set(deletions.filter((deletion) => deletion.status === 'succeeded').map((deletion) => deletion.layerId));
-    return deletions
+    const pending = deletions
         .filter((deletion) => deletion.status === 'queued' || (deletion.status === 'failed' && !done.has(deletion.layerId)))
         .map((deletion) => deletion.layerId);
+    return { pending, done };
 }
 
 /**

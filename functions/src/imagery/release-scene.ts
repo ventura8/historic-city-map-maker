@@ -20,7 +20,7 @@ import { omit } from '../api/objects.js';
 import type { DocumentTransaction } from '../ports/documents.js';
 import type { Ports } from '../ports/index.js';
 import { IMAGERY_WRITER, stampOf, type Stamp } from './records.js';
-import { deletionsPending, holdsLayerId } from './versions.js';
+import { deletionStates, holdsLayerId } from './versions.js';
 
 export type ReleaseDeps = Pick<Ports, 'documents' | 'clock'>;
 
@@ -41,11 +41,15 @@ export function freedScene(scene: UsgsSceneDoc, stamp: Stamp): UsgsSceneDoc {
     return { ...omit(withoutImportOrder(scene), ['layerId']), status: 'candidate', ...stamp };
 }
 
-/** True when one of the layer's versions (`ids`, re-read in the transaction) may still become its layer. */
-async function versionHolds(transaction: DocumentTransaction, cityId: string, ids: readonly string[]): Promise<boolean> {
+/**
+ * True when one of the layer's versions (`ids`, re-read in the transaction) may still become its layer. Once the layer's
+ * deletion has run (`deleted`), a failed version cannot: its files are gone (live 2026-11-23: a deleted layer with a failed
+ * try left its scenes `imported` for ever, never to be imported again).
+ */
+async function versionHolds(transaction: DocumentTransaction, cityId: string, ids: readonly string[], deleted: boolean): Promise<boolean> {
     for (const id of ids) {
         const version = await transaction.get(FIRESTORE_PATHS.layerVersion(cityId, id), layerVersionDocSchema);
-        if (version !== undefined && holdsLayerId(version.state)) {
+        if (version !== undefined && holdsLayerId(version.state) && !(deleted && version.state === 'failed')) {
             return true;
         }
     }
@@ -54,7 +58,8 @@ async function versionHolds(transaction: DocumentTransaction, cityId: string, id
 
 /** The scene back to `candidate`, in a transaction that finds it still held by nothing. */
 export async function releaseScene(deps: ReleaseDeps, cityId: string, entityId: string, layerId: string): Promise<void> {
-    if ((await deletionsPending(deps.documents, cityId)).includes(layerId)) {
+    const deletions = await deletionStates(deps.documents, cityId);
+    if (deletions.pending.includes(layerId)) {
         return;
     }
     const versions = await deps.documents.query(FIRESTORE_PATHS.layerVersions(cityId), layerVersionDocSchema, {
@@ -65,7 +70,7 @@ export async function releaseScene(deps: ReleaseDeps, cityId: string, entityId: 
     await deps.documents.transaction(async (transaction) => {
         const scene = await transaction.get(path, usgsSceneDocSchema);
         const layer = await transaction.get(FIRESTORE_PATHS.layer(cityId, layerId), layerDocSchema);
-        const held = await versionHolds(transaction, cityId, ids);
+        const held = await versionHolds(transaction, cityId, ids, deletions.done.has(layerId));
         if (scene?.layerId === layerId && layer === undefined && !held) {
             await transaction.set(path, usgsSceneDocSchema, freedScene(scene, stampOf(IMAGERY_WRITER, deps.clock.now())));
         }

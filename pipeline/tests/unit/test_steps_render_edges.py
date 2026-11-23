@@ -108,6 +108,43 @@ def test_happy_path_a_16_bit_colour_upload_is_stretched_to_8_bits(tmp_path: Path
     scan.Close()
 
 
+def _rgba(path: Path, alpha_interp: int) -> None:
+    driver = gdal.GetDriverByName("GTiff")
+    assert driver is not None
+    dataset = driver.Create(str(path), 32, 16, 4, gdal.GDT_Byte)
+    for band in (1, 2, 3):
+        dataset.GetRasterBand(band).WriteArray(numpy.full((16, 32), 200, numpy.uint8))
+    alpha = numpy.zeros((16, 32), numpy.uint8)
+    alpha[:, 16:] = 255
+    dataset.GetRasterBand(4).WriteArray(alpha)
+    dataset.GetRasterBand(4).SetColorInterpretation(alpha_interp)
+    dataset.Close()
+
+
+def test_happy_path_an_upload_with_an_alpha_keeps_its_transparency_as_the_mask(tmp_path: Path) -> None:
+    """Scenarios: S-P34-HAPPY-UPLOAD-ALPHA. A ready GeoTIFF's transparent pixels stay transparent, not solid black."""
+    source = tmp_path / "rgba.tif"
+    _rgba(source, gdal.GCI_AlphaBand)
+
+    scan = gdal.Open(str(write_scan(source, tmp_path / "scan.tif")))
+    band = scan.GetRasterBand(1)
+    assert scan.RasterCount == 3
+    assert band.GetMaskFlags() == gdal.GMF_PER_DATASET
+    mask = band.GetMaskBand().ReadAsArray()
+    assert (int(mask[:, :16].max()), int(mask[:, 16:].min())) == (0, 255)
+    scan.Close()
+
+
+def test_bad_path_a_fourth_band_that_is_not_an_alpha_masks_nothing(tmp_path: Path) -> None:
+    """Scenarios: S-P34-BAD-UPLOAD-NO-ALPHA. A fourth band that is not an alpha is no mask; every pixel stays."""
+    source = tmp_path / "rgbx.tif"
+    _rgba(source, gdal.GCI_Undefined)
+
+    scan = gdal.Open(str(write_scan(source, tmp_path / "scan.tif")))
+    assert scan.GetRasterBand(1).GetMaskFlags() == gdal.GMF_ALL_VALID
+    scan.Close()
+
+
 def test_bad_path_a_featureless_scan_finds_no_automatic_pairs(world: PipelineWorld) -> None:
     centre = to_mercator(26.10, 44.43)
     grid = Grid.over(MercatorBox(centre[0] - 3000, centre[1] - 2400, centre[0] + 3000, centre[1] + 2400), 10)

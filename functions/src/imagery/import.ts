@@ -71,10 +71,22 @@ export async function readFreeScene(transaction: DocumentTransaction, cityId: st
     if (current === undefined) {
         throw new ApiError('apiError.notFound');
     }
-    if (current.status === 'imported' && current.layerId !== undefined) {
+    if (current.status === 'imported' && current.layerId !== undefined && !(await staleImport(transaction, cityId, current))) {
         throw new ApiError('apiError.imagery.alreadyImported', { layer: current.layerId });
     }
     return current;
+}
+
+/**
+ * An `imported` mark left behind: the order is `delivered` again (a new delivery to import; an import under way is
+ * `importing`) and the layer it reserved does not exist (live 2026-11-23: two scenes of a deleted layer, put back to
+ * `delivered`, were refused by the order watch on every tick as already imported).
+ */
+async function staleImport(transaction: DocumentTransaction, cityId: string, scene: UsgsSceneDoc): Promise<boolean> {
+    if (scene.order?.state !== 'delivered' || scene.layerId === undefined) {
+        return false;
+    }
+    return (await transaction.get(FIRESTORE_PATHS.layer(cityId, scene.layerId), layerDocSchema)) === undefined;
 }
 
 /**

@@ -48,12 +48,38 @@ describe('layer bounds', () => {
         expect((await readLayer(world, 'none'))?.bounds).toEqual(BOUNDS);
     });
 
+    it('happyPath_aLayerBoundedByItsOutlinesBoxGetsItsRastersExtent @S-A65-HAPPY-RASTER-BOUNDS', async () => {
+        const world = await readyWorld();
+        const raster = { west: 25.95, south: 44.35, east: 26.2, north: 44.5842 };
+        await seedVersion(world, 'v-1965', renderedVersion({ layerId: 'plan-1965', output: { ...goldenOutput(), bounds: raster, outline: OUTLINE } }));
+        await seedLayer(world, 'plan-1965', { currentVersion: 'v-1965', bounds: { west: 26.0, south: 44.4, east: 26.1, north: 44.5 } });
+
+        await correctLayerBounds(world.deps, 'bucharest');
+
+        expect((await readLayer(world, 'plan-1965'))?.bounds).toEqual(raster);
+        expect(dataBoundsOf({ ...goldenOutput(), bounds: raster, outline: OUTLINE })).toEqual(raster);
+    });
+
+    it('badPath_aLayerOfOtherBoundsOrAMissingVersionIsLeftAlone @S-A65-BAD-RASTER-BOUNDS', async () => {
+        const world = await readyWorld();
+        const raster = { west: 25.95, south: 44.35, east: 26.2, north: 44.5842 };
+        const chosen = { west: 26.01, south: 44.41, east: 26.09, north: 44.49 };
+        await seedVersion(world, 'v-own', renderedVersion({ layerId: 'chosen', output: { ...goldenOutput(), bounds: raster, outline: OUTLINE } }));
+        await seedLayer(world, 'chosen', { currentVersion: 'v-own', bounds: chosen });
+        await seedLayer(world, 'lost', { currentVersion: 'v-gone', bounds: chosen });
+
+        await correctLayerBounds(world.deps, 'bucharest');
+
+        expect((await readLayer(world, 'chosen'))?.bounds).toEqual(chosen);
+        expect((await readLayer(world, 'lost'))?.bounds).toEqual(chosen);
+    });
+
     it('badPath_anOutlineOutsideTheOutputKeepsTheOutputBounds', () => {
         const far = [
             { lat: 10, lng: 10 },
             { lat: 11, lng: 10 },
             { lat: 11, lng: 11 },
         ];
-        expect(dataBoundsOf({ ...goldenOutput(), bounds: BOUNDS, outline: far })).toEqual(BOUNDS);
+        expect(dataBoundsOf({ ...goldenOutput(), bounds: BOUNDS, outline: far }, BOUNDS)).toEqual(BOUNDS);
     });
 });

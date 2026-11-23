@@ -86,6 +86,13 @@ The Python + GDAL pipeline that turns declassified USGS film scans (Corona KH-4,
   the city likely lies on its scan (`calibration.expected`), which the georeferencer opens on. Tests (`test_film_edge.py`, S-P33): a
   band with a wide gap stops at the first run; `trimmed` keeps a box wholly on the top or the left of the border.
 
+## Uploading a ready GeoTIFF (2026-11-23, the 1965 plan with its village insets)
+
+- Fixed 2026-11-23 (lesson 791, S-P34): `inspect`'s `write_scan` kept bands 1–3 only, so an uploaded RGBA GeoTIFF lost its alpha and every transparent pixel published as solid black. The scan now keeps an alpha band as its per-dataset mask (`maskBand`), which the warp honours; an older version needs a new upload or **Calibrate again**.
+- Before **Approve and publish**, open a corner of the new version with **Actual pixels** (or one tile) and check it is transparent, not black; the admin's preview draws transparency black either way.
+- A layer's `bounds` are its version's full raster extent (`output.bounds`), never a simplified outline's box: the viewer clips the tiles to them (lesson 791, S-A65-HAPPY-RASTER-BOUNDS).
+- The admin's GeoTIFF input sits inside Lit shadow DOM: the Claude in Chrome tree and `find` do not see it, and a page script cannot fetch a local file (CSP). Upload with chrome-devtools `take_snapshot` then `upload_file` on the **Choose a GeoTIFF** button, in the same signed-in Chrome.
+
 ## Job state machine (`cities/{c}/jobs/{id}`)
 
 - Leases and heartbeat; `waiting_usgs` with backoff for maintenance (503 HTML); re-login at 100 minutes; a cancel flag; SIGTERM → `cancelled` with temp files removed.

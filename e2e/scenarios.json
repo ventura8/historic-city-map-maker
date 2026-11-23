@@ -9901,6 +9901,39 @@
             "notes": "Review of 2026-11-06, integrated. Test: functions/test/imagery/layer-delete.test.ts."
         },
         {
+            "id": "S-A33-HAPPY-DELETED-FREES-FAILED",
+            "behaviour": "A33",
+            "area": "admin",
+            "path": "happy",
+            "title": "A deleted layer's scenes can be imported again, even after a failed try",
+            "asserts": "a layer with a failed version is deleted -> its scenes go back to candidate, their layer id and import order gone",
+            "tier": "functions",
+            "status": "exists",
+            "notes": "Live 2026-11-23. Test: functions/test/imagery/layer-delete.test.ts."
+        },
+        {
+            "id": "S-A33-BAD-FAILED-NOT-DELETED-HOLDS",
+            "behaviour": "A33",
+            "area": "admin",
+            "path": "bad",
+            "title": "A failed try of a layer not deleted still holds its scene",
+            "asserts": "a failed version, no deletion run -> the scene stays imported so the try can be retried",
+            "tier": "functions",
+            "status": "exists",
+            "notes": "Live 2026-11-23. Test: functions/test/imagery/layer-delete.test.ts."
+        },
+        {
+            "id": "S-A13-HAPPY-REIMPORT-DELETED",
+            "behaviour": "A13",
+            "area": "admin",
+            "path": "happy",
+            "title": "A delivered scan marked imported into a deleted layer imports again",
+            "asserts": "a scene imported into a layer that no longer exists, its order delivered -> the watch starts a new import job and version under a new layer id; one imported into an existing layer is still refused",
+            "tier": "functions",
+            "status": "exists",
+            "notes": "Live 2026-11-23 (DS1026-2088DF094/095). Test: functions/test/imagery/orders-watch.test.ts."
+        },
+        {
             "id": "S-A34-HAPPY",
             "behaviour": "A34",
             "area": "admin",
@@ -14552,6 +14585,28 @@
             "tier": "functions",
             "status": "exists",
             "notes": "Live 2026-11-22. Test: functions/test/imagery/layer-bounds.test.ts."
+        },
+        {
+            "id": "S-A65-HAPPY-RASTER-BOUNDS",
+            "behaviour": "A65",
+            "area": "admin",
+            "path": "happy",
+            "title": "A layer's bounds are its raster's full extent",
+            "asserts": "a layer bounded by its version's simplified outline box -> imagery.tick sets the raster's extent (the 1965 plan's north 44.5842); finalize and make-live write the output's bounds",
+            "tier": "functions",
+            "status": "exists",
+            "notes": "Live 2026-11-23: the viewer clipped the map's edges. Test: functions/test/imagery/layer-bounds.test.ts."
+        },
+        {
+            "id": "S-A65-BAD-RASTER-BOUNDS",
+            "behaviour": "A65",
+            "area": "admin",
+            "path": "bad",
+            "title": "Bounds of another origin are left alone",
+            "asserts": "a layer whose bounds are neither the window nor the outline's box, or whose version is missing -> unchanged",
+            "tier": "functions",
+            "status": "exists",
+            "notes": "Live 2026-11-23. Test: functions/test/imagery/layer-bounds.test.ts."
         },
         {
             "id": "S-A65-BAD-DATA-BOUNDS",
@@ -24463,6 +24518,28 @@
             "tier": "e2e-pipeline",
             "status": "exists",
             "notes": "Admin sweep 2026-11-14 (reports/admin-sweep/bugs.md), lesson 730. Test: pipeline/tests/unit/test_film_edge.py."
+        },
+        {
+            "id": "S-P34-HAPPY-UPLOAD-ALPHA",
+            "behaviour": "P34",
+            "area": "pipeline",
+            "path": "happy",
+            "title": "An uploaded GeoTIFF's transparent pixels stay transparent",
+            "asserts": "an RGBA upload -> the 8-bit scan keeps three bands and its alpha as the per-dataset mask, so the warp leaves those pixels out, never solid black",
+            "tier": "e2e-pipeline",
+            "status": "exists",
+            "notes": "Live 2026-11-23. Test: pipeline/tests/unit/test_steps_render_edges.py."
+        },
+        {
+            "id": "S-P34-BAD-UPLOAD-NO-ALPHA",
+            "behaviour": "P34",
+            "area": "pipeline",
+            "path": "bad",
+            "title": "A fourth band that is no alpha masks nothing",
+            "asserts": "a four-band upload whose last band is not an alpha -> no mask, every pixel kept",
+            "tier": "e2e-pipeline",
+            "status": "exists",
+            "notes": "Live 2026-11-23. Test: pipeline/tests/unit/test_steps_render_edges.py."
         },
         {
             "id": "S-A186-HAPPY",

@@ -43,6 +43,7 @@ import {
     readyWorld,
     renderedVersion,
     seedGuard,
+    seedLayer,
     seedJob,
     seedSetup,
     seedVersion,
@@ -402,7 +403,8 @@ describe('the import of a delivery', () => {
         );
         await seedPaid(world, 'DS-NO-JOB', { order: order({ state: 'importing' }) });
         await seedPaid(world, 'DS-GONE', { order: order({ state: 'importing', importJobId: 'im-gone' }) });
-        // Imported by hand already: its import refuses, the others still move on.
+        // Imported by hand already, into a layer that exists: its import refuses, the others still move on.
+        await seedLayer(world, 'corona-1968', {});
         await seedPaid(world, 'DS-BROKEN', { status: 'imported', layerId: 'corona-1968', order: order({ state: 'delivered' }) });
         await seedPaid(world, 'DS-DUE', { order: order({ nextCheckAt: stampAfter(-1) }) });
 
@@ -414,6 +416,19 @@ describe('the import of a delivery', () => {
         expect((await readScene(world, 'DS-BROKEN'))?.order?.state).toBe('delivered');
         expect((await readScene(world, 'DS-DUE'))?.order?.checks).toBe(1);
         expect(world.deps.recording.records.map((record) => record.message)).toContain('an order did not move on');
+    });
+
+    it('happyPath_aDeliveryMarkedImportedIntoADeletedLayerIsImportedAgain @S-A13-HAPPY-REIMPORT-DELETED', async () => {
+        const world = await readyWorld();
+        await seedPaid(world, PAID, { status: 'imported', layerId: 'gone-1965', order: order({ state: 'delivered', importJobId: 'im-old' }) });
+
+        await tickAt(world, NOW);
+
+        const scene = await readScene(world, PAID);
+        expect(scene?.order).toMatchObject({ state: 'importing' });
+        expect(scene?.order?.importJobId).not.toBe('im-old');
+        expect(scene?.layerId).not.toBe('gone-1965');
+        expect(await readVersion(world, scene?.order?.importJobId ?? '')).toBeDefined();
     });
 
     it('badPath_aNotificationThatCannotBeWrittenIsLoggedAndTheOrderStillMoves', async () => {

@@ -4,7 +4,8 @@ GDAL opens the upload; a geotransform with a CRS, or GCPs with one, is its own g
 'embedded'`, then `reference` and `georef` are skipped and the version waits for a click, never published on its
 own); anything else is a scan that waits for the admin's points after `reference`. Either way the scan is
 written as 8-bit (one band, or three for colour; other types stretched between the 2nd and 98th percentiles),
-keeping the upload's own georeference, with its preview.
+keeping the upload's own georeference, with its preview. An alpha band becomes the scan's mask, so a transparent
+pixel stays transparent through the warp instead of turning black (live 2026-11-23).
 """
 
 from pathlib import Path
@@ -30,6 +31,17 @@ def scan_bands(info: RasterInfo) -> list[int]:
     return [1, 2, 3] if info.bands >= COLOUR_BANDS else [1]
 
 
+def alpha_band(source: Path) -> int | None:
+    """The upload's alpha band, when its last band is one (RGBA, or grey with an alpha)."""
+    dataset = gdal.Open(str(source))
+    try:
+        last = dataset.RasterCount
+        alpha = last > 1 and dataset.GetRasterBand(last).GetColorInterpretation() == gdal.GCI_AlphaBand
+        return last if alpha else None
+    finally:
+        dataset.Close()
+
+
 def _stretch(path: Path, band: int, size: tuple[int, int]) -> list[float]:
     low, high = numpy.percentile(read_band(path, band, size).astype(numpy.float64), [2.0, 98.0])
     return [float(low), max(float(high), float(low) + 1), 0.0, 255.0]
@@ -42,11 +54,14 @@ def _scales(path: Path, info: RasterInfo, bands: list[int]) -> list[list[float]]
 
 
 def write_scan(source: Path, target: Path) -> Path:
-    """The upload as an 8-bit scan, its georeference (geotransform or GCPs) kept."""
+    """The upload as an 8-bit scan, its georeference (geotransform or GCPs) kept, its alpha (if any) as the mask."""
     info = raster_info(source)
     bands = scan_bands(info)
     scales = _scales(source, info, bands)
+    alpha = alpha_band(source)
     options: dict[str, object] = {"format": "GTiff", "outputType": gdal.GDT_Byte, "bandList": bands, "creationOptions": list(GTIFF_OPTIONS)}
+    if alpha is not None:
+        options["maskBand"] = alpha
     gdal.Translate(str(target), str(source), **options, **({"scaleParams": scales} if scales else {})).Close()
     return target
 
