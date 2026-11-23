@@ -4886,6 +4886,13 @@ paths:
                 '503':
                     description: Starter template unavailable.
     /cities/{cityId}/manifest.json:
+        servers:
+            -   url: https://storage.googleapis.com/{publicBucket}
+                description: Public Cloud Storage bucket for static viewer assets and manifest.json
+                variables:
+                    publicBucket:
+                        default: demo-hcm-public
+                        description: Public Cloud Storage bucket name
         get:
             tags:
                 - Viewer
@@ -4917,6 +4924,13 @@ paths:
                 '404':
                     description: Manifest not found for the requested city.
     /cities/{cityId}/wikipedia.json:
+        servers:
+            -   url: https://storage.googleapis.com/{publicBucket}
+                description: Public Cloud Storage bucket for static viewer assets and manifest.json
+                variables:
+                    publicBucket:
+                        default: demo-hcm-public
+                        description: Public Cloud Storage bucket name
         get:
             tags:
                 - Viewer
@@ -4948,6 +4962,13 @@ paths:
                 '404':
                     description: Wikipedia overlay file not found for the requested city.
     /cities/{cityId}/photos/{photoId}/web.webp:
+        servers:
+            -   url: https://storage.googleapis.com/{publicBucket}
+                description: Public Cloud Storage bucket for static viewer assets and manifest.json
+                variables:
+                    publicBucket:
+                        default: demo-hcm-public
+                        description: Public Cloud Storage bucket name
         get:
             tags:
                 - Viewer
@@ -4983,6 +5004,13 @@ paths:
                 '404':
                     description: Photo web derivative not found.
     /cities/{cityId}/photos/{photoId}/thumb.webp:
+        servers:
+            -   url: https://storage.googleapis.com/{publicBucket}
+                description: Public Cloud Storage bucket for static viewer assets and manifest.json
+                variables:
+                    publicBucket:
+                        default: demo-hcm-public
+                        description: Public Cloud Storage bucket name
         get:
             tags:
                 - Viewer
@@ -5018,6 +5046,13 @@ paths:
                 '404':
                     description: Photo thumbnail derivative not found.
     /app.webmanifest:
+        servers:
+            -   url: https://storage.googleapis.com/{publicBucket}
+                description: Public Cloud Storage bucket for static viewer assets and manifest.json
+                variables:
+                    publicBucket:
+                        default: demo-hcm-public
+                        description: Public Cloud Storage bucket name
         get:
             tags:
                 - Viewer
@@ -5429,13 +5464,15 @@ components:
                 admin:
                     type: boolean
                 role:
-                    type: string
+                    type:
+                        - string
+                        - 'null'
                     enum:
                         - owner
                         - editor
                         - moderator
                         - uploader
-                    nullable: true
+                        - null
                 claim:
                     type: boolean
                 refreshToken:
@@ -5724,8 +5761,9 @@ components:
                                 - action-required
                                 - error
                         checkedAt:
-                            $ref: '#/components/schemas/IsoTime'
-                            nullable: true
+                            anyOf:
+                                -   $ref: '#/components/schemas/IsoTime'
+                                -   type: 'null'
                         budgetId:
                             type: string
                         budgetAmount:
@@ -5747,8 +5785,9 @@ components:
                                 - action-required
                                 - error
                         checkedAt:
-                            $ref: '#/components/schemas/IsoTime'
-                            nullable: true
+                            anyOf:
+                                -   $ref: '#/components/schemas/IsoTime'
+                                -   type: 'null'
                         items:
                             type: array
                             items:
@@ -5767,8 +5806,9 @@ components:
                                 - action-required
                                 - error
                         checkedAt:
-                            $ref: '#/components/schemas/IsoTime'
-                            nullable: true
+                            anyOf:
+                                -   $ref: '#/components/schemas/IsoTime'
+                                -   type: 'null'
                         user:
                             type: string
                         scopes:
@@ -5789,8 +5829,9 @@ components:
                                 - action-required
                                 - error
                         checkedAt:
-                            $ref: '#/components/schemas/IsoTime'
-                            nullable: true
+                            anyOf:
+                                -   $ref: '#/components/schemas/IsoTime'
+                                -   type: 'null'
                         role:
                             type: string
                             enum:
@@ -5810,8 +5851,9 @@ components:
                                 - action-required
                                 - error
                         checkedAt:
-                            $ref: '#/components/schemas/IsoTime'
-                            nullable: true
+                            anyOf:
+                                -   $ref: '#/components/schemas/IsoTime'
+                                -   type: 'null'
                         measurementId:
                             type: string
                 crash:
@@ -5828,8 +5870,9 @@ components:
                                 - action-required
                                 - error
                         checkedAt:
-                            $ref: '#/components/schemas/IsoTime'
-                            nullable: true
+                            anyOf:
+                                -   $ref: '#/components/schemas/IsoTime'
+                                -   type: 'null'
                 secretsRev:
                     type: integer
                     minimum: 0
@@ -5972,8 +6015,9 @@ components:
                 tokenId:
                     type: string
                 retiresOldAt:
-                    $ref: '#/components/schemas/IsoTime'
-                    nullable: true
+                    anyOf:
+                        -   $ref: '#/components/schemas/IsoTime'
+                        -   type: 'null'
                 manifestQueued:
                     type: boolean
         AnalyticsConfigRequest:
@@ -6213,8 +6257,9 @@ components:
                 entityId:
                     $ref: '#/components/schemas/Id'
                 unusable:
-                    type: string
-                    nullable: true
+                    type:
+                        - string
+                        - 'null'
         ImageryMarkSceneResponse:
             type: object
             required:
@@ -6938,8 +6983,9 @@ components:
                 - bounds
             properties:
                 bounds:
-                    $ref: '#/components/schemas/BoundsRecord'
-                    nullable: true
+                    anyOf:
+                        -   $ref: '#/components/schemas/BoundsRecord'
+                        -   type: 'null'
                 place:
                     type: string
         CitiesSetLimitsRequest:
@@ -7223,13 +7269,14 @@ components:
                 - job
             properties:
                 job:
-                    type: object
+                    type:
+                        - object
+                        - 'null'
                     required:
                         - jobId
                     properties:
                         jobId:
                             $ref: '#/components/schemas/Id'
-                    nullable: true
                 copy:
                     type: object
                 remove:
@@ -7268,11 +7315,13 @@ components:
             type: object
             properties:
                 data:
-                    type: object
-                    nullable: true
+                    type:
+                        - object
+                        - 'null'
                 updateTime:
-                    type: string
-                    nullable: true
+                    type:
+                        - string
+                        - 'null'
                 ok:
                     type: boolean
                 created:
@@ -7498,21 +7547,25 @@ components:
                         publicToken:
                             type: string
                 role:
-                    type: string
+                    type:
+                        - string
+                        - 'null'
                     enum:
                         - owner
                         - editor
                         - moderator
                         - uploader
-                    nullable: true
+                        - null
                 blocked:
                     type: boolean
                 request:
-                    type: object
-                    nullable: true
+                    type:
+                        - object
+                        - 'null'
                 photo:
-                    type: object
-                    nullable: true
+                    type:
+                        - object
+                        - 'null'
         ContributeRequest:
             type: object
             required:
