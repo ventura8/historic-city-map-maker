@@ -1,4 +1,5 @@
 import { expect, test } from '../../support/content-test.js';
+import { ADMIN_EXPECTED_CONSOLE_ERRORS } from '../../support/test.js';
 import { contentText } from '../../support/ops.js';
 import { poisText, seedCategories, seedPlace } from './places.js';
 import { seedPublicCity } from '../../support/flows.js';
@@ -11,6 +12,14 @@ import { seedPublicCity } from '../../support/flows.js';
 const AT = new Date('2026-10-17T09:00:00.000Z');
 /** The emulator's commit of a transaction (a delete is one). */
 const COMMIT = /documents:commit/;
+
+// The refused commits are this spec's own doing: the browser logs each aborted request.
+test.use({
+    expectedConsoleErrors: [
+        [...ADMIN_EXPECTED_CONSOLE_ERRORS, { text: /ERR_INTERNET_DISCONNECTED/, url: COMMIT, why: 'the spec aborts the delete commit' }],
+        { scope: 'test' },
+    ],
+});
 
 test(
     'A deleted place leaves the list at once; a delete that cannot reach the server says so and Try again deletes it',
@@ -32,7 +41,8 @@ test(
         await confirm.click();
         const retry = page.getByRole('button', { name: contentText(lang, 'adminContent.common.retry') });
         await expect(retry).toBeVisible({ timeout: 60_000 });
-        await expect(list.getByRole('link', { name: /Hala Obor/ })).toBeVisible();
+        // Still listed (on a phone the open place covers the list, so it is in the list rather than on screen).
+        await expect(list.getByRole('link', { name: /Hala Obor/ })).toHaveCount(1);
         await page.unroute(COMMIT);
         await retry.click();
         await expect.poll(async () => Object.keys(await content.collection('pois'))).toEqual(['gara']);
