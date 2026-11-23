@@ -18,7 +18,8 @@ export interface OverlaySubgroup {
 
 const OPEN_KEY = 'hcm.layerPanel.groupsOpen';
 
-function readOpen(): Set<string> {
+/** The remembered open sub-group rows: anything but a list of names counts as none (exported for its tests). */
+export function readOpen(): Set<string> {
     try {
         const parsed: unknown = JSON.parse(globalThis.localStorage.getItem(OPEN_KEY) ?? '[]');
         return new Set(Array.isArray(parsed) ? parsed.filter((id): id is string => typeof id === 'string') : []);

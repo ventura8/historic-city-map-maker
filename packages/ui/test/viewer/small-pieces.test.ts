@@ -2,10 +2,7 @@
 import { render } from 'lit';
 import { afterEach, describe, expect, it, vi } from 'vitest';
 
-import type * as subgroupsModule from '../../src/components/overlay-subgroups.js';
-import { renderSubgroups } from '../../src/components/overlay-subgroups.js';
-
-type Subgroups = typeof subgroupsModule;
+import { readOpen, renderSubgroups } from '../../src/components/overlay-subgroups.js';
 import { layersHintSnackbar } from '../../src/viewer/layers-hint.js';
 import { planItems } from '../../src/viewer/place-plans.js';
 import { menuItem } from '../../src/viewer/viewer-menu.js';
@@ -20,14 +17,7 @@ const host = Object.assign(document.createElement('div'), { requestUpdate: vi.fn
 
 afterEach(() => {
     localStorage.removeItem('hcm.layerPanel.groupsOpen');
-    vi.resetModules();
 });
-
-/** The module loaded again, so it reads the remembered groups anew. */
-async function freshSubgroups(): Promise<unknown> {
-    vi.resetModules();
-    return import('../../src/components/overlay-subgroups.js');
-}
 
 describe('small viewer pieces', () => {
     it('happyPath_theLocateItemIsAnUncheckedSwitchByDefault_andSubgroupsFallBackToTheRowsId', () => {
@@ -47,19 +37,14 @@ describe('small viewer pieces', () => {
         expect(rendered(renderSubgroups(host, { id: 'row-2' }, (name) => name)).querySelector('button')).toBeNull();
     });
 
-    it('badPath_rememberedGroupsThatAreNotAListOrNotNamesAreIgnored', async () => {
+    it('badPath_rememberedGroupsThatAreNotAListOrNotNamesAreIgnored', () => {
         localStorage.setItem('hcm.layerPanel.groupsOpen', '{"row-3":true}');
-        const fresh = (await freshSubgroups()) as Subgroups;
-        const groups = [
-            { id: 'a', label: 'A', visible: true },
-            { id: 'b', label: 'B', visible: true },
-        ];
-        const closed = rendered(fresh.renderSubgroups(host, { id: 'row-3', subgroups: groups }, (name) => name));
-        expect(closed.querySelector('button')?.getAttribute('aria-expanded')).toBe('false');
+        expect([...readOpen()]).toEqual([]);
 
         localStorage.setItem('hcm.layerPanel.groupsOpen', '[1, "row-4"]');
-        const mixed = (await freshSubgroups()) as Subgroups;
-        const open = rendered(mixed.renderSubgroups(host, { id: 'row-4', subgroups: groups }, (name) => name));
-        expect(open.querySelector('button')?.getAttribute('aria-expanded')).toBe('true');
+        expect([...readOpen()]).toEqual(['row-4']);
+
+        localStorage.setItem('hcm.layerPanel.groupsOpen', '{not json');
+        expect([...readOpen()]).toEqual([]);
     });
 });
