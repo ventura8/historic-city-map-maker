@@ -222,7 +222,8 @@ test(
         );
         await openLayers(page, lang);
         await expect(opacitySlider(page, lang, 'Corona 1968')).toHaveAttribute('aria-valuenow', '40');
-        await expect(opacitySlider(page, lang, t(lang, 'layers.photos'))).toHaveAttribute('aria-valuenow', '60');
+        // This city has no photos, so the viewer draws no Photos switch (nor its popover's slider) since e39defda; the
+        // photos' 60 % is checked in the manifest above, and the slider's start value in overlay-opacity.spec.ts.
         await expect(opacitySlider(page, lang, lang === 'en' ? 'Buildings' : 'Clădiri')).toHaveAttribute('aria-valuenow', '30');
     },
 );

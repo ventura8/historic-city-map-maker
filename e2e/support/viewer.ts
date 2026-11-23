@@ -161,14 +161,15 @@ export async function dismissToast(page: Page, lang: ViewerLocale): Promise<void
 }
 
 /**
- * Opens the Layers panel unless it is already shown: the Photos switch's options button marks it (2026-11-16).
+ * Opens the Layers panel unless it is already shown: its region marks it. The Photos switch's options button marked it
+ * until a city without photos (the admin flows' seeded city) drew no Photos switch and every such spec waited in vain.
  */
 export async function openLayers(page: Page, lang: ViewerLocale): Promise<void> {
-    const options = page.getByRole('button', { name: t(lang, 'photosScope.options'), exact: true });
-    if (!(await options.isVisible())) {
+    const panel = viewer(page).getByRole('region', { name: t(lang, 'layers.title'), exact: true });
+    if (!(await panel.isVisible())) {
         await chooseMenuItem(page, lang, t(lang, 'layers.title'));
     }
-    await expect(options).toBeVisible();
+    await expect(panel).toBeVisible();
 }
 
 /** Opens the Photos switch's popover in the open Layers panel (its scope and the photos' opacity slider), unless it is open. */
