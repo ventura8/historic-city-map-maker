@@ -1,6 +1,6 @@
 /**
  * 2026-11-23 (LESSONS 792): a single map placed by points is offered **Redraw at full resolution** on its version page, its own
- * points warped again from the original as a new version; a join, a series laid out by tiles, a file placed by itself, a map
+ * points warped again from the original as a new version; a one-sheet series too; a join, a file placed by itself, a map
  * with no points or one not on the map is not.
  */
 import { afterEach, beforeAll, describe, expect, it } from 'vitest';
@@ -37,7 +37,7 @@ describe('imagery: Redraw at full resolution', () => {
     };
 
     it('happyPath_aSingleMapPlacedByPointsIsRedrawn @S-A16-HAPPY-REDRAW', async () => {
-        const { element, area } = await placedSeries({ relayoutable: false, georef: placed });
+        const { element, area } = await placedSeries({ georef: placed });
 
         click(button(element, 'Redraw at full resolution'));
 
@@ -45,7 +45,7 @@ describe('imagery: Redraw at full resolution', () => {
     });
 
     it.each([
-        ['a series laid out by tiles', { georef: placed }],
+        ['a series with no points', { georef: null }],
         ['a join', { relayoutable: false, origin: 'join', georef: placed }],
         ['a file placed by itself', { relayoutable: false, georef: { ...placed, method: 'embedded' } }],
         ['no points', { relayoutable: false, georef: null }],

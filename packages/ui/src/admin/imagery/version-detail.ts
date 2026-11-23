@@ -212,9 +212,9 @@ function placedByPoints(georef: VersionViewPort['georef']): boolean {
     return georef !== null && georef.method !== 'embedded' && georef.pairs > 0;
 }
 
-/** 2026-11-23: a single map placed by points (not a series laid out by tiles), on the map or waiting for approval. */
+/** 2026-11-23: a single map placed by points (a one-sheet series too: the 1974 cadastral plan), on the map or waiting for approval. */
 function redrawable(version: VersionViewPort | null): boolean {
-    if (version === null || version.relayoutable === true) {
+    if (version === null) {
         return false;
     }
     return REDRAW_ORIGINS.has(version.origin) && REDRAWABLE.has(version.state) && placedByPoints(version.georef);
