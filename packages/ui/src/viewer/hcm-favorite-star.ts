@@ -27,6 +27,8 @@ export class HcmFavoriteStar extends LitElement {
         :host([row]) {
             display: flex;
             justify-content: flex-end;
+            /* The 40 px button's 48 px touch target reaches 4 px past it: the line below must not cover that ring. */
+            padding-block: 4px;
         }
     `;
 

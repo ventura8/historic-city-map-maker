@@ -3,7 +3,7 @@ import { afterEach, beforeAll, describe, expect, it } from 'vitest';
 import { page } from 'vitest/browser';
 
 import { HCM_POI_DETAIL_TAG, HcmPoiDetail, defineHcmPoiDetail } from '../../src/viewer/hcm-poi-detail.js';
-import { defineKitDoubles, mountElement, recordEvents, shadowQuery, shadowQueryAll, shadowText } from './doubles.js';
+import { defineKitDoubles, mountElement, recordEvents, segmentLabels, shadowQuery, shadowQueryAll, shadowText } from './doubles.js';
 import { TEST_MANIFEST_URL, testManifest } from './fixtures.js';
 
 const MANIFEST = testManifest();
@@ -234,7 +234,7 @@ describe('<hcm-poi-detail> media (M17 §12)', () => {
         });
 
         expect(shadowText(element)).toContain('Media');
-        const chips = shadowQueryAll(element, '.kinds label').map((label) => label.textContent.trim());
+        const chips = segmentLabels(element, '.kinds');
         expect(chips).toEqual(['Maps', 'Exterior', 'Interior']);
         const events = recordEvents(element, 'hcm-layer-show');
         await page.getByRole('button', { name: `Show the map on the map: ${layer.label.en}` }).click();
@@ -283,7 +283,7 @@ describe('<hcm-poi-detail> media (M17 §12)', () => {
 
         await page.getByRole('radio', { name: 'Plans' }).click();
         await element.updateComplete;
-        expect(shadowQueryAll(element, '.levels label').map((label) => label.textContent.trim())).toEqual(['Ground floor', 'First floor']);
+        expect(segmentLabels(element, '.levels')).toEqual(['Ground floor', 'First floor']);
         expect(shadowQueryAll(element, '.thumbs button')).toHaveLength(1);
         await page.getByRole('radio', { name: 'First floor' }).click();
         await element.updateComplete;

@@ -284,6 +284,14 @@ export const dockStyles = css`
         transition: none;
     }
 
+    /*
+     * On a short map the compass and Show my location sit in the leading column, up where the consent banner lies until it
+     * is answered (the tour at 915 x 412): they wait for the answer instead of hiding under it.
+     */
+    .frame[data-compact-height]:has(.dock.consent) :is(.dock.compass, .dock.locate) {
+        visibility: hidden;
+    }
+
     @media (prefers-reduced-motion: reduce) {
         .frame :is(.dock.zoom, .dock.compass, .dock.locate, .dock.shot) {
             transition: none;

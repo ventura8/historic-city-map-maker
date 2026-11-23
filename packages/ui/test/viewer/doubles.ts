@@ -215,6 +215,12 @@ class ConsentBannerDouble extends LitElement {
     }
 }
 
+/** The options' labels of the segmented button `selector` finds in `host`'s shadow root (its double's radios). */
+export function segmentLabels(host: Element, selector: string): string[] {
+    const segmented = host.shadowRoot?.querySelector(selector);
+    return [...(segmented?.shadowRoot?.querySelectorAll('[role="radio"]') ?? [])].map((radio) => radio.textContent.trim());
+}
+
 /** The kit segmented button: a radio per option firing `hcm-change` with `{value}`. */
 class SegmentedButtonDouble extends LitElement {
     static override readonly properties = { options: {}, value: {}, label: {} };

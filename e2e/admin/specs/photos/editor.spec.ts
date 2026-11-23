@@ -250,7 +250,8 @@ test(
         expect(entry(manifest, 'photos', 'cv')?.['source']).toEqual({ url: 'https://arhiva.example/cv', label: 'Arhiva' });
         await openPublicViewer(page, manifest, { lang, hash: `17/${String(START[1])}/${String(START[0])}&photo=cv` });
         const sheet = page.locator('hcm-photo-sheet');
-        await expect(sheet.locator('.supporting')).toHaveText(lang === 'ro' ? '12 iulie 1936' : '12 July 1936');
+        // The date's own line (the sheet has other supporting lines: the rights, a version's credit).
+        await expect(sheet.getByText(lang === 'ro' ? '12 iulie 1936' : '12 July 1936', { exact: true })).toBeVisible();
         await expect(sheet.getByRole('link', { name: 'Arhiva' })).toHaveAttribute('href', 'https://arhiva.example/cv');
     },
 );

@@ -18,7 +18,7 @@ export const ro = {
     'adminContent.pois.add': 'Adaugă loc',
     'adminContent.pois.addAs': 'Ce formă are locul?',
     'adminContent.pois.shape.point': 'Punct',
-    'adminContent.pois.shape.linestring': 'Linie',
+    'adminContent.pois.shape.linestring': 'Traseu',
     'adminContent.pois.shape.polygon': 'Suprafață',
     'adminContent.pois.filters': 'Arată',
     'adminContent.pois.filter.all': 'Toate categoriile',

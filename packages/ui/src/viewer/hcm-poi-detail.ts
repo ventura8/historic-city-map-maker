@@ -10,6 +10,7 @@
 import {
     DEFAULT_LOCALE,
     localized,
+    categoryLabel,
     placeMedia,
     placeMediaKinds,
     poiIcon,
@@ -122,28 +123,7 @@ export class HcmPoiDetail extends LitElement {
             }
 
             .kinds {
-                display: flex;
-                flex-wrap: wrap;
-                gap: 8px;
                 margin: 0 0 8px;
-                padding: 0;
-                border: 0;
-            }
-
-            .kinds label {
-                display: inline-flex;
-                align-items: center;
-                gap: 4px;
-                min-block-size: 48px;
-                padding-inline: 12px;
-                border: 1px solid var(--md-sys-color-outline);
-                border-radius: var(--md-sys-shape-corner-small);
-                cursor: pointer;
-            }
-
-            .kinds label:has(input:checked) {
-                background: var(--md-sys-color-secondary-container);
-                color: var(--md-sys-color-on-secondary-container);
             }
 
             .maps button {
@@ -238,7 +218,7 @@ export class HcmPoiDetail extends LitElement {
         const color = HEX_COLOR.test(category.color) ? { '--hcm-poi-color': category.color } : {};
         return html`<p class="category">
             <span class="swatch" ${cssProperties(color)}><hcm-icon .name=${poiIcon(category.icon)}></hcm-icon></span>
-            <span>${translate(this.locale, 'poi.category', { category: localized(category.label, this.locale) })}</span>
+            <span>${translate(this.locale, 'poi.category', { category: categoryLabel(category, this.locale) })}</span>
         </p>`;
     }
 
@@ -302,21 +282,18 @@ export class HcmPoiDetail extends LitElement {
     }
 
     #kinds(kinds: readonly PlaceMediaKind[], chosen: PlaceMediaKind): TemplateResult {
-        const choose = (kind: PlaceMediaKind) => (): void => {
-            this.mediaKind = kind;
+        // The kit's segmented button: a bare radio drew no border a visitor could see and was a 13 px target (the tour).
+        const options = kinds.map((kind) => ({ value: kind, label: translate(this.locale, `poi.media.${kind}`) }));
+        const choose = (event: CustomEvent<{ value: PlaceMediaKind }>): void => {
+            this.mediaKind = event.detail.value;
         };
-        return html`<fieldset class="kinds">
-            <legend class="visually-hidden">${translate(this.locale, 'poi.media')}</legend>
-            ${kinds.map(
-                (kind) =>
-                    html`<label
-                        ><input type="radio" name="media" .checked=${kind === chosen} @change=${choose(kind)} />${translate(
-                            this.locale,
-                            `poi.media.${kind}`,
-                        )}</label
-                    >`,
-            )}
-        </fieldset>`;
+        return html`<hcm-segmented-button
+            class="kinds"
+            .options=${options}
+            .value=${chosen}
+            .label=${translate(this.locale, 'poi.media')}
+            @hcm-change=${choose}
+        ></hcm-segmented-button>`;
     }
 
     #items(media: PlaceMedia, kind: PlaceMediaKind): TemplateResult {

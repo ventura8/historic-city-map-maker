@@ -4587,3 +4587,14 @@ Append a numbered entry to *Lessons from this repository* in the task that finds
     - Cause: `join-archive.ts` put a join on a published part's layer and the page offered only **Add sheets to this join**; a waiting join on the layer refused every new one. The georeferencer's Save waits for a change, and **Fix the tiles** places the sheets again.
     - Fix: `imagery.join` takes `targetLayerId` (the page's **Replace the sheets of this join**): the ticked sheets join onto that layer as its next version, its waiting join is rejected first, the new sheets' own layers retire when it publishes (S-A65-HAPPY-JOIN-TARGET). **Redraw at full resolution** sends the version's own points to `imagery.saveGcps` (S-A16-HAPPY-REDRAW).
     - **Every rebuild the owner may want needs its own button; never make them move a point to get one.**
+
+793. **The full `all` of 2568a3a7: 141 tour failures from a handful of causes** (2026-11-23).
+    - "Place media" showed in English on a Japanese or Arabic page: the built-in category's label has only `ro`/`en`. Fix: `categoryLabel` (`overlays/place-media.ts`) reads `layers.placeMedia` from the catalogue, in the Layers panel and a place's sheet.
+    - Bare radios (a place's media kinds, its levels, the photo list's kinds) drew a 1:1 border and a 13 px target: they are the kit's `hcm-segmented-button` now.
+    - The favourite star's and the help panel's compact switch's touch rings were covered by the next line (48 x 44): the star's row and the switch keep the ring's room (4 px, 12 px).
+    - On a short landscape phone Show my location sat under the consent banner: the compass and it wait for the answer.
+    - The D-pad from the map walked the Layers pane instead of reaching the timeline: a move from the map stays in the map's column, and a control scrolled off screen is never a step's target (`spatial-nav.ts`).
+    - A viewer whose boot failed while its language's texts loaded was booted again from its empty attributes when it connected ("manifestUrl or manifest" instead of "config.js is missing"): `unlessFailed` (`mount-fail.ts`).
+    - Admin words equal to another viewer language's text ("Linie", Polish; "Application", French) are leaks to the tour's check: the admin's own wording changed ("Traseu", "App").
+    - Specs that lagged a shipped change were brought up: Show my location is a dock button (V10), every admin list is read whole, 0 is never written into `op=`, the measurement report count follows `FIELD_DIMENSIONS` + `FIELD_METRICS`.
+    - **A control on the screen is what a remote steps to; a label a city cannot translate comes from the catalogue.**

@@ -1,6 +1,6 @@
 /**
- * A building's plans by level in a place's Media (`docs/research/M17-stories.md` §14): a level picker (one radio per level,
- * lowest first), then the chosen level's plans (buttons that show them on the map) and the interior photos taken on it.
+ * A building's plans by level in a place's Media (`docs/research/M17-stories.md` §14): a level picker (the kit's segmented
+ * button, one segment per level, lowest first), then the chosen level's plans (buttons that show them on the map) and the interior photos taken on it.
  */
 import { localized, translate, type PlaceMedia, type ViewerLocale } from '@hcm/shared';
 import { html, type TemplateResult } from 'lit';
@@ -21,29 +21,24 @@ function levelLabel(level: Level, locale: ViewerLocale): string {
     return localized({ en: level.label.ro, ...level.label }, locale);
 }
 
-function levelRadio(input: PlansInput, level: Level, chosen: Level): TemplateResult {
-    return html`<label
-        ><input
-            type="radio"
-            name="level"
-            .checked=${level.order === chosen.order}
-            @change=${() => {
-                input.choose(level.order);
-            }}
-        />${levelLabel(level, input.locale)}</label
-    >`;
-}
-
 /** The level picker and the chosen level's plans and photos; nothing without levels. */
 export function planItems(input: PlansInput): TemplateResult {
     const chosen = input.levels.find((level) => level.order === input.chosen) ?? input.levels[0];
     if (chosen === undefined) {
         return html``;
     }
-    return html`<fieldset class="kinds levels">
-            <legend class="visually-hidden">${translate(input.locale, 'poi.media.level')}</legend>
-            ${input.levels.map((level) => levelRadio(input, level, chosen))}
-        </fieldset>
+    // The kit's segmented button: a bare radio drew no border a visitor could see and was a 13 px target (the tour).
+    const options = input.levels.map((level) => ({ value: String(level.order), label: levelLabel(level, input.locale) }));
+    const choose = (event: CustomEvent<{ value: string }>): void => {
+        input.choose(Number(event.detail.value));
+    };
+    return html`<hcm-segmented-button
+            class="kinds levels"
+            .options=${options}
+            .value=${String(chosen.order)}
+            .label=${translate(input.locale, 'poi.media.level')}
+            @hcm-change=${choose}
+        ></hcm-segmented-button>
         <ul class="maps">
             ${chosen.layers.map(input.plan)}
         </ul>

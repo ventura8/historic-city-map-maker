@@ -195,7 +195,7 @@ export const en: Readonly<Record<AdminOpsKey, string>> = {
     'adminContent.crashes.count': 'How often',
     'adminContent.crashes.firstSeen': 'First seen',
     'adminContent.crashes.lastSeen': 'Last seen',
-    'adminContent.crashes.service': 'Application',
+    'adminContent.crashes.service': 'App',
     'adminContent.crashes.state': 'State',
     'adminContent.crashes.resolution.OPEN': 'Open',
     'adminContent.crashes.resolution.ACKNOWLEDGED': 'Acknowledged',

@@ -6,7 +6,8 @@
  * by year, then id). Unknown ids are skipped; nothing here reads more than the manifest.
  */
 import { photoKindOf, type Layer, type Manifest, type Photo, type PhotoKind, type UnplacedPhoto } from '../schemas/manifest.js';
-import type { Poi } from '../schemas/poi.js';
+import { localized, translate, type ViewerLocale } from '../i18n/index.js';
+import type { Poi, PoiCategory } from '../schemas/poi.js';
 
 export { MAX_MEDIA_PLACES } from '../schemas/poi.js';
 
@@ -93,6 +94,11 @@ export function placeMediaKinds(media: PlaceMedia): PlaceMediaKind[] {
 
 /** M17 §15: the Layers panel's "Place media" category, off at first, one sub-group per kind of media. */
 export const PLACE_MEDIA_CATEGORY = 'place-media';
+
+/** A POI category's name in `locale`: the built-in "Place media" one from the catalogue, a city's own otherwise. */
+export function categoryLabel(category: Pick<PoiCategory, 'id' | 'label'>, locale: ViewerLocale): string {
+    return category.id === PLACE_MEDIA_CATEGORY ? translate(locale, 'layers.placeMedia') : localized(category.label, locale);
+}
 
 /** The sub-group of one kind of media in the "Place media" category (`media:maps`). */
 export function placeMediaGroup(kind: PlaceMediaKind): string {

@@ -48,6 +48,11 @@ async function setRole(emulators: EmulatorWorld, uid: string, role: string): Pro
     await emulators.updateFields(`admins/${uid}`, { cities: { [PROJECT_CITY]: role } }, ['cities']);
 }
 
+/** The role asked for: its own options only (the shell's language list has options too). */
+function roleOptions(page: Page, lang: 'ro' | 'en') {
+    return page.getByRole('combobox', { name: cityText(lang, 'adminContent.contribute.role') }).getByRole('option');
+}
+
 function reason(page: Page, lang: 'ro' | 'en') {
     return page.getByLabel(cityText(lang, 'adminContent.contribute.reason'));
 }
@@ -302,7 +307,7 @@ test.describe('someone whose role changed', () => {
         });
         await page.goto(adminPath(lang, `contribute/${PROJECT_CITY}`));
         await expect(page.getByText(cityText(lang, 'adminContent.contribute.askMore'))).toBeVisible();
-        await expect(page.getByRole('option')).toHaveCount(1);
+        await expect(roleOptions(page, lang)).toHaveCount(1);
         await expect(reason(page, lang)).toBeVisible();
         await expectStateSound(page, adminVisit('roles.contribute-ask-more', lang));
     });
@@ -402,7 +407,7 @@ test.describe('the sign-in', () => {
         });
         await page.goto(adminPath(lang, `contribute/${PROJECT_CITY}`));
         await expect(reason(page, lang)).toBeVisible();
-        await expect(page.getByRole('option')).toHaveCount(2);
+        await expect(roleOptions(page, lang)).toHaveCount(2);
     });
 
     test('the persona is who the account menu says', { tag: '@S-A92-HAPPY-VISITOR-STAYS' }, async ({ page, lang, adminWorld }) => {

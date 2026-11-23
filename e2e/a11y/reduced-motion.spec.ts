@@ -5,7 +5,7 @@ import { assertLayoutSound } from '../support/layout.js';
 import { mapFacts, myLocationDrawn } from '../support/map.js';
 import { sitePath } from '../support/site.js';
 import { expect, test } from '../support/test.js';
-import { BUCHAREST_MANIFEST, chooseMenuItem, openViewer, t, viewer } from '../support/viewer.js';
+import { BUCHAREST_MANIFEST, locateButton, openViewer, t, viewer } from '../support/viewer.js';
 
 /**
  * Reduced motion (behaviour V14, bad path; project `a11y-reduced-motion`, `prefers-reduced-motion: reduce`): the camera
@@ -38,7 +38,7 @@ test(
         expect(await page.evaluate(() => matchMedia('(prefers-reduced-motion: reduce)').matches)).toBe(true);
         await page.evaluate(countMoves);
 
-        await chooseMenuItem(page, lang, t(lang, 'action.locate'));
+        await locateButton(page, lang).click();
 
         await expect.poll(async () => (await mapFacts(page)).center[1]).toBeCloseTo(INSIDE.latitude, 4);
         expect((await mapFacts(page)).zoom).toBeGreaterThanOrEqual(16);

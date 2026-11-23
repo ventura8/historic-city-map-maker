@@ -44,11 +44,26 @@ export interface BootFailure {
 }
 
 /**
+ * The viewers whose boot failed: their card may wait for its language's texts, and a viewer `mount` failed to boot then
+ * connects with no error yet, which made the declared-element bootstrap boot it again from its empty attributes (the
+ * starter kit's "config.js is missing" card read "manifestUrl or manifest", 2026-11-23).
+ */
+const FAILED = new WeakSet<HcmMapViewer>();
+
+/** Boots a viewer the page wrote itself (`boot`) unless its boot already failed. */
+export function unlessFailed(viewer: HcmMapViewer, boot: () => unknown): void {
+    if (!FAILED.has(viewer)) {
+        boot();
+    }
+}
+
+/**
  * Shows the error in `viewer`'s card (the card follows the element's `lang`) once the boot language's texts are here, at
  * once when they are, and returns the controller of a viewer that could not boot.
  */
 export function failBoot(viewer: HcmMapViewer, failure: BootFailure): ViewerController {
     const { errorIn, locale } = failure;
+    FAILED.add(viewer);
     const show = (shown: ViewerLocale | null): void => {
         viewer.setAttribute('lang', shown ?? locale);
         viewer.bootError = errorIn(shown ?? locale);

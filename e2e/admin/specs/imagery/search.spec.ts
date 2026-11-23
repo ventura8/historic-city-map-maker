@@ -110,8 +110,8 @@ test(
         await imagery.seedBrowse('DS1035-1057DA023', IMAGERY_AT);
         await imagery.seedBrowse(FREE_1968, IMAGERY_AT);
         await corona1966.click();
-        // The detail lists every reason, the ones past the card's first three too.
-        await expect(detail(page).getByRole('list')).toContainText(imageryText(lang, 'adminContent.imagery.reason.cloudUnknown'));
+        // The detail lists every reason, the ones past the card's first three too: the clouds its preview shows (none).
+        await expect(detail(page).getByRole('list')).toContainText(imageryText(lang, 'adminContent.imagery.reason.cloudCity', { percent: '0' }));
         await openScene(page, FREE_1968);
         await expect(detail(page).getByRole('list')).toContainText(
             imageryText(lang, 'adminContent.imagery.reason.sameYear', { year: '1968' }),

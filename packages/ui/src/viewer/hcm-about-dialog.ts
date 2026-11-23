@@ -120,8 +120,9 @@ export class HcmAboutDialog extends LitElement {
                 font-size: var(--md-sys-typescale-body-small-size);
             }
 
+            /* The compact switch is 24 px tall: 12 px above and below keep its 48 px touch target clear of the lines around. */
             hcm-switch {
-                margin-block: 8px;
+                margin-block: 12px;
             }
 
             kbd {

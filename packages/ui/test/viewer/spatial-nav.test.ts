@@ -192,6 +192,29 @@ describe('the D-pad', () => {
         expect(activeId(s)).toBe('slider');
     });
 
+    it('happyPath_fromTheMapDownGoesUnderTheMapNotIntoAPaneBesideIt', () => {
+        const s = stage();
+        const canvas = place(s, 'canvas', 'canvas', [200, 0, 400, 400]);
+        place(s, 'button', 'pane-row', [10, 210, 180, 40]);
+        place(s, 'div', 'slider', [220, 340, 360, 48]);
+        canvas.focus();
+
+        navigate(s.viewer, 'down');
+
+        expect(activeId(s)).toBe('slider');
+    });
+
+    it('edge_aControlScrolledOffTheScreenIsNeverReached', () => {
+        const s = stage();
+        const first = place(s, 'button', 'first', [10, 10, 48, 48]);
+        place(s, 'button', 'below-the-screen', [10, 500, 48, 48]);
+        first.focus();
+
+        navigate(s.viewer, 'down');
+
+        expect(activeId(s)).toBe('first');
+    });
+
     it('happyPath_theTimelineKeepsLeftAndRightAndLetsUpAndDownLeave', () => {
         const s = stage();
         const { slider } = layout(s);

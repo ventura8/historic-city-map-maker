@@ -4,13 +4,14 @@ import { page } from 'vitest/browser';
 import { applyTheme } from '../../src/theme/apply.js';
 import { HCM_PHOTO_LIST_TAG, HcmPhotoList, defineHcmPhotoList } from '../../src/viewer/hcm-photo-list.js';
 import { VIEWER_BASELINE } from '../../src/viewer/viewer-baseline.js';
-import { mountElement, recordEvents, shadowQuery, shadowQueryAll } from './doubles.js';
+import { defineKitDoubles, mountElement, recordEvents, segmentLabels, shadowQuery, shadowQueryAll } from './doubles.js';
 import { TEST_MANIFEST_URL, testManifest } from './fixtures.js';
 
 const MANIFEST = testManifest();
 
 describe('<hcm-photo-list>', () => {
     beforeAll(() => {
+        defineKitDoubles();
         defineHcmPhotoList();
     });
 
@@ -41,7 +42,7 @@ describe('<hcm-photo-list>', () => {
         const photos = [{ ...first, kind: 'aerial' as const }, second];
         const element = await mountElement<HcmPhotoList>(HCM_PHOTO_LIST_TAG, { photos, locale: 'en', manifestUrl: TEST_MANIFEST_URL });
 
-        await expect.element(page.getByRole('group', { name: 'Kind of photo' })).toBeVisible();
+        await expect.element(page.getByRole('radiogroup', { name: 'Kind of photo' })).toBeVisible();
         expect(shadowQueryAll(element, '.date')[0]?.textContent).toBe('Aerial photo · Years 1978–1979');
 
         await page.getByRole('radio', { name: 'Aerial' }).click();
@@ -55,7 +56,7 @@ describe('<hcm-photo-list>', () => {
     it('badPath_noAerialPhotoShowsNoKindChoice', async () => {
         const element = await mountElement<HcmPhotoList>(HCM_PHOTO_LIST_TAG, { photos: MANIFEST.photos, manifestUrl: TEST_MANIFEST_URL });
 
-        expect(shadowQueryAll(element, 'fieldset')).toHaveLength(0);
+        expect(shadowQueryAll(element, '.kinds')).toHaveLength(0);
     });
 
     it('happyPath_choosingAPhotoFiresItsId', async () => {
@@ -156,6 +157,7 @@ describe('<hcm-photo-list>', () => {
     });
 
     it('badPath_definingTwiceKeepsTheFirstRegistration', () => {
+        defineKitDoubles();
         defineHcmPhotoList();
 
         expect(customElements.get(HCM_PHOTO_LIST_TAG)).toBe(HcmPhotoList);
@@ -164,6 +166,7 @@ describe('<hcm-photo-list>', () => {
 
 describe('<hcm-photo-list> interior photos (M17 §12)', () => {
     beforeAll(() => {
+        defineKitDoubles();
         defineHcmPhotoList();
     });
 
@@ -182,7 +185,7 @@ describe('<hcm-photo-list> interior photos (M17 §12)', () => {
             manifestUrl: TEST_MANIFEST_URL,
         });
 
-        expect(shadowQueryAll(element, 'label').map((label) => label.textContent.trim())).toEqual(['All', 'Street', 'Interior']);
+        expect(segmentLabels(element, '.kinds')).toEqual(['All', 'Street', 'Interior']);
         await page.getByRole('radio', { name: 'Interior' }).click();
         await expect.element(page.getByRole('status')).toHaveTextContent('1 photo');
     });

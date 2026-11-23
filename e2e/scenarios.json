@@ -3991,7 +3991,7 @@
             "area": "viewer",
             "path": "bad",
             "title": "Out-of-range overlay opacities in the hash are clamped",
-            "asserts": "#...&op=<layer>:150,photos:-20 -> layer drawn at 100 % and photos at 0 % (pixel probes, slider values); the hash is rewritten with the clamped values",
+            "asserts": "#...&op=<layer>:150,photos:-20 -> layer drawn at 100 % and photos at 0 % (pixel probes, slider values); the hash is rewritten with the clamped values, 0 left out (never written into the link)",
             "tier": "e2e-viewer",
             "status": "exists",
             "notes": "Milestone M1. PLAN Addendum 3. Contract: docs/ENGINE_API.md -> URL hash v1."

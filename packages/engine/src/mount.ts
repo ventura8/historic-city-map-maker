@@ -40,7 +40,7 @@ import { colorSchemeOf, locationOf, storageOf } from './core/page-sources.js';
 import { createViewerStore, type ViewerState, type ViewerStore } from './core/store.js';
 import { extraImports } from './extras/imports.js';
 import { mapboxOf } from './mapbox-global.js';
-import { bootLocale, failBoot, languageOf, withoutMapbox } from './mount-fail.js';
+import { bootLocale, failBoot, languageOf, unlessFailed, withoutMapbox } from './mount-fail.js';
 import { createTelemetry } from './telemetry/telemetry.js';
 import type { TelemetryPort } from './telemetry/telemetry-port.js';
 
@@ -378,7 +378,7 @@ function querySelector(env: MountEnvironment, selector: string): Element | null 
 /** Boots every declared `<hcm-map-viewer>` with the page's environment (the viewer's bootstrap). */
 export function bootDeclaredIn(environment: () => MountEnvironment): ViewerBootstrap {
     return (element) => {
-        bootDeclared(element, environment());
+        unlessFailed(element, () => bootDeclared(element, environment()));
     };
 }
 

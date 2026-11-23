@@ -1,5 +1,6 @@
 import type { Locator, Page } from '@playwright/test';
 
+import { FIELD_DIMENSIONS, FIELD_METRICS } from '../../../packages/admin/src/google/analytics-reports.js';
 import { GOOGLE_SCOPES } from '../../../packages/admin/src/google/scopes.js';
 import { expectStateSound } from '../../support/state-check.js';
 import { adminVisit } from '../../tour/states.js';
@@ -9,6 +10,9 @@ import { seedPhotosCity } from '../support/photos.js';
 import { followDeepLink, SetupPage, standInProviderPages } from '../support/setup-page.js';
 import { ADMIN_LOCK, expect, test } from '../support/test.js';
 import type { UpstreamControl } from '../support/upstream.js';
+
+/** Every field dimension and metric the button registers (a new measurement adds one). */
+const REPORTS = String(FIELD_DIMENSIONS.length + Object.keys(FIELD_METRICS).length);
 
 // One admin test at a time (the emulators are one Firebase project): see ADMIN_LOCK.
 test.describe.configure({ lock: ADMIN_LOCK });
@@ -155,7 +159,7 @@ test(
         expect(await reportsConsent.requestedScopes()).toEqual([GOOGLE_SCOPES.analyticsEdit]);
         await reportsConsent.allow(setupBudget.consents('analytics'));
         const done = card.locator('.reports');
-        await expect(done).toHaveText(setupText(lang, 'adminSetup.analytics.reportsDone', { created: '23', skipped: '0' }));
+        await expect(done).toHaveText(setupText(lang, 'adminSetup.analytics.reportsDone', { created: REPORTS, skipped: '0' }));
         expect(await definitions(upstream)).toMatchObject({
             'properties/400000001/customDimensions': expect.arrayContaining([expect.objectContaining({ parameterName: 'window_class' })]),
             'properties/400000001/customMetrics': expect.arrayContaining([
@@ -167,7 +171,7 @@ test(
         // Idempotent: the tab still holds the Analytics token, so no consent; every definition is there already.
         const asked = (await consent.requests()).length;
         await inputs.click(reports);
-        await expect(done).toHaveText(setupText(lang, 'adminSetup.analytics.reportsDone', { created: '0', skipped: '23' }));
+        await expect(done).toHaveText(setupText(lang, 'adminSetup.analytics.reportsDone', { created: '0', skipped: REPORTS }));
         expect(await consent.requests()).toHaveLength(asked);
         expect((await upstream.calls('browser', 'analytics-admin')).filter((call) => call.method === 'POST')).toHaveLength(23);
     },
@@ -237,7 +241,7 @@ test(
         await upstream.fail('analytics-admin', null, 'browser');
         await inputs.click(reports);
         await expect(card.locator('.reports')).toHaveText(
-            setupText(lang, 'adminSetup.analytics.reportsDone', { created: '23', skipped: '0' }),
+            setupText(lang, 'adminSetup.analytics.reportsDone', { created: REPORTS, skipped: '0' }),
         );
         // Finding 49: the last failure went with its attempt (the card's alert regions stay, empty).
         await expect(card.getByRole('alert').filter({ hasText: permission })).toHaveCount(0);

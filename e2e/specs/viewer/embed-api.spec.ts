@@ -101,7 +101,8 @@ test(
         );
         await page.goto(sitePath('bucharest', { lang }));
 
-        const expected = t(lang, 'error.config.container', { selector: '#nope' });
+        // In English whatever the page's language: the engine's console messages for the city owner are (mount.ts).
+        const expected = t('en', 'error.config.container', { selector: '#nope' });
         await expect.poll(() => logged.some((text) => text.includes(expected))).toBe(true);
         await expect(page.locator('hcm-map-viewer')).toHaveCount(0);
         await expect(page.locator('#historic-city-map')).toBeEmpty();

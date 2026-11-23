@@ -214,7 +214,8 @@ test(
         await openViewer(page, { lang, hash: `${EMPTY_VIEW}&layers=${E2E_TILESET_LAYER.id}&op=${E2E_TILESET_LAYER.id}:150,photos:-20` });
 
         await expectColourAt(page, await mapFraction(page, 0.5, 0.3), E2E_TILESET_LAYER.colour, '150 % draws the layer at 100 %');
-        await expect.poll(() => opEntries(page)).toEqual({ photos: '0' });
+        // 0 is never written back (the owner, 2026-11-22): photos clamped to 0 leave the link, the layer's 100 % is its default.
+        await expect.poll(() => opEntries(page)).toEqual({});
         await openLayers(page, lang);
         await expect(opacitySlider(page, lang, LAYER_LABEL)).toHaveAttribute('aria-valuenow', '100');
         await openPhotoOptions(page, lang);

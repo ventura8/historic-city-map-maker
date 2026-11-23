@@ -46,28 +46,7 @@ export class HcmPhotoList extends LitElement {
             }
 
             .kinds {
-                display: flex;
-                flex-wrap: wrap;
-                gap: 8px;
                 margin: 0 0 8px;
-                padding: 0;
-                border: 0;
-            }
-
-            .kinds label {
-                display: inline-flex;
-                align-items: center;
-                gap: 4px;
-                min-block-size: 48px;
-                padding-inline: 12px;
-                border: 1px solid var(--md-sys-color-outline);
-                border-radius: var(--md-sys-shape-corner-small);
-                cursor: pointer;
-            }
-
-            .kinds label:has(input:checked) {
-                background: var(--md-sys-color-secondary-container);
-                color: var(--md-sys-color-on-secondary-container);
             }
 
             .count {
@@ -174,25 +153,18 @@ export class HcmPhotoList extends LitElement {
             return html``;
         }
         const shown = KIND_FILTERS.filter((filter) => filter === 'all' || filter === 'ground' || kinds.has(filter));
-        const choose = (filter: PhotoKindFilter): void => {
-            this.kindFilter = filter;
+        // The kit's segmented button: a bare radio drew no border a visitor could see and was a 13 px target (the tour).
+        const options = shown.map((filter) => ({ value: filter, label: translate(this.locale, `photos.filter.${filter}`) }));
+        const choose = (event: CustomEvent<{ value: PhotoKindFilter }>): void => {
+            this.kindFilter = event.detail.value;
         };
-        return html`<fieldset class="kinds">
-            <legend class="visually-hidden">${translate(this.locale, 'photos.filter')}</legend>
-            ${shown.map(
-                (filter) =>
-                    html`<label
-                        ><input
-                            type="radio"
-                            name="kind"
-                            .checked=${this.kindFilter === filter}
-                            @change=${() => {
-                                choose(filter);
-                            }}
-                        />${translate(this.locale, `photos.filter.${filter}`)}</label
-                    >`,
-            )}
-        </fieldset>`;
+        return html`<hcm-segmented-button
+            class="kinds"
+            .options=${options}
+            .value=${this.kindFilter}
+            .label=${translate(this.locale, 'photos.filter')}
+            @hcm-change=${choose}
+        ></hcm-segmented-button>`;
     }
 
     /**

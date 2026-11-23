@@ -105,15 +105,31 @@ function rootHostIn(element: Element, viewer: HTMLElement): Element {
     return root instanceof ShadowRoot && root.host !== viewer ? rootHostIn(root.host, viewer) : element;
 }
 
-/** A point at the middle of `viewer`: where a move starts on the map or with nothing focused. */
-function middleOf(viewer: HTMLElement): Box {
-    const box = viewer.getBoundingClientRect();
-    const x = (box.left + box.right) / 2;
+/**
+ * Where a move starts on the map or with nothing focused: the map's middle row, as wide as the map (the viewer's middle
+ * without a map). From there a step goes to a control over or under the map, never into a pane beside it: the D-pad's
+ * down went into the Layers pane and walked its list instead of reaching the timeline (the TV tour, 2026-11-23).
+ */
+function mapStart(viewer: HTMLElement, root: ShadowRoot): Box {
+    const box = (root.querySelector('canvas') ?? viewer).getBoundingClientRect();
     const y = (box.top + box.bottom) / 2;
-    return { left: x, right: x, top: y, bottom: y };
+    return { left: box.left, right: box.right, top: y, bottom: y };
 }
 
-/** Moves the focus to the nearest reachable control going `direction`; true when it moved. */
+/** Whether `element` lies across `start`'s width: under or over it, not beside it. */
+function inColumn(element: HTMLElement, start: Box): boolean {
+    const box = element.getBoundingClientRect();
+    const middle = (box.left + box.right) / 2;
+    return start.left <= middle && middle <= start.right;
+}
+
+/** Whether `element` shows inside `screen`: a control scrolled out of a pane (past the screen's bottom) is not on screen. */
+function onScreen(element: HTMLElement, screen: Box): boolean {
+    const box = element.getBoundingClientRect();
+    return box.bottom > screen.top && box.top < screen.bottom && box.right > screen.left && box.left < screen.right;
+}
+
+/** Moves the focus to the nearest reachable control on screen going `direction`; true when it moved. */
 export function moveFocus(viewer: HTMLElement, direction: Direction): boolean {
     const root = viewer.shadowRoot;
     if (root === null) {
@@ -121,9 +137,11 @@ export function moveFocus(viewer: HTMLElement, direction: Direction): boolean {
     }
     const active = activeIn(viewer);
     const control = controlIn(viewer);
-    const from = control === null ? middleOf(viewer) : control.getBoundingClientRect();
-    const reachable = tabbableElements(root).filter((element) => element !== active && !isInert(element));
-    const target = nearest(from, reachable, direction);
+    const from = control === null ? mapStart(viewer, root) : control.getBoundingClientRect();
+    const screen = viewer.getBoundingClientRect();
+    const reachable = tabbableElements(root).filter((element) => element !== active && !isInert(element) && onScreen(element, screen));
+    const column = control === null ? reachable.filter((element) => inColumn(element, from)) : [];
+    const target = nearest(from, column.length > 0 ? column : reachable, direction);
     target?.focus();
     return target !== null;
 }

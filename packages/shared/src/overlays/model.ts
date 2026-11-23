@@ -12,6 +12,7 @@ import { clamp, roundTo } from '../geo/math.js';
 import type { Layer, Manifest } from '../schemas/manifest.js';
 import type { PoiCategory } from '../schemas/poi.js';
 import { PHOTOS_OVERLAY_ID } from '../schemas/primitives.js';
+import { categoryLabel } from './place-media.js';
 import type { HashState } from '../url/hash.js';
 
 export const OVERLAY_KINDS = ['raster', 'photos', 'poi'] as const;
@@ -78,9 +79,15 @@ export function findOverlay(overlays: readonly Overlay[], id: string): Overlay |
     return overlays.find((candidate) => candidate.id === id);
 }
 
-/** An overlay's name in `locale`: the photos' from the catalogue (fetched after this module loads), a city's own otherwise. */
+/**
+ * An overlay's name in `locale`: the photos' and the built-in "Place media" category's from the catalogue (fetched after
+ * this module loads; the category's own label has only Romanian and English), a city's own otherwise.
+ */
 export function overlayLabel(target: Overlay, locale: ViewerLocale): string {
-    return target.kind === 'photos' ? translate(locale, 'layers.photos') : localized(target.label, locale);
+    if (target.kind === 'photos') {
+        return translate(locale, 'layers.photos');
+    }
+    return target.kind === 'poi' ? categoryLabel({ id: target.id, label: target.label }, locale) : localized(target.label, locale);
 }
 
 /** Opacity as the slider and the hash show it: a whole percent, 0 to 100. */

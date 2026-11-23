@@ -4,7 +4,7 @@ import { VIEWER_CATALOGUES } from '@hcm/shared/viewer-catalogues';
 import { describe, expect, it } from 'vitest';
 
 import type { CatalogueLoader } from '../src/core/catalogues.js';
-import { mount } from '../src/mount.js';
+import { bootDeclaredIn, mount } from '../src/mount.js';
 import { settle } from './core/support.js';
 import { config, FakeContainer, testEnvironment } from './mount-support.js';
 
@@ -93,5 +93,17 @@ describe('a boot error in a language not bundled', () => {
 
         expect(world.viewer.getAttribute('lang')).toBe('hi');
         expect(world.viewer.bootError).toEqual({ code: 'error.mapLoad', retryable: false });
+    });
+
+    it('badPath_aViewerWhoseBootFailedIsNotBootedAgainWhenItConnects', async () => {
+        const languages = catalogues('es');
+        const world = testEnvironment({ catalogues: languages.make, location: { search: '?lang=es' } });
+
+        mount(new FakeContainer().element, undefined, world.env);
+        // Connected before its card has its texts, as a page's container appends it: the declared bootstrap leaves it be.
+        bootDeclaredIn(() => world.env)(world.viewer);
+        await settle();
+
+        expect(world.viewer.bootError).toEqual({ code: 'error.config.missing', retryable: false });
     });
 });

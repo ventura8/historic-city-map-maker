@@ -118,7 +118,8 @@ test(
         test.setTimeout(150_000);
         const inbox = await seedUnread(adminWorld, PAST_THE_PAGE);
         await page.goto(cityAddress(lang, 'inbox'));
-        await expect(page.locator('hcm-inbox-page a.row[data-unread]')).toHaveCount(50, { timeout: FUNCTIONS_TIMEOUT_MS });
+        // Every admin list is read whole since 2026-11-22 (fc079ffd): the 51 rows are all there, past the server's page of 50.
+        await expect(page.locator('hcm-inbox-page a.row[data-unread]')).toHaveCount(PAST_THE_PAGE, { timeout: FUNCTIONS_TIMEOUT_MS });
 
         await page.getByRole('button', { name: notifyText(lang, 'adminContent.notify.markAllRead') }).click();
 
