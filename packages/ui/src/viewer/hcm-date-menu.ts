@@ -297,12 +297,15 @@ export class HcmDateMenu extends LitElement {
     #place(pair: HTMLElement, at: Box): void {
         const host = this.getBoundingClientRect();
         const local = (box: Box): Box => ({ x: box.x - host.x, y: box.y - host.y, width: box.width, height: box.height });
-        const anchor = local(at);
         const avoided = this.avoid().map(local);
         const side = this.#side();
+        // Above a lying card: from the card's top, not the thumb's, so the row never reaches down over the card.
+        const thumb = local(at);
+        const top = side === 'above' ? cardTop(thumb, avoided) : thumb.y;
+        const anchor = { ...thumb, y: top, height: thumb.y + thumb.height - top };
         const widest = this.side ? PAIR_MAX_WIDTH : MAX_WIDTH;
         pair.style.setProperty('max-inline-size', `${String(sideRoom(anchor, host.width, side, widest))}px`);
-        pair.style.setProperty('max-block-size', `${String(pairHeight({ ...anchor, y: cardTop(anchor, avoided) }, host.height, side))}px`);
+        pair.style.setProperty('max-block-size', `${String(pairHeight(anchor, host.height, side))}px`);
         // Measured at the corner: an absolute box shrinks to the room past its left, so a box placed right was measured narrow.
         pair.style.setProperty('left', '0px');
         const size = { width: pair.offsetWidth, height: pair.offsetHeight };
