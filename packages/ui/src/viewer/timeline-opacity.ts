@@ -120,7 +120,9 @@ export class OpacityReveal {
             },
             true,
         );
-        root.addEventListener('pointermove', this.onThumbMove);
+        root.addEventListener('pointermove', (event) => {
+            this.onThumbMove(event as PointerEvent);
+        });
         root.addEventListener('pointerup', onThumb(this.onThumbUp));
         root.addEventListener('focusin', onThumb(this.onFocusIn));
         root.addEventListener('focusout', onThumb(this.onFocusOut));
