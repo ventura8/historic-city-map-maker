@@ -252,6 +252,17 @@ describe('<hcm-date-menu> as a peek (a pointer resting on the year)', () => {
         expect(side.bottom - host.top).toBeLessThanOrEqual(ANCHOR.y + 1 - 8 + 0.5);
     });
 
+    it('badPath_aboveALyingCardThePairEndsAboveTheCardNotOnlyAboveTheThumb', async () => {
+        const card = { x: 0, y: ANCHOR.y - 12, width: 400, height: 80 };
+        const element = await menu({ side: true, avoid: () => [card] });
+        const sliders = document.createElement('div');
+        sliders.style.cssText = 'height: 900px';
+        element.append(sliders);
+        await element.updateComplete;
+        const pair = shadowQuery(element, '.pair').getBoundingClientRect();
+        expect(pair.bottom - element.getBoundingClientRect().top).toBeLessThanOrEqual(card.y - 8 + 0.5);
+    });
+
     it('badPath_pairHeightKeepsAMinimumAndUsesTheViewerBesideAStandingTimeline', () => {
         expect(pairHeight({ ...ANCHOR, y: 40 }, 700, 'above')).toBe(96);
         expect(pairHeight(ANCHOR, 700, 'above')).toBe(484);

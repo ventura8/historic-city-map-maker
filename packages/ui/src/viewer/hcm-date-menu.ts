@@ -36,6 +36,14 @@ type Box = DatesOpenDetail['anchor'];
 /** The properties that move or resize the menu or its sliders. */
 const PLACING: readonly (keyof HcmDateMenu)[] = ['anchor', 'side', 'items', 'vertical'];
 
+/** The top of the box the anchor lies in (the timeline's card around its thumb), else the anchor's own. */
+function cardTop(anchor: Box, boxes: readonly Box[]): number {
+    const x = anchor.x + anchor.width / 2;
+    const y = anchor.y + anchor.height / 2;
+    const around = boxes.filter((box) => x >= box.x && x <= box.x + box.width && y >= box.y && y <= box.y + box.height);
+    return Math.min(anchor.y, ...around.map((box) => box.y));
+}
+
 /** Whether the point (`x`, `y`) is in `rect`, its edges included. */
 function contains(rect: DOMRect, x: number, y: number): boolean {
     return x >= rect.left && x <= rect.right && y >= rect.top && y <= rect.bottom;
@@ -95,7 +103,7 @@ export class HcmDateMenu extends LitElement {
                 flex: 0 1 auto;
                 flex-direction: column;
                 box-sizing: border-box;
-                min-inline-size: 0;
+                min-inline-size: 112px;
                 max-inline-size: 280px;
                 max-block-size: inherit;
                 padding-block: 8px;
@@ -112,7 +120,9 @@ export class HcmDateMenu extends LitElement {
                 flex: 0 1 240px;
                 flex-direction: column;
                 box-sizing: border-box;
-                min-inline-size: 0;
+
+                /* The kit's slider needs about 150 px: the dates give way first on a narrow phone. */
+                min-inline-size: 152px;
                 max-block-size: inherit;
                 padding: 8px 16px;
                 overflow: auto;
@@ -288,15 +298,16 @@ export class HcmDateMenu extends LitElement {
         const host = this.getBoundingClientRect();
         const local = (box: Box): Box => ({ x: box.x - host.x, y: box.y - host.y, width: box.width, height: box.height });
         const anchor = local(at);
+        const avoided = this.avoid().map(local);
         const side = this.#side();
         const widest = this.side ? PAIR_MAX_WIDTH : MAX_WIDTH;
         pair.style.setProperty('max-inline-size', `${String(sideRoom(anchor, host.width, side, widest))}px`);
-        pair.style.setProperty('max-block-size', `${String(pairHeight(anchor, host.height, side))}px`);
+        pair.style.setProperty('max-block-size', `${String(pairHeight({ ...anchor, y: cardTop(anchor, avoided) }, host.height, side))}px`);
         // Measured at the corner: an absolute box shrinks to the room past its left, so a box placed right was measured narrow.
         pair.style.setProperty('left', '0px');
         const size = { width: pair.offsetWidth, height: pair.offsetHeight };
         const wanted = { ...dateMenuOrigin(anchor, size, host, side), ...size };
-        const origin = clearOf(wanted, [anchor, ...this.avoid().map(local)], host, LEGAL_STRIP);
+        const origin = clearOf(wanted, [anchor, ...avoided], host, LEGAL_STRIP);
         pair.style.setProperty('left', `${String(origin.x)}px`);
         pair.style.setProperty('top', `${String(origin.y)}px`);
     }
