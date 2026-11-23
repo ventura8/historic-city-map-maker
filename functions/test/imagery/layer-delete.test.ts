@@ -96,7 +96,17 @@ describe('layer-delete: the scene of the deleted layer', () => {
 
     it('happyPath_aFailedTryOfTheDeletedLayerNoLongerHoldsItsScene @S-A33-HAPPY-DELETED-FREES-FAILED', async () => {
         const world = await dueWorld();
-        await seedVersion(world, 'v-failed', renderedVersion({ jobId: 'v-failed', layerId: 'corona-1968', state: 'failed', error: { code: 'apiError.imagery.cityNotFound' }, createdAt: at('2026-10-02T08:00:00.000Z') }));
+        await seedVersion(
+            world,
+            'v-failed',
+            renderedVersion({
+                jobId: 'v-failed',
+                layerId: 'corona-1968',
+                state: 'failed',
+                error: { code: 'apiError.imagery.cityNotFound' },
+                createdAt: at('2026-10-02T08:00:00.000Z'),
+            }),
+        );
         await seedScene(world, 'DS-RETRIED', { status: 'imported', layerId: 'corona-1968' });
 
         expect(await runLayerDelete(world.deps, CITY, 'ld-1')).toBe('succeeded');
@@ -107,7 +117,16 @@ describe('layer-delete: the scene of the deleted layer', () => {
 
     it('badPath_aFailedTryOfALayerNotDeletedStillHoldsItsScene @S-A33-BAD-FAILED-NOT-DELETED-HOLDS', async () => {
         const world = await readyWorld();
-        await seedVersion(world, 'v-failed', renderedVersion({ jobId: 'v-failed', layerId: 'corona-1970', state: 'failed', error: { code: 'apiError.imagery.cityNotFound' } }));
+        await seedVersion(
+            world,
+            'v-failed',
+            renderedVersion({
+                jobId: 'v-failed',
+                layerId: 'corona-1970',
+                state: 'failed',
+                error: { code: 'apiError.imagery.cityNotFound' },
+            }),
+        );
         await seedScene(world, 'DS-TRY', { status: 'imported', layerId: 'corona-1970' });
 
         await releaseScenes(world.deps, CITY);

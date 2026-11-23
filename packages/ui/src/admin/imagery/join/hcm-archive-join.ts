@@ -174,6 +174,10 @@ export class HcmArchiveJoin extends LitElement {
         this.chosen = next;
     }
 
+    #replacingIf(): TemplateResult | typeof nothing {
+        return extendable(this.version) && this.started === null ? this.#replacing() : nothing;
+    }
+
     #replacing(): TemplateResult {
         return html`<div class="replace" data-archive-join="replace">
             <h3>${this.#t('adminContent.imagery.join.replaceTitle')}</h3>
@@ -185,13 +189,20 @@ export class HcmArchiveJoin extends LitElement {
                             type="checkbox"
                             data-replace-with=${candidate.id}
                             .checked=${this.chosen.has(candidate.id)}
-                            @change=${(event: Event) => this.#toggle(candidate.id, (event.target as HTMLInputElement).checked)}
+                            @change=${(event: Event) => {
+                                this.#toggle(candidate.id, (event.target as HTMLInputElement).checked);
+                            }}
                         />
                         ${labelText(candidate.label, this.locale)}</label
                     >`,
             )}
             <div class="actions">
-                <hcm-button variant="filled" icon="layers" data-replace-run ?disabled=${this.busy || this.chosen.size < 2} @click=${() => void this.#replace()}
+                <hcm-button
+                    variant="filled"
+                    icon="layers"
+                    data-replace-run
+                    ?disabled=${this.busy || this.chosen.size < 2}
+                    @click=${() => void this.#replace()}
                     >${this.#t('adminContent.imagery.join.replaceRun', { count: String(this.chosen.size) })}</hcm-button
                 >
             </div>
@@ -219,8 +230,7 @@ export class HcmArchiveJoin extends LitElement {
                     year: String(version.year),
                 })}
             </p>
-            ${this.started === null ? this.#buttons() : this.#startedLink(this.started)}
-            ${adding && this.started === null ? this.#replacing() : nothing}
+            ${this.started === null ? this.#buttons() : this.#startedLink(this.started)} ${this.#replacingIf()}
         </section>`;
     }
 

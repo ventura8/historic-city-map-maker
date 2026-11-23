@@ -89,8 +89,7 @@ export const en: Readonly<Record<AdminImageryKey, string>> = {
     'adminContent.imagery.join.addTitle': 'Add sheets to this join',
     'adminContent.imagery.join.addIntro': 'Maps of {year} not in this join. Picking one rebuilds it on the same layer.',
     'adminContent.imagery.join.replaceTitle': 'Replace the sheets of this join',
-    'adminContent.imagery.join.replaceIntro':
-        "Tick the new sheets: they join onto this layer as its next version and the old sheets leave the join. The layer's unapproved join is rejected.",
+    'adminContent.imagery.join.replaceIntro': 'Tick the new sheets: they become this layer’s next version, the old ones leave.',
     'adminContent.imagery.join.replaceRun': 'Join the {count} sheets onto this layer',
     'adminContent.imagery.join.again': 'Join again',
     'adminContent.imagery.join.againNote': 'Rebuilds the join with the same sheets on the same layer, for example after a fix.',
@@ -219,7 +218,7 @@ export const en: Readonly<Record<AdminImageryKey, string>> = {
     'adminContent.imagery.makeLiveGone': 'Its tiles were removed after a newer version replaced it. Choose Calibrate again.',
     'adminContent.imagery.locateAgain': 'Locate again',
     'adminContent.imagery.redraw': 'Redraw at full resolution',
-    'adminContent.imagery.notice.redrawing': 'The map is being drawn again from its original with the same points, as a new version. The one on the map stays until you approve it.',
+    'adminContent.imagery.notice.redrawing': 'Drawing it again from the original, same points; the old map stays till approved.',
     'adminContent.imagery.fixTiles': 'Fix the tiles',
     // M9 (docs/research/M9-calibration.md §8)
     'adminContent.imagery.calibration.how.votes': 'Found automatically',

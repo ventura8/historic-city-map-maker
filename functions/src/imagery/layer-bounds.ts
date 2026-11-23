@@ -54,7 +54,11 @@ async function corrected(deps: LayerBoundsDeps, cityId: string, layer: LayerDoc,
         return undefined;
     }
     const version = await deps.documents.get(FIRESTORE_PATHS.layerVersion(cityId, layer.currentVersion), layerVersionDocSchema);
-    const output = version?.output;
+    return correctedFrom(layer, version?.output, window);
+}
+
+/** The bounds the version's output gives a wrongly bounded layer; undefined when they are right already. */
+function correctedFrom(layer: LayerDoc, output: Output | undefined, window: Bounds): Bounds | undefined {
     if (output === undefined || !wronglyBounded(layer, output, window)) {
         return undefined;
     }

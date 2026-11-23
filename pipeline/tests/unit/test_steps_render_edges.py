@@ -122,7 +122,7 @@ def _rgba(path: Path, alpha_interp: int) -> None:
 
 
 def test_happy_path_an_upload_with_an_alpha_keeps_its_transparency_as_the_mask(tmp_path: Path) -> None:
-    """Scenarios: S-P34-HAPPY-UPLOAD-ALPHA. A ready GeoTIFF's transparent pixels stay transparent, not solid black."""
+    """Scenarios: S-P34-HAPPY-UPLOAD-ALPHA"""
     source = tmp_path / "rgba.tif"
     _rgba(source, gdal.GCI_AlphaBand)
 
@@ -136,9 +136,9 @@ def test_happy_path_an_upload_with_an_alpha_keeps_its_transparency_as_the_mask(t
 
 
 def test_bad_path_a_fourth_band_that_is_not_an_alpha_masks_nothing(tmp_path: Path) -> None:
-    """Scenarios: S-P34-BAD-UPLOAD-NO-ALPHA. A fourth band that is not an alpha is no mask; every pixel stays."""
+    """Scenarios: S-P34-BAD-UPLOAD-NO-ALPHA"""
     source = tmp_path / "rgbx.tif"
-    _rgba(source, gdal.GCI_Undefined)
+    _rgba(source, gdal.GCI_GrayIndex)
 
     scan = gdal.Open(str(write_scan(source, tmp_path / "scan.tif")))
     assert scan.GetRasterBand(1).GetMaskFlags() == gdal.GMF_ALL_VALID

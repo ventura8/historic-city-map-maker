@@ -5,7 +5,7 @@
  * compute-unit choices, and the GeoTIFF upload. The happy path is search (by itself when the harvest is stale), Import,
  * then nothing: the pipeline georeferences and the policy publishes under the city's threshold.
  */
-import { isId, type PublishChoice } from '@hcm/shared';
+import { isId } from '@hcm/shared';
 
 import type { AreaModule, AreaStore } from '../content/areas.js';
 import type { ContentServices } from '../content/services.js';
@@ -25,6 +25,7 @@ import { INITIAL_IMAGERY, type ImageryDetail, type ImageryIntents, type ImageryS
 import { RasterUploader } from './upload.js';
 import { VersionPage, type VersionPageState } from './version.js';
 import { VersionImage } from './version-image.js';
+import { versionPageIntents, type VersionPageIntents } from './version-intents.js';
 import { VersionThumbs } from './version-thumbs.js';
 
 /** The routed item's id when it is a `kind`, else null. */
@@ -223,42 +224,10 @@ class ImageryStore implements AreaStore<ImageryState, ImageryIntents> {
     }
 
     /** The version's page: its decisions, its job, its preview on the map. */
-    #versionIntents(): Pick<
-        ImageryIntents,
-        | 'approve'
-        | 'recalibrate'
-        | 'toggleCurrent'
-        | 'reject'
-        | 'confirmRights'
-        | 'deleteVersion'
-        | 'makeLive'
-        | 'choose'
-        | 'studioDone'
-        | 'download'
-        | 'retryJob'
-        | 'locateAgain'
-        | 'fixTiles'
-        | 'redraw'
-        | 'cancelJob'
-        | 'setPreviewOpacity'
-        | 'actualPixels'
-        | 'retryImage'
-        | 'attachMap'
-        | 'zoomBy'
-    > {
-        const version = this.#version;
+    #versionIntents(): VersionPageIntents &
+        Pick<ImageryIntents, 'setPreviewOpacity' | 'actualPixels' | 'retryImage' | 'attachMap' | 'zoomBy'> {
         return {
-            ...{
-                approve: (acceptWorse?: boolean) => version.approve(acceptWorse),
-                recalibrate: () => version.recalibrate(),
-                toggleCurrent: version.toggleCurrent.bind(version),
-                reject: () => version.reject(),
-                confirmRights: (confirmedBy: string) => version.confirmRights(confirmedBy),
-                choose: (choice: PublishChoice) => version.choose(choice),
-            },
-            ...{ deleteVersion: () => version.deleteVersion(), makeLive: () => version.makeLive() },
-            ...{ studioDone: () => version.studioDone(), download: () => version.download(), retryJob: () => version.retry() },
-            ...{ locateAgain: () => version.locateAgain(), fixTiles: () => version.fixTiles(), redraw: () => version.redraw(), cancelJob: () => version.cancel() },
+            ...versionPageIntents(this.#version),
             setPreviewOpacity: (percent) => {
                 this.#setOpacity(percent);
             },

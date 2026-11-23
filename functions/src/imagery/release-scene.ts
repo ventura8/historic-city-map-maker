@@ -12,6 +12,7 @@ import {
     layerDocSchema,
     layerVersionDocSchema,
     usgsSceneDocSchema,
+    type LayerVersionDoc,
     type OrderState,
     type UsgsSceneDoc,
 } from '@hcm/shared';
@@ -41,6 +42,11 @@ export function freedScene(scene: UsgsSceneDoc, stamp: Stamp): UsgsSceneDoc {
     return { ...omit(withoutImportOrder(scene), ['layerId']), status: 'candidate', ...stamp };
 }
 
+/** A version's state still holds the layer's id: a failed one no more once the layer's deletion has run. */
+function stillHolds(state: LayerVersionDoc['state'], deleted: boolean): boolean {
+    return holdsLayerId(state) && !(deleted && state === 'failed');
+}
+
 /**
  * True when one of the layer's versions (`ids`, re-read in the transaction) may still become its layer. Once the layer's
  * deletion has run (`deleted`), a failed version cannot: its files are gone (live 2026-11-23: a deleted layer with a failed
@@ -49,7 +55,7 @@ export function freedScene(scene: UsgsSceneDoc, stamp: Stamp): UsgsSceneDoc {
 async function versionHolds(transaction: DocumentTransaction, cityId: string, ids: readonly string[], deleted: boolean): Promise<boolean> {
     for (const id of ids) {
         const version = await transaction.get(FIRESTORE_PATHS.layerVersion(cityId, id), layerVersionDocSchema);
-        if (version !== undefined && holdsLayerId(version.state) && !(deleted && version.state === 'failed')) {
+        if (version !== undefined && stillHolds(version.state, deleted)) {
             return true;
         }
     }

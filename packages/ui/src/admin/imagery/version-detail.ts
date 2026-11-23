@@ -204,11 +204,20 @@ function fixTilesButton(shown: Shown): TemplateResult {
 /** States a single map may be drawn again in, from its original with its own points. */
 const REDRAWABLE: ReadonlySet<string> = new Set(['published', 'awaiting_approval']);
 
-/** 2026-11-23: a single map placed by points (not a join, not a series laid out by tiles), on the map or waiting for approval. */
-export function redrawable(version: VersionViewPort | null): boolean {
-    const georef = version?.georef;
-    const placed = georef !== null && georef !== undefined && georef.method !== 'embedded' && georef.pairs > 0;
-    return placed && version !== null && version.origin !== 'join' && version.relayoutable !== true && REDRAWABLE.has(version.state);
+/** The single maps (an archive map, an upload, one placed again), never a camera frame or a join. */
+const REDRAW_ORIGINS: ReadonlySet<string> = new Set(['archive', 'upload', 'regeoref']);
+
+/** Placed by points of its own (not a file's embedded georeference). */
+function placedByPoints(georef: VersionViewPort['georef']): boolean {
+    return georef !== null && georef.method !== 'embedded' && georef.pairs > 0;
+}
+
+/** 2026-11-23: a single map placed by points (not a series laid out by tiles), on the map or waiting for approval. */
+function redrawable(version: VersionViewPort | null): boolean {
+    if (version === null || version.relayoutable === true) {
+        return false;
+    }
+    return REDRAW_ORIGINS.has(version.origin) && REDRAWABLE.has(version.state) && placedByPoints(version.georef);
 }
 
 function redrawButton(shown: Shown): TemplateResult {
@@ -482,8 +491,8 @@ function body(shown: Shown): TemplateResult {
     return html`<div class="pane" data-version=${page.id} data-state=${stateOf(version, job)}>
         ${heading(shown)} ${reconnectingStatus(locale, reconnecting)} ${progress(locale, job)} ${failure(shown)}
         <div class="actions">
-            ${retryButton(shown)} ${locateButton(shown)} ${fixTilesButton(shown)} ${redrawButton(shown)} ${uploadAnother(shown)} ${mapboxSetupLink(shown)}
-            ${tilesLink(shown)} ${georefLink(shown)} ${deleteVersionButton(shown)}
+            ${retryButton(shown)} ${locateButton(shown)} ${fixTilesButton(shown)} ${redrawButton(shown)} ${uploadAnother(shown)}
+            ${mapboxSetupLink(shown)} ${tilesLink(shown)} ${georefLink(shown)} ${deleteVersionButton(shown)}
             ${makeLiveAction(shown.context, shown.page, shown.version)}
         </div>
         ${versionRunAgain(context, version)} ${runPlace(shown)} ${refusal(shown)}

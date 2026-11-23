@@ -14637,7 +14637,7 @@
             "path": "happy",
             "title": "A single map is redrawn at full resolution with its own points",
             "asserts": "Redraw at full resolution on a map placed by points -> imagery.saveGcps with its transform, points and crop: a new version warped from the original",
-            "tier": "functions",
+            "tier": "e2e-admin",
             "status": "exists",
             "notes": "Owner 2026-11-23 (the 1974 cadastral plan). Tests: packages/admin/test/imagery/version.test.ts, packages/ui/test/admin/imagery/imagery-fix-tiles.test.ts."
         },
@@ -14648,7 +14648,7 @@
             "path": "bad",
             "title": "No redraw for a join, a series, a file placed by itself or a map with no points",
             "asserts": "those versions offer no Redraw; a version without points sends nothing",
-            "tier": "functions",
+            "tier": "e2e-admin",
             "status": "exists",
             "notes": "Owner 2026-11-23. Tests: packages/admin/test/imagery/version.test.ts, packages/ui/test/admin/imagery/imagery-fix-tiles.test.ts."
         },

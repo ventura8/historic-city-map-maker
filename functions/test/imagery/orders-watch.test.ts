@@ -420,7 +420,11 @@ describe('the import of a delivery', () => {
 
     it('happyPath_aDeliveryMarkedImportedIntoADeletedLayerIsImportedAgain @S-A13-HAPPY-REIMPORT-DELETED', async () => {
         const world = await readyWorld();
-        await seedPaid(world, PAID, { status: 'imported', layerId: 'gone-1965', order: order({ state: 'delivered', importJobId: 'im-old' }) });
+        await seedPaid(world, PAID, {
+            status: 'imported',
+            layerId: 'gone-1965',
+            order: order({ state: 'delivered', importJobId: 'im-old' }),
+        });
 
         await tickAt(world, NOW);
 

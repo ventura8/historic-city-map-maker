@@ -65,7 +65,15 @@ describe('imagery: Redraw at full resolution', () => {
     beforeAll(defineImagery);
     afterEach(cleanup);
 
-    const placed = { method: 'gcps', transform: 'poly1' as const, pairs: 8, fitRmseM: 3, checkpointRmseM: null, checkpointCount: null, checkpointKind: null };
+    const placed = {
+        method: 'gcps',
+        transform: 'affine' as const,
+        pairs: 8,
+        fitRmseM: 3,
+        checkpointRmseM: null,
+        checkpointCount: null,
+        checkpointKind: null,
+    };
 
     it('happyPath_aSingleMapPlacedByPointsIsRedrawn @S-A16-HAPPY-REDRAW', async () => {
         const { element, area } = await placedSeries({ relayoutable: false, georef: placed });
@@ -82,7 +90,7 @@ describe('imagery: Redraw at full resolution', () => {
         ['no points', { relayoutable: false, georef: null }],
         ['a version not on the map', { relayoutable: false, state: 'rejected', georef: placed }],
     ] as const)('badPath_noRedrawFor_%s @S-A16-BAD-REDRAW', async (_name, overrides) => {
-        const { element } = await placedSeries(overrides as Partial<VersionViewPort>);
+        const { element } = await placedSeries(overrides);
 
         expect(deepAll(element, 'hcm-button').some((found) => found.textContent.includes('Redraw at full resolution'))).toBe(false);
     });

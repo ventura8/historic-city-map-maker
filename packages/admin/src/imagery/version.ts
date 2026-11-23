@@ -313,12 +313,18 @@ export class VersionPage {
      */
     redraw(): Promise<boolean> {
         const data = this.#version.state.doc?.data;
-        const georef = data?.georef;
-        if (georef === undefined) {
+        if (data?.georef === undefined) {
             return Promise.resolve(false);
         }
-        const crop = data?.crop === undefined ? {} : { crop: data.crop };
-        const request = (id: string) => ({ cityId: this.#services.cityId, versionId: id, transform: georef.transform, gcps: georef.gcps, ...crop });
+        const georef = data.georef;
+        const crop = data.crop === undefined ? {} : { crop: data.crop };
+        const request = (id: string) => ({
+            cityId: this.#services.cityId,
+            versionId: id,
+            transform: georef.transform,
+            gcps: georef.gcps,
+            ...crop,
+        });
         return this.#act('redraw', 'imagery.saveGcps', request, { key: 'adminContent.imagery.notice.redrawing' });
     }
 

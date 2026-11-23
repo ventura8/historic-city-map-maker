@@ -26,6 +26,7 @@ GCI_GreenBand: int
 GCI_BlueBand: int
 GCI_AlphaBand: int
 GMF_PER_DATASET: int
+GMF_ALL_VALID: int
 
 GeoTransform = tuple[float, float, float, float, float, float]
 ProgressCallback = Callable[[float, str, object], int]

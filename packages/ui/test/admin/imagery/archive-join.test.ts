@@ -121,6 +121,44 @@ describe('<hcm-archive-join>', () => {
         expect(asked.joins).toEqual([['ar-north', 'rg-west', 'rg-south']]);
     });
 
+    it('badPath_aJoinOfCameraFramesOrNotPublishedIsOfferedNoSheets @S-A65-BAD-ARCHIVE-ADD-SHEETS', () => {
+        const frames = [{ versionId: 'v1', layerId: 'a', entityId: 'DS1' }];
+        expect(archiveJoinOffered(versionView({ origin: 'join', state: 'published', parts: frames, archiveMap: false }))).toBe(false);
+        const parts = [{ versionId: 'v1', layerId: 'a', entityId: 'v1' }];
+        expect(archiveJoinOffered(versionView({ origin: 'join', state: 'awaiting_approval', parts, archiveMap: false }))).toBe(false);
+    });
+
+    it('happyPath_aJoinRunsAgainWithItsSameParts @S-A65-HAPPY-ARCHIVE-JOIN-AGAIN', async () => {
+        const parts = [
+            { versionId: 'ar-north', layerId: 'n', entityId: 'ar-north' },
+            { versionId: 'rg-west', layerId: 'w', entityId: 'rg-west' },
+        ];
+        const joined = versionView({ id: 'jn-n', layerId: 'n', year: 1978, origin: 'join', state: 'published', parts, partOf: null });
+        const { element, asked } = await mount(joined, []);
+
+        expect(deepText(element)).toContain('Join again');
+        click(deep(element, '[data-join-again]'));
+        await updated(element);
+
+        expect(asked.joins).toEqual([['ar-north', 'rg-west']]);
+        expect(deep(element, '[data-state="archive-join-started"] a').getAttribute('href')).toBe('#/imagery/version/jn-n');
+    });
+
+    it('badPath_aJoinOnItsWayIsNotRunAgain @S-A65-BAD-ARCHIVE-JOIN-AGAIN', async () => {
+        const parts = [{ versionId: 'ar-north', layerId: 'n', entityId: 'ar-north' }];
+        const { element } = await mount(versionView({ origin: 'join', state: 'awaiting_approval', parts, archiveMap: false }), []);
+
+        expect(deepAll(element, '[data-join-again]')).toEqual([]);
+    });
+
+    it('badPath_withNoOtherMapOfItsYearNothingShows', async () => {
+        const { element } = await mount(NORTH, []);
+
+        expect(deepAll(element, '[data-archive-join]')).toEqual([]);
+    });
+});
+
+describe('<hcm-archive-join>: replacing the sheets', () => {
     it('happyPath_aPublishedJoinsSheetsAreReplacedByTheTickedOnesOnItsLayer @S-A65-HAPPY-JOIN-TARGET', async () => {
         const parts = [
             { versionId: 'ar-north', layerId: 'n', entityId: 'ar-north' },
@@ -171,41 +209,5 @@ describe('<hcm-archive-join>', () => {
 
         expect(asked.targets).toEqual(['n']);
         expect(deep(element, '[data-replace-run]')).not.toBeNull();
-    });
-
-    it('badPath_aJoinOfCameraFramesOrNotPublishedIsOfferedNoSheets @S-A65-BAD-ARCHIVE-ADD-SHEETS', () => {
-        const frames = [{ versionId: 'v1', layerId: 'a', entityId: 'DS1' }];
-        expect(archiveJoinOffered(versionView({ origin: 'join', state: 'published', parts: frames, archiveMap: false }))).toBe(false);
-        const parts = [{ versionId: 'v1', layerId: 'a', entityId: 'v1' }];
-        expect(archiveJoinOffered(versionView({ origin: 'join', state: 'awaiting_approval', parts, archiveMap: false }))).toBe(false);
-    });
-
-    it('happyPath_aJoinRunsAgainWithItsSameParts @S-A65-HAPPY-ARCHIVE-JOIN-AGAIN', async () => {
-        const parts = [
-            { versionId: 'ar-north', layerId: 'n', entityId: 'ar-north' },
-            { versionId: 'rg-west', layerId: 'w', entityId: 'rg-west' },
-        ];
-        const joined = versionView({ id: 'jn-n', layerId: 'n', year: 1978, origin: 'join', state: 'published', parts, partOf: null });
-        const { element, asked } = await mount(joined, []);
-
-        expect(deepText(element)).toContain('Join again');
-        click(deep(element, '[data-join-again]'));
-        await updated(element);
-
-        expect(asked.joins).toEqual([['ar-north', 'rg-west']]);
-        expect(deep(element, '[data-state="archive-join-started"] a').getAttribute('href')).toBe('#/imagery/version/jn-n');
-    });
-
-    it('badPath_aJoinOnItsWayIsNotRunAgain @S-A65-BAD-ARCHIVE-JOIN-AGAIN', async () => {
-        const parts = [{ versionId: 'ar-north', layerId: 'n', entityId: 'ar-north' }];
-        const { element } = await mount(versionView({ origin: 'join', state: 'awaiting_approval', parts, archiveMap: false }), []);
-
-        expect(deepAll(element, '[data-join-again]')).toEqual([]);
-    });
-
-    it('badPath_withNoOtherMapOfItsYearNothingShows', async () => {
-        const { element } = await mount(NORTH, []);
-
-        expect(deepAll(element, '[data-archive-join]')).toEqual([]);
     });
 });

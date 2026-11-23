@@ -91,8 +91,7 @@ export const ro = {
     'adminContent.imagery.join.addTitle': 'Adaugă foi la această unire',
     'adminContent.imagery.join.addIntro': 'Hărți din {year} ce nu sunt în unire. Una aleasă reface unirea pe același strat.',
     'adminContent.imagery.join.replaceTitle': 'Înlocuiește foile acestei uniri',
-    'adminContent.imagery.join.replaceIntro':
-        'Bifează foile noi: se unesc pe acest strat ca versiunea lui următoare, iar foile vechi ies din unire. O unire neaprobată a stratului e respinsă.',
+    'adminContent.imagery.join.replaceIntro': 'Bifează foile noi: devin versiunea următoare a stratului, foile vechi ies din unire.',
     'adminContent.imagery.join.replaceRun': 'Unește cele {count} foi pe acest strat',
     'adminContent.imagery.join.again': 'Unește din nou',
     'adminContent.imagery.join.againNote': 'Reface unirea cu aceleași foi, pe același strat, de exemplu după o reparație.',
@@ -221,7 +220,7 @@ export const ro = {
     'adminContent.imagery.deleteVersion': 'Șterge această versiune',
     'adminContent.imagery.locateAgain': 'Localizează din nou',
     'adminContent.imagery.redraw': 'Redesenează la rezoluție maximă',
-    'adminContent.imagery.notice.redrawing': 'Harta se redesenează din original cu aceleași puncte, ca versiune nouă. Cea de pe hartă rămâne până o aprobi.',
+    'adminContent.imagery.notice.redrawing': 'Se redesenează din original cu aceleași puncte; harta veche rămâne până aprobi.',
     'adminContent.imagery.fixTiles': 'Repară foile',
     // M9 (docs/research/M9-calibration.md §8)
     'adminContent.imagery.calibration.how.votes': 'Găsită automat',
