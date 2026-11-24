@@ -20761,6 +20761,17 @@
             "notes": "M20 paths (docs/research/M20-import-local.md §3, §15). Tests: pipeline/tests/unit/test_placing_embedded.py."
         },
         {
+            "id": "S-P20-BAD-EMBEDDED-OFFSET",
+            "behaviour": "P20",
+            "area": "pipeline",
+            "path": "bad",
+            "title": "A coarse georeference (sheet-index corners) waits in Help calibrate with corrected points",
+            "asserts": "a 200 m shift found by line tiles -> awaiting_gcps 'check the corrected points offered'; the lattice suggestions within 25 m of the truth, medium score; scattered tiles give no correction",
+            "tier": "e2e-pipeline",
+            "status": "exists",
+            "notes": "The PDT 1:20 000 sheets, 2026-11-24 (docs/LESSONS.md). Tests: pipeline/tests/unit/test_placing_embedded.py."
+        },
+        {
             "id": "S-P20-HAPPY-EMBEDDED-PHOTO",
             "behaviour": "P20",
             "area": "pipeline",
