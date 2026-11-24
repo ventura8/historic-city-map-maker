@@ -31,11 +31,13 @@ import {
     at,
     imageryWorld,
     readJob,
+    readLayer,
     readVersion,
     readyWorld,
     seedCity,
     seedGuard,
     seedJob,
+    seedLayer,
     seedSetup,
     type ImageryWorld,
 } from './world.js';
@@ -290,6 +292,56 @@ describe('imagery.archiveImport, what is refused', () => {
 
         await expect(failureOf(importAll(world, 1))).resolves.toMatchObject({ code: 'failed-precondition' });
         expect(await readArchive(world)).not.toHaveProperty('jobs');
+    });
+});
+
+describe('imagery.archiveImport, a sharper scan replacing a layer', () => {
+    const replacing = { series: [{ seriesId: seriesIdOf(0), include: true, replaces: 'planul-1846' }] };
+
+    it('happyPath_aLayerWithoutRightsKeepsTheReportsOwn', async () => {
+        const world = await readyWorld();
+        await seedArchive(world, archiveDoc(1));
+        await seedLayer(world, 'planul-1846');
+
+        const response = await importAll(world, 1, replacing);
+
+        expect((await readVersion(world, response.jobs[0]?.jobId ?? ''))?.rights).toEqual(archiveSeries(0).rights);
+    });
+
+    it('happyPath_theSeriesJoinsTheExistingLayerAsPending_itsLabelYearAndRightsCarryOver @S-A120-HAPPY-REPLACE-LAYER', async () => {
+        const world = await readyWorld();
+        await seedArchive(world, archiveDoc(1));
+        const source = { label: 'Muzeul Municipiului', url: 'https://example.org/1846' };
+        const rights = { licence: 'PD' as const, author: 'Rudolf Arthur Borroczyn', source };
+        await seedLayer(world, 'planul-1846', { label: { ro: 'Planul 1846' }, year: 1846, rights, currentVersion: 'rg-old' });
+
+        const response = await importAll(world, 1, replacing);
+
+        const jobId = response.jobs[0]?.jobId ?? '';
+        expect(response.jobs[0]).toMatchObject({ layerId: 'planul-1846' });
+        expect(await readVersion(world, jobId)).toMatchObject({ layerId: 'planul-1846', label: { ro: 'Planul 1846' }, year: 1846 });
+        expect((await readVersion(world, jobId))?.rights).toEqual({
+            licence: 'PD',
+            state: 'clear',
+            year: '1846',
+            author: 'Rudolf Arthur Borroczyn',
+            sourceLabel: 'Muzeul Municipiului',
+            sourceUrl: 'https://example.org/1846',
+        });
+        expect(await readLayer(world, 'planul-1846')).toMatchObject({ currentVersion: 'rg-old', pendingVersion: jobId });
+    });
+
+    it('badPath_aMissingLayerOrOneWithAVersionPendingIsRefused @S-A120-BAD-REPLACE-LAYER', async () => {
+        const world = await readyWorld();
+        await seedArchive(world, archiveDoc(1));
+        await expect(failureOf(importAll(world, 1, replacing))).resolves.toMatchObject({ code: 'not-found' });
+
+        await seedLayer(world, 'planul-1846', { pendingVersion: 'rg-other' });
+        await expect(failureOf(importAll(world, 1, replacing))).resolves.toMatchObject({ details: { code: 'apiError.layers.busy' } });
+        await seedLayer(world, 'planul-1846');
+        await seedJob(world, 'rg-running', { ...waitingJob(), layerId: 'planul-1846', status: 'running' });
+        await expect(failureOf(importAll(world, 1, replacing))).resolves.toMatchObject({ details: { code: 'apiError.layers.busy' } });
+        expect((await jobsOf(world)).map((job) => job.versionId)).toEqual(['rg-1']);
     });
 });
 

@@ -334,6 +334,7 @@ For Bucharest:
 6. **Rights confirmation.** A dialog per flagged series, with the question and a free-text "permission from", logged in `rights.confirmedBy` and `rights.confirmedAt`. Publish stays disabled until it is done.
 7. **Home → What needs you** (M18 §7) lists series waiting for points or rights.
 8. **Strings and states.** Every string is in `ro` and `en`, in a lazy chunk `archive` with its own i18n catalogue (as M7's `admin-worker`). Every state joins `e2e/tour/states.ts`.
+9. **A sharper scan replaces a layer** (2026-11-24; S-A120-*-REPLACE-LAYER). A series chosen with `replaces: <layerId>` (an existing layer of the city) is not given a new layer: its version joins that layer as `pendingVersion`, with the layer's label, year and rights (licence, author, source; cleared, since the layer is already on the map), and the layer keeps its tiles until the new version is approved, as for a re-run (`regeoref`). A missing layer is `apiError.notFound`; one with a version pending or a job under way is `apiError.layers.busy`. The owner's rule "always the highest-resolution variant at full size" is met this way without a duplicate layer.
 
 ## 9. Viewer
 

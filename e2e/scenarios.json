@@ -18618,6 +18618,28 @@
             "notes": "M20 (docs/research/M20-import-local.md). Tests: functions/test/imagery/archive-import.test.ts."
         },
         {
+            "id": "S-A120-HAPPY-REPLACE-LAYER",
+            "behaviour": "A120",
+            "area": "admin",
+            "path": "happy",
+            "title": "A sharper scan imported to replace an existing layer joins that layer as its pending version",
+            "asserts": "a series imported with replaces -> its version is on the existing layer with the layer's label, year and rights (cleared), the layer keeps its current version and shows the new one as pending; a layer without rights keeps the report's",
+            "tier": "functions",
+            "status": "exists",
+            "notes": "M20 §8 item 9 (docs/research/M20-import-local.md). Tests: functions/test/imagery/archive-import.test.ts."
+        },
+        {
+            "id": "S-A120-BAD-REPLACE-LAYER",
+            "behaviour": "A120",
+            "area": "admin",
+            "path": "bad",
+            "title": "A replacement for a missing or busy layer is refused",
+            "asserts": "replaces names no layer -> not-found; the layer has a pending version or a running job -> apiError.layers.busy; no job is created",
+            "tier": "functions",
+            "status": "exists",
+            "notes": "M20 §8 item 9. Tests: functions/test/imagery/archive-import.test.ts."
+        },
+        {
             "id": "S-A120-BAD-DAILY-SPLITS",
             "behaviour": "A120",
             "area": "admin",

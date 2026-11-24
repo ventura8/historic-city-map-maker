@@ -45,6 +45,11 @@ const seriesChoiceSchema = z.strictObject({
     title: plainText(200).optional(),
     year: z.number().int().min(1800).max(2100).optional(),
     rights: rightsSchema.optional(),
+    /**
+     * The city's existing layer this series replaces (a sharper scan of the same map): its version joins that layer, which keeps its
+     * tiles, credit and licence until the new one is approved, instead of a new layer beside it.
+     */
+    replaces: idSchema.optional(),
 });
 
 /** `imagery.archiveImport`: the archive's series to import (the others are left out), each at most once. */

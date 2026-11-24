@@ -3,6 +3,7 @@ import '../global-options.js';
 import {
     FIRESTORE_PATHS,
     archiveDocSchema,
+    layerDocSchema,
     timestampFromDate,
     yearSchema,
     type ArchiveDoc,
@@ -10,14 +11,16 @@ import {
     type ArchiveSeriesParams,
     type CallableRequest,
     type CallableResponse,
+    type LayerDoc,
     type Rights,
 } from '@hcm/shared';
 
 import type { VerifiedCaller } from '../api/access.js';
 import { ApiError } from '../api/api-error.js';
 import { defineCallable, type CallableDeps } from '../api/callable.js';
+import type { DocumentTransaction } from '../ports/documents.js';
 import type { Ports } from '../ports/index.js';
-import { passTurnstile, refuseWhileGuardRed } from './limits.js';
+import { passTurnstile, refuseBusyLayer, refuseWhileGuardRed } from './limits.js';
 import { requireCity, stampOf } from './records.js';
 import { createWork, jobIdFor, reserveLayerIds, type NewWork } from './versions.js';
 
@@ -45,6 +48,8 @@ interface Kept {
     readonly title: string;
     readonly year: number;
     readonly rights: Rights;
+    /** The existing layer the series replaces, when the owner chose one. */
+    readonly replaces?: string;
 }
 
 /** A skipped series may be imported only when it was skipped as too small (the owner insists: it is imported at the zoom it supports). */
@@ -111,6 +116,7 @@ function keptOf(archive: ArchiveDoc, choice: Choice, importer: Importer): Kept {
         title: choice.title ?? series.title,
         year,
         rights: choice.year === undefined ? rights : { ...rights, year: String(year) },
+        ...(choice.replaces === undefined ? {} : { replaces: choice.replaces }),
     };
 }
 
@@ -184,7 +190,7 @@ function planOf(request: Request, kept: readonly Kept[], start: Start) {
                 jobId: jobIdFor('ar', start.now, each.series.seriesId),
                 type: 'archive-series',
                 params: paramsOf(request.archiveId, each.series),
-                layerId: layerIdFor(each.title),
+                layerId: each.replaces ?? layerIdFor(each.title),
                 createdBy: start.uid,
                 now: start.now,
                 runOn: 'local',
@@ -196,6 +202,54 @@ function planOf(request: Request, kept: readonly Kept[], start: Start) {
 }
 
 /**
+ * The layer a replacing series joins, or undefined for a new layer. It must exist and have no other version under way or waiting
+ * (`apiError.notFound`, `apiError.layers.busy`); its label, year and rights (credit and licence) carry over to the new version.
+ */
+async function replacedLayer(transaction: DocumentTransaction, work: NewWork, kept: Kept): Promise<LayerDoc | undefined> {
+    if (kept.replaces === undefined) {
+        return undefined;
+    }
+    const layer = await transaction.get(FIRESTORE_PATHS.layer(work.cityId, kept.replaces), layerDocSchema);
+    if (layer === undefined) {
+        throw new ApiError('apiError.notFound');
+    }
+    if (layer.pendingVersion !== undefined) {
+        throw new ApiError('apiError.layers.busy');
+    }
+    return layer;
+}
+
+/**
+ * The rights of a replacing version: the replaced layer's licence, author and source, cleared as that layer already is on the map
+ * (the owner published it); the report's own when the layer has none.
+ */
+function rightsFrom(layer: LayerDoc | undefined, own: Rights): Rights {
+    const rights = layer?.rights;
+    if (layer === undefined || rights === undefined) {
+        return own;
+    }
+    return {
+        licence: rights.licence,
+        state: 'clear',
+        year: String(layer.year),
+        ...(rights.author === undefined ? {} : { author: rights.author }),
+        ...(rights.source === undefined ? {} : { sourceLabel: rights.source.label }),
+        ...(rights.source?.url === undefined ? {} : { sourceUrl: rights.source.url }),
+    };
+}
+
+/** The replaced layer keeps its tiles and shows the new version as pending until it is approved (as a re-run on the same layer). */
+async function markPending(transaction: DocumentTransaction, work: NewWork, layer: LayerDoc | undefined): Promise<void> {
+    if (layer !== undefined) {
+        await transaction.set(FIRESTORE_PATHS.layer(work.cityId, work.layerId), layerDocSchema, {
+            ...layer,
+            pendingVersion: work.jobId,
+            ...stampOf(work.createdBy, work.now),
+        });
+    }
+}
+
+/**
  * Everything in one transaction: the archive still unimported, today's room counted behind the turnstile (`ops/daily`, so a
  * concurrent import or daily release never spends the same room), the jobs and versions, and the archive's record of its jobs.
  */
@@ -204,13 +258,15 @@ async function writeAll(deps: ArchiveImportDeps, request: Request, kept: readonl
         const archive = await requireFresh(transaction, request);
         const planned = planOf(request, kept, start)(await reserveLayerIds(deps.documents, request.cityId));
         for (const { kept: each, work } of planned) {
+            const replaced = await replacedLayer(transaction, work, each);
             await createWork(transaction, work, {
                 origin: 'archive',
                 source: { kind: 'archive', archiveId: request.archiveId, seriesId: each.series.seriesId, sheetCount: each.series.files },
-                label: { ro: each.title },
-                year: each.year,
-                rights: each.rights,
+                label: replaced?.label.ro === undefined ? { ro: each.title } : { ro: replaced.label.ro },
+                year: replaced?.year ?? each.year,
+                rights: rightsFrom(replaced, each.rights),
             });
+            await markPending(transaction, work, replaced);
         }
         const added = Object.fromEntries(planned.map(({ kept: each, work }) => [each.series.seriesId, work.jobId]));
         await transaction.set(FIRESTORE_PATHS.archive(request.cityId, request.archiveId), archiveDocSchema, {
@@ -235,6 +291,11 @@ async function archiveImport(
     const importer = { owner: caller.membership?.roleIn(request.cityId) === 'owner', cityId: request.cityId, now: start.now };
     const kept = keptInOrder(await requireFresh(deps.documents, request), request, importer);
     await refuseWhileGuardRed(deps.documents);
+    for (const each of kept) {
+        if (each.replaces !== undefined) {
+            await refuseBusyLayer(deps.documents, request.cityId, each.replaces);
+        }
+    }
     const planned = await writeAll(deps, request, kept, start);
     const waiting = planned.filter((each) => each.waiting).length;
     deps.log.info('archive imported', {
