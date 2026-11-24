@@ -277,7 +277,7 @@ export class HcmDateMenu extends LitElement implements DateRowView {
         }
         return html`${this.#scrim()}
             <div class="pair" @pointerenter=${this.#onPointer} @pointerleave=${this.#onPointer}>
-                <div class="menu" role="menu" aria-label=${this.label} data-layout-check="date-menu" @keydown=${this.#onKey}>
+                <div class="menu" role="menu" aria-label=${this.label} data-layout-check="date-menu" @keydown=${this.#onKey} @focusin=${this.#onFocus}>
                     ${this.items.map((item) => dateRow(this, item, this))}
                 </div>
                 ${this.side ? html`<div class="side" @keydown=${this.#onSideKey}><slot></slot></div>` : EMPTY}
@@ -329,6 +329,20 @@ export class HcmDateMenu extends LitElement implements DateRowView {
         if (changed.has('anchor')) {
             this.#focusChecked();
         }
+        this.#keepFocus();
+    }
+
+    /** The part of a row that last had the focus. */
+    #focused: HTMLElement | null = null;
+
+    readonly #onFocus = (event: FocusEvent): void => {
+        this.#focused = event.target as HTMLElement;
+    };
+
+    /** A checkbox switched on became the front's, disabled, and lost the focus: its date takes it, so Tab and the arrows go on. */
+    #keepFocus(): void {
+        const row = this.#focused?.matches(':disabled') === true ? this.#focused.closest('.row') : null;
+        row?.querySelector<HTMLElement>('.item')?.focus();
     }
 
     /** A modal menu takes the focus to the checked date, else the first; a peek leaves it where it is. */

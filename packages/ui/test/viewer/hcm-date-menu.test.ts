@@ -70,51 +70,6 @@ describe('<hcm-date-menu>', () => {
         expect(events).toEqual([{ type: 'hcm-date-pick', detail: { layerId: 'c' } }]);
     });
 
-    it('happyPath_eachRowsCheckboxShowsOrHidesItsLayerAndTheFrontStaysOn', async () => {
-        const element = await menu({ shown: new Set(['a', 'c']), showLabel: (name: string) => `Arată pe hartă: ${name}` });
-        const events = recordEvents(element, 'hcm-date-show', 'hcm-date-pick');
-        const boxes = shadowQueryAll(element, '.box') as HTMLButtonElement[];
-
-        expect(boxes.map((box) => box.getAttribute('aria-checked'))).toEqual(['false', 'true', 'true']);
-        expect(boxes.map((box) => box.disabled)).toEqual([false, true, false]);
-        expect(boxes[0]?.getAttribute('aria-label')).toBe('Arată pe hartă: Corona A, 12 aprilie 1966');
-        const target = boxes[0]?.parentElement?.getBoundingClientRect();
-        expect(getComputedStyle(boxes[0] as Element, '::after').width).toBe('48px');
-        expect([target?.width, target?.height]).toEqual([40, 48]);
-        boxes[0]?.click();
-        boxes[2]?.click();
-
-        expect(events).toEqual([
-            { type: 'hcm-date-show', detail: { layerId: 'b', visible: true } },
-            { type: 'hcm-date-show', detail: { layerId: 'c', visible: false } },
-        ]);
-    });
-
-    it('happyPath_leftAndRightMoveBetweenARowsCheckboxAndItsDateUpAndDownBetweenRows', async () => {
-        const element = await menu({ selected: null, items: [...ITEMS, { id: 'd', date: '1966', label: '' }] });
-        const active = (): Element | null | undefined => element.shadowRoot?.activeElement;
-        expect(focusedItem(element)).toBe('b');
-
-        key(element, 'ArrowRight');
-        expect(active()?.getAttribute('data-show')).toBe('b');
-        key(element, 'ArrowDown');
-        expect(focusedItem(element)).toBe('a');
-        key(element, 'ArrowLeft');
-        expect(active()?.getAttribute('data-show')).toBe('a');
-        key(element, 'ArrowLeft');
-        expect(focusedItem(element)).toBe('a');
-        expect(shadowQuery(element, '[data-show="d"]').getAttribute('aria-label')).toBe('1966');
-    });
-
-    it('badPath_leftOrRightOutsideARowMoveNothing', async () => {
-        const element = await menu({ selected: null });
-        (element.shadowRoot?.activeElement as HTMLElement | null)?.blur();
-
-        key(element, 'ArrowRight');
-
-        expect(element.shadowRoot?.activeElement ?? null).toBeNull();
-    });
-
     it('badPath_escOrAPressElsewhereClosesWithoutAPickTabDoesNot', async () => {
         const element = await menu();
         const events = recordEvents(element, 'hcm-date-pick', 'hcm-close');
@@ -356,7 +311,7 @@ describe('<hcm-date-menu> placed by its year (the owner, 2026-11-23: never in th
     });
 });
 
-describe('<hcm-date-menu> on a very narrow phone (the owner, 2026-11-24)', () => {
+describe('<hcm-date-menu> on a very narrow phone (the owner, 2026-11-24)", () => {
     afterEach(() => {
         document.body.replaceChildren();
     });
@@ -410,5 +365,66 @@ describe('<hcm-date-menu> on a very narrow phone (the owner, 2026-11-24)', () =>
         expect(
             besideInRow(shadowQuery(element, '.menu').getBoundingClientRect(), shadowQuery(element, '.side').getBoundingClientRect()),
         ).toBe(true);
+    });
+});
+
+describe("<hcm-date-menu>: each row's checkbox (the owner, 2026-11-24)", () => {
+    afterEach(() => {
+        document.body.replaceChildren();
+    });
+
+    it('happyPath_eachRowsCheckboxShowsOrHidesItsLayerAndTheFrontStaysOn', async () => {
+        const element = await menu({ shown: new Set(['a', 'c']), showLabel: (name: string) => `Arată pe hartă: ${name}` });
+        const events = recordEvents(element, 'hcm-date-show', 'hcm-date-pick');
+        const boxes = shadowQueryAll(element, '.box') as HTMLButtonElement[];
+
+        expect(boxes.map((box) => box.getAttribute('aria-checked'))).toEqual(['false', 'true', 'true']);
+        expect(boxes.map((box) => box.disabled)).toEqual([false, true, false]);
+        expect(boxes[0]?.getAttribute('aria-label')).toBe('Arată pe hartă: Corona A, 12 aprilie 1966');
+        const target = boxes[0]?.parentElement?.getBoundingClientRect();
+        expect(getComputedStyle(boxes[0] as Element, '::after').width).toBe('48px');
+        expect([target?.width, target?.height]).toEqual([40, 48]);
+        boxes[0]?.click();
+        boxes[2]?.click();
+
+        expect(events).toEqual([
+            { type: 'hcm-date-show', detail: { layerId: 'b', visible: true } },
+            { type: 'hcm-date-show', detail: { layerId: 'c', visible: false } },
+        ]);
+    });
+
+    it('happyPath_leftAndRightMoveBetweenARowsCheckboxAndItsDateUpAndDownBetweenRows', async () => {
+        const element = await menu({ selected: null, items: [...ITEMS, { id: 'd', date: '1966', label: '' }] });
+        const active = (): Element | null | undefined => element.shadowRoot?.activeElement;
+        expect(focusedItem(element)).toBe('b');
+
+        key(element, 'ArrowRight');
+        expect(active()?.getAttribute('data-show')).toBe('b');
+        key(element, 'ArrowDown');
+        expect(focusedItem(element)).toBe('a');
+        key(element, 'ArrowLeft');
+        expect(active()?.getAttribute('data-show')).toBe('a');
+        key(element, 'ArrowLeft');
+        expect(focusedItem(element)).toBe('a');
+        expect(shadowQuery(element, '[data-show="d"]').getAttribute('aria-label')).toBe('1966');
+    });
+
+    it('badPath_aCheckboxThatBecomesTheFrontsLeavesTheFocusOnItsDate', async () => {
+        const element = await menu({ shown: new Set(['a']) });
+        shadowQuery(element, '[data-show="b"]').focus();
+
+        Object.assign(element, { selected: 'b', shown: new Set(['a', 'b']) });
+        await element.updateComplete;
+
+        expect(focusedItem(element)).toBe('b');
+    });
+
+    it('badPath_leftOrRightOutsideARowMoveNothing', async () => {
+        const element = await menu({ selected: null });
+        (element.shadowRoot?.activeElement as HTMLElement | null)?.blur();
+
+        key(element, 'ArrowRight');
+
+        expect(element.shadowRoot?.activeElement ?? null).toBeNull();
     });
 });

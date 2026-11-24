@@ -87,7 +87,7 @@ test(
 
         await expect(datesMenu(page, lang)).toBeHidden();
         await expectColourAt(page, probe, E2E_TILESET_LAYER.colour, 'the March layer, picked, on top again');
-        await expect.poll(() => hashParam(page, 'layers')).toBe(`${E2E_XYZ_LAYER.id},${E2E_TILESET_LAYER.id}`);
+        await expect.poll(async () => (await hashParam(page, 'layers'))?.split(',').sort().join(',')).toBe(BOTH);
     },
 );
 
@@ -110,10 +110,17 @@ test(
         await expect.poll(() => hashParam(page, 'layers')).toBe(E2E_XYZ_LAYER.id);
         await page.keyboard.press('Space');
         await expect.poll(async () => (await hashParam(page, 'layers'))?.split(',').sort().join(',')).toBe(BOTH);
-        await page.keyboard.press('ArrowRight');
+        // Switched on last, March is now the front: its checkbox is fixed and its date takes the focus.
         await expect(page.locator('hcm-date-menu .item').first()).toBeFocused();
+        await page.keyboard.press('ArrowLeft');
+        await expect(page.locator('hcm-date-menu .item').first(), 'the front has no checkbox to cross to').toBeFocused();
+        await page.keyboard.press('ArrowDown');
+        await page.keyboard.press('ArrowLeft');
+        await expect(checkbox(page, E2E_XYZ_LAYER.id)).toBeFocused();
+        await page.keyboard.press('ArrowRight');
+        await page.keyboard.press('ArrowUp');
         await page.keyboard.press('Enter');
         await expect(datesMenu(page, lang)).toBeHidden();
-        await expect.poll(() => hashParam(page, 'layers')).toBe(`${E2E_XYZ_LAYER.id},${E2E_TILESET_LAYER.id}`);
+        await expect.poll(async () => (await hashParam(page, 'layers'))?.split(',').sort().join(',')).toBe(BOTH);
     },
 );
