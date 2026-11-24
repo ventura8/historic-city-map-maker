@@ -13,7 +13,6 @@ function host(store: FakeStore, photoReturn: Pick<PhotoReturn, 'back'>): Handler
         setOpacity: vi.fn(),
         services: vi.fn(),
         focusTimeline: vi.fn(),
-        closeDates: vi.fn(),
         mapMenu: vi.fn(),
         photoReturn: photoReturn as PhotoReturn,
     };

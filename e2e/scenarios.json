@@ -3150,6 +3150,28 @@
             "notes": "Owner 2026-11-24. Tests: packages/ui/test/viewer/hcm-date-menu.test.ts, packages/ui/test/viewer/timeline-dock.test.ts, e2e/specs/viewer/date-menu-check.spec.ts."
         },
         {
+            "id": "S-V13-HAPPY-PICK-KEEPS-OPEN",
+            "behaviour": "V13",
+            "area": "viewer",
+            "path": "happy",
+            "title": "Picking a date keeps the year panel open",
+            "asserts": "A click or Enter on a date brings it to the front and the panel stays open; Esc then closes it and the focus returns to the slider",
+            "tier": "e2e-viewer",
+            "status": "exists",
+            "notes": "Owner 2026-11-24. Tests: packages/ui/test/viewer/timeline-dock-peek.test.ts, e2e/specs/viewer/timeline-dates.spec.ts, e2e/specs/viewer/date-menu-check.spec.ts, e2e/specs/viewer/timeline-peek.spec.ts."
+        },
+        {
+            "id": "S-V13-BAD-PICK-CLOSES-PANEL",
+            "behaviour": "V13",
+            "area": "viewer",
+            "path": "bad",
+            "title": "A picked date never closes the panel",
+            "asserts": "After a pick (also a pick of a hidden date, or one in a mouse peek) the menu is still visible; only a press outside, Esc or the pill closes it",
+            "tier": "e2e-viewer",
+            "status": "exists",
+            "notes": "Owner 2026-11-24. Tests: packages/ui/test/viewer/timeline-dock-peek.test.ts, e2e/specs/viewer/timeline-dates.spec.ts, e2e/specs/viewer/date-menu-check.spec.ts, e2e/specs/viewer/timeline-peek.spec.ts."
+        },
+        {
             "id": "S-V13-HAPPY-CHECK-KEYBOARD",
             "behaviour": "V13",
             "area": "viewer",

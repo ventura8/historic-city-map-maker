@@ -43,7 +43,14 @@ async function openOn1980(page: Page, lang: Locale): Promise<void> {
 
 test(
     'Selecting a year with two dates opens them; the date picked comes to the front',
-    { tag: ['@S-V68-HAPPY-PICK-DATE', '@S-V13-HAPPY-TICKS-EVERY-SHOWN-PLAN', '@S-V13-BAD-HIDDEN-PLAN-UNTICKED'] },
+    {
+        tag: [
+            '@S-V68-HAPPY-PICK-DATE',
+            '@S-V13-HAPPY-TICKS-EVERY-SHOWN-PLAN',
+            '@S-V13-BAD-HIDDEN-PLAN-UNTICKED',
+            '@S-V13-HAPPY-PICK-KEEPS-OPEN',
+        ],
+    },
     async ({ page, lang }) => {
         await openOn1980(page, lang);
         const probe = await mapFraction(page, 0.5, 0.3);
@@ -64,6 +71,9 @@ test(
         await expect(items.last()).toHaveAttribute('aria-checked', 'true');
         await items.first().click();
 
+        await expect(datesMenu(page, lang), 'picking a date keeps the menu open').toBeVisible();
+        await expect(items.first()).toHaveAttribute('aria-checked', 'true');
+        await page.keyboard.press('Escape');
         await expect(datesMenu(page, lang)).toBeHidden();
         await expect(slider(page, lang)).toBeFocused();
         await expectColourAt(page, probe, E2E_TILESET_LAYER.colour, 'the March layer on top');

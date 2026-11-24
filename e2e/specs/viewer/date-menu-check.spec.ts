@@ -72,7 +72,7 @@ test(
 
 test(
     'The layer on top cannot be cleared in the panel; a hidden date picked comes back on top',
-    { tag: '@S-V13-BAD-FRONT-STAYS-ON' },
+    { tag: ['@S-V13-BAD-FRONT-STAYS-ON', '@S-V13-BAD-PICK-CLOSES-PANEL'] },
     async ({ page, lang }) => {
         await openOn1980(page, lang);
         const probe = await mapFraction(page, 0.5, 0.3);
@@ -85,6 +85,8 @@ test(
 
         await page.locator('hcm-date-menu .item', { hasText: CORONA }).click();
 
+        await expect(datesMenu(page, lang), 'picking a date keeps the menu open').toBeVisible();
+        await page.keyboard.press('Escape');
         await expect(datesMenu(page, lang)).toBeHidden();
         await expectColourAt(page, probe, E2E_TILESET_LAYER.colour, 'the March layer, picked, on top again');
         await expect.poll(async () => (await hashParam(page, 'layers'))?.split(',').sort().join(',')).toBe(BOTH);
@@ -120,7 +122,10 @@ test(
         await page.keyboard.press('ArrowRight');
         await page.keyboard.press('ArrowUp');
         await page.keyboard.press('Enter');
+        await expect(datesMenu(page, lang), 'Enter picks without closing').toBeVisible();
+        await page.keyboard.press('Escape');
         await expect(datesMenu(page, lang)).toBeHidden();
+        await expect(slider(page, lang)).toBeFocused();
         await expect.poll(async () => (await hashParam(page, 'layers'))?.split(',').sort().join(',')).toBe(BOTH);
     },
 );

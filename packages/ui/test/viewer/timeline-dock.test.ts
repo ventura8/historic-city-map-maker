@@ -238,6 +238,9 @@ describe('<hcm-map-viewer>: the date picker of a year (V13)', () => {
         await mounted.element.updateComplete;
 
         expect(mounted.store.callsOf('pickLayer')).toEqual([['kh4-1966']]);
+        expect(part(mounted, 'hcm-date-menu'), 'a pick keeps the menu open').not.toBeNull();
+        shadowQuery(menu, '[role="menu"]').dispatchEvent(new KeyboardEvent('keydown', { key: 'Escape', bubbles: true }));
+        await mounted.element.updateComplete;
         expect(mounted.element.shadowRoot?.querySelector('hcm-date-menu')).toBeNull();
         expect(part(mounted, '.frame').inert).toBe(false);
         await vi.waitFor(() => {

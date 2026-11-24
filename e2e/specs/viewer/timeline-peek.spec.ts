@@ -119,7 +119,7 @@ for (const { name, use } of MOUSE_WINDOWS) {
                 await expect(datesMenu(page, lang), 'the way into the menu keeps it').toBeVisible();
                 await page.locator('hcm-date-menu .item', { hasText: 'Corona (e2e)' }).click();
 
-                await expect(datesMenu(page, lang)).toBeHidden();
+                await expect(datesMenu(page, lang), 'picking a date keeps the menu open').toBeVisible();
                 await expect(slider(page, lang)).toHaveAttribute(
                     'aria-valuetext',
                     new RegExp(`^${t(lang, 'timeline.year', { year: '1980' })}`, 'u'),

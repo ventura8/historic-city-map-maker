@@ -21,8 +21,6 @@ export interface HandlerHost {
     setOpacity(store: ViewerStorePort, detail: OverlayOpacityDetail): void;
     services(): ViewerServices;
     focusTimeline(): void;
-    /** V13: closes the timeline's date picker (the focus goes back to the slider). */
-    closeDates(): void;
     /** Opens the map's menu at a point, or closes it (null). */
     mapMenu(point: MenuPoint | null): void;
     /** V75: a photo opened from the list goes back to it (absent: the page's own history). */
@@ -281,8 +279,8 @@ export function createHandlers(host: HandlerHost): ViewerHandlers {
             });
         },
         onDatePick: on((store, event) => {
+            // The menu stays open, as the opacity panel does: only a press outside, Esc or the pill closes it.
             store.pickLayer(event.detail.layerId);
-            host.closeDates();
         }),
     };
 }

@@ -186,7 +186,6 @@ export class HcmMapViewer extends LitElement {
             this.renderRoot.querySelector<HcmTimeline>('#timeline')?.focus();
         },
         // Bound already (an arrow property), and created before the handlers.
-        closeDates: this.#dock.closeDates,
     });
 
     constructor() {

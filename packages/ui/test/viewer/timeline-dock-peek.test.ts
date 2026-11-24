@@ -89,7 +89,7 @@ describe('<hcm-map-viewer>: the peek of a year of several dates (V13)', () => {
         await mounted.element.updateComplete;
 
         expect(mounted.store.callsOf('pickLayer')).toEqual([['kh4-1966b']]);
-        expect(menuOf(mounted)).toBeNull();
+        expect(menuOf(mounted), 'picking a date keeps the menu open').not.toBeNull();
     });
 
     it('happyPath_theMouseOnItsWayToTheMenuKeepsItThenLeavingBothClosesIt', async () => {
