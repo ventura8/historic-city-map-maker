@@ -248,7 +248,7 @@ class HomeStore implements AreaStore<HomeState, HomeIntents> {
             this.#status.show(FIRESTORE_PATHS.setupStatus);
             this.#manifest.show(FIRESTORE_PATHS.manifestState(this.#services.cityId));
             this.#open = true;
-            void this.#watchCosts();
+            void this.#watchCosts().catch((): void => undefined);
             this.#visitors();
             void this.#count();
         }
@@ -285,9 +285,11 @@ class HomeStore implements AreaStore<HomeState, HomeIntents> {
     /** Home's Visitors card: its element's chunk, and the Statistics page's last numbers of this session. */
     #visitors(): void {
         this.#cell.update({ visitors: this.#services.statistics?.latest?.() ?? null });
-        void import('./visitors.js').then(({ defineHcmHomeVisitors }) => {
-            defineHcmHomeVisitors();
-        });
+        void import('./visitors.js')
+            .then(({ defineHcmHomeVisitors }) => {
+                defineHcmHomeVisitors();
+            })
+            .catch((): void => undefined);
     }
 
     /** The Monthly costs card's chunk (its element and its four counters), fetched when the dashboard opens. */
