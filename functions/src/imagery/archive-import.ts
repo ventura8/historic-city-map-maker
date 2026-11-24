@@ -21,7 +21,7 @@ import { defineCallable, type CallableDeps } from '../api/callable.js';
 import type { DocumentTransaction } from '../ports/documents.js';
 import type { Ports } from '../ports/index.js';
 import { passTurnstile, refuseBusyLayer, refuseWhileGuardRed } from './limits.js';
-import { requireCity, stampOf } from './records.js';
+import { pickDefined, requireCity, stampOf } from './records.js';
 import { createWork, jobIdFor, reserveLayerIds, type NewWork } from './versions.js';
 
 /**
@@ -232,9 +232,28 @@ function rightsFrom(layer: LayerDoc | undefined, own: Rights): Rights {
         licence: rights.licence,
         state: 'clear',
         year: String(layer.year),
-        ...(rights.author === undefined ? {} : { author: rights.author }),
-        ...(rights.source === undefined ? {} : { sourceLabel: rights.source.label }),
-        ...(rights.source?.url === undefined ? {} : { sourceUrl: rights.source.url }),
+        ...pickDefined(rights, ['author']),
+        ...sourceFields(rights.source),
+    };
+}
+
+/** A layer's source as a version's rights name it. */
+function sourceFields(source: NonNullable<LayerDoc['rights']>['source']): Pick<Rights, 'sourceLabel' | 'sourceUrl'> {
+    if (source === undefined) {
+        return {};
+    }
+    return source.url === undefined ? { sourceLabel: source.label } : { sourceLabel: source.label, sourceUrl: source.url };
+}
+
+/** The new version's fields: the series' own, or the replaced layer's label, year and rights. */
+function versionFields(request: Request, each: Kept, replaced: LayerDoc | undefined): Parameters<typeof createWork>[2] {
+    const label = replaced?.label.ro ?? each.title;
+    return {
+        origin: 'archive',
+        source: { kind: 'archive', archiveId: request.archiveId, seriesId: each.series.seriesId, sheetCount: each.series.files },
+        label: { ro: label },
+        year: replaced?.year ?? each.year,
+        rights: rightsFrom(replaced, each.rights),
     };
 }
 
@@ -259,13 +278,7 @@ async function writeAll(deps: ArchiveImportDeps, request: Request, kept: readonl
         const planned = planOf(request, kept, start)(await reserveLayerIds(deps.documents, request.cityId));
         for (const { kept: each, work } of planned) {
             const replaced = await replacedLayer(transaction, work, each);
-            await createWork(transaction, work, {
-                origin: 'archive',
-                source: { kind: 'archive', archiveId: request.archiveId, seriesId: each.series.seriesId, sheetCount: each.series.files },
-                label: replaced?.label.ro === undefined ? { ro: each.title } : { ro: replaced.label.ro },
-                year: replaced?.year ?? each.year,
-                rights: rightsFrom(replaced, each.rights),
-            });
+            await createWork(transaction, work, versionFields(request, each, replaced));
             await markPending(transaction, work, replaced);
         }
         const added = Object.fromEntries(planned.map(({ kept: each, work }) => [each.series.seriesId, work.jobId]));

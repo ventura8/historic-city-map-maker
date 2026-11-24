@@ -308,6 +308,16 @@ describe('imagery.archiveImport, a sharper scan replacing a layer', () => {
         expect((await readVersion(world, response.jobs[0]?.jobId ?? ''))?.rights).toEqual(archiveSeries(0).rights);
     });
 
+    it('happyPath_aLayerCreditingNoSourceGivesTheVersionNone', async () => {
+        const world = await readyWorld();
+        await seedArchive(world, archiveDoc(1));
+        await seedLayer(world, 'planul-1846', { year: 1846, rights: { licence: 'PD' } });
+
+        const response = await importAll(world, 1, replacing);
+
+        expect((await readVersion(world, response.jobs[0]?.jobId ?? ''))?.rights).toEqual({ licence: 'PD', state: 'clear', year: '1846' });
+    });
+
     it('happyPath_theSeriesJoinsTheExistingLayerAsPending_itsLabelYearAndRightsCarryOver @S-A120-HAPPY-REPLACE-LAYER', async () => {
         const world = await readyWorld();
         await seedArchive(world, archiveDoc(1));
