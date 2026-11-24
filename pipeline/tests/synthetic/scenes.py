@@ -230,11 +230,19 @@ def render_frame(world: World, truth: Truth) -> UInt8Array:
     return numpy.asarray(numpy.clip(frame, 0, 255), numpy.uint8)
 
 
+def segment_overlap(width: int) -> int:
+    """How many columns two neighbouring segments share: `SEGMENT_OVERLAP_PX`, at most a fifth of the frame (a third of a
+    segment of two). USGS leaves 4 to 23 % and the stitch searches only a segment's last 35 % (`MAX_OVERLAP_SHARE`): the join's
+    1000 px frames shared 300 of their 670 px segments (45 %), so no pair was found (S-P05-HAPPY-ADMIN, docs/LESSONS.md 796)."""
+    return min(SEGMENT_OVERLAP_PX, width // 5)
+
+
 def split_segments(frame: UInt8Array, count: int) -> list[UInt8Array]:
     """Overlapping vertical strips, left to right (USGS's `_a`, `_b`, ... files)."""
     width = frame.shape[1]
-    step = (width + (count - 1) * SEGMENT_OVERLAP_PX) // count
-    starts = [index * (step - SEGMENT_OVERLAP_PX) for index in range(count)]
+    overlap = segment_overlap(width)
+    step = (width + (count - 1) * overlap) // count
+    starts = [index * (step - overlap) for index in range(count)]
     return [frame[:, start : min(width, start + step) if index < count - 1 else width] for index, start in enumerate(starts)]
 
 

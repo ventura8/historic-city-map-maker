@@ -5,6 +5,7 @@ from pathlib import Path
 
 import numpy
 from hcm_pipeline.geo import to_mercator
+from hcm_pipeline.steps.stitch import MAX_OVERLAP_SHARE, MIN_PAIR_SCORE, coarse_match
 
 from tests.synthetic.scenes import (
     CENTRE,
@@ -14,7 +15,10 @@ from tests.synthetic.scenes import (
     affine_scan,
     join_specs,
     main,
+    render_frame,
     render_world,
+    segment_overlap,
+    split_segments,
     truth_for,
     world_grid,
 )
@@ -54,3 +58,22 @@ def test_happy_path_join_writes_each_frame_in_its_entitys_folder(tmp_path: Path)
         assert (tmp_path / name / f"{name}.tgz").exists()
         assert truth["spec"]["entity_id"] == spec.entity_id
         assert abs(truth["spec"]["centre_offset_m"][0]) == JOIN_OFFSET_M
+
+
+def test_happy_path_each_join_frames_segments_continue_each_other_as_the_stitch_reads_them() -> None:
+    """S-P05-HAPPY-ADMIN: the stitch must find each frame's two segments neighbours (they shared 45 % of a segment, past the
+    35 % it searches, and both frames failed at stitch)."""
+    for spec in join_specs(7):
+        frame = render_frame(render_world(spec.seed), truth_for(spec))
+        left, right = split_segments(frame, spec.segments)
+        dx, _dy, score = coarse_match(left, right, 1)
+
+        assert score >= MIN_PAIR_SCORE
+        assert dx == left.shape[1] - segment_overlap(frame.shape[1])
+
+
+def test_edge_an_overlap_stays_inside_the_share_the_stitch_searches() -> None:
+    for width in (540, 1040, 1540, 3000):
+        segment = (width + segment_overlap(width)) // 2
+        assert segment_overlap(width) <= MAX_OVERLAP_SHARE * segment
+    assert segment_overlap(1540) == 300
