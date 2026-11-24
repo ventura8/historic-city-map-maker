@@ -198,6 +198,37 @@ describe('<hcm-blocked-panel>', () => {
 
         expect(deepText(other)).toBe('');
     });
+
+    it('badPath_withoutStateNothingRenders', async () => {
+        const panel = await mount<HcmBlockedPanel>(html`<hcm-blocked-panel></hcm-blocked-panel>`);
+
+        expect(deepText(panel)).toBe('');
+        expect(deepAll(panel, 'hcm-button')).toEqual([]);
+    });
+
+    it('happyPath_contributorWelcomeShowsRestingMessageWithRetryAndBackLink', async () => {
+        const welcome = { cityId: 'bucharest', cityName: 'Bucharest', mapUrl: 'https://example.test/bucharest' };
+        const app = new FakeAdminApp(adminState({ auth: 'backendDown', welcome }));
+        const panel = await mount<HcmBlockedPanel>(html`<hcm-blocked-panel .app=${app} .state=${app.state}></hcm-blocked-panel>`);
+
+        button(panel, 'Try again').click();
+
+        expect(deep(panel, 'h1').textContent).toContain('Bucharest');
+        expect(deep(panel, 'a.back').getAttribute('href')).toBe('https://example.test/bucharest');
+        expect(deepAll(panel, 'hcm-button')).toHaveLength(1);
+        expect(app.named('retry')).toHaveLength(1);
+        expect(await axeViolations(panel)).toEqual([]);
+    });
+
+    it('badPath_contributorClosedShowsClosedMessageAndBackLinkWithoutButtons', async () => {
+        const welcome = { cityId: 'bucharest', cityName: 'Bucharest', mapUrl: 'https://example.test/bucharest' };
+        const app = new FakeAdminApp(adminState({ auth: 'contributeClosed', welcome }));
+        const panel = await mount<HcmBlockedPanel>(html`<hcm-blocked-panel .app=${app} .state=${app.state}></hcm-blocked-panel>`);
+
+        expect(deep(panel, 'h1').textContent).toContain('Bucharest');
+        expect(deep(panel, 'a.back').getAttribute('href')).toBe('https://example.test/bucharest');
+        expect(deepAll(panel, 'hcm-button')).toEqual([]);
+    });
 });
 
 describe('<hcm-consent-note>', () => {
