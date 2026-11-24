@@ -261,3 +261,26 @@ def test_bad_path_two_scans_in_a_scanners_order_are_single_maps() -> None:
 
     assert sorted(series.series_class for series in found.series) == ["single", "single"]
     assert math.isclose(len(found.series), 2)
+
+
+def test_happy_path_a_photo_with_no_junctions_found_reports_no_figure(
+    world: PipelineWorld, tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    """Scenarios: S-P20-HAPPY-EMBEDDED-PHOTO"""
+    ctx = series_context(world, tmp_path, ["bare.tif"], {"class": "georeferenced", "encoding": "colour"})
+    town_geotiff(originals(ctx) / "bare.tif")
+    monkeypatch.setattr(embedded, "street_network", lambda grey: _Scattered(0, max(grey.shape)))
+
+    assert isinstance(PlaceStep().run(ctx), Done)
+    report = world.version()["archive"]
+    assert isinstance(report, dict)
+    assert report["checkpointCount"] == 0
+
+
+@pytest.mark.parametrize("text", ["1\n0\n0\n-1\n5\nfive\n", "1\n0\n0\n-1\n5\n"])
+def test_bad_path_a_world_file_that_is_not_six_numbers_is_no_georeference(tmp_path: Path, text: str) -> None:
+    """Scenarios: S-P20-BAD-EMBEDDED-GEOREFERENCER"""
+    path = tmp_path / "sheet.tif"
+    path.with_suffix(".tfw").write_text(text, encoding="utf-8")
+
+    assert embedded.world_file(path) is None
