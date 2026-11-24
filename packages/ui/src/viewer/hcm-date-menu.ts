@@ -127,22 +127,6 @@ export class HcmDateMenu extends LitElement {
                 pointer-events: none;
             }
 
-            /*
-             * Too narrow for both side by side (beside a standing timeline on a 320 px phone): the sliders under the dates,
-             * as wide as the room, each column scrolling in its share of the height (the owner, 2026-11-24, §249).
-             */
-            .pair[data-stacked] {
-                flex-direction: column;
-                align-items: stretch;
-            }
-
-            .pair[data-stacked] > .menu,
-            .pair[data-stacked] > .side {
-                flex: 0 1 auto;
-                min-block-size: 0;
-                max-inline-size: none;
-            }
-
             .menu {
                 display: flex;
                 flex: 0 1 auto;
@@ -176,6 +160,22 @@ export class HcmDateMenu extends LitElement {
                 color: var(--md-sys-color-on-surface);
                 box-shadow: var(--md-sys-elevation-level2);
                 pointer-events: auto;
+            }
+
+            /*
+             * Too narrow for both side by side (beside a standing timeline on a 320 px phone): the sliders under the dates,
+             * as wide as the room, each column scrolling in its share of the height (the owner, 2026-11-24, §249).
+             */
+            .pair[data-stacked] {
+                flex-direction: column;
+                align-items: stretch;
+            }
+
+            .pair[data-stacked] > .menu,
+            .pair[data-stacked] > .side {
+                flex: 0 1 auto;
+                min-block-size: 0;
+                max-inline-size: none;
             }
 
             .item {

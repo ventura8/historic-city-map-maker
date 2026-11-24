@@ -19,7 +19,7 @@ export const PAIR_MAX_WIDTH = 2 * MAX_WIDTH + EDGE;
  * 152 px (`hcm-date-menu.ts`). Where the room is narrower (beside a standing timeline on a 320 px phone: 228 px) the
  * sliders go under the dates (the owner, 2026-11-24: "Stack on very narrow phones"), DECISIONS-for-review.md §249.
  */
-export const PAIR_MIN_WIDTH = MIN_WIDTH + EDGE + 152;
+const PAIR_MIN_WIDTH = MIN_WIDTH + EDGE + 152;
 /** The fewest px of height the pair keeps above a lying timeline (a short window scrolls its columns). */
 const MIN_HEIGHT = 96;
 
