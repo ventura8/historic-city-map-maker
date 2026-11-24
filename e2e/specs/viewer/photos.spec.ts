@@ -170,7 +170,7 @@ test(
         await clickPhoto(page, NO_BEARING);
         const sheet = detailSheet(page, titleOf(NO_BEARING, lang));
         await expect(sheet).toBeVisible();
-        await expect(viewer(page).locator('hcm-photo-sheet .supporting')).toHaveText(t(lang, 'photo.unknownYear'));
+        await expect(viewer(page).locator('hcm-photo-sheet .supporting:not(.fallback-note)')).toHaveText(t(lang, 'photo.unknownYear'));
     },
 );
 
@@ -199,7 +199,7 @@ const ARCHIVE = { url: 'https://arhiva.example/foto/1976', label: 'Arhiva Operet
 test('A photo reads at the precision of its date', { tag: '@S-V07-HAPPY-PRECISE-DATE' }, async ({ page, lang }) => {
     await serveManifest(page, withPhotoFields({ year: 1976, month: 7, day: 12 }));
     await openViewer(page, { lang, hash: `${LONE_VIEW}&photo=${LONE}` });
-    const date = viewer(page).locator('hcm-photo-sheet .supporting');
+    const date = viewer(page).locator('hcm-photo-sheet .supporting:not(.fallback-note)');
     await expect(date).toHaveText(lang === 'ro' ? '12 iulie 1976' : '12 July 1976');
 
     await serveManifest(page, withPhotoFields({ year: 1976, month: 7 }));

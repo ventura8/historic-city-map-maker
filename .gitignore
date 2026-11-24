@@ -64,3 +64,4 @@ core.[0-9]*
 
 # The deploy helper writes firebase.ship.json (firebase.json without its predeploy) beside the tree: never committed.
 /firebase.ship.json
+/.ship-cfg.py

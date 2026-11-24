@@ -76,6 +76,13 @@ async function expectExecution(imagery: ImageryWorld, name: string, state: strin
     await expect.poll(() => imagery.execution(name), { timeout: RUN_TIMEOUT_MS }).toBe(state);
 }
 
+/**
+ * The files only an archive series (M22: its stitched picture and tile layout) or a composite (M20: its parts record)
+ * writes: one scan's run writes none of them (VERSION_FILES grew by them after this spec, which never ran in a split
+ * `all` until 2026-11-24, docs/LESSONS.md 796).
+ */
+const SERIES_FILES: ReadonlySet<string> = new Set(['stitched.jpg', 'layout.json', 'thumbs.jpg', 'seams.jpg', 'parts.json']);
+
 test(
     'The fake Cloud Run hands a pipeline run to the stand-in, which writes what the pipeline writes',
     { tag: '@S-A00-HAPPY-IMAGERY-RUNNER' },
@@ -108,7 +115,9 @@ test(
             steps: { register: { status: 'done' } },
         });
         expect(await imagery.objects(`rasters/bucharest/${LAYER}/job-1966/`)).toEqual(
-            [...VERSION_FILES].map((file) => `rasters/bucharest/${LAYER}/job-1966/${file}`).sort((a, b) => a.localeCompare(b)),
+            VERSION_FILES.filter((file) => !SERIES_FILES.has(file))
+                .map((file) => `rasters/bucharest/${LAYER}/job-1966/${file}`)
+                .sort((a, b) => a.localeCompare(b)),
         );
         expect(await imagery.objects('work/bucharest/job-1966/')).toEqual([]);
         await expectExecution(imagery, execution, 'succeeded');

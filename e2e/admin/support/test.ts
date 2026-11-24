@@ -70,6 +70,9 @@ export const ADMIN_LOCK = 'admin-emulators';
  */
 const LEASE = 'admin-emulators';
 
+/** The longest an admin test may run once it extends its own timeout (`automation.spec.ts`: a bought scan, 15 minutes). */
+const LONGEST_ADMIN_TEST_MS = 15 * 60 * 1000;
+
 /** How long a test may wait for the lease: every other admin test of the run may be ahead of it. */
 const LEASE_WAIT_MS = 30 * 60 * 1000;
 
@@ -193,8 +196,10 @@ export const test = base.extend<AdminFixtures>({
     adminWorld: [
         async ({ mockApiRequest, mapOwner, invited, admins }, use, testInfo) => {
             const holder = testIdOf(testInfo);
-            // A holder that crashed loses the lease a minute after its test would have timed out.
-            await lease(mockApiRequest, 'acquire', holder, testInfo.timeout + 60_000);
+            // A holder that crashed loses the lease a minute after its test would have timed out. The fixture runs before the
+            // test's own `test.setTimeout` (the bought scan's 15 minutes): a lease of the project's 150 s ran out mid-test, a
+            // waiting test took it and reset the emulators under it (docs/LESSONS.md 796), so it lasts the longest test.
+            await lease(mockApiRequest, 'acquire', holder, Math.max(testInfo.timeout, LONGEST_ADMIN_TEST_MS) + 60_000);
             try {
                 const emulators = new EmulatorWorld(mockApiRequest);
                 await emulators.reset();

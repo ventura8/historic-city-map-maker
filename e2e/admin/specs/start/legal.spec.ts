@@ -12,7 +12,7 @@ import { EXIT_INVALID, runStartCli } from '../../../../scripts/site/src/start/bu
 import { expectStateSound } from '../../../support/state-check.js';
 import { testIdOf } from '../../../support/test.js';
 import { adminVisit } from '../../../tour/states.js';
-import { expect, test } from '../../support/test.js';
+import { ADMIN_LOCK, expect, test } from '../../support/test.js';
 import { E2E_START_SITE_VERIFICATION } from '../../world.js';
 import { START_URL, startPage } from './world.js';
 
@@ -20,6 +20,9 @@ const PAGES = [
     { link: /Privacy policy/, ro: 'Politica de confidențialitate', en: 'Privacy policy', state: 'start.privacy' },
     { link: /Terms of service/, ro: 'Condiții de utilizare', en: 'Terms of service', state: 'start.terms' },
 ] as const;
+
+// The admin tier's world (`adminWorld` resets the emulators): one admin test at a time.
+test.describe.configure({ lock: ADMIN_LOCK });
 
 test(
     'The start page names the app and links its privacy policy and terms, in both languages',

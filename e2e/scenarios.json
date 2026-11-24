@@ -3363,8 +3363,8 @@
             "behaviour": "V12",
             "area": "viewer",
             "path": "happy",
-            "title": "On an iPhone the open timeline card's Opacity button opens the year's opacity as a modal sheet",
-            "asserts": "WebKit as an iPhone 15 on a year of two layers: the collapsed pill has no Opacity button; once the card is open, a tap on the button named for the year's opacity opens a dialog of that name with three sliders, the first focused",
+            "title": "On an iPhone the open timeline card's Opacity button opens the year's dates with its opacity sliders, never the sliders alone",
+            "asserts": "WebKit as an iPhone 15 on a year of two dates: the collapsed pill has no Opacity button; once the card is open, a tap on the button named for the year's opacity opens the year's date menu with its three sliders beside it and no opacity sheet (the owner, 2026-11-22: a year of several dates never shows its sliders alone)",
             "tier": "e2e-viewer",
             "status": "exists",
             "notes": "The owner, 2026-11-16. packages/ui/src/viewer/timeline-opacity.ts (opacityOpener), timeline-dock.ts, opacity-sheet.ts; unit tests in packages/ui/test/viewer/hcm-timeline-opacity.test.ts and timeline-dock.test.ts; tour journey timeline-opacity (e2e/tour/timeline-opacity-states.ts)."
@@ -3374,8 +3374,8 @@
             "behaviour": "V12",
             "area": "viewer",
             "path": "bad",
-            "title": "On an iPhone Esc closes the opacity sheet and a tap outside it does too",
-            "asserts": "WebKit as an iPhone 15 on a year of two layers: the sheet opened from the Opacity button closes on Esc, and again on a tap on the map",
+            "title": "On an iPhone Esc closes the dates and their sliders, and a tap outside them does too",
+            "asserts": "WebKit as an iPhone 15 on a year of two dates: the date menu and its sliders opened from the Opacity button close on Esc, and again on a tap on the map",
             "tier": "e2e-viewer",
             "status": "exists",
             "notes": "The owner, 2026-11-16. packages/ui/src/viewer/timeline-opacity.ts."
@@ -3385,8 +3385,8 @@
             "behaviour": "V12",
             "area": "viewer",
             "path": "happy",
-            "title": "On an iPhone a long press on the collapsed year pill opens its opacity card: \"all\" first, then a slider per layer",
-            "asserts": "WebKit as an iPhone 15 on a year of two layers: the collapsed pill carries the opacity mark (fadable); a finger held on it opens the card with three range inputs, the first named for all of the year; the lift keeps it; it is a bottom sheet at the viewport's foot; \"all\" at 30 % sets both layer sliders to 30",
+            "title": "On an iPhone a long press on the collapsed pill of a year of several dates opens its dates with the opacity sliders: \"all\" first",
+            "asserts": "WebKit as an iPhone 15 on a year of two dates: the collapsed pill carries the opacity mark (fadable); a finger held on it opens the year's date menu with three sliders beside it, the first named for all of the year; the lift keeps them; \"all\" at 30 % sets both layer sliders to 30",
             "tier": "e2e-viewer",
             "status": "exists",
             "notes": "The owner, 2026-11-15. packages/ui/src/viewer/long-press.ts, timeline-opacity.ts, timeline-opacity-card.ts; unit tests in packages/ui/test/viewer/hcm-timeline-opacity.test.ts and timeline-dock.test.ts."

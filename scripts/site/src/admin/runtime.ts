@@ -56,8 +56,15 @@ function refCommit(files: SiteFileSystem, ref: string): string | null {
     return commitOrNull(line.slice(0, line.indexOf(' ')));
 }
 
-/** The commit `HEAD` points at in the checkout's `.git` folder (a branch, a packed branch or a detached head), or null. */
+/**
+ * The commit `HEAD` points at in the checkout's `.git` folder (a branch, a packed branch or a detached head), or null. A
+ * linked worktree's `.git` is a file naming a folder of the main repository's: git reads it (the split `all`'s part on the
+ * laptop builds from one; docs/LESSONS.md 796).
+ */
 export function headCommit(files: SiteFileSystem): string | null {
+    if (files.isFile('.git')) {
+        return gitHead();
+    }
     if (!files.isFile('.git/HEAD')) {
         return null;
     }
@@ -106,6 +113,19 @@ const SECONDS = /^\d{1,10}$/;
 
 /** git where the quality image, CI's runners and the Linux hosts have it (an absolute path: never whatever PATH names). */
 const GIT = '/usr/bin/git';
+
+/** The working directory's `HEAD` through git (`git rev-parse HEAD`), or null without git or a commit. */
+function gitHead(): string | null {
+    try {
+        const text = execFileSync(GIT, ['-c', 'safe.directory=*', 'rev-parse', 'HEAD'], {
+            encoding: 'utf8',
+            stdio: ['ignore', 'pipe', 'ignore'],
+        }).trim();
+        return commitOrNull(text);
+    } catch {
+        return null;
+    }
+}
 
 /**
  * The commit's time from git (`git show -s --format=%ct`), from the working directory's repository: null without git,

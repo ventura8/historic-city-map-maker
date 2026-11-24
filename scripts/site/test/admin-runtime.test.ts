@@ -52,6 +52,14 @@ describe('headCommit', () => {
     ])('badPath_noCommitFrom %s', (_name, git) => {
         expect(headCommit(checkout(git))).toBeNull();
     });
+
+    it('happyPath_aLinkedWorktreeIsReadThroughGit', () => {
+        // A worktree's .git is a file naming a folder elsewhere: git, run in the test's checkout, names its HEAD.
+        const files = nodeFileSystem(temporaryDir());
+        files.write('.git', 'gitdir: /elsewhere/.git/worktrees/x\n');
+
+        expect(headCommit(files)).toMatch(/^[0-9a-f]{40}$/);
+    });
 });
 
 describe('the release', () => {

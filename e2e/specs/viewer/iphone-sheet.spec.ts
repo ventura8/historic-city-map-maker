@@ -1,3 +1,4 @@
+import type { Locale } from '@hcm/shared';
 import type { Locator, Page } from '@playwright/test';
 
 import { twoDatesOf1980 } from '../../fixtures/manifest.js';
@@ -290,6 +291,16 @@ test('The Layers panel lists its historical layers newest first', { tag: '@S-V03
     expect(newer, 'the 1980 layer before the 1966 one').toBeLessThan(rows.indexOf('Corona 1966 (e2e)'));
 });
 
+/** The selected year's date menu (V13), which a year of several dates opens with its opacity sliders beside it. */
+function datesMenu(page: Page, lang: Locale): Locator {
+    return page.getByRole('menu', { name: t(lang, 'timeline.dates', { year: '1980' }), exact: true });
+}
+
+/** The opacity sliders beside the date menu: "all" first, then one per layer by date. */
+function datesSliders(page: Page): Locator {
+    return viewer(page).locator('hcm-date-menu .opacity-sliders [role="slider"]');
+}
+
 /** A finger held on `target`: a touch pointerdown with no lift (the long press, `long-press.ts`). */
 async function holdOn(target: Locator): Promise<void> {
     const box = await target.boundingBox();
@@ -306,7 +317,7 @@ async function holdOn(target: Locator): Promise<void> {
 }
 
 test(
-    'On an iPhone a long press on the collapsed year pill opens its opacity card: "all" first, then a slider per layer',
+    'On an iPhone a long press on the collapsed pill of a year of several dates opens its dates with the opacity sliders: "all" first',
     { tag: '@S-V12-HAPPY-IPHONE-YEAR-OPACITY-HOLD' },
     async ({ page, lang }) => {
         await serveManifest(page, twoDatesOf1980());
@@ -317,16 +328,15 @@ test(
         await expect(viewer(page).locator('hcm-timeline[fadable]')).toHaveCount(1);
 
         await holdOn(thumb);
-        const ranges = viewer(page).locator('.opacity-sheet [role="slider"]');
+        // A year of several dates shows its sliders beside its dates, never alone (the owner, 2026-11-22; V13).
+        const ranges = datesSliders(page);
         await expect(ranges).toHaveCount(3);
         await expect(ranges.first()).toBeVisible();
         const all = t(lang, 'layers.opacity', { name: t(lang, 'timeline.opacityAll', { year: '1980' }) });
         await expect(ranges.first()).toHaveAttribute('aria-label', all);
         await thumb.dispatchEvent('pointerup', { pointerType: 'touch', bubbles: true, composed: true });
         await expect(ranges).toHaveCount(3);
-        const sheet = await viewer(page).locator('.opacity-sheet').boundingBox();
-        const height = page.viewportSize()?.height ?? 0;
-        expect(height - ((sheet?.y ?? 0) + (sheet?.height ?? 0)), 'a sheet at the foot, above the legal line').toBeLessThan(80);
+        await expect(datesMenu(page, lang)).toBeVisible();
 
         await ranges.first().focus();
         await ranges.first().press('Home');
@@ -340,7 +350,7 @@ test(
 );
 
 test(
-    "On an iPhone the open timeline card's Opacity button opens the year's opacity as a modal sheet",
+    "On an iPhone the open timeline card's Opacity button opens the year's dates with its opacity sliders, never the sliders alone",
     { tag: '@S-V12-HAPPY-IPHONE-OPACITY-BUTTON' },
     async ({ page, lang }) => {
         await serveManifest(page, twoDatesOf1980());
@@ -350,15 +360,15 @@ test(
         await expect(opener, 'none on the collapsed pill').toHaveCount(0);
         await openTimelineCard(page);
         await opener.tap();
-        const sheet = page.getByRole('dialog', { name: t(lang, 'layers.opacity', { name: '1980' }), exact: true });
-        await expect(sheet).toBeVisible();
-        await expect(sheet.getByRole('slider')).toHaveCount(3);
-        await expect(sheet.getByRole('slider').first()).toBeFocused();
+        // A year of several dates: its dates with the sliders, never the sliders alone (V13; the owner, 2026-11-22).
+        await expect(datesMenu(page, lang)).toBeVisible();
+        await expect(datesSliders(page)).toHaveCount(3);
+        await expect(viewer(page).locator('.opacity-sheet')).toHaveCount(0);
     },
 );
 
 test(
-    'On an iPhone Esc closes the opacity sheet and a tap outside it does too',
+    'On an iPhone Esc closes the dates and their sliders, and a tap outside them does too',
     { tag: '@S-V12-BAD-IPHONE-OPACITY-BUTTON' },
     async ({ page, lang }) => {
         await serveManifest(page, twoDatesOf1980());
@@ -366,7 +376,7 @@ test(
         await callController(page, 'setYear', 1980);
         await openTimelineCard(page);
         const opener = viewer(page).getByRole('button', { name: t(lang, 'layers.opacity', { name: '1980' }), exact: true });
-        const sheet = page.getByRole('dialog', { name: t(lang, 'layers.opacity', { name: '1980' }), exact: true });
+        const sheet = datesMenu(page, lang);
         await opener.tap();
         await expect(sheet).toBeVisible();
         await page.keyboard.press('Escape');

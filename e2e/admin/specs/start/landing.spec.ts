@@ -14,12 +14,15 @@ import { EXIT_INVALID, runLandingCli } from '../../../../scripts/site/src/landin
 import { LANDING_CATALOGUES } from '../../../../scripts/site/src/landing/texts.js';
 import { expectStateSound } from '../../../support/state-check.js';
 import { adminVisit } from '../../../tour/states.js';
-import { expect, test } from '../../support/test.js';
+import { ADMIN_LOCK, expect, test } from '../../support/test.js';
 import { ADMIN_ORIGIN } from '../../world.js';
 import { REPOSITORY } from './world.js';
 
 const LANDING_URL = `${ADMIN_ORIGIN}/landing/`;
 const VERSION = (JSON.parse(readFileSync(resolve(REPOSITORY, 'package.json'), 'utf8')) as { readonly version: string }).version;
+
+// The admin tier's world (`adminWorld` resets the emulators): one admin test at a time.
+test.describe.configure({ lock: ADMIN_LOCK });
 
 test(
     'The landing page names the product and links the start page, the example and the other language',
