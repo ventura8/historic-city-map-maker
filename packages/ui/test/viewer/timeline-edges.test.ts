@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest';
 
-import { crowdedLabels, edgesBeyond, pageTowards, sameSet } from '../../src/viewer/timeline-edges.js';
+import { clearOfPill, crowdedLabels, edgesBeyond, pageTowards, sameSet } from '../../src/viewer/timeline-edges.js';
 
 /** A scroller of `visible` px showing `along` of `extent` px, recording its scrolls. */
 function scrollerOf(visible: number, along = 0, extent = 1000): HTMLElement & { readonly calls: ScrollToOptions[] } {
@@ -76,5 +76,35 @@ describe('pageTowards', () => {
             { left: 40, behavior: 'instant' },
             { top: 40, behavior: 'instant' },
         ]);
+    });
+});
+
+describe('clearOfPill', () => {
+    const both = { start: true, end: true };
+    const card = { left: 0, right: 300, top: 0, bottom: 400 };
+    const standing = { vertical: true, rtl: false };
+
+    it('happyPath_aButtonStepsAsideFromThePillInItsZone', () => {
+        expect(clearOfPill(both, { left: 8, right: 60, top: 20, bottom: 60 }, card, standing)).toEqual({ start: false, end: true });
+        expect(clearOfPill(both, { left: 8, right: 60, top: 340, bottom: 380 }, card, standing)).toEqual({ start: true, end: false });
+        expect(clearOfPill(both, { left: 4, right: 40, top: 8, bottom: 48 }, card, { vertical: false, rtl: false })).toEqual({
+            start: false,
+            end: true,
+        });
+        expect(clearOfPill(both, { left: 4, right: 40, top: 8, bottom: 48 }, card, { vertical: false, rtl: true })).toEqual({
+            start: true,
+            end: false,
+        });
+    });
+
+    it('edge_aPillAwayFromTheEdgesOrNoneLeavesThemAndNoButtonComesBack', () => {
+        expect(clearOfPill(both, { left: 8, right: 60, top: 180, bottom: 220 }, card, standing)).toEqual(both);
+        expect(clearOfPill(both, null, card, standing)).toBe(both);
+        // Scrolled past the card, the pill is in no zone: both buttons show.
+        expect(clearOfPill(both, { left: 8, right: 60, top: -120, bottom: -80 }, card, standing)).toEqual(both);
+        expect(clearOfPill({ start: false, end: false }, { left: 8, right: 60, top: 20, bottom: 60 }, card, standing)).toEqual({
+            start: false,
+            end: false,
+        });
     });
 });

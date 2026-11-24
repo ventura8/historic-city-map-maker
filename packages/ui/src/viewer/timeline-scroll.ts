@@ -5,7 +5,7 @@
  * another; a page towards an edge. A centring asked for while the card has no size waits until it has one (lesson
  * 722: the bar opened on today, the year set while the card was a pill or not laid out yet).
  */
-import { crowdedLabels, edgesBeyond, pageTowards, sameSet, type Edge, type Edges } from './timeline-edges.js';
+import { clearOfPill, crowdedLabels, edgesBeyond, pageTowards, sameSet, type Edge, type Edges } from './timeline-edges.js';
 import { YEAR_GAP_PX, type TimelineDensity } from './timeline-model.js';
 
 /** What the controller reads and writes on the timeline. */
@@ -20,6 +20,7 @@ export interface ScrollView {
     crowded: ReadonlySet<number>;
     focus(options?: FocusOptions): void;
     matches(selectors: string): boolean;
+    getBoundingClientRect(): DOMRect;
 }
 
 /** How long after a year is chosen the bar keeps it in view: the date menu and the opacity card open in that time. */
@@ -126,10 +127,30 @@ export class TimelineScroll {
         if (scroller === null) {
             return;
         }
-        const fade = edgesBeyond(scroller, this.#vertical());
+        this.#watchPill(scroller);
+        const fade = this.#edgesShown(scroller);
         if (fade.start !== this.#view.fade.start || fade.end !== this.#view.fade.end) {
             this.#keepFocus(fade);
             this.#view.fade = fade;
+        }
+    }
+
+    /** The edges with years beyond whose buttons the selected pill leaves room for (`clearOfPill`). */
+    #edgesShown(scroller: HTMLElement): Edges {
+        const pill = this.#view.renderRoot.querySelector('.thumb')?.getBoundingClientRect();
+        const way = { vertical: this.#vertical(), rtl: this.#view.matches(':dir(rtl)') };
+        return clearOfPill(edgesBeyond(scroller, way.vertical), pill ?? null, this.#view.getBoundingClientRect(), way);
+    }
+
+    #watched: HTMLElement | null = null;
+
+    /** The pill glides to a new year (350 ms): the edges are read again once it is there. */
+    #watchPill(scroller: HTMLElement): void {
+        if (this.#watched !== scroller) {
+            this.#watched = scroller;
+            scroller.addEventListener('transitionend', () => {
+                this.fadeEdges();
+            });
         }
     }
 

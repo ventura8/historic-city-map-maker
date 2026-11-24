@@ -32,6 +32,51 @@ export function edgesBeyond(scroller: HTMLElement, vertical: boolean): Edges {
     return { start: along > 1, end: along < extent - 1 };
 }
 
+/** How far from the card's edge a button's zone reaches: its 48 px and 4 px more for the pill's 48 px target. */
+const EDGE_ZONE_PX = 52;
+
+/** A box's edges, as a DOMRect gives them. */
+export interface EdgeBox {
+    readonly left: number;
+    readonly right: number;
+    readonly top: number;
+    readonly bottom: number;
+}
+
+/**
+ * The edges whose button may show: none over the selected pill. Scrolled to lie in an edge's zone, the pill is the year
+ * in hand and the button steps aside (it hid the pill and cut its target to 44 px on a 568 px phone, the tour 2026-11-24);
+ * the visitor still scrolls on, and the button comes back once the pill leaves its zone.
+ */
+export function clearOfPill(
+    edges: Edges,
+    pill: EdgeBox | null,
+    card: EdgeBox,
+    way: { readonly vertical: boolean; readonly rtl: boolean },
+): Edges {
+    if (pill === null) {
+        return edges;
+    }
+    const ends = nearEnds(pill, card, way.vertical);
+    const [start, end] = !way.vertical && way.rtl ? [ends[1], ends[0]] : ends;
+    return withoutNear(edges, start, end);
+}
+
+/**
+ * Whether the pill lies in the first and in the last edge's zone (top and bottom standing, left and right lying): it
+ * overlaps the zone, not scrolled past the card beyond it.
+ */
+function nearEnds(pill: EdgeBox, card: EdgeBox, vertical: boolean): readonly [boolean, boolean] {
+    const [low, high, from, to] = vertical
+        ? [pill.top, pill.bottom, card.top, card.bottom]
+        : [pill.left, pill.right, card.left, card.right];
+    return [high > from && low < from + EDGE_ZONE_PX, low < to && high > to - EDGE_ZONE_PX];
+}
+
+function withoutNear(edges: Edges, start: boolean, end: boolean): Edges {
+    return { start: edges.start && !start, end: edges.end && !end };
+}
+
 export interface PageWay {
     readonly vertical: boolean;
     readonly rtl: boolean;
