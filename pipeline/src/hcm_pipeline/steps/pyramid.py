@@ -11,7 +11,7 @@ from its `warped.tif`; a `layer-tiles` job, for a version rendered before this s
 import os
 import shutil
 from collections.abc import Mapping
-from dataclasses import dataclass
+from dataclasses import dataclass, replace
 from pathlib import Path
 from typing import Final
 
@@ -112,7 +112,7 @@ def tile_processes(configured: str | None, cores: int | None, memory_mb: int | N
 
 
 def write_tree(view: Path, tree: Path, rendered: Rendered, ctx: JobContext, encoding: TileEncoding = ENCODINGS["grey"]) -> Path:
-    """The tile pyramid: blank tiles skipped; line art uses nearest at every zoom (M20; overviews too — averaged RGBA washed ink)."""
+    """The tile pyramid: blank tiles skipped; line art uses nearest at its deepest zoom (M20), its overviews as `encoding` says."""
     arguments: dict[str, object] = {
         "input": str(view),
         "output": str(tree),
@@ -140,6 +140,11 @@ def write_thumb(view: Path, target: Path) -> Path:
     return target
 
 
+# Opaque paper (the default): overviews average the black-and-white tiles, so a one-pixel line fades to grey a zoom out instead of
+# breaking into dashes; with no transparent paper there is no alpha to wash out (lesson of 2026-11-24, the plan cadastral 1911-1914).
+LINEART_OPAQUE: Final = replace(ENCODINGS["lineart"], overview_resampling="average")
+
+
 def series_encoding(ctx: JobContext) -> tuple[TileEncoding, bool | None]:
     """M20 (docs/research/M20-import-local.md §6): an archive series' encoding and its paper mode.
 
@@ -151,7 +156,8 @@ def series_encoding(ctx: JobContext) -> tuple[TileEncoding, bool | None]:
     name = ctx.job.params.get("encoding")
     if name != "lineart":
         return encoding_of(name), None
-    return ENCODINGS["lineart"], ctx.job.params.get("paperTransparent") is True
+    transparent = ctx.job.params.get("paperTransparent") is True
+    return (ENCODINGS["lineart"] if transparent else LINEART_OPAQUE), transparent
 
 
 def _source_of(ctx: JobContext, rendered: Rendered) -> Path:

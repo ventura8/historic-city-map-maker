@@ -21,7 +21,7 @@ from hcm_pipeline.raster import gdal
 from hcm_pipeline.steps.export import COG_OPTIONS, LINEART_COG_OPTIONS, Warped, cog_options, uploads_rasters, write_cog
 from hcm_pipeline.steps.gather import SHEETS, GatherStep
 from hcm_pipeline.steps.place import NO_PATH_NOTE, PlaceStep
-from hcm_pipeline.steps.pyramid import series_encoding
+from hcm_pipeline.steps.pyramid import LINEART_OPAQUE, series_encoding
 from hcm_pipeline.tiles.encoding import ENCODINGS, encoding_of, paper_opaque, paper_transparent
 
 from tests.fakes.world import JOB_ID, PipelineWorld
@@ -151,7 +151,9 @@ def test_happy_path_each_series_tiles_in_its_encoding_and_every_other_job_in_tod
     colour = replace(lineart, job=replace(lineart.job, params={**SERIES_PARAMS, "encoding": "colour"}))
     other = replace(lineart, job=replace(lineart.job, type="usgs-import"))
 
-    assert series_encoding(lineart) == (ENCODINGS["lineart"], False)
+    # Opaque paper averages its overviews (lesson of 2026-11-24): no alpha to wash, a thin line fades instead of breaking.
+    assert series_encoding(lineart) == (LINEART_OPAQUE, False)
+    assert LINEART_OPAQUE.overview_resampling == "average"
     assert series_encoding(overlay) == (ENCODINGS["lineart"], True)
     assert series_encoding(colour) == (ENCODINGS["colour"], None)
     assert series_encoding(other) == (ENCODINGS["grey"], None)

@@ -20150,7 +20150,7 @@
             "area": "pipeline",
             "path": "happy",
             "title": "A series' tiles follow its encoding",
-            "asserts": "line art lossless and nearest at every zoom (overviews too) with opaque white paper by default (transparent only when paperTransparent true) and binary alpha; colour at 82; grey as today",
+            "asserts": "line art lossless and nearest at its deepest zoom with opaque white paper by default, its overviews averaged (no alpha to wash); transparent paper only when paperTransparent true, nearest overviews and binary alpha; colour at 82; grey as today",
             "tier": "e2e-pipeline",
             "status": "exists",
             "notes": "M20 (docs/research/M20-import-local.md); lesson 546 (Post 1847). Tests: pipeline/tests/unit/test_archive_steps.py, pipeline/tests/integration/test_lineart_tiles.py."
@@ -20286,6 +20286,28 @@
             "tier": "e2e-pipeline",
             "status": "exists",
             "notes": "Lesson of 2026-11-24. Test: pipeline/tests/unit/test_place_owner_pairs_first.py."
+        },
+        {
+            "id": "S-P20-HAPPY-LINEART-INKED",
+            "behaviour": "P20",
+            "area": "pipeline",
+            "path": "happy",
+            "title": "Line art warped from its originals to a much coarser grid keeps its lines as ink",
+            "asserts": "one-pixel lines warped ten times coarser -> every row and column with a line stays below the paper threshold, the cells between stay white; a scan near the output resolution keeps nearest and crisp 0/255 pixels",
+            "tier": "e2e-pipeline",
+            "status": "exists",
+            "notes": "Lesson of 2026-11-24 (plan cadastral 1911-1914: speckle at z16-17). Test: pipeline/tests/unit/test_placing_inking.py."
+        },
+        {
+            "id": "S-P20-BAD-LINEART-SPECKLE",
+            "behaviour": "P20",
+            "area": "pipeline",
+            "path": "bad",
+            "title": "Nearest decimation of thin line art is never used where the scan is much finer than the output",
+            "asserts": "nearest at a tenth loses every one-pixel line; ratio >= 2 -> average, under -> near, a picture -> bilinear; the darkness gain is the ratio, at most 6",
+            "tier": "e2e-pipeline",
+            "status": "exists",
+            "notes": "Lesson of 2026-11-24. Test: pipeline/tests/unit/test_placing_inking.py."
         },
         {
             "id": "S-P20-HAPPY-CHECKS",

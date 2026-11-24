@@ -25,6 +25,7 @@ from typing import Final
 import numpy
 
 from hcm_pipeline.jobs import JobContext
+from hcm_pipeline.placing import inking
 from hcm_pipeline.placing.geometry import FloatArray
 from hcm_pipeline.placing.raster_io import RGB, WARP_MEMORY_MB, WarpPlan, normalised, warp_by_pairs
 from hcm_pipeline.raster import gdal
@@ -242,6 +243,8 @@ class Placed:
 
     source: str
     cell: FloatArray
+    # Mercator metres a pixel of the original covers once placed (`inking`: line art much finer than the output is averaged).
+    source_m: float = 0.0
 
 
 def _bands(path: Path) -> int:
@@ -287,11 +290,18 @@ def _cutline(cell: FloatArray, target: Path) -> str:
     return str(target)
 
 
+def _source_m(part: Part, placer: Placer) -> float:
+    """Mercator metres per pixel of the part's original, along its box's top edge once placed."""
+    left, top, right, _bottom = part.box
+    ends = placer.places(apply(part.matrix, numpy.array([[left, top], [right, top]], numpy.float64)))
+    return float(numpy.hypot(*(ends[1] - ends[0]))) / max(1, right - left)
+
+
 def _placed(parts: Sequence[Part], placer: Placer, bands: int) -> list[Placed]:
     found = []
     for part, cell in zip(parts, cells(parts), strict=True):
         if len(cell) >= RGB:
-            found.append(Placed(_source(part, placer, bands), placer.places(_dense(cell))))
+            found.append(Placed(_source(part, placer, bands), placer.places(_dense(cell)), _source_m(part, placer)))
     return found
 
 
@@ -302,10 +312,13 @@ def warp_parts(parts: Sequence[Part], canvas_size: tuple[int, int], target: Path
     placed = _placed(parts, placer, bands)
     previous = gdal.GetCacheMax()
     gdal.SetCacheMax(CACHE_BYTES)
+    ratio = inking.ratio_of([found.source_m for found in placed], plan.resolution)
+    algorithm = inking.resampling(plan.nearest, ratio)
     try:
         output = _output(placed, target, plan.resolution, bands)
         for index, found in enumerate(placed):
-            _warp_one(output, found, plan, target.with_name(f"{target.stem}-cut-{index}.geojson"))
+            _warp_one(output, found, algorithm, target.with_name(f"{target.stem}-cut-{index}.geojson"))
+        inking.finish(output, bands, algorithm, ratio)
         output.Close()
     finally:
         gdal.SetCacheMax(previous)
@@ -314,7 +327,7 @@ def warp_parts(parts: Sequence[Part], canvas_size: tuple[int, int], target: Path
     return target
 
 
-def _warp_one(output: gdal.Dataset, found: Placed, plan: WarpPlan, cut_path: Path) -> None:
+def _warp_one(output: gdal.Dataset, found: Placed, algorithm: str, cut_path: Path) -> None:
     cut = _cutline(found.cell, cut_path)
     try:
         gdal.Warp(
@@ -325,7 +338,7 @@ def _warp_one(output: gdal.Dataset, found: Placed, plan: WarpPlan, cut_path: Pat
             cutlineDSName=cut,
             cutlineSRS=srs_wkt(WEB_MERCATOR),
             warpMemoryLimit=WARP_MEMORY_MB,
-            resampleAlg="near" if plan.nearest else "bilinear",
+            resampleAlg=algorithm,
         )
     finally:
         cut_path.unlink(missing_ok=True)

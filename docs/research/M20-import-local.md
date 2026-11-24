@@ -1106,6 +1106,12 @@ waits at `frame-not-found` for it. The waits keep the picture's own parts record
 removed and rebuilt from the layout that made it (`rebuild`, now also `owner`). Scenarios: S-P20-HAPPY-PAIRS-BEFORE-RELAYOUT,
 S-P20-BAD-PAIRS-BEFORE-RELAYOUT (`pipeline/tests/unit/test_place_owner_pairs_first.py`).
 
+The tiles (lesson 800): the warped plan was speckle at zoom 16-17, because line art was warped from its 0.12 m originals to the
+1.19 m grid with nearest. `placing/inking.py` warps line art with average where the scan is at least twice finer than the output and
+amplifies each pixel's darkness by the ratio (at most `INK_GAIN`), so the pyramid's paper threshold keeps the lines; opaque-paper line
+art averages its overviews (`LINEART_OPAQUE`), transparent paper keeps nearest (lesson 546). Scenarios: S-P20-HAPPY-LINEART-INKED,
+S-P20-BAD-LINEART-SPECKLE (`pipeline/tests/unit/test_placing_inking.py`).
+
 Scenarios: S-P20-HAPPY-NEATLINE-ATLAS, S-P20-BAD-NEATLINE-ATLAS-UNFRAMED (`pipeline/tests/unit/test_placing_framing.py`),
 S-A122-HAPPY-PLACE-AGAIN-KEEPS-LAYOUT, S-A122-BAD-PLACE-AGAIN-LAYOUT-WITH-PAIRS (`functions/test/imagery/locate-again-archive.test.ts`).
 

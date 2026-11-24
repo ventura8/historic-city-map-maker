@@ -1,8 +1,10 @@
 """How an archive series' tiles are encoded (docs/research/M20-import-local.md §6); every other layer keeps today's tiles.
 
 `grey` is today's: lossy WebP at quality 75, bilinear at the deepest zoom, averaged above. `colour`: lossy WebP at 82, the same resampling.
-`lineart` (a 1-bit or two-tone plan): lossless WebP (libwebp keeps a palette when a tile has few colours), nearest at every zoom so a
-line stays one crisp pixel and no grey halo appears (overview averaging washed alpha to near-invisible — Post 1847, 2026-11-11).
+`lineart` (a 1-bit or two-tone plan): lossless WebP (libwebp keeps a palette when a tile has few colours), nearest at its deepest zoom
+so a line stays one crisp pixel; nearest overviews for transparent paper (overview averaging washed alpha to near-invisible — Post
+1847, 2026-11-11), averaged ones for opaque paper (`steps/pyramid.LINEART_OPAQUE`: no alpha to wash, a thin line fades instead of
+breaking; 2026-11-24).
 Default paper is opaque white (`paper_opaque`) so the plan reads on the map; `paper_transparent` is the opt-in overlay mode. Paper is any
 pixel lighter than the threshold; ink stays opaque black; outside the map stays clear.
 """
