@@ -185,7 +185,7 @@ Warping stays memory-bounded (`warpMemoryLimit`, `flags.gdal_progress`).
      only its working copy (`LARGEST_WORKING_PX`), so `Warper.full` copies the part's original (`placing/original.py`
      `version_original`, from the part version's `source`, on the computer that holds the archive) as a tiled TIFF and scales the
      part's points and the plan's nodes from the copy's pixels to the original's, as a single map's `regeoref` does; GDAL's cache is
-     held to `fullres.CACHE_BYTES` and the warp to `warp_memory_mb()`. The output grid stays the job's `maxzoom`. An original gone,
+     held to `fullres.CACHE_BYTES` and the warp to `warp_memory_mb()`. The output grid is the job's `maxzoom`, or for an archive join the zoom its parts' originals hold (`join/deepest.py`, 2026-11-24: about two scan pixels an output pixel, at most 20, within the byte budget, never lower). An original gone,
      unreadable, on another machine (a cloud run), or a part over terrain or without points warps the stored copy. The log names the
      choice per part: `part X warped on the original, W x H px` or `part X warped on its N px copy (original missing)`
      (`S-P05-HAPPY-JOIN-FULLRES`, `S-P05-BAD-JOIN-FULLRES-COPY`). `align` and its previews stay on the copy: they only measure.

@@ -4656,3 +4656,4 @@ Append a numbered entry to *Lessons from this repository* in the task that finds
     - Cause: a redraw at full resolution warped the originals at the zoom the series was published at, which came from the archive report's default (17) when the scale or dpi was not known.
     - Fix: `steps/warp.py` `originals_zoom` measures the originals once placed and draws to about two scan pixels an output pixel (at most 20, within the byte budget).
     - **The zoom follows the pixels actually drawn, not the number a first import guessed.**
+    - Joins too (same day): an archive join took the largest zoom its parts were published at (17) although the merge warps their originals; `join/deepest.py` now measures the originals.

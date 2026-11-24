@@ -20,6 +20,7 @@ from hcm_pipeline.images import UInt8Array, as_uint8
 from hcm_pipeline.jobs import Done, JobContext, StepResult
 from hcm_pipeline.join.canvas import OWNER_ZOOM, TONE_ZOOM, DatasetSource, Raster, level_grid, spilled
 from hcm_pipeline.join.compose import Layer, Levels, closes, compose, half_widths, weight_of
+from hcm_pipeline.join.deepest import deepest_zoom
 from hcm_pipeline.join.plan import OWNER_FILE, PLAN_FILE, JoinPlan, Part, PlannedSeam, read_parts, used_parts
 from hcm_pipeline.join.room import needed_to_merge, require_room, scan_sizes, window_px
 from hcm_pipeline.join.seams import pair_boundary
@@ -106,8 +107,8 @@ class MergeStep:
         plan, owner = _read_plan(ctx)
         parts = used_parts(read_parts(ctx), plan)
         require_room(ctx, needed_to_merge(scan_sizes(ctx, parts), window_px(ctx, plan.box)))
-        grid = level_grid(plan.box, JoinParams.of(ctx.job.params).maxzoom)
         warper = Warper(ctx, plan.box)
+        grid = level_grid(plan.box, self._zoom(ctx, warper, parts, plan))
         files = [warper.rendered(part, planned.nodes, grid) for part, planned in zip(parts, plan.parts, strict=True)]
         ground = ground_scale(plan.box.bounds().middle_lat)
         sources = [gdal_step(ctx, partial(DatasetSource, file), "read a warped frame") for file in files]
@@ -121,6 +122,14 @@ class MergeStep:
         ctx.update_version({"join": report.as_record()})
         self._log(ctx, plan, report)
         return Done(ctx.publish(target, ctx.work_file("warped.tif"), "image/tiff"))
+
+    def _zoom(self, ctx: JobContext, warper: Warper, parts: Sequence[Part], plan: JoinPlan) -> int:
+        """A camera's join at its zoom; an archive join as deep as its parts' originals hold (`join/deepest.py`)."""
+        params = JoinParams.of(ctx.job.params)
+        if params.sensor is not None:
+            return params.maxzoom
+        planned = [(part, entry.nodes) for part, entry in zip(parts, plan.parts, strict=True)]
+        return deepest_zoom(ctx, warper, planned, plan.box, params.maxzoom)
 
     def _tick(self, ctx: JobContext, done: float) -> None:
         ctx.flags.progress_within(done)

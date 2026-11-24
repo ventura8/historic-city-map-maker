@@ -22026,6 +22026,28 @@
             "notes": "Live 2026-11-24. Tests: pipeline/tests/unit/test_redraw_fullres.py, functions/test/imagery/redraw-layout.test.ts."
         },
         {
+            "id": "S-P05-HAPPY-JOIN-ZOOM",
+            "behaviour": "P05",
+            "area": "pipeline",
+            "path": "happy",
+            "title": "An archive join is drawn as deep as its parts' originals hold",
+            "asserts": "the parts' originals measured through their points give the zoom of about two scan pixels an output pixel, at most 20, within the byte budget and never under the asked zoom; the log names it",
+            "tier": "e2e-pipeline",
+            "status": "exists",
+            "notes": "2026-11-24, the IGA 1911 and 1974 joins stopped at 17. Tests: pipeline/tests/unit/test_join_fullres.py."
+        },
+        {
+            "id": "S-P05-BAD-JOIN-ZOOM",
+            "behaviour": "P05",
+            "area": "pipeline",
+            "path": "bad",
+            "title": "A join whose originals cannot be measured keeps its zoom",
+            "asserts": "no original, one pair or pairs on one pixel: the join keeps the zoom it was asked",
+            "tier": "e2e-pipeline",
+            "status": "exists",
+            "notes": "2026-11-24. Tests: pipeline/tests/unit/test_join_fullres.py."
+        },
+        {
             "id": "S-P20-HAPPY-REDRAW-ZOOM",
             "behaviour": "P20",
             "area": "pipeline",
