@@ -4,6 +4,7 @@ import type { Manifest, Photo, Poi, Story } from '@hcm/shared';
 import {
     geometryCenter,
     normalizeSearchText,
+    pickSearchResult,
     searchManifest,
     selectSearchResult,
     type SearchResult,
@@ -206,5 +207,33 @@ describe('viewer-search', () => {
         selectSearchResult(store, story);
         expect(store.callsOf('flyTo')).toHaveLength(2);
         expect(store.callsOf('openStory')).toEqual([['story-none']]);
+    });
+
+    it('badPath_missingLinksListsAndCategoryLeaveAResultWithNoPlaceAndNoOverlay', () => {
+        const manifest = manifestWithSearchData();
+        const lost: Story = {
+            id: 'story-lost',
+            title: { ro: 'Poveste pierdută' },
+            body: { ro: 'Text.' },
+            poiIds: ['gone'],
+            photoIds: ['gone'],
+        };
+        const bare: Manifest = { ...manifest, poiCategories: undefined, pois: undefined, stories: [lost] };
+        expect(searchManifest(bare, 'poveste', 'ro').map((r) => [r.id, r.center])).toEqual([['story-lost', null]]);
+        expect(searchManifest({ ...bare, stories: undefined }, 'poveste', 'ro')).toEqual([]);
+
+        const store = new FakeStore(readyState(manifest));
+        const result: SearchResult = {
+            id: 'piata-unirii',
+            kind: 'poi',
+            title: 'Piața Unirii',
+            subtitle: 'Loc',
+            center: null,
+            icon: 'place',
+        };
+        pickSearchResult(store, new CustomEvent('hcm-search-select', { detail: { result } }));
+        expect(store.callsOf('flyTo')).toEqual([]);
+        expect(store.callsOf('toggleOverlay')).toEqual([]);
+        expect(store.callsOf('openPoi')).toEqual([['piata-unirii']]);
     });
 });
