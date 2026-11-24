@@ -305,6 +305,11 @@ def _placed(parts: Sequence[Part], placer: Placer, bands: int) -> list[Placed]:
     return found
 
 
+def _resampling(plan: WarpPlan, parts: Sequence[Part], placed: Sequence[Placed]) -> tuple[str, float]:
+    """The warp's resampling and ratio (`inking.chosen`)."""
+    return inking.chosen(plan, [part.path for part in parts], [found.source_m for found in placed])
+
+
 def warp_parts(parts: Sequence[Part], canvas_size: tuple[int, int], target: Path, plan: WarpPlan) -> Path:
     """Every part's original warped into one GeoTIFF at the plan's resolution, each inside its own cell, an alpha band last."""
     bands = max(_bands(part.path) for part in parts)
@@ -312,8 +317,7 @@ def warp_parts(parts: Sequence[Part], canvas_size: tuple[int, int], target: Path
     placed = _placed(parts, placer, bands)
     previous = gdal.GetCacheMax()
     gdal.SetCacheMax(CACHE_BYTES)
-    ratio = inking.ratio_of([found.source_m for found in placed], plan.resolution)
-    algorithm = inking.resampling(plan.nearest, ratio)
+    algorithm, ratio = _resampling(plan, parts, placed)
     try:
         output = _output(placed, target, plan.resolution, bands)
         for index, found in enumerate(placed):

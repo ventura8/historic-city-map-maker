@@ -6,6 +6,7 @@ import numpy
 from hcm_pipeline.placing import fullres, inking
 from hcm_pipeline.placing.raster_io import Pair, WarpPlan
 from hcm_pipeline.raster import gdal
+from hcm_pipeline.rasters import driver_of
 
 from tests.unit.test_placing_fullres import write
 
@@ -21,8 +22,21 @@ def _lines() -> numpy.ndarray:
     return picture
 
 
-def _warped(tmp_path: Path, nearest: bool, resolution: float) -> numpy.ndarray:
-    original = write(tmp_path / "sheet.tif", _lines())
+def _one_bit(path: Path, pixels: numpy.ndarray) -> Path:
+    """A 1-bit TIFF (`NBITS=1`) of a black-and-white picture, as a scanner writes line art."""
+    dataset = driver_of("GTiff").Create(str(path), pixels.shape[1], pixels.shape[0], 1, gdal.GDT_Byte, ["NBITS=1"])
+    table = gdal.ColorTable()
+    table.SetColorEntry(0, (0, 0, 0, 255))
+    table.SetColorEntry(1, (255, 255, 255, 255))
+    band = dataset.GetRasterBand(1)
+    band.SetColorTable(table)
+    band.WriteArray((pixels > 0).astype(numpy.uint8))
+    dataset.Close()
+    return path
+
+
+def _warped(tmp_path: Path, nearest: bool, resolution: float, one_bit: bool = False) -> numpy.ndarray:
+    original = _one_bit(tmp_path / "sheet.tif", _lines()) if one_bit else write(tmp_path / "sheet.tif", _lines())
     canvas = write(tmp_path / "canvas.tif", numpy.zeros((SIZE, SIZE), numpy.uint8))
     fullres.write_parts(canvas, [fullres.Part(original, (0, 0, SIZE, SIZE), numpy.eye(3))], (SIZE, SIZE))
     plan = WarpPlan([Pair(0, 0, 0, 0), Pair(SIZE, 0, SIZE, 0), Pair(0, SIZE, 0, -SIZE)], resolution, False, nearest)
@@ -65,3 +79,11 @@ def test_happy_path_a_scan_near_the_output_resolution_keeps_its_crisp_pixels(tmp
 
     assert set(numpy.unique(pixels)) <= {0, 255}
     assert (pixels[::STEP, 5:-5] == 0).all()
+
+
+def test_happy_path_a_redraw_of_one_bit_originals_with_plain_pairs_is_line_art_too(tmp_path: Path) -> None:
+    """Scenarios: S-P20-HAPPY-LINEART-INKED"""
+    pixels = _warped(tmp_path, nearest=False, resolution=10.0, one_bit=True)
+
+    assert (pixels[::2, 5:-5] < 128).all()
+    assert inking.one_bit([]) is False
