@@ -81,6 +81,17 @@ def _stitched_here(ctx: JobContext) -> Path:
     return local
 
 
+def parts_fit(local: Path, size: tuple[int, int]) -> bool:
+    """True when the picture's parts record is there and was written for a canvas of its shape. A record of an older layout (the
+    plan cadastral 1911-1914's, kept beside a picture stitched again by the owner's layout; lesson of 2026-11-24) is removed, so the
+    record is rebuilt from the layout that made the picture."""
+    found = fullres.read_parts(local) if fullres.sidecar(local).is_file() else None
+    if found is not None and fullres.same_shape(found.size, size):
+        return True
+    fullres.sidecar(local).unlink(missing_ok=True)
+    return False
+
+
 def picture_of(ctx: JobContext, scan: ScanInfo) -> Picture:
     """A single map's original, else `stitched.tif` where this run or the parked one left it, else the scan the pairs were placed on."""
     original = _original(ctx, scan)
@@ -92,7 +103,7 @@ def picture_of(ctx: JobContext, scan: ScanInfo) -> Picture:
         return Picture(ctx.stage(scan.path, "scan.tif"), 1.0, 1.0)
     _stage_parts(ctx, local)
     width, height = scan_size(local)
-    if not fullres.sidecar(local).is_file():
+    if not parts_fit(local, (width, height)):
         rebuilt(ctx, local, (width, height))
     return Picture(local, width / max(scan.width, 1), height / max(scan.height, 1))
 

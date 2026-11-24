@@ -61,3 +61,6 @@ core.[0-9]*
 .claude/worktrees/
 # Claude Code's local lock of its scheduled tasks (a tool file, never committed; the EditorConfig gate reads git's file list)
 .claude/scheduled_tasks.lock
+
+# The deploy helper writes firebase.ship.json (firebase.json without its predeploy) beside the tree: never committed.
+/firebase.ship.json

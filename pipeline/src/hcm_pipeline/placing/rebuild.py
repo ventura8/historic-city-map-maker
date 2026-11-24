@@ -12,7 +12,7 @@ from pathlib import Path
 from typing import Final
 
 from hcm_pipeline.jobs import JobContext, StepFailedError
-from hcm_pipeline.placing import autoplace, fullres, fullres_parts, grid, maps
+from hcm_pipeline.placing import autoplace, fullres, fullres_parts, grid, maps, owner_layout
 from hcm_pipeline.placing.autostitch import CANVAS_MAX_PX
 from hcm_pipeline.placing.series import SeriesJob, series_of
 
@@ -42,6 +42,15 @@ def _overview(ctx: JobContext, series: SeriesJob) -> fullres.Recorded | None:
     return None if made is None else fullres.Recorded(made.originals, (made.canvas.shape[1], made.canvas.shape[0]))
 
 
+def _owner(ctx: JobContext, series: SeriesJob) -> fullres.Recorded | None:
+    """The owner's layout (`help.layoutAnswer`), each sheet as its mosaic placed it (lesson of 2026-11-24)."""
+    answer = owner_layout.answer_of(ctx)
+    if answer is None:
+        return None
+    tiles, size = owner_layout.owner_proposal(autoplace.named_of(series.sheets), answer).tiles(CANVAS_MAX_PX)
+    return fullres.Recorded(tuple(fullres_parts.tile_part(tile) for _index, tile in tiles), size)
+
+
 def _names(ctx: JobContext, series: SeriesJob) -> fullres.Recorded | None:
     tiles, size = autoplace.proposed(ctx, series).tiles(CANVAS_MAX_PX)
     return fullres.Recorded(tuple(fullres_parts.tile_part(tile) for _index, tile in tiles), size)
@@ -53,6 +62,7 @@ BUILDERS: Final[Mapping[str, Callable[[JobContext, SeriesJob], fullres.Recorded 
     "pieces": _pieces,
     "overview": _overview,
     "names": _names,
+    "owner": _owner,
 }
 
 

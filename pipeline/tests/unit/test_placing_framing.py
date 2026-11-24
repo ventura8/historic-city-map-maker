@@ -10,12 +10,13 @@ from pathlib import Path
 import cv2
 import numpy
 import pytest
-from hcm_pipeline.jobs import Waiting
+from hcm_pipeline.jobs import JobContext, Waiting
 from hcm_pipeline.placing import (
     autoplace,
     autostitch,
     canvas_window,
     framing,
+    fullres,
     fullres_parts,
     layout_files,
     owner_layout,
@@ -178,28 +179,51 @@ def test_bad_path_a_framed_series_names_its_sheet_without_a_frame_and_keeps_a_bl
     assert plan.out == {4: autostitch.NO_FRAME, 5: owner_layout.NOT_PART}
 
 
-def test_bad_path_an_owner_layout_with_a_sheet_unframed_waits_with_it_named(world: PipelineWorld, tmp_path: Path) -> None:
-    """Scenarios: S-P20-BAD-NEATLINE-ATLAS-UNFRAMED"""
+def _framed_context(world: PipelineWorld, tmp_path: Path) -> tuple[JobContext, list[str]]:
     names = [f"plan/{row}{col}.png" for row in "AB" for col in "12"]
     ctx = series_context(world, tmp_path, names, {"class": "grid", "encoding": "grey"})
     for index, name in enumerate(names):
         _write(originals(ctx) / name, _sheet(index * 10, LEFT + index * 3, TOP + index * 2, framed=index != 3))
+    return ctx, names
+
+
+def test_happy_path_an_owner_layout_goes_on_without_its_unframed_sheet_named(world: PipelineWorld, tmp_path: Path) -> None:
+    """Scenarios: S-P20-BAD-NEATLINE-ATLAS-UNFRAMED
+
+    Lesson of 2026-11-24: one sheet with no neat line held the owner's checked layout (and the points saved on it) at
+    frame-not-found; the owner's layout is placed without it, the sheet named in the log and in leftOut."""
+    ctx, _names = _framed_context(world, tmp_path)
     sheets = [{"index": index, "row": index // 2, "col": index % 2, "turn": 0, "flip": False} for index in range(4)]
     answer = {"revision": 2, "sheets": sheets, "seams": [], "preview": False, "by": "u-owner", "at": "2026-11-24T00:00:00Z"}
     ctx.update_version({"help": {"reason": "low-confidence", "layoutAnswer": answer}})
 
     # A grid series the owner laid out is placed as the owner laid it out, never again by the grid's names.
-    result = GridPlacer().place(ctx)
+    GridPlacer().place(ctx)
+
+    assert dig(world.version(), "help", "reason") != autoplace.FRAME_NOT_FOUND
+    assert any(autoplace.UNFRAMED_DROPPED.format(count=1, total=4) in line for line in world.log_lines())
+    assert series_of(ctx).sheets[3].name == "B2.png"
+
+
+def test_bad_path_an_automatic_layout_with_a_sheet_unframed_waits_with_it_named_and_its_parts_kept(
+    world: PipelineWorld, tmp_path: Path
+) -> None:
+    """Scenarios: S-P20-BAD-NEATLINE-ATLAS-UNFRAMED"""
+    ctx, names = _framed_context(world, tmp_path)
+    proposal = autostitch.propose([(name, originals(ctx) / name) for name in names])
+
+    result = autoplace.mosaicked(ctx, series_of(ctx), proposal, ("atlas", "names"))
 
     assert isinstance(result, Waiting)
     assert dig(world.version(), "help", "reason") == autoplace.FRAME_NOT_FOUND
     assert dig(world.version(), "help", "note") == framing.UNFRAMED.format(count=1, total=4)
-    assert dig(world.version(), "help", "layoutAnswer", "revision") == 2
     stitched = dig(world.version(), "help", "stitched")
     assert isinstance(stitched, dict)
-    assert stitched["method"] == owner_layout.OWNER
     assert stitched["leftOut"] == [{"name": "B2.png", "reason": autostitch.NO_FRAME}]
-    assert series_of(ctx).sheets[3].name == "B2.png"
+    # The picture's own parts record lies beside it: the owner's pairs warp the originals, never a record of an older layout.
+    recorded = fullres.read_parts(ctx.local("stitched.tif"))
+    assert recorded is not None
+    assert len(recorded.parts) == 3
 
 
 def test_happy_path_a_pixel_whose_sampled_owner_does_not_cover_it_goes_to_a_covering_tile(tmp_path: Path) -> None:

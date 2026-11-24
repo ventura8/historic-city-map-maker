@@ -1097,6 +1097,13 @@ Measured on the real 124 sheets with the owner's layout (read-only from the work
 `Seria 21/B1` named `no-frame`; the reduced mosaic checked by eye shows no header band and no paper line at the seams, and streets
 running on across them. The sample and the framing add about 0.5 s a sheet on one core.
 
+Follow-up the same day (lesson 798): saving 17 pairs on the stitched picture re-ran the tile layout, because the job, once sent to
+Fix the tiles, kept `relayout` in its params and `place` read that flag before the pairs. `place` now takes the owner's pairs first.
+The owner's layout is placed without a sheet that has no neat line (named in the log and in `leftOut`); only an automatic layout
+waits at `frame-not-found` for it. The waits keep the picture's own parts record, and a record of another shape beside the picture is
+removed and rebuilt from the layout that made it (`rebuild`, now also `owner`). Scenarios: S-P20-HAPPY-PAIRS-BEFORE-RELAYOUT,
+S-P20-BAD-PAIRS-BEFORE-RELAYOUT (`pipeline/tests/unit/test_place_owner_pairs_first.py`).
+
 Scenarios: S-P20-HAPPY-NEATLINE-ATLAS, S-P20-BAD-NEATLINE-ATLAS-UNFRAMED (`pipeline/tests/unit/test_placing_framing.py`),
 S-A122-HAPPY-PLACE-AGAIN-KEEPS-LAYOUT, S-A122-BAD-PLACE-AGAIN-LAYOUT-WITH-PAIRS (`functions/test/imagery/locate-again-archive.test.ts`).
 

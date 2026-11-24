@@ -54,11 +54,13 @@ class PlaceStep:
         self._placers = PLACERS if placers is None else placers
 
     def run(self, ctx: JobContext) -> StepResult:
-        if ctx.job.params.get(RELAYOUT) is True:
-            return relaid(ctx)
+        # The owner's saved pairs come first, even on a series once sent to Fix the tiles (`relayout` stays in its params): the
+        # plan cadastral 1911-1914's 17 pairs were laid aside for its tile layout again, which waited as before (lesson of 2026-11-24).
         pairs = owner_pairs(ctx.version.georef)
         if pairs is not None:
             return self._from_pairs(ctx, pairs)
+        if ctx.job.params.get(RELAYOUT) is True:
+            return relaid(ctx)
         placer = self._placers.get(text_param(ctx.job.params, "class"))
         if placer is None:
             return wait_for_help(ctx, "no-path", NO_PATH_NOTE)

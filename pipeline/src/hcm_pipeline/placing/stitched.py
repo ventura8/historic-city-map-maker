@@ -223,6 +223,7 @@ def for_georeferencer(ctx: JobContext, canvas: UInt8Array, pairs_scale: float = 
     ctx.update_version(fields)
 
 
-def wait_stitched(ctx: JobContext, stitched: Stitched, reason: str, note: str) -> Waiting:
-    """The version waits for a person with its stitched picture to place."""
-    return wait_for_help(ctx, reason, note, stitched=publish_stitched(ctx, stitched))
+def wait_stitched(ctx: JobContext, stitched: Stitched, reason: str, note: str, canvas: Path | None = None) -> Waiting:
+    """The version waits for a person with its stitched picture to place (`canvas`: the picture's canvas, whose parts record is kept
+    beside it, so the owner's pairs warp the originals and never a record of an older layout; lesson of 2026-11-24)."""
+    return wait_for_help(ctx, reason, note, stitched=publish_stitched(ctx, stitched, canvas=canvas))

@@ -20260,10 +20260,32 @@
             "area": "pipeline",
             "path": "bad",
             "title": "A framed series' sheet with no confident neat line waits in Help calibrate by name; a frameless atlas is left as it was",
-            "asserts": "a series without printed frames -> no frame, no sheet unframed; a framed series' frameless sheet -> no-frame in initial_out and in the owner's plan (not-part stays the owner's), a blank page stays blank; an owner layout with one unframed -> awaiting_gcps, help frame-not-found, the note naming 1 of 4, the sheet in leftOut as no-frame, the layoutAnswer kept, laid out the owner's way though the class is grid",
+            "asserts": "a series without printed frames -> no frame, no sheet unframed; a framed series' frameless sheet -> no-frame in initial_out and in the owner's plan (not-part stays the owner's), a blank page stays blank; an automatic layout with one unframed -> awaiting_gcps, help frame-not-found, the note naming 1 of 4, the sheet in leftOut as no-frame, the picture's parts record beside it; the owner's layout with one unframed -> placed without it (never frame-not-found), the log naming 1 of 4, laid out the owner's way though the class is grid",
             "tier": "e2e-pipeline",
             "status": "exists",
             "notes": "M20 §19.20. Tests: pipeline/tests/unit/test_placing_framing.py."
+        },
+        {
+            "id": "S-P20-HAPPY-PAIRS-BEFORE-RELAYOUT",
+            "behaviour": "P20",
+            "area": "pipeline",
+            "path": "happy",
+            "title": "The owner's saved pairs place a series even once it was sent to Fix the tiles",
+            "asserts": "relayout in the job's params and the owner's pairs -> place_from_pairs, never the tile layout again; the owner's layout rebuilds the picture's parts record",
+            "tier": "e2e-pipeline",
+            "status": "exists",
+            "notes": "Lesson of 2026-11-24 (plan cadastral 1911-1914: 17 saved pairs laid aside, frame-not-found again). Test: pipeline/tests/unit/test_place_owner_pairs_first.py."
+        },
+        {
+            "id": "S-P20-BAD-PAIRS-BEFORE-RELAYOUT",
+            "behaviour": "P20",
+            "area": "pipeline",
+            "path": "bad",
+            "title": "Without pairs Fix the tiles still lays the series out; a parts record of an older layout is never used",
+            "asserts": "relayout and no pairs -> relaid; a parts record of another shape beside the picture -> removed so it is rebuilt, a missing one -> rebuilt, a fitting one kept",
+            "tier": "e2e-pipeline",
+            "status": "exists",
+            "notes": "Lesson of 2026-11-24. Test: pipeline/tests/unit/test_place_owner_pairs_first.py."
         },
         {
             "id": "S-P20-HAPPY-CHECKS",
