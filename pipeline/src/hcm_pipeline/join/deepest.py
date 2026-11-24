@@ -44,6 +44,10 @@ def _measured(warper: Warper, part: Part, nodes: Sequence[Node]) -> tuple[float,
     return None if metres is None else (metres, width * height * metres**2)
 
 
+def _all_measured(warper: Warper, parts: Sequence[tuple[Part, Sequence[Node]]]) -> list[tuple[float, float]]:
+    return [measured for part, nodes in parts if (measured := _measured(warper, part, nodes)) is not None]
+
+
 def _within_budget(metres: float, area_m2: float, box: MercatorBox) -> int:
     """`encoding.scan_zoom` of `metres`, lowered until the tiles of `area_m2` (Mercator) fit the byte budget."""
     latitude = to_lnglat(0.0, (box.bottom + box.top) / 2)[1]
@@ -54,7 +58,7 @@ def _within_budget(metres: float, area_m2: float, box: MercatorBox) -> int:
 def deepest_zoom(ctx: JobContext, warper: Warper, parts: Sequence[tuple[Part, Sequence[Node]]], box: MercatorBox, asked: int) -> int:
     """The join's zoom from its parts' originals, within the byte budget for the ground they cover (never more than `box`), never
     under `asked`."""
-    found = [measured for part, nodes in parts if (measured := _measured(warper, part, nodes)) is not None]
+    found = _all_measured(warper, parts)
     if not found:
         return asked
     metres = statistics.median(m for m, _area in found)
