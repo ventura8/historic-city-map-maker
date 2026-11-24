@@ -257,6 +257,11 @@ class GeotiffImportParams:
         return cls(_bounded_text(params, "uploadPath", 500), _optional_bounded(params, "originalName", 255), replaces)
 
 
+def _texts(found: object) -> tuple[str, ...]:
+    """A list's texts, else nothing."""
+    return tuple(item for item in found if isinstance(item, str)) if isinstance(found, list) else ()
+
+
 @dataclass(frozen=True)
 class RegeorefParams:
     based_on: str
@@ -271,10 +276,8 @@ class RegeorefParams:
     def of(cls, params: Mapping[str, object]) -> RegeorefParams:
         _strict(params, frozenset({"basedOn", "originalArchiveId", "originalSeriesId", "fullResolution", "recordFrom"}))
         archive = None if params.get("originalArchiveId") is None else id_of(params, "originalArchiveId")
-        found = params.get("recordFrom")
-        chain = tuple(item for item in found if isinstance(item, str)) if isinstance(found, list) else ()
         full = params.get("fullResolution") is True
-        return cls(id_of(params, "basedOn"), archive, optional_text(params, "originalSeriesId"), full, chain)
+        return cls(id_of(params, "basedOn"), archive, optional_text(params, "originalSeriesId"), full, _texts(params.get("recordFrom")))
 
 
 @dataclass(frozen=True)

@@ -72,7 +72,9 @@ def test_happy_path_a_redraw_of_a_redraw_finds_the_parts_record_of_the_version_i
     assert world.services().objects.stat(ctx.version_file(fullres.VERSION_RECORD)) is not None
 
 
-def test_bad_path_a_redraw_with_no_original_fails_plainly_and_a_point_edit_still_warps_the_scan(world: PipelineWorld, tmp_path: Path) -> None:
+def test_bad_path_a_redraw_with_no_original_fails_plainly_and_a_point_edit_still_warps_the_scan(
+    world: PipelineWorld, tmp_path: Path
+) -> None:
     """Scenarios: S-P20-BAD-REDRAW-ORIGINAL-MISSING"""
     gone, scan = regeoref(world, tmp_path, keep=False)
     assert full_resolution(redraw(gone), scan, GEOREF) == (scan, GEOREF)
