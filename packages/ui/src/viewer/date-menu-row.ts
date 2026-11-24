@@ -137,8 +137,7 @@ export const dateRowStyles = css`
     }
 
     .box hcm-icon {
-        inline-size: 14px;
-        block-size: 14px;
+        --hcm-icon-size: 14px;
     }
 
     .box[aria-checked='false'] hcm-icon {
