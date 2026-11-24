@@ -139,7 +139,7 @@ export const ro = {
     'apiError.imagery.localOnly': 'Fișierele acestei serii sunt doar pe calculatorul tău, deci nu poate rula în Google Cloud.',
     'apiError.imagery.rightsUnconfirmed': 'Confirmă drepturile acestei hărți înainte să fie publicată.',
     'apiError.imagery.archiveMissing': 'Hărțile scanate sunt pe calculatorul care le-a importat: pornește-l, apoi Încearcă din nou.',
-    'apiError.imagery.originalMissing': 'Scanarea la mărime completă a acestei hărți nu a fost găsită pe calculatoarele tale, deci nu poate fi redesenată mai clar: pornește calculatorul care a importat hărțile scanate, apoi apasă din nou Redesenează la rezoluție maximă.',
+    'apiError.imagery.originalMissing': 'Scanarea completă lipsește: pornește calculatorul care a importat hărțile, apoi redesenează.',
     'apiError.imagery.filmMissing': 'Filmul cadrului nu mai e pe niciun calculator: alege Localizează din nou sau importă iar cadrul.',
     'apiError.imagery.archiveImported': 'Arhiva aceasta a fost deja importată.',
     'apiError.imagery.archiveYear': 'Scrie mai întâi anul hărții. Hărțile de dinainte de 1500 nu pot fi importate încă.',
