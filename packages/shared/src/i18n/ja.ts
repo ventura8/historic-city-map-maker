@@ -314,4 +314,12 @@ export const ja: Messages = {
     'licence.oursTexts': '地図の文章やストーリーを再利用するときは、リンクを付けて地図を引用してください。',
     'licence.layerSource': '権利は上記の出典にあります。このスキャンを再利用する前に出典に確認してください。',
     'cite.copyFailed': 'ブラウザーがクリップボードをブロックしました。下の引用を選択して自分でコピーしてください。',
+    'search.label': '地図を検索',
+    'search.placeholder': '場所、写真、物語を検索…',
+    'search.clear': '検索をクリア',
+    'search.results': '検索結果',
+    'search.empty': '一致する結果が見つかりませんでした。別の名前や言葉をお試しください。',
+    'search.kind.poi': '場所',
+    'search.kind.photo': '写真',
+    'search.kind.story': '物語',
 };

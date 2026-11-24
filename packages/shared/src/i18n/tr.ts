@@ -313,4 +313,12 @@ export const tr: Messages = {
     'licence.oursTexts': 'Haritanın metinlerini ve hikâyelerini yeniden kullanmak için haritayı bağlantısıyla birlikte kaynak gösterin.',
     'licence.layerSource': 'Haklar yukarıda adı geçen kaynağa aittir: bu taramayı yeniden kullanmadan önce ona sorun.',
     'cite.copyFailed': 'Tarayıcı panoyu engelledi. Aşağıdaki kaynakçayı seçip kendiniz kopyalayın.',
+    'search.label': 'Haritada ara',
+    'search.placeholder': 'Yer, fotoğraf veya hikâye ara…',
+    'search.clear': 'Aramayı temizle',
+    'search.results': 'Arama sonuçları',
+    'search.empty': 'Bu arama için sonuç bulunamadı. Başka bir ad veya sözcük deneyin.',
+    'search.kind.poi': 'Yer',
+    'search.kind.photo': 'Fotoğraf',
+    'search.kind.story': 'Hikâye',
 };

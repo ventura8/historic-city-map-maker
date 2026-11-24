@@ -8,7 +8,7 @@ Every user-visible behaviour has at least one happy and one bad scenario. The re
 
 | Behaviours | Scenarios | Happy | Bad | Exists | Planned | Test files |
 | --- | --- | --- | --- | --- | --- | --- |
-| 218 | 2224 | 964 | 1260 | 2179 | 45 | 589 |
+| 219 | 2228 | 966 | 1262 | 2181 | 47 | 589 |
 
 ## Viewer
 
@@ -451,6 +451,8 @@ Every user-visible behaviour has at least one happy and one bad scenario. The re
 | `S-V77-HAPPY-MANIFEST` | V77 | happy | An aerial photo's viewed area reaches the public manifest | a published aerial photo with four viewedArea corners -> its manifest entry carries them; a street photo carries none | functions | exists | `functions/test/publish/assemble.test.ts` |
 | `S-V77-BAD-CROSSED` | V77 | bad | A crossed viewed area keeps the photo off the map with its reason | a published aerial photo whose corners cross -> the manifest leaves it out and reports validation.viewedArea at viewedArea | functions | exists | `functions/test/publish/assemble.test.ts` |
 | `S-V77-BAD-NO-AREA` | V77 | bad | A photo without a viewed area draws none | the fixture manifest's street photos -> hovering or selecting one draws no area feature | e2e-viewer | exists | `e2e/specs/viewer/viewed-area.spec.ts` |
+| `S-V78-HAPPY-SEARCH` | V78 | happy | Searching the viewer finds places, disappeared streets, photos and stories and flies to the picked result | typing a diacritics-insensitive query in ro or en in <hcm-search> -> matching manifest POIs, disappeared streets, photos and stories appear without extra network calls; picking one flies the map there and opens its sheet | e2e-viewer | planned | - |
+| `S-V78-BAD-NO-RESULTS` | V78 | bad | An unmatched viewer search shows a plain empty state and clears cleanly | typing a query that matches no manifest item -> shows the localized empty message without errors or network requests; clearing resets the box | e2e-viewer | planned | - |
 | `S-V80-HAPPY-PLACE-MEDIA` | V80 | happy | A place's sheet lists its media by kind and shows a map on the map | a place with a linked map, a listed photo and an interior photo naming it -> Media chips Maps, Exterior, Interior; the map's button switches it on (pickLayer) and fits its bounds; Interior shows one thumbnail; the photo list gets an Interior filter | functions | exists | `functions/test/publish/assemble.test.ts` |
 | `S-V80-BAD-NO-MEDIA` | V80 | bad | A place without media shows no Media section | a place with no photos and no layer naming it -> no .media section; a new place resets the chosen chip | e2e-viewer | planned | - |
 | `S-V80-BAD-UNKNOWN-PLACE` | V80 | bad | An unknown place or a map without bounds breaks nothing | the builder drops a placeId the manifest does not list and keeps the photo; a manifest naming an unknown place is refused; a map without bounds or unknown leaves the camera alone | functions | exists | `functions/test/publish/assemble.test.ts` |

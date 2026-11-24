@@ -317,4 +317,12 @@ export const it: Messages = {
     'licence.oursTexts': 'Per riutilizzare i testi e le storie della mappa, cita la mappa con un link.',
     'licence.layerSource': 'I diritti restano alla fonte indicata sopra: chiedi a lei prima di riutilizzare questa scansione.',
     'cite.copyFailed': 'Il browser ha bloccato gli appunti. Seleziona la citazione qui sotto e copiala tu.',
+    'search.label': 'Cerca sulla mappa',
+    'search.placeholder': 'Cerca luoghi, foto, storie…',
+    'search.clear': 'Cancella ricerca',
+    'search.results': 'Risultati della ricerca',
+    'search.empty': 'Nessun risultato trovato. Prova un altro nome o una parola diversa.',
+    'search.kind.poi': 'Luogo',
+    'search.kind.photo': 'Foto',
+    'search.kind.story': 'Storia',
 };

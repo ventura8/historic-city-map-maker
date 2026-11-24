@@ -312,6 +312,14 @@ export const ro = {
     'licence.oursTexts': 'Ca să refolosești textele și poveștile hărții, citează harta cu o legătură spre ea.',
     'licence.layerSource': 'Drepturile rămân la sursa numită mai sus: cere-i acordul înainte să refolosești scanarea.',
     'cite.copyFailed': 'Browserul a blocat copierea. Selectează citarea de mai jos și copiaz-o singur.',
+    'search.label': 'Caută pe hartă',
+    'search.placeholder': 'Caută locuri, fotografii, povești…',
+    'search.clear': 'Șterge căutarea',
+    'search.results': 'Rezultatele căutării',
+    'search.empty': 'Nu am găsit nimic pentru această căutare. Încearcă alt nume sau cuvânt.',
+    'search.kind.poi': 'Loc',
+    'search.kind.photo': 'Fotografie',
+    'search.kind.story': 'Poveste',
 } as const;
 
 export type MessageKey = keyof typeof ro;

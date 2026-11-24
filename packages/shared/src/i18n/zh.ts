@@ -311,4 +311,12 @@ export const zh: Messages = {
     'licence.oursTexts': '如需重复使用地图的文字和故事，请附上链接引用本地图。',
     'licence.layerSource': '权利归上方注明的来源所有：重复使用此扫描件前请先征得其同意。',
     'cite.copyFailed': '浏览器阻止了剪贴板。请选中下方的引用并自行复制。',
+    'search.label': '搜索地图',
+    'search.placeholder': '搜索地点、照片、故事…',
+    'search.clear': '清除搜索',
+    'search.results': '搜索结果',
+    'search.empty': '未找到匹配结果，请尝试其他名称或词语。',
+    'search.kind.poi': '地点',
+    'search.kind.photo': '照片',
+    'search.kind.story': '故事',
 };

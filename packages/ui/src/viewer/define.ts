@@ -16,6 +16,7 @@ import { defineHcmPhotoList, HCM_PHOTO_LIST_TAG } from './hcm-photo-list.js';
 import { defineHcmPhotoSheet, HCM_PHOTO_SHEET_TAG } from './hcm-photo-sheet.js';
 import { defineHcmUnplacedGallery, HCM_UNPLACED_GALLERY_TAG } from './hcm-unplaced-gallery.js';
 import { defineHcmPoiDetail, HCM_POI_DETAIL_TAG } from './hcm-poi-detail.js';
+import { defineHcmSearch, HCM_SEARCH_TAG } from './hcm-search.js';
 import { defineHcmStories, HCM_STORIES_TAG } from './hcm-stories.js';
 import { defineHcmTimeline, HCM_TIMELINE_TAG } from './hcm-timeline.js';
 
@@ -35,6 +36,7 @@ export const VIEWER_TAGS = [
     HCM_PHOTOS_CONTROL_TAG,
     HCM_FAVORITE_STAR_TAG,
     HCM_FAVORITES_TAG,
+    HCM_SEARCH_TAG,
 ] as const;
 
 const DEFINERS: readonly ((registry: CustomElementRegistry) => void)[] = [
@@ -52,6 +54,7 @@ const DEFINERS: readonly ((registry: CustomElementRegistry) => void)[] = [
     defineHcmPhotosControl,
     defineHcmFavoriteStar,
     defineHcmFavorites,
+    defineHcmSearch,
 ];
 
 /** Registers the viewer elements in `registry`; calling it again is a no-op. */

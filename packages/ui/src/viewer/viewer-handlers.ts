@@ -8,6 +8,7 @@ import { PhotoReturn } from './photo-return.js';
 import type { ViewerServices } from './services.js';
 import type { ViewerStorePort } from './store-port.js';
 import { closeSheet, isMenuAction, menuAction, selectPhoto, shareViewer, toggleCompare } from './viewer-actions.js';
+import { pickSearchResult } from './viewer-search.js';
 import type { OverlayOpacityDetail, ViewerHandlers } from './viewer-render.js';
 import { toggleMyLocation } from './my-location.js';
 import { frontShotDirection } from './shot-direction.js';
@@ -282,5 +283,6 @@ export function createHandlers(host: HandlerHost): ViewerHandlers {
             // The menu stays open, as the opacity panel does: only a press outside, Esc or the pill closes it.
             store.pickLayer(event.detail.layerId);
         }),
+        onSearchSelect: on(pickSearchResult),
     };
 }

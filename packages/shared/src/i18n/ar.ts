@@ -309,4 +309,12 @@ export const ar: Messages = {
     'licence.oursTexts': 'لإعادة استخدام نصوص الخريطة وقصصها، استشهد بالخريطة مع رابط إليها.',
     'licence.layerSource': 'تبقى الحقوق للمصدر المذكور أعلاه: اسأله قبل إعادة استخدام هذا المسح.',
     'cite.copyFailed': 'حظر المتصفح الحافظة. حدد الاستشهاد أدناه وانسخه بنفسك.',
+    'search.label': 'البحث في الخريطة',
+    'search.placeholder': 'ابحث عن أماكن أو صور أو قصص…',
+    'search.clear': 'مسح البحث',
+    'search.results': 'نتائج البحث',
+    'search.empty': 'لم يتم العثور على نتائج لهذا البحث. جرّب اسماً أو كلمة أخرى.',
+    'search.kind.poi': 'مكان',
+    'search.kind.photo': 'صورة',
+    'search.kind.story': 'قصة',
 };

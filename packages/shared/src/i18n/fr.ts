@@ -325,4 +325,12 @@ export const fr: Messages = {
     'licence.oursTexts': 'Pour réutiliser les textes et récits de la carte, citez la carte avec un lien vers elle.',
     'licence.layerSource': 'Les droits restent à la source nommée ci-dessus : demandez-lui avant de réutiliser cette numérisation.',
     'cite.copyFailed': 'Le navigateur a bloqué le presse-papiers. Sélectionnez la citation ci-dessous et copiez-la vous-même.',
+    'search.label': 'Rechercher sur la carte',
+    'search.placeholder': 'Rechercher des lieux, photos, récits…',
+    'search.clear': 'Effacer la recherche',
+    'search.results': 'Résultats de la recherche',
+    'search.empty': 'Aucun résultat pour cette recherche. Essayez un autre nom ou mot.',
+    'search.kind.poi': 'Lieu',
+    'search.kind.photo': 'Photographie',
+    'search.kind.story': 'Récit',
 };

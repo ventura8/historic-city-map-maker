@@ -313,4 +313,12 @@ export const ko: Messages = {
     'licence.oursTexts': '지도의 글과 이야기를 재사용하려면 링크와 함께 지도를 인용하세요.',
     'licence.layerSource': '권리는 위에 적힌 출처에 있습니다. 이 스캔을 재사용하기 전에 출처에 문의하세요.',
     'cite.copyFailed': '브라우저가 클립보드를 차단했습니다. 아래 인용을 선택해 직접 복사하세요.',
+    'search.label': '지도 검색',
+    'search.placeholder': '장소, 사진, 이야기 검색…',
+    'search.clear': '검색 지우기',
+    'search.results': '검색 결과',
+    'search.empty': '일치하는 결과가 없습니다. 다른 이름이나 단어를 입력해 보세요.',
+    'search.kind.poi': '장소',
+    'search.kind.photo': '사진',
+    'search.kind.story': '이야기',
 };

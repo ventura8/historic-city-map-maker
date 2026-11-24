@@ -293,6 +293,12 @@ describe('<hcm-map-viewer>: store wiring', () => {
         expect(shadowQuery(element, '.frame').hasAttribute('data-timeline')).toBe(true);
         expect(element.shadowRoot?.querySelector('.timeline-note')).toBeNull();
     });
+});
+
+describe('<hcm-map-viewer>: timeline and floating controls', () => {
+    afterEach(() => {
+        document.body.replaceChildren();
+    });
 
     it('happyPath_aCityWithoutLayersSaysTheyAreComingInsteadOfATimeline', async () => {
         const manifest = testManifest((raw) => {
@@ -307,7 +313,7 @@ describe('<hcm-map-viewer>: store wiring', () => {
         store.set({ locale: 'en' });
         await element.updateComplete;
         expect(shadowQuery(element, '.timeline-note').textContent).toContain('No historical layers on this map');
-        expect(layoutChecked(element)).toEqual(['compass', 'consent', 'locate', 'menu', 'timeline-note', 'zoom']);
+        expect(layoutChecked(element)).toEqual(['compass', 'consent', 'locate', 'menu', 'search', 'timeline-note', 'zoom']);
     });
 
     it('happyPath_everyFloatingControlIsNamedForTheLayoutCheck', async () => {
@@ -317,7 +323,17 @@ describe('<hcm-map-viewer>: store wiring', () => {
         store.showToast('error.tiles');
         await element.updateComplete;
 
-        expect(layoutChecked(element)).toEqual(['compass', 'consent', 'locate', 'menu', 'near-year', 'timeline', 'toast', 'zoom']);
+        expect(layoutChecked(element)).toEqual([
+            'compass',
+            'consent',
+            'locate',
+            'menu',
+            'near-year',
+            'search',
+            'timeline',
+            'toast',
+            'zoom',
+        ]);
     });
 
     it('badPath_thePhotosAroundTheYearChipHidesWhileThePhotosAreOff', async () => {

@@ -307,4 +307,12 @@ export const en: Messages = {
     'licence.oursTexts': 'To reuse the map’s texts and stories, cite the map with a link to it.',
     'licence.layerSource': 'The rights stay with the source named above: ask it before you reuse this scan.',
     'cite.copyFailed': 'The browser blocked the clipboard. Select the citation below and copy it yourself.',
+    'search.label': 'Search the map',
+    'search.placeholder': 'Search places, photos, stories…',
+    'search.clear': 'Clear search',
+    'search.results': 'Search results',
+    'search.empty': 'No matches found for this search. Try another name or word.',
+    'search.kind.poi': 'Place',
+    'search.kind.photo': 'Photo',
+    'search.kind.story': 'Story',
 };

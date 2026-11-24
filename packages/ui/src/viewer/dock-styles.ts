@@ -12,6 +12,12 @@ export const dockStyles = css`
         z-index: 10;
     }
 
+    .dock.search {
+        z-index: 20;
+        inset-block-start: calc(var(--hcm-gutter) + env(safe-area-inset-top, 0px));
+        inset-inline-start: var(--hcm-top-start, var(--hcm-gutter));
+    }
+
     /* The menu's and the toast's docks are as wide as their popup or their row: only what they draw takes the pointer. */
     .dock.menu,
     .dock.toast {

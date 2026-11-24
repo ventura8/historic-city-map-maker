@@ -32,6 +32,7 @@ import { menuActions, menuItem } from './viewer-menu.js';
 import { nearYearChip, textChip } from './viewer-near-year.js';
 import { favoritesSheet } from './viewer-favorites.js';
 import { storiesSheet, type PlaceHandlers } from './viewer-stories.js';
+import { searchDock, type SearchHandlers } from './viewer-search.js';
 import { unplacedSheet } from './viewer-unplaced.js';
 import { statusOrCard } from './viewer-wordless.js';
 import type { CameraSource } from './hcm-compass.js';
@@ -81,7 +82,7 @@ export interface OverlayOpacityDetail {
 }
 
 /** The element's event handlers, bound once. */
-export interface ViewerHandlers extends LightboxHandlers, MapMenuHandlers, PlaceHandlers {
+export interface ViewerHandlers extends LightboxHandlers, MapMenuHandlers, PlaceHandlers, SearchHandlers {
     readonly onYearChange: (event: CustomEvent<{ readonly year: number | null }>) => void;
     readonly onOverlayVisibility: (event: CustomEvent<{ readonly id: string; readonly visible: boolean }>) => void;
     /** A place category's sub-group switch (`overlay-subgroups.ts`). */
@@ -320,7 +321,7 @@ function controls(view: ViewerView, ready: Ready, handlers: ViewerHandlers): Tem
     const items = menuActions({ webgl: state.webgl, layersDocked: view.layout.layersDocked, manifest }).map((action) =>
         menuItem(action, view.locale, state.myLocation !== null),
     );
-    return html`${timelineArea(view, ready, handlers)}
+    return html`${timelineArea(view, ready, handlers)} ${searchDock(manifest, view.locale, handlers)}
         ${nearYearChip(
             { locale: view.locale, wide: view.finePointer && textChip(state.windowClass, state.compactHeight) },
             state.year,

@@ -319,4 +319,12 @@ export const de: Messages = {
     'licence.oursTexts': 'Wenn Sie Texte und Geschichten der Karte weiterverwenden, zitieren Sie die Karte mit einem Link.',
     'licence.layerSource': 'Die Rechte liegen bei der oben genannten Quelle: Fragen Sie dort, bevor Sie diesen Scan weiterverwenden.',
     'cite.copyFailed': 'Der Browser hat die Zwischenablage blockiert. Markieren Sie das Zitat unten und kopieren Sie es selbst.',
+    'search.label': 'Auf der Karte suchen',
+    'search.placeholder': 'Orte, Fotos, Geschichten suchen…',
+    'search.clear': 'Suche löschen',
+    'search.results': 'Suchergebnisse',
+    'search.empty': 'Keine Treffer für diese Suche. Versuchen Sie einen anderen Namen.',
+    'search.kind.poi': 'Ort',
+    'search.kind.photo': 'Foto',
+    'search.kind.story': 'Geschichte',
 };

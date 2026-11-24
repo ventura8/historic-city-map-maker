@@ -641,6 +641,14 @@ A release is a tag `vX.Y.Z` of this repository ([releases/README.md](releases/RE
 - **Where v1.0.0 stands** (2026-10-25): every version of the repository is 1.0.0 and the release notes are written; `cdn/engine/`, the kit's pinned digests and the notes' table of addresses come with the release commit, after the user's answer on the committed engine's EditorConfig exception ([research/DECISIONS-for-review.md](research/DECISIONS-for-review.md) §59c, §63c). Until the tag exists, the starter kit's engine block carries placeholder digests and no page can load the pinned addresses ([research/M5-status.md](research/M5-status.md)).
 - **How a release is checked**: every version, `release.json` against the committed files, the starter kit's pins, the notes and a byte-for-byte rebuild of `cdn/engine/` from the tagged sources run before the GitHub Release is made ([CI_PIPELINE.md](CI_PIPELINE.md), stage `release`); preparing one is `.agent/skills/quality/prepare_release_skill.md`.
 
+## Search
+
+The viewer includes a floating search box (`<hcm-search>`, `packages/ui/src/viewer/hcm-search.ts`, `packages/ui/src/viewer/viewer-search.ts`, scenario V78) that searches the already-loaded static manifest with no Firestore reads and no extra network calls:
+
+- Matches places, POIs, disappeared streets, photos and stories by title across both Romanian (`ro`) and English (`en`), diacritics-insensitively, ranking prefix matches ahead of substring matches.
+- Picking a result (by click or `ArrowUp`/`ArrowDown` + `Enter`) flies the map to the item's coordinates (when it has any), enables a hidden POI category overlay (such as disappeared streets) if needed, and opens its detail sheet.
+- An unmatched query shows a localized empty message; `Escape` or the clear button resets the dropdown.
+
 ## Security
 
 - No HTML is rendered from data: Lit templates and `textContent` only; Mapbox popups use `setDOMContent` (`docs/research/design-review-security-cost.md` §1.7). POI descriptions are rendered like About: by walking `parseMarkdown(...).paragraphs` into DOM nodes.

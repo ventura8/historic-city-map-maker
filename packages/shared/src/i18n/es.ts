@@ -315,4 +315,12 @@ export const es: Messages = {
     'licence.oursTexts': 'Para reutilizar los textos e historias del mapa, cita el mapa con un enlace.',
     'licence.layerSource': 'Los derechos son de la fuente indicada arriba: pídele permiso antes de reutilizar este escaneo.',
     'cite.copyFailed': 'El navegador bloqueó el portapapeles. Selecciona la cita de abajo y cópiala tú.',
+    'search.label': 'Buscar en el mapa',
+    'search.placeholder': 'Buscar lugares, fotos, historias…',
+    'search.clear': 'Borrar búsqueda',
+    'search.results': 'Resultados de la búsqueda',
+    'search.empty': 'No se encontraron coincidencias. Pruebe otro nombre o palabra.',
+    'search.kind.poi': 'Lugar',
+    'search.kind.photo': 'Foto',
+    'search.kind.story': 'Historia',
 };

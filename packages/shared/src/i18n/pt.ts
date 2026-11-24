@@ -314,4 +314,12 @@ export const pt: Messages = {
     'licence.oursTexts': 'Para reutilizar os textos e histórias do mapa, cite o mapa com uma ligação para ele.',
     'licence.layerSource': 'Os direitos ficam com a fonte indicada acima: peça-lhe autorização antes de reutilizar esta digitalização.',
     'cite.copyFailed': 'O navegador bloqueou a área de transferência. Selecione a citação abaixo e copie-a você mesmo.',
+    'search.label': 'Pesquisar no mapa',
+    'search.placeholder': 'Pesquisar lugares, fotos, histórias…',
+    'search.clear': 'Limpar pesquisa',
+    'search.results': 'Resultados da pesquisa',
+    'search.empty': 'Nenhum resultado encontrado. Tente outro nome ou palavra.',
+    'search.kind.poi': 'Lugar',
+    'search.kind.photo': 'Foto',
+    'search.kind.story': 'História',
 };
