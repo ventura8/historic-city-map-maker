@@ -9,7 +9,7 @@ import { ImageryWorld, IMAGERY_MAPBOX_USER } from '../support/imagery.js';
 import { seedCity } from '../support/ops.js';
 import { ADMIN_LOCK, expect, test } from '../support/test.js';
 import type { UpstreamControl } from '../support/upstream.js';
-import type { EmulatorWorld } from '../support/emulators.js';
+import { FUNCTIONS_TIMEOUT_MS, type EmulatorWorld } from '../support/emulators.js';
 
 // One admin test at a time: the imagery world writes setup/status, ops/guard and the server's upstream world.
 test.describe.configure({ lock: ADMIN_LOCK });
@@ -119,7 +119,9 @@ test(
                 .map((file) => `rasters/bucharest/${LAYER}/job-1966/${file}`)
                 .sort((a, b) => a.localeCompare(b)),
         );
-        expect(await imagery.objects('work/bucharest/job-1966/')).toEqual([]);
+        // The register step deletes the job's scratch files; in the laptop's part of a split two were still listed at once
+        // (2026-11-24), so the check waits for the folder to empty in the functions' time.
+        await expect.poll(() => imagery.objects('work/bucharest/job-1966/'), { timeout: FUNCTIONS_TIMEOUT_MS }).toEqual([]);
         await expectExecution(imagery, execution, 'succeeded');
         expect(await imagery.runs()).toEqual([
             expect.objectContaining({ jobId: 'job-1966', attempt: 1, outcome: 'under', state: 'ended' }),
