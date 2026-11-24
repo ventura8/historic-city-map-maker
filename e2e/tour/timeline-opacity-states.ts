@@ -62,7 +62,7 @@ export const TIMELINE_OPACITY_STATES = {
         },
     },
     'timeline-opacity-sheet': {
-        title: 'On a phone a year of several dates shows its dates with the opacity sliders, never the sliders alone (owner, 2026-11-22)',
+        title: 'On a phone a year of several dates shows its dates with the opacity sliders, never the sliders alone (owner, 2026-11-22); under the dates on a 320 px phone (2026-11-24)',
         enter: async ({ page, lang }: TimelineOpacityTour) => {
             await openCard(page, lang);
             await expect(page.getByRole('menu', { name: t(lang, 'timeline.dates', { year: '1980' }), exact: true })).toBeVisible();

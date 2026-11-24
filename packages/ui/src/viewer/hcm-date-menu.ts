@@ -12,7 +12,7 @@
  * keeps it open on the way from the year; a finger sliding over it marks the date under it (`touchAt`) and lifting picks it.
  *
  * With `side` (a menu of the selected year, a peek too) the year's opacity sliders, slotted, sit beside the dates in one row
- * (`.pair`, the owner 2026-11-23: never stacked, never over each other), placed as one box; on a narrow phone the two columns
+ * (`.pair`, the owner 2026-11-23: never stacked, but for a room too narrow for both, 2026-11-24; never over each other), placed as one box; on a narrow phone the two columns
  * share the width and their labels wrap instead of being cut. Tab goes from the dates to them, Esc in them closes.
  *
  * Events (viewer-internal): `hcm-date-pick` (`{layerId}`), `hcm-close`, `hcm-date-menu-pointer` (`{inside}`).
@@ -21,7 +21,16 @@ import { LitElement, css, html, type PropertyValues, type TemplateResult } from 
 
 import { EMPTY } from './empty.js';
 import { clearOf } from './date-menu-clear.js';
-import { dateMenuOrigin, MAX_WIDTH, PAIR_MAX_WIDTH, pairHeight, sideRoom, type Side } from './date-menu-place.js';
+import {
+    dateMenuOrigin,
+    MAX_WIDTH,
+    PAIR_MAX_WIDTH,
+    pairHeight,
+    pairStacks,
+    sideRoom,
+    stackedHeight,
+    type Side,
+} from './date-menu-place.js';
 import { closeEvent } from './sheet-frame.js';
 import { baseStyles } from './shared-styles.js';
 import type { DateItem, DatesOpenDetail } from './timeline-dates.js';
@@ -34,6 +43,26 @@ const LEGAL_STRIP = 42;
 type Box = DatesOpenDetail['anchor'];
 
 /** The properties that move or resize the menu or its sliders. */
+/** Whether the sliders go under the dates: only with sliders, in a room too narrow for both side by side (§249). */
+function stacks(side: boolean, room: number): boolean {
+    return side && pairStacks(room);
+}
+
+/** A stacked pair is tall: it ends above the map's buttons under it rather than over them (its columns scroll). */
+function fitStacked(
+    pair: HTMLElement,
+    at: { readonly left: number; readonly right: number; readonly top: number },
+    avoided: readonly Box[],
+): void {
+    if (!pair.hasAttribute('data-stacked')) {
+        return;
+    }
+    const height = stackedHeight(at, avoided);
+    if (height !== null && height < pair.offsetHeight) {
+        pair.style.setProperty('max-block-size', `${String(height)}px`);
+    }
+}
+
 const PLACING: readonly (keyof HcmDateMenu)[] = ['anchor', 'side', 'items', 'vertical'];
 
 /** The top of the box the anchor lies in (the card around its thumb): above a lying card the row starts there, never over it. */
@@ -86,7 +115,7 @@ export class HcmDateMenu extends LitElement {
                 pointer-events: auto;
             }
 
-            /* The dates and the sliders in one row, placed as one box: never stacked, never over each other; their bottoms aligned. */
+            /* The dates and the sliders in one row, placed as one box: never over each other; their bottoms aligned (stacked only below). */
             .pair {
                 position: absolute;
                 display: flex;
@@ -96,6 +125,22 @@ export class HcmDateMenu extends LitElement {
                 max-inline-size: calc(100% - 16px);
                 max-block-size: calc(100% - 58px);
                 pointer-events: none;
+            }
+
+            /*
+             * Too narrow for both side by side (beside a standing timeline on a 320 px phone): the sliders under the dates,
+             * as wide as the room, each column scrolling in its share of the height (the owner, 2026-11-24, §249).
+             */
+            .pair[data-stacked] {
+                flex-direction: column;
+                align-items: stretch;
+            }
+
+            .pair[data-stacked] > .menu,
+            .pair[data-stacked] > .side {
+                flex: 0 1 auto;
+                min-block-size: 0;
+                max-inline-size: none;
             }
 
             .menu {
@@ -303,7 +348,9 @@ export class HcmDateMenu extends LitElement {
         const top = side === 'above' ? cardTop(thumb, avoided) : thumb.y;
         const anchor = { ...thumb, y: top, height: thumb.y + thumb.height - top };
         const widest = this.side ? PAIR_MAX_WIDTH : MAX_WIDTH;
-        pair.style.setProperty('max-inline-size', `${String(sideRoom(anchor, host.width, side, widest))}px`);
+        const room = sideRoom(anchor, host.width, side, widest);
+        pair.toggleAttribute('data-stacked', stacks(this.side, room));
+        pair.style.setProperty('max-inline-size', `${String(room)}px`);
         pair.style.setProperty('max-block-size', `${String(pairHeight(anchor, host.height, side))}px`);
         // Measured at the corner: an absolute box shrinks to the room past its left (a box placed right measured narrow).
         pair.style.setProperty('left', '0px');
@@ -312,6 +359,7 @@ export class HcmDateMenu extends LitElement {
         const origin = clearOf(wanted, [anchor, ...avoided], host, { foot: LEGAL_STRIP, axis: side === 'above' ? 'x' : 'y' });
         pair.style.setProperty('left', `${String(origin.x)}px`);
         pair.style.setProperty('top', `${String(origin.y)}px`);
+        fitStacked(pair, { left: origin.x, right: origin.x + size.width, top: origin.y }, avoided);
     }
 
     #side(): Side {

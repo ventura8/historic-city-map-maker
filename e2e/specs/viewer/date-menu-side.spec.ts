@@ -108,6 +108,41 @@ for (const [width, height] of [
     );
 }
 
+/** The sliders lie under the dates: apart, the sliders' top at or below the dates' bottom. */
+function under(dates: { x: number; y: number; width: number; height: number }, sliders: typeof dates): boolean {
+    return !overlaps(dates, sliders) && sliders.y >= dates.y + dates.height - 0.5;
+}
+
+test(
+    'On a 320 px phone the opacity sliders go under the dates, inside the window and clear of the timeline',
+    { tag: '@S-V13-HAPPY-DATES-STACKED-NARROW' },
+    async ({ page, lang }) => {
+        // The owner, 2026-11-24: "Stack on very narrow phones": beside the standing timeline there is no room for both.
+        await restOnTheYear(page, lang, 320, 568);
+        const dates = await boxOrNull(page.getByRole('menu', { name: t(lang, 'timeline.dates', { year: '1980' }), exact: true }));
+        const sliders = await boxOrNull(viewer(page).locator('hcm-date-menu .side'));
+        expect(under(dates, sliders), 'the sliders under the dates').toBe(true);
+        for (const box of [dates, sliders]) {
+            expect(box.x >= 0 && box.x + box.width <= 320 && box.y >= 0 && box.y + box.height <= 568, 'inside the window').toBe(true);
+        }
+        const card = await boxOrNull(viewer(page).locator('hcm-timeline'));
+        expect(overlaps(sliders, card) || overlaps(dates, card), 'clear of the timeline').toBe(false);
+        await expect(viewer(page).locator('hcm-date-menu .opacity-sliders [role="slider"]')).toHaveCount(3);
+    },
+);
+
+test(
+    'A phone with room beside the timeline keeps the dates and the sliders side by side, never stacked',
+    { tag: '@S-V13-BAD-STACKED-WITH-ROOM' },
+    async ({ page, lang }) => {
+        await restOnTheYear(page, lang, 360, 800);
+        const dates = await boxOrNull(page.getByRole('menu', { name: t(lang, 'timeline.dates', { year: '1980' }), exact: true }));
+        const sliders = await boxOrNull(viewer(page).locator('hcm-date-menu .side'));
+        expect(sideBySide(dates, sliders), 'one row').toBe(true);
+        await expect(viewer(page).locator('hcm-date-menu .pair[data-stacked]')).toHaveCount(0);
+    },
+);
+
 test(
     'A mouse on the pill of a year of several dates never shows the sliders without the dates',
     { tag: '@S-V13-BAD-SLIDERS-ALONE' },

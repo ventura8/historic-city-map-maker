@@ -14,6 +14,12 @@ const MIN_WIDTH = 112;
 export const MAX_WIDTH = 280;
 /** The widest the dates and the sliders side by side may be: a 280 px menu, the gap and the 280 px sliders. */
 export const PAIR_MAX_WIDTH = 2 * MAX_WIDTH + EDGE;
+/**
+ * The narrowest the dates and the sliders side by side can be: the menu's least 112 px, the gap and the sliders' least
+ * 152 px (`hcm-date-menu.ts`). Where the room is narrower (beside a standing timeline on a 320 px phone: 228 px) the
+ * sliders go under the dates (the owner, 2026-11-24: "Stack on very narrow phones"), DECISIONS-for-review.md §249.
+ */
+export const PAIR_MIN_WIDTH = MIN_WIDTH + EDGE + 152;
 /** The fewest px of height the pair keeps above a lying timeline (a short window scrolls its columns). */
 const MIN_HEIGHT = 96;
 
@@ -50,4 +56,27 @@ export function sideRoom(anchor: Box, width: number, side: Side, max = MAX_WIDTH
 export function pairHeight(anchor: Box, height: number, side: Side): number {
     const room = side === 'above' ? anchor.y - 2 * EDGE : height - LEGAL_STRIP - EDGE;
     return Math.max(MIN_HEIGHT, room);
+}
+
+/**
+ * Whether the sliders go under the dates: the room `sideRoom` leaves, with the 8 px it keeps from the viewer's far edge, is
+ * narrower than the pair side by side. A 360 px phone (268 px of room) keeps them side by side, a 320 px one (228) stacks.
+ */
+export function pairStacks(room: number): boolean {
+    return room + EDGE < PAIR_MIN_WIDTH;
+}
+
+/**
+ * A stacked pair's height (px) placed at `top` over the columns `left` to `right`: it ends `EDGE` above the highest
+ * control below it there (on a 320 px phone the map's buttons stood under the sliders), never under `MIN_HEIGHT`; null
+ * when nothing lies below.
+ */
+export function stackedHeight(
+    pair: { readonly left: number; readonly right: number; readonly top: number },
+    below: readonly Box[],
+): number | null {
+    const tops = below
+        .filter((box) => box.x < pair.right && box.x + box.width > pair.left && box.y > pair.top)
+        .map((box) => box.y - EDGE - pair.top);
+    return tops.length === 0 ? null : Math.max(MIN_HEIGHT, Math.min(...tops));
 }

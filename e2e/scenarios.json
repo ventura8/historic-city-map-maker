@@ -3018,6 +3018,28 @@
             "notes": "Owner 2026-11-23: the sliders were stacked over the dates with cut labels, and clearing map controls could jump the row to the top-right corner. One flex row placed as one box (hcm-date-menu.ts .pair, date-menu-clear.ts axis-first shift); on a narrow phone the two columns share the width and their labels wrap. Tests: e2e/specs/viewer/date-menu-side.spec.ts, packages/ui/test/viewer/hcm-date-menu.test.ts; tour state timeline-opacity-several."
         },
         {
+            "id": "S-V13-HAPPY-DATES-STACKED-NARROW",
+            "behaviour": "V13",
+            "area": "viewer",
+            "path": "happy",
+            "title": "On a 320 px phone the opacity sliders go under the dates, inside the window and clear of the timeline",
+            "asserts": "320 x 568, a year of two dates opened with Enter -> the date menu and its three sliders show, the sliders under the dates, both inside the window and clear of the standing timeline",
+            "tier": "e2e-viewer",
+            "status": "exists",
+            "notes": "The owner, 2026-11-24: \"Stack on very narrow phones\": the exception to never stacked (DECISIONS-for-review.md §249). pairStacks (date-menu-place.ts), hcm-date-menu.ts; tests: e2e/specs/viewer/date-menu-side.spec.ts, packages/ui/test/viewer/hcm-date-menu.test.ts; the tour's timeline states at c320."
+        },
+        {
+            "id": "S-V13-BAD-STACKED-WITH-ROOM",
+            "behaviour": "V13",
+            "area": "viewer",
+            "path": "bad",
+            "title": "A phone with room beside the timeline keeps the dates and the sliders side by side, never stacked",
+            "asserts": "360 x 800, a year of two dates opened with Enter -> the dates and the sliders in one row, no stacked pair",
+            "tier": "e2e-viewer",
+            "status": "exists",
+            "notes": "The owner, 2026-11-24: stacked only on very narrow phones (DECISIONS-for-review.md §249). Tests: e2e/specs/viewer/date-menu-side.spec.ts."
+        },
+        {
             "id": "S-V13-BAD-SLIDERS-ALONE",
             "behaviour": "V13",
             "area": "viewer",

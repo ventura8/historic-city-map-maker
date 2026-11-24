@@ -1,7 +1,7 @@
 import { afterEach, describe, expect, it } from 'vitest';
 import { page } from 'vitest/browser';
 
-import { dateMenuOrigin, pairHeight, sideRoom } from '../../src/viewer/date-menu-place.js';
+import { dateMenuOrigin, pairHeight, sideRoom, stackedHeight } from '../../src/viewer/date-menu-place.js';
 import { HCM_DATE_MENU_TAG, HcmDateMenu, defineHcmDateMenu } from '../../src/viewer/hcm-date-menu.js';
 import { recordEvents, shadowQuery, shadowQueryAll } from './doubles.js';
 
@@ -308,5 +308,62 @@ describe('<hcm-date-menu> placed by its year (the owner, 2026-11-23: never in th
         expect(pairHeight(ANCHOR, 700, 'above')).toBe(484);
         expect(pairHeight(ANCHOR, 700, 'end')).toBe(650);
         expect(sideRoom(ANCHOR, 1440, 'above', 568)).toBe(568);
+    });
+});
+
+describe('<hcm-date-menu> on a very narrow phone (the owner, 2026-11-24)', () => {
+    afterEach(() => {
+        document.body.replaceChildren();
+    });
+
+    /** The two boxes sit in one row: apart along it, sharing some of their height. */
+    function besideInRow(a: DOMRect, b: DOMRect): boolean {
+        return (a.right <= b.left || b.right <= a.left) && a.top < b.bottom && b.top < a.bottom;
+    }
+
+    it('happyPath_aStackedPairEndsAboveTheButtonsUnderIt_edgeNoneBelowOrBesideLeavesIt', () => {
+        const pair = { left: 92, right: 296, top: 8 };
+        const locate = { x: 196, y: 262, width: 48, height: 48 };
+        expect(stackedHeight(pair, [locate, { x: 256, y: 322, width: 48, height: 96 }])).toBe(246);
+        expect(
+            stackedHeight(pair, [
+                { x: 16, y: 300, width: 60, height: 48 },
+                { x: 196, y: 0, width: 48, height: 4 },
+            ]),
+        ).toBeNull();
+        expect(stackedHeight(pair, [{ ...locate, y: 20 }])).toBe(96);
+    });
+
+    it('happyPath_besideAStandingTimelineOnA320pxPhoneTheSlidersGoUnderTheDates', async () => {
+        // The owner, 2026-11-24: "Stack on very narrow phones": 228 px beside the timeline, under the 272 px of both side by side.
+        const element = await menu({ side: true, vertical: true, anchor: { x: 24, y: 120, width: 52, height: 40 } });
+        element.parentElement?.style.setProperty('width', '320px');
+        element.parentElement?.style.setProperty('height', '568px');
+        const sliders = document.createElement('div');
+        sliders.style.cssText = 'height: 120px';
+        element.append(sliders);
+        element.anchor = { x: 24, y: 121, width: 52, height: 40 };
+        await element.updateComplete;
+        const dates = shadowQuery(element, '.menu').getBoundingClientRect();
+        const side = shadowQuery(element, '.side').getBoundingClientRect();
+        const host = element.getBoundingClientRect();
+        expect(shadowQuery(element, '.pair').hasAttribute('data-stacked')).toBe(true);
+        expect(side.top, 'the sliders under the dates').toBeGreaterThanOrEqual(dates.bottom);
+        expect(side.right).toBeLessThanOrEqual(host.right - 8 + 0.5);
+    });
+
+    it('badPath_whereBothFitBesideItTheyStaySideBySide', async () => {
+        const element = await menu({ side: true, vertical: true, anchor: { x: 24, y: 120, width: 52, height: 40 } });
+        element.parentElement?.style.setProperty('width', '412px');
+        element.parentElement?.style.setProperty('height', '800px');
+        const sliders = document.createElement('div');
+        sliders.style.cssText = 'height: 120px';
+        element.append(sliders);
+        element.anchor = { x: 24, y: 121, width: 52, height: 40 };
+        await element.updateComplete;
+        expect(shadowQuery(element, '.pair').hasAttribute('data-stacked')).toBe(false);
+        expect(
+            besideInRow(shadowQuery(element, '.menu').getBoundingClientRect(), shadowQuery(element, '.side').getBoundingClientRect()),
+        ).toBe(true);
     });
 });
