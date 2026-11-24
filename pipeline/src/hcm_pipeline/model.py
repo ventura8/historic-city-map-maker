@@ -263,12 +263,18 @@ class RegeorefParams:
     # M20 §19.18: a regeoref of an archive version names the archive and series whose originals it warps.
     original_archive_id: str | None = None
     original_series_id: str | None = None
+    # 2026-11-24: Redraw at full resolution (the originals or a plain failure), and the versions that may hold the parts record.
+    full_resolution: bool = False
+    record_from: tuple[str, ...] = ()
 
     @classmethod
     def of(cls, params: Mapping[str, object]) -> RegeorefParams:
-        _strict(params, frozenset({"basedOn", "originalArchiveId", "originalSeriesId"}))
+        _strict(params, frozenset({"basedOn", "originalArchiveId", "originalSeriesId", "fullResolution", "recordFrom"}))
         archive = None if params.get("originalArchiveId") is None else id_of(params, "originalArchiveId")
-        return cls(id_of(params, "basedOn"), archive, optional_text(params, "originalSeriesId"))
+        found = params.get("recordFrom")
+        chain = tuple(item for item in found if isinstance(item, str)) if isinstance(found, list) else ()
+        full = params.get("fullResolution") is True
+        return cls(id_of(params, "basedOn"), archive, optional_text(params, "originalSeriesId"), full, chain)
 
 
 @dataclass(frozen=True)

@@ -376,6 +376,10 @@ export const regeorefParamsSchema = z.strictObject({
     /** M20 §19.18: a regeoref of an archive version names the archive and the series whose originals it warps. */
     originalArchiveId: idSchema.optional(),
     originalSeriesId: idSchema.optional(),
+    /** 2026-11-24: Redraw at full resolution: the originals must be warped; the job fails (`apiError.imagery.originalMissing`) without them. */
+    fullResolution: z.literal(true).optional(),
+    /** 2026-11-24: the versions, nearest first, whose files may hold the series' parts record (`parts.json`): the base and its own bases. */
+    recordFrom: z.array(idSchema).max(8).optional(),
 });
 
 /** `republish`: an approved version to publish again (after a Mapbox failure, or a deferral). */

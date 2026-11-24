@@ -296,6 +296,8 @@ class Errors:
     REFINE_UNMEASURED: Final = "apiError.imagery.refineUnmeasured"
     # M20: an archive series' originals are not on this computer, or are no longer the files its scan read.
     ARCHIVE_MISSING: Final = "apiError.imagery.archiveMissing"
+    # 2026-11-24: Redraw at full resolution found neither the original nor the parts' originals.
+    ORIGINAL_MISSING: Final = "apiError.imagery.originalMissing"
     # M25: a Landsat delivery without a band the true colour needs.
     MISSING_BAND: Final = "apiError.imagery.missingBand"
     # A job type this image does not run: the worker's pipeline is older than the job; an updated one runs it (retryable).

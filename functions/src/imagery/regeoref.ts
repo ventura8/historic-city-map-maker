@@ -51,6 +51,8 @@ export interface Regeoref {
      * pending mark, until this version is rendered (the approval policy replaces it then): a refine that declines leaves it as it was.
      */
     readonly recalibration?: Recalibration;
+    /** 2026-11-24: Redraw at full resolution: the pipeline must warp the originals, or fail with `apiError.imagery.originalMissing`. */
+    readonly fullResolution?: boolean;
 }
 
 type Fields = Parameters<typeof createWork>[2];
@@ -175,13 +177,45 @@ async function regeorefIn(transaction: DocumentTransaction, regeoref: Regeoref, 
     }
 }
 
-/** Parameters for a regeoref job: an archive version also names its archive so only a worker holding it whole claims it. */
-function paramsOf(base: LayerVersionDoc): Record<string, unknown> {
-    const source = base.source;
-    if (source?.kind === 'archive' && typeof source.archiveId === 'string' && typeof source.seriesId === 'string') {
-        return { basedOn: base.jobId, originalArchiveId: source.archiveId, originalSeriesId: source.seriesId };
+/** How far back the versions that may hold a series' parts record are followed (a chain of redraws and point edits). */
+const RECORD_CHAIN = 8;
+
+function continues(chain: readonly string[], next: string | undefined): next is string {
+    return next !== undefined && chain.length < RECORD_CHAIN && !chain.includes(next);
+}
+
+/**
+ * 2026-11-24: the base and the versions it was itself drawn from, nearest first: a series' parts record (`parts.json`) stays with the
+ * version whose placing wrote it, and a regeoref of a regeoref found none in its own files, so it warped the reduced picture.
+ */
+async function recordChain(documents: RegeorefDeps['documents'], cityId: string, base: LayerVersionDoc): Promise<string[]> {
+    const chain = [base.jobId];
+    let next = base.basedOn;
+    while (continues(chain, next)) {
+        chain.push(next);
+        const found = await documents.get(FIRESTORE_PATHS.layerVersion(cityId, next), layerVersionDocSchema);
+        next = found?.basedOn;
     }
-    return { basedOn: base.jobId };
+    return chain;
+}
+
+/** The archive and series an archive version was imported from, else undefined. */
+function archiveOf(base: LayerVersionDoc): { readonly archiveId: string; readonly seriesId: string } | undefined {
+    const source = base.source;
+    const named = source?.kind === 'archive' && typeof source.archiveId === 'string';
+    return named && typeof source.seriesId === 'string' ? { archiveId: source.archiveId, seriesId: source.seriesId } : undefined;
+}
+
+/** Parameters for a regeoref job: an archive version also names its archive so only a worker holding it whole claims it. */
+async function paramsOf(deps: RegeorefDeps, regeoref: Regeoref): Promise<Record<string, unknown>> {
+    const { base } = regeoref;
+    const archive = archiveOf(base);
+    if (archive === undefined) {
+        return { basedOn: base.jobId };
+    }
+    const full = regeoref.fullResolution === true ? { fullResolution: true } : {};
+    const recordFrom = await recordChain(deps.documents, regeoref.cityId, base);
+    return { basedOn: base.jobId, originalArchiveId: archive.archiveId, originalSeriesId: archive.seriesId, recordFrom, ...full };
 }
 
 /** M20 §19.18: a regeoref of an archive version warps its originals, which only the owner's computers have. */
@@ -205,7 +239,7 @@ export async function startRegeoref(deps: RegeorefDeps, regeoref: Regeoref): Pro
         cityId,
         jobId,
         type: 'regeoref',
-        params: paramsOf(base),
+        params: await paramsOf(deps, regeoref),
         ...localOf(base),
         layerId: base.layerId,
         createdBy: regeoref.by,

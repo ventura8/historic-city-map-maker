@@ -14672,7 +14672,7 @@
             "area": "admin",
             "path": "happy",
             "title": "A single map is redrawn at full resolution with its own points",
-            "asserts": "Redraw at full resolution on a map placed by points -> imagery.saveGcps with its transform, points and crop: a new version warped from the original",
+            "asserts": "Redraw at full resolution on a map placed by points -> imagery.saveGcps with its transform, points, crop and fullResolution: a new version warped from the original",
             "tier": "e2e-admin",
             "status": "exists",
             "notes": "Owner 2026-11-23 (the 1974 cadastral plan). Tests: packages/admin/test/imagery/version.test.ts, packages/ui/test/admin/imagery/imagery-fix-tiles.test.ts."
@@ -21925,6 +21925,28 @@
             "tier": "e2e-pipeline",
             "status": "exists",
             "notes": "M20 §19.18, §22. Tests: functions/test/worker/archive-share.test.ts, functions/test/worker/archive-host.test.ts, pipeline/tests/unit/test_archive_copy.py."
+        },
+        {
+            "id": "S-P20-HAPPY-REDRAW-ORIGINAL",
+            "behaviour": "P20",
+            "area": "pipeline",
+            "path": "happy",
+            "title": "Redraw at full resolution warps the originals, also for a redraw of a redraw",
+            "asserts": "a fullResolution regeoref of a single map warps its original with the points scaled from the working copy (a crop ring cuts it the same); a composite finds its parts record in the versions it was drawn from (recordFrom) and keeps it with the new version",
+            "tier": "e2e-pipeline",
+            "status": "exists",
+            "notes": "Owner 2026-11-24 (1895-1899 redrawn from its 8192 px stitched picture). Tests: pipeline/tests/unit/test_redraw_fullres.py, functions/test/imagery/save-gcps.test.ts."
+        },
+        {
+            "id": "S-P20-BAD-REDRAW-ORIGINAL-MISSING",
+            "behaviour": "P20",
+            "area": "pipeline",
+            "path": "bad",
+            "title": "A redraw with no original fails with a plain message instead of copying the published version",
+            "asserts": "fullResolution with neither the original nor a parts record -> the job fails with apiError.imagery.originalMissing; an ordinary point edit still warps the scan",
+            "tier": "e2e-pipeline",
+            "status": "exists",
+            "notes": "Owner 2026-11-24. Tests: pipeline/tests/unit/test_redraw_fullres.py."
         },
         {
             "id": "S-A65-HAPPY-JOINED-FRAME",

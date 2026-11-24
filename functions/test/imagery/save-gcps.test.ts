@@ -506,7 +506,20 @@ describe('imagery.saveGcps on an archive version', () => {
         const response = await save(world, { versionId: CORONA, gcps: pairs(6, 20480, 16384) });
 
         const job = await readJob(world, response.jobId);
-        expect(job?.params).toEqual({ basedOn: CORONA, originalArchiveId: ARCHIVE, originalSeriesId: seriesIdOf(1) });
+        expect(job?.params).toEqual({ basedOn: CORONA, originalArchiveId: ARCHIVE, originalSeriesId: seriesIdOf(1), recordFrom: [CORONA] });
         expect(job).toMatchObject({ runOn: 'local', localOnly: true });
+    });
+
+    it('happyPath_aRedrawAsksForTheOriginalsAndNamesTheVersionsBehindIt @S-P20-HAPPY-REDRAW-ORIGINAL', async () => {
+        const world = await publishedWorld();
+        const corona = await readVersion(world, CORONA);
+        const source = { kind: 'archive', archiveId: ARCHIVE, seriesId: seriesIdOf(1), sheetCount: 4, placedCount: 4 } as const;
+        await seedVersion(world, 'rg-older', { ...(corona ?? {}), jobId: 'rg-older', basedOn: 'ar-first', source } as LayerVersionDoc);
+        await seedVersion(world, CORONA, { ...(corona ?? {}), basedOn: 'rg-older', source } as LayerVersionDoc);
+
+        const response = await save(world, { versionId: CORONA, gcps: pairs(6, 20480, 16384), fullResolution: true });
+
+        const job = await readJob(world, response.jobId);
+        expect(job?.params).toMatchObject({ fullResolution: true, recordFrom: [CORONA, 'rg-older', 'ar-first'] });
     });
 });

@@ -479,6 +479,7 @@ describe('a job view at its attempt cap (live report of 2026-11-12)', () => {
                     { lat: 44.5, lng: 26.0 },
                     { lat: 44.5, lng: 26.1 },
                 ],
+                fullResolution: true,
             },
         ]);
         expect(notices.map((notice) => notice.key)).toEqual(['adminContent.imagery.notice.redrawing']);

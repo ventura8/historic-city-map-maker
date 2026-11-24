@@ -324,6 +324,8 @@ export class VersionPage {
             transform: georef.transform,
             gcps: georef.gcps,
             ...crop,
+            // 2026-11-24: the pipeline warps the originals, or fails saying they are missing; never the reduced working copy.
+            fullResolution: true,
         });
         return this.#act('redraw', 'imagery.saveGcps', request, { key: 'adminContent.imagery.notice.redrawing' });
     }

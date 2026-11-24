@@ -204,6 +204,8 @@ export const imagerySaveGcpsRequestSchema = z
         transform: z.enum(GEOREF_TRANSFORMS),
         gcps: z.array(gcpSchema).max(MAX_GCPS),
         crop: cropRingSchema.optional(),
+        /** 2026-11-24: Redraw at full resolution: the new version is warped from the originals, or fails saying they are missing. */
+        fullResolution: z.boolean().optional(),
     })
     .refine((request) => enabledGcps(request.gcps) >= MIN_GCPS[request.transform], coded('validation.tooSmall', ['gcps']));
 

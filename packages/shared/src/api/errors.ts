@@ -203,6 +203,7 @@ export const API_ERRORS: Readonly<Record<ApiErrorCode, ApiErrorSpec>> = {
     'apiError.imagery.localOnly': spec('failed-precondition'),
     'apiError.imagery.rightsUnconfirmed': spec('failed-precondition'),
     'apiError.imagery.archiveMissing': spec('failed-precondition'),
+    'apiError.imagery.originalMissing': spec('failed-precondition'),
     'apiError.imagery.filmMissing': spec('failed-precondition'),
     'apiError.imagery.archiveImported': spec('failed-precondition'),
     'apiError.imagery.archiveYear': spec('failed-precondition'),

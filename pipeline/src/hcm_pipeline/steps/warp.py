@@ -10,7 +10,10 @@ bilinear, an alpha band, and `-cutline` with `-crop_to_cutline` when the version
 scan at its height. The same `attached` is what a join (`join/warping.py`) and the next frame's ties (`steps/aligning.py`) read a frame
 through, so all of them show the one map the layer shows. A `regeoref` of an archive single map warps its original
 (`placing/original.py`, the points scaled to it), never the reduced scan the points were placed on; a `regeoref` of an archive composite
-warps its parts' originals through its kept parts record (`composite_originals`, M20 §19.18). A USGS frame renders no
+warps its parts' originals through its kept parts record (`composite_originals`, M20 §19.18), found with its own version's files or
+with the versions it was drawn from (`recordFrom`, nearest first; 2026-11-24: a redraw of a redraw looked only in its own, found
+nothing and warped the 8192 px stitched picture). Redraw at full resolution (`fullResolution`) never falls back: with no original and
+no record it fails with `apiError.imagery.originalMissing`, as a copy of the published version helps nobody. A USGS frame renders no
 further than the city's window (`outputBounds`, M9 §5): a wide crop rendered 1,249 km² and a 500 compute-unit estimate for one
 city.
 """
@@ -22,6 +25,7 @@ from dataclasses import dataclass, replace
 from pathlib import Path
 from typing import Final
 
+from hcm_pipeline import paths
 from hcm_pipeline.contract import SENSOR_SPECS, Errors
 from hcm_pipeline.documents import GeorefInfo, TerrainInfo, Version
 from hcm_pipeline.geo import ZOOM0_RESOLUTION_M, to_mercator, zoom_resolution
@@ -43,6 +47,7 @@ FLAT_GROUND: Final = 0.0
 # GDAL's RPC transformer over the surface model: its heights as they are (no geoid shift), read bilinearly.
 RPC_OPTIONS: Final = ("RPC_DEM_APPLY_VDATUM_SHIFT=FALSE", "RPC_DEMINTERPOLATION=bilinear")
 TPS_OPTIONS: Final = ("METHOD=GCP_TPS",)
+ORIGINAL_MISSING: Final = "no full-resolution original and no parts record was found for this redraw: nothing is warped"
 # EPSG:3857 x, y, the scan's column and row.
 Point = tuple[float, float, float, float]
 
@@ -185,12 +190,31 @@ def _plain_archive(version: Version, georef: GeorefInfo) -> bool:
     return georef.method == "gcps" and georef.terrain is None and not version.crop and version.source.get("kind") == "archive"
 
 
+def record_paths(ctx: JobContext) -> list[str]:
+    """Where a composite's parts record may be: the version's own files, then each version it was drawn from (`recordFrom`)."""
+    chain = ctx.job.params.get("recordFrom")
+    drawn_from = [item for item in chain if isinstance(item, str)] if isinstance(chain, list) else []
+    own = ctx.version_file(fullres.VERSION_RECORD)
+    return [own, *(paths.version(ctx.city, ctx.version.layer_id, item, fullres.VERSION_RECORD) for item in drawn_from)]
+
+
+def _staged_record(ctx: JobContext, scan: Path) -> bool:
+    """The first parts record found staged beside the scan, and kept with this version too so the next redraw finds it; else False."""
+    found = next((path for path in record_paths(ctx) if ctx.services.objects.stat(path) is not None), None)
+    if found is None:
+        return False
+    local = ctx.stage(found, fullres.sidecar(scan).name)
+    if found != ctx.version_file(fullres.VERSION_RECORD):
+        ctx.log.info(f"the parts record is read from {found}", ctx.step)
+        ctx.publish(local, ctx.version_file(fullres.VERSION_RECORD), "application/json")
+    return True
+
+
 def _composite_record(ctx: JobContext, scan: Path, georef: GeorefInfo) -> int | None:
     """A regeoref of an archive composite with its parts record (`parts.json`, kept by its placing) staged beside the scan: the zoom
     it was published at; else None. A crop ring or a map over terrain keeps the usual warp."""
-    if not _plain_archive(ctx.version, georef) or ctx.services.objects.stat(ctx.version_file(fullres.VERSION_RECORD)) is None:
+    if not _plain_archive(ctx.version, georef) or not _staged_record(ctx, scan):
         return None
-    ctx.stage(ctx.version_file(fullres.VERSION_RECORD), fullres.sidecar(scan).name)
     return _published_zoom(ctx)
 
 
@@ -205,6 +229,13 @@ def composite_originals(ctx: JobContext, scan: Path, georef: GeorefInfo) -> Path
     return gdal_step(ctx, lambda: fullres.warp_composite(scan, target, plan, lambda line: ctx.log.info(line, ctx.step)), "warp the parts")
 
 
+def require_original(ctx: JobContext, from_original: bool) -> None:
+    """Redraw at full resolution (`fullResolution`) with neither the original nor the parts' originals fails, plainly (2026-11-24)."""
+    if ctx.job.params.get("fullResolution") is True and not from_original:
+        ctx.log.warn(f"{ORIGINAL_MISSING} (version {ctx.version.id})", ctx.step)
+        raise StepFailedError(Errors.ORIGINAL_MISSING, ORIGINAL_MISSING)
+
+
 class WarpStep:
     name = "warp"
 
@@ -212,10 +243,12 @@ class WarpStep:
         version = ctx.version
         if version.scan is None or version.georef is None:
             raise StepFailedError(Errors.NO_SCAN, "the version has no georeferenced scan")
-        scan, georef = full_resolution(ctx, ctx.stage(version.scan.path, "scan.tif"), version.georef)
+        staged = ctx.stage(version.scan.path, "scan.tif")
+        scan, georef = full_resolution(ctx, staged, version.georef)
         composite = composite_originals(ctx, scan, georef)
         if composite is not None:
             return Done(ctx.publish(composite, ctx.work_file("warped.tif"), "image/tiff"))
+        require_original(ctx, scan != staged)
         source, method = self._source(ctx, scan, georef)
         native = gdal_step(ctx, lambda: native_zoom(source, method, ctx.local("probe.vrt")), "measure the scan")
         _, maxzoom = zooms(version, native)
