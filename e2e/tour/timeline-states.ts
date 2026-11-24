@@ -60,6 +60,21 @@ export const TIMELINE_STATES = {
         },
         escape: ({ lang }: TimelineTour) => ({ opener: t(lang, 'timeline.label') }),
     },
+    'timeline-dates-unchecked': {
+        title: "The menu of a year's dates with one date's checkbox cleared in the panel: that layer off, the panel open",
+        enter: async ({ page, lang }: TimelineTour) => {
+            const menu = page.getByRole('menu', { name: t(lang, 'timeline.dates', { year: '1980' }), exact: true });
+            if (!(await menu.isVisible())) {
+                await openTimelineCard(page);
+                await slider(page, lang).click();
+            }
+            const box = page.locator('hcm-date-menu .box:not(:disabled)').first();
+            await box.click();
+            await expect(box).not.toBeChecked();
+            await expect(menu).toBeVisible();
+        },
+        escape: ({ lang }: TimelineTour) => ({ opener: t(lang, 'timeline.label') }),
+    },
 } as const;
 
 /** The journey of these states in e2e/tour/states.ts. */
@@ -75,5 +90,5 @@ export const TIMELINE_JOURNEY = {
             new RegExp(`^${t(lang, 'timeline.year', { year: '1980' })}, `, 'u'),
         );
     },
-    states: ['timeline-pill', 'timeline-open', 'timeline-peek', 'timeline-dates'],
+    states: ['timeline-pill', 'timeline-open', 'timeline-peek', 'timeline-dates', 'timeline-dates-unchecked'],
 } as const;

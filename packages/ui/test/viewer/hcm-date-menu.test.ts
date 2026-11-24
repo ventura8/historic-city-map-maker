@@ -42,7 +42,7 @@ describe('<hcm-date-menu>', () => {
         const element = await menu({ shown: new Set(['a', 'c']) });
 
         await expect.element(page.getByRole('menu', { name: 'Datele din 1966' })).toBeVisible();
-        const items = shadowQueryAll(element, '[role="menuitemcheckbox"]');
+        const items = shadowQueryAll(element, '.item');
         expect(items.map((item) => item.getAttribute('aria-checked'))).toEqual(['false', 'true', 'true']);
         expect(items.map((item) => item.hasAttribute('data-front'))).toEqual([false, true, false]);
         expect(items.every((item) => item.getBoundingClientRect().height >= 48)).toBe(true);
@@ -68,6 +68,51 @@ describe('<hcm-date-menu>', () => {
         shadowQuery(element, '[data-item="c"]').click();
 
         expect(events).toEqual([{ type: 'hcm-date-pick', detail: { layerId: 'c' } }]);
+    });
+
+    it('happyPath_eachRowsCheckboxShowsOrHidesItsLayerAndTheFrontStaysOn', async () => {
+        const element = await menu({ shown: new Set(['a', 'c']), showLabel: (name: string) => `Arată pe hartă: ${name}` });
+        const events = recordEvents(element, 'hcm-date-show', 'hcm-date-pick');
+        const boxes = shadowQueryAll(element, '.box') as HTMLButtonElement[];
+
+        expect(boxes.map((box) => box.getAttribute('aria-checked'))).toEqual(['false', 'true', 'true']);
+        expect(boxes.map((box) => box.disabled)).toEqual([false, true, false]);
+        expect(boxes[0]?.getAttribute('aria-label')).toBe('Arată pe hartă: Corona A, 12 aprilie 1966');
+        const target = boxes[0]?.parentElement?.getBoundingClientRect();
+        expect(getComputedStyle(boxes[0] as Element, '::after').width).toBe('48px');
+        expect([target?.width, target?.height]).toEqual([40, 48]);
+        boxes[0]?.click();
+        boxes[2]?.click();
+
+        expect(events).toEqual([
+            { type: 'hcm-date-show', detail: { layerId: 'b', visible: true } },
+            { type: 'hcm-date-show', detail: { layerId: 'c', visible: false } },
+        ]);
+    });
+
+    it('happyPath_leftAndRightMoveBetweenARowsCheckboxAndItsDateUpAndDownBetweenRows', async () => {
+        const element = await menu({ selected: null, items: [...ITEMS, { id: 'd', date: '1966', label: '' }] });
+        const active = (): Element | null | undefined => element.shadowRoot?.activeElement;
+        expect(focusedItem(element)).toBe('b');
+
+        key(element, 'ArrowRight');
+        expect(active()?.getAttribute('data-show')).toBe('b');
+        key(element, 'ArrowDown');
+        expect(focusedItem(element)).toBe('a');
+        key(element, 'ArrowLeft');
+        expect(active()?.getAttribute('data-show')).toBe('a');
+        key(element, 'ArrowLeft');
+        expect(focusedItem(element)).toBe('a');
+        expect(shadowQuery(element, '[data-show="d"]').getAttribute('aria-label')).toBe('1966');
+    });
+
+    it('badPath_leftOrRightOutsideARowMoveNothing', async () => {
+        const element = await menu({ selected: null });
+        (element.shadowRoot?.activeElement as HTMLElement | null)?.blur();
+
+        key(element, 'ArrowRight');
+
+        expect(element.shadowRoot?.activeElement ?? null).toBeNull();
     });
 
     it('badPath_escOrAPressElsewhereClosesWithoutAPickTabDoesNot', async () => {

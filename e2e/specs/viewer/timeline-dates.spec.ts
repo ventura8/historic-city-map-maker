@@ -58,7 +58,7 @@ test(
 
         await expect(datesMenu(page, lang)).toBeVisible();
         await expect(page.locator('hcm-date-menu [data-front]')).toBeFocused();
-        const items = page.getByRole('menuitemcheckbox');
+        const items = page.locator('hcm-date-menu .item');
         await expect(items).toHaveCount(2);
         await expect(items.first()).toContainText(CORONA);
         await expect(items.last()).toHaveAttribute('aria-checked', 'true');

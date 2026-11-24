@@ -84,6 +84,7 @@ export const zh: Messages = {
     'timeline.later': '更晚的年份，直到 {year}',
     'timeline.empty': '此地图没有历史图层',
     'timeline.dates': '{year}年的日期',
+    'timeline.showOnMap': '在地图上显示：{name}',
     'timeline.opacityAll': '{year} 全部',
     'timeline.datesHint': '多个日期 ({count})，按 Enter 键查看',
     'layers.title': '图层',

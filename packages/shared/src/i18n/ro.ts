@@ -85,6 +85,7 @@ export const ro = {
     'timeline.later': 'Anii mai noi, până la {year}',
     'timeline.empty': 'Harta nu are straturi istorice',
     'timeline.dates': 'Datele din {year}',
+    'timeline.showOnMap': 'Arată pe hartă: {name}',
     'timeline.opacityAll': 'Toate straturile din {year}',
     'timeline.datesHint': 'mai multe date ({count}), Enter le arată',
     'layers.title': 'Straturi',

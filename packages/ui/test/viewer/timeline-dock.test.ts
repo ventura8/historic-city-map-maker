@@ -245,6 +245,21 @@ describe('<hcm-map-viewer>: the date picker of a year (V13)', () => {
         });
     });
 
+    it('happyPath_aRowsCheckboxShowsOrHidesItsLayerAndTheMenuStays', async () => {
+        const mounted = await opened();
+        const menu = part(mounted, 'hcm-date-menu');
+        const box = shadowQuery(menu, '.box:not(:disabled)');
+        const wanted = box.getAttribute('aria-checked') !== 'true';
+
+        expect(box.getAttribute('aria-label')).toMatch(/^Arată pe hartă: /u);
+        box.click();
+        await mounted.element.updateComplete;
+
+        expect(mounted.store.callsOf('toggleOverlay')).toEqual([[box.dataset['show'], wanted]]);
+        expect(mounted.store.callsOf('pickLayer')).toEqual([]);
+        expect(mounted.element.shadowRoot?.querySelector('hcm-date-menu')).not.toBeNull();
+    });
+
     it('badPath_escClosesThePickerWithoutAPick', async () => {
         const mounted = await opened();
         const menu = part(mounted, 'hcm-date-menu');
@@ -260,7 +275,7 @@ describe('<hcm-map-viewer>: the date picker of a year (V13)', () => {
         const mounted = await opened();
         const menu = part(mounted, 'hcm-date-menu');
 
-        expect(shadowQuery(menu, '[aria-checked="true"]').getAttribute('data-item')).toBe('kh4-1966b');
+        expect(shadowQuery(menu, '.item[aria-checked="true"]').getAttribute('data-item')).toBe('kh4-1966b');
     });
 });
 

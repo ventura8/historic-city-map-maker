@@ -83,6 +83,7 @@ export const uk: Messages = {
     'timeline.later': 'Пізніші роки, до {year}',
     'timeline.empty': 'На цій мапі немає історичних шарів',
     'timeline.dates': 'Дати {year}',
+    'timeline.showOnMap': 'Показати на мапі: {name}',
     'timeline.opacityAll': 'Весь {year}',
     'timeline.datesHint': 'кілька дат ({count}), натисніть Enter, щоб їх переглянути',
     'layers.title': 'Шари',

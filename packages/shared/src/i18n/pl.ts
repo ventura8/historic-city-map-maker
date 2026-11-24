@@ -85,6 +85,7 @@ export const pl: Messages = {
     'timeline.later': 'Późniejsze lata, do {year}',
     'timeline.empty': 'Ta mapa nie ma warstw historycznych',
     'timeline.dates': 'Daty z {year}',
+    'timeline.showOnMap': 'Pokaż na mapie: {name}',
     'timeline.opacityAll': 'Cały {year}',
     'timeline.datesHint': 'kilka dat ({count}), naciśnij Enter, aby je wyświetlić',
     'layers.title': 'Warstwy',

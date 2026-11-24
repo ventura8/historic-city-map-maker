@@ -87,6 +87,7 @@ export const ru: Messages = {
     'timeline.later': 'Более поздние годы, до {year}',
     'timeline.empty': 'На этой карте нет исторических слоёв',
     'timeline.dates': 'Даты за {year}',
+    'timeline.showOnMap': 'Показать на карте: {name}',
     'timeline.opacityAll': 'Весь {year}',
     'timeline.datesHint': 'несколько дат ({count}), Enter отображает их',
     'layers.title': 'Слои',

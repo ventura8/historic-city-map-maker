@@ -15,7 +15,7 @@
  * a menu opened by selecting the year is never replaced by one. A mouse's peek closes `PEEK_LEAVE_MS` after the mouse left
  * both the year and the menu; Esc or a press elsewhere closes it at once.
  */
-import { translate, type Layer, type ViewerLocale } from '@hcm/shared';
+import { translate, type Layer, type Overlay, type ViewerLocale } from '@hcm/shared';
 import { html, type ReactiveController, type ReactiveControllerHost, type TemplateResult } from 'lit';
 
 import type { HcmTimeline, TimelineOrientation } from './hcm-timeline.js';
@@ -360,11 +360,22 @@ export function timelineDock(
     </div>`;
 }
 
+/** The year panel's two actions: a date picked (to the front, V13) and a layer shown or hidden by its checkbox (2026-11-24). */
+export interface DateMenuHandlers {
+    readonly onDatePick: (event: CustomEvent<{ readonly layerId: string }>) => void;
+    readonly onDateShow: (event: CustomEvent<{ readonly layerId: string; readonly visible: boolean }>) => void;
+}
+
+/** The historical layers that are on: each has its tick in the year panel. */
+export function shownLayers(overlays: readonly Overlay[]): ReadonlySet<string> {
+    return new Set(overlays.filter((overlay) => overlay.kind === 'raster' && overlay.visible).map((overlay) => overlay.id));
+}
+
 /** The date picker of the year the dock asked for, else the year's opacity sheet when it is open (`opacity-sheet.ts`). */
 export function dateMenu(
     view: Pick<DockView, 'locale' | 'layers' | 'orientation'> & { readonly front: string | null; readonly shown?: ReadonlySet<string> },
     dock: TimelineDock,
-    onPick: (event: CustomEvent<{ readonly layerId: string }>) => void,
+    on: DateMenuHandlers,
 ): TemplateResult {
     const dates = dock.dates;
     if (dates === null) {
@@ -381,7 +392,9 @@ export function dateMenu(
         .vertical=${view.orientation === 'vertical'}
         .peek=${dock.peek}
         .side=${side !== null}
-        @hcm-date-pick=${onPick}
+        .showLabel=${(name: string) => translate(view.locale, 'timeline.showOnMap', { name })}
+        @hcm-date-pick=${on.onDatePick}
+        @hcm-date-show=${on.onDateShow}
         @hcm-date-menu-pointer=${dock.onMenuPointer}
         @hcm-close=${dock.closeDates}
         >${side ?? EMPTY}</hcm-date-menu

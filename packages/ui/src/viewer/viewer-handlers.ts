@@ -76,6 +76,7 @@ function inputHandlers(
 type PhotoHandlers = Pick<
     ViewerHandlers,
     | 'photoReturn'
+    | 'onDateShow'
     | 'onSheetClose'
     | 'onPhotoSelect'
     | 'onPhotoLocate'
@@ -107,6 +108,9 @@ function photoHandlers(on: On, host: HandlerHost): PhotoHandlers {
         }),
         onLightboxOpen: on((store) => {
             store.setLightbox(true);
+        }),
+        onDateShow: on((store, event) => {
+            store.toggleOverlay(event.detail.layerId, event.detail.visible);
         }),
         onPhotoShown: on((store, event) => {
             store.photoShown?.(event.detail.ok);

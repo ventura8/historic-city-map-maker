@@ -85,6 +85,7 @@ export const it: Messages = {
     'timeline.later': 'Anni successivi, fino al {year}',
     'timeline.empty': 'Nessun livello storico su questa mappa',
     'timeline.dates': 'Date nel {year}',
+    'timeline.showOnMap': 'Mostra sulla mappa: {name}',
     'timeline.opacityAll': 'Tutto il {year}',
     'timeline.datesHint': 'diverse date ({count}), premi Enter per visualizzarle',
     'layers.title': 'Livelli',

@@ -84,6 +84,7 @@ export const es: Messages = {
     'timeline.later': 'Años posteriores, hasta {year}',
     'timeline.empty': 'Este mapa no tiene capas históricas',
     'timeline.dates': 'Fechas en {year}',
+    'timeline.showOnMap': 'Mostrar en el mapa: {name}',
     'timeline.opacityAll': 'Todo {year}',
     'timeline.datesHint': 'varias fechas ({count}), Enter las muestra',
     'layers.title': 'Capas',

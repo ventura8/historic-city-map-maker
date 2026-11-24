@@ -23,7 +23,7 @@ import type { LegalLift } from './legal-lift.js';
 import { renderSheetFrame } from './sheet-frame.js';
 import { selectionOf } from './viewer-selection.js';
 import type { ThemeChoice, ViewerError, ViewerState } from './store-port.js';
-import { dateMenu, timelineDock, type TimelineDock } from './timeline-dock.js';
+import { dateMenu, shownLayers, timelineDock, type TimelineDock } from './timeline-dock.js';
 import { photosNearYear, type TimelineStop } from './timeline-model.js';
 import { yearOpacity } from './timeline-opacity.js';
 import type { MenuPoint } from './map-menu-trigger.js';
@@ -130,6 +130,8 @@ export interface ViewerHandlers extends LightboxHandlers, MapMenuHandlers, Place
     readonly onNearYear: () => void;
     /** V13: a date picked in the timeline's date picker. */
     readonly onDatePick: (event: CustomEvent<{ readonly layerId: string }>) => void;
+    /** The year panel's checkbox: a layer shown or hidden on the map (`hcm-date-show`, the store's `toggleOverlay`). */
+    readonly onDateShow: (event: CustomEvent<{ readonly layerId: string; readonly visible: boolean }>) => void;
 }
 
 /** A ready viewer: the state with its manifest. */
@@ -306,11 +308,6 @@ function noWebgl(view: ViewerView, manifest: Manifest, handlers: ViewerHandlers)
     </div>`;
 }
 
-/** The historical layers that are on (the date menu ticks them). */
-function shownLayers(state: ViewerState): ReadonlySet<string> {
-    return new Set(state.overlays.filter((overlay) => overlay.kind === 'raster' && overlay.visible).map((overlay) => overlay.id));
-}
-
 /** The photos the near-year chip may offer: none while the photos are switched off (the owner, 2026-11-22). */
 function shownPhotos(state: ViewerState, manifest: Manifest): Manifest['photos'] {
     return state.overlays.some((overlay) => overlay.kind === 'photos' && overlay.visible) ? manifest.photos : [];
@@ -479,9 +476,9 @@ function overlays(view: ViewerView, ready: Ready, handlers: ViewerHandlers): Tem
         ></hcm-about-dialog>
         ${lightbox(state, manifest.photos, view, handlers)}
         ${dateMenu(
-            { ...view, layers: manifest.layers, orientation: view.layout.timeline, front: state.front, shown: shownLayers(state) },
+            { ...view, layers: manifest.layers, orientation: view.layout.timeline, front: state.front, shown: shownLayers(state.overlays) },
             view.dock,
-            handlers.onDatePick,
+            handlers,
         )}`;
 }
 

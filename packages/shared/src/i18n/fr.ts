@@ -91,6 +91,7 @@ export const fr: Messages = {
     'timeline.later': 'Années suivantes, jusqu’à {year}',
     'timeline.empty': 'Aucun calque historique sur cette carte',
     'timeline.dates': 'Dates du {year}',
+    'timeline.showOnMap': 'Afficher sur la carte : {name}',
     'timeline.opacityAll': 'Tout {year}',
     'timeline.datesHint': 'plusieurs dates ({count}), appuyez sur Entrée pour les afficher',
     'layers.title': 'Calques',

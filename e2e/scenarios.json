@@ -3117,6 +3117,61 @@
             "notes": "Owner 2026-11-22. Tests: packages/ui/test/viewer/hcm-date-menu.test.ts, e2e/specs/viewer/timeline-dates.spec.ts."
         },
         {
+            "id": "S-V13-HAPPY-CHECK-IN-PANEL",
+            "behaviour": "V13",
+            "area": "viewer",
+            "path": "happy",
+            "title": "A row's checkbox in a year's panel shows or hides that layer on the map",
+            "asserts": "the hidden date's checkbox checked -> its layer is on; cleared -> off, layers= drops it, the panel stays open, nothing is picked",
+            "tier": "e2e-viewer",
+            "status": "exists",
+            "notes": "Owner 2026-11-24. Tests: packages/ui/test/viewer/hcm-date-menu.test.ts, packages/ui/test/viewer/timeline-dock.test.ts, e2e/specs/viewer/date-menu-check.spec.ts."
+        },
+        {
+            "id": "S-V13-HAPPY-CHECK-SYNCS-LAYERS",
+            "behaviour": "V13",
+            "area": "viewer",
+            "path": "happy",
+            "title": "The panel's checkbox and the Layers panel's switch are one state",
+            "asserts": "a layer cleared in the year panel -> its Layers switch is off; switched on there -> its checkbox is checked again",
+            "tier": "e2e-viewer",
+            "status": "exists",
+            "notes": "Owner 2026-11-24. Tests: packages/ui/test/viewer/hcm-date-menu.test.ts, packages/ui/test/viewer/timeline-dock.test.ts, e2e/specs/viewer/date-menu-check.spec.ts."
+        },
+        {
+            "id": "S-V13-BAD-FRONT-STAYS-ON",
+            "behaviour": "V13",
+            "area": "viewer",
+            "path": "bad",
+            "title": "The layer on top cannot be cleared in the year panel; a hidden date picked comes back on top",
+            "asserts": "the front's checkbox is checked and disabled; a hidden date tapped -> shown, on top, the panel closes",
+            "tier": "e2e-viewer",
+            "status": "exists",
+            "notes": "Owner 2026-11-24. Tests: packages/ui/test/viewer/hcm-date-menu.test.ts, packages/ui/test/viewer/timeline-dock.test.ts, e2e/specs/viewer/date-menu-check.spec.ts."
+        },
+        {
+            "id": "S-V13-HAPPY-CHECK-KEYBOARD",
+            "behaviour": "V13",
+            "area": "viewer",
+            "path": "happy",
+            "title": "The year panel's checkbox by keyboard",
+            "asserts": "Shift+Tab from a date reaches its checkbox (named Show on the map: <name>), Space toggles it, ArrowRight crosses to the date, Enter picks it",
+            "tier": "e2e-viewer",
+            "status": "exists",
+            "notes": "Owner 2026-11-24. Tests: packages/ui/test/viewer/hcm-date-menu.test.ts, packages/ui/test/viewer/timeline-dock.test.ts, e2e/specs/viewer/date-menu-check.spec.ts."
+        },
+        {
+            "id": "S-V13-BAD-SPACE-ON-CHECK-PICKS-NOTHING",
+            "behaviour": "V13",
+            "area": "viewer",
+            "path": "bad",
+            "title": "Space on a row's checkbox only toggles the layer",
+            "asserts": "Space on the checkbox -> the layer toggles, the panel stays open, no date is picked",
+            "tier": "e2e-viewer",
+            "status": "exists",
+            "notes": "Owner 2026-11-24. Tests: packages/ui/test/viewer/hcm-date-menu.test.ts, packages/ui/test/viewer/timeline-dock.test.ts, e2e/specs/viewer/date-menu-check.spec.ts."
+        },
+        {
             "id": "S-V13-HAPPY",
             "behaviour": "V13",
             "area": "viewer",
