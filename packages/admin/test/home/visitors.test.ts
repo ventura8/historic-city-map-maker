@@ -2,12 +2,16 @@
  * Home's Visitors card (the owner, 2026-11-16): the Statistics page's last numbers of this session, never asked by Home;
  * none before the first read.
  */
-import { describe, expect, it } from 'vitest';
+import { beforeAll, describe, expect, it } from 'vitest';
 
 import type { StatisticsSource } from '../../src/crashes/statistics.js';
 import { NO_STATISTICS_SOURCE } from '../../src/crashes/statistics.js';
 import { HOME_MODULE } from '../../src/home/home.js';
 import { contentWorld } from '../content/world.js';
+
+beforeAll(async () => {
+    await Promise.all([import('../../src/home/costs.js'), import('../../src/home/visitors.js')]);
+});
 
 async function settled(): Promise<void> {
     for (let round = 0; round < 10; round += 1) {
