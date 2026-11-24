@@ -22026,6 +22026,28 @@
             "notes": "Live 2026-11-24. Tests: pipeline/tests/unit/test_redraw_fullres.py, functions/test/imagery/redraw-layout.test.ts."
         },
         {
+            "id": "S-P20-HAPPY-REDRAW-ZOOM",
+            "behaviour": "P20",
+            "area": "pipeline",
+            "path": "happy",
+            "title": "A redraw at full resolution draws as deep as its originals hold",
+            "asserts": "the originals' measured metres a pixel give the zoom of about two scan pixels an output pixel, at most 20, within the series' byte budget and never shallower than the published zoom; a 0.12 m scan at Bucharest gives 19",
+            "tier": "e2e-pipeline",
+            "status": "exists",
+            "notes": "2026-11-24, the 1:2000 cadastral plan's names were blur at 17. Tests: pipeline/tests/unit/test_redraw_fullres.py."
+        },
+        {
+            "id": "S-P20-BAD-REDRAW-ZOOM",
+            "behaviour": "P20",
+            "area": "pipeline",
+            "path": "bad",
+            "title": "A point edit or a composite with no parts record keeps the published zoom",
+            "asserts": "a regeoref that is not a redraw, or one whose originals cannot be measured, keeps the zoom it was published at; a huge pixel stops at the lowest zoom",
+            "tier": "e2e-pipeline",
+            "status": "exists",
+            "notes": "2026-11-24. Tests: pipeline/tests/unit/test_redraw_fullres.py."
+        },
+        {
             "id": "S-A65-HAPPY-JOINED-FRAME",
             "behaviour": "A65",
             "area": "admin",

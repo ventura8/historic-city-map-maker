@@ -1,17 +1,20 @@
 """Redraw at full resolution (2026-11-24): the originals or a plain failure, never a copy of the published version (`steps/warp.py`)."""
 
+import math
 from dataclasses import replace
 from pathlib import Path
 
 import numpy
 import pytest
 from hcm_pipeline import paths
+from hcm_pipeline.archive import encoding
 from hcm_pipeline.contract import Errors
 from hcm_pipeline.jobs import JobContext, StepFailedError
 from hcm_pipeline.placing import fullres, rebuild
 from hcm_pipeline.placing.original import ORIGINAL
+from hcm_pipeline.placing.raster_io import Pair, WarpPlan
 from hcm_pipeline.placing.redraw_layout import rebuilt_record
-from hcm_pipeline.steps.warp import composite_originals, cutline, full_resolution, record_paths, require_original
+from hcm_pipeline.steps.warp import composite_originals, cutline, full_resolution, originals_zoom, record_paths, require_original
 
 from tests.fakes.world import PipelineWorld
 from tests.unit.test_placing_fullres import write
@@ -132,3 +135,30 @@ def test_bad_path_no_layout_a_failed_layout_or_another_shape_rebuilds_nothing(
     gone = replace(ctx, services=replace(ctx.services, archive_root=tmp_path / "nowhere"))
     monkeypatch.setattr(rebuild, "built_by", lambda _series, _method: _recorded(tmp_path))
     assert rebuilt_record(redraw(gone, layout={**LAYOUT, "gridId": "g-1"}), scan, SCAN) is False
+
+
+def test_happy_path_a_redraw_draws_as_deep_as_its_originals_hold(world: PipelineWorld, tmp_path: Path) -> None:
+    """Scenarios: S-P20-HAPPY-REDRAW-ZOOM"""
+    ctx, scan = composite(world, tmp_path)
+    ctx = redraw(ctx)
+    fullres.write_parts(scan, _recorded(tmp_path).parts, SCAN)
+    plan = WarpPlan([Pair(0.0, 0.0, 0.0, 5_000_000.0), Pair(100.0, 100.0, 10.0, 4_999_990.0), Pair(0.0, 100.0, 0.0, 4_999_990.0)], 1.0)
+    found = fullres.originals_of(scan, plan)
+    assert found is not None
+
+    zoom = originals_zoom(ctx, scan, plan, 10)
+
+    assert zoom == max(10, encoding.scan_zoom(found.mercator_m))
+    assert any("drawn to zoom" in line for line in world.log_lines())
+    # 0.12 m a pixel on the ground at Bucharest's latitude (1:2000 at about 400 dpi) is drawn to 19; nothing goes past 20.
+    assert encoding.scan_zoom(0.12 / math.cos(math.radians(44.44))) == 19
+    assert encoding.scan_zoom(0.001) == encoding.REDRAW_MAX_ZOOM
+
+
+def test_bad_path_a_point_edit_or_no_record_keeps_the_published_zoom(world: PipelineWorld, tmp_path: Path) -> None:
+    """Scenarios: S-P20-BAD-REDRAW-ZOOM"""
+    ctx, scan = composite(world, tmp_path, record=False)
+    plan = WarpPlan([Pair(0.0, 0.0, 0.0, 0.0)], 1.0)
+    assert originals_zoom(ctx, scan, plan, 17) == 17
+    assert originals_zoom(redraw(ctx), scan, plan, 17) == 17
+    assert encoding.scan_zoom(1e9) == encoding.MIN_ZOOM

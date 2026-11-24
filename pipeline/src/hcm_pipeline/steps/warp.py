@@ -26,9 +26,10 @@ from pathlib import Path
 from typing import Final
 
 from hcm_pipeline import paths
+from hcm_pipeline.archive import encoding
 from hcm_pipeline.contract import SENSOR_SPECS, Errors
 from hcm_pipeline.documents import GeorefInfo, TerrainInfo, Version
-from hcm_pipeline.geo import ZOOM0_RESOLUTION_M, to_mercator, zoom_resolution
+from hcm_pipeline.geo import ZOOM0_RESOLUTION_M, to_lnglat, to_mercator, zoom_resolution
 from hcm_pipeline.georef.lattice import LatticeNode, sampled
 from hcm_pipeline.georef.transforms import enabled_gcps, fit_transform
 from hcm_pipeline.jobs import Done, JobContext, StepFailedError, StepResult
@@ -239,8 +240,26 @@ def composite_originals(ctx: JobContext, scan: Path, georef: GeorefInfo) -> Path
         return None
     pairs = [Pair(column, row, x, y) for x, y, column, row in rendered_points(georef, scan_size(scan))]
     plan = WarpPlan(pairs, zoom_resolution(maxzoom), tps=True)
+    deeper = originals_zoom(ctx, scan, plan, maxzoom)
+    plan = replace(plan, resolution=zoom_resolution(deeper))
     target = ctx.local("warped.tif")
     return gdal_step(ctx, lambda: fullres.warp_composite(scan, target, plan, lambda line: ctx.log.info(line, ctx.step)), "warp the parts")
+
+
+def originals_zoom(ctx: JobContext, scan: Path, plan: WarpPlan, published: int) -> int:
+    """A redraw's zoom from its originals' own resolution (about two scan pixels an output pixel, at most 20), within the series'
+    byte budget, never shallower than the zoom it was published at (2026-11-24: the 1:2000 plan's names were blur at 17)."""
+    if ctx.job.params.get("fullResolution") is not True:
+        return published
+    found = gdal_step(ctx, lambda: fullres.originals_of(scan, plan), "measure the originals")
+    if found is None or not plan.pairs:
+        return published
+    latitude = to_lnglat(0.0, sum(pair.my for pair in plan.pairs) / len(plan.pairs))[1]
+    ground_m2 = found.area_m2 * math.cos(math.radians(latitude)) ** 2
+    kind = str((layout_of(ctx) or {}).get("encoding") or "grey")
+    zoom = encoding.estimate(ground_m2, encoding.scan_zoom(found.mercator_m), kind, 0, latitude).maxzoom
+    ctx.log.info(f"the originals are {found.mercator_m:.3f} m a pixel: drawn to zoom {max(zoom, published)}", ctx.step)
+    return max(zoom, published)
 
 
 def require_original(ctx: JobContext, from_original: bool) -> None:

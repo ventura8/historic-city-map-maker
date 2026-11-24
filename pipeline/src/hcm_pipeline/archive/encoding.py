@@ -16,6 +16,9 @@ from hcm_pipeline.archive.model import ARCHIVE_SERIES_MAX_BYTES, Probe
 EQUATOR_M_PER_PX: Final = 156_543.03
 INCH_M: Final = 0.0254
 MAX_ZOOM: Final = 21
+# 2026-11-24: a redraw from the originals goes as deep as about two scan pixels an output pixel, never past 20.
+REDRAW_MAX_ZOOM: Final = 20
+SCAN_PX_PER_OUTPUT_PX: Final = 2
 MIN_ZOOM: Final = 10
 TILE_PX: Final = 256
 # Bytes per 256 px tile, measured on lossless palette line art, WebP q80 grey and q82 colour (the scan's own sample replaces them).
@@ -76,3 +79,9 @@ def estimate(area_m2: float, zoom: int, encoding: str, sheets: int, latitude: fl
     tiles = tiles_at(area_m2, zoom, latitude)
     minutes = sheets * SECONDS_PER_SHEET / 60 + tiles / TILES_PER_MINUTE
     return Estimate(zoom, round(tiles * per_tile), round(minutes, 1))
+
+
+def scan_zoom(mercator_m: float) -> int:
+    """The zoom of about `SCAN_PX_PER_OUTPUT_PX` scan pixels an output pixel, for a scan of `mercator_m` Mercator metres a pixel."""
+    zoom = round(math.log2(EQUATOR_M_PER_PX / (SCAN_PX_PER_OUTPUT_PX * mercator_m)))
+    return max(MIN_ZOOM, min(REDRAW_MAX_ZOOM, zoom))

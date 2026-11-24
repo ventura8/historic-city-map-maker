@@ -297,6 +297,27 @@ def _source_m(part: Part, placer: Placer) -> float:
     return float(numpy.hypot(*(ends[1] - ends[0]))) / max(1, right - left)
 
 
+@dataclass(frozen=True)
+class Originals:
+    """What a canvas's parts' originals hold: their median Mercator metres a pixel and the Mercator area they cover."""
+
+    mercator_m: float
+    area_m2: float
+
+
+def originals_of(source: Path, plan: WarpPlan) -> Originals | None:
+    """The parts' originals' resolution once placed by the plan's pairs, else None (no parts record that fits the picture)."""
+    recorded = read_parts(source)
+    size = size_of(source)
+    if recorded is None or not same_shape(recorded.size, size):
+        return None
+    parts = recorded.on(size)
+    placer = Placer(plan, size)
+    found = [(part, _source_m(part, placer)) for part in parts]
+    area = sum((part.box[2] - part.box[0]) * (part.box[3] - part.box[1]) * metres**2 for part, metres in found)
+    return Originals(float(numpy.median([metres for _part, metres in found])), float(area)) if found else None
+
+
 def _placed(parts: Sequence[Part], placer: Placer, bands: int) -> list[Placed]:
     found = []
     for part, cell in zip(parts, cells(parts), strict=True):

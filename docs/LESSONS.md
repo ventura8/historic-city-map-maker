@@ -4651,3 +4651,8 @@ Append a numbered entry to *Lessons from this repository* in the task that finds
     - Cause: the geo-spatial.org / eHarta scans carry EPSG:3844 with the sheet index's corners as an upright box; the sheets lie 160–250 m east and 30–100 m north of the truth on every sheet (the datum shift itself, PROJ's Pulkovo 1942(58) to WGS 84 (19), is right). The ruler counted only a shift its junction checks agreed on, and junctions found on hatched military sheets point every way, so it measured 0.
     - Fix: `placing/linematch.py`: the ruler matches the file's lines (its street network, else its dark ink) against OpenStreetMap's tile by tile, fits a robust affine on the clear tiles, and a file off by more than `RULER_LIMIT_M` waits in Help calibrate with its own lattice moved by that affine as medium suggestions.
     - **A file's own georeference is a claim, not a proof: measure it with something that sees a shift on that kind of drawing.**
+
+802. **The 1:2000 cadastral plan was redrawn from its originals at zoom 17, its plot owners' names a blur** (2026-11-24, `plan-cadastral-1911-1914`).
+    - Cause: a redraw at full resolution warped the originals at the zoom the series was published at, which came from the archive report's default (17) when the scale or dpi was not known.
+    - Fix: `steps/warp.py` `originals_zoom` measures the originals once placed and draws to about two scan pixels an output pixel (at most 20, within the byte budget).
+    - **The zoom follows the pixels actually drawn, not the number a first import guessed.**
