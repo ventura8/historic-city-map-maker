@@ -114,7 +114,11 @@ function sorted(ids: readonly string[]): string[] {
  */
 export async function awaitHarvest(page: Page, lang: 'ro' | 'en'): Promise<void> {
     await expect(sceneList(page, lang).getByRole('link')).toHaveCount(LISTED_FREE, { timeout: FUNCTIONS_TIMEOUT_MS });
-    await expect.poll(async () => sorted((await listedScenes(page, lang)).slice(0, TARGET_FRAMES.length))).toEqual(sorted(TARGET_FRAMES));
+    // Each browse copy measures its scene's clouds and ranks it again (cloud-record.ts): until every copy is in, a measured
+    // target can sit below the unmeasured 1968 frame, so the order settles in the functions' time, not 15 s (lesson 796).
+    await expect
+        .poll(async () => sorted((await listedScenes(page, lang)).slice(0, TARGET_FRAMES.length)), { timeout: FUNCTIONS_TIMEOUT_MS })
+        .toEqual(sorted(TARGET_FRAMES));
 }
 
 /** The Import of one scene's card in the list (named after the scene, so every card's is its own). */

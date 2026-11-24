@@ -34,7 +34,9 @@ export const LOST_STREETS_STATES = {
                 await close.first().click();
             }
             await mapIdle(page);
-            const point = await screenPointOf(page, [26.088, 44.42485]);
+            // West of the view's centre, on the street's first segment: east of it, at 320 x 568, Show my location covered
+            // the point and took the click (the c320 tour, 2026-11-24).
+            const point = await screenPointOf(page, [26.086, 44.4246]);
             await page.mouse.click(point.x, point.y);
             await expect(viewer(page).locator('hcm-poi-detail .sources')).toBeVisible();
         },

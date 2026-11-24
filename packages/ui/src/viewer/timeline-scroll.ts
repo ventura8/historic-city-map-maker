@@ -80,10 +80,16 @@ export class TimelineScroll {
 
     #chosenAt = Number.NEGATIVE_INFINITY;
 
-    /** A year was chosen now (`chosen`) or a moment ago. */
+    /**
+     * A year was chosen now (`chosen`) or a moment ago, and the visitor has not panned the years since: a pan is theirs to
+     * keep (an update during a mouse pan, a button stepping aside from the pill, centred the year back, lesson 796).
+     */
     #recent(chosen: boolean): boolean {
         if (chosen) {
             this.#chosenAt = performance.now();
+        }
+        if (this.scroller()?.hasAttribute('data-panning') === true) {
+            this.#chosenAt = Number.NEGATIVE_INFINITY;
         }
         return performance.now() - this.#chosenAt <= KEEP_MS;
     }
