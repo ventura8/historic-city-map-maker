@@ -20244,6 +20244,28 @@
             "notes": "M20 §19.19. Tests: pipeline/tests/unit/test_placing_neatline.py, pipeline/tests/unit/test_placing_grid.py."
         },
         {
+            "id": "S-P20-HAPPY-NEATLINE-ATLAS",
+            "behaviour": "P20",
+            "area": "pipeline",
+            "path": "happy",
+            "title": "An atlas or owner-laid series of framed sheets is cut at each sheet's neat line, its mosaic with no margin at the seams",
+            "asserts": "framed sheets -> each part cut at its inner neat line (square, its box at the frame); tiles carry the frame; the mosaic has no paper column at a seam; the full-resolution part is clipped to the frame; the thumbnail reads the frame; a colour tile keeps three bands and a side the scanner cut is paper; a pixel whose sampled owner does not cover it goes to a covering tile",
+            "tier": "e2e-pipeline",
+            "status": "exists",
+            "notes": "M20 §19.20 (plan cadastral 1911-1914, the owner's layout: 123 of 124 sheets cut, no header bands, checked by eye). Tests: pipeline/tests/unit/test_placing_framing.py."
+        },
+        {
+            "id": "S-P20-BAD-NEATLINE-ATLAS-UNFRAMED",
+            "behaviour": "P20",
+            "area": "pipeline",
+            "path": "bad",
+            "title": "A framed series' sheet with no confident neat line waits in Help calibrate by name; a frameless atlas is left as it was",
+            "asserts": "a series without printed frames -> no frame, no sheet unframed; a framed series' frameless sheet -> no-frame in initial_out and in the owner's plan (not-part stays the owner's), a blank page stays blank; an owner layout with one unframed -> awaiting_gcps, help frame-not-found, the note naming 1 of 4, the sheet in leftOut as no-frame, the layoutAnswer kept, laid out the owner's way though the class is grid",
+            "tier": "e2e-pipeline",
+            "status": "exists",
+            "notes": "M20 §19.20. Tests: pipeline/tests/unit/test_placing_framing.py."
+        },
+        {
             "id": "S-P20-HAPPY-CHECKS",
             "behaviour": "P20",
             "area": "pipeline",
@@ -21078,6 +21100,28 @@
             "tier": "functions",
             "status": "exists",
             "notes": "Finding of 2026-11-14 (docs/LESSONS.md). Test: functions/test/imagery/locate-again-archive.test.ts."
+        },
+        {
+            "id": "S-A122-HAPPY-PLACE-AGAIN-KEEPS-LAYOUT",
+            "behaviour": "A122",
+            "area": "admin",
+            "path": "happy",
+            "title": "Locate again on an archive series keeps the owner's tile layout, which place then fixes",
+            "asserts": "a parked archive series with help.layoutAnswer -> Locate again queues place, the version processing with the same layoutAnswer; the grid placer takes the owner's layout before the grid by names",
+            "tier": "functions",
+            "status": "exists",
+            "notes": "Finding of 2026-11-24 (plan cadastral 1911-1914, docs/LESSONS.md). Tests: functions/test/imagery/locate-again-archive.test.ts, pipeline/tests/unit/test_placing_grid.py."
+        },
+        {
+            "id": "S-A122-BAD-PLACE-AGAIN-LAYOUT-WITH-PAIRS",
+            "behaviour": "A122",
+            "area": "admin",
+            "path": "bad",
+            "title": "Locate again on a series holding both the owner's pairs and layout loses neither",
+            "asserts": "georef as saved, help.layoutAnswer as saved, the old error dropped",
+            "tier": "functions",
+            "status": "exists",
+            "notes": "Finding of 2026-11-24. Test: functions/test/imagery/locate-again-archive.test.ts."
         },
         {
             "id": "S-A122-BAD-PLACE-AGAIN-CANCELLED",

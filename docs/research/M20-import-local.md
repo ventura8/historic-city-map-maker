@@ -1067,6 +1067,39 @@ found plausible lines on 81 of 118. About 0.45 s a sheet on one core; one reduce
 Scenarios: S-P20-HAPPY-NEATLINE, S-P20-BAD-NEATLINE-UNSURE (`pipeline/tests/unit/test_placing_neatline.py`,
 `pipeline/tests/unit/test_placing_grid.py`).
 
+### 19.20 The neat line on the atlas and owner-layout path; the owner's layout across Locate again (2026-11-24)
+
+The plan cadastral 1911-1914 still came out with white bands, the "Seria / Coloana" headers at every seam and its streets broken
+across them: §19.19 cut only a grid's sheets (`grid.framed`), while this series is laid out as an atlas by its owner's layout
+(`help.layoutAnswer`), whose sheets `sheetwork.read_part` only trimmed of their paper margins. And Locate again dropped `help`, the
+owner's layout with it, so the next `place` laid the series out again by names.
+
+- `placing/framing.py` frames an atlas's sheets with §19.19's finder and rules: a sample of up to 24 sheets spread over the series
+  first (a series of photos or pages without a printed frame costs that sample and nothing more), and only when the sample shares a
+  cell on both axes and at least half of it is framed confidently, every sheet, the cell learnt from all of them.
+- `sheetwork.read_parts` then cuts each framed sheet at its neat line (`Part.frame`, its four corners; the working copy straightened
+  onto the frame), unless its content box already lies inside the frame (`framing.holds`: `frame.content_box` found the frame and
+  trimmed its line, as on pages framed around an overlap; when every sheet's does, the series is read as before); a canvas tile, its full-resolution part (clipped to the frame) and the wizard's thumbnail read the frame the same
+  way (`framing.read_framed`: only the frame's box, an affine onto the rectangle, paper beyond a side the scanner cut; an ink-keeping
+  read widens the box to whole blocks, or its last pixels were lost and a paper band showed at each sheet's foot).
+- Sheets cut at their neat lines that abut (their strong seams, if any, step a whole cell across: `autostitch.abutting`) are placed
+  by their cells, the seams only confirming (`bundle.confirmed`, as a city grid's names); a weak seam's guess opened gaps and
+  overlaps of up to 3 % of a cell. Framed pages that overlap are still placed by their seams.
+- A sheet of a framed series with no confident frame is `no-frame` (`autostitch.initial_out`, and in `owner_layout.owner_plan` even
+  where the owner placed it, unless the owner marked it not part); a layout that would be mosaicked with one waits instead
+  (`autoplace.wait_unframed`: `frame-not-found`, the note naming how many, the others' preview, the sheet in `leftOut`).
+- The canvas's pixel owners are sampled every 4 pixels; within two pixels of a tile's edge the sample could name a neighbour that
+  never paints there, which left a paper line along every seam: `canvas_window.unowned` gives those pixels to a covering tile.
+- `imagery.locateAgain` keeps `help` when it holds `layoutAnswer` (the next wait writes its own, as `layout-wait.ts` does), and a
+  grid series with an owner's layout is placed as the owner laid it out (`GridPlacer` hands it to the atlas path first).
+
+Measured on the real 124 sheets with the owner's layout (read-only from the worker's archive): 123 sheets cut at their neat lines,
+`Seria 21/B1` named `no-frame`; the reduced mosaic checked by eye shows no header band and no paper line at the seams, and streets
+running on across them. The sample and the framing add about 0.5 s a sheet on one core.
+
+Scenarios: S-P20-HAPPY-NEATLINE-ATLAS, S-P20-BAD-NEATLINE-ATLAS-UNFRAMED (`pipeline/tests/unit/test_placing_framing.py`),
+S-A122-HAPPY-PLACE-AGAIN-KEEPS-LAYOUT, S-A122-BAD-PLACE-AGAIN-LAYOUT-WITH-PAIRS (`functions/test/imagery/locate-again-archive.test.ts`).
+
 ## 20. Any computer runs an archive series: copies through the bucket (live report of 2026-11-13; DECISIONS §204)
 
 **What happened.** The owner connected two more workers for Bucharest (the NUC and the PC's WSL) beside the laptop that imported

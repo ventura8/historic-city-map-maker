@@ -8,7 +8,7 @@ import pytest
 from hcm_pipeline.archive.grammar import Cell
 from hcm_pipeline.geo import to_mercator
 from hcm_pipeline.jobs import Done, JobContext, Waiting
-from hcm_pipeline.placing import grid
+from hcm_pipeline.placing import framing, grid
 from hcm_pipeline.placing.frame import content_frame
 from hcm_pipeline.placing.gridscheme import QUARTER_ORDERS, CityGrid, scheme_for
 from hcm_pipeline.placing.neatline import NeatLine
@@ -362,7 +362,7 @@ def test_bad_path_a_grid_with_a_few_sheets_unframed_waits_with_them_named(world:
     help_item = world.version()["help"]
     assert isinstance(help_item, dict)
     assert help_item["reason"] == "frame-not-found"
-    assert help_item["note"] == grid.UNFRAMED.format(count=2, total=64)
+    assert help_item["note"] == framing.UNFRAMED.format(count=2, total=64)
     stitched = help_item["stitched"]
     assert stitched["leftOutCount"] == 2
     assert {item["reason"] for item in stitched["leftOut"]} == {NO_FRAME}

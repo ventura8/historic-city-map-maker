@@ -20,7 +20,7 @@ from pathlib import Path
 
 from hcm_pipeline.jobs import JobContext, StepResult
 from hcm_pipeline.placing import autoplace
-from hcm_pipeline.placing.autostitch import Plan, Proposal, initial_out, propose, solved
+from hcm_pipeline.placing.autostitch import Plan, Proposal, initial_out, propose, solved, unframed_out
 from hcm_pipeline.placing.layout_files import stretch
 from hcm_pipeline.placing.output import LAYOUT_ANSWER
 from hcm_pipeline.placing.series import SeriesJob
@@ -125,6 +125,8 @@ def owner_plan(named: Sequence[tuple[str, Path]], answer: Answer) -> Plan:
     plan = Plan(parts, {}, {part.index: allowed(part, cell)[0] for part in parts}, cell, _unnamed(named, parts))
     for sheet in answer.sheets:
         place_sheet(plan, sheet)
+    # Lesson of 2026-11-24: a sheet of a framed series without its own frame is named (`no-frame`), even where the owner placed it.
+    plan.out |= {index: reason for index, reason in unframed_out(parts).items() if plan.out.get(index) != NOT_PART}
     plan.fixed = _fixed(plan, answer.seams)
     return plan
 
@@ -151,7 +153,8 @@ def owner_proposal(named: Sequence[tuple[str, Path]], answer: Answer) -> Proposa
 
 
 def place(ctx: JobContext, series: SeriesJob, answer: Answer, method: str) -> StepResult:
-    """The owner's layout: previewed (and its answer kept), or mosaicked and placed."""
+    """The owner's layout: previewed (and its answer kept), or mosaicked and placed (or waiting in Help calibrate with the
+    sheets no neat line was found on named, `autoplace.mosaicked`)."""
     proposal = owner_proposal(autoplace.named_of(series.sheets), answer)
     ctx.log.info(f"the owner's layout, revision {answer.revision}: {len(proposal.solved.positions)} sheets placed", ctx.step)
     if answer.preview:

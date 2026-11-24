@@ -145,9 +145,22 @@ function fromStitch(job: JobDoc): JobDoc['steps'] {
 /** What a search writes again: its error, its fit, its calibration, its suggestions and its help. */
 const DROPPED_ON_SEARCH = ['error', 'georef', 'calibration', 'suggestions', 'help'] as const;
 
+type Dropped = (typeof DROPPED_ON_SEARCH)[number];
+
 /** The version holds pairs a person placed and saved (`imagery.saveGcps`: `georef.method` `gcps`). */
 export function holdsOwnerPairs(version: Pick<LayerVersionDoc, 'georef'> | undefined): boolean {
     return version?.georef?.method === 'gcps' && version.georef.gcps.length > 0;
+}
+
+/**
+ * What this search drops. Finding of 2026-11-14 (1864, 1871 Pappasoglu): the owner's pairs are never dropped by a search; `place`
+ * and `georef` fit them. Finding of 2026-11-24 (plan cadastral 1911-1914): nor is the owner's tile layout (`help.layoutAnswer`),
+ * which `place` fixes instead of the automatic layout by names; the help that holds it stays until the next wait writes its own
+ * (as `layout-wait.ts` keeps it while the series runs again).
+ */
+function droppedOf(version: LayerVersionDoc): Dropped[] {
+    const dropped: readonly Dropped[] = holdsOwnerPairs(version) ? ['error', 'calibration', 'help'] : DROPPED_ON_SEARCH;
+    return version.help?.layoutAnswer === undefined ? [...dropped] : dropped.filter((field) => field !== 'help');
 }
 
 /** Everything `locate` and `georef` left is theirs to write again (the owner's saved pairs excepted); the scan stays until the new one replaces it. */
@@ -158,9 +171,7 @@ async function requeueIn(transaction: DocumentTransaction, request: Pick<Request
         await transaction.get(versionPath, layerVersionDocSchema),
         await transaction.get(jobPath, jobDocSchema),
     );
-    // Finding of 2026-11-14 (1864, 1871 Pappasoglu): the owner's pairs are never dropped by a search; `place` and `georef` fit them.
-    const dropped = holdsOwnerPairs(version) ? (['error', 'calibration', 'help'] as const) : DROPPED_ON_SEARCH;
-    const left = omit(version, [...dropped]);
+    const left = omit(version, droppedOf(version));
     await transaction.set(versionPath, layerVersionDocSchema, { ...left, state: 'processing', ...stamp });
     const kept = omit(job, ['waitReason', 'error', 'finishedAt', 'lease', 'retryAt', 'executionName', 'searchedWith', 'placingPoints']);
     const queued: JobDoc = { ...kept, status: 'queued', ...attemptForSearch(version, job), steps: fromStitch(job), ...stamp };

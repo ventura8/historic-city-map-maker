@@ -33,9 +33,10 @@ import numpy
 from hcm_pipeline.archive.grammar import Cell, parse
 from hcm_pipeline.georef.transforms import Transform
 from hcm_pipeline.jobs import JobContext, StepResult
-from hcm_pipeline.placing import assemble, fullres, fullres_parts, neatline
+from hcm_pipeline.placing import assemble, fullres, fullres_parts, neatline, owner_layout
 from hcm_pipeline.placing.checks import Checked
 from hcm_pipeline.placing.frame import content_frame, find_frame
+from hcm_pipeline.placing.framing import UNFRAMED
 from hcm_pipeline.placing.geometry import FloatArray, compose
 from hcm_pipeline.placing.gridscheme import QUARTER_ORDERS, Box, CityGrid, scheme_for
 from hcm_pipeline.placing.maps import AtlasPlacer, atlas_parts
@@ -62,12 +63,9 @@ NO_SCHEME: Final = "These sheets' names are read, but no grid scheme places them
 # Under this share of framed sheets the series is laid out as an atlas (the tile wizard's path) instead of a grid of the few framed.
 FRAMED_SHARE_MIN: Final = 0.5
 NO_FRAMES: Final = "No sheet's frame was found: add about four points on a few sheets."
-UNFRAMED: Final = (
-    "The frame of {count} of {total} sheets was not found, so they would be missing from the map: open Help calibrate, which"
-    " lists them, and place the series there."
-)
 NOT_PROVED: Final = "The grid could not be placed on its own: place three sheets on the map, and the rest follow."
 OWNER_METHOD: Final = "grid-names"
+OWNER_LAID: Final = "the owner's tile layout is kept: laid out as the owner arranged it"
 
 
 @dataclass(frozen=True)
@@ -279,19 +277,33 @@ class GridPlacer:
     """Class b: the series' sheets on the city grid, the grid solved once."""
 
     def place(self, ctx: JobContext) -> StepResult:
-        series = series_of(ctx)
-        read = parsed(series)
-        if read.scheme is None:
-            return _wait_unplaced(ctx, series, "low-confidence", NO_SCHEME)
-        rectified = framed(read.cells, read.scheme)
-        if not rectified:
-            return _wait_unplaced(ctx, series, "frame-not-found", NO_FRAMES)
-        if len(rectified) < FRAMED_SHARE_MIN * len(read.cells):
-            # Finding of 2026-11-14 (plan cadastral 1911-1914: 20 of 100 sheets framed): a grid of a few framed sheets left the rest
-            # out for good and asked for points, while the tile wizard, the one place to lay out the others, said it no longer waited.
-            ctx.log.info(f"only {len(rectified)} of {len(read.cells)} sheets framed: laid out as an atlas for the tile wizard", ctx.step)
-            return AtlasPlacer().place(ctx)
-        return _all_framed(ctx, series, rectified, read.cells, read.scheme)
+        return AtlasPlacer().place(ctx) if _owner_laid(ctx) else _by_names(ctx)
+
+
+def _by_names(ctx: JobContext) -> StepResult:
+    """The series on the grid its sheets' names give (no owner's layout)."""
+    series = series_of(ctx)
+    read = parsed(series)
+    if read.scheme is None:
+        return _wait_unplaced(ctx, series, "low-confidence", NO_SCHEME)
+    rectified = framed(read.cells, read.scheme)
+    if not rectified:
+        return _wait_unplaced(ctx, series, "frame-not-found", NO_FRAMES)
+    if len(rectified) < FRAMED_SHARE_MIN * len(read.cells):
+        # Finding of 2026-11-14 (plan cadastral 1911-1914: 20 of 100 sheets framed): a grid of a few framed sheets left the rest
+        # out for good and asked for points, while the tile wizard, the one place to lay out the others, said it no longer waited.
+        ctx.log.info(f"only {len(rectified)} of {len(read.cells)} sheets framed: laid out as an atlas for the tile wizard", ctx.step)
+        return AtlasPlacer().place(ctx)
+    return _all_framed(ctx, series, rectified, read.cells, read.scheme)
+
+
+def _owner_laid(ctx: JobContext) -> bool:
+    """Finding of 2026-11-24 (plan cadastral 1911-1914): the owner's tile layout, once given, is the series' layout; the grid by names
+    never replaces it (the atlas path fixes it, each sheet cut at its neat line)."""
+    laid = owner_layout.answer_of(ctx) is not None
+    if laid:
+        ctx.log.info(OWNER_LAID, ctx.step)
+    return laid
 
 
 def _wait_unplaced(ctx: JobContext, series: SeriesJob, reason: str, note: str) -> StepResult:

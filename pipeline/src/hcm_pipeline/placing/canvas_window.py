@@ -20,6 +20,7 @@ import cv2
 import numpy
 
 from hcm_pipeline.heap import give_back
+from hcm_pipeline.placing import framing
 from hcm_pipeline.placing.raster_io import RGB, read_box, read_box_inked
 from hcm_pipeline.placing.sheetwork import Box, oriented, swaps
 from hcm_pipeline.placing.streets import UInt8Array, grey_of
@@ -35,7 +36,7 @@ PAPER: Final = 255
 @dataclass(frozen=True)
 class Tile:
     """A sheet on the canvas: its scan, its content box there (scan pixels), its variant, and its box on the canvas (left, top, width,
-    height in canvas pixels)."""
+    height in canvas pixels). A sheet cut at its neat line (`frame`, its corners on the scan) is read straight onto that frame."""
 
     path: Path
     box: Box
@@ -45,6 +46,7 @@ class Tile:
     width: int
     height: int
     angle: float = 0.0
+    frame: framing.Corners = ()
 
     @property
     def centre(self) -> tuple[float, float]:
@@ -63,11 +65,20 @@ def _read_size(tile: Tile) -> tuple[int, int]:
 def picture(tile: Tile, colour: bool) -> UInt8Array:
     """The tile's pixels on the canvas: only its content box read, by GDAL straight at the tile's size, then turned (a colour sheet
     costs one copy of itself at the canvas's scale and one band, never its whole scan; M20 §19.6). A grey sheet keeps its ink: each
-    canvas pixel is the darkest of the scan pixels it covers (`read_box_inked`), so thin lines stay lines (M20 §19.16)."""
+    canvas pixel is the darkest of the scan pixels it covers (`read_box_inked`), so thin lines stay lines (M20 §19.16). A framed
+    sheet is read inside its neat line only, straightened (`framing.read_framed`, M20 §19.20)."""
+    if tile.frame:
+        return oriented(_framed(tile, colour), tile.variant)
     if colour:
         return oriented(_colour(read_box(tile.path, tile.box, _read_size(tile))), tile.variant)
     image = grey_of(read_box_inked(tile.path, tile.box, _read_size(tile)))
     return oriented(image, tile.variant)
+
+
+def _framed(tile: Tile, colour: bool) -> UInt8Array:
+    if colour:
+        return _colour(framing.read_framed(tile.path, tile.frame, _read_size(tile)))
+    return grey_of(framing.read_framed(tile.path, tile.frame, _read_size(tile), inked=True))
 
 
 def turned(image: UInt8Array, angle: float) -> tuple[UInt8Array, numpy.ndarray]:
@@ -108,6 +119,21 @@ def owners(tiles: Sequence[Tile], window: Box) -> numpy.ndarray:
     return numpy.asarray(cv2.resize(owner, (x1 - x0, y1 - y0), interpolation=cv2.INTER_NEAREST), numpy.int32)
 
 
+def unowned(tiles: Sequence[Tile], window: Box, owner: numpy.ndarray) -> numpy.ndarray:
+    """The window pixels whose owner (sampled every `OWNER_STEP` pixels) does not cover them: within two pixels of a tile's edge the
+    sample can name the neighbour, which never paints there, so they stayed paper (lesson of 2026-11-24: a white line along every
+    seam of the plan cadastral's mosaic). Any covering tile takes them."""
+    x0, y0, x1, y1 = window
+    rows, cols = numpy.arange(y0, y1), numpy.arange(x0, x1)
+    found = owner < 0
+    for index in numpy.unique(owner[owner >= 0]):
+        tile = tiles[int(index)]
+        inside_rows = (rows >= tile.top) & (rows < tile.top + tile.height)
+        inside_cols = (cols >= tile.left) & (cols < tile.left + tile.width)
+        found |= (owner == index) & ~(inside_rows[:, None] & inside_cols[None, :])
+    return found
+
+
 def _read(dataset: gdal.Dataset, window: Box) -> UInt8Array:
     x0, y0, x1, y1 = window
     bands = [dataset.GetRasterBand(band).ReadAsArray(x0, y0, x1 - x0, y1 - y0) for band in range(1, dataset.RasterCount + 1)]
@@ -138,7 +164,8 @@ def _paste(dataset: gdal.Dataset, tiles: Sequence[Tile], index: int, pixels: UIn
         region = _read(dataset, window)
         x0, y0, x1, y1 = window
         piece = pixels[y0 - tile.top : y1 - tile.top, x0 - tile.left : x1 - tile.left]
-        mine = _mine(owners(tiles, window) == index, region, inside, (x0 - tile.left, y0 - tile.top))
+        owner = owners(tiles, window)
+        mine = _mine((owner == index) | unowned(tiles, window, owner), region, inside, (x0 - tile.left, y0 - tile.top))
         region[mine] = piece[mine]
         _write(dataset, window, region)
 

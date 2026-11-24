@@ -25,6 +25,7 @@ import numpy
 from hcm_pipeline.archive import model
 from hcm_pipeline.images import write_jpeg
 from hcm_pipeline.jobs import JobContext
+from hcm_pipeline.placing import framing
 from hcm_pipeline.placing.autostitch import Plan, Proposal
 from hcm_pipeline.placing.raster_io import read_box_inked
 from hcm_pipeline.placing.seams import STRIP_SHARE, Seam
@@ -206,9 +207,11 @@ def fitted(image: UInt8Array, side: int) -> UInt8Array:
 def inked(part: Part) -> UInt8Array:
     """The sheet's content at its thumbnail's size read again from its scan keeping its ink (`read_box_inked`): a 1-bit sheet's thin
     lines, averaged away on its working copy, show (M20 §19.16)."""
-    width, height = part.box[2] - part.box[0], part.box[3] - part.box[1]
+    width, height = framing.frame_size(part.frame) if part.frame else (part.box[2] - part.box[0], part.box[3] - part.box[1])
     scale = THUMB_PX / max(1, width, height)
     size = (max(1, round(width * scale)), max(1, round(height * scale)))
+    if part.frame:
+        return grey_of(framing.read_framed(part.path, part.frame, size, inked=True))
     return grey_of(read_box_inked(part.path, part.box, size))
 
 

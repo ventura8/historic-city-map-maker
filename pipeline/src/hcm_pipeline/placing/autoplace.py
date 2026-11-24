@@ -1,7 +1,9 @@
 """An automatic layout mosaicked and placed, or kept for its owner (docs/research/M20-import-local.md §19.6, §19.7).
 
 `mosaicked` writes the canvas window by window (`canvas_window`) and places it as one map; when that map waits for points, its picture
-is kept as the stitched one with the layout's files. `wait_layout` does not mosaic: it renders a preview of the proposal (at most
+is kept as the stitched one with the layout's files. A framed series with sheets whose neat line was not found (`no-frame`, `framing`)
+is never mosaicked without them: it waits in Help calibrate (`frame-not-found`) with them named (lesson of 2026-11-24).
+`wait_layout` does not mosaic: it renders a preview of the proposal (at most
 `SCAN_MAX_PX`, the georeferencer's scan) and the version waits with `layout-check` for its owner to check the layout in the tile wizard.
 """
 
@@ -11,8 +13,9 @@ from typing import Final
 
 from hcm_pipeline.jobs import JobContext, StepResult, Waiting
 from hcm_pipeline.placing import fullres, fullres_parts
-from hcm_pipeline.placing.autostitch import CANVAS_MAX_PX, Proposal, propose
+from hcm_pipeline.placing.autostitch import CANVAS_MAX_PX, NO_FRAME, Proposal, propose
 from hcm_pipeline.placing.canvas_window import Canvas, render
+from hcm_pipeline.placing.framing import UNFRAMED
 from hcm_pipeline.placing.layout_files import publish_layout, revision_of
 from hcm_pipeline.placing.raster_io import read_working
 from hcm_pipeline.placing.series import SeriesJob, Sheet
@@ -22,6 +25,7 @@ from hcm_pipeline.placing.stitched import SCAN_MAX_PX, Stitched, publish_stitche
 CANVAS: Final = "canvas.tif"
 PREVIEW: Final = "layout-preview.tif"
 LAYOUT_CHECK: Final = "layout-check"
+FRAME_NOT_FOUND: Final = "frame-not-found"
 NOTE_CHECK: Final = "The pages' layout needs your check: open Help calibrate, move the pages that are off, then accept the layout."
 
 
@@ -63,12 +67,28 @@ def _canvas(ctx: JobContext, proposal: Proposal, name: str, longest: int, colour
 
 
 def mosaicked(ctx: JobContext, series: SeriesJob, proposal: Proposal, methods: tuple[str, str], revision: int | None = None) -> StepResult:
-    """The layout mosaicked and placed as one map (`methods`: how it is placed, how it was stitched); its picture kept when it waits."""
+    """The layout mosaicked and placed as one map (`methods`: how it is placed, how it was stitched); its picture kept when it waits.
+    With sheets of a framed series unframed, it waits for them instead (`wait_unframed`)."""
+    unframed = [index for index, reason in proposal.left_out.items() if reason == NO_FRAME]
+    if unframed:
+        return wait_unframed(ctx, series, proposal, (methods[1], len(unframed)), revision)
     path, placed, longest = _canvas(ctx, proposal, CANVAS, CANVAS_MAX_PX, series.colour)
     result = place_map(ctx, series, drawn_of(path, methods[1], longest, framed=False), methods[0], placed)
     if isinstance(result, Waiting):
         ctx.update_version({"help.stitched": publish_stitched(ctx, _stitched(ctx, proposal, path, methods[1], revision), canvas=path)})
     return result
+
+
+def wait_unframed(
+    ctx: JobContext, series: SeriesJob, proposal: Proposal, unframed: tuple[str, int], revision: int | None = None
+) -> Waiting:
+    """Sheets of a framed series without a confident neat line (`unframed`: how the layout was stitched, how many): a preview of the
+    others, those named in `leftOut` as `no-frame`, and the version waiting with `frame-not-found` (never placed without them)."""
+    method, count = unframed
+    ctx.log.info(f"{count} of {len(series.sheets)} sheets have no neat line found: they wait in Help calibrate", ctx.step)
+    path, _placed, _longest = _canvas(ctx, proposal, PREVIEW, SCAN_MAX_PX, series.colour)
+    note = UNFRAMED.format(count=count, total=len(series.sheets))
+    return wait_stitched(ctx, _stitched(ctx, proposal, path, method, revision), FRAME_NOT_FOUND, note)
 
 
 def wait_layout(ctx: JobContext, series: SeriesJob, proposal: Proposal, method: str = "names", revision: int | None = None) -> Waiting:

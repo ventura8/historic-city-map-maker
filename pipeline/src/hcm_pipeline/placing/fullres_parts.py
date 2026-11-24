@@ -11,8 +11,9 @@ from typing import Final
 
 import numpy
 
+from hcm_pipeline.placing import framing
 from hcm_pipeline.placing.canvas_window import Tile
-from hcm_pipeline.placing.fullres import Part, Recorded, affine, indexed, size_of
+from hcm_pipeline.placing.fullres import Part, Recorded, affine, apply, indexed, size_of
 from hcm_pipeline.placing.geometry import FloatArray
 from hcm_pipeline.placing.sheetwork import flip_of, swaps
 from hcm_pipeline.rasters import fit_long_side
@@ -39,15 +40,24 @@ def _turn(angle: float, size: tuple[int, int]) -> FloatArray:
 
 
 def tile_part(tile: Tile) -> Part:
-    """A `canvas_window` tile's original to the canvas: its box read at the tile's size, turned by its variant and its angle, moved."""
-    left, top, right, bottom = tile.box
+    """A `canvas_window` tile's original to the canvas: its box read at the tile's size (a framed sheet: its neat line onto the read
+    rectangle, clipped there), turned by its variant and its angle, moved."""
     read = (tile.height, tile.width) if swaps(tile.variant) else (tile.width, tile.height)
-    sx, sy = read[0] / max(1, right - left), read[1] / max(1, bottom - top)
-    scale = affine(sx, 0, -left * sx, 0, sy, -top * sy)
-    matrix = _variant(tile.variant, (float(read[0]), float(read[1]))) @ scale
+    matrix = _variant(tile.variant, (float(read[0]), float(read[1]))) @ _to_read(tile, read)
     if tile.angle:
         matrix = _turn(tile.angle, (tile.width, tile.height)) @ matrix
-    return Part(tile.path, tile.box, affine(1, 0, tile.left, 0, 1, tile.top) @ matrix)
+    matrix = affine(1, 0, tile.left, 0, 1, tile.top) @ matrix
+    clip = tuple((float(x), float(y)) for x, y in apply(matrix, numpy.array(tile.frame, numpy.float64))) if tile.frame else ()
+    return Part(tile.path, tile.box, matrix, clip)
+
+
+def _to_read(tile: Tile, read: tuple[int, int]) -> FloatArray:
+    """The tile's scan to the picture read for it, before its turn: the frame onto the read rectangle, else the box scaled."""
+    if tile.frame:
+        return framing.to_frame(tile.frame, read)
+    left, top, right, bottom = tile.box
+    sx, sy = read[0] / max(1, right - left), read[1] / max(1, bottom - top)
+    return affine(sx, 0, -left * sx, 0, sy, -top * sy)
 
 
 def working_part(path: Path, full: tuple[int, int], working: tuple[int, int], crop: tuple[int, int], matrix: FloatArray) -> Part:

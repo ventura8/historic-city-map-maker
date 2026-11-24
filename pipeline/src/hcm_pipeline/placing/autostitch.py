@@ -37,6 +37,7 @@ PAIRWISE_MAX: Final = 400
 # old City Hall, the CEC south of it, the Dâmbovița in the south-east quarter).
 PRINTED_ORDER: Final = 0
 SIDES: Final = (("right", 0, 1), ("below", 1, 0))
+NO_FRAME: Final = "no-frame"
 Cell = tuple[int, int]
 
 
@@ -170,7 +171,8 @@ def tiles_of(plan: Plan, positions: Mapping[int, tuple[float, float]], longest: 
     for index, (x, y) in positions.items():
         part = plan.parts[index]
         left, top = round((x - low[0]) * factor), round((y - low[1]) * factor)
-        found.append((index, Tile(part.path, part.box, plan.variants[index], left, top, width, height, plan.angles.get(index, 0.0))))
+        tile = Tile(part.path, part.box, plan.variants[index], left, top, width, height, plan.angles.get(index, 0.0), part.frame)
+        found.append((index, tile))
     return found, (max(1, math.ceil(span[0] * factor)), max(1, math.ceil(span[1] * factor)))
 
 
@@ -225,18 +227,44 @@ def _marked(seams: Sequence[Seam], dropped: Sequence[Seam]) -> tuple[Seam, ...]:
 
 def solved(plan: Plan, grid: sheetnames.NameGrid, named_places: bool = False) -> Proposal:
     """The seams measured and the bundle solved on a plan whose cells and variants are set; with its verdict. With `named_places` (a
-    city grid) the names place every sheet and the seams only confirm them (`bundle.confirmed`)."""
+    city grid) the names place every sheet and the seams only confirm them (`bundle.confirmed`); so do the cells of sheets cut at
+    their neat lines that abut (`neat_lined`, `abutting`)."""
     seams = seams_of(plan)
     cells = {index: cell for index, cell in plan.cells.items() if index not in plan.out}
     from_order = set(cells) if grid.source == "order" else set()
-    answer = bundle.confirmed(cells, seams, plan.cell) if named_places else bundle.solve(cells, seams, plan.cell, from_order)
+    on_cells = _on_cells(plan, seams, named_places)
+    answer = bundle.confirmed(cells, seams, plan.cell) if on_cells else bundle.solve(cells, seams, plan.cell, from_order)
     return Proposal(plan, grid, _marked(seams, answer.dropped), answer, judged(_measures(plan, seams, answer)))
 
 
 def initial_out(parts: Sequence[Part], grid: sheetnames.NameGrid) -> dict[int, str]:
-    """The sheets kept out from the start: the blank pages, and the foreign sheets the names did not read."""
+    """The sheets kept out from the start: the blank pages, the foreign sheets the names did not read, and the sheets of a framed
+    series whose own frame was not found (`no-frame`: named in Help calibrate, never mosaicked with their margins)."""
     blank = {part.index: "blank" for part in parts if part.blank}
-    return blank | {index: "no-join" for index in grid.unread}
+    return blank | {index: "no-join" for index in grid.unread} | unframed_out(parts)
+
+
+def _on_cells(plan: Plan, seams: Sequence[Seam], named_places: bool) -> bool:
+    """The cells place the sheets (`bundle.confirmed`): a city grid's names, or sheets cut at their neat lines that abut."""
+    return named_places or (neat_lined(plan.parts) and abutting(seams, plan.cell))
+
+
+def neat_lined(parts: Sequence[Part]) -> bool:
+    """True when the sheets are cut at their neat lines (`framing`)."""
+    return any(part.frame for part in parts)
+
+
+def abutting(seams: Sequence[Seam], cell: tuple[int, int]) -> bool:
+    """True when the strong seams (if any) step a whole cell across: sheets cut at their neat lines that abut, which their cells place
+    exactly (a weak seam's guess opened gaps and overlaps of 3 % of a cell at the plan cadastral's neat lines, lesson of 2026-11-24);
+    pages framed around an overlap step less and are placed by their seams. A shift along the seam is no overlap."""
+    across = [abs(seam.dx - cell[0]) if seam.side == "right" else abs(seam.dy - cell[1]) for seam in seams if seam.score >= STRONG_SCORE]
+    return not across or float(numpy.median(across)) <= bundle.OUTLIER_PX
+
+
+def unframed_out(parts: Sequence[Part]) -> dict[int, str]:
+    """The sheets of a framed series whose own frame was not found, kept out as `no-frame` (`sheetwork.framed_part`)."""
+    return {part.index: NO_FRAME for part in parts if part.unframed}
 
 
 def propose(named: Sequence[tuple[str, Path]]) -> Proposal:

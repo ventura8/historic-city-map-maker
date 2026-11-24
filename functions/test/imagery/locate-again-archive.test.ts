@@ -25,6 +25,15 @@ import {
 
 const JOB = 'ar-mw993zri-s-4054e55659a3';
 const DONE = 'done' as const;
+const LAYOUT = {
+    revision: 0,
+    sheets: [{ index: 0, row: 0, col: 1, turn: 0 as const, flip: false }],
+    seams: [],
+    preview: false,
+    accepted: true as const,
+    by: 'u-admin',
+    at: at(NOW),
+};
 
 function parkedSeries(overrides: Partial<JobDoc> = {}): JobDoc {
     return {
@@ -97,6 +106,35 @@ describe('imagery.locateAgain: an archive series parked for points', () => {
         await locateAgain(ready);
 
         expect((await readVersion(ready, JOB))?.georef).toEqual(georef);
+    });
+
+    // Finding of 2026-11-24 (plan cadastral 1911-1914): Locate again dropped the owner's tile layout with the help, so `place` laid
+    // the series out again by names instead of as the owner accepted it.
+    it('happyPath_theOwnersTileLayoutStaysForPlaceToFix @S-A122-HAPPY-PLACE-AGAIN-KEEPS-LAYOUT', async () => {
+        const ready = await world();
+        const help = { reason: 'low-confidence' as const, note: 'Placed outside the city.', at: at(NOW), layoutAnswer: LAYOUT };
+        await seedVersion(ready, JOB, { ...parkedVersion(), help });
+
+        await expect(locateAgain(ready)).resolves.toEqual({ status: 'queued', attempt: 1 });
+
+        const version = await readVersion(ready, JOB);
+        expect(version?.state).toBe('processing');
+        expect(version?.help?.layoutAnswer).toEqual(LAYOUT);
+        expect((await readJob(ready, JOB))?.steps?.['place']).toEqual({ status: 'pending' });
+    });
+
+    it('badPath_aSeriesWithTheOwnersPairsAndLayoutLosesNeither @S-A122-BAD-PLACE-AGAIN-LAYOUT-WITH-PAIRS', async () => {
+        const ready = await world();
+        const georef = { ...goldenGeoref(), method: 'gcps' as const };
+        const help = { reason: 'low-confidence' as const, note: 'Placed outside the city.', at: at(NOW), layoutAnswer: LAYOUT };
+        await seedVersion(ready, JOB, { ...parkedVersion(), georef, help });
+
+        await locateAgain(ready);
+
+        const version = await readVersion(ready, JOB);
+        expect(version?.georef).toEqual(georef);
+        expect(version?.help?.layoutAnswer).toEqual(LAYOUT);
+        expect(version?.error).toBeUndefined();
     });
 
     it('badPath_aSeriesAskedToStopIsNotPlacedAgain @S-A122-BAD-PLACE-AGAIN-CANCELLED', async () => {

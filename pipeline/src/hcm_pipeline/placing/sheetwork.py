@@ -4,21 +4,26 @@ Each sheet is read reduced (`work_px`: its long side, smaller for a long series 
 grey, cropped to its content (`frame.content_box`: inside its frame, or its paper margins trimmed) and told blank or not. Its turn and
 flip are one of eight `variants` (a turn clockwise of 0, 90, 180 or 270 degrees, then a mirror left to right). Every copy is brought
 to the series' one cell (`cell_of`, the median sheet's shape): the sheets' scale differences (a page scanned at another resolution,
-paper shrink) are taken out before the seams compare them.
+paper shrink) are taken out before the seams compare them. A series of framed sheets (`framing`: a printed neat line on most of them)
+is cut at each sheet's neat line instead, straightened; its sheets with no confident frame are marked `unframed` (lesson of
+2026-11-24: margins and headers between the cells broke every street at the seams).
 """
 
 import math
 from collections.abc import Sequence
-from dataclasses import dataclass
+from dataclasses import dataclass, replace
 from pathlib import Path
 from typing import Final
 
 import cv2
 import numpy
 
+from hcm_pipeline.placing import framing
 from hcm_pipeline.placing.frame import BLANK_MAX_MARKS, content_box, is_blank, marks
+from hcm_pipeline.placing.neatline import NeatLine
 from hcm_pipeline.placing.raster_io import RGB, read_box, read_working
 from hcm_pipeline.placing.streets import UInt8Array, grey_of
+from hcm_pipeline.rasters import raster_info
 
 WORK_BUDGET_BYTES: Final = 160_000_000
 WORK_PX_MAX: Final = 1024
@@ -54,6 +59,11 @@ class Part:
     box: Box
     blank: bool
     colour: bool = False
+    # The sheet's neat line (its four corners, scan pixels, top left first, clockwise) when the series is one of framed sheets: `image`
+    # is the inside of that frame, straightened, and `box` the frame's box on the scan.
+    frame: framing.Corners = ()
+    # A sheet of a framed series whose own frame was not found: left out by name (`no-frame`), never mosaicked with its margins.
+    unframed: bool = False
 
     @property
     def aspect(self) -> float:
@@ -89,8 +99,43 @@ def blank_page(path: Path, box: Box, crop: UInt8Array) -> bool:
 
 
 def read_parts(named: Sequence[tuple[str, Path]]) -> list[Part]:
+    """The sheets' working copies; in a series of framed sheets, each cut at its neat line (`framing`)."""
     px = work_px(len(named))
-    return [read_part(index, name, path, px) for index, (name, path) in enumerate(named)]
+    parts = [read_part(index, name, path, px) for index, (name, path) in enumerate(named)]
+    return neat_cut(parts, px) if parts else parts
+
+
+def neat_cut(parts: list[Part], px: int) -> list[Part]:
+    """The parts cut at their neat lines when the series is one of framed sheets (`framing.series_neatlines`); else as they are."""
+    width, height = cell_of(parts)
+    frames = framing.series_neatlines([part.path for part in parts], width / height)
+    if frames is None:
+        return parts
+    return _cut_or_kept(parts, [framed_part(part, frame, px) for part, frame in zip(parts, frames, strict=True)])
+
+
+def _cut_or_kept(parts: list[Part], framed: list[Part]) -> list[Part]:
+    """The parts cut at their neat lines; or, when every frame already held its content box (the paper trim did the cut), the parts
+    as read, no sheet held back for want of a frame."""
+    return framed if any(part.frame for part in framed) else parts
+
+
+def framed_part(part: Part, found: NeatLine | None, px: int) -> Part:
+    """The part cut at its neat line (`px` on its long side), or marked `unframed` when it has no confident one; a blank page stays, and
+    so does a part whose content box already lies inside its neat line (`content_box` found the frame and trimmed its line)."""
+    if part.blank:
+        return part
+    if found is None or not found.confident:
+        return replace(part, unframed=True)
+    if framing.holds(found.corners, part.box):
+        return part
+    width, height = framing.frame_size(found.corners)
+    factor = px / max(width, height)
+    size = (max(MIN_SIDE_PX, round(width * factor)), max(MIN_SIDE_PX, round(height * factor)))
+    image = grey_of(framing.read_framed(part.path, found.corners, size))
+    info = raster_info(part.path)
+    box = framing.bounds(found.corners, (info.width, info.height))
+    return replace(part, image=image, scale=width / size[0], box=box, frame=framing.corners_of(found.corners))
 
 
 def turn_of(variant: int) -> int:
