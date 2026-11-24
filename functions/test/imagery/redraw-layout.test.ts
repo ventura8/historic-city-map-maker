@@ -59,8 +59,8 @@ describe('a redraw retried before it carried its layout (rg-mwukj3fm)', () => {
     it('happyPath_theRetryAddsTheSeriesLayout @S-P20-HAPPY-REDRAW-REBUILD', async () => {
         const made = await world();
         const params = await retryParams(made.deps.documents, CITY, jobOf('regeoref', { ...REDRAW, fullResolution: true }));
-        expect(params?.layout).toMatchObject({ method: 'overview', encoding: 'colour', gridId: 'g-1' });
-        expect(typeof (params?.layout as { maxzoom?: unknown } | undefined)?.maxzoom).toBe('number');
+        expect(params?.['layout']).toMatchObject({ method: 'overview', encoding: 'colour', gridId: 'g-1' });
+        expect(typeof (params?.['layout'] as { maxzoom?: unknown } | undefined)?.maxzoom).toBe('number');
     });
 
     it('badPath_aPointEditOneWithItsLayoutOrAChainWithNoArchiveVersionIsLeftAsItIs @S-P20-BAD-REDRAW-REBUILD', async () => {

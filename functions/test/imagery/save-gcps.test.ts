@@ -560,15 +560,15 @@ describe('a redraw of a stitched series carries its layout (lesson 799)', () => 
         const response = await save(world, { versionId: CORONA, gcps: pairs(6, 20480, 16384), fullResolution: true });
 
         const params = (await readJob(world, response.jobId))?.params;
-        expect(params?.layout).toEqual({ method: 'overview', encoding: 'colour', maxzoom: corona?.output?.maxzoom ?? 17 });
+        expect(params?.['layout']).toEqual({ method: 'overview', encoding: 'colour', maxzoom: corona?.output?.maxzoom ?? 17 });
     });
 
     it('badPath_noLayoutForAPointEditOrASingleMap @S-P20-BAD-REDRAW-REBUILD', async () => {
         const edit = await chainWorld('overview');
         const edited = await save(edit, { versionId: CORONA, gcps: pairs(6, 20480, 16384) });
-        expect((await readJob(edit, edited.jobId))?.params.layout).toBeUndefined();
+        expect((await readJob(edit, edited.jobId))?.params['layout']).toBeUndefined();
         const single = await chainWorld('single');
         const redrawn = await save(single, { versionId: CORONA, gcps: pairs(6, 20480, 16384), fullResolution: true });
-        expect((await readJob(single, redrawn.jobId))?.params.layout).toBeUndefined();
+        expect((await readJob(single, redrawn.jobId))?.params['layout']).toBeUndefined();
     });
 });
