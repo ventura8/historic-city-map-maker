@@ -204,6 +204,31 @@ test(
     },
 );
 
+test('An unclear layer shows a localized credit', { tag: '@S-V94-HAPPY-UNCLEAR-CREDIT' }, async ({ page, lang }) => {
+    const manifest = siteManifestData();
+    const [layer] = manifest['layers'] as [Json, ...Json[]];
+    layer['attribution'] = 'Arhiva · rights unclear';
+    await serveManifest(page, manifest);
+    await openViewer(page, { lang, hash: `${EMPTY_VIEW}&layers=${E2E_TILESET_LAYER.id}` });
+
+    const note = { en: 'Rights unclear', ro: 'Drepturi neclare' }[lang];
+    await expect(viewer(page).locator('.mapboxgl-ctrl-attrib-inner')).toContainText(note);
+    await openLayers(page, lang);
+    await expect(page.getByText(t(lang, 'layers.attribution', { attribution: `Arhiva · ${note}` }), { exact: true })).toBeVisible();
+});
+
+test('A confirmed layer shows its credit without the note', { tag: '@S-V94-BAD-NO-UNCLEAR-NOTE' }, async ({ page, lang }) => {
+    const manifest = siteManifestData();
+    const [layer] = manifest['layers'] as [Json, ...Json[]];
+    layer['attribution'] = 'Arhiva · CC-BY-4.0';
+    await serveManifest(page, manifest);
+    await openViewer(page, { lang, hash: `${EMPTY_VIEW}&layers=${E2E_TILESET_LAYER.id}` });
+
+    await openLayers(page, lang);
+    await expect(page.getByText(t(lang, 'layers.attribution', { attribution: 'Arhiva · CC-BY-4.0' }), { exact: true })).toBeVisible();
+    await expect(page.getByText(t(lang, 'layers.attribution.unclear'))).toHaveCount(0);
+});
+
 test('The layer slider draws the layer at 100 % and not at all at 0 %', { tag: '@S-V05-HAPPY' }, async ({ page, lang }) => {
     await openViewer(page, { lang, hash: `${EMPTY_VIEW}&layers=${E2E_TILESET_LAYER.id}` });
     const probe = await mapFraction(page, 0.5, 0.3);

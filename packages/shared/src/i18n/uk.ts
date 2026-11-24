@@ -100,6 +100,7 @@ export const uk: Messages = {
     'photosScope.nearOn': 'Лише фотографії в межах {years} років від вибраного року',
     'layers.attribution': 'Джерело: {attribution}',
     'layers.attribution.usgs': 'USGS EROS, розсекречені зображення (суспільне надбання)',
+    'layers.attribution.unclear': 'права не з’ясовані',
     'layers.attribution.landsat': 'Зображення Landsat надано NASA Goddard Space Flight Center та U.S. Geological Survey',
     'layers.empty': 'На цій мапі немає історичних шарів.',
     'layers.group.historical': 'Історичні шари',

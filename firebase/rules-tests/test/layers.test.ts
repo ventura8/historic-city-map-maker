@@ -49,6 +49,10 @@ describe('presentation', () => {
         ['an old city plan (Specht, 1790)', { year: 1790 }],
         ['a corrected licence and author', { rights: { licence: 'CC-BY-SA-4.0', author: 'Institutul Geografic' } }],
         ['removed rights', { rights: deleted() }],
+        [
+            'unclear rights with the author and the scan source',
+            { rights: { licence: 'unclear', author: 'IGA', source: { label: 'Biblioteca Națională' } } },
+        ],
         ['a drawn map, once taken for an aerial photo', { kind: 'map' }],
         ['a small-area map of a place @S-A199-HAPPY-LAYER-PLACES', { placeIds: ['parcul-carol'] }],
         [
@@ -87,6 +91,7 @@ describe('presentation', () => {
         ['an attribution over 500 characters', { attribution: 'x'.repeat(501) }],
         ['a licence that never publishes', { rights: { licence: 'unknown' } }],
         ['rights without a licence', { rights: { author: 'IGA' } }],
+        ['a misspelt unclear licence @S-A197-BAD-UNCLEAR-MISSPELT', { rights: { licence: 'Unclear' } }],
         ['rights with an unknown field', { rights: { licence: 'PD', note: 'x' } }],
         ['an author over 200 characters', { rights: { licence: 'PD', author: 'x'.repeat(201) } }],
         ['a source address that is not https', { rights: { licence: 'PD', source: { label: 'IGA', url: 'iga.ro/harta' } } }],

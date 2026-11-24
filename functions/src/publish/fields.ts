@@ -38,6 +38,7 @@ export const MANIFEST_FIELDS: Readonly<Record<HistoryEntity, readonly string[]>>
         'kind',
         'sensor',
         'attribution',
+        'rights',
         'source',
         'minzoom',
         'maxzoom',

@@ -102,6 +102,7 @@ export const pl: Messages = {
     'photosScope.nearOn': 'Tylko zdjęcia do {years} lat od wybranego roku',
     'layers.attribution': 'Źródło: {attribution}',
     'layers.attribution.usgs': 'USGS EROS, odtajnione obrazy (domena publiczna)',
+    'layers.attribution.unclear': 'prawa niewyjaśnione',
     'layers.attribution.landsat': 'Obrazy Landsat dzięki uprzejmości NASA Goddard Space Flight Center i U.S. Geological Survey',
     'layers.empty': 'Ta mapa nie ma warstw historycznych.',
     'layers.group.historical': 'Warstwy historyczne',

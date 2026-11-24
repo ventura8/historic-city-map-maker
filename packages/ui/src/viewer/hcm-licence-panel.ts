@@ -5,6 +5,7 @@
  * refuses, the citation shows as text to select by hand. Rules: `licence.ts`.
  */
 import { DEFAULT_LOCALE, LICENSE_URLS, localized, translate, type Layer, type Manifest, type ViewerLocale } from '@hcm/shared';
+import { localizedCredit } from '@hcm/shared/credits';
 import { LitElement, css, html, type TemplateResult } from 'lit';
 
 import { EMPTY } from './empty.js';
@@ -136,7 +137,7 @@ export class HcmLicencePanel extends LitElement {
         const rights = translate(locale, isPublicDomainLayer(layer) ? 'licence.layerPd' : 'licence.layerSource');
         return html`<li data-layer=${layer.id}>
             <strong>${title}</strong>
-            <p class="supporting">${layer.attribution}</p>
+            <p class="supporting">${localizedCredit(layer.attribution, locale)}</p>
             <p>${rights}</p>
             <div class="actions">${this.#copyButton(layer.id, text)} ${this.#download(layer)}</div>
             ${this.#statusLine(layer.id)}

@@ -309,14 +309,14 @@ export { layerVersionReadSchema, salvageLayerVersion, setupStatusReadSchema, typ
 export * from './schemas/imagery-plan.js';
 // M20 (docs/research/M20-import-local.md): a local archive's report, its series, rights, the map threshold. By name, not
 // `export *`: the star cost the engine's IIFE 19 bytes gzip of module glue it never uses (DECISIONS-for-review.md §137j).
-export { ARCHIVE_ACTIONS, ARCHIVE_AUTO_LIKELIHOODS, ARCHIVE_ENCODINGS, ARCHIVE_ID_PATTERN } from './schemas/imagery-archive.js';
-export { ARCHIVE_ISSUES_MAX, ARCHIVE_MAX_SERIES, ARCHIVE_MIN_YEAR, ARCHIVE_PLACE_METHODS } from './schemas/imagery-archive.js';
-export { ARCHIVE_SERIES_CLASSES, ARCHIVE_SERIES_MAX_BYTES, ARCHIVE_SKIP_REASONS } from './schemas/imagery-archive.js';
-export { DEFAULT_MAP_THRESHOLD_MAX_M, HELP_REASONS, LAYER_LICENSES, MAP_PAPER_TOLERANCE_MM } from './schemas/imagery-archive.js';
-export { MAP_THRESHOLD_MAX_RANGE, RIGHTS_LICENCES, RIGHTS_STATES, SERIES_ID_PATTERN, archiveDocSchema } from './schemas/imagery-archive.js';
-export { archiveIssueSchema, archiveReportSchema, archiveSeriesParamsSchema, archiveSeriesSchema } from './schemas/imagery-archive.js';
-export { archiveSourceSchema, creditLine, gridDocSchema, helpItemSchema, layerRightsOf } from './schemas/imagery-archive.js';
-export { layerRightsSchema, mapThresholdM, opsDailyDocSchema, rightsAllowPublish, rightsSchema } from './schemas/imagery-archive.js';
+export { DEFAULT_MAP_THRESHOLD_MAX_M, archiveSeriesParamsSchema, ARCHIVE_AUTO_LIKELIHOODS, creditLine } from './schemas/imagery-archive.js';
+export { ARCHIVE_SERIES_MAX_BYTES, MAP_THRESHOLD_MAX_RANGE, ARCHIVE_SERIES_CLASSES, ARCHIVE_ENCODINGS } from './schemas/imagery-archive.js';
+export { MAP_PAPER_TOLERANCE_MM, ARCHIVE_PLACE_METHODS, LAYER_RIGHTS_LICENCES, ARCHIVE_SKIP_REASONS } from './schemas/imagery-archive.js';
+export { archiveReportSchema, archiveSeriesSchema, archiveSourceSchema, ARCHIVE_ID_PATTERN } from './schemas/imagery-archive.js';
+export { ARCHIVE_ISSUES_MAX, ARCHIVE_MAX_SERIES, archiveIssueSchema, rightsAllowPublish, HELP_REASONS } from './schemas/imagery-archive.js';
+export { SERIES_ID_PATTERN, layerRightsSchema, opsDailyDocSchema, ARCHIVE_MIN_YEAR, archiveDocSchema } from './schemas/imagery-archive.js';
+export { ARCHIVE_ACTIONS, RIGHTS_LICENCES, LAYER_LICENSES, helpItemSchema, UNCLEAR_CREDIT } from './schemas/imagery-archive.js';
+export { RIGHTS_STATES, gridDocSchema, layerRightsOf, mapThresholdM, rightsSchema } from './schemas/imagery-archive.js';
 export type * from './schemas/imagery-archive.js';
 export { helpFlagsOf, relayoutable, restitchable, STITCH_METHODS, STITCHED_PREVIEW_MAX_PX } from './schemas/imagery-help.js';
 export { stitchedSchema, type HelpFlags, type RestitchInput, type Stitched } from './schemas/imagery-help.js';

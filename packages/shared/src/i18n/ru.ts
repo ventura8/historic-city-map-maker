@@ -104,6 +104,7 @@ export const ru: Messages = {
     'photosScope.nearOn': 'Только фотографии в пределах {years} лет от выбранного года',
     'layers.attribution': 'Источник: {attribution}',
     'layers.attribution.usgs': 'USGS EROS, рассекреченные изображения (общественное достояние)',
+    'layers.attribution.unclear': 'права не выяснены',
     'layers.attribution.landsat': 'Изображения Landsat предоставлены NASA Goddard Space Flight Center и U.S. Geological Survey',
     'layers.empty': 'На этой карте нет исторических слоёв.',
     'layers.group.historical': 'Исторические слои',

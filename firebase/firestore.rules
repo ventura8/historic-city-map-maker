@@ -479,7 +479,7 @@ service cloud.firestore {
         function validLayerRights(rights) {
             return rights is map
                 && rights.keys().hasOnly(['licence', 'author', 'source'])
-                && rights.licence in ['PD', 'CC0', 'CC-BY-4.0', 'CC-BY-SA-4.0', 'permission']
+                && rights.licence in ['PD', 'CC0', 'CC-BY-4.0', 'CC-BY-SA-4.0', 'permission', 'unclear']
                 && rights.get('author', 'x').matches('[\\s\\S]{1,200}')
                 && validRightsSource(rights.get('source', {'label': 'x'}));
         }

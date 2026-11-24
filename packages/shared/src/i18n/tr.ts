@@ -100,6 +100,7 @@ export const tr: Messages = {
     'photosScope.nearOn': 'Yalnızca seçilen yıla en fazla {years} yıl uzaklıktaki fotoğraflar',
     'layers.attribution': 'Kaynak: {attribution}',
     'layers.attribution.usgs': 'USGS EROS, gizliliği kaldırılmış görüntüler (kamu malı)',
+    'layers.attribution.unclear': 'haklar belirsiz',
     'layers.attribution.landsat': 'Landsat görüntüleri NASA Goddard Space Flight Center ve U.S. Geological Survey izniyle',
     'layers.empty': 'Bu haritada tarihî katman yok.',
     'layers.group.historical': 'Tarihî katmanlar',

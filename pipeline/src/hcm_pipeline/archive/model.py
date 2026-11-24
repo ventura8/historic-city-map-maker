@@ -33,7 +33,7 @@ STITCH_METHODS: Final = ("grid", "atlas", "pieces", "single", "overview", "names
 # `STITCHED_LEFT_OUT_MAX` of @hcm/shared; the shared contract since 2026-11-12, lesson 579).
 LEFT_OUT_REASONS: Final = ("no-frame", "no-join", "blank", "not-part", "no-seam")
 STITCHED_LEFT_OUT_MAX: Final = 200
-RIGHTS_LICENCES: Final = ("PD", "CC0", "CC-BY-4.0", "CC-BY-SA-4.0", "permission", "unknown")
+RIGHTS_LICENCES: Final = ("PD", "CC0", "CC-BY-4.0", "CC-BY-SA-4.0", "permission", "unclear", "unknown")
 RIGHTS_STATES: Final = ("clear", "needs-confirmation", "do-not-publish")
 HELP_REASONS: Final = ("no-path", "low-confidence", "frame-not-found", "no-scale", "archive-missing", "layout-check")
 # The tile layout (`imagery-tiles.ts` of @hcm/shared; docs/research/M20-import-local.md §19): seams' states, where a sheet's cell came

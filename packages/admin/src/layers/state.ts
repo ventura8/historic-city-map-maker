@@ -48,6 +48,7 @@ export type LayerPatch = Partial<
         | 'label'
         | 'description'
         | 'attribution'
+        | 'rights'
         | 'year'
         | 'date'
         | 'defaultVisible'

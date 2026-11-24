@@ -102,6 +102,7 @@ export const ko: Messages = {
     'photosScope.nearOn': '선택한 연도에서 {years}년 이내의 사진만',
     'layers.attribution': '출처: {attribution}',
     'layers.attribution.usgs': 'USGS EROS, 기밀 해제 이미지(퍼블릭 도메인)',
+    'layers.attribution.unclear': '권리 불분명',
     'layers.attribution.landsat': 'Landsat 이미지 제공: NASA Goddard Space Flight Center 및 U.S. Geological Survey',
     'layers.empty': '이 지도에는 역사 레이어가 없습니다.',
     'layers.group.historical': '역사 레이어',

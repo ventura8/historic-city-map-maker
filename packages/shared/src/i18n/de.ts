@@ -104,6 +104,7 @@ export const de: Messages = {
     'photosScope.nearOn': 'Nur Fotos bis {years} Jahre um das gewählte Jahr',
     'layers.attribution': 'Quelle: {attribution}',
     'layers.attribution.usgs': 'USGS EROS, freigegebenes Bildmaterial (gemeinfrei)',
+    'layers.attribution.unclear': 'Rechte ungeklärt',
     'layers.attribution.landsat':
         'Landsat-Bildmaterial mit freundlicher Genehmigung des NASA Goddard Space Flight Center und des U.S. Geological Survey',
     'layers.empty': 'Diese Karte hat keine historischen Ebenen.',

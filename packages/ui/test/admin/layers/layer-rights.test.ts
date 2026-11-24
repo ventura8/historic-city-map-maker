@@ -38,6 +38,20 @@ describe('<hcm-layers-page> rights', () => {
         expect(await axeViolations(element)).toEqual([]);
     });
 
+    it.each([
+        ['en', 'Rights unclear'],
+        ['ro', 'Drepturi neclare'],
+    ] as const)('happyPath_anEditorCanSelectUnclearRightsIn%s', async (locale, label) => {
+        const layers = area(layersState({ editor: editorOf(DRAWN) }));
+        const { element } = await page('layers', layers, { params: ['corona'], locale });
+        const select = deep(element, '#layer-rights-licence') as HTMLSelectElement;
+
+        select.value = 'unclear';
+        expect(select.selectedOptions[0]?.textContent.trim()).toBe(label);
+        select.dispatchEvent(new Event('change'));
+        expect(layers.named('setField')).toEqual(['setField "rights.licence" "unclear"']);
+    });
+
     it('happyPath_aLayerWithoutRightsShowsNotSetAndNoAuthor', async () => {
         const { element } = await page('layers', area(layersState({ editor: editorOf(layerDoc()) })), { params: ['corona'], locale: 'ro' });
 
@@ -45,6 +59,21 @@ describe('<hcm-layers-page> rights', () => {
         expect(deepAll(element, '#layer-rights-author')).toEqual([]);
     });
 
+    it('happyPath_unclearRightsShowThePlainNote @S-A197-HAPPY-UNCLEAR', async () => {
+        // The owner, 2026-11-24: rights not confirmed; ask the scan source for permission.
+        const unclear = layerDoc({ kind: 'map', rights: { licence: 'unclear', author: 'Ion Ionescu' } });
+        const { element } = await page('layers', area(layersState({ editor: editorOf(unclear) })), { params: ['corona'], locale: 'ro' });
+
+        expect((deep(element, '#layer-rights-licence') as HTMLSelectElement).value).toBe('unclear');
+        expect(deep(element, '#layer-rights-unclear').textContent).toContain('Cere sursei scanării permisiunea de publicare');
+        expect(await axeViolations(element)).toEqual([]);
+    });
+
+    it('badPath_aConfirmedLicenceShowsNoUnclearNote @S-A197-BAD-UNCLEAR-MISSPELT', async () => {
+        const { element } = await page('layers', area(layersState({ editor: editorOf(DRAWN) })), { params: ['corona'] });
+
+        expect(deepAll(element, '#layer-rights-unclear')).toEqual([]);
+    });
     it('badPath_aLongAuthorIsMarkedAtItsField', async () => {
         const issues = [{ path: 'rights.author', code: 'validation.tooBig' }] as const;
         const layers = area(layersState({ editor: editorOf(DRAWN, { draft: draftOf(DRAWN, { issues }) }) }));

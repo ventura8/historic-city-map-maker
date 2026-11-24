@@ -97,6 +97,7 @@ export const hi: Messages = {
     'photosScope.nearOn': 'केवल चुने गए वर्ष से {years} वर्ष के भीतर की तस्वीरें',
     'layers.attribution': 'स्रोत: {attribution}',
     'layers.attribution.usgs': 'USGS EROS, अवर्गीकृत चित्र (सार्वजनिक डोमेन)',
+    'layers.attribution.unclear': 'अधिकार अस्पष्ट',
     'layers.attribution.landsat': 'Landsat चित्र NASA Goddard Space Flight Center और U.S. Geological Survey के सौजन्य से',
     'layers.empty': 'इस मानचित्र में कोई ऐतिहासिक परत नहीं है।',
     'layers.group.historical': 'ऐतिहासिक परतें',

@@ -25929,6 +25929,50 @@
             "tier": "e2e-admin",
             "status": "exists",
             "notes": "The owner, 2026-11-23. Tests: e2e/admin/specs/layers/shot-direction.spec.ts, packages/admin/test/layers/shot-suggestion.test.ts."
+        },
+        {
+            "id": "S-A197-HAPPY-UNCLEAR",
+            "behaviour": "A197",
+            "area": "admin",
+            "path": "happy",
+            "title": "A layer marked Rights unclear stays on the public map and its credit says rights unclear",
+            "asserts": "Licence -> Rights unclear (ro: Drepturi neclare): rights {licence: unclear, author, source kept}; the attribution's licence part becomes 'rights unclear' (added when it had none); the plain note asks for the scan source's permission; the rules accept it; the manifest lists the layer with that credit; the viewer shows it as 'Drepturi neclare' / 'Rights unclear', with translations in all sixteen complete catalogues",
+            "tier": "functions",
+            "status": "exists",
+            "notes": "The owner, 2026-11-24. Tests: packages/admin/test/layers/fields.test.ts, packages/ui/test/admin/layers/layer-rights.test.ts, packages/shared/test/overlays/credits.test.ts, packages/shared/test/schemas/imagery-archive.test.ts, functions/test/publish/assemble.test.ts, firebase/rules-tests/test/layers.test.ts."
+        },
+        {
+            "id": "S-A197-BAD-UNCLEAR-MISSPELT",
+            "behaviour": "A197",
+            "area": "admin",
+            "path": "bad",
+            "title": "A misspelt licence is refused and a confirmed licence shows no unclear note",
+            "asserts": "the rules refuse licence 'Unclear'; a layer with a confirmed licence shows no unclear note; other wordings of unclear stay as written in the credit",
+            "tier": "rules",
+            "status": "exists",
+            "notes": "The owner, 2026-11-24. Tests: firebase/rules-tests/test/layers.test.ts, packages/shared/test/schemas/imagery-archive.test.ts, packages/ui/test/admin/layers/layer-rights.test.ts, packages/shared/test/overlays/credits.test.ts."
+        },
+        {
+            "id": "S-V94-HAPPY-UNCLEAR-CREDIT",
+            "behaviour": "V94",
+            "area": "viewer",
+            "path": "happy",
+            "title": "A visible layer with unclear rights shows the localized note",
+            "asserts": "The Layers panel and map credit show Rights unclear in English and Drepturi neclare in Romanian, alongside the source",
+            "tier": "e2e-viewer",
+            "status": "exists",
+            "notes": "Tests: e2e/specs/viewer/layers.spec.ts."
+        },
+        {
+            "id": "S-V94-BAD-NO-UNCLEAR-NOTE",
+            "behaviour": "V94",
+            "area": "viewer",
+            "path": "bad",
+            "title": "A confirmed layer shows its normal credit",
+            "asserts": "A CC-BY-4.0 layer shows its source and licence without an unclear-rights note",
+            "tier": "e2e-viewer",
+            "status": "exists",
+            "notes": "Tests: e2e/specs/viewer/layers.spec.ts."
         }
     ]
 }

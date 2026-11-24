@@ -109,6 +109,7 @@ describe('rights (§7)', () => {
 
     it('happyPath_aCreditLineWithoutSourceOrAuthorKeepsWhatItHas', () => {
         expect(creditLine({ licence: 'unknown', state: 'needs-confirmation', year: 'c. 1900' }, 'Plan')).toBe('Plan, c. 1900');
+        expect(creditLine({ licence: 'unclear', state: 'clear', year: '1911' }, 'Plan')).toBe('Plan, 1911 · rights unclear');
         expect(creditLine({ licence: 'PD', state: 'clear', year: '1911', watermark: 'dacoromanica' }, 'Plan')).toBe(
             'Plan, 1911 · PD · scan (dacoromanica)',
         );
@@ -329,9 +330,12 @@ describe('layerRightsOf (§7, the layer)', () => {
         expect(layerRightsOf({ licence: 'unknown', state: 'needs-confirmation', year: '1977' })).toBeUndefined();
     });
 
-    it('badPath_theLayerRefusesRightsOfAnUnknownLicenceOrAnExtraField_andTheV1ManifestCarriesNone', () => {
+    it('badPath_theLayerRefusesRightsOfAnUnknownLicenceOrAnExtraField_andTheV1ManifestCarriesNone @S-A197-BAD-UNCLEAR-MISSPELT', () => {
         expect(validate(layerRightsSchema, { licence: 'PD', author: 'IGA' }).ok).toBe(true);
         expect(validate(layerRightsSchema, { licence: 'unknown' }).ok).toBe(false);
+        // The owner, 2026-11-24: a layer's rights may stay unclear, and a replacing series carries that over.
+        expect(validate(layerRightsSchema, { licence: 'unclear', author: 'IGA', source: { label: 'Biblioteca Națională' } }).ok).toBe(true);
+        expect(validate(rightsSchema, { licence: 'unclear', state: 'clear', year: '1911' }).ok).toBe(true);
         expect(validate(layerRightsSchema, { licence: 'PD', note: 'x' }).ok).toBe(false);
         const layer = {
             id: 'plan',

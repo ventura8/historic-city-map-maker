@@ -475,6 +475,8 @@ At most `MAX_LAYERS` (300; 100 until 2026-11-22, raised when the Bucharest manif
 | `defaultVisible`, `opacity` | boolean, 0 to 1 | initial state |
 | `adjustments?` | `{brightnessMin?, brightnessMax?, contrast?, saturation?}` | Mapbox `raster-brightness-min`, `raster-brightness-max`, `raster-contrast`, `raster-saturation` (brightness 0 to 1, min ≤ max; contrast and saturation -1 to 1; ranges and neutral values in `LAYER_ADJUSTMENT_RANGES`), applied live without reprocessing (PLAN Addendum 3). An absent adjustment is neutral; `rasterAdjustmentPaint` clamps live slider values and never lets the minimum pass the maximum. Mapbox has no gamma property: the brightness range is the levels control |
 
+The manifest publisher adds the `rights unclear` credit marker for a layer saved with `rights.licence: 'unclear'`. The viewer localizes it as **Rights unclear** or **Drepturi neclare** in the map credit, Layers panel, and About → Licence and citation.
+
 ### `photos[]`
 
 | Field | Type | Rule |

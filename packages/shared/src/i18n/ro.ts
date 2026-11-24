@@ -102,6 +102,7 @@ export const ro = {
     'photosScope.nearOn': 'Doar fotografiile la cel mult {years} ani de anul ales',
     'layers.attribution': 'Sursa: {attribution}',
     'layers.attribution.usgs': 'USGS EROS, imagini desecretizate (domeniu public)',
+    'layers.attribution.unclear': 'Drepturi neclare',
     'layers.attribution.landsat': 'Imagini Landsat prin amabilitatea NASA Goddard Space Flight Center și U.S. Geological Survey',
     'layers.empty': 'Această hartă nu are straturi istorice.',
     'layers.group.historical': 'Straturi istorice',

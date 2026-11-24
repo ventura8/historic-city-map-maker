@@ -264,7 +264,7 @@
     "STITCH_METHODS": ["grid", "atlas", "pieces", "single", "overview", "names", "owner"],
     "LEFT_OUT_REASONS": ["no-frame", "no-join", "blank", "not-part", "no-seam"],
     "STITCHED_LEFT_OUT_MAX": 200,
-    "RIGHTS_LICENCES": ["PD", "CC0", "CC-BY-4.0", "CC-BY-SA-4.0", "permission", "unknown"],
+    "RIGHTS_LICENCES": ["PD", "CC0", "CC-BY-4.0", "CC-BY-SA-4.0", "permission", "unclear", "unknown"],
     "RIGHTS_STATES": ["clear", "needs-confirmation", "do-not-publish"],
     "HELP_REASONS": ["no-path", "low-confidence", "frame-not-found", "no-scale", "archive-missing", "layout-check"],
     "SEAM_STATES": ["strong", "weak", "missing", "owner"],

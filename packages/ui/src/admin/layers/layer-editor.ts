@@ -31,7 +31,6 @@ import type { CropStatePort } from './geometry/crop-port.js';
 import { geometryGroup } from './geometry-group.js';
 import { levelRow } from './level-row.js';
 import { shotDirectionRow } from './shot-direction-row.js';
-import { licenceSelect } from './rights-group.js';
 import {
     labelOf,
     type LayerDeletionPort,
@@ -40,6 +39,7 @@ import {
     type LayerTextFieldPort,
     type MapStatusPort,
 } from './layers-port.js';
+import { licenceSelect } from './rights-group.js';
 
 export interface EditorContext {
     readonly locale: UiLocale;

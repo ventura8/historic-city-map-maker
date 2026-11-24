@@ -72,6 +72,16 @@ describe('needsManifestBuild', () => {
         expect(needsManifestBuild('poi', { published: true, photoIds: ['a'] }, { published: true, photoIds: ['a', 'b'] })).toBe(true);
     });
 
+    it('happyPath_aLicenceChangeAloneCanChangeThePublicCredit', () => {
+        expect(
+            needsManifestBuild(
+                'layer',
+                { published: true, rights: { licence: 'PD' } },
+                { published: true, rights: { licence: 'unclear' } },
+            ),
+        ).toBe(true);
+    });
+
     it('happyPath_noEntityCarriesItsStamp', () => {
         expect(Object.values(MANIFEST_FIELDS).flat()).not.toContain('updatedAt');
         expect(Object.values(MANIFEST_FIELDS).flat()).not.toContain('published');

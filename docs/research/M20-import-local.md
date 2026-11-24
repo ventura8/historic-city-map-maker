@@ -324,6 +324,7 @@ For Bucharest:
 | The Oltean drawing | `do-not-publish` (marked "copyright Radu Oltean") |
 
 - **Credits.** `layer.attribution` gets the built line "Author, Title, year · licence · scan: source (watermark)", within 500 characters. It already reaches the legal line and the compare bar.
+- **Unclear rights** (the owner, 2026-11-24; DECISIONS §242). A *layer's* rights (`layerRightsSchema`, `LAYER_RIGHTS_LICENCES`) may also say `unclear`: the rights are not confirmed, yet the layer stays on the public map. The layer editor offers it as "Unclear rights" ("Drepturi neclare") with a plain note to ask the scan source for permission; the credit line's licence part becomes `rights unclear` (`UNCLEAR_CREDIT`, added at the end when the line named no licence), which the viewer shows in each of its sixteen languages (`layers.attribution.unclear`, `STORED_CREDITS`). `RIGHTS_LICENCES` includes `unclear` so a replacing archive import carries over an unclear layer's rights; a new import still waits with `needs-confirmation`.
 - **Manifest change** (a minor, additive change, recorded in `ENGINE_API.md`): `layer.rights?: {licence, author?, source?: {label, url?}}`, shown in a layer-info row in the Layers panel and in About → Credits. Strict schema, plain text only, no HTML.
 
 ## 8. Admin UX
@@ -1200,3 +1201,7 @@ Tests: `functions/test/worker/archive-share.test.ts`, `archive-host.test.ts`, `p
 `e2e/admin/specs/imagery/household.spec.ts` (tour state `worker.household-sharing`); scenarios `S-A120-HAPPY-ARCHIVE-SHARE`,
 `S-A120-BAD-ARCHIVE-SHARE`, `S-A120-BAD-ARCHIVE-SHARE-DAY`, `S-P20-HAPPY-ARCHIVE-SHARE`, `S-P20-BAD-ARCHIVE-SHARE-PAUSED`,
 `S-P20-BAD-ARCHIVE-SHARE-STOPPED`, `S-A143-HAPPY-SHARING`, `S-A143-BAD-SHARING-DAY-LIMIT`, `S-A143-BAD-SHARING-STALE`.
+
+### Follow-up on unclear rights
+
+The layer editor lists **Rights unclear** / **Drepturi neclare**. Replacing an existing layer with a sharper archive scan carries its licence forward. The manifest publisher derives the note from the saved licence, even if the editor's attribution has no marker. It keeps an existing marker in place and shortens a full credit as needed to fit the note within 500 characters. The viewer translates the marker in the map credit, Layers panel, swipe compare and About → Licence and citation.

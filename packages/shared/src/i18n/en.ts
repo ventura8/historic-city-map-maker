@@ -97,6 +97,7 @@ export const en: Messages = {
     'photosScope.nearOn': 'Only the photos within {years} years of the selected year',
     'layers.attribution': 'Source: {attribution}',
     'layers.attribution.usgs': 'USGS EROS, declassified imagery (public domain)',
+    'layers.attribution.unclear': 'Rights unclear',
     'layers.attribution.landsat': 'Landsat imagery courtesy of NASA Goddard Space Flight Center and U.S. Geological Survey',
     'layers.empty': 'This map has no historical layers.',
     'layers.group.historical': 'Historical layers',

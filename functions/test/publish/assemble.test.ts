@@ -500,7 +500,6 @@ describe('assembleManifest: the tab icon flag', () => {
         expect(manifest.city.ownIcon).toBe(ownIcon);
     });
 });
-
 describe('assembleManifest: place media (docs/research/M17-stories.md §12)', () => {
     it('happyPath_aPhotoAndAMapNameTheirPlace @S-V80-HAPPY-PLACE-MEDIA', () => {
         const manifest = manifestOf(
@@ -589,5 +588,32 @@ describe('assembleManifest: plans by level (docs/research/M17-stories.md §14)',
         expect(validateManifest(manifest).ok).toBe(true);
         expect(manifest.layers[0]?.level).toEqual({ order: 0, label: { ro: 'Parter' } });
         expect(manifest.photos[0]?.level).toBe(0);
+    });
+});
+
+describe('assembleManifest unclear rights', () => {
+    it.each([
+        [undefined, 'rights unclear'],
+        ['Arhiva', 'Arhiva · rights unclear'],
+        ['x'.repeat(500), `${'x'.repeat(483)} · rights unclear`],
+    ])('happyPath_addsTheUnclearNoteWhenMissingFromTheSavedCredit (%s)', (attribution, expected) => {
+        const layer = layerDoc({ kind: 'map', attribution, rights: { licence: 'unclear' } });
+        const assembly = assembleManifest(content({ layers: result([['plan-1911', layer]]) }), TEST_CONFIG.errorEndpoint);
+
+        expect(assembly.skipped).toEqual([]);
+        expect(manifestOf(assembly).layers[0]?.attribution).toBe(expected);
+    });
+
+    it('happyPath_aLayerWithUnclearRightsIsListedWithItsCredit @S-A197-HAPPY-UNCLEAR', () => {
+        // The owner, 2026-11-24: unclear rights keep a layer on the public map; its credit says so.
+        const attribution = 'IGA, Plan, 1911 · rights unclear · scan: Biblioteca Națională';
+        const rights = { licence: 'unclear', author: 'IGA', source: { label: 'Biblioteca Națională' } } as const;
+        const assembly = assembleManifest(
+            content({ layers: result([['plan-1911', layerDoc({ kind: 'map', attribution, rights })]]) }),
+            TEST_CONFIG.errorEndpoint,
+        );
+
+        expect(assembly.skipped).toEqual([]);
+        expect(manifestOf(assembly).layers.map((layer) => [layer.id, layer.attribution])).toEqual([['plan-1911', attribution]]);
     });
 });

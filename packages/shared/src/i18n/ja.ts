@@ -103,6 +103,7 @@ export const ja: Messages = {
     'photosScope.nearOn': '選んだ年の前後{years}年以内の写真だけ',
     'layers.attribution': '出典：{attribution}',
     'layers.attribution.usgs': 'USGS EROS、機密解除画像（パブリックドメイン）',
+    'layers.attribution.unclear': '権利関係不明',
     'layers.attribution.landsat': 'Landsat 画像提供：NASA Goddard Space Flight Center および U.S. Geological Survey',
     'layers.empty': 'この地図には歴史レイヤーがありません。',
     'layers.group.historical': '歴史レイヤー',

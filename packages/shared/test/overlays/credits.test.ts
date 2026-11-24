@@ -2,6 +2,7 @@ import { describe, expect, it } from 'vitest';
 
 import { translate } from '../../src/i18n/index.js';
 import { creditParts, localizedCredit, STORED_CREDITS } from '../../src/overlays/credits.js';
+import { UNCLEAR_CREDIT } from '../../src/schemas/imagery-archive.js';
 import { LANDSAT_ATTRIBUTION } from '../../src/schemas/landsat.js';
 import { DEM_ATTRIBUTION, USGS_ATTRIBUTION } from '../../src/schemas/usgs-scene.js';
 
@@ -10,7 +11,24 @@ describe('localizedCredit', () => {
         expect(translate('en', 'layers.attribution.usgs')).toBe(USGS_ATTRIBUTION);
         expect(translate('en', 'layers.attribution.landsat')).toBe(LANDSAT_ATTRIBUTION);
         // The engine fetches only the page's language: the stored English is matched without the English catalogue.
-        expect(STORED_CREDITS).toEqual({ 'layers.attribution.usgs': USGS_ATTRIBUTION, 'layers.attribution.landsat': LANDSAT_ATTRIBUTION });
+        expect(STORED_CREDITS).toEqual({
+            'layers.attribution.usgs': USGS_ATTRIBUTION,
+            'layers.attribution.landsat': LANDSAT_ATTRIBUTION,
+            'layers.attribution.unclear': UNCLEAR_CREDIT,
+        });
+        expect(localizedCredit(UNCLEAR_CREDIT, 'en')).toBe('Rights unclear');
+    });
+
+    it('happyPath_anUnclearCreditSaysSoInTheVisitorsLanguageBesideTheAuthorAndSource', () => {
+        // The owner, 2026-11-24: a map whose rights are not confirmed stays public and its credit says so.
+        const line = `IGA, Plan, 1911 · ${UNCLEAR_CREDIT} · scan: Biblioteca Națională`;
+
+        expect(localizedCredit(line, 'ro')).toBe('IGA, Plan, 1911 · Drepturi neclare · scan: Biblioteca Națională');
+        expect(creditParts([line], 'en')).toEqual(['IGA, Plan, 1911 · Rights unclear · scan: Biblioteca Națională']);
+    });
+
+    it('badPath_unclearWordsOutsideTheStoredSpellingStayAsWritten', () => {
+        expect(localizedCredit('IGA · Rights Unclear', 'ro')).toBe('IGA · Rights Unclear');
     });
 
     it('happyPath_aKnownCreditIsInTheVisitorsLanguage', () => {

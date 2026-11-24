@@ -41,6 +41,25 @@ describe('layerFieldPatch rights', () => {
         });
     });
 
+    it('happyPath_unclearRightsSayRightsUnclearInTheCreditBesideTheAuthorAndSource', () => {
+        // The owner, 2026-11-24: rights not confirmed; the layer stays public and its credit says so.
+        const unclear = layerFieldPatch(DRAWN, 'rights.licence', 'unclear');
+        expect(unclear).toEqual({
+            rights: { licence: 'unclear', author: 'Ion Ionescu', source: { label: 'Biblioteca Națională' } },
+            attribution: 'Ion Ionescu, Plan, 1911 · rights unclear · scan: Biblioteca Națională',
+        });
+        const back = layerDoc({ ...DRAWN, attribution: unclear.attribution, rights: unclear.rights });
+        expect(layerFieldPatch(back, 'rights.licence', 'PD').attribution).toBe('Ion Ionescu, Plan, 1911 · PD · scan: Biblioteca Națională');
+    });
+
+    it('happyPath_unclearRightsAddTheirPartToACreditWithoutALicence', () => {
+        expect(layerFieldPatch(layerDoc({ attribution: 'Arhiva' }), 'rights.licence', 'unclear').attribution).toBe(
+            'Arhiva · rights unclear',
+        );
+        expect(layerFieldPatch(layerDoc(), 'rights.licence', 'unclear').attribution).toBe('rights unclear');
+        const twice = layerDoc({ attribution: 'Arhiva · rights unclear' });
+        expect(layerFieldPatch(twice, 'rights.licence', 'unclear').attribution).toBe('Arhiva · rights unclear');
+    });
     it('badPath_aLicenceOutsideTheListMeansNoRights', () => {
         expect(layerFieldPatch(DRAWN, 'rights.licence', 'unknown').rights).toBeUndefined();
     });

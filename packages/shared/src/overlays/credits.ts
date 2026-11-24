@@ -8,17 +8,21 @@
 import { VIEWER_LOCALES, hasCatalogue, translate, type MessageKey, type ViewerLocale } from '../i18n/index.js';
 
 /**
- * The credits the pipeline writes, as text keys, each with its stored English text (`USGS_ATTRIBUTION`,
- * `LANDSAT_ATTRIBUTION`; a test holds them equal to those and to the English catalogue). Spelt here, not read from the
+ * Stored credit text by message key (`USGS_ATTRIBUTION`, `LANDSAT_ATTRIBUTION`, `UNCLEAR_CREDIT`). Spelt here, not read from the
  * English catalogue: the engine fetches only the page's language, so on any other page English is not here
  * (`docs/LESSONS.md` 691), and not imported from the schemas, whose zod the engine's bundle would then carry.
  */
 export const STORED_CREDITS: Readonly<Partial<Record<MessageKey, string>>> = {
     'layers.attribution.usgs': 'USGS EROS, declassified imagery (public domain)',
     'layers.attribution.landsat': 'Landsat imagery courtesy of NASA Goddard Space Flight Center and U.S. Geological Survey',
+    // A layer whose rights are not confirmed (`UNCLEAR_CREDIT`): the admin's licence part of its credit line.
+    'layers.attribution.unclear': 'rights unclear',
 };
 
 const CREDIT_KEYS = Object.keys(STORED_CREDITS) as readonly MessageKey[];
+
+/** The credits that stand alone; "rights unclear" is one part of an admin's credit line and stays inside it. */
+const WHOLE_CREDIT_KEYS = CREDIT_KEYS.filter((key) => key !== 'layers.attribution.unclear');
 
 /** What separates the credits of one layer (`finalize.ts` joins the DEM's notice so). */
 const CREDIT_SEPARATOR = '; ';
@@ -44,7 +48,7 @@ export function localizedCredit(text: string, locale: ViewerLocale): string {
  */
 function partsOf(attribution: string, locale: ViewerLocale): readonly string[] {
     const text = localizedCredit(attribution, locale);
-    const known = CREDIT_KEYS.map((key) => translate(locale, key)).filter((credit) => text.includes(credit));
+    const known = WHOLE_CREDIT_KEYS.map((key) => translate(locale, key)).filter((credit) => text.includes(credit));
     const rest = known.reduce((out, credit) => out.replace(credit, CREDIT_SEPARATOR), text);
     // The separators the known credits leave behind go; the rest's own stay ("…; all rights reserved").
     const notices = rest

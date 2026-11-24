@@ -77,12 +77,22 @@ export const ARCHIVE_PLACE_METHODS = ['embedded', 'grid', 'atlas', 'pieces', 'ma
 export const LAYER_LICENSES = ['PD', 'CC0', 'CC-BY-4.0', 'CC-BY-SA-4.0', 'permission'] as const;
 
 /**
+ * What a layer's rights may say (the owner, 2026-11-24): a licence, or `unclear`, rights not confirmed yet. Such a layer stays on the
+ * public map; its credit line reads "rights unclear" (`UNCLEAR_CREDIT`, the viewer's `layers.attribution.unclear`) beside its author
+ * and scan source.
+ */
+export const LAYER_RIGHTS_LICENCES = [...LAYER_LICENSES, 'unclear'] as const;
+
+/** The stored English of an unclear layer's licence part in its attribution (`STORED_CREDITS` translates it on the map). */
+export const UNCLEAR_CREDIT = 'rights unclear';
+
+/**
  * `layers/{layer}.rights` (§7): a drawn map's licence, its author and where its scan came from; plain text only. The manifest does
  * not carry it yet: the engine's bundle has no bytes left for it (`docs/research/M20-import-local.md` §14), and `attribution`
  * carries the same credit line.
  */
 export const layerRightsSchema = z.strictObject({
-    licence: z.enum(LAYER_LICENSES),
+    licence: z.enum(LAYER_RIGHTS_LICENCES),
     author: plainText(200).optional(),
     source: z.strictObject({ label: plainText(200), url: httpsUrlSchema.optional() }).optional(),
 });
@@ -90,7 +100,7 @@ export const layerRightsSchema = z.strictObject({
 export type LayerRights = z.infer<typeof layerRightsSchema>;
 
 /** A series' licence. `unknown` never publishes. */
-export const RIGHTS_LICENCES = [...LAYER_LICENSES, 'unknown'] as const;
+export const RIGHTS_LICENCES = [...LAYER_RIGHTS_LICENCES, 'unknown'] as const;
 /** Where a series' rights stand (§7): free to publish, waiting for the owner's word, or never to be published. */
 export const RIGHTS_STATES = ['clear', 'needs-confirmation', 'do-not-publish'] as const;
 
@@ -338,13 +348,20 @@ function originalPart(rights: Rights): string | undefined {
     return `${original.probable === true ? 'original, probably' : 'original'}: ${original.label}`;
 }
 
+/** The credit line's licence part: nothing for `unknown`, `UNCLEAR_CREDIT` for `unclear`, or the licence code. */
+function licencePart(licence: Rights['licence']): string | undefined {
+    if (licence === 'unknown') {
+        return undefined;
+    }
+    return licence === 'unclear' ? UNCLEAR_CREDIT : licence;
+}
+
 /** The parts of the credit line, each skipped when absent. */
 function creditParts(rights: Rights, title: string): string[] {
     // The year is skipped when the title already names it ("Planul Ernst 1791"), so the line never reads "…1791, 1791".
     const year = title.includes(rights.year) ? undefined : rights.year;
     const work = [rights.author, title, year].filter((part) => part !== undefined).join(', ');
-    const licence = rights.licence === 'unknown' ? undefined : rights.licence;
-    return [work, licence, scanPart(rights), originalPart(rights)].filter((part) => part !== undefined);
+    return [work, licencePart(rights.licence), scanPart(rights), originalPart(rights)].filter((part) => part !== undefined);
 }
 
 /** §7: the layer's credit line, "Author, Title, year · licence · scan: source (watermark) · original: label", within 500 characters. */

@@ -1,12 +1,13 @@
 /**
  * The layer editor's text fields as typed (`docs/research/M2c-interfaces.md` §8.2): the name and description in both
  * languages (Romanian required, English optional: an empty English text is removed), the attribution (an empty one is
- * removed), the rights' licence (one of `LAYER_LICENSES`, empty: no rights; the attribution's own licence part follows it, so
- * the public map's credit line changes with it on the next Update the map) and author (only with a licence; empty: removed),
- * the year (a whole number; anything else is the schema's issue at the field) and the exact date (ISO, empty: removed).
- * Each becomes the patch of its document field; the field names are also the issue paths the page shows.
+ * removed), the rights' licence (one of `LAYER_RIGHTS_LICENCES`, `unclear` named "rights unclear" in the credit; empty:
+ * no rights; the attribution's own licence part follows it, so the public map's credit line changes with it on the next
+ * Update the map) and author (only with a licence; empty: removed), the year (a whole number; anything else is the
+ * schema's issue at the field) and the exact date (ISO, empty: removed). Each becomes the patch of its document field;
+ * the field names are also the issue paths the page shows.
  */
-import { LAYER_LICENSES, type LayerDoc } from '@hcm/shared';
+import { LAYER_RIGHTS_LICENCES, UNCLEAR_CREDIT, type LayerDoc } from '@hcm/shared';
 
 import { withOptionalText, withText } from '../settings/localized.js';
 
@@ -22,18 +23,40 @@ type Licence = NonNullable<LayerDoc['rights']>['licence'];
 const PART = ' · ';
 
 function licenceOf(text: string): Licence | undefined {
-    return LAYER_LICENSES.find((licence) => licence === text);
+    return LAYER_RIGHTS_LICENCES.find((licence) => licence === text);
+}
+
+/** How a licence reads in the credit line: its id, or "rights unclear" (the viewer translates it). */
+function creditOf(licence: Licence): string {
+    return licence === 'unclear' ? UNCLEAR_CREDIT : licence;
+}
+
+/** A credit with no licence part gets "rights unclear" at its end, so the public map never shows an unclear map as cleared. */
+function withUnclear(attribution: string | undefined): string {
+    if (attribution === undefined) {
+        return UNCLEAR_CREDIT;
+    }
+    return attribution.split(PART).includes(UNCLEAR_CREDIT) ? attribution : `${attribution}${PART}${UNCLEAR_CREDIT}`;
+}
+
+/** The credit's parts and the old licence's part, when the credit names it. */
+function namedLicence(attribution: string | undefined, from: Licence | undefined): { parts: string[]; credit: string } | undefined {
+    if (attribution === undefined || from === undefined) {
+        return undefined;
+    }
+    const parts = attribution.split(PART);
+    const credit = creditOf(from);
+    return parts.includes(credit) ? { parts, credit } : undefined;
 }
 
 /** The attribution with its old licence part swapped for the new one; unchanged when no part names the old licence. */
 function swappedCredit(attribution: string | undefined, from: Licence | undefined, to: Licence | undefined): string | undefined {
-    if (attribution === undefined || from === undefined) {
-        return attribution;
+    const old = namedLicence(attribution, from);
+    if (old === undefined) {
+        return to === 'unclear' ? withUnclear(attribution) : attribution;
     }
-    const parts = attribution.split(PART);
-    const replacement = to === undefined ? [] : [to];
-    const kept = parts.flatMap((part) => (part === from ? replacement : [part]));
-    return kept.join(PART);
+    const replacement = to === undefined ? [] : [creditOf(to)];
+    return old.parts.flatMap((part) => (part === old.credit ? replacement : [part])).join(PART);
 }
 
 /** A licence chosen (empty: the layer carries no rights): the rights and the attribution's licence part follow it. */

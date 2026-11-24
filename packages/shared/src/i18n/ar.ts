@@ -98,6 +98,7 @@ export const ar: Messages = {
     'photosScope.nearOn': 'فقط الصور خلال {years} سنة من السنة المختارة',
     'layers.attribution': 'المصدر: {attribution}',
     'layers.attribution.usgs': 'USGS EROS، صور رُفعت عنها السرية (ملك عام)',
+    'layers.attribution.unclear': 'الحقوق غير واضحة',
     'layers.attribution.landsat': 'صور Landsat بإذن من NASA Goddard Space Flight Center وU.S. Geological Survey',
     'layers.empty': 'لا توجد طبقات تاريخية في هذه الخريطة.',
     'layers.group.historical': 'الطبقات التاريخية',

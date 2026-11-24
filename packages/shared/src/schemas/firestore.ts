@@ -328,7 +328,7 @@ export const layerDocSchema = z.strictObject({
     level: planLevelSchema.optional(),
     /** The shot direction of a satellite or aerial image (degrees from north, 0–360); the viewer turns the map to it. */
     shotDirection: bearingSchema.optional(),
-    /** M20 (`docs/research/M20-import-local.md` §7): an archive map's licence, author and source, copied into the manifest. */
+    /** M20 (`docs/research/M20-import-local.md` §7): an archive map's licence, author and source. The manifest exposes its credit. */
     rights: layerRightsSchema.optional(),
     status: z.enum(LAYER_STATUSES),
     published: z.boolean(),

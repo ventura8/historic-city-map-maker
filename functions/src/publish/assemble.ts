@@ -24,6 +24,7 @@ import {
 } from '@hcm/shared';
 
 import type { InvalidDocument, QueryResult, StoredDocument } from '../ports/documents.js';
+import { publicLayerCredit } from './layer-credit.js';
 
 export type SkippedDocument = NonNullable<ManifestStateDoc['skipped']>[number];
 
@@ -157,7 +158,7 @@ function layerEntry(layer: LayerDoc, id: string, listed: Listed): unknown {
         description: maybeBoth(layer.description),
         kind: layer.kind,
         sensor: layer.sensor,
-        attribution: layer.attribution,
+        attribution: publicLayerCredit(layer),
         source: layer.source,
         minzoom: layer.minzoom,
         maxzoom: layer.maxzoom,

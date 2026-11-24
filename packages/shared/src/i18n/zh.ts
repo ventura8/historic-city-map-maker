@@ -101,6 +101,7 @@ export const zh: Messages = {
     'photosScope.nearOn': '仅显示所选年份前后 {years} 年内的照片',
     'layers.attribution': '来源：{attribution}',
     'layers.attribution.usgs': 'USGS EROS，解密历史影像（公有领域）',
+    'layers.attribution.unclear': '版权不明',
     'layers.attribution.landsat': 'Landsat 历史影像由 NASA Goddard Space Flight Center 和 U.S. Geological Survey 提供',
     'layers.empty': '此地图没有历史图层。',
     'layers.group.historical': '历史图层',
