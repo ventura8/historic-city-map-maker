@@ -311,7 +311,7 @@ describe('<hcm-date-menu> placed by its year (the owner, 2026-11-23: never in th
     });
 });
 
-describe('<hcm-date-menu> on a very narrow phone (the owner, 2026-11-24)", () => {
+describe('<hcm-date-menu> on a very narrow phone (the owner, 2026-11-24)', () => {
     afterEach(() => {
         document.body.replaceChildren();
     });

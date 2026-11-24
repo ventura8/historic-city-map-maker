@@ -277,7 +277,14 @@ export class HcmDateMenu extends LitElement implements DateRowView {
         }
         return html`${this.#scrim()}
             <div class="pair" @pointerenter=${this.#onPointer} @pointerleave=${this.#onPointer}>
-                <div class="menu" role="menu" aria-label=${this.label} data-layout-check="date-menu" @keydown=${this.#onKey} @focusin=${this.#onFocus}>
+                <div
+                    class="menu"
+                    role="menu"
+                    aria-label=${this.label}
+                    data-layout-check="date-menu"
+                    @keydown=${this.#onKey}
+                    @focusin=${this.#onFocus}
+                >
                     ${this.items.map((item) => dateRow(this, item, this))}
                 </div>
                 ${this.side ? html`<div class="side" @keydown=${this.#onSideKey}><slot></slot></div>` : EMPTY}
