@@ -22,7 +22,7 @@ import { html, type TemplateResult } from 'lit';
 import type { ViewerStorePort } from './store-port.js';
 import { localizedText, photoDateText, type DataText } from './text.js';
 
-export type SearchResultKind = 'poi' | 'photo' | 'story';
+type SearchResultKind = 'poi' | 'photo' | 'story';
 
 export interface SearchResult {
     readonly id: string;
@@ -34,7 +34,7 @@ export interface SearchResult {
     readonly categoryId?: string | undefined;
 }
 
-export const MAX_SEARCH_RESULTS = 20;
+const MAX_SEARCH_RESULTS = 20;
 const SEARCH_ZOOM = 16;
 
 /** Strips diacritics (including Romanian comma-below ș/ț), lowercases and trims. */
