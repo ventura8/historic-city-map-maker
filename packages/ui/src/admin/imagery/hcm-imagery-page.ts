@@ -92,6 +92,12 @@ const QUESTIONS = {
         body: 'adminContent.imagery.confirm.approveOutsideBody',
         confirm: 'adminContent.imagery.confirm.approveOutsideConfirm',
     },
+    // Both guards at once: outside the city and not shown better than the current version.
+    approveOutsideWorse: {
+        headline: 'adminContent.imagery.confirm.approveOutsideWorse',
+        body: 'adminContent.imagery.confirm.approveOutsideWorseBody',
+        confirm: 'adminContent.imagery.confirm.approveOutsideWorseConfirm',
+    },
     // The merge of M16 and M18: a recalibration of a published layer is deleted with the same Delete, but the question says what
     // goes (the new fit) and what stays (the published version), not "this image".
     rejectRecalibration: {
@@ -392,6 +398,7 @@ function answers(intents: ImageryIntentsPort | null, leave: () => void): Readonl
         resume: () => void intents?.resumeGuard(),
         approveWorse: () => void intents?.approve(true),
         approveOutside: () => void intents?.approve(),
+        approveOutsideWorse: () => void intents?.approve(true),
         deleteVersion: () => void deleteAndLeave(intents, leave),
         makeLive: () => void intents?.makeLive(),
     };

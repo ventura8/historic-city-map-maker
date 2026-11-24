@@ -18,6 +18,7 @@ export type ImageryQuestion =
     | 'drop'
     | 'approveWorse'
     | 'approveOutside'
+    | 'approveOutsideWorse'
     | 'rejectRecalibration'
     | 'deleteVersion'
     | 'makeLive';

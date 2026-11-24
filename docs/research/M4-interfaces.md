@@ -316,7 +316,8 @@ against Sentinel-2 (M3 §5.6, §5.9). M4 extends the same step; inputs and outpu
   (`landsInCity` of `@hcm/shared`: the centre within the city's bounds grown by a quarter, at least half the smaller of the two
   boxes shared), every row reads *doubtful* with no percentage, the panel says the map would land outside the city, and there is
   no Accept all (a single Accept still works). The approval card of a version whose footprint lies mostly outside the city says so
-  and Approve asks first (`approveOutside`).
+  and Approve asks first (`approveOutside`, or `approveOutsideWorse` when the version is also a recalibration not shown better
+  than the current one, sending `acceptWorse: true` once confirmed).
 - **Never saved without Save**: accepted suggestions are part of the page's unsaved pairs (M2c's unsaved guard);
   `imagery.saveGcps` is called only by Save, with exactly the table's pairs; nothing the admin did not accept reaches
   the version (`S-A44-BAD-REJECTED-NEVER-SAVED`).

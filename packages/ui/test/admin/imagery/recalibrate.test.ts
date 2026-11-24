@@ -200,6 +200,45 @@ describe('<hcm-imagery-page>: calibrate again', () => {
     });
 });
 
+describe('<hcm-imagery-page>: approve a version outside the city and not better', () => {
+    beforeAll(async () => {
+        await defineImagery();
+        await RECALIBRATE_CHUNK.load();
+    });
+    afterEach(cleanup);
+
+    it('happyPath_aVersionBothOutsideAndNotBetterAsksBothWarningsAndApprovesWithAcceptWorse @S-A89-HAPPY-APPROVE-OUTSIDE-WORSE', async () => {
+        const off = versionView({ recalibration: WORSE, basedOn: 'job-current' });
+        const output = off.output === null ? null : { ...off.output, bounds: OUTSIDE };
+        const { element, area } = await shown({ ...off, output }, null, BUCHAREST);
+
+        expect(deep(element, '[data-city="outside"]').textContent).toContain('lies mostly outside the city');
+        expect(deep(element, '[data-verdict="worse"]').textContent).toBeDefined();
+        click(button(element, 'Approve and publish'));
+        await updated(element);
+        expect(calls(area)).toEqual([]);
+        const dialog = deep(element, 'hcm-confirm-dialog');
+        expect(deepText(dialog)).toContain('outside the city and not shown better');
+        click(deep(dialog, '.confirm'));
+        await updated(element);
+
+        expect(calls(area)).toEqual(['approve true']);
+    });
+
+    it('badPath_cancellingTheCombinedOutsideAndWorseConfirmMakesNoApproveCall @S-A89-BAD-APPROVE-OUTSIDE-WORSE-CANCELLED', async () => {
+        const off = versionView({ recalibration: WORSE, basedOn: 'job-current' });
+        const output = off.output === null ? null : { ...off.output, bounds: OUTSIDE };
+        const { element, area } = await shown({ ...off, output }, null, BUCHAREST);
+
+        click(button(element, 'Approve and publish'));
+        await updated(element);
+        click(deep(deep(element, 'hcm-confirm-dialog'), '.cancel'));
+        await updated(element);
+
+        expect(calls(area)).toEqual([]);
+    });
+});
+
 describe('<hcm-georef-page>: Snap my points', () => {
     beforeAll(defineImagery);
     afterEach(cleanup);

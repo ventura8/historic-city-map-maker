@@ -285,6 +285,9 @@ export const en: Readonly<Record<AdminImageryKey, string>> = {
     'adminContent.imagery.confirm.approveOutside': 'Approve an image that lies outside the city?',
     'adminContent.imagery.confirm.approveOutsideBody': 'It would show in the wrong place on the map. Approve only if you checked it.',
     'adminContent.imagery.confirm.approveOutsideConfirm': 'Approve anyway',
+    'adminContent.imagery.confirm.approveOutsideWorse': 'Replace it with an image outside the city and not shown better?',
+    'adminContent.imagery.confirm.approveOutsideWorseBody': 'Outside the city and not shown better. Replace only if you checked it.',
+    'adminContent.imagery.confirm.approveOutsideWorseConfirm': 'Replace anyway',
     // The merge of M16 and M18: Delete on a recalibration of a published version.
     'adminContent.imagery.confirm.rejectRecalibration': 'Delete this new fit?',
     'adminContent.imagery.confirm.rejectRecalibrationBody': 'Only the new fit goes; the published version stays on the map.',

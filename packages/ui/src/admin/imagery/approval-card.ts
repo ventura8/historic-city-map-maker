@@ -15,7 +15,7 @@ import { html, type TemplateResult } from 'lit';
 
 import { EMPTY } from '../shell/empty.js';
 import { contentText } from '../shell/text.js';
-import type { ImageryContext } from './context.js';
+import type { ImageryContext, ImageryQuestion } from './context.js';
 import type { VersionPagePort, VersionViewPort } from './imagery-port.js';
 import { ownCost } from './image-view.js';
 import { numberText } from './imagery-text.js';
@@ -156,18 +156,28 @@ function outsideText(context: ImageryContext, version: VersionViewPort): Templat
         : EMPTY;
 }
 
+/** M16: a recalibration whose figures do not show it better than the current version. */
+function notBetter(version: VersionViewPort): boolean {
+    return version.recalibration !== null && recalibrationVerdict(version.recalibration) !== 'better';
+}
+
+/** Which confirmation question Approve must ask first, or null for one-click approval. */
+function approveQuestion(outside: boolean, worse: boolean): ImageryQuestion | null {
+    if (outside) {
+        return worse ? 'approveOutsideWorse' : 'approveOutside';
+    }
+    return worse ? 'approveWorse' : null;
+}
+
 /**
  * M16 (`docs/research/M16-recalibrate.md` §4): a recalibration not shown better replaces the current one only by the owner's choice;
- * the city guard: a version that lands outside the city is approved only after the question.
+ * the city guard: a version that lands outside the city is approved only after the question. When both hold, one question explains both
+ * warnings and confirming sends `acceptWorse`.
  */
 function approve(context: ImageryContext, version: VersionViewPort): void {
-    const { recalibration } = version;
-    if (landsOutside(context, version)) {
-        context.ask('approveOutside');
-        return;
-    }
-    if (recalibration !== null && recalibrationVerdict(recalibration) !== 'better') {
-        context.ask('approveWorse');
+    const question = approveQuestion(landsOutside(context, version), notBetter(version));
+    if (question !== null) {
+        context.ask(question);
         return;
     }
     void context.intents?.approve();

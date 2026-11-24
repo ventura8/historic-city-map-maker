@@ -12,6 +12,7 @@ import { CURRENT, LAYER, WAITING, approve, codeOf, job, recalibrate, rendered, r
 import {
     NOW,
     at,
+    goldenOutput,
     readJob,
     readLayer,
     readVersion,
@@ -87,6 +88,37 @@ describe("a recalibration's figures and the layer's published version", () => {
 
         expect((await readVersion(found, jobId))?.recalibration).toEqual({ route: 'auto', ...BETTER });
         await expect(approve(found, jobId)).resolves.toMatchObject({ state: 'approved' });
+    });
+
+    const outsideBounds = { west: 25.89, south: 44.58, east: 25.95, north: 44.6 };
+
+    async function seedOutsideWorse(id: string): Promise<ImageryWorld> {
+        const found = await world();
+        await seedVersion(
+            found,
+            id,
+            renderedVersion({
+                jobId: id,
+                layerId: LAYER,
+                origin: 'regeoref',
+                basedOn: CURRENT,
+                recalibration: { route: 'manual', before: { rmseM: 12, checks: 5 }, after: { rmseM: 14, checks: 5 } },
+                output: { ...goldenOutput(), bounds: outsideBounds },
+            }),
+        );
+        return found;
+    }
+
+    it('happyPath_aWorseRecalibrationOutsideTheCityApprovesWithAcceptWorse @S-A89-HAPPY-APPROVE-OUTSIDE-WORSE', async () => {
+        const found = await seedOutsideWorse('rg-outside-worse');
+
+        await expect(approve(found, 'rg-outside-worse', true)).resolves.toMatchObject({ state: 'approved' });
+    });
+
+    it('badPath_aWorseRecalibrationOutsideTheCityWithoutAcceptWorseIsRefused @S-A89-BAD-APPROVE-OUTSIDE-WORSE-CANCELLED', async () => {
+        const found = await seedOutsideWorse('rg-outside-worse-refused');
+
+        expect(await codeOf(approve(found, 'rg-outside-worse-refused'))).toBe('apiError.imagery.notBetter');
     });
 });
 

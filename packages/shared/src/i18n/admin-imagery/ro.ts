@@ -287,6 +287,9 @@ export const ro = {
     'adminContent.imagery.confirm.approveOutside': 'Aprobi o imagine aflată în afara orașului?',
     'adminContent.imagery.confirm.approveOutsideBody': 'Ar apărea în locul greșit pe hartă. Aprobă doar dacă ai verificat-o.',
     'adminContent.imagery.confirm.approveOutsideConfirm': 'Aprobă totuși',
+    'adminContent.imagery.confirm.approveOutsideWorse': 'O înlocuiești cu o imagine aflată în afara orașului și care nu e mai bună?',
+    'adminContent.imagery.confirm.approveOutsideWorseBody': 'E în afara orașului și nu e mai bună. Înlocuiește doar dacă ai verificat-o.',
+    'adminContent.imagery.confirm.approveOutsideWorseConfirm': 'Înlocuiește totuși',
     // The merge of M16 and M18: Delete on a recalibration of a published version.
     'adminContent.imagery.confirm.rejectRecalibration': 'Ștergi această potrivire nouă?',
     'adminContent.imagery.confirm.rejectRecalibrationBody': 'Pleacă doar potrivirea nouă; versiunea publicată rămâne pe hartă.',

@@ -19419,6 +19419,28 @@
             "notes": "Admin sweep 2026-11-14 (reports/admin-sweep/bugs.md), lesson 730. Test: functions/test/imagery/recalibrate-guards.test.ts."
         },
         {
+            "id": "S-A89-HAPPY-APPROVE-OUTSIDE-WORSE",
+            "behaviour": "A89",
+            "area": "admin",
+            "path": "happy",
+            "title": "A version both outside the city and not better than the current one can still be approved after confirming both warnings",
+            "asserts": "a recalibration whose footprint lies outside the city and whose fit is not better than the current version -> Approve opens one confirm explaining both warnings, confirming calls imagery.approve with acceptWorse=true, and the version is approved",
+            "tier": "e2e-admin",
+            "status": "exists",
+            "notes": "Combined city-guard and recalibration approval. Tests: packages/ui/test/admin/imagery/recalibrate.test.ts; functions/test/imagery/recalibrate-guards.test.ts."
+        },
+        {
+            "id": "S-A89-BAD-APPROVE-OUTSIDE-WORSE-CANCELLED",
+            "behaviour": "A89",
+            "area": "admin",
+            "path": "bad",
+            "title": "Cancelling the combined outside-and-worse confirm or calling approve without acceptWorse leaves the version unapproved",
+            "asserts": "cancelling the combined confirm makes no imagery.approve call; calling imagery.approve without acceptWorse on a worse recalibration outside the city answers apiError.imagery.notBetter",
+            "tier": "e2e-admin",
+            "status": "exists",
+            "notes": "Combined city-guard and recalibration approval. Tests: packages/ui/test/admin/imagery/recalibrate.test.ts; functions/test/imagery/recalibrate-guards.test.ts."
+        },
+        {
             "id": "S-P19-HAPPY-REFINE",
             "behaviour": "P19",
             "area": "pipeline",
