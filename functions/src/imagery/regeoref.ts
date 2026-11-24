@@ -32,6 +32,7 @@ import type { Ports } from '../ports/index.js';
 import { refuseHeldPart } from './join-parts.js';
 import { refuseBusyLayer, refuseRunningLayer, refuseWhileGuardRed } from './limits.js';
 import { pickDefined, stampOf, type Stamp } from './records.js';
+import { redrawLayout } from './redraw-layout.js';
 import { createWork, jobIdFor, type NewWork } from './versions.js';
 
 const FINISHED: ReadonlySet<JobStatus> = new Set(FINISHED_JOB_STATUSES);
@@ -215,7 +216,9 @@ async function paramsOf(deps: RegeorefDeps, regeoref: Regeoref): Promise<Record<
     }
     const full = regeoref.fullResolution === true ? { fullResolution: true } : {};
     const recordFrom = await recordChain(deps.documents, regeoref.cityId, base);
-    return { basedOn: base.jobId, originalArchiveId: archive.archiveId, originalSeriesId: archive.seriesId, recordFrom, ...full };
+    const layout = regeoref.fullResolution === true ? await redrawLayout(deps.documents, regeoref.cityId, recordFrom) : undefined;
+    const laid = layout === undefined ? {} : { layout };
+    return { basedOn: base.jobId, originalArchiveId: archive.archiveId, originalSeriesId: archive.seriesId, recordFrom, ...full, ...laid };
 }
 
 /** M20 §19.18: a regeoref of an archive version warps its originals, which only the owner's computers have. */

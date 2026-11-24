@@ -274,7 +274,7 @@ class RegeorefParams:
 
     @classmethod
     def of(cls, params: Mapping[str, object]) -> RegeorefParams:
-        _strict(params, frozenset({"basedOn", "originalArchiveId", "originalSeriesId", "fullResolution", "recordFrom"}))
+        _strict(params, frozenset({"basedOn", "originalArchiveId", "originalSeriesId", "fullResolution", "recordFrom", "layout"}))
         archive = None if params.get("originalArchiveId") is None else id_of(params, "originalArchiveId")
         full = params.get("fullResolution") is True
         return cls(id_of(params, "basedOn"), archive, optional_text(params, "originalSeriesId"), full, _texts(params.get("recordFrom")))

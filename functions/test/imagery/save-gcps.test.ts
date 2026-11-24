@@ -523,3 +523,52 @@ describe('imagery.saveGcps on an archive version', () => {
         expect(job?.params).toMatchObject({ fullResolution: true, recordFrom: [CORONA, 'rg-older', 'ar-first'] });
     });
 });
+
+describe('a redraw of a stitched series carries its layout (lesson 799)', () => {
+    const source = { kind: 'archive', archiveId: ARCHIVE, seriesId: seriesIdOf(1), sheetCount: 60, placedCount: 57 } as const;
+    const stitched = {
+        previewPath: 'rasters/bucharest/kh-4a-corona-1966/ar-first/stitched.jpg',
+        previewScale: 0.24,
+        width: 16963,
+        height: 14298,
+        method: 'overview' as const,
+        parts: 60,
+        joined: 57,
+        leftOut: [],
+        leftOutCount: 3,
+    };
+
+    async function chainWorld(method: 'overview' | 'single'): Promise<ImageryWorld> {
+        const world = await publishedWorld();
+        const corona = (await readVersion(world, CORONA)) ?? ({} as LayerVersionDoc);
+        const help = { reason: 'no-scale' as const, note: 'placed by points', at: at(NOW), stitched: { ...stitched, method } };
+        await seedVersion(world, 'ar-first', { ...corona, jobId: 'ar-first', origin: 'archive', source, help });
+        const params = { archiveId: ARCHIVE, seriesId: seriesIdOf(1), class: 'pieces', encoding: 'colour', maxzoom: 17 };
+        await seedJob(
+            world,
+            'ar-first',
+            job({ type: 'archive-series', status: 'succeeded', layerId: LAYER, versionId: 'ar-first', params }),
+        );
+        await seedVersion(world, CORONA, { ...corona, basedOn: 'ar-first', source });
+        return world;
+    }
+
+    it('happyPath_theArchiveVersionsMethodEncodingAndPublishedZoomAreCopied @S-P20-HAPPY-REDRAW-REBUILD', async () => {
+        const world = await chainWorld('overview');
+        const corona = await readVersion(world, CORONA);
+
+        const response = await save(world, { versionId: CORONA, gcps: pairs(6, 20480, 16384), fullResolution: true });
+
+        const params = (await readJob(world, response.jobId))?.params;
+        expect(params?.layout).toEqual({ method: 'overview', encoding: 'colour', maxzoom: corona?.output?.maxzoom ?? 17 });
+    });
+
+    it('badPath_noLayoutForAPointEditOrASingleMap @S-P20-BAD-REDRAW-REBUILD', async () => {
+        const edit = await chainWorld('overview');
+        const edited = await save(edit, { versionId: CORONA, gcps: pairs(6, 20480, 16384) });
+        expect((await readJob(edit, edited.jobId))?.params.layout).toBeUndefined();
+        const single = await chainWorld('single');
+        const redrawn = await save(single, { versionId: CORONA, gcps: pairs(6, 20480, 16384), fullResolution: true });
+        expect((await readJob(single, redrawn.jobId))?.params.layout).toBeUndefined();
+    });
+});

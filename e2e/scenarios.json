@@ -21971,6 +21971,28 @@
             "notes": "Live 2026-11-24. Tests: functions/test/worker/allow-list.test.ts."
         },
         {
+            "id": "S-P20-HAPPY-REDRAW-REBUILD",
+            "behaviour": "P20",
+            "area": "pipeline",
+            "path": "happy",
+            "title": "A redraw of a series with no parts record rebuilds it from the series' layout and warps the originals",
+            "asserts": "the redraw (and a retry of an older one) carries the archive version's layout, encoding, grid and zoom; the pipeline rebuilds the record from that layout, keeps it with the new version and warps the originals",
+            "tier": "e2e-pipeline",
+            "status": "exists",
+            "notes": "Live 2026-11-24 (1895-1899, rg-mwukj3fm). Tests: pipeline/tests/unit/test_redraw_fullres.py, functions/test/imagery/redraw-layout.test.ts, functions/test/imagery/save-gcps.test.ts."
+        },
+        {
+            "id": "S-P20-BAD-REDRAW-REBUILD",
+            "behaviour": "P20",
+            "area": "pipeline",
+            "path": "bad",
+            "title": "No layout, a layout that cannot be read again or another shape rebuilds nothing",
+            "asserts": "a point edit or a single map carries no layout; no layout, unreadable sheets, a failed layout or a canvas of another shape: no record, and the redraw fails with apiError.imagery.originalMissing",
+            "tier": "e2e-pipeline",
+            "status": "exists",
+            "notes": "Live 2026-11-24. Tests: pipeline/tests/unit/test_redraw_fullres.py, functions/test/imagery/redraw-layout.test.ts."
+        },
+        {
             "id": "S-A65-HAPPY-JOINED-FRAME",
             "behaviour": "A65",
             "area": "admin",

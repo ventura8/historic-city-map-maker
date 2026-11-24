@@ -8,8 +8,9 @@ import pytest
 from hcm_pipeline import paths
 from hcm_pipeline.contract import Errors
 from hcm_pipeline.jobs import JobContext, StepFailedError
-from hcm_pipeline.placing import fullres
+from hcm_pipeline.placing import fullres, rebuild
 from hcm_pipeline.placing.original import ORIGINAL
+from hcm_pipeline.placing.redraw_layout import rebuilt_record
 from hcm_pipeline.steps.warp import composite_originals, cutline, full_resolution, record_paths, require_original
 
 from tests.fakes.world import PipelineWorld
@@ -21,8 +22,10 @@ RING = ((44.4, 26.1), (44.41, 26.1), (44.41, 26.11))
 
 
 def redraw(ctx: JobContext, **params: object) -> JobContext:
-    """The job as Redraw at full resolution writes it (`imagery.saveGcps` with `fullResolution`)."""
-    return replace(ctx, job=replace(ctx.job, params={**ctx.job.params, "fullResolution": True, **params}))
+    """The job as Redraw at full resolution writes it (`imagery.saveGcps` with `fullResolution`), naming its archive series."""
+    source = ctx.version.source
+    series = {"originalArchiveId": source.get("archiveId"), "originalSeriesId": source.get("seriesId")}
+    return replace(ctx, job=replace(ctx.job, params={**ctx.job.params, **series, "fullResolution": True, **params}))
 
 
 def test_happy_path_a_redraw_scales_the_points_from_the_working_copy_to_the_original(world: PipelineWorld, tmp_path: Path) -> None:
@@ -84,3 +87,48 @@ def test_bad_path_a_redraw_with_no_original_fails_plainly_and_a_point_edit_still
 
     assert failed.value.code == Errors.ORIGINAL_MISSING
     require_original(gone, from_original=False)
+
+
+LAYOUT = {"method": "overview", "encoding": "colour", "maxzoom": 19}
+
+
+def _recorded(tmp_path: Path) -> fullres.Recorded:
+    original = write(tmp_path / "laid-original.tif", numpy.full((SCAN[1] * 2, SCAN[0] * 2), 255, numpy.uint8))
+    return fullres.Recorded((fullres.Part(original, (0, 0, SCAN[0] * 2, SCAN[1] * 2), numpy.diag([0.5, 0.5, 1.0])),), SCAN)
+
+
+def test_happy_path_a_redraw_with_no_record_rebuilds_it_from_the_series_layout(
+    world: PipelineWorld, tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    """Scenarios: S-P20-HAPPY-REDRAW-REBUILD"""
+    ctx, scan = composite(world, tmp_path, record=False)
+    world.store.update(world.version_path(), {"output": None})
+    asked: list[tuple[object, str]] = []
+
+    def built(series: JobContext, method: str) -> fullres.Recorded:
+        asked.append((series.job.params.get("encoding"), method))
+        return _recorded(tmp_path)
+
+    monkeypatch.setattr(rebuild, "built_by", built)
+    ctx = redraw(ctx, recordFrom=["ar-first"], layout=LAYOUT)
+
+    assert composite_originals(ctx, scan, corner_georef()) is not None
+    assert asked == [("colour", "overview")]
+    assert world.services().objects.stat(ctx.version_file(fullres.VERSION_RECORD)) is not None
+    assert any("rebuilt from the series' overview layout" in line for line in world.log_lines())
+
+
+def test_bad_path_no_layout_a_failed_layout_or_another_shape_rebuilds_nothing(
+    world: PipelineWorld, tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    """Scenarios: S-P20-BAD-REDRAW-REBUILD"""
+    ctx, scan = composite(world, tmp_path, record=False)
+    assert rebuilt_record(redraw(ctx), scan, SCAN) is False
+    assert rebuilt_record(replace(ctx, job=replace(ctx.job, params={**ctx.job.params, "layout": LAYOUT})), scan, SCAN) is False
+    monkeypatch.setattr(rebuild, "built_by", lambda _series, _method: None)
+    assert rebuilt_record(redraw(ctx, layout=LAYOUT), scan, SCAN) is False
+    monkeypatch.setattr(rebuild, "built_by", lambda _series, _method: replace(_recorded(tmp_path), size=(SCAN[0], SCAN[0] * 3)))
+    assert rebuilt_record(redraw(ctx, layout=LAYOUT), scan, SCAN) is False
+    gone = replace(ctx, services=replace(ctx.services, archive_root=tmp_path / "nowhere"))
+    monkeypatch.setattr(rebuild, "built_by", lambda _series, _method: _recorded(tmp_path))
+    assert rebuilt_record(redraw(gone, layout={**LAYOUT, "gridId": "g-1"}), scan, SCAN) is False

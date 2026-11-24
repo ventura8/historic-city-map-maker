@@ -380,6 +380,18 @@ export const regeorefParamsSchema = z.strictObject({
     fullResolution: z.literal(true).optional(),
     /** 2026-11-24: the versions, nearest first, whose files may hold the series' parts record (`parts.json`): the base and its own bases. */
     recordFrom: z.array(idSchema).max(8).optional(),
+    /**
+     * 2026-11-24: how the series was laid out, copied from its archive version and job, so a redraw with no parts record in
+     * `recordFrom` rebuilds it from the same layout (`placing/rebuild.py`) and warps the originals.
+     */
+    layout: z
+        .strictObject({
+            method: z.enum(['grid', 'atlas', 'pieces', 'overview', 'names']),
+            encoding: z.enum(['grey', 'colour', 'lineart']),
+            gridId: z.string().min(1).max(100).optional(),
+            maxzoom: zoomSchema,
+        })
+        .optional(),
 });
 
 /** `republish`: an approved version to publish again (after a Mapbox failure, or a deferral). */

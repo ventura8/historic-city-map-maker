@@ -36,6 +36,7 @@ from hcm_pipeline.join.canvas import aligned_box
 from hcm_pipeline.placing import fullres
 from hcm_pipeline.placing.original import based_original
 from hcm_pipeline.placing.raster_io import Pair, WarpPlan
+from hcm_pipeline.placing.redraw_layout import layout_of, rebuilt_record
 from hcm_pipeline.raster import gdal
 from hcm_pipeline.rasters import GTIFF_OPTIONS, warp_memory_mb
 from hcm_pipeline.steps.common import city_window, gdal_step
@@ -182,6 +183,11 @@ def _published_zoom(ctx: JobContext) -> int | None:
     """The `maxzoom` the version was published at (its originals' own), else None."""
     output = (ctx.services.store.get(ctx.version_path()) or {}).get("output")
     found = output.get("maxzoom") if isinstance(output, dict) else None
+    # 2026-11-24: a new redraw has no output yet: the zoom its series was published at, which its layout carries.
+    return _zoom(found) if found is not None else _zoom((layout_of(ctx) or {}).get("maxzoom"))
+
+
+def _zoom(found: object) -> int | None:
     return found if isinstance(found, int) and not isinstance(found, bool) else None
 
 
@@ -202,11 +208,19 @@ def _staged_record(ctx: JobContext, scan: Path) -> bool:
     """The first parts record found staged beside the scan, and kept with this version too so the next redraw finds it; else False."""
     found = next((path for path in record_paths(ctx) if ctx.services.objects.stat(path) is not None), None)
     if found is None:
-        return False
+        return _rebuilt(ctx, scan)
     local = ctx.stage(found, fullres.sidecar(scan).name)
     if found != ctx.version_file(fullres.VERSION_RECORD):
         ctx.log.info(f"the parts record is read from {found}", ctx.step)
         ctx.publish(local, ctx.version_file(fullres.VERSION_RECORD), "application/json")
+    return True
+
+
+def _rebuilt(ctx: JobContext, scan: Path) -> bool:
+    """No record anywhere: rebuilt from the series' layout a redraw carries (`placing/redraw_layout.py`), kept with this version."""
+    if not rebuilt_record(ctx, scan, scan_size(scan)):
+        return False
+    ctx.publish(fullres.sidecar(scan), ctx.version_file(fullres.VERSION_RECORD), "application/json")
     return True
 
 

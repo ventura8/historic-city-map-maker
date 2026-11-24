@@ -79,7 +79,12 @@ def _built(ctx: JobContext, builder: Callable[[JobContext, SeriesJob], fullres.R
 
 def _found(ctx: JobContext) -> fullres.Recorded | None:
     """The record from the layout `help.stitched.method` names, else None (logged when the series cannot be read again)."""
-    builder = BUILDERS.get(_method(ctx))
+    return built_by(ctx, _method(ctx))
+
+
+def built_by(ctx: JobContext, method: str) -> fullres.Recorded | None:
+    """The record from the layout `method` names (`ctx.job` names the series), else None (logged when it cannot be read again)."""
+    builder = BUILDERS.get(method)
     try:
         return None if builder is None else _built(ctx, builder)
     except (StepFailedError, RuntimeError, OSError) as error:

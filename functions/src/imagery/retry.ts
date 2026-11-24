@@ -27,6 +27,7 @@ import type { Ports } from '../ports/index.js';
 import { GO, isRefused, partRefusal, partsReady } from './join-parts.js';
 import { enqueuePublish } from './publish-queue.js';
 import { guardIsRed, requireJob, stampOf, versionIdOf, type Stamp } from './records.js';
+import { retryParams } from './redraw-layout.js';
 
 /**
  * `imagery.retry` (admin; `docs/research/M3-interfaces.md` §4.5): a failed raster job again, from its first unfinished
@@ -348,8 +349,16 @@ async function writeRetried(
     return retried;
 }
 
-async function retryIn(transaction: DocumentTransaction, request: Request, stamp: Stamp): Promise<{ job: JobDoc; atPublish: boolean }> {
-    const { job, version, jobPath, versionPath } = await readRetryable(transaction, request);
+async function retryIn(
+    transaction: DocumentTransaction,
+    request: Request,
+    stamp: Stamp,
+    params: JobDoc['params'] | undefined,
+): Promise<{ job: JobDoc; atPublish: boolean }> {
+    const read = await readRetryable(transaction, request);
+    const { version, jobPath, versionPath } = read;
+    // 2026-11-24: a redraw started before it carried its series' layout gets it (`redraw-layout.ts`).
+    const job = params === undefined ? read.job : { ...read.job, params };
     const atPublish = failedAtPublish(job, version);
     await requireJoinFrames(transaction, request, job, atPublish);
     const retried = await writeRetried(transaction, { jobPath, versionPath, job, version, atPublish, stamp });
@@ -357,9 +366,11 @@ async function retryIn(transaction: DocumentTransaction, request: Request, stamp
 }
 
 async function imageryRetry(deps: RetryDeps, caller: VerifiedCaller, request: Request): Promise<CallableResponse<'imagery.retry'>> {
-    await requireRetryable(deps, request);
+    const retryable = await requireRetryable(deps, request);
+    const params = await retryParams(deps.documents, request.cityId, retryable);
     const now = deps.clock.now();
-    const { job, atPublish } = await deps.documents.transaction((transaction) => retryIn(transaction, request, stampOf(caller.uid, now)));
+    const stamp = stampOf(caller.uid, now);
+    const { job, atPublish } = await deps.documents.transaction((transaction) => retryIn(transaction, request, stamp, params));
     if (atPublish) {
         await enqueuePublish(deps.tasks, { cityId: request.cityId, jobId: request.jobId }, `retry-${String(now.getTime())}`);
     }
