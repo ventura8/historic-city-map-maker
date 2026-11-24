@@ -409,6 +409,17 @@ describe("<hcm-date-menu>: each row's checkbox (the owner, 2026-11-24)", () => {
         expect(shadowQuery(element, '[data-show="d"]').getAttribute('aria-label')).toBe('1966');
     });
 
+    it('badPath_aFrontThatIsOffIsUntickedAndCanBeTurnedOn', async () => {
+        const element = await menu({ selected: 'c', shown: new Set() });
+        const events = recordEvents(element, 'hcm-date-show');
+        const box = shadowQuery(element, '[data-show="c"]') as HTMLButtonElement;
+
+        expect([box.getAttribute('aria-checked'), box.disabled]).toEqual(['false', false]);
+        box.click();
+
+        expect(events).toEqual([{ type: 'hcm-date-show', detail: { layerId: 'c', visible: true } }]);
+    });
+
     it('badPath_aCheckboxThatBecomesTheFrontsLeavesTheFocusOnItsDate', async () => {
         const element = await menu({ shown: new Set(['a']) });
         shadowQuery(element, '[data-show="b"]').focus();

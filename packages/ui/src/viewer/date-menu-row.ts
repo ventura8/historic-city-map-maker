@@ -33,7 +33,8 @@ export function dateRow(host: EventTarget, item: DateItem, view: DateRowView): T
     const pick = (): void => {
         send(host, 'hcm-date-pick', { layerId: item.id });
     };
-    const on = visible || front;
+    // The box says what the map shows: a year's last date stands as its front while no date of it is on, unticked then.
+    const on = visible;
     const toggle = (): void => {
         send(host, 'hcm-date-show', { layerId: item.id, visible: !on });
     };
@@ -56,7 +57,7 @@ export function dateRow(host: EventTarget, item: DateItem, view: DateRowView): T
             type="button"
             class="item"
             role="menuitemcheckbox"
-            aria-checked=${String(on)}
+            aria-checked=${String(visible || front)}
             ?data-front=${front}
             data-item=${item.id}
             @click=${pick}
