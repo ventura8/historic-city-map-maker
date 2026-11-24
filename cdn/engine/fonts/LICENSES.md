@@ -9,7 +9,7 @@ the engine script (`engineBase`), together with this file.
 | `roboto-flex-latin-wght.woff2` | Roboto Flex (variable, weight axis), `latin` range | `@fontsource-variable/roboto-flex@5.3.0`, `files/roboto-flex-latin-wght-normal.woff2` | SIL Open Font License 1.1 | none (copied as is) |
 | `roboto-flex-latin-ext-wght.woff2` | Roboto Flex (variable, weight axis), `latin-ext` range | `@fontsource-variable/roboto-flex@5.3.0`, `files/roboto-flex-latin-ext-wght-normal.woff2` | SIL Open Font License 1.1 | none (copied as is) |
 | `roboto-flex-cyrillic-wght.woff2` | Roboto Flex (variable, weight axis), `cyrillic` range | `@fontsource-variable/roboto-flex@5.3.0`, `files/roboto-flex-cyrillic-wght-normal.woff2` | SIL Open Font License 1.1 | none (copied as is) |
-| `material-symbols-rounded.woff2` | Material Symbols Rounded | `material-symbols@0.48.2`, `material-symbols-rounded.woff2` (Google's font, packaged by marella/material-symbols) | Apache License 2.0 | subset to the ligatures listed in `packages/ui/src/icons.ts`, hinting dropped, instanced at `wght` 400, `GRAD` 0, `opsz` 24 (the `FILL` axis is kept) with HarfBuzz, re-encoded as WOFF2 |
+| `material-symbols-rounded.woff2` | Material Symbols Rounded | `material-symbols@0.49.0`, `material-symbols-rounded.woff2` (Google's font, packaged by marella/material-symbols) | Apache License 2.0 | subset to the ligatures listed in `packages/ui/src/icons.ts`, hinting dropped, instanced at `wght` 400, `GRAD` 0, `opsz` 24 (the `FILL` axis is kept) with HarfBuzz, re-encoded as WOFF2 |
 
 Roboto Flex: Copyright 2017 The Roboto Flex Project Authors (<https://github.com/googlefonts/roboto-flex>).
 Material Symbols: Copyright Google LLC (<https://github.com/google/material-design-icons>).
