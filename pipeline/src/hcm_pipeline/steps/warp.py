@@ -249,17 +249,21 @@ def composite_originals(ctx: JobContext, scan: Path, georef: GeorefInfo) -> Path
 def originals_zoom(ctx: JobContext, scan: Path, plan: WarpPlan, published: int) -> int:
     """A redraw's zoom from its originals' own resolution (about two scan pixels an output pixel, at most 20), within the series'
     byte budget, never shallower than the zoom it was published at (2026-11-24: the 1:2000 plan's names were blur at 17)."""
-    if ctx.job.params.get("fullResolution") is not True:
+    redraw = ctx.job.params.get("fullResolution") is True and bool(plan.pairs)
+    found = gdal_step(ctx, lambda: fullres.originals_of(scan, plan), "measure the originals") if redraw else None
+    if found is None:
         return published
-    found = gdal_step(ctx, lambda: fullres.originals_of(scan, plan), "measure the originals")
-    if found is None or not plan.pairs:
-        return published
+    zoom = max(_budget_zoom(ctx, plan, found), published)
+    ctx.log.info(f"the originals are {found.mercator_m:.3f} m a pixel: drawn to zoom {zoom}", ctx.step)
+    return zoom
+
+
+def _budget_zoom(ctx: JobContext, plan: WarpPlan, found: fullres.Originals) -> int:
+    """The originals' zoom (`encoding.scan_zoom`) lowered until the series' tiles fit its byte budget."""
     latitude = to_lnglat(0.0, sum(pair.my for pair in plan.pairs) / len(plan.pairs))[1]
     ground_m2 = found.area_m2 * math.cos(math.radians(latitude)) ** 2
     kind = str((layout_of(ctx) or {}).get("encoding") or "grey")
-    zoom = encoding.estimate(ground_m2, encoding.scan_zoom(found.mercator_m), kind, 0, latitude).maxzoom
-    ctx.log.info(f"the originals are {found.mercator_m:.3f} m a pixel: drawn to zoom {max(zoom, published)}", ctx.step)
-    return max(zoom, published)
+    return encoding.estimate(ground_m2, encoding.scan_zoom(found.mercator_m), kind, 0, latitude).maxzoom
 
 
 def require_original(ctx: JobContext, from_original: bool) -> None:

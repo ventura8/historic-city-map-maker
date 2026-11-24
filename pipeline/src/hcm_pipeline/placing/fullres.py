@@ -309,13 +309,18 @@ def originals_of(source: Path, plan: WarpPlan) -> Originals | None:
     """The parts' originals' resolution once placed by the plan's pairs, else None (no parts record that fits the picture)."""
     recorded = read_parts(source)
     size = size_of(source)
-    if recorded is None or not same_shape(recorded.size, size):
-        return None
-    parts = recorded.on(size)
-    placer = Placer(plan, size)
-    found = [(part, _source_m(part, placer)) for part in parts]
-    area = sum((part.box[2] - part.box[0]) * (part.box[3] - part.box[1]) * metres**2 for part, metres in found)
-    return Originals(float(numpy.median([metres for _part, metres in found])), float(area)) if found else None
+    fits = recorded is not None and bool(recorded.parts) and same_shape(recorded.size, size)
+    return _measured(recorded.on(size), Placer(plan, size)) if fits and recorded is not None else None
+
+
+def _measured(parts: Sequence[Part], placer: Placer) -> Originals:
+    metres = [_source_m(part, placer) for part in parts]
+    area = sum(_box_area(part.box) * found**2 for part, found in zip(parts, metres, strict=True))
+    return Originals(float(numpy.median(metres)), float(area))
+
+
+def _box_area(box: Box) -> int:
+    return (box[2] - box[0]) * (box[3] - box[1])
 
 
 def _placed(parts: Sequence[Part], placer: Placer, bands: int) -> list[Placed]:
