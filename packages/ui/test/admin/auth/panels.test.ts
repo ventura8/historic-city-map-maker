@@ -7,7 +7,14 @@ import type { HcmBlockedPanel } from '../../../src/admin/auth/hcm-blocked-panel.
 import type { HcmClaimPanel } from '../../../src/admin/auth/hcm-claim-panel.js';
 import type { HcmConsentNote } from '../../../src/admin/auth/hcm-consent-note.js';
 import type { HcmJoinPanel } from '../../../src/admin/auth/hcm-join-panel.js';
-import type { HcmSignIn } from '../../../src/admin/auth/hcm-sign-in.js';
+import {
+    defineHcmSignIn,
+    HCM_SIGN_IN_TAG,
+    type HcmSignIn,
+    welcomeName,
+    welcomeOf,
+    welcomeTitle,
+} from '../../../src/admin/auth/hcm-sign-in.js';
 import { adminState, cleanup, deep, deepAll, deepText, defineAll, FakeAdminApp, mount, updated } from '../shell/fake-app.js';
 
 const SIGNED_OUT = adminState({ auth: 'signedOut', user: null, role: null });
@@ -87,6 +94,75 @@ describe('<hcm-sign-in>', () => {
         const panel = await mount<HcmSignIn>(html`<hcm-sign-in></hcm-sign-in>`);
 
         expect(deepText(panel)).toBe('');
+    });
+
+    it('badPath_enableApiWithoutAppDoesNothing', async () => {
+        const state: AdminStatePort = {
+            ...SIGNED_OUT,
+            mode: 'bootstrap',
+            gate: {
+                reconsent: false,
+                issue: null,
+                enableApi: 'cloudresourcemanager.googleapis.com',
+            },
+        };
+        const panel = await mount<HcmSignIn>(html`<hcm-sign-in .app=${null} .state=${state}></hcm-sign-in>`);
+        await updated(panel);
+
+        button(panel, 'Enable with Google').click();
+
+        expect(deepText(panel)).toContain('Enable with Google');
+    });
+
+    it('happyPath_defineHcmSignInRegistersOnce', () => {
+        const defined = new Map<string, CustomElementConstructor>();
+        const registry = {
+            get: (name: string): CustomElementConstructor | undefined => defined.get(name),
+            define: (name: string, ctor: CustomElementConstructor): void => {
+                defined.set(name, ctor);
+            },
+        } as unknown as CustomElementRegistry;
+
+        defineHcmSignIn(registry);
+        defineHcmSignIn(registry);
+        defineHcmSignIn();
+
+        expect(defined.has(HCM_SIGN_IN_TAG)).toBe(true);
+        expect(customElements.get(HCM_SIGN_IN_TAG)).toBeDefined();
+    });
+
+    it('happyPath_contributeWelcomeShowsCityAndSignsInWithoutConsentNote', async () => {
+        const welcome = { cityId: 'bucharest', cityName: 'Bucharest', mapUrl: '/?city=bucharest' };
+        const app = new FakeAdminApp({ ...SIGNED_OUT, mode: 'bootstrap', welcome });
+        const panel = await mount<HcmSignIn>(html`<hcm-sign-in .app=${app} .state=${app.state}></hcm-sign-in>`);
+
+        const signInButton = deep(panel, 'hcm-button');
+        signInButton.click();
+
+        expect(deep(panel, 'h1').textContent).toBe(welcomeTitle('en', welcome));
+        expect(deep(panel, 'a.back').getAttribute('href')).toBe('/?city=bucharest');
+        expect(deepAll(panel, 'hcm-consent-note')).toEqual([]);
+        expect(app.named('signIn')).toHaveLength(1);
+        expect(await axeViolations(panel)).toEqual([]);
+    });
+
+    it('badPath_contributeWelcomeWithoutCityOrAppRendersFallbackAndIgnoresClick', async () => {
+        const welcome = { cityId: null, cityName: null, mapUrl: '/' };
+        const state: AdminStatePort = { ...SIGNED_OUT, welcome };
+        const panel = await mount<HcmSignIn>(html`<hcm-sign-in .app=${null} .state=${state}></hcm-sign-in>`);
+
+        deep(panel, 'hcm-button').click();
+
+        expect(deep(panel, 'h1').textContent).toBe(welcomeTitle('en', welcome));
+        expect(welcomeOf(SIGNED_OUT)).toBeNull();
+        expect(welcomeOf(state)).toEqual(welcome);
+        expect(welcomeName(SIGNED_OUT, false)).toBeNull();
+        expect(welcomeName(state, true)).toBeNull();
+        expect(welcomeName(state, false)).toEqual({ app: expect.any(String), city: '' });
+        expect(welcomeName({ ...SIGNED_OUT, welcome: { cityId: 'b', cityName: 'Bucharest', mapUrl: '/' } }, false)).toEqual({
+            app: expect.any(String),
+            city: ' · Bucharest',
+        });
     });
 });
 
