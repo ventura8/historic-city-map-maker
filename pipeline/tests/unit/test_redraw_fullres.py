@@ -14,7 +14,18 @@ from hcm_pipeline.placing import fullres, rebuild
 from hcm_pipeline.placing.original import ORIGINAL
 from hcm_pipeline.placing.raster_io import Pair, WarpPlan
 from hcm_pipeline.placing.redraw_layout import rebuilt_record
-from hcm_pipeline.steps.warp import composite_originals, cutline, full_resolution, originals_zoom, record_paths, require_original
+from hcm_pipeline.raster import gdal
+from hcm_pipeline.rasters import WEB_MERCATOR, srs_wkt
+from hcm_pipeline.steps.warp import (
+    MAX_UPLOAD_ZOOM,
+    composite_originals,
+    cutline,
+    full_resolution,
+    native_zoom,
+    originals_zoom,
+    record_paths,
+    require_original,
+)
 
 from tests.fakes.world import PipelineWorld
 from tests.unit.test_placing_fullres import write
@@ -162,3 +173,15 @@ def test_bad_path_a_point_edit_or_no_record_keeps_the_published_zoom(world: Pipe
     assert originals_zoom(ctx, scan, plan, 17) == 17
     assert originals_zoom(redraw(ctx), scan, plan, 17) == 17
     assert encoding.scan_zoom(1e9) == encoding.MIN_ZOOM
+
+
+def test_happy_path_a_single_original_goes_past_18_only_in_a_redraw(tmp_path: Path) -> None:
+    """Scenarios: S-P20-HAPPY-REDRAW-ZOOM"""
+    path = tmp_path / "fine.tif"
+    dataset = gdal.GetDriverByName("GTiff").Create(str(path), 64, 64, 1, gdal.GDT_Byte)
+    dataset.SetGeoTransform((2_900_000.0, 0.15, 0.0, 5_530_000.0, 0.0, -0.15))
+    dataset.SetProjection(srs_wkt(WEB_MERCATOR))
+    dataset.Close()
+
+    assert native_zoom(path, {}, tmp_path / "a.vrt") == MAX_UPLOAD_ZOOM
+    assert native_zoom(path, {}, tmp_path / "b.vrt", original=True) == encoding.scan_zoom(0.15)

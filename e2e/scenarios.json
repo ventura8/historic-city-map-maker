@@ -22031,7 +22031,7 @@
             "area": "pipeline",
             "path": "happy",
             "title": "A redraw at full resolution draws as deep as its originals hold",
-            "asserts": "the originals' measured metres a pixel give the zoom of about two scan pixels an output pixel, at most 20, within the series' byte budget and never shallower than the published zoom; a 0.12 m scan at Bucharest gives 19",
+            "asserts": "the originals' measured metres a pixel give the zoom of about two scan pixels an output pixel, at most 20, within the series' byte budget and never shallower than the published zoom; a 0.12 m scan at Bucharest gives 19; a single original past 18 only in a redraw",
             "tier": "e2e-pipeline",
             "status": "exists",
             "notes": "2026-11-24, the 1:2000 cadastral plan's names were blur at 17. Tests: pipeline/tests/unit/test_redraw_fullres.py."

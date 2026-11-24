@@ -120,12 +120,14 @@ def warp_method(georef: GeorefInfo) -> dict[str, object]:
     return {} if georef.method == "embedded" else {"tps": True}
 
 
-def native_zoom(source: Path, method: dict[str, object], probe: Path) -> int:
-    """The zoom whose resolution is closest to the source's own once warped (a VRT: nothing is resampled)."""
+def native_zoom(source: Path, method: dict[str, object], probe: Path, original: bool = False) -> int:
+    """The zoom whose resolution is closest to the source's own once warped (a VRT: nothing is resampled), at most 18; an archive
+    original a redraw warps goes as deep as it holds (`encoding.scan_zoom`, at most 20; 2026-11-24)."""
     dataset = gdal.Warp(str(probe), str(source), format="VRT", dstSRS="EPSG:3857", **method)
     resolution = abs(dataset.GetGeoTransform()[1])
     dataset.Close()
-    return max(DEFAULT_MINZOOM, min(MAX_UPLOAD_ZOOM, round(math.log2(ZOOM0_RESOLUTION_M / resolution))))
+    capped = max(DEFAULT_MINZOOM, min(MAX_UPLOAD_ZOOM, round(math.log2(ZOOM0_RESOLUTION_M / resolution))))
+    return max(capped, encoding.scan_zoom(resolution)) if original else capped
 
 
 def zooms(version: Version, native: int) -> tuple[int, int]:
@@ -287,7 +289,8 @@ class WarpStep:
             return Done(ctx.publish(composite, ctx.work_file("warped.tif"), "image/tiff"))
         require_original(ctx, scan != staged)
         source, method = self._source(ctx, scan, georef)
-        native = gdal_step(ctx, lambda: native_zoom(source, method, ctx.local("probe.vrt")), "measure the scan")
+        original = scan != staged and ctx.job.params.get("fullResolution") is True
+        native = gdal_step(ctx, lambda: native_zoom(source, method, ctx.local("probe.vrt"), original), "measure the scan")
         _, maxzoom = zooms(version, native)
         warped = ctx.local("warped.tif")
         resolution = zoom_resolution(maxzoom)
