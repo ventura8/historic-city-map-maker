@@ -33,12 +33,13 @@ import numpy
 from hcm_pipeline.archive.grammar import Cell, parse
 from hcm_pipeline.georef.transforms import Transform
 from hcm_pipeline.jobs import JobContext, StepResult
-from hcm_pipeline.placing import assemble, fullres, fullres_parts
+from hcm_pipeline.placing import assemble, fullres, fullres_parts, neatline
 from hcm_pipeline.placing.checks import Checked
 from hcm_pipeline.placing.frame import content_frame, find_frame
 from hcm_pipeline.placing.geometry import FloatArray, compose
 from hcm_pipeline.placing.gridscheme import QUARTER_ORDERS, Box, CityGrid, scheme_for
 from hcm_pipeline.placing.maps import AtlasPlacer, atlas_parts
+from hcm_pipeline.placing.neatline import NeatLine
 from hcm_pipeline.placing.output import Placement, finish, resolution_of, wait_for_help
 from hcm_pipeline.placing.overview_find import CanvasOpts, find_overview, overview_canvas
 from hcm_pipeline.placing.raster_io import read_working
@@ -61,6 +62,10 @@ NO_SCHEME: Final = "These sheets' names are read, but no grid scheme places them
 # Under this share of framed sheets the series is laid out as an atlas (the tile wizard's path) instead of a grid of the few framed.
 FRAMED_SHARE_MIN: Final = 0.5
 NO_FRAMES: Final = "No sheet's frame was found: add about four points on a few sheets."
+UNFRAMED: Final = (
+    "The frame of {count} of {total} sheets was not found, so they would be missing from the map: open Help calibrate, which"
+    " lists them, and place the series there."
+)
 NOT_PROVED: Final = "The grid could not be placed on its own: place three sheets on the map, and the rest follow."
 OWNER_METHOD: Final = "grid-names"
 
@@ -73,22 +78,21 @@ class Rectified:
     cell: Cell
     corners: FloatArray
     image: UInt8Array
-    # How its frame was found: its printed neat line (`line`) or its drawing's extent (`content`).
+    # How its frame was found: its neat line with the series' help (`neatline`), its outermost long lines (`line`) or its
+    # drawing's extent (`content`).
     framed_by: str = "line"
     # Its original's pixels to the picture's (3x3) and the original's size: the mosaic's parts record (`fullres`).
     to_picture: FloatArray | None = None
     full: tuple[int, int] = (0, 0)
 
 
-def rectify(sheet: Sheet, cell: Cell, scheme: CityGrid) -> Rectified | None:
-    """The sheet straightened onto its cell, or None when neither its neat line nor its drawing's extent frames it."""
+def rectify(sheet: Sheet, cell: Cell, scheme: CityGrid, found: NeatLine | None = None) -> Rectified | None:
+    """The sheet straightened onto its cell, or None when no frame is found: its neat line found with the series' help (`found`,
+    when confident), else its outermost long lines, else its drawing's extent."""
     working = read_working(sheet.path, FRAME_PX)
     grey = grey_of(working.image)
     box = scheme.box(cell)
-    corners = find_frame(grey, working.scale)
-    framed_by = "line"
-    if corners is None:
-        corners, framed_by = content_frame(grey, box.width / box.height, working.scale), "content"
+    corners, framed_by = _frame_of(grey, working.scale, box.width / box.height, found)
     if corners is None:
         return None
     width, height = round(box.width / SEAM_M), round(box.height / SEAM_M)
@@ -100,6 +104,16 @@ def rectify(sheet: Sheet, cell: Cell, scheme: CityGrid) -> Rectified | None:
     picture = numpy.asarray(cv2.warpPerspective(grey, homography, (width, height), borderValue=255), numpy.uint8)
     to_picture = fullres.indexed(numpy.asarray(homography, numpy.float64)) @ numpy.diag([1 / working.scale, 1 / working.scale, 1.0])
     return Rectified(sheet, cell, corners, picture, framed_by, to_picture, (working.width, working.height))
+
+
+def _frame_of(grey: UInt8Array, scale: float, aspect: float, found: NeatLine | None) -> tuple[FloatArray | None, str]:
+    """The sheet's frame (full scan pixels) and how it was found (`Rectified.framed_by`)."""
+    if found is not None and found.confident:
+        return found.corners, "neatline"
+    corners = find_frame(grey, scale)
+    if corners is not None:
+        return corners, "line"
+    return content_frame(grey, aspect, scale), "content"
 
 
 NEIGHBOUR_STEPS: Final = ((1, 0, "right", "left"), (0, -1, "bottom", "top"))
@@ -277,7 +291,10 @@ class GridPlacer:
             # out for good and asked for points, while the tile wizard, the one place to lay out the others, said it no longer waited.
             ctx.log.info(f"only {len(rectified)} of {len(read.cells)} sheets framed: laid out as an atlas for the tile wizard", ctx.step)
             return AtlasPlacer().place(ctx)
-        return _solved(ctx, series, rectified, read.scheme, _unframed(ctx, read.cells, rectified))
+        unframed = _unframed(ctx, read.cells, rectified)
+        if unframed:
+            return _wait_unframed(ctx, series, rectified, read.scheme, unframed)
+        return _solved(ctx, series, rectified, read.scheme)
 
 
 def _wait_unplaced(ctx: JobContext, series: SeriesJob, reason: str, note: str) -> StepResult:
@@ -294,6 +311,16 @@ def _wait_unplaced(ctx: JobContext, series: SeriesJob, reason: str, note: str) -
     return wait_stitched(ctx, Stitched(parts.canvas(), "atlas", len(series.sheets), record=recorded), reason, note)
 
 
+def _wait_unframed(
+    ctx: JobContext, series: SeriesJob, rectified: list[Rectified], scheme: CityGrid, unframed: tuple[tuple[str, str], ...]
+) -> StepResult:
+    """Most sheets framed, some not: the series waits in Help calibrate with the framed sheets' mosaic and the others named
+    (`no-frame`), never placed without them (lesson of 2026-11-24: a sheet left out of the map must be seen)."""
+    mosaic = mosaic_of(rectified, scheme, quarter_order(rectified, scheme))
+    note = UNFRAMED.format(count=len(unframed), total=len(unframed) + len(rectified))
+    return wait_stitched(ctx, _wait_picture(ctx, mosaic, rectified, unframed, series.colour), "frame-not-found", note)
+
+
 def _unframed(ctx: JobContext, cells: list[tuple[Sheet, Cell]], rectified: list[Rectified]) -> tuple[tuple[str, str], ...]:
     """The sheets no frame was found on (logged with how the others were framed)."""
     by_content = sum(item.framed_by == "content" for item in rectified)
@@ -305,8 +332,13 @@ def _unframed(ctx: JobContext, cells: list[tuple[Sheet, Cell]], rectified: list[
 
 
 def framed(cells: list[tuple[Sheet, Cell]], scheme: CityGrid) -> list[Rectified]:
-    """The sheets whose frame was found, straightened onto their cells."""
-    found = [rectify(sheet, cell, scheme) for sheet, cell in cells]
+    """The sheets whose frame was found, straightened onto their cells: first their neat lines, found with the series' cell
+    (`neatline`, lesson of 2026-11-24)."""
+    if not cells:
+        return []
+    box = scheme.box(cells[0][1])
+    lines = neatline.series_frames([sheet.path for sheet, _cell in cells], box.width / box.height)
+    found = [rectify(sheet, cell, scheme, line) for (sheet, cell), line in zip(cells, lines, strict=True)]
     return [item for item in found if item is not None]
 
 

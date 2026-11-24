@@ -343,3 +343,26 @@ def test_bad_path_a_grid_with_most_sheets_unframed_goes_to_the_tile_wizard(world
     help_item = world.version()["help"]
     assert isinstance(help_item, dict)
     assert help_item["reason"] == "layout-check"
+
+
+def test_bad_path_a_grid_with_a_few_sheets_unframed_waits_with_them_named(world: PipelineWorld, tmp_path: Path) -> None:
+    """Scenarios: S-P20-BAD-NEATLINE-UNSURE
+
+    Lesson of 2026-11-24 (plan cadastral 1911-1914): a sheet with no confident frame is never left off the map in silence; the
+    series waits in Help calibrate with the framed sheets' mosaic and the others named."""
+    ctx = grid_series(world, tmp_path)
+    names = [sheet_name(cell) for cell in CELLS]
+    for name in names[:2]:
+        write_map(originals(ctx) / name, numpy.full((SHEET_PX, SHEET_PX, 3), 250, numpy.uint8), grey=True)
+
+    result = PlaceStep().run(ctx)
+
+    assert isinstance(result, Waiting)
+    help_item = world.version()["help"]
+    assert isinstance(help_item, dict)
+    assert help_item["reason"] == "frame-not-found"
+    assert help_item["note"] == grid.UNFRAMED.format(count=2, total=64)
+    stitched = help_item["stitched"]
+    assert stitched["leftOutCount"] == 2
+    assert {item["reason"] for item in stitched["leftOut"]} == {NO_FRAME}
+    assert "archive" not in world.version()

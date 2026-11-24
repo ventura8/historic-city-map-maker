@@ -1035,6 +1035,38 @@ automatic or owner layout), so its tiles were a fraction as sharp as its scans a
 
 Scenarios: S-P20-HAPPY-FULLRES, S-P20-BAD-FULLRES-ORIGINAL-GONE (`pipeline/tests/unit/test_placing_fullres.py`).
 
+### 19.19 A sheet's neat line found with its series' help (the plan cadastral 1911-1914, 2026-11-24)
+
+The plan cadastral 1911-1914 (`ar-mwqyqyhw-plan-cadastral-1911-1914`, 124 sheets of 7072 px across, the 500 m cell about 5890 px)
+had a neat line found on none of its sheets, so `grid` parked it as an atlas of whole scans: margins, titles, stamps and white paper
+in every cell. Each sheet has a double frame (the drawing's neat line and a border line about 130-280 px outside it, the title
+between them), many are turned by up to 1.7 degrees, some carry long straight lines inside the drawing, and the scanner cut the top
+of some sheets. `placing/neatline.py` now runs before `rectify`, over the whole series:
+
+- Each sheet is read keeping its ink (`read_box_inked`, about 1800 px long); filled areas are dropped and only thin straight runs
+  of at least 8 % of the side kept. The sheet's turn is searched once (horizontal lines at `skew`, vertical ones at `-skew`, so a
+  scanner's upright streak cannot set it) and refined per axis; every peak of the profile read along it is a `Line` (where, how much
+  of the side it spans, where it starts and ends).
+- The series' cell in scan pixels: the gap between the two outermost strong lines at each end of a side that most sheets share
+  (at least half of them); of gaps shared nearly as widely, the shortest (the neat line lies inside the border line).
+- Each sheet: on each axis, the pair of lines the cell's size apart (2.5 % of paper shrink allowed), or a side the scanner cut,
+  placed from the line that survives plus the cell's size. A side counts as cut only where a strong line across it runs on to the
+  scan's edge (a frame's line stops at the neat line on a whole sheet) and at most 20 % of the cell is missing, so a long line
+  inside the drawing is never taken for a cut frame. The best evidenced choice wins: the found lines' share of a full line, times
+  how closely the gap matches the cell, times 0.8 for a cut side. The frame's confidence is the weaker axis's.
+- A confident frame (`CONFIDENT`, 0.4) straightens the sheet (`framed_by: "neatline"`); else the old outermost lines and the
+  drawing's extent are tried. A sheet framed by none is named in Help calibrate: when at least half of a grid's sheets are framed
+  and some are not, the series waits (`frame-not-found`) with the framed sheets' mosaic and the others in `help.stitched.leftOut`
+  (`no-frame`), never placed without them (`grid._wait_unframed`).
+
+Measured on the real 124 sheets (read-only from the worker's archive): 123 confident frames (99.2 %), 10 of them with the top placed
+from the cell; every corner checked by eye on zoomed crops sat on the neat line, none on the border line or a line of the drawing;
+one sheet (`Seria 21/B1`, its paper 2.2 % wider than the cell) is left to the guided queue. The earlier projection-profile test
+found plausible lines on 81 of 118. About 0.45 s a sheet on one core; one reduced sheet in memory at a time.
+
+Scenarios: S-P20-HAPPY-NEATLINE, S-P20-BAD-NEATLINE-UNSURE (`pipeline/tests/unit/test_placing_neatline.py`,
+`pipeline/tests/unit/test_placing_grid.py`).
+
 ## 20. Any computer runs an archive series: copies through the bucket (live report of 2026-11-13; DECISIONS §204)
 
 **What happened.** The owner connected two more workers for Bucharest (the NUC and the PC's WSL) beside the laptop that imported

@@ -20222,6 +20222,28 @@
             "notes": "Finding of 2026-11-14 (plan cadastral 1911-1914, 20 of 100 sheets framed). Test: pipeline/tests/unit/test_placing_grid.py."
         },
         {
+            "id": "S-P20-HAPPY-NEATLINE",
+            "behaviour": "P20",
+            "area": "pipeline",
+            "path": "happy",
+            "title": "Each sheet of a grid series is cut at its neat line, found with the series' cell",
+            "asserts": "a double frame -> the inner neat line, never the border line; a turned sheet -> its turned corners; a side the scanner cut -> placed from the surviving line and the series' cell, marked inferred and less sure; one axis's cell gives the other through the aspect; without a cell the innermost pair",
+            "tier": "e2e-pipeline",
+            "status": "exists",
+            "notes": "M20 §19.19 (plan cadastral 1911-1914: 123 of 124 real sheets framed). Tests: pipeline/tests/unit/test_placing_neatline.py."
+        },
+        {
+            "id": "S-P20-BAD-NEATLINE-UNSURE",
+            "behaviour": "P20",
+            "area": "pipeline",
+            "path": "bad",
+            "title": "A sheet with no confident neat line goes to Help calibrate, never off the map in silence",
+            "asserts": "a frameless sheet -> no frame and no cell; a weak frame -> not confident; a side counts as cut only where a strong line runs off the scan; a long line inside the drawing is never a cut frame; a grid with a few sheets unframed -> awaiting_gcps, help frame-not-found, the note naming how many, the sheets in leftOut as no-frame, no archive report",
+            "tier": "e2e-pipeline",
+            "status": "exists",
+            "notes": "M20 §19.19. Tests: pipeline/tests/unit/test_placing_neatline.py, pipeline/tests/unit/test_placing_grid.py."
+        },
+        {
             "id": "S-P20-HAPPY-CHECKS",
             "behaviour": "P20",
             "area": "pipeline",
