@@ -28,8 +28,8 @@ def _sheet(left: int, top: int, turn: float = 0.0, width: int = WIDTH) -> numpy.
     cv2.line(grey, (left + 120, top + 470), (left + 460, top + 90), INK, 2)
     cv2.putText(grey, "Seria XI", (left + 180, top - 4), cv2.FONT_HERSHEY_SIMPLEX, 0.5, INK, 1)
     turned = cv2.getRotationMatrix2D((WIDTH / 2, HEIGHT / 2), turn, 1.0)
-    grey = cv2.warpAffine(grey, turned, (WIDTH, HEIGHT), borderValue=PAPER)
-    return numpy.ascontiguousarray(grey[:, :width])
+    straight = numpy.asarray(cv2.warpAffine(grey, turned, (WIDTH, HEIGHT), borderValue=PAPER), numpy.uint8)
+    return numpy.ascontiguousarray(straight[:, :width])
 
 
 def _write(path: Path, grey: numpy.ndarray) -> Path:
@@ -54,9 +54,12 @@ def test_happy_path_a_series_finds_each_sheets_inner_line_and_infers_the_side_th
 
     frames = neatline.series_frames(sheets, 1.0)
 
-    assert all(frame is not None and frame.confident for frame in frames)
-    first, turned, _third, cut = frames
-    assert first is not None and turned is not None and cut is not None
+    first, turned, third, cut = frames
+    assert first is not None
+    assert turned is not None
+    assert third is not None
+    assert cut is not None
+    assert all(frame.confident for frame in (first, turned, third, cut))
     # The inner line, never the border line outside it.
     _corners_near(first, 60, 50)
     assert first.inferred is None

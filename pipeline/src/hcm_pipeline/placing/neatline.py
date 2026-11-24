@@ -17,6 +17,7 @@ on one side, and the frame finder read a 1000 px copy where a one-pixel line is 
 Memory: one sheet's reduced copy at a time; the series keeps only each sheet's lines.
 """
 
+import itertools
 from collections.abc import Sequence
 from dataclasses import dataclass
 from pathlib import Path
@@ -91,7 +92,7 @@ class Line:
     start: float = 0.0
     end: float = 0.0
 
-    def shifted(self, by: float) -> "Line":
+    def shifted(self, by: float) -> Line:
         """The same line moved across the axis by `by` pixels (a side the scanner cut, placed from the cell's size)."""
         return Line(self.at + by, 0.0, self.slope)
 
@@ -166,8 +167,9 @@ def _long_runs(ink: BoolArray) -> BoolArray:
     area, as thick as `THICK_SHARE` of the side across the runs, is no line)."""
     marks = ink.astype(numpy.uint8)
     thick = max(THICK_MIN_PX, round(THICK_SHARE * ink.shape[0]))
-    filled = cv2.morphologyEx(marks, cv2.MORPH_OPEN, numpy.ones((thick, 1), numpy.uint8))
-    tilted = cv2.dilate(marks & (1 - filled), numpy.ones((2 * TILT_PX + 1, 1), numpy.uint8))
+    filled = numpy.asarray(cv2.morphologyEx(marks, cv2.MORPH_OPEN, numpy.ones((thick, 1), numpy.uint8)) > 0, bool)
+    thin = (ink & ~filled).astype(numpy.uint8)
+    tilted = cv2.dilate(thin, numpy.ones((2 * TILT_PX + 1, 1), numpy.uint8))
     length = max(3, round(RUN_SHARE * ink.shape[1]))
     return numpy.asarray(cv2.morphologyEx(tilted, cv2.MORPH_OPEN, numpy.ones((1, length), numpy.uint8)) > 0, bool)
 
@@ -181,7 +183,7 @@ class _Runs:
     shape: tuple[int, int]
 
     @classmethod
-    def of(cls, runs: BoolArray) -> "_Runs":
+    def of(cls, runs: BoolArray) -> _Runs:
         rows, columns = numpy.nonzero(runs)
         return cls(rows, columns.astype(numpy.float64) - runs.shape[1] / 2, (runs.shape[0], runs.shape[1]))
 
@@ -205,7 +207,7 @@ def _axis_lines(runs: _Runs, skew: float, across: float, along: float) -> tuple[
     return tuple(_line(runs, placed, row, float(profile[row]), (across, along, skew)) for row in peaks)
 
 
-def _line(runs: "_Runs", placed: FloatArray, row: int, strength: float, scales: tuple[float, float, float]) -> Line:
+def _line(runs: _Runs, placed: FloatArray, row: int, strength: float, scales: tuple[float, float, float]) -> Line:
     """The peak at `row` as a line in full pixels, with where its runs start and end along the axis."""
     across, along, skew = scales
     middle = runs.shape[1] / 2
@@ -213,7 +215,9 @@ def _line(runs: "_Runs", placed: FloatArray, row: int, strength: float, scales: 
     start, end = (float(numpy.percentile(on, EXTENT_PERCENTILE)), float(numpy.percentile(on, 100 - EXTENT_PERCENTILE)))
     # The middle of the line's band (its tilt allowance widens a line evenly on both sides).
     near = placed[numpy.abs(placed - row) <= TILT_PX + 1]
-    return Line((float(numpy.mean(near)) + 0.5) * across, strength, skew * across / along, (start + middle) * along, (end + middle + 1) * along)
+    return Line(
+        (float(numpy.mean(near)) + 0.5) * across, strength, skew * across / along, (start + middle) * along, (end + middle + 1) * along
+    )
 
 
 def _sharpness(profile: FloatArray) -> float:
@@ -228,22 +232,32 @@ def _is_peak(profile: numpy.ndarray, row: int) -> bool:
     return bool(profile[row] >= window.max() and int(numpy.argmax(window)) == row - low)
 
 
+def _strong(lines: Sequence[Line]) -> list[Line]:
+    return [line for line in lines if line.strength >= STRONG]
+
+
+def _spans_frame(gap: float, size: int) -> bool:
+    """Whether a gap is a frame's share of the side."""
+    return FRAME_MIN * size <= gap <= FRAME_MAX * size
+
+
 def _gaps(lines: Sequence[Line], size: int) -> list[float]:
     """The gaps a frame could span between the `OUTERMOST` strong lines at each end of the side (a double frame's neat line and
     border line; a street that runs straight across a sheet lies further in)."""
-    strong = [line.at for line in lines if line.strength >= STRONG]
-    nears, fars = strong[:OUTERMOST], strong[-OUTERMOST:]
-    return [b - a for a in nears for b in fars if FRAME_MIN * size <= b - a <= FRAME_MAX * size]
+    strong = numpy.array([line.at for line in _strong(lines)], numpy.float64)
+    gaps = (strong[-OUTERMOST:][None, :] - strong[:OUTERMOST][:, None]).ravel()
+    return [float(gap) for gap in gaps[(gaps >= FRAME_MIN * size) & (gaps <= FRAME_MAX * size)]]
 
 
 def cell_of(gaps_by_sheet: Sequence[Sequence[float]]) -> float | None:
     """The gap most sheets share (within `CLUSTER_TOLERANCE`), at least half of them; of gaps shared nearly as widely
     (`NEAR_BEST`), the shortest (a double frame's neat line lies inside its border line). Its median; None when none is shared."""
-    support = {gap: len(_sharing(gaps_by_sheet, gap)) for gaps in gaps_by_sheet for gap in gaps}
-    best = max(support.values(), default=0)
+    every = list(itertools.chain.from_iterable(gaps_by_sheet))
+    support = [len(_sharing(gaps_by_sheet, gap)) for gap in every]
+    best = max(support, default=0)
     if best < max(MIN_SUPPORT, SUPPORT * len(gaps_by_sheet)):
         return None
-    chosen = min(gap for gap, count in support.items() if count >= NEAR_BEST * best)
+    chosen = min(itertools.compress(every, [count >= NEAR_BEST * best for count in support]))
     return float(numpy.median(_sharing(gaps_by_sheet, chosen)))
 
 
@@ -258,21 +272,25 @@ def series_cell(sheets: Sequence[SheetLines], aspect: float) -> tuple[float | No
     cell's width over its height)."""
     width = cell_of([_gaps(sheet.cols, sheet.width) for sheet in sheets])
     height = cell_of([_gaps(sheet.rows, sheet.height) for sheet in sheets])
-    if width is None and height is not None:
-        width = height * aspect
-    if height is None and width is not None:
-        height = width / aspect
-    return width, height
+    return _or_scaled(width, height, aspect), _or_scaled(height, width, 1 / aspect)
+
+
+def _or_scaled(value: float | None, other: float | None, factor: float) -> float | None:
+    """`value`, or `other` times `factor` when only the other is known."""
+    if value is not None or other is None:
+        return value
+    return other * factor
 
 
 def _pairs(lines: Sequence[Line], cell: float) -> list[Sides]:
     """Every two lines about the cell's size apart, one of them strong."""
-    return [
-        Sides(a, b)
-        for a in lines
-        for b in lines
-        if b.at > a.at and max(a.strength, b.strength) >= STRONG and _closeness(b.at - a.at, cell) > 0
-    ]
+    ordered = sorted(lines, key=lambda line: line.at)
+    pairs = itertools.starmap(Sides, itertools.combinations(ordered, 2))
+    return [sides for sides in pairs if _pair_fits(sides, cell)]
+
+
+def _pair_fits(sides: Sides, cell: float) -> bool:
+    return max(sides.near.strength, sides.far.strength) >= STRONG and _closeness(sides.gap, cell) > 0
 
 
 def _closeness(gap: float, cell: float) -> float:
@@ -285,21 +303,29 @@ def _cut(lines: Sequence[Line], size: int, cell: float, names: tuple[str, str], 
     """The strong lines whose partner, the cell's size away, lies beyond the scan's edge or within `EDGE_SHARE` of it (the scanner
     cut it): the innermost such line on each side (a double frame's border line lies outside its neat line). Only a side in `cut`
     may be missing (`cut_sides`)."""
-    edge, kept = EDGE_SHARE * size, (1 - MAX_CUT) * cell
-    strong = [line for line in lines if line.strength >= STRONG]
-    nears = [Sides(line, line.shifted(cell), names[1]) for line in strong if size - edge - cell < line.at <= size - kept]
-    fars = [Sides(line.shifted(-cell), line, names[0]) for line in strong if kept <= line.at < cell + edge]
-    inner_near = max(nears, key=lambda sides: sides.near.at, default=None)
-    inner_far = min(fars, key=lambda sides: sides.far.at, default=None)
-    return [sides for sides in (inner_near, inner_far) if sides is not None and sides.inferred in cut]
+    found = [_far_cut(lines, size, cell, names[1]), _near_cut(lines, size, cell, names[0])]
+    return [sides for sides in found if sides is not None and sides.inferred in cut]
+
+
+def _far_cut(lines: Sequence[Line], size: int, cell: float, name: str) -> Sides | None:
+    """The far side cut: the innermost strong line within the cut's reach of the far edge, and the far side the cell beyond it."""
+    low, high = size - EDGE_SHARE * size - cell, size - (1 - MAX_CUT) * cell
+    near = max((line for line in _strong(lines) if low < line.at <= high), key=lambda line: line.at, default=None)
+    return None if near is None else Sides(near, near.shifted(cell), name)
+
+
+def _near_cut(lines: Sequence[Line], size: int, cell: float, name: str) -> Sides | None:
+    """The near side cut: the innermost strong line within the cut's reach of the near edge, and the near side the cell before it."""
+    low, high = (1 - MAX_CUT) * cell, cell + EDGE_SHARE * size
+    far = min((line for line in _strong(lines) if low <= line.at < high), key=lambda line: line.at, default=None)
+    return None if far is None else Sides(far.shifted(-cell), far, name)
 
 
 def _innermost(lines: Sequence[Line], size: int) -> Sides | None:
     """Without a series' cell: the innermost pair of strong lines that spans a frame's share of the side."""
-    strong = [line for line in lines if line.strength >= STRONG]
-    pairs = [(a, b) for a in strong for b in strong if FRAME_MIN * size <= b.at - a.at <= FRAME_MAX * size]
-    best = min(pairs, key=lambda pair: pair[1].at - pair[0].at, default=None)
-    return None if best is None else Sides(*best)
+    strong = _strong(lines)
+    pairs = [Sides(a, b) for a in strong for b in strong if _spans_frame(b.at - a.at, size)]
+    return min(pairs, key=lambda sides: sides.gap, default=None)
 
 
 def evidence(sides: Sides, cell: float | None) -> float:
@@ -332,15 +358,16 @@ def _crossing(horizontal: Line, vertical: Line, centre: tuple[float, float]) -> 
 def cut_sides(sheet: SheetLines) -> frozenset[str]:
     """The sides the scanner may have cut: where a strong line across them runs on to the scan's edge (a frame's line stops at the
     neat line on a whole sheet, and runs off the scan where the neat line is gone)."""
-    rows = [line.reaches(EDGE_SHARE * sheet.width, (1 - EDGE_SHARE) * sheet.width) for line in sheet.rows]
-    cols = [line.reaches(EDGE_SHARE * sheet.height, (1 - EDGE_SHARE) * sheet.height) for line in sheet.cols]
-    reached = {
-        "left": any(left for left, _right in rows),
-        "right": any(right for _left, right in rows),
-        "top": any(top for top, _bottom in cols),
-        "bottom": any(bottom for _top, bottom in cols),
-    }
+    left, right = _reaching(sheet.rows, sheet.width)
+    top, bottom = _reaching(sheet.cols, sheet.height)
+    reached = {"left": left, "right": right, "top": top, "bottom": bottom}
     return frozenset(side for side, found in reached.items() if found)
+
+
+def _reaching(lines: Sequence[Line], size: int) -> tuple[bool, bool]:
+    """Whether any strong line runs on to the start and to the end of the axis."""
+    ends = [line.reaches(EDGE_SHARE * size, (1 - EDGE_SHARE) * size) for line in lines]
+    return any(start for start, _end in ends), any(end for _start, end in ends)
 
 
 def sheet_frame(sheet: SheetLines, cell: tuple[float | None, float | None]) -> NeatLine | None:

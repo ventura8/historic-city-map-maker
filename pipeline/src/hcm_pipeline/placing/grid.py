@@ -291,10 +291,7 @@ class GridPlacer:
             # out for good and asked for points, while the tile wizard, the one place to lay out the others, said it no longer waited.
             ctx.log.info(f"only {len(rectified)} of {len(read.cells)} sheets framed: laid out as an atlas for the tile wizard", ctx.step)
             return AtlasPlacer().place(ctx)
-        unframed = _unframed(ctx, read.cells, rectified)
-        if unframed:
-            return _wait_unframed(ctx, series, rectified, read.scheme, unframed)
-        return _solved(ctx, series, rectified, read.scheme)
+        return _all_framed(ctx, series, rectified, read.cells, read.scheme)
 
 
 def _wait_unplaced(ctx: JobContext, series: SeriesJob, reason: str, note: str) -> StepResult:
@@ -309,6 +306,16 @@ def _wait_unplaced(ctx: JobContext, series: SeriesJob, reason: str, note: str) -
     parts = atlas_parts(series.sheets)
     recorded = fullres.Recorded(parts.originals, parts.layout.size)
     return wait_stitched(ctx, Stitched(parts.canvas(), "atlas", len(series.sheets), record=recorded), reason, note)
+
+
+def _all_framed(
+    ctx: JobContext, series: SeriesJob, rectified: list[Rectified], cells: list[tuple[Sheet, Cell]], scheme: CityGrid
+) -> StepResult:
+    """The grid solved when every sheet is framed; else the series waits with the unframed ones named."""
+    unframed = _unframed(ctx, cells, rectified)
+    if unframed:
+        return _wait_unframed(ctx, series, rectified, scheme, unframed)
+    return _solved(ctx, series, rectified, scheme)
 
 
 def _wait_unframed(
@@ -334,12 +341,17 @@ def _unframed(ctx: JobContext, cells: list[tuple[Sheet, Cell]], rectified: list[
 def framed(cells: list[tuple[Sheet, Cell]], scheme: CityGrid) -> list[Rectified]:
     """The sheets whose frame was found, straightened onto their cells: first their neat lines, found with the series' cell
     (`neatline`, lesson of 2026-11-24)."""
+    lines = _neat_lines(cells, scheme)
+    found = [rectify(sheet, cell, scheme, line) for (sheet, cell), line in zip(cells, lines, strict=True)]
+    return [item for item in found if item]
+
+
+def _neat_lines(cells: list[tuple[Sheet, Cell]], scheme: CityGrid) -> list[NeatLine | None]:
+    """Each sheet's neat line found with the series' cell (its shape from the first sheet's box)."""
     if not cells:
         return []
     box = scheme.box(cells[0][1])
-    lines = neatline.series_frames([sheet.path for sheet, _cell in cells], box.width / box.height)
-    found = [rectify(sheet, cell, scheme, line) for (sheet, cell), line in zip(cells, lines, strict=True)]
-    return [item for item in found if item is not None]
+    return neatline.series_frames([sheet.path for sheet, _cell in cells], box.width / box.height)
 
 
 def _framed_overview(ctx: JobContext, rectified: list[Rectified]) -> Path | None:

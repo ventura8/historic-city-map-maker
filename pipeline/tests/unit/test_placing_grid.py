@@ -11,6 +11,7 @@ from hcm_pipeline.jobs import Done, JobContext, Waiting
 from hcm_pipeline.placing import grid
 from hcm_pipeline.placing.frame import content_frame
 from hcm_pipeline.placing.gridscheme import QUARTER_ORDERS, CityGrid, scheme_for
+from hcm_pipeline.placing.neatline import NeatLine
 from hcm_pipeline.placing.overview import MosaicReport
 from hcm_pipeline.placing.series import Sheet
 from hcm_pipeline.placing.stitched import NO_FRAME, NO_JOIN
@@ -366,3 +367,20 @@ def test_bad_path_a_grid_with_a_few_sheets_unframed_waits_with_them_named(world:
     assert stitched["leftOutCount"] == 2
     assert {item["reason"] for item in stitched["leftOut"]} == {NO_FRAME}
     assert "archive" not in world.version()
+
+
+def test_happy_path_a_confident_neat_line_frames_the_sheet_before_the_old_finders(tmp_path: Path) -> None:
+    """Scenarios: S-P20-HAPPY-NEATLINE"""
+    cell = CELLS[0]
+    path = tmp_path / "sheet.tif"
+    write_sheet(path, cell, town_lines())
+    sheet = Sheet(path, "Plan/1/1A'1.tif", None)
+    corners = numpy.array([[MARGIN, MARGIN], [MARGIN + SHEET_PX, MARGIN], [MARGIN + SHEET_PX] * 2, [MARGIN, MARGIN + SHEET_PX]], float)
+
+    sure = grid.rectify(sheet, cell, CityGrid(), NeatLine(corners, 0.9))
+    unsure = grid.rectify(sheet, cell, CityGrid(), NeatLine(corners + 7, 0.1))
+
+    assert sure is not None
+    assert sure.framed_by == "neatline"
+    assert unsure is not None
+    assert unsure.framed_by == "line"
