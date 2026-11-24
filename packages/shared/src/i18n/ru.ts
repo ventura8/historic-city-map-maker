@@ -165,6 +165,7 @@ export const ru: Messages = {
     'photo.backToList': 'Назад к списку',
     'photo.mapOf': 'Карта {year} года',
     'poi.category': 'Категория: {category}',
+    'poi.currentName': 'Нынешнее название: {name}',
     'poi.year': 'В {year} году',
     'poi.years': 'С {yearStart} по {yearEnd} год',
     'poi.yearStart': 'С {yearStart} года',

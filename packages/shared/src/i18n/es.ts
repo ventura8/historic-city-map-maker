@@ -162,6 +162,7 @@ export const es: Messages = {
     'photo.backToList': 'Volver a la lista',
     'photo.mapOf': 'Mapa de {year}',
     'poi.category': 'Categoría: {category}',
+    'poi.currentName': 'Nombre actual: {name}',
     'poi.year': 'En {year}',
     'poi.years': 'De {yearStart} a {yearEnd}',
     'poi.yearStart': 'Desde {yearStart}',

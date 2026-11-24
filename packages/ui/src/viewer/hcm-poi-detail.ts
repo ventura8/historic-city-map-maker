@@ -197,7 +197,8 @@ export class HcmPoiDetail extends LitElement {
         const years = placeYearsText(poi, this.locale);
         return html`<div class="details">
             <hcm-favorite-star row kind="poi" item-id=${poi.id} .locale=${this.locale}></hcm-favorite-star>
-            ${this.#category()} ${this.#thumbnail()} ${years === null ? nothing : html`<p class="years">${years}</p>`}
+            ${this.#category()} ${this.#thumbnail()} ${this.#currentName(poi)}
+            ${years === null ? nothing : html`<p class="years">${years}</p>`}
             ${
                 poi.description === undefined
                     ? nothing
@@ -233,6 +234,16 @@ export class HcmPoiDetail extends LitElement {
     #thumbnail(): TemplateResult {
         const src = this.thumbnail === null ? null : resolveAssetUrl(this.thumbnail, this.manifestUrl, document.baseURI);
         return src === null ? EMPTY : html`<img class="picture" src=${src} alt="" loading="lazy" decoding="async" />`;
+    }
+
+    /** M27: the street's current name when it was renamed rather than demolished. */
+    #currentName(poi: Poi): TemplateResult {
+        if (poi.currentName === undefined) {
+            return EMPTY;
+        }
+        return html`<p class="current-name" lang=${shownLanguage(poi.currentName, this.locale)}>
+            ${translate(this.locale, 'poi.currentName', { name: localizedText(poi.currentName, this.locale) })}
+        </p>`;
     }
 
     /** M27: the layer the place was traced on and its category's data credit, each a line of text; none, nothing. */

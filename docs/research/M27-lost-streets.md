@@ -144,3 +144,18 @@ fields the file leaves out (years, description, `sourceLayer`). The bug of 2026-
 lines previewed only "New: 2" and changed nothing of the 9) is pinned by `S-A34-HAPPY-MIXED`. Scenarios:
 `S-A32-HAPPY-NO-YEARS-FILTER`, `S-A32-BAD-NO-YEARS-FILTER`, `S-A34-HAPPY-NO-YEARS`, `S-A34-BAD-NO-YEARS-TEXT`,
 `S-A34-BAD-MIXED-UNKNOWN-ID`, `S-V24-HAPPY-NO-YEARS`, `S-V24-BAD-NO-YEARS`, `S-A90-HAPPY-PLACE-NO-YEARS`.
+
+## 8. Addendum: Disappeared vs. Renamed streets (2026-11-24)
+
+The street layer is split into two pinned POI categories so visitors can toggle them independently in the Layers panel:
+
+- **Disappeared streets** (`lost-streets`, icon `add_road`): streets that no longer exist.
+- **Renamed streets** (`renamed-streets`, icon `route`): streets that still exist under another name.
+
+An optional localized `currentName` field on `poiSchema` and `poiDocSchema` (up to 200 characters, allowed in
+`firebase/firestore.rules` and passed through by `functions/src/publish/assemble.ts`) holds the street's current name.
+In `pipeline/src/hcm_pipeline/lost_streets.py`, ways tagged with `current_name`, `new_name` or `name:current` (different
+from `name`) are classified into `renamed-streets` (`RENAMED_CATEGORY`) with `currentName` populated; all other ways
+stay in `lost-streets` (`CATEGORY`). The viewer's detail sheet (`hcm-poi-detail.ts`) shows `poi.currentName` as
+"Nume actual: {name}" / "Current name: {name}" (translated across all 16 viewer catalogues) alongside the historical
+title. Scenarios: `S-V71-HAPPY-RENAMED` and `S-V71-BAD-RENAMED-EMPTY` in `e2e/scenarios.json`.

@@ -134,6 +134,18 @@ describe('<hcm-poi-detail>', () => {
         expect(text).toContain('Sources');
         expect(text).toContain(`Seen on: ${MANIFEST.layers.find((layer) => layer.id === 'kh9-1977')?.label.en ?? ''}`);
         expect(text).toContain('Source: OpenHistoricalMap (CC0)');
+        expect(element.shadowRoot?.querySelector('.current-name')).toBeNull();
+    });
+
+    it('happyPath_aRenamedStreetShowsItsCurrentName @S-V71-HAPPY-RENAMED', async () => {
+        const element = await detail({
+            poi: { ...poi('casa-uranus'), currentName: { ro: 'Calea Victoriei', en: 'Calea Victoriei' } },
+            category: category('cladiri'),
+            locale: 'en',
+        });
+
+        expect(shadowText(element)).toContain('Current name: Calea Victoriei');
+        expect(element.shadowRoot?.querySelector('.current-name')).not.toBeNull();
     });
 
     it('badPath_aSourceLayerTheManifestLacksSaysNothing @S-V71-BAD-UNKNOWN-LAYER', async () => {

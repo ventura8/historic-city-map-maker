@@ -161,6 +161,7 @@ export const tr: Messages = {
     'photo.backToList': 'Listeye dön',
     'photo.mapOf': '{year} Haritası',
     'poi.category': 'Kategori: {category}',
+    'poi.currentName': 'Güncel ad: {name}',
     'poi.year': 'Yıl: {year}',
     'poi.years': 'Yıllar: {yearStart}–{yearEnd}',
     'poi.yearStart': 'Başlangıç: {yearStart}',

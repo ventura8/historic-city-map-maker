@@ -115,6 +115,8 @@ def test_feature_of_matches_the_import_format() -> None:
     properties = feature["properties"]
     assert isinstance(properties, dict)
     assert feature["id"] == "ls-ohm-7"
+    assert properties["category"] == ls.CATEGORY
+    assert "currentName" not in properties
     assert properties["description"] == {
         "ro": "Alte nume: Uranus. Sursa: OpenHistoricalMap contributors (CC0).",
         "en": "Other names: Uranus. Source: OpenHistoricalMap contributors (CC0).",

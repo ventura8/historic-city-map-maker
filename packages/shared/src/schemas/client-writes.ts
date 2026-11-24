@@ -97,6 +97,8 @@ const POI_EDITABLE = [
     'category',
     'geometry',
     'title',
+    /** M27: the street's current name when renamed rather than demolished. */
+    'currentName',
     'description',
     'yearStart',
     'yearEnd',

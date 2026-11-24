@@ -158,6 +158,7 @@ export const hi: Messages = {
     'photo.backToList': 'सूची पर वापस जाएँ',
     'photo.mapOf': 'वर्ष {year} का मानचित्र',
     'poi.category': 'श्रेणी: {category}',
+    'poi.currentName': 'वर्तमान नाम: {name}',
     'poi.year': 'वर्ष {year} में',
     'poi.years': '{yearStart} से {yearEnd} तक',
     'poi.yearStart': '{yearStart} से',

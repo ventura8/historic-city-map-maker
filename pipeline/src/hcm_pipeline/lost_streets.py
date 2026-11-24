@@ -43,8 +43,9 @@ USER_AGENT: Final = "HistoricCityMapMaker/1.0 (https://github.com/ventura8/histo
 OSM_URL: Final = "https://overpass-api.de/api/interpreter"
 OHM_URL: Final = "https://overpass-api.openhistoricalmap.org/api/interpreter"
 WIKIDATA_URL: Final = "https://query.wikidata.org/sparql"
-# The admin's category id of the layer; its label and colour live in the city's categories.
+# The admin's category ids of the two layers: disappeared (no longer exists) and renamed (exists under another name).
 CATEGORY: Final = "lost-streets"
+RENAMED_CATEGORY: Final = "renamed-streets"
 # MAX_GEOMETRY_VERTICES of packages/shared/src/schemas/geometry.ts: a longer line is refused by the import.
 MAX_POSITIONS: Final = 500
 # The place schema's cap on links.
@@ -66,6 +67,8 @@ LIFECYCLE_PREFIXES: Final = ("demolished", "was", "razed", "abandoned", "removed
 DROPPED_KINDS: Final = frozenset({"service", "parking_aisle", "driveway", "parking", "footway", "track", "path"})
 # Tags whose values become "Other names" in the description.
 ALT_NAME_KEYS: Final = ("alt_name", "old_name", "name:ro", "name:en")
+# Tags naming the street's current name when it was renamed rather than demolished.
+CURRENT_NAME_KEYS: Final = ("current_name", "new_name", "name:current")
 
 Position = tuple[float, float]
 
@@ -98,6 +101,7 @@ class Street:
     year_end: int | None = None
     other_names: tuple[str, ...] = ()
     links: tuple[tuple[str, str], ...] = ()
+    current_name: str | None = None
 
 
 @dataclass
@@ -195,6 +199,17 @@ def _other_names(tags: Mapping[str, str], name: str) -> tuple[str, ...]:
     return _unique(sorted(values))
 
 
+def _current_name(tags: Mapping[str, str], name: str) -> str | None:
+    """The street's current name when it was renamed rather than demolished, else None."""
+    names = (tags.get(key, "").strip() for key in CURRENT_NAME_KEYS)
+    return next((candidate for candidate in names if candidate and candidate != name), None)
+
+
+def category_of(street: Street) -> str:
+    """`renamed-streets` when the street still exists under another name, else `lost-streets`."""
+    return RENAMED_CATEGORY if street.current_name else CATEGORY
+
+
 def _wanted(source: Source, tags: Mapping[str, str]) -> bool:
     """OSM's service roads and parking aisles are not streets."""
     return source is not OSM or _osm_kind(tags) not in DROPPED_KINDS
@@ -209,7 +224,7 @@ def street_of(source: Source, element: Mapping[str, object]) -> Street | None:
     start, end = years_of(tags.get("start_date"), tags.get("end_date"))
     way = element.get("id")
     link = (f"https://www.{'openhistoricalmap' if source is OHM else 'openstreetmap'}.org/way/{way}", source.name)
-    return Street(source, f"{way}", name, line, start, end, _other_names(tags, name), (link,))
+    return Street(source, f"{way}", name, line, start, end, _other_names(tags, name), (link,), _current_name(tags, name))
 
 
 def _elements(answer: httpx.Response) -> list[Mapping[str, object]]:
@@ -303,13 +318,14 @@ def join_lines(lines: Iterable[tuple[Position, ...]]) -> list[tuple[Position, ..
     return pending
 
 
-def _group_key(street: Street) -> tuple[str, str, int | None, int | None]:
-    return street.source.key, street.name.casefold(), street.year_start, street.year_end
+def _group_key(street: Street) -> tuple[str, str, int | None, int | None, str | None]:
+    current = street.current_name.casefold() if street.current_name else None
+    return street.source.key, street.name.casefold(), street.year_start, street.year_end, current
 
 
 def merge_streets(streets: Iterable[Street]) -> list[Street]:
     """Ways of one name and the same years that touch end to end become one street; pieces stay apart."""
-    groups: dict[tuple[str, str, int | None, int | None], list[Street]] = {}
+    groups: dict[tuple[str, str, int | None, int | None, str | None], list[Street]] = {}
     for street in streets:
         groups.setdefault(_group_key(street), []).append(street)
     return [merged for group in groups.values() for merged in _merge_group(group)]
@@ -424,6 +440,11 @@ def _description(street: Street) -> dict[str, str]:
     return {"ro": f"{others_ro}Sursa: {street.source.attribution}.", "en": f"{others_en}Source: {street.source.attribution}."}
 
 
+def _current_name_property(street: Street) -> dict[str, object]:
+    """A renamed street carries its current name in both import languages."""
+    return {"currentName": {"ro": street.current_name, "en": street.current_name}} if street.current_name else {}
+
+
 def feature_of(street: Street, bounds: Bounds) -> dict[str, object] | None:
     """A street as a place of the admin's import format, or None when fewer than two positions remain."""
     coordinates = clean_line(street.line, bounds)
@@ -432,8 +453,9 @@ def feature_of(street: Street, bounds: Bounds) -> dict[str, object] | None:
     years = {"yearStart": street.year_start} if street.year_start is not None else {}
     years |= {"yearEnd": street.year_end} if street.year_end is not None else {}
     properties: dict[str, object] = {
-        "category": CATEGORY,
+        "category": category_of(street),
         "title": {"ro": street.name, "en": street.name},
+        **_current_name_property(street),
         "description": _description(street),
         **years,
         "links": [{"url": url, "label": label} for url, label in street.links[:MAX_LINKS]],

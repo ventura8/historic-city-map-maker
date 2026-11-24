@@ -251,6 +251,7 @@ function poiEntry(poi: PoiDoc, id: string, listed: Listed): unknown {
         category: poi.category,
         geometry: geometryFromDoc(poi.geometry),
         title: poi.title,
+        currentName: poi.currentName,
         description: poi.description,
         yearStart: poi.yearStart,
         yearEnd: poi.yearEnd,

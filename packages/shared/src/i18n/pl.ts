@@ -163,6 +163,7 @@ export const pl: Messages = {
     'photo.backToList': 'Wróć do listy',
     'photo.mapOf': 'Mapa z {year} roku',
     'poi.category': 'Kategoria: {category}',
+    'poi.currentName': 'Obecna nazwa: {name}',
     'poi.year': 'W roku {year}',
     'poi.years': 'Od {yearStart} do {yearEnd}',
     'poi.yearStart': 'Od {yearStart}',

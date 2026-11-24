@@ -159,6 +159,7 @@ export const ar: Messages = {
     'photo.backToList': 'العودة إلى القائمة',
     'photo.mapOf': 'خريطة عام {year}',
     'poi.category': 'الفئة: {category}',
+    'poi.currentName': 'الاسم الحالي: {name}',
     'poi.year': 'في عام {year}',
     'poi.years': 'من {yearStart} إلى {yearEnd}',
     'poi.yearStart': 'منذ {yearStart}',

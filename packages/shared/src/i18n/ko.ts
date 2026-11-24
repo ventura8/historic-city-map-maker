@@ -163,6 +163,7 @@ export const ko: Messages = {
     'photo.backToList': '목록으로 돌아가기',
     'photo.mapOf': '{year}년 지도',
     'poi.category': '분류: {category}',
+    'poi.currentName': '현재 이름: {name}',
     'poi.year': '{year}년',
     'poi.years': '{yearStart}년부터 {yearEnd}년까지',
     'poi.yearStart': '{yearStart}년부터',

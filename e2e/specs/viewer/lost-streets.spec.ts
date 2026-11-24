@@ -13,9 +13,12 @@ import { sitePath } from '../../support/site.js';
  */
 
 const LABEL = { ro: 'Străzi demolate', en: 'Disappeared streets' } as const;
+const RENAMED_LABEL = { ro: 'Străzi redenumite', en: 'Renamed streets' } as const;
 const CREDIT = 'OpenHistoricalMap (CC0)';
 const ON_LINE: LngLat = [26.088, 44.42485];
+const ON_RENAMED_LINE: LngLat = [26.088, 44.42585];
 const STREET_ID = 'ls-ohm-1';
+const RENAMED_ID = 'ls-ohm-renamed-1';
 
 /** The tour's fixture (a pinned, hidden category and one street traced on the first layer) and that layer's label. */
 function lostStreetsFixture(): { readonly manifest: Json; readonly layerLabel: { ro: string; en: string } } {
@@ -91,5 +94,60 @@ test(
 
         await expect(viewer(page).locator('hcm-layer-panel .pinned .pinned-overlays')).toHaveCount(0);
         await expect(visibilitySwitch(page, lang, LABEL[lang])).toHaveCount(0);
+    },
+);
+
+test(
+    'Renamed streets have their own pinned switch and show both old and current name in the detail sheet',
+    { tag: '@S-V71-HAPPY-RENAMED' },
+    async ({ page, lang }) => {
+        const { manifest } = lostStreetsFixture();
+        (manifest['poiCategories'] as Json[]).push({
+            ...{ id: 'strazi-redenumite', label: RENAMED_LABEL, icon: 'route', color: '#1B6B52', defaultOpacity: 1 },
+            ...{ defaultVisible: false, pinned: true, attribution: CREDIT },
+        });
+        (manifest['pois'] as Json[]).push({
+            id: RENAMED_ID,
+            category: 'strazi-redenumite',
+            geometry: {
+                type: 'LineString',
+                coordinates: [
+                    [26.085, 44.4255],
+                    [26.088, 44.42585],
+                    [26.089, 44.426],
+                ],
+            },
+            title: { ro: 'Podul Mogoșoaiei', en: 'Podul Mogoșoaiei' },
+            currentName: { ro: 'Calea Victoriei', en: 'Calea Victoriei' },
+            yearEnd: 1878,
+            links: [],
+        });
+        await serveManifest(page, manifest);
+        await bootWide(page, lang);
+
+        const renamed = visibilitySwitch(page, lang, RENAMED_LABEL[lang]);
+        await expect(renamed).toHaveAttribute('aria-checked', 'false');
+        await renamed.click();
+        await expect.poll(() => renderedFeatureIds(page, 'hcm-poi-')).toContain(RENAMED_ID);
+
+        const point = await screenPointOf(page, ON_RENAMED_LINE);
+        await page.mouse.click(point.x, point.y);
+        const sheet = viewer(page).locator('hcm-poi-detail');
+        await expect(sheet).toContainText(t(lang, 'poi.currentName', { name: 'Calea Victoriei' }));
+    },
+);
+
+test(
+    'A renamed street with an empty currentName is refused with the field named',
+    { tag: '@S-V71-BAD-RENAMED-EMPTY' },
+    async ({ page, lang }) => {
+        const { manifest } = lostStreetsFixture();
+        for (const street of (manifest['pois'] as Json[]).filter((poi) => poi['category'] === 'strazi-disparute')) {
+            street['currentName'] = {};
+        }
+        await serveManifest(page, manifest);
+        await page.goto(sitePath('bucharest', { lang }));
+
+        await expect(viewer(page).locator('hcm-error-card')).toContainText('currentName');
     },
 );

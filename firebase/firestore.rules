@@ -557,6 +557,7 @@ service cloud.firestore {
             return isId(data.category)
                 && validGeometry(data.geometry)
                 && titled(data.title, '[\\s\\S]{1,200}')
+                && (!('currentName' in data) || titled(data.currentName, '[\\s\\S]{1,200}'))
                 && localized(data.get('description', {'ro': 'x'}), upTo5000())
                 // zod `validYearSpan`: either bound may be missing, never inverted.
                 && isYear(data.get('yearStart', 1800))
@@ -806,7 +807,7 @@ service cloud.firestore {
                 allow create: if (isCityMember(city) ? !('reviewStatus' in request.resource.data)
                         : (isCityUploader(city) && request.resource.data.get('reviewStatus', '') == 'pending'))
                     && isId(poi)
-                    && request.resource.data.keys().hasOnly(['category', 'geometry', 'title', 'description', 'yearStart', 'yearEnd',
+                    && request.resource.data.keys().hasOnly(['category', 'geometry', 'title', 'currentName', 'description', 'yearStart', 'yearEnd',
                         'yearSeen', 'links', 'photoIds', 'published', 'credit', 'sourceLayer', 'group', 'facts', 'reviewStatus', 'createdAt', 'createdBy',
                         'updatedBy', 'updatedAt'])
                     && validPoi(request.resource.data)
@@ -817,7 +818,7 @@ service cloud.firestore {
                         ? publishedStaysTheServers()
                         : (isCityUploader(city) && ownItem(resource.data) && resource.data.get('reviewStatus', '') == 'pending'
                             && !('published' in changedKeys())))
-                    && changedKeys().hasOnly(['category', 'geometry', 'title', 'description', 'yearStart', 'yearEnd', 'yearSeen',
+                    && changedKeys().hasOnly(['category', 'geometry', 'title', 'currentName', 'description', 'yearStart', 'yearEnd', 'yearSeen',
                         'links', 'photoIds', 'published', 'credit', 'sourceLayer', 'group', 'facts', 'updatedBy', 'updatedAt'])
                     && validPoi(request.resource.data)
                     && yearsInRange(request.resource.data);

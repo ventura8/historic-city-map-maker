@@ -230,6 +230,7 @@ function poiText(): Data {
     return {
         category: 'cladiri',
         title: { ro: 'Biserica Enei', en: 'Enei Church' },
+        currentName: { ro: 'Strada actuală', en: 'Current street' },
         description: { ro: 'Demolată în **1977**.', en: 'Demolished in **1977**.' },
         yearStart: 1850,
         yearEnd: 1977,
@@ -662,6 +663,7 @@ export const EDITS: Readonly<Record<ClientCollection, Readonly<Data>>> = {
         category: 'strazi',
         geometry: { type: 'LineString', points: line(500) },
         title: { ro: 'Strada Sfinților' },
+        currentName: { ro: 'Strada nouă' },
         description: { ro: 'O [sursă](https://example.org).' },
         ...{ yearStart: 1900, yearEnd: 1980, yearSeen: 1939 },
         links: links(5),

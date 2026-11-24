@@ -164,6 +164,7 @@ export const ja: Messages = {
     'photo.backToList': '一覧に戻る',
     'photo.mapOf': '{year}年の地図',
     'poi.category': 'カテゴリー：{category}',
+    'poi.currentName': '現在の名称：{name}',
     'poi.year': '{year}年',
     'poi.years': '{yearStart}年から{yearEnd}年まで',
     'poi.yearStart': '{yearStart}年から',

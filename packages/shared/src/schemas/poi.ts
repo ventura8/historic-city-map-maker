@@ -118,6 +118,8 @@ export const poiSchema = z
         category: idSchema,
         geometry: geometrySchema,
         title: localizedPartial(200),
+        /** M27: the street's current name when it was renamed rather than demolished (shown alongside its historical title). */
+        currentName: localizedPartial(200).optional(),
         /** Markdown subset (`text/markdown.ts`), https links only. */
         description: localizedMarkdownPartial(5000).optional(),
         yearStart: yearSchema.optional(),

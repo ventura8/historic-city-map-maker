@@ -163,6 +163,7 @@ export const ro = {
     'photo.backToList': 'Înapoi la listă',
     'photo.mapOf': 'Harta din {year}',
     'poi.category': 'Categoria: {category}',
+    'poi.currentName': 'Nume actual: {name}',
     'poi.year': 'Anul {year}',
     'poi.years': 'Între {yearStart} și {yearEnd}',
     'poi.yearStart': 'Din {yearStart}',

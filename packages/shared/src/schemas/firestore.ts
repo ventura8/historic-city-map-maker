@@ -392,6 +392,8 @@ export const poiDocSchema = z
         category: idSchema,
         geometry: geometryDocSchema,
         title: localizedPartial(200),
+        /** M27: the street's current name when it was renamed rather than demolished. */
+        currentName: localizedPartial(200).optional(),
         description: localizedMarkdownPartial(5000).optional(),
         yearStart: yearSchema.optional(),
         yearEnd: yearSchema.optional(),

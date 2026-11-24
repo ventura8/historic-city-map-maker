@@ -161,6 +161,7 @@ export const uk: Messages = {
     'photo.backToList': 'Назад до списку',
     'photo.mapOf': 'Мапа {year} року',
     'poi.category': 'Категорія: {category}',
+    'poi.currentName': 'Сучасна назва: {name}',
     'poi.year': 'У {year} році',
     'poi.years': 'З {yearStart} до {yearEnd}',
     'poi.yearStart': 'З {yearStart}',

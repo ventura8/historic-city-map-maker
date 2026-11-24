@@ -162,6 +162,7 @@ export const zh: Messages = {
     'photo.backToList': '返回列表',
     'photo.mapOf': '{year}年地图',
     'poi.category': '类别：{category}',
+    'poi.currentName': '现名：{name}',
     'poi.year': '{year}年',
     'poi.years': '{yearStart}年至{yearEnd}年',
     'poi.yearStart': '自{yearStart}年起',

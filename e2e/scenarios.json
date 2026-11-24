@@ -23819,6 +23819,28 @@
             "notes": "Milestone M27. docs/research/M27-lost-streets.md."
         },
         {
+            "id": "S-V71-HAPPY-RENAMED",
+            "behaviour": "V71",
+            "area": "viewer",
+            "path": "happy",
+            "title": "Renamed streets sit as their own pinned category in Layers and a tapped renamed street shows both its old name and its current name",
+            "asserts": "both Disappeared streets and Renamed streets have independent switches in the pinned strip; switching on Renamed streets draws its line and tapping it shows its historical title alongside 'Nume actual: …' / 'Current name: …'",
+            "tier": "e2e-viewer",
+            "status": "exists",
+            "notes": "Milestone M27. docs/research/M27-lost-streets.md."
+        },
+        {
+            "id": "S-V71-BAD-RENAMED-EMPTY",
+            "behaviour": "V71",
+            "area": "viewer",
+            "path": "bad",
+            "title": "A renamed street with an empty currentName is refused by manifest validation",
+            "asserts": "the manifest is refused and the error card names currentName rather than rendering a blank current-name line",
+            "tier": "e2e-viewer",
+            "status": "exists",
+            "notes": "Milestone M27. docs/research/M27-lost-streets.md."
+        },
+        {
             "id": "S-A154-HAPPY-TRACE",
             "behaviour": "A154",
             "area": "admin",
