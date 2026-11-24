@@ -35,7 +35,8 @@ async function seedAllBut(emulators: EmulatorWorld, owner: string, usgs: Readonl
 }
 
 test.beforeEach(async ({ page, adminWorld, upstream }) => {
-    await seedClaimedCity(adminWorld.emulators, adminWorld.accounts.owner.uid);
+    // The sources chosen (M28): Setup opens at the step a spec names, not at the Sources card before it.
+    await seedClaimedCity(adminWorld.emulators, adminWorld.accounts.owner.uid, true);
     await upstream.scenario('google.provisioned', 'server');
     await standInProviderPages(page.context(), ['https://ers.cr.usgs.gov']);
     await page.clock.install({ time: NOW });

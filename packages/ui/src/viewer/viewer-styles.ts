@@ -52,8 +52,11 @@ export const viewerStyles = [
             /* The shortest landscape phone with its bars is 270 px tall: a page that never scrolls (an app shell) shows it whole. */
             min-block-size: 240px;
 
-            /* clip, not hidden: a hidden box still scrolls from script (a row's scrollIntoView squeezed the app, 2026-11-16). */
-            overflow: hidden;
+            /*
+             * clip, not hidden: a hidden box still scrolls from script (a row's scrollIntoView squeezed the app, 2026-11-16;
+             * a sheet's focus scrolled the viewer by its height, which hid that Mapbox's legal line never rose: 2026-11-24).
+             */
+            overflow: clip;
             container: hcm-viewer / size;
             background: var(--md-sys-color-surface);
         }

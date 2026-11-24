@@ -4,17 +4,8 @@ import { chipColours, isDark } from '../../support/chip-colours.js';
 import { FORCE_DARK, GL_ARGS } from '../../support/chromium-args.js';
 import { renderedContrastViolations } from '../../support/rendered-contrast.js';
 import { expect, test } from '../../support/test.js';
-import { manyYearsManifest, stopCentre, yearChip } from '../../support/timeline.js';
-import {
-    callController,
-    chooseMenuItem,
-    menuButton,
-    openTimelineCard,
-    openViewer,
-    serveManifest,
-    t,
-    viewer,
-} from '../../support/viewer.js';
+import { fingers, lift, manyYearsManifest, pillOn, stopCentre, touch, yearChip } from '../../support/timeline.js';
+import { callController, chooseMenuItem, menuButton, openViewer, serveManifest, t, viewer } from '../../support/viewer.js';
 
 /**
  * The theme under Chrome's dark theme for sites (behaviour V12; the Pixel 9 Pro review, P2): on Android, while the system
@@ -97,13 +88,16 @@ test(
         }
         expect(await renderedContrastViolations(page, 'the pill under a dark system', 'hcm-timeline .thumb')).toEqual([]);
 
-        await openTimelineCard(page);
-        const unlabelled = await stopCentre(page, 1);
-        await page.mouse.move(unlabelled.x, unlabelled.y);
-        await page.mouse.move(unlabelled.x + 1, unlabelled.y);
+        // Every year has its label since 96c150dc, so a mouse shows no chip: a finger scrubbing from the pill does
+        // (timeline-chip.spec.ts), on a tablet, where the card is always open.
+        await page.setViewportSize({ width: 768, height: 1024 });
+        await expect(timeline).not.toHaveAttribute('collapsed');
+        const cdp = await fingers(page);
+        await touch(cdp, await pillOn(page, lang, 0), [await stopCentre(page, 1)], false);
         await expect.poll(async () => (await yearChip(page))?.text).toBe('1965');
         const chip = await chipColours(timeline.locator('.tip'), { fill: 'surface-container-highest', text: 'on-surface' });
         expect(isDark(chip.fill), 'the year chip: a dark fill').toBe(true);
         expect(await renderedContrastViolations(page, 'the year chip under a dark system', 'hcm-timeline .tip')).toEqual([]);
+        await lift(cdp);
     },
 );

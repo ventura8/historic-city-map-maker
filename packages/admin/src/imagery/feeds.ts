@@ -20,6 +20,7 @@ import {
     usgsSceneDocSchema,
     type BBox,
     type CityDoc,
+    type CityImagery,
     type DatePlanDoc,
     type DatePlanRow,
     type ImagerySettings,
@@ -241,6 +242,11 @@ export class ImageryFeeds {
     /** The city document's version as read (null before it is): what a write of its imagery settings expects. */
     get cityVersion(): string | null {
         return this.#city.state.doc?.version ?? null;
+    }
+
+    /** The city's imagery settings as stored (undefined before the city is read, or with none). */
+    get cityImagery(): CityImagery | undefined {
+        return this.#city.state.doc?.data.imagery;
     }
 
     start(freeOnly: boolean): void {

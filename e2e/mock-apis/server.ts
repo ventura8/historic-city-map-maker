@@ -1,6 +1,7 @@
 import { createServer, type IncomingHttpHeaders, type IncomingMessage, type Server, type ServerResponse } from 'node:http';
 import { readFile, stat } from 'node:fs/promises';
 import { extname, join, normalize, resolve, sep } from 'node:path';
+import { gzipSync } from 'node:zlib';
 
 import { TEST_HEADER } from '../fixtures/world.js';
 import { answer, type MockFiles, type MockResponse } from './router.js';
@@ -302,8 +303,23 @@ async function handleSite(request: IncomingMessage, response: ServerResponse, di
         send(response, { status: 301 }, { location: `${url.pathname}/${url.search}` });
     } else {
         const type = SITE_TYPES[extname(found.file)] ?? 'application/octet-stream';
-        send(response, { status: 200, type, body: await readFile(found.file) }, { 'cache-control': 'max-age=600' });
+        sendFile(request, response, type, await readFile(found.file));
     }
+}
+
+/** The text types Firebase Hosting compresses: a script, a style sheet, a page, JSON, an SVG. */
+const COMPRESSED = /^(text\/|application\/json|image\/svg\+xml)/;
+
+/**
+ * A site file as Firebase Hosting sends it: a text file gzip-compressed for a browser that accepts it. The cold load's
+ * Fast 4G (S-V01-HAPPY-COLD-FIRST-PAINT) carried the engine's 410 KB uncompressed, over three times the 120 KB a visitor
+ * downloads (docs/LESSONS.md 796).
+ */
+function sendFile(request: IncomingMessage, response: ServerResponse, type: string, body: Buffer): void {
+    const cache = { 'cache-control': 'max-age=600', vary: 'accept-encoding' };
+    const gzip = COMPRESSED.test(type) && /\bgzip\b/.test(request.headers['accept-encoding'] ?? '');
+    const sent = gzip ? { body: gzipSync(body), headers: { ...cache, 'content-encoding': 'gzip' } } : { body, headers: cache };
+    send(response, { status: 200, type, body: sent.body }, sent.headers);
 }
 
 /** The site server's handler: the built sites in `dir` (the local stack, e2e/stack/servers.ts, puts its routes in front). */

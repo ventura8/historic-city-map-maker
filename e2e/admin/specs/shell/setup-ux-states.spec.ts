@@ -39,7 +39,8 @@ async function seedAllBut(emulators: EmulatorWorld, owner: string, usgs: Readonl
 }
 
 test.beforeEach(async ({ page, adminWorld, upstream }) => {
-    await seedClaimedCity(adminWorld.emulators, adminWorld.accounts.owner.uid);
+    // The sources chosen (M28): Setup opens at the step a spec names, not at the Sources card before it.
+    await seedClaimedCity(adminWorld.emulators, adminWorld.accounts.owner.uid, true);
     await upstream.scenario('google.provisioned', 'server');
     // The map's server is installed: the server card reads its functions with the owner's token.
     await upstream.scenario('google.deployed', 'browser');

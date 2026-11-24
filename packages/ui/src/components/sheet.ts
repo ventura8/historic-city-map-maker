@@ -290,7 +290,8 @@ export class HcmSheet extends LitElement {
         }
         if (this.open) {
             this.opener = deepActiveElement(this.ownerDocument);
-            this.sheet()?.focus();
+            // Not scrolled to: it still lies past the edge it slides in from, and a box around it scrolled by its height.
+            this.sheet()?.focus({ preventScroll: true });
         } else if (changed.get('open') === true) {
             restoreFocus(this.opener);
             this.opener = null;

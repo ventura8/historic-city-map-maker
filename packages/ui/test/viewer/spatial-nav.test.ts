@@ -204,6 +204,37 @@ describe('the D-pad', () => {
         expect(activeId(s)).toBe('slider');
     });
 
+    it('happyPath_fromTheMapDownGoesToTheDockUnderItsMiddlePastTheButtonsAlongItsEdge', () => {
+        const s = stage();
+        const canvas = place(s, 'canvas', 'canvas', [0, 0, 600, 400]);
+        place(s, 'button', 'edge-button', [540, 220, 48, 48]);
+        const dock = place(s, 'section', 'dock', [10, 320, 580, 70]);
+        dock.removeAttribute('tabindex');
+        const slider = document.createElement('div');
+        slider.id = 'slider';
+        slider.tabIndex = 0;
+        slider.setAttribute('role', 'slider');
+        slider.style.cssText = 'position:absolute;left:10px;top:10px;width:48px;height:48px';
+        dock.attachShadow({ mode: 'open' }).append(slider);
+        canvas.focus();
+
+        navigate(s.viewer, 'down');
+
+        expect(dock.shadowRoot?.activeElement?.id).toBe('slider');
+    });
+
+    it('edge_fromTheMapWithNothingAcrossItsMiddleThatWayTheColumnStillCounts', () => {
+        const s = stage();
+        const canvas = place(s, 'canvas', 'canvas', [0, 0, 600, 400]);
+        place(s, 'section', 'dock-below', [10, 320, 580, 70]).tabIndex = 0;
+        place(s, 'button', 'edge-button', [540, 10, 48, 48]);
+        canvas.focus();
+
+        navigate(s.viewer, 'up');
+
+        expect(activeId(s)).toBe('edge-button');
+    });
+
     it('edge_aControlScrolledOffTheScreenIsNeverReached', () => {
         const s = stage();
         const first = place(s, 'button', 'first', [10, 10, 48, 48]);

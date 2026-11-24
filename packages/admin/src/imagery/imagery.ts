@@ -185,7 +185,8 @@ class ImageryStore implements AreaStore<ImageryState, ImageryIntents> {
 
     /** M8: Add {year} over the settings as read; the search then ranks with the year. */
     #addYear(year: number): Promise<boolean> {
-        const target = { settings: this.#cell.state.settings, version: this.#feeds.cityVersion, search: () => this.#search.search() };
+        const { cityImagery: imagery, cityVersion: version } = this.#feeds;
+        const target = { settings: this.#cell.state.settings, imagery, version, search: () => this.#search.search() };
         return this.#join.addYear(year, target);
     }
 

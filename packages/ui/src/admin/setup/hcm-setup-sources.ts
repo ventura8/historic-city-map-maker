@@ -28,6 +28,7 @@ import { html, nothing, type TemplateResult } from 'lit';
 import { defineHcmButton } from '../../components/button.js';
 import { defineHcmIcon } from '../../components/icon.js';
 import { defineOnce } from '../../components/internal.js';
+import { focusRing } from '../../components/styles.js';
 import { defineHcmSwitch } from '../../components/switch.js';
 import { EMPTY } from '../shell/empty.js';
 import { SetupBody, defineSetupBodyParts } from './setup-body.js';
@@ -70,7 +71,8 @@ function unsaved(sources: SetupViewState['sources']): boolean {
 }
 
 export class HcmSetupSources extends SetupBody {
-    static override readonly styles = [setupTextStyles, sourcesStyles];
+    // The kit's ring on its links and summaries (secondary, 3:1 on the cards): the browser's own read 2:1 (the tour, 2026-11-24).
+    static override readonly styles = [focusRing, setupTextStyles, sourcesStyles];
 
     protected override renderBody(state: SetupViewState): TemplateResult {
         const { choices } = state.sources;

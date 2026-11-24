@@ -123,10 +123,28 @@ function inColumn(element: HTMLElement, start: Box): boolean {
     return start.left <= middle && middle <= start.right;
 }
 
-/** From the map: the controls in its column when there are any, else every one. */
-function columnFirst(reachable: readonly HTMLElement[], start: Box): readonly HTMLElement[] {
-    const column = reachable.filter((element) => inColumn(element, start));
-    return column.length > 0 ? column : reachable;
+/**
+ * Whether the component `element` belongs to (its host directly in the viewer) spans the map's middle: the timeline's dock
+ * under the map does, the buttons along its edges do not. The D-pad's down from the map took the buttons down the right
+ * edge one by one and never reached the timeline, whose slider sits at its dock's start (the TV tour, 2026-11-24).
+ */
+function acrossMiddle(element: HTMLElement, viewer: HTMLElement, start: Box): boolean {
+    const box = rootHostIn(element, viewer).getBoundingClientRect();
+    const middle = (start.left + start.right) / 2;
+    return box.left <= middle && middle <= box.right;
+}
+
+/**
+ * From the map: the nearest control whose component spans the map's middle, else the nearest in the map's column, else
+ * the nearest of all; each only when one lies that way.
+ */
+function fromMap(viewer: HTMLElement, start: Box, reachable: readonly HTMLElement[], direction: Direction): HTMLElement | null {
+    const tiers = [
+        reachable.filter((element) => acrossMiddle(element, viewer, start)),
+        reachable.filter((element) => inColumn(element, start)),
+        reachable,
+    ];
+    return tiers.reduce<HTMLElement | null>((found, tier) => found ?? nearest(start, tier, direction), null);
 }
 
 /** Whether `element` shows inside `screen`: a control scrolled out of a pane (past the screen's bottom) is not on screen. */
@@ -146,7 +164,7 @@ export function moveFocus(viewer: HTMLElement, direction: Direction): boolean {
     const from = control === null ? mapStart(viewer, root) : control.getBoundingClientRect();
     const screen = viewer.getBoundingClientRect();
     const reachable = tabbableElements(root).filter((element) => element !== active && !isInert(element) && onScreen(element, screen));
-    const target = nearest(from, control === null ? columnFirst(reachable, from) : reachable, direction);
+    const target = control === null ? fromMap(viewer, from, reachable, direction) : nearest(from, reachable, direction);
     target?.focus();
     return target !== null;
 }

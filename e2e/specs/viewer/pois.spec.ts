@@ -345,7 +345,8 @@ test('A dated place never says its years are unknown', { tag: '@S-V24-BAD-NO-YEA
     await expect(poiSheet(page)).not.toContainText(t(lang, 'poi.yearsUnknown'));
 });
 
-const ICON_FONT = '**/engine/fonts/material-symbols-rounded.woff2';
+// The face loads under its content hash (`?v=`, f5ab9fa9): a glob without the query no longer held it.
+const ICON_FONT = /\/engine\/fonts\/material-symbols-rounded\.woff2(?:\?v=[0-9a-f]+)?$/;
 const ICON_FONT_FACE = '24px "HCM Material Symbols Rounded"';
 
 /**

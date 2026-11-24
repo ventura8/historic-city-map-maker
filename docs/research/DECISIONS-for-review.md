@@ -4450,7 +4450,7 @@ Verify: `PIPELINE_STAGE=static bash scripts/ci/run-all-checks.sh` (the registry'
   (`dist/e2e-hosting`, built by `e2e/scripts/build-site.ts` with the production assembler) through
   `resolveHostingPath`; the admin's reserved files moved to `/admin/runtime.json` and `/admin/project.json`; the
   start-up tree (`dist/e2e-hosting-start-up`) answers a browser with the cookie `hcm-e2e-variant=start-up` (per browser
-  context, so parallel tests never see each other's variant); `/__old-push-sw.js` is a root push worker for the
+  context, so parallel tests never see each other's variant); `/firebase-messaging-sw.js` is a root push worker for the
   old-worker scenario. It starts for every e2e run (`e2e/playwright.config.ts`: the viewer tier's V30 opens it; the
   emulators stay the admin tiers' only), and every e2e build now builds the admin's Hosting folder (a few seconds:
   the tree holds it; `scripts/ci/e2e_build.py` counts the two trees among its outputs). Every admin spec's address

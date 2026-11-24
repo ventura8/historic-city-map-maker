@@ -111,6 +111,18 @@ function withoutCleared(data: Data): Data {
     return Object.fromEntries(Object.entries(data).filter(([, value]) => value !== undefined));
 }
 
+/**
+ * Whether a value holds `undefined` inside a map or a list: Firestore's SDK refuses it ("Unsupported field value"), and the
+ * adapter answers `invalid`; only an update's own fields may be `undefined` (deleted). The fake took it, and Add {year}
+ * saved nothing live while its unit test passed (docs/LESSONS.md 796).
+ */
+function holdsUndefined(value: unknown): boolean {
+    if (value === undefined) {
+        return true;
+    }
+    return typeof value === 'object' && value !== null && !isTimestamp(value) && Object.values(value).some(holdsUndefined);
+}
+
 /** A field by its path, dotted into maps as Firestore reads it (`rank.score`); undefined when a step is missing. */
 function fieldAt(data: Data, path: string): unknown {
     return path
@@ -234,6 +246,9 @@ export class FakeContentStore {
             const current = this.docs.get(path);
             if (current === undefined) {
                 return { ok: false, reason: 'gone' };
+            }
+            if (Object.values(fields).some((value) => value !== undefined && holdsUndefined(value))) {
+                return { ok: false, reason: 'invalid' };
             }
             if (expected !== null && versionOf(current) !== expected) {
                 return { ok: false, reason: 'conflict' };

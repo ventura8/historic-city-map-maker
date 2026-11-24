@@ -102,9 +102,14 @@ async function coldLoad(page: Page, size: { readonly width: number; readonly hei
     return page.evaluate(coldLoadInPage);
 }
 
+/**
+ * The budget is a time on a CPU slowed four times: beside a full run's other workers the machine's own load slowed it as
+ * much again (1,824 to 2,780 ms in the split `all` runs; within the budget alone), so the test runs alone, under
+ * Playwright's built-in `-exclusive-` lock (docs/LESSONS.md 796). The budget stays.
+ */
 test(
     'A cold load on Fast 4G with a slow CPU paints the viewer within its budget, on a phone and a tablet',
-    { tag: '@S-V01-HAPPY-COLD-FIRST-PAINT' },
+    { tag: '@S-V01-HAPPY-COLD-FIRST-PAINT', lock: '-exclusive-' },
     async ({ page }) => {
         await throttleMapbox(page, 0);
         await throttle(page);

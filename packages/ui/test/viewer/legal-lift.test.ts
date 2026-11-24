@@ -8,7 +8,7 @@ import { page } from 'vitest/browser';
 import { defineUiKit } from '../../src/components/define.js';
 import { defineViewerElements } from '../../src/viewer/define.js';
 import type { HcmMapViewer } from '../../src/viewer/hcm-map-viewer.js';
-import { LegalLiftWatcher, NO_LIFT, liftFor, openModalSheet, sameLift } from '../../src/viewer/legal-lift.js';
+import { LegalLiftWatcher, NO_LIFT, liftFor, openModalSheet, sameLift, type LegalLift } from '../../src/viewer/legal-lift.js';
 import { FakeStore, readyState } from './fake-store.js';
 import { fakeServices, setBox, COMPACT, MEDIUM, type Box } from './viewer-harness.js';
 
@@ -46,6 +46,33 @@ describe('liftFor', () => {
 
         expect(openModalSheet(root)).toBeNull();
         expect(reported).toEqual([]);
+    });
+
+    it('happyPath_aSheetThatSlidInIsMeasuredAgainWhenItsTransitionEnds', () => {
+        const sheet = document.createElement('hcm-sheet');
+        sheet.setAttribute('open', '');
+        const surface = document.createElement('div');
+        surface.className = 'sheet';
+        surface.style.cssText = 'position:fixed;left:0;top:400px;width:400px;height:400px;transform:translateY(100%)';
+        sheet.attachShadow({ mode: 'open' }).append(surface);
+        const root = document.createElement('div');
+        root.append(sheet);
+        document.body.append(root);
+        const reported: LegalLift[] = [];
+        const watcher = new LegalLiftWatcher(
+            () => root,
+            () => VIEWER,
+            (lift) => reported.push(lift),
+        );
+
+        watcher.refresh();
+        surface.style.transform = 'none';
+        surface.dispatchEvent(new Event('transitionend'));
+        watcher.stop();
+        surface.dispatchEvent(new Event('transitionend'));
+
+        expect(reported).toEqual([NO_LIFT, { bottom: 400, left: 0, right: 0 }]);
+        root.remove();
     });
 });
 

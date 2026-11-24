@@ -56,11 +56,19 @@ export class HcmDirectionDial extends LitElement {
                 touch-action: none;
             }
 
+            /*
+             * The ring is the svg's own border in outline (WCAG 1.4.11: 3:1 against the page in light and dark), not a stroke of
+             * an svg circle: the tour's non-text contrast reads a control's borders and backgrounds, and found the stroked ring at
+             * 1.00:1 (2026-11-24, docs/LESSONS.md).
+             */
             .dial {
                 display: block;
+                box-sizing: border-box;
                 inline-size: 100%;
                 block-size: 100%;
+                border: 2px solid var(--md-sys-color-outline);
                 border-radius: 50%;
+                background-color: var(--md-sys-color-surface-container-high);
                 cursor: grab;
                 outline-offset: 2px;
             }
@@ -68,12 +76,6 @@ export class HcmDirectionDial extends LitElement {
             :host([disabled]) .dial {
                 cursor: default;
                 opacity: 0.6;
-            }
-
-            .face {
-                fill: var(--md-sys-color-surface-container-high);
-                stroke: var(--md-sys-color-outline);
-                stroke-width: 1.5;
             }
 
             .tick {
@@ -185,7 +187,6 @@ export class HcmDirectionDial extends LitElement {
             @pointercancel=${this.#up}
             @keydown=${this.#key}
         >
-            <circle class="face" cx="50" cy="50" r="47"></circle>
             ${[0, 90, 180, 270].map((angle) => svg`<line class="tick" x1="50" y1="4" x2="50" y2="9" transform="rotate(${angle} 50 50)" />`)}
             ${CARDINALS.map(([letter, x, y]) => svg`<text class="cardinal" x=${x} y=${y} aria-hidden="true">${letter}</text>`)}
             ${needle(value)}

@@ -132,7 +132,8 @@ test(
         expect(kept.length).toBeGreaterThan(0);
         // Only the page and its own shell: never the data, the app manifest, another origin (Mapbox's terms) or another folder.
         expect(kept.filter((url) => !url.startsWith(SCOPE) || /manifest\.json|app\.webmanifest|\/data\//.test(url))).toEqual([]);
-        expect(kept.filter((url) => /\.(?:m?js|css|woff2)$|\/$/.test(url))).toEqual(kept);
+        // A font is kept under its content hash (`?v=`, f5ab9fa9), the hash a new release changes.
+        expect(kept.filter((url) => /\.(?:m?js|css)$|\.woff2(?:\?v=[0-9a-f]+)?$|\/$/.test(url))).toEqual(kept);
 
         // A deploy: the site's stylesheet changes on the server. The next load shows it, through the worker.
         await context.route(`${SCOPE}site.css`, (route) =>

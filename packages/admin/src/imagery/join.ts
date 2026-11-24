@@ -7,7 +7,7 @@
  * (`apiError.imagery.joinLayerBusy`) says so in plain words, and the snackbar offers **Join when it ends**: the admin then asks
  * again every `JOIN_WAIT_MS` while it is open, and starts the join by itself once that work ended (at most `JOIN_WAIT_TRIES`).
  */
-import { FIRESTORE_PATHS, type ImagerySettings } from '@hcm/shared';
+import { FIRESTORE_PATHS, type CityImagery, type ImagerySettings } from '@hcm/shared';
 
 import type { ContentServices, WriteOutcome } from '../content/services.js';
 import type { NoticeInput } from '../state/state.js';
@@ -31,6 +31,8 @@ const BUSY = 'apiError.imagery.joinLayerBusy';
 /** What Add {year} needs to know: the city's settings as read, their version, and the search that ranks again. */
 export interface YearTarget {
     readonly settings: ImagerySettings;
+    /** The city's imagery settings as stored (absent fields stay absent: the defaults are never written). */
+    readonly imagery: CityImagery | undefined;
     readonly version: string | null;
     readonly search: () => Promise<void>;
 }
@@ -127,7 +129,9 @@ export class JoinActions {
         this.#busy = true;
         this.#changed({ addingYear: year });
         const { settings, version, search } = target;
-        const imagery = { ...settings, targetYears: [...settings.targetYears, year].toSorted((a, b) => a - b) };
+        // The stored fields and the new years, as Settings saves them: the defaults spread in carried `landsatTo: undefined`,
+        // which Firestore refuses, so the year was never saved (S-A66-HAPPY-ADD-YEAR, docs/LESSONS.md 796).
+        const imagery = { ...target.imagery, targetYears: [...settings.targetYears, year].toSorted((a, b) => a - b) };
         const outcome = await this.#services.store.update(FIRESTORE_PATHS.city(this.#services.cityId), { imagery }, version);
         this.#report(outcome);
         this.#changed({ addingYear: null });

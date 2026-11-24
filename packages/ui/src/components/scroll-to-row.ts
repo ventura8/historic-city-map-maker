@@ -5,9 +5,14 @@
  * `scroll-margin-block-start` (the Layers panel's pinned strip) is kept clear above it.
  */
 
+/**
+ * The parent in the flat tree: a slotted element's is its slot, inside the shadow root that shows it. Through
+ * `parentElement` a row slotted into a modal sheet skipped the sheet's scroller, so a phone's Layers sheet never scrolled to
+ * the year's row (S-V73-HAPPY-REVEAL at 360 px, docs/LESSONS.md 796).
+ */
 function parentAcrossShadow(node: Element): Element | null {
     const root = node.getRootNode();
-    return node.parentElement ?? (root instanceof ShadowRoot ? root.host : null);
+    return node.assignedSlot ?? node.parentElement ?? (root instanceof ShadowRoot ? root.host : null);
 }
 
 /** The nearest ancestor that scrolls vertically, or null (then nothing scrolls). */

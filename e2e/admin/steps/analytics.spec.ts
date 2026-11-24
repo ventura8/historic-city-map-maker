@@ -173,7 +173,7 @@ test(
         await inputs.click(reports);
         await expect(done).toHaveText(setupText(lang, 'adminSetup.analytics.reportsDone', { created: '0', skipped: REPORTS }));
         expect(await consent.requests()).toHaveLength(asked);
-        expect((await upstream.calls('browser', 'analytics-admin')).filter((call) => call.method === 'POST')).toHaveLength(23);
+        expect((await upstream.calls('browser', 'analytics-admin')).filter((call) => call.method === 'POST')).toHaveLength(Number(REPORTS));
     },
 );
 

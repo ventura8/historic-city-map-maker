@@ -52,4 +52,22 @@ describe('scroll-to-row', () => {
         scrollRowToTop(first, 'smooth');
         expect(scroll).toHaveBeenCalledWith({ top: 0, behavior: 'smooth' });
     });
+
+    it('happyPath_aRowSlottedIntoASheetScrollsTheSheetsOwnScroller', () => {
+        // A modal sheet: its scroller is in its shadow root, around the slot that shows the panel's rows.
+        const sheet = document.createElement('div');
+        const content = document.createElement('div');
+        content.style.cssText = 'height: 100px; overflow-y: auto';
+        content.append(document.createElement('slot'));
+        sheet.attachShadow({ mode: 'open' }).append(content);
+        const rows = Array.from({ length: 10 }, () => {
+            const row = document.createElement('div');
+            row.style.cssText = 'height: 40px';
+            return row;
+        });
+        sheet.append(...rows);
+        document.body.append(sheet);
+
+        expect(scrollerOf(rows[5] as HTMLElement)).toBe(content);
+    });
 });

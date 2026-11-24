@@ -120,6 +120,13 @@ export class HcmAdminMap extends LitElement {
                 outline-offset: 0;
             }
 
+            /* Mapbox's logo is a 88 x 23 link: under WCAG 2.5.8's 24 px it needs room around it, which a page scrolled to show
+               only its top under the app's bar did not leave (revoke at 360 px, 2026-11-24). One pixel more, and the logo is
+               a target of its own size wherever the map is cut; the image keeps its size and place. */
+            a.mapboxgl-ctrl-logo {
+                block-size: 24px;
+            }
+
             .controls {
                 position: absolute;
                 inset-block-start: 8px;

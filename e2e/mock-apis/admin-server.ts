@@ -32,7 +32,7 @@ import { failed, listen, SITE_TYPES } from './server.js';
  *
  * e2e only: `/__harness` is a blank page on the admin's origin for the harness specs (e2e/admin/harness/): served from
  * 127.0.0.1 like the admin, so Chromium's Local Network Access lets it reach the emulators as the admin does (a document a
- * route fulfils has no address space and is refused the loopback); `/__old-push-sw.js` is a push worker at the site's root,
+ * route fulfils has no address space and is refused the loopback); `/firebase-messaging-sw.js` is a push worker at the site's root,
  * as an admin before M6 registered it there (S-A58-BAD-OLD-SERVICE-WORKER).
  *
  * e2e only: a browser that carries the cookie `hcm-e2e-cache=day` (`E2E_CACHE_COOKIE`) is served `/admin/legacy/**` with
@@ -68,8 +68,12 @@ export const START_UP_VARIANT = 'start-up';
 /** M14: the cookie that serves a browser what its test released on the fake Hosting (`released:<folder>`). */
 const RELEASED_VARIANT = /(?:^|;\s*)hcm-e2e-variant=released:([\w-]{1,128})(?:;|$)/;
 
-/** The legacy root push worker of the old-service-worker scenario (scope `/`). */
-export const OLD_PUSH_WORKER_PATH = '/__old-push-sw.js';
+/**
+ * The legacy root push worker of the old-service-worker scenario (scope `/`), under the name a pre-M6 admin served it at the
+ * root: the admin retires only a root worker of that name, never the public map's own `sw.js` (0d53130a); under another
+ * name the fixture was left alone and the spec failed (docs/LESSONS.md).
+ */
+export const OLD_PUSH_WORKER_PATH = '/firebase-messaging-sw.js';
 
 const NOT_FOUND: MockResponse = { status: 404, type: 'text/plain', body: 'Not found' };
 

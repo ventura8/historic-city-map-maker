@@ -31,7 +31,7 @@ function buyLink(page: Page, lang: 'ro' | 'en'): ReturnType<Page['getByRole']> {
 test(
     'A cloudy paid scan is warned, marked Not useful, leaves the plan and its Buy this scan, and Undo brings it back',
     { tag: ['@S-A152-HAPPY', '@S-A152-HAPPY-UNDO', '@S-A152-BAD-CLOUDY'] },
-    async ({ page, lang, adminWorld, mockApiRequest, upstream }) => {
+    async ({ page, lang, adminWorld, mockApiRequest, upstream, consoleErrors }) => {
         const fixtures = { emulators: adminWorld.emulators, api: mockApiRequest, upstream };
         const imagery = await readyImagery(fixtures, adminWorld.accounts.owner.uid);
         await seedFrame(imagery, { entityId: WEST_FRAME, bounds: WEST, date: DATE });
@@ -80,5 +80,8 @@ test(
         await expect
             .poll(async () => (await planRows(imagery))?.find((row) => row.date === DATE)?.paidFrames, { timeout: FUNCTIONS_TIMEOUT_MS })
             .toEqual([CLOUDY]);
+        // The paid 1968 twin's browse image USGS never serves: when Find's rows asked for its copy before the harvest recorded
+        // the failure, the server's 503 is logged (search.spec.ts; it failed this test in 2 of 5 windows, 2026-11-24).
+        consoleErrors.takeMatching(/imagery-browse/);
     },
 );

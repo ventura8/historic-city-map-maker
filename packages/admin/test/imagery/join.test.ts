@@ -162,7 +162,7 @@ describe('Join frames', () => {
 
         const first = actions.join(['F039', 'F040']);
         await expect(actions.join(['F039', 'F040'])).resolves.toBeNull();
-        await expect(actions.addYear(1972, { settings, version: null, search })).resolves.toBe(false);
+        await expect(actions.addYear(1972, { settings, imagery: undefined, version: null, search })).resolves.toBe(false);
         release();
         await first;
 
@@ -190,16 +190,10 @@ describe('Add {year} to target years', () => {
 
         await expect(running).resolves.toBe(true);
         await settle();
-        expect(store.docs.get(FIRESTORE_PATHS.city(CITY))?.['imagery']).toEqual({
-            autoPublish: true,
+        // The stored fields only, never a default: Firestore refuses a field written as undefined (`landsatTo`, lesson 796).
+        expect(store.docs.get(FIRESTORE_PATHS.city(CITY))?.['imagery']).toStrictEqual({
             rmseThresholdM: 9,
             targetYears: [1966, 1972, 1978],
-            publishThroughMapbox: false,
-            mapThresholdMaxM: 60,
-            mapAutoPublish: true,
-            landsatAuto: true,
-            landsatFrom: 1984,
-            landsatTo: undefined,
         });
         expect(callsOf(callables, 'imagery.search')).toEqual([{ cityId: CITY }]);
         expect(imagery.state.addingYear).toBeNull();
@@ -225,7 +219,9 @@ describe('Add {year} to target years', () => {
         world.store.outcomes.push({ ok: false, reason: 'denied' });
 
         const settings = imagerySettingsOf({ rmseThresholdM: 15 });
-        await expect(actions.addYear(1972, { settings, version: null, search: () => Promise.resolve() })).resolves.toBe(false);
+        await expect(actions.addYear(1972, { settings, imagery: undefined, version: null, search: () => Promise.resolve() })).resolves.toBe(
+            false,
+        );
 
         expect(world.denials.count).toBe(1);
         expect(world.notices.at(-1)).toEqual({ key: 'adminContent.settings.refused.denied' });

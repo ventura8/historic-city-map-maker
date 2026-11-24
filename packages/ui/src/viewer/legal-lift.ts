@@ -88,6 +88,14 @@ export class LegalLiftWatcher {
     readonly #report: (lift: LegalLift) => void;
     readonly #observer: ResizeObserver;
     #watched: Element | null = null;
+    /**
+     * A sheet slides in from past the viewer's edge (`@starting-style`): measured as it opens it lifts nothing, and its
+     * slide changes no size the ResizeObserver sees, so its box is read again when a transition on it ends (Mapbox's
+     * logo stayed under a phone's sheet once the viewer stopped scrolling to the sheet's focus, the tour 2026-11-24).
+     */
+    readonly #settled = (): void => {
+        this.#measure();
+    };
 
     constructor(root: () => ParentNode | null, viewer: () => Edges, report: (lift: LegalLift) => void) {
         this.#root = root;
@@ -102,10 +110,11 @@ export class LegalLiftWatcher {
         const root = this.#root();
         const sheet = root === null ? null : openModalSheet(root);
         if (sheet !== this.#watched) {
-            this.#observer.disconnect();
+            this.stop();
             this.#watched = sheet;
             if (sheet !== null) {
                 this.#observer.observe(sheet);
+                sheet.addEventListener('transitionend', this.#settled);
             }
             this.#measure();
         }
@@ -113,6 +122,7 @@ export class LegalLiftWatcher {
 
     stop(): void {
         this.#observer.disconnect();
+        this.#watched?.removeEventListener('transitionend', this.#settled);
         this.#watched = null;
     }
 
