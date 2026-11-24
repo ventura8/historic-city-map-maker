@@ -1,7 +1,7 @@
 """A sheet's neat line found with its series' help (`placing/neatline.py`): a double frame, a side the scanner cut, the guided queue.
 
-Scenarios: S-P20-HAPPY-NEATLINE, S-P20-BAD-NEATLINE-UNSURE. The sheets are drawn like the plan cadastral 1911-1914's: a thin neat
-line, a border line `BORDER` pixels outside it, the sheet's title between them, a slight turn, and one sheet cut on its right.
+The sheets are drawn like the plan cadastral 1911-1914's: a thin neat line, a border line `BORDER` pixels outside it, the sheet's
+title between them, a slight turn, and one sheet cut on its right.
 """
 
 from pathlib import Path
