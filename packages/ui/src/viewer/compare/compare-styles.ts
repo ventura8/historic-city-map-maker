@@ -97,6 +97,21 @@ export const compareStyles = css`
         pointer-events: auto;
     }
 
+    /*
+     * A short map (under 600 px, dock-styles.ts): the bar ends a dock gap above Show my location, the highest of the map's
+     * buttons there, and scrolls past that; grown by larger text spacing it reached over the button at 320 x 568 (the tour,
+     * 2026-11-24).
+     */
+    @container hcm-viewer (height < 600px) {
+        .bar {
+            max-block-size: calc(
+                100cqb - var(--hcm-gutter, 16px) - env(safe-area-inset-top, 0px) - var(--hcm-zoom-end, 106px) - 144px - 2 *
+                    var(--hcm-dock-gap, 8px)
+            );
+            overflow-y: auto;
+        }
+    }
+
     /* A compact window: the bar spans the map between the gutters, the toggle on its own row above the chooser. */
     :host([mode='toggle']) .bar {
         inline-size: auto;
