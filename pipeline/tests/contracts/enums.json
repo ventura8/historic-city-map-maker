@@ -303,6 +303,7 @@
         "apiError.imagery.noSpread",
         "apiError.imagery.notImproved",
         "apiError.imagery.notScanned",
+        "apiError.imagery.originalMissing",
         "apiError.imagery.pipelineOutdated",
         "apiError.imagery.processingFailed",
         "apiError.imagery.referenceUnavailable",
