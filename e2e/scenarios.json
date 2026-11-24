@@ -21949,6 +21949,28 @@
             "notes": "Owner 2026-11-24. Tests: pipeline/tests/unit/test_redraw_fullres.py."
         },
         {
+            "id": "S-P20-HAPPY-REDRAW-RECORD-READ",
+            "behaviour": "P20",
+            "area": "pipeline",
+            "path": "happy",
+            "title": "A redraw on a worker may read the parts records of the versions it was drawn from",
+            "asserts": "worker.urls signs a GET of rasters/{city}/{layer}/{recordFrom version}/parts.json for a regeoref naming that version",
+            "tier": "e2e-pipeline",
+            "status": "exists",
+            "notes": "Live 2026-11-24 (rg-mwukj3fm, apiError.worker.refused). Tests: functions/test/worker/allow-list.test.ts."
+        },
+        {
+            "id": "S-P20-BAD-REDRAW-RECORD-READ",
+            "behaviour": "P20",
+            "area": "pipeline",
+            "path": "bad",
+            "title": "Nothing else of those versions, nor another layer or city, nor a write",
+            "asserts": "another file of a recordFrom version, a version not named, another layer or city, a write, malformed params or another job type: refused",
+            "tier": "e2e-pipeline",
+            "status": "exists",
+            "notes": "Live 2026-11-24. Tests: functions/test/worker/allow-list.test.ts."
+        },
+        {
             "id": "S-A65-HAPPY-JOINED-FRAME",
             "behaviour": "A65",
             "area": "admin",

@@ -9,6 +9,7 @@ import {
     VERSION_FILES,
     isId,
     layerJoinParamsSchema,
+    regeorefParamsSchema,
     passPrefixOf,
     validate,
     type JobDoc,
@@ -116,6 +117,16 @@ function textParam(job: JobDoc, name: string): string | undefined {
 /** The base version a re-georeference renders again. */
 function baseVersionOf(job: JobDoc): string | undefined {
     return job.type === 'regeoref' ? idParam(job, 'basedOn') : undefined;
+}
+
+/**
+ * 2026-11-24 (lesson 799): the parts records (`parts.json`) a regeoref may read from the versions it was drawn from (`recordFrom`,
+ * well-formed parameters only): the same city and layer, that one file, read only.
+ */
+function partsRecordsOf(scope: Pick<ObjectScope, 'cityId' | 'layerId' | 'job'>): string[] {
+    const params = scope.job.type === 'regeoref' ? validate(regeorefParamsSchema, scope.job.params) : undefined;
+    const chain = params?.ok === true ? (params.value.recordFrom ?? []) : [];
+    return chain.map((id) => RASTER_PATHS.version(scope.cityId, scope.layerId, id, 'parts.json'));
 }
 
 /** M8: the frames a join reads, only from well-formed parameters of its own type. */
@@ -240,6 +251,7 @@ function inputsOf(scope: ObjectScope): string[] {
         ...(base === undefined ? [] : [RASTER_PATHS.version(scope.cityId, scope.layerId, base, 'scan.tif')]),
         ...joinPartsOf(scope.job).map((part) => RASTER_PATHS.version(scope.cityId, part.layerId, part.versionId, 'scan.tif')),
         ...(upload === undefined ? [] : [upload]),
+        ...partsRecordsOf(scope),
     ];
 }
 

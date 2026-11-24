@@ -164,3 +164,31 @@ describe('objects', () => {
         expect(mayRead(scope(job), 'uploads/x.tif')).toBe(false);
     });
 });
+
+describe('a redraw reads the parts records of the versions it was drawn from (lesson 799)', () => {
+    const params = {
+        basedOn: 'rg-base',
+        originalArchiveId: 'ar-0123456789abcdef',
+        originalSeriesId: 's-0123456789ab',
+        recordFrom: ['rg-base', 'ar-first'],
+    };
+    const redraw = localJob({ type: 'regeoref', params: { ...params, fullResolution: true } });
+    const record = (version: string) => `rasters/${CITY}/${LAYER}/${version}/parts.json`;
+
+    it('happyPath_theRecordFromVersionsPartsRecordsAreRead @S-P20-HAPPY-REDRAW-RECORD-READ', () => {
+        expect(mayRead(scope(redraw), record('rg-base'))).toBe(true);
+        expect(mayRead(scope(redraw), record('ar-first'))).toBe(true);
+    });
+
+    it('badPath_nothingElseOfThoseVersionsNorAnotherLayerOrCityNorAWrite @S-P20-BAD-REDRAW-RECORD-READ', () => {
+        expect(mayRead(scope(redraw), `rasters/${CITY}/${LAYER}/ar-first/cog.tif`)).toBe(false);
+        expect(mayRead(scope(redraw), record('ar-other'))).toBe(false);
+        expect(mayRead(scope(redraw), `rasters/${CITY}/other-layer/ar-first/parts.json`)).toBe(false);
+        expect(mayRead(scope(redraw), `rasters/other-city/${LAYER}/ar-first/parts.json`)).toBe(false);
+        expect(mayWrite(scope(redraw), record('ar-first'))).toBe(false);
+        const malformed = localJob({ type: 'regeoref', params: { ...params, recordFrom: ['../x'] } });
+        expect(mayRead(scope(malformed), record('ar-first'))).toBe(false);
+        const join = localJob({ type: 'layer-join', params: { recordFrom: ['ar-first'] } });
+        expect(mayRead(scope(join), record('ar-first'))).toBe(false);
+    });
+});
