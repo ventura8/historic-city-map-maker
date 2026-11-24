@@ -31,6 +31,14 @@ main() {
 	if [[ "${HCM_MEM_GB:-}" =~ ^[1-9][0-9]*$ ]]; then
 		memory=(--memory "${HCM_MEM_GB}g" --memory-swap "${HCM_MEM_GB}g")
 	fi
+	# A linked worktree's .git is a file naming the main repository's git folder, outside the mounted tree: that folder is
+	# mounted at its own path too, or every gate that asks git failed at once (the split `all`'s part here, 2026-11-24).
+	local -a gitdir=()
+	if [[ -f "$root/.git" ]]; then
+		local common
+		common="$(git -C "$root" rev-parse --path-format=absolute --git-common-dir)"
+		gitdir=(--volume "$common:$common")
+	fi
 	docker run --rm --init "${tty[@]}" "${memory[@]}" \
 		--user "$(id -u):$(id -g)" \
 		--env HOME=/tmp/hcm-home \
@@ -52,6 +60,7 @@ main() {
 		--env VITEST_MAX_WORKERS \
 		--oom-score-adj "${HCM_OOM_SCORE_ADJ:-500}" \
 		--volume "$root:$root" \
+		"${gitdir[@]}" \
 		--workdir "$root" \
 		"$image" bash scripts/ci/in-container.sh
 	return 0
