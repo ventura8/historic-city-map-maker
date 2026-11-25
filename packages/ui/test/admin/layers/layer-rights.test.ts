@@ -65,14 +65,14 @@ describe('<hcm-layers-page> rights', () => {
         const { element } = await page('layers', area(layersState({ editor: editorOf(unclear) })), { params: ['corona'], locale: 'ro' });
 
         expect((deep(element, '#layer-rights-licence') as HTMLSelectElement).value).toBe('unclear');
-        expect(deep(element, '#layer-rights-unclear').textContent).toContain('Cere sursei scanării permisiunea de publicare');
+        expect(deep(element, '#layer-rights-licence-help + p').textContent).toContain('Cere sursei scanării permisiunea de publicare');
         expect(await axeViolations(element)).toEqual([]);
     });
 
     it('badPath_aConfirmedLicenceShowsNoUnclearNote @S-A197-BAD-UNCLEAR-MISSPELT', async () => {
         const { element } = await page('layers', area(layersState({ editor: editorOf(DRAWN) })), { params: ['corona'] });
 
-        expect(deepAll(element, '#layer-rights-unclear')).toEqual([]);
+        expect(deepAll(element, '#layer-rights-licence-help + p')).toEqual([]);
     });
     it('badPath_aLongAuthorIsMarkedAtItsField', async () => {
         const issues = [{ path: 'rights.author', code: 'validation.tooBig' }] as const;

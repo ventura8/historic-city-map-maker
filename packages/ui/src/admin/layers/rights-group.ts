@@ -35,10 +35,6 @@ export function licenceSelect(context: RightsContext, layer: LayerDoc): Template
             )}
         </select>
         <span class="note" id="layer-rights-licence-help">${contentText(locale, 'adminContent.layers.licenceHelp')}</span>
-        ${
-            current === 'unclear'
-                ? html`<p class="note" id="layer-rights-unclear" role="note">${contentText(locale, 'adminContent.layers.unclearNote')}</p>`
-                : nothing
-        }
+        ${current === 'unclear' ? html`<p class="note">${contentText(locale, 'adminContent.layers.unclearNote')}</p>` : nothing}
     </div>`;
 }

@@ -127,7 +127,7 @@ function labelIn(layer: PublishedLayer, lang: 'ro' | 'en'): string {
 test(
     'A bought scan reaches the public map by itself and the viewer compares it with an older layer',
     { tag: '@S-A48-HAPPY' },
-    async ({ page, lang, adminWorld, mockApiRequest, upstream, inputBudget }) => {
+    async ({ page, lang, adminWorld, mockApiRequest, upstream, inputBudget, consoleErrors }) => {
         test.setTimeout(900_000);
         const fixture = await boughtSceneWorld(
             { emulators: adminWorld.emulators, api: mockApiRequest, upstream },
@@ -142,6 +142,9 @@ test(
         const olderVersion = await importFromList(page, lang, OLDER, (target) => inputBudget.flow('importScene', 1).click(target));
         await seedPreview(fixture);
         const older = await publishedLayer(imagery, olderVersion, PUBLISH_TIMEOUT_MS);
+        // The list asked for the copies of the rows it showed, the paid frame's too, before its preview could be seeded (the
+        // page's own harvest makes its scene): the fake browse host never serves that one (lesson 810).
+        consoleErrors.takeMatching(/status of 503 .*imagery-browse/);
 
         // The scan to buy: its order card, its EarthExplorer page (the purchase is the admin's own step there), I ordered it.
         await openBoughtScene(page, lang);

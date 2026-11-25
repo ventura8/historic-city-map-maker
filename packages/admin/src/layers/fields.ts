@@ -26,37 +26,36 @@ function licenceOf(text: string): Licence | undefined {
     return LAYER_RIGHTS_LICENCES.find((licence) => licence === text);
 }
 
-/** How a licence reads in the credit line: its id, or "rights unclear" (the viewer translates it). */
-function creditOf(licence: Licence): string {
+/** How a licence reads in the credit line: its id, or "rights unclear" (the viewer translates it); none without one. */
+function creditOf(licence: Licence | undefined): string | undefined {
     return licence === 'unclear' ? UNCLEAR_CREDIT : licence;
 }
 
-/** A credit with no licence part gets "rights unclear" at its end, so the public map never shows an unclear map as cleared. */
-function withUnclear(attribution: string | undefined): string {
-    if (attribution === undefined) {
-        return UNCLEAR_CREDIT;
-    }
-    return attribution.split(PART).includes(UNCLEAR_CREDIT) ? attribution : `${attribution}${PART}${UNCLEAR_CREDIT}`;
+/** The credit line's parts; none without a credit. */
+function partsOf(attribution: string | undefined): string[] {
+    return attribution?.split(PART) ?? [];
 }
 
-/** The credit's parts and the old licence's part, when the credit names it. */
-function namedLicence(attribution: string | undefined, from: Licence | undefined): { parts: string[]; credit: string } | undefined {
-    if (attribution === undefined || from === undefined) {
-        return undefined;
-    }
-    const parts = attribution.split(PART);
+/** A credit with no licence part gets "rights unclear" at its end, so the public map never shows an unclear map as cleared. */
+function withUnclear(parts: readonly string[]): string {
+    return (parts.includes(UNCLEAR_CREDIT) ? parts : [...parts, UNCLEAR_CREDIT]).join(PART);
+}
+
+/** The old licence's part of the credit, when the credit names it. */
+function namedCredit(parts: readonly string[], from: Licence | undefined): string | undefined {
     const credit = creditOf(from);
-    return parts.includes(credit) ? { parts, credit } : undefined;
+    return parts.find((part) => part === credit);
 }
 
 /** The attribution with its old licence part swapped for the new one; unchanged when no part names the old licence. */
 function swappedCredit(attribution: string | undefined, from: Licence | undefined, to: Licence | undefined): string | undefined {
-    const old = namedLicence(attribution, from);
+    const parts = partsOf(attribution);
+    const old = namedCredit(parts, from);
     if (old === undefined) {
-        return to === 'unclear' ? withUnclear(attribution) : attribution;
+        return to === 'unclear' ? withUnclear(parts) : attribution;
     }
     const replacement = to === undefined ? [] : [creditOf(to)];
-    return old.parts.flatMap((part) => (part === old.credit ? replacement : [part])).join(PART);
+    return parts.flatMap((part) => (part === old ? replacement : [part])).join(PART);
 }
 
 /** A licence chosen (empty: the layer carries no rights): the rights and the attribution's licence part follow it. */

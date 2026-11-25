@@ -110,9 +110,11 @@ test(
         await imagery.seedBrowse('DS1035-1057DA023', IMAGERY_AT);
         await imagery.seedBrowse(FREE_1968, IMAGERY_AT);
         await corona1966.click();
-        // The detail lists every reason, the ones past the card's first three too: the clouds its preview shows (none).
+        // The detail lists every reason, the ones past the card's first three too: the clouds its preview shows (none), once
+        // `imagery.browse` has measured the stored copy (a function's cold start: lesson 810).
         await expect(detail(page).getByRole('list')).toContainText(
             imageryText(lang, 'adminContent.imagery.reason.cloudCity', { percent: '0' }),
+            { timeout: FUNCTIONS_TIMEOUT_MS },
         );
         await openScene(page, FREE_1968);
         await expect(detail(page).getByRole('list')).toContainText(

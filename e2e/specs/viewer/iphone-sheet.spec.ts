@@ -383,7 +383,10 @@ test(
         await expect(sheet).toBeHidden();
         await opener.tap();
         await expect(sheet).toBeVisible();
-        await page.touchscreen.tap(200, 200);
+        // Just under the dates, on the map: a fixed point fell inside the menu once it moved up (the search bar steps aside).
+        const box = await sheet.boundingBox();
+        expect(box).not.toBeNull();
+        await page.touchscreen.tap((box?.x ?? 0) + 24, (box?.y ?? 0) + (box?.height ?? 0) + 40);
         await expect(sheet).toBeHidden();
     },
 );
