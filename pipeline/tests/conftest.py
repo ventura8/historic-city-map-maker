@@ -11,6 +11,9 @@
 - `signals_restored`: a test that leaves SIGTERM's or SIGINT's handler changed fails, and the handler is put back. A leaked
   handler outlives the test: the matcher's `os._exit(0)` at SIGTERM once ended the whole pytest run with exit 0 at the
   runner's signal test, so every result after it, failures included, went unreported (docs/LESSONS.md).
+- `vsicurl_cache_cleared`: GDAL's `/vsicurl/` cache is emptied after every test. It is kept per address inside the process,
+  and a later test's fake server on a reused port serves other bytes at the same address: GDAL read them with the earlier
+  file's size and blocks (`TIFFReadEncodedTile() failed`, the Landsat job failing on the laptop only; docs/LESSONS.md 808).
 - GDAL and OpenCV run on one thread with a fixed seed (docs/research/M3-interfaces.md §5.6: determinism).
 - `synthetic_scene`: one synthetic USGS scene per session (tests/synthetic/scenes.py); `world`: the pipeline's
   loopback world around it (tests/fakes/world.py), fresh for each test.
@@ -23,6 +26,7 @@ from collections.abc import Iterator
 import pytest
 from hcm_pipeline.images import deterministic
 from hcm_pipeline.log import configure
+from hcm_pipeline.raster import gdal
 from hcm_pipeline.rasters import configure_gdal
 from hypothesis import settings
 
@@ -46,6 +50,12 @@ def stop_signals_restored() -> Iterator[None]:
     yield
     for number, handler in before.items():
         signal.signal(number, handler)
+
+
+@pytest.fixture(autouse=True)
+def vsicurl_cache_cleared() -> Iterator[None]:
+    yield
+    gdal.VSICurlClearCache()
 
 
 @pytest.fixture(autouse=True)

@@ -4684,3 +4684,7 @@ Append a numbered entry to *Lessons from this repository* in the task that finds
     - Cause: `<hcm-snackbar>` paused its timer on `pointerenter` and `focusin` but restarted it on either `pointerleave` or `focusout`, so Tab moving off its Close restarted the 6 s timer under a resting pointer. The 4K Tab round takes longer than 6 s, the toast closed mid-round and Tab never came back to Close (WCAG 2.2.1: a paused message stays paused).
     - Fix: the snackbar keeps what holds it (the pointer, the focus) and times out only when neither does; a new message starts with no hold.
     - **A pause with two causes counts both; releasing one does not resume it.**
+808. **The Landsat job's test failed on the laptop only: `TIFFReadEncodedTile() failed` on the Sentinel-2 reference** (2026-11-25, 9b0ef4f0's split run).
+    - Cause: GDAL's `/vsicurl/` keeps what it learned of an address (its size, its blocks) for the whole process. Each test starts a fake HTTP server on a random port; when a later test in the same pytest worker got a port an earlier one had used and served other bytes at the same `/s2/visual.tif`, GDAL read them with the earlier file's size ("got 50932 bytes, expected 52574"). Which tests share a worker and a port depends on the machine, so the NUC passed and the laptop failed.
+    - Fix: an autouse fixture empties the cache after every test (`gdal.VSICurlClearCache()`, `pipeline/tests/conftest.py`).
+    - **A process-wide cache keyed by address does not survive a fake server that reuses its port: clear it per test.**
