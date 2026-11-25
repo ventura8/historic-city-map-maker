@@ -83,6 +83,22 @@ describe('<hcm-sign-in>', () => {
         expect(app.named('enableApi')).toHaveLength(1);
     });
 
+    it('badPath_signInAndEnableRemainVisibleWithoutAnApp', async () => {
+        const signIn = await mount<HcmSignIn>(html`<hcm-sign-in .state=${SIGNED_OUT}></hcm-sign-in>`);
+        const state = adminState({
+            auth: 'signedOut',
+            user: null,
+            gate: { reconsent: false, issue: null, enableApi: 'cloudresourcemanager.googleapis.com' },
+        });
+        const enable = await mount<HcmSignIn>(html`<hcm-sign-in .state=${state}></hcm-sign-in>`);
+
+        button(signIn, 'Sign in with Google').click();
+        button(enable, 'Enable with Google').click();
+
+        expect(deepText(signIn)).toContain('Sign in with the Google account that administers the map.');
+        expect(deepText(enable)).toContain('Enable with Google');
+    });
+
     it('badPath_withoutStateNothingRenders', async () => {
         const panel = await mount<HcmSignIn>(html`<hcm-sign-in></hcm-sign-in>`);
 
@@ -143,6 +159,15 @@ describe('<hcm-claim-panel> and <hcm-join-panel>', () => {
         expect(deepAll(panel, '[role="alert"]')).toHaveLength(1);
     });
 
+    it('badPath_joinInProgressDisablesTheInvitationAndStillOffersAnotherAccount', async () => {
+        const app = new FakeAdminApp(adminState({ auth: 'joinPending', busy: true }));
+        const panel = await mount<HcmJoinPanel>(html`<hcm-join-panel .app=${app} .state=${app.state}></hcm-join-panel>`);
+
+        expect(button(panel, 'Join').hasAttribute('disabled')).toBe(true);
+        button(panel, 'Use another Google account').click();
+        expect(app.named('signOut')).toHaveLength(1);
+    });
+
     it('badPath_withoutStateTheyRenderNothing', async () => {
         const claim = await mount<HcmClaimPanel>(html`<hcm-claim-panel></hcm-claim-panel>`);
         const join = await mount<HcmJoinPanel>(html`<hcm-join-panel></hcm-join-panel>`);
@@ -189,6 +214,7 @@ describe('<hcm-blocked-panel>', () => {
     });
 
     it('badPath_anotherStateOrNoAppShowsNothingAndDoesNothing', async () => {
+        const empty = await mount<HcmBlockedPanel>(html`<hcm-blocked-panel></hcm-blocked-panel>`);
         const other = await mount<HcmBlockedPanel>(html`<hcm-blocked-panel .state=${adminState({ auth: 'admin' })}></hcm-blocked-panel>`);
         const orphan = await mount<HcmBlockedPanel>(
             html`<hcm-blocked-panel .state=${adminState({ auth: 'configMissing' })}></hcm-blocked-panel>`,
@@ -196,6 +222,7 @@ describe('<hcm-blocked-panel>', () => {
 
         button(orphan, 'Reload the page').click();
 
+        expect(deepText(empty)).toBe('');
         expect(deepText(other)).toBe('');
     });
 });

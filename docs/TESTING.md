@@ -280,3 +280,5 @@ The admin's states (`ADMIN_STATES`) are visited by its specs at its five project
 - Assert what the user sees (text, ARIA, a pixel probe, a recorded request), never only "no crash".
 - No `.only`, `.skip`, `xfail` or skip markers; the suppression gate rejects them.
 - A bug a test finds goes into [LESSONS.md](LESSONS.md).
+
+Auth panel component tests exercise sign-in and invitation actions, unavailable app ports, busy invitations, consent explanations and blocked states using the rendered controls.
