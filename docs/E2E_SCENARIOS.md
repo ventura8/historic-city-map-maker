@@ -8,7 +8,7 @@ Every user-visible behaviour has at least one happy and one bad scenario. The re
 
 | Behaviours | Scenarios | Happy | Bad | Exists | Planned | Test files |
 | --- | --- | --- | --- | --- | --- | --- |
-| 219 | 2228 | 966 | 1262 | 2181 | 47 | 589 |
+| 219 | 2230 | 967 | 1263 | 2182 | 48 | 589 |
 
 ## Viewer
 
@@ -1146,8 +1146,10 @@ Every user-visible behaviour has at least one happy and one bad scenario. The re
 | `S-A232-BAD-LICENCES` | A232 | bad | A licence the map does not list is refused | a photo with license CC-BY-SA-3.0-FR is denied; public domain and permission show as text, with no link | rules | exists | `firebase/rules-tests/test/photos.test.ts`<br>`packages/shared/test/schemas/manifest.test.ts` |
 | `S-A233-HAPPY-SHOT-DIAL` | A233 | happy | The dial and the degrees set the shot direction, and Save writes it | the dial is a slider named Shot direction; an arrow key turns it a degree; 270 typed; Save -> layers/<id>.shotDirection 45 then 270; the rules allow 0–360 | e2e-admin | exists | `e2e/admin/specs/layers/shot-direction.spec.ts`<br>`firebase/rules-tests/test/layers.test.ts` |
 | `S-A233-HAPPY-SHOT-USGS` | A233 | happy | A layer from a USGS scene with corners offers the frame's direction | the scene's corners (south-west to north-west) -> "Use the USGS direction (44°)"; a click fills 44 in the draft only | e2e-admin | exists | `e2e/admin/specs/layers/shot-direction.spec.ts` |
+| `S-A233-HAPPY-SHOT-VIEW` | A233 | happy | Set the direction from the preview map | Rotate the preview, set from view and save; the stored direction is the rounded map bearing. | e2e-admin | exists | `e2e/admin/specs/layers/shot-direction.spec.ts` |
 | `S-A233-BAD-SHOT-DIAL` | A233 | bad | Clear removes the shot direction, a drawn map has none, and the rules refuse one out of range | Clear + Save -> no shotDirection; kind Map -> no dial; 361, -1 or text denied by the rules; typed text that is no degree is NaN for the schema | e2e-admin | exists | `e2e/admin/specs/layers/shot-direction.spec.ts`<br>`firebase/rules-tests/test/layers.test.ts` |
 | `S-A233-BAD-SHOT-USGS` | A233 | bad | No scene, no corners or a failed read offers no USGS direction | a layer with no USGS scene, a scene without corners, a drawn map or a refused read -> no Use the USGS direction button | e2e-admin | exists | `e2e/admin/specs/layers/shot-direction.spec.ts` |
+| `S-A233-BAD-SHOT-VIEW` | A233 | bad | The preview map is unavailable | Set from view is disabled and explains that the preview map is not ready. | e2e-admin | planned | - |
 | `S-A24-HAPPY` | A24 | happy | A crash report from the site reaches Cloud Error Reporting, redacted | POST text/plain from an allowed origin -> 204; one ERROR log entry of type ReportedErrorEvent with service viewer (admin for the admin origin), the release and a report location; no query, token or e-mail address in it | functions | exists | `functions/test/telemetry/report-error.test.ts` |
 | `S-A24-HAPPY-CLIENT-LABEL` | A24 | happy | A crash report names the browser and device class, never the User-Agent, and the route | a report from Firefox for iOS with route photo -> the logged event's httpRequest.userAgent is 'Firefox 145 mobile' and hcm.route is photo; the full User-Agent string is nowhere in it | functions | exists | `functions/test/telemetry/report-error.test.ts` |
 | `S-A24-HAPPY-SAME-ORIGIN` | A24 | happy | On one origin the page's path tells the admin's crash from the viewer's | a report from a page under /admin/ -> logged as the admin's; from / or a city path -> the viewer's | functions | exists | `functions/test/telemetry/report-error.test.ts` |

@@ -225,6 +225,7 @@ class LayersStore implements AreaStore<LayersState, LayersIntents> {
             attachMap: (container) => {
                 this.#map.attach(container);
             },
+            mapBearing: () => this.#map.port?.getView().bearing ?? null,
             zoomBy: (delta) => {
                 this.#map.zoomBy(delta);
             },

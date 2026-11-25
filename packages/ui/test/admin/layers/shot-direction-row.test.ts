@@ -65,6 +65,32 @@ describe('shotDirectionOf and the dial geometry', () => {
     });
 });
 
+describe('setting the direction from the map', () => {
+    it('sets a rounded, normalized bearing and announces it @S-A233-HAPPY-SHOT-VIEW', async () => {
+        const changes: unknown[] = [];
+        const messages: string[] = [];
+        const host = await mounted({ mapReady: true, bearing: () => -237.4, announce: (message) => messages.push(message) }, changes);
+        host.querySelector<HTMLElement>('[data-shot-from-view]')?.click();
+        expect(changes).toEqual([123]);
+        expect(messages).toEqual(['Direction set to 123° from the view.']);
+    });
+
+    it('explains when the map is unavailable @S-A233-BAD-SHOT-VIEW', async () => {
+        const host = await mounted({ mapReady: false }, []);
+        expect(host.querySelector('[data-shot-from-view]')?.hasAttribute('disabled')).toBe(true);
+        expect(host.textContent).toContain('The preview map is not ready.');
+    });
+
+    it('does not set a missing or invalid map bearing', async () => {
+        const changes: unknown[] = [];
+        for (const bearing of [null, Number.NaN]) {
+            const host = await mounted({ mapReady: true, bearing: () => bearing }, changes);
+            host.querySelector<HTMLElement>('[data-shot-from-view]')?.click();
+        }
+        expect(changes).toEqual([]);
+    });
+});
+
 describe('shotDirectionRow', () => {
     it('happyPath_theDialTheDegreesAndClearChangeTheDirection @S-A233-HAPPY-SHOT-DIAL', async () => {
         const changes: unknown[] = [];

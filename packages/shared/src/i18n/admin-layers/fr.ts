@@ -114,6 +114,10 @@ export const fr: Readonly<Partial<Record<AdminLayersKey, string>>> = {
     'adminContent.layers.shot.degrees': 'Direction en degrés (0 nord, 90 est)',
     'adminContent.layers.shot.clear': 'Effacer la direction',
     'adminContent.layers.shot.useUsgs': 'Utiliser la direction USGS ({degrees}°)',
+    'adminContent.layers.shot.fromView': 'Utiliser la vue',
+    'adminContent.layers.shot.mapNotReady':
+        'La carte de prévisualisation n’est pas prête. Attendez son chargement ou vérifiez les paramètres de la carte.',
+    'adminContent.layers.shot.fromViewDone': 'Direction définie depuis la vue : {degrees}°.',
     'adminContent.layers.shot.hint': 'Où regardait l’appareil, depuis le nord en sens horaire ; la carte offre un bouton pour s’y tourner.',
     'adminContent.layers.kind.map': 'Carte',
     'adminContent.layers.linkAction': 'Lier',

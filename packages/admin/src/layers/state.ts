@@ -128,6 +128,7 @@ export interface LayersIntents extends AssistIntents {
     attachMap(container: HTMLElement): void;
     /** The map's zoom buttons. */
     zoomBy(delta: number): void;
+    mapBearing(): number | null;
     /** M3 (CR-M3-7): Crop on the open layer (loads the `layer-geometry` chunk once). */
     crop(): Promise<void>;
     /** The crop polygon again from nothing. */

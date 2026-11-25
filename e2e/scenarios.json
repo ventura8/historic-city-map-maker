@@ -25953,6 +25953,28 @@
             "notes": "The owner, 2026-11-23. Tests: e2e/admin/specs/layers/shot-direction.spec.ts, packages/admin/test/layers/shot-suggestion.test.ts."
         },
         {
+            "id": "S-A233-HAPPY-SHOT-VIEW",
+            "behaviour": "A233",
+            "area": "admin",
+            "path": "happy",
+            "title": "Set the direction from the preview map",
+            "asserts": "Rotate the preview, set from view and save; the stored direction is the rounded map bearing.",
+            "tier": "e2e-admin",
+            "status": "exists",
+            "notes": "Tests: e2e/admin/specs/layers/shot-direction.spec.ts, packages/ui/test/admin/layers/shot-direction-row.test.ts."
+        },
+        {
+            "id": "S-A233-BAD-SHOT-VIEW",
+            "behaviour": "A233",
+            "area": "admin",
+            "path": "bad",
+            "title": "The preview map is unavailable",
+            "asserts": "Set from view is disabled and explains that the preview map is not ready.",
+            "tier": "e2e-admin",
+            "status": "planned",
+            "notes": "Test: packages/ui/test/admin/layers/shot-direction-row.test.ts."
+        },
+        {
             "id": "S-A197-HAPPY-UNCLEAR",
             "behaviour": "A197",
             "area": "admin",

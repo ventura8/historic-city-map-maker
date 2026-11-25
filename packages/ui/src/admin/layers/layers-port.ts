@@ -160,6 +160,7 @@ export interface LayersIntentsPort extends AssistActionsPort {
     attachPreview(sink: PreviewSinkPort | null): void;
     attachMap(container: HTMLElement): void;
     zoomBy(delta: number): void;
+    mapBearing?(): number | null;
     // M3 (CR-M3-7): the layer editor's Crop.
     crop(): Promise<void>;
     redrawCrop(): void;

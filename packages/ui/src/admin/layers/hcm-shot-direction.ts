@@ -34,6 +34,9 @@ export interface ShotDirectionRowInput {
     readonly suggestion: number | undefined;
     readonly readOnly: boolean;
     readonly change: (shotDirection: number | undefined) => void;
+    readonly mapReady?: boolean;
+    readonly bearing?: () => number | null;
+    readonly announce?: (text: string) => void;
 }
 
 function suggestionButton(input: ShotDirectionRowInput): TemplateResult {
@@ -50,6 +53,36 @@ function suggestionButton(input: ShotDirectionRowInput): TemplateResult {
         }}
         >${contentText(locale, 'adminContent.layers.shot.useUsgs', { degrees: String(suggestion) })}</hcm-button
     >`;
+}
+
+function setFromView(input: ShotDirectionRowInput): void {
+    const bearing = input.bearing?.() ?? Number.NaN;
+    if (!Number.isFinite(bearing)) {
+        return;
+    }
+    const value = wholeBearing(bearing);
+    input.change(value);
+    input.announce?.(contentText(input.locale, 'adminContent.layers.shot.fromViewDone', { degrees: String(value) }));
+}
+
+function mapHint(locale: ShotDirectionRowInput['locale'], ready: boolean): TemplateResult {
+    return ready
+        ? html``
+        : html`<p class="note" id="layer-shot-map-hint">${contentText(locale, 'adminContent.layers.shot.mapNotReady')}</p>`;
+}
+
+function fromViewButton(input: ShotDirectionRowInput): TemplateResult {
+    const { locale } = input;
+    const ready = input.mapReady === true;
+    return html`<hcm-button
+            variant="outlined"
+            data-shot-from-view
+            ?disabled=${input.readOnly || !ready}
+            @click=${() => {
+                setFromView(input);
+            }}
+            >${contentText(locale, 'adminContent.layers.shot.fromView')}</hcm-button
+        >${mapHint(locale, ready)}`;
 }
 
 function shotDirectionFields(input: ShotDirectionRowInput): TemplateResult {
@@ -79,6 +112,7 @@ function shotDirectionFields(input: ShotDirectionRowInput): TemplateResult {
                 input.change(shotDirectionOf((event.target as HTMLInputElement).value));
             }}
         />
+        ${fromViewButton(input)}
         <hcm-button
             variant="text"
             data-shot-clear

@@ -222,6 +222,9 @@ function kindRow(context: EditorContext, layer: LayerDoc): TemplateResult {
 function shotRow(context: EditorContext, editor: LayerEditorPort, layer: LayerDoc): TemplateResult {
     return shotDirectionRow({
         ...{ locale: context.locale, layer, suggestion: editor.shotSuggestion, readOnly: context.readOnly },
+        mapReady: context.map.status === 'ready' && context.intents?.mapBearing !== undefined,
+        bearing: () => context.intents?.mapBearing?.() ?? null,
+        announce: context.announce,
         change: (shotDirection) => {
             context.intents?.edit({ shotDirection });
         },
