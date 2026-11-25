@@ -142,9 +142,6 @@ test(
         const olderVersion = await importFromList(page, lang, OLDER, (target) => inputBudget.flow('importScene', 1).click(target));
         await seedPreview(fixture);
         const older = await publishedLayer(imagery, olderVersion, PUBLISH_TIMEOUT_MS);
-        // The list asked for the copies of the rows it showed, the paid frame's too, before its preview could be seeded (the
-        // page's own harvest makes its scene): the fake browse host never serves that one (lesson 810).
-        consoleErrors.takeMatching(/status of 503 .*imagery-browse/);
 
         // The scan to buy: its order card, its EarthExplorer page (the purchase is the admin's own step there), I ordered it.
         await openBoughtScene(page, lang);
@@ -204,6 +201,10 @@ test(
         });
         await closeCompare(page, lang).click();
         await expectMapCounts(page, 2, 1);
+        // The paid frame's preview: the fake browse host never serves it (S-A11-BAD-BROWSE-UNAVAILABLE), and the page's own
+        // harvest makes its scene, so the list may ask for its copy before the seeded one is in, or again after a harvest pass
+        // (lessons 810, 814). Claimed once at the end, for every page of the test.
+        consoleErrors.takeMatching(/status of 503 .*imagery-browse/);
     },
 );
 
