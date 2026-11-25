@@ -6,7 +6,8 @@
  * IDLE worker whenever it holds more than `max` live workers, exactly the way the emulator's own `refresh()` stops one after
  * a code change (state FINISHING, then the process killed; its exit handler marks it FINISHED and the pool forgets it). A
  * trigger whose worker was stopped gets a new one on its next call, as after a reload: a cold start of the bundle, not a
- * failure. A BUSY worker is never stopped, so the pool may stay above `max` while every worker is serving a call.
+ * failure. A BUSY worker is never stopped, nor a fresh one the emulator added for a call it has not handed it yet (lesson 813),
+ * so the pool may stay above `max` while they serve or wait for their calls.
  *
  * Only `firebase emulators:start` / `exec` in the e2e and dev-stack worlds load this (`e2e/stack/firebase.ts`); the
  * deployed functions never see it.
@@ -23,6 +24,11 @@ export interface PoolWorker {
     readonly runtime: { readonly process: { kill(signal?: string): boolean } };
     /** When the cap saw this worker last chosen for a call (a sequence number, never the wall clock). */
     hcmLastUsed?: number;
+    /**
+     * Added for a call it has not been handed yet: the emulator waits for its socket, then picks it (`sendRequest`). Stopped
+     * in that gap, the call found no worker and its event was lost (lesson 813), so a fresh worker is never trimmed.
+     */
+    hcmFresh?: boolean;
 }
 
 /** An instance's own fields the cap reads: every trigger's workers. */
@@ -50,9 +56,9 @@ function live(pool: PoolFields): PoolWorker[] {
     return [...pool.workers.values()].flat().filter((worker) => worker.state !== FINISHING && worker.state !== FINISHED);
 }
 
-/** The idle worker chosen longest ago (one never chosen counts as oldest), or undefined when none is idle. */
+/** The idle worker chosen longest ago, or undefined when none is idle; a fresh one, not handed its call yet, never counts. */
 export function leastRecentlyUsedIdle(workers: readonly PoolWorker[]): PoolWorker | undefined {
-    const idle = workers.filter((worker) => worker.state === IDLE);
+    const idle = workers.filter((worker) => worker.state === IDLE && worker.hcmFresh !== true);
     return idle.reduce<PoolWorker | undefined>(
         (oldest, worker) => (oldest === undefined || (worker.hcmLastUsed ?? 0) < (oldest.hcmLastUsed ?? 0) ? worker : oldest),
         undefined,
@@ -92,6 +98,7 @@ export function capWorkerPool(prototype: PoolPrototype, max: number): void {
         if (worker !== undefined) {
             sequence += 1;
             worker.hcmLastUsed = sequence;
+            worker.hcmFresh = false;
         }
         return worker;
     };
@@ -99,6 +106,7 @@ export function capWorkerPool(prototype: PoolPrototype, max: number): void {
         const worker = addWorker.apply(this, args);
         sequence += 1;
         worker.hcmLastUsed = sequence;
+        worker.hcmFresh = true;
         trim(this, cap.max);
         return worker;
     };

@@ -71,8 +71,11 @@ describe("the Functions emulator's worker cap", () => {
         const { Pool } = standInPool();
         capWorkerPool(Pool.prototype, 2);
         const pool = new Pool();
+        // As the emulator does, each new worker is handed the call it was added for.
         const first = pool.addWorker('admin-session') as StandInWorker;
+        pool.getIdleWorker('admin-session', 'nodejs24');
         pool.addWorker('worker-claim');
+        pool.getIdleWorker('worker-claim', 'nodejs24');
         // admin-session is called again: worker-claim is now the one used longest ago.
         expect(pool.getIdleWorker('admin-session', 'nodejs24')).toBe(first);
         pool.addWorker('photos-list');
@@ -92,12 +95,17 @@ describe("the Functions emulator's worker cap", () => {
         busy.state = 'BUSY';
         const second = pool.addWorker('imagery-tick');
         second.state = 'BUSY';
-        pool.addWorker('worker-hello');
+        const fresh = pool.addWorker('worker-hello') as StandInWorker;
 
-        // The new worker was idle and the oldest idle one: it is the one stopped; the busy ones keep serving.
-        expect(liveTriggers(pool)).toEqual(['export-build', 'imagery-tick']);
+        // The new worker is idle but not handed its call yet: stopped there, the call would find no worker and its event
+        // would be lost (lesson 813). It stays, with the busy ones; once it has served, it may go.
+        expect(liveTriggers(pool)).toEqual(['export-build', 'imagery-tick', 'worker-hello']);
+        expect(fresh.killed).toBe(0);
         expect(trim(pool, 1)).toBe(0);
         expect(leastRecentlyUsedIdle([busy, second])).toBeUndefined();
+        expect(pool.getIdleWorker('worker-hello', 'nodejs24')).toBe(fresh);
+        expect(trim(pool, 1)).toBe(1);
+        expect(fresh.state).toBe(FINISHING);
     });
 
     it('happyPath_wrappingTwiceChangesOnlyTheCapAndAFinishedWorkerDoesNotCount', () => {
