@@ -112,6 +112,7 @@ export const fr: Readonly<Partial<Record<AdminImageryKey, string>>> = {
     'adminContent.imagery.dataset.landsat_tm_c2_l1': 'Landsat 4–5 TM',
     'adminContent.imagery.dataset.landsat_etm_c2_l1': 'Landsat 7 ETM+',
     'adminContent.imagery.scenesLabel': 'Scènes, les plus pertinentes en premier.',
+    'adminContent.imagery.resorted': "La liste suit maintenant son nouvel ordre : le classement a changé pendant que vous l'utilisiez.",
     'adminContent.imagery.noScenes': 'Aucune image disponible pour le moment. Recherchez des images de la ville sur USGS.',
     'adminContent.imagery.noMatch': 'Aucune image ne correspond aux critères.',
     'adminContent.imagery.zero.none': "USGS found no scene over the city's area.",

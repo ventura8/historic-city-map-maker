@@ -1485,6 +1485,13 @@
             "name": "A satellite or aerial layer's shot direction: a compass dial, the degrees typed, Clear, and the USGS scene's direction offered",
             "milestone": "M32",
             "source": "the owner, 2026-11-23: satellite and aerial layers get an optional shot direction; the viewer turns the map to it"
+        },
+        {
+            "id": "A234",
+            "area": "admin",
+            "name": "The imagery scene list keeps its order while it is in use, and says so when it takes its new order",
+            "milestone": "M32",
+            "source": "the owner, 2026-11-25: the list may not move under the pointer or the keyboard; a visible note and a polite announcement after (DECISIONS §251)"
         }
     ],
     "scenarios": [
@@ -26017,6 +26024,28 @@
             "tier": "e2e-viewer",
             "status": "exists",
             "notes": "Tests: e2e/specs/viewer/layers.spec.ts."
+        },
+        {
+            "id": "S-A234-HAPPY-ORDER-HELD",
+            "behaviour": "A234",
+            "area": "admin",
+            "path": "happy",
+            "title": "A list in use keeps its rows where they were, and takes the new order with a note once the pointer has left",
+            "asserts": "pointer over the list; the server ranks the last scene first (its new reason shows on its card) -> the order is unchanged and the status line empty; the pointer leaves -> that scene is first and the status line says the list is in its new order",
+            "tier": "e2e-admin",
+            "status": "exists",
+            "notes": "The owner, 2026-11-25 (DECISIONS §251). Tests: e2e/admin/specs/imagery/order-hold.spec.ts, packages/ui/test/admin/imagery/scene-order-hold.test.ts."
+        },
+        {
+            "id": "S-A234-BAD-ORDER-LIVE",
+            "behaviour": "A234",
+            "area": "admin",
+            "path": "bad",
+            "title": "A list nobody is using takes each new order at once, with no note",
+            "asserts": "pointer and focus outside the list; the server ranks the last scene first -> it is first at once and the status line stays empty",
+            "tier": "e2e-admin",
+            "status": "exists",
+            "notes": "The owner, 2026-11-25 (DECISIONS §251). Tests: e2e/admin/specs/imagery/order-hold.spec.ts, packages/ui/test/admin/imagery/scene-order-hold.test.ts."
         }
     ]
 }

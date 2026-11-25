@@ -153,6 +153,7 @@ export const en: Readonly<Record<AdminImageryKey, string>> = {
     'adminContent.imagery.dataset.landsat_etm_c2_l1': 'Landsat 7 ETM+',
     'adminContent.imagery.dataset.landsat_ot_c2_l1': 'Landsat 8–9 OLI',
     'adminContent.imagery.scenesLabel': 'Scenes, best first',
+    'adminContent.imagery.resorted': 'The list is now in its new order: the ranking changed while you were using it.',
     'adminContent.imagery.noScenes': 'No scenes yet. Search USGS to find imagery of the city.',
     'adminContent.imagery.noMatch': 'No scene matches the filters.',
     'adminContent.imagery.zero.none': "USGS found no scene over the city's area.",

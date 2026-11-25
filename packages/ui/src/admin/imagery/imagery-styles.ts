@@ -12,6 +12,15 @@ export const imageryStyles = [
     ...editingStyles,
     visuallyHidden,
     css`
+        /* §251: the line that says the scene list took its new order; empty, it keeps no room (its live region stays). */
+        .note.resorted {
+            margin-block: 0 8px;
+        }
+
+        .note.resorted:empty {
+            margin: 0;
+        }
+
         /* M28: a part the map's sources turned off, with its way to Setup → Sources (a full target). */
         .sources-off {
             display: flex;

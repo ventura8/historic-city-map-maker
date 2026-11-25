@@ -4727,3 +4727,10 @@ Append a numbered entry to *Lessons from this repository* in the task that finds
 817. **A photo's direction click landed 150 px off the map point it aimed at** (2026-11-25, photos/editor:63 at l1440-dark, 1 of 69).
     - Cause: `mapPointOf` scrolled the map into view and computed the point at once; the editor beside it was still settling after Set direction, so the map box moved before the click, which landed below the marker and set no direction.
     - Fix: `mapPointOf` computes the point once the map's box is the same on two reads in a row (like `pillOn`, lesson 815).
+818. **A Tab round met the same scene row twice: the keyed list moved the row while the keyboard went through it** (2026-11-25, orders:111 at admin-l1440, 1 of 41).
+    - Cause: lesson 812 keyed the scene list, so a row moves with its scene; the list also re-ranked live as preview copies were measured, so a row the round had passed moved below the focus and Tab reached it again. Unkeyed, the row had stayed put but showed another scene, which was worse.
+    - Fix: the list keeps its order while the pointer or the focus is inside it and takes the new order once both have left, with a visible, polite note (DECISIONS §251).
+    - **A list that re-ranks itself must not move under the person using it; it applies the new order when they leave, and says so.**
+819. **The tablet's docked Layers pane check read the zoom group before it showed** (2026-11-25, responsive:258 at fn-l1440, 2 of 45).
+    - Cause: the spec measured the map's controls once, right after the pane docked; the zoom group was still settling into view beside the pane.
+    - Fix: it waits until the timeline, Menu and zoom are all shown, then checks they do not overlap the pane.

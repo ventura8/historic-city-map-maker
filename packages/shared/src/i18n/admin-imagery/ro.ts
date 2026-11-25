@@ -155,6 +155,7 @@ export const ro = {
     'adminContent.imagery.dataset.landsat_etm_c2_l1': 'Landsat 7 ETM+',
     'adminContent.imagery.dataset.landsat_ot_c2_l1': 'Landsat 8–9 OLI',
     'adminContent.imagery.scenesLabel': 'Scene, cele mai potrivite primele',
+    'adminContent.imagery.resorted': 'Lista e acum în noua ordine: clasamentul s-a schimbat cât timp o foloseați.',
     'adminContent.imagery.noScenes': 'Nicio scenă încă. Caută la USGS ca să găsești imagini ale orașului.',
     'adminContent.imagery.noMatch': 'Nicio scenă nu se potrivește filtrelor.',
     'adminContent.imagery.zero.none': 'USGS nu a găsit nicio scenă peste zona orașului.',

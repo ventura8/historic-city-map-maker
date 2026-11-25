@@ -8,6 +8,7 @@ import type { UiLocale } from '@hcm/shared';
 import type { ArchiveHostPort } from '../archive/archive-port.js';
 import type { WorkerHostPort } from '../worker/worker-port.js';
 import type { ImageryIntentsPort, ImageryViewState } from './imagery-port.js';
+import type { SceneOrderHold } from './scene-order-hold.js';
 
 /** The questions the page asks before an action that cannot be taken back or costs money. */
 export type ImageryQuestion =
@@ -48,4 +49,6 @@ export interface ImageryContext {
     readonly showMap: () => void;
     /** M7: the admin app, which hands a version's `<hcm-run-place>` its feed (absent: no place shown). */
     readonly app?: (WorkerHostPort & ArchiveHostPort) | null;
+    /** The scene list's order while it is in use (DECISIONS §251; absent: the ranking shows as it comes). */
+    readonly hold?: SceneOrderHold;
 }

@@ -8,7 +8,7 @@ Every user-visible behaviour has at least one happy and one bad scenario. The re
 
 | Behaviours | Scenarios | Happy | Bad | Exists | Planned | Test files |
 | --- | --- | --- | --- | --- | --- | --- |
-| 219 | 2230 | 967 | 1263 | 2182 | 48 | 589 |
+| 220 | 2232 | 968 | 1264 | 2184 | 48 | 590 |
 
 ## Viewer
 
@@ -1150,6 +1150,8 @@ Every user-visible behaviour has at least one happy and one bad scenario. The re
 | `S-A233-BAD-SHOT-DIAL` | A233 | bad | Clear removes the shot direction, a drawn map has none, and the rules refuse one out of range | Clear + Save -> no shotDirection; kind Map -> no dial; 361, -1 or text denied by the rules; typed text that is no degree is NaN for the schema | e2e-admin | exists | `e2e/admin/specs/layers/shot-direction.spec.ts`<br>`firebase/rules-tests/test/layers.test.ts` |
 | `S-A233-BAD-SHOT-USGS` | A233 | bad | No scene, no corners or a failed read offers no USGS direction | a layer with no USGS scene, a scene without corners, a drawn map or a refused read -> no Use the USGS direction button | e2e-admin | exists | `e2e/admin/specs/layers/shot-direction.spec.ts` |
 | `S-A233-BAD-SHOT-VIEW` | A233 | bad | The preview map is unavailable | Set from view is disabled and explains that the preview map is not ready. | e2e-admin | planned | - |
+| `S-A234-HAPPY-ORDER-HELD` | A234 | happy | A list in use keeps its rows where they were, and takes the new order with a note once the pointer has left | pointer over the list; the server ranks the last scene first (its new reason shows on its card) -> the order is unchanged and the status line empty; the pointer leaves -> that scene is first and the status line says the list is in its new order | e2e-admin | exists | `e2e/admin/specs/imagery/order-hold.spec.ts` |
+| `S-A234-BAD-ORDER-LIVE` | A234 | bad | A list nobody is using takes each new order at once, with no note | pointer and focus outside the list; the server ranks the last scene first -> it is first at once and the status line stays empty | e2e-admin | exists | `e2e/admin/specs/imagery/order-hold.spec.ts` |
 | `S-A24-HAPPY` | A24 | happy | A crash report from the site reaches Cloud Error Reporting, redacted | POST text/plain from an allowed origin -> 204; one ERROR log entry of type ReportedErrorEvent with service viewer (admin for the admin origin), the release and a report location; no query, token or e-mail address in it | functions | exists | `functions/test/telemetry/report-error.test.ts` |
 | `S-A24-HAPPY-CLIENT-LABEL` | A24 | happy | A crash report names the browser and device class, never the User-Agent, and the route | a report from Firefox for iOS with route photo -> the logged event's httpRequest.userAgent is 'Firefox 145 mobile' and hcm.route is photo; the full User-Agent string is nowhere in it | functions | exists | `functions/test/telemetry/report-error.test.ts` |
 | `S-A24-HAPPY-SAME-ORIGIN` | A24 | happy | On one origin the page's path tells the admin's crash from the viewer's | a report from a page under /admin/ -> logged as the admin's; from / or a city path -> the viewer's | functions | exists | `functions/test/telemetry/report-error.test.ts` |

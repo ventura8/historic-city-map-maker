@@ -320,9 +320,18 @@ function sceneRows(context: ImageryContext): TemplateResult {
         return noScenes(context);
     }
     // Keyed by scene: a card keeps its own elements when the ranking moves it (a measured preview re-ranks the list), so a
-    // press lands on the scene it was aimed at, never on the one that took its place (lesson 812).
+    // press lands on the scene it was aimed at, never on the one that took its place (lesson 812); while the list is in use
+    // its order holds (`scene-order-hold.ts`, DECISIONS §251).
+    const { hold } = context;
     const rows = (scenes: readonly SceneItemPort[]): TemplateResult =>
-        html`<ul class="rows" aria-label=${contentText(locale, 'adminContent.imagery.scenesLabel')}>
+        html`<ul
+            class="rows"
+            aria-label=${contentText(locale, 'adminContent.imagery.scenesLabel')}
+            @pointerenter=${hold?.onPointerEnter}
+            @pointerleave=${hold?.onPointerLeave}
+            @focusin=${hold?.onFocusIn}
+            @focusout=${hold?.onFocusOut}
+        >
             ${repeat(
                 scenes,
                 (scene) => scene.id,
@@ -332,8 +341,9 @@ function sceneRows(context: ImageryContext): TemplateResult {
     const more = (): void => {
         intents?.more();
     };
-    return html`${countLine(locale, view.visible.length, view.scenes.hasMore)}
-    ${listWindow(locale, view.visible, view.scenes.hasMore, { more, items: rows })}`;
+    const shown = hold === undefined ? view.visible : hold.order(view.visible);
+    return html`${countLine(locale, shown.length, view.scenes.hasMore)} ${hold?.note(locale)}
+    ${listWindow(locale, shown, view.scenes.hasMore, { more, items: rows })}`;
 }
 
 /** USGS is not set up (or its token was refused): nothing to search with. */

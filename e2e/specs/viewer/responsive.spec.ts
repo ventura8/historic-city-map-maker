@@ -265,8 +265,10 @@ test(
 
         await expect(page.getByRole('region', { name: t(lang, 'layers.title'), exact: true })).toBeVisible();
         await expect(page.getByRole('dialog', { name: t(lang, 'layers.title'), exact: true })).toHaveCount(0);
-        const controls = await visibleBoxes(page, MAP_CONTROLS);
-        expect(controls, 'the timeline, Menu and zoom are shown').toHaveLength(MAP_CONTROLS.length);
+        // The map's controls settle beside the docked pane (the zoom group was read before it showed: lesson 819).
+        await expect
+            .poll(async () => (await visibleBoxes(page, MAP_CONTROLS)).length, { message: 'the timeline, Menu and zoom are shown' })
+            .toBe(MAP_CONTROLS.length);
         expect(overlaps(await visibleBoxes(page, ['hcm-layer-panel', ...MAP_CONTROLS])), 'the pane beside the controls').toEqual([]);
         for (const selector of MAP_CONTROLS) {
             await expect(isOnTop(viewer(page).locator(selector)), `${selector} uncovered`).resolves.toBe(true);

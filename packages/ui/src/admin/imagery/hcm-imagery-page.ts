@@ -27,6 +27,7 @@ import { openOrderCount } from './orders/order-list.js';
 import { orderStyles } from './orders/order-styles.js';
 import { sceneDetail } from './scene-detail.js';
 import { findView } from './scene-list.js';
+import { SceneOrderHold } from './scene-order-hold.js';
 import { chunkLoader, chunkTemplate } from './orders/lazy-card.js';
 import { APPROVAL_MAP_CHUNK } from './lazy-version.js';
 import { workView } from './work-list.js';
@@ -203,9 +204,13 @@ class HcmImageryPage extends AreaPage<ImageryViewState, ImageryIntentsPort> {
             ${this.#dialog(context)}`;
     }
 
+    readonly #hold = new SceneOrderHold(() => {
+        this.requestUpdate();
+    });
+
     #context(view: ImageryViewState): ImageryContext {
         return {
-            ...{ locale: this.locale, view, intents: this.intents, readOnly: this.readOnly, app: this.app },
+            ...{ locale: this.locale, view, intents: this.intents, readOnly: this.readOnly, app: this.app, hold: this.#hold },
             owner: cityRoleOfState(this.state) === 'owner',
             self: this.state?.user?.uid ?? '',
             href: (params) => this.href(params),
