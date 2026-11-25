@@ -226,6 +226,12 @@ export const editingStyles = [
             gap: 4px;
         }
 
+        /* Two buttons one above the other: their 48 px targets around 40 px buttons need 8 px between them, or the later one's
+           covers the earlier one's foot (the shot direction's Set from view over Clear at 360 px, lesson 816). */
+        .field > hcm-button + hcm-button {
+            margin-block-start: 4px;
+        }
+
         .field label {
             font-size: var(--md-sys-typescale-body-medium-size, 0.875rem);
         }

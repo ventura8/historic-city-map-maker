@@ -4720,3 +4720,7 @@ Append a numbered entry to *Lessons from this repository* in the task that finds
     - Cause: `pillOn` moved the pill with the keyboard and read its box at once, while the standing card still scrolled the selected year into view (smoothly); on a slower run the finger went down beside the pill, where a finger scrolls the card, so the press scrolled and selected nothing.
     - Fix: `pillOn` returns the pill's centre once its box is the same on two reads in a row.
     - **A place read to aim a gesture is read once the page has stopped moving it.**
+816. **The layer editor's new Set from view button was a 44 px touch target at 360 px** (2026-11-25, 1f8a4f30; drafts:155's layer state at admin-c360).
+    - Cause: an editor `.field` stacks its parts 4 px apart, and the new button stood right above Clear: each 40 px `hcm-button` has a 48 px target, so the later button's target covered the earlier one's last 4 px.
+    - Fix: in a field, a button that follows a button stands 4 px further down (8 px between them), so the targets meet and do not overlap.
+    - **Controls with 48 px targets around 40 px boxes need 8 px between them wherever they stack.**
