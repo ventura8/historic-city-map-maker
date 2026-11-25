@@ -1,14 +1,14 @@
 /** Display-only forward geocoding; callers own debounce, cancellation and result lifetime. */
 import type { BBox, LngLat, ViewerLocale } from '@hcm/shared';
 
-export interface GeocodingResult {
+interface GeocodingResult {
     readonly id: string;
     readonly title: string;
     readonly subtitle: string;
     readonly center: LngLat;
 }
 
-export interface GeocodingQuery {
+interface GeocodingQuery {
     readonly query: string;
     readonly bounds: BBox;
     readonly locale: ViewerLocale;

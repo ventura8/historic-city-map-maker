@@ -74,4 +74,5 @@ The public viewer engine `@hcm/engine` (`packages/engine`): a data-driven histor
 
 M27: the Layers panel keeps `renamed-streets` beside the city's existing disappeared-street category; its ID can be
 `strazi-disparute`, `lost-streets`, or a configured ID with the English label `Disappeared streets`.
-- The display-only Mapbox forward geocoding adapter in `packages/engine/src/geocoding/geocoder.ts` accepts an abort signal and uses the manifest bounds and viewer locale. Its caller must debounce, discard stale results, show attribution, and never persist responses. This adapter is not yet connected to the viewer search.
+
+The display-only Mapbox forward geocoding adapter in `packages/engine/src/geocoding/geocoder.ts` accepts an abort signal and uses the manifest bounds and viewer locale. Its caller must debounce, discard stale results, show attribution, and never persist responses. This adapter is not yet connected to the viewer search.
