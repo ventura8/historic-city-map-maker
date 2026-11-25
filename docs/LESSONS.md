@@ -4734,3 +4734,7 @@ Append a numbered entry to *Lessons from this repository* in the task that finds
 819. **The tablet's docked Layers pane check read the zoom group before it showed** (2026-11-25, responsive:258 at fn-l1440, 2 of 45).
     - Cause: the spec measured the map's controls once, right after the pane docked; the zoom group was still settling into view beside the pane.
     - Fix: it waits until the timeline, Menu and zoom are all shown, then checks they do not overlap the pane.
+820. **The admin's layers chunk passed its budget again with one small feature** (2026-11-25, 1f8a4f30's Set from view: 10.1 KB of 10).
+    - Cause: lesson 809 had left the chunk 1 byte under; any addition to the layer editor's store or page went over.
+    - Fix: the Link dialog, opened only when asked, is its own chunk (`<hcm-link-dialog>`, DECISIONS §252), as the shot direction is (V93); `layers` is 9.4 KB.
+    - **A chunk at its budget is split before the next feature lands in it, not trimmed byte by byte.**

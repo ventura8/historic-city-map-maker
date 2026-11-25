@@ -20,7 +20,7 @@ import { announcer } from './form-parts.js';
 import { layerEditor } from './layer-editor.js';
 import { labelOf, type LayerItemPort, type LayersIntentsPort, type LayersViewState } from './layers-port.js';
 import { layersStyles } from './layers-styles.js';
-import { linkDialog } from './link-dialog.js';
+import type { LinkDialogInput } from './hcm-link-dialog.js';
 import { reorderList, RowDrag } from './reorder.js';
 
 export const HCM_LAYERS_PAGE_TAG = 'hcm-layers-page';
@@ -82,10 +82,19 @@ export class HcmLayersPage extends AreaPage<LayersViewState, LayersIntentsPort> 
                 <div slot="list">${this.#list(locale, view)}</div>
                 <div slot="detail">${this.#detail(locale, view)}</div>
             </hcm-list-detail>
-            ${linkDialog(locale, view.link, this.intents, (id) => {
-                this.go([id]);
-            })}
+            <hcm-link-dialog .input=${this.#linkInput(locale, view)}></hcm-link-dialog>
             ${announcer(this.announcement)}`;
+    }
+
+    #linkInput(locale: UiLocale, view: LayersViewState): LinkDialogInput {
+        return {
+            locale,
+            link: view.link,
+            intents: this.intents,
+            linked: (id) => {
+                this.go([id]);
+            },
+        };
     }
 
     /** M18 item 6: the head points to the place categories, which are the viewer's Places group (edited in Settings). */
@@ -178,6 +187,10 @@ export function defineHcmLayersPage(registry: CustomElementRegistry = customElem
     // V93: the shot direction's fields are their own chunk, defined once the page is (the layers chunk stays within its budget).
     void import('./hcm-shot-direction.js').then(({ defineHcmShotDirection }) => {
         defineHcmShotDirection(registry);
+    });
+    // §252: so is the link dialog, which opens only when asked.
+    void import('./hcm-link-dialog.js').then(({ defineHcmLinkDialog }) => {
+        defineHcmLinkDialog(registry);
     });
     if (registry.get(HCM_LAYERS_PAGE_TAG) === undefined) {
         registry.define(HCM_LAYERS_PAGE_TAG, HcmLayersPage);

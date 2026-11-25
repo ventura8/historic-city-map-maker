@@ -2,11 +2,17 @@ import { axeViolations } from '@hcm/test-support/axe';
 import { afterEach, beforeAll, describe, expect, it } from 'vitest';
 import { userEvent } from 'vitest/browser';
 
+import { defineHcmLinkDialog } from '../../../src/admin/layers/hcm-link-dialog.js';
 import type { LayersIntentsPort, LayersViewState } from '../../../src/admin/layers/layers-port.js';
 import { FakeArea } from '../editing/fake-area.js';
 import { LOADING, nth, ready } from '../ops/fixtures.js';
 import { cleanup, deep, deepAll, deepText, defineAll, updated } from '../shell/fake-app.js';
 import { draftOf, editorOf, layerDoc, layerItem, layersState, page } from './fixtures.js';
+
+// The link dialog is a chunk the page defines once it is (§252): defined here before any test opens it.
+beforeAll(() => {
+    defineHcmLinkDialog();
+});
 
 function area(state: LayersViewState = layersState()): FakeArea<LayersViewState, LayersIntentsPort> {
     return new FakeArea<LayersViewState, LayersIntentsPort>(state, {

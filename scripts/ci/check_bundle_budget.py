@@ -123,6 +123,8 @@ ADMIN_CHUNK_BUDGETS: Mapping[str, int] = {
     "layers": 10,
     # V93 (2026-11-23): the layer editor's shot direction fields and dial, split from "layers" so that chunk stays within 10.
     "hcm-shot-direction": 3,
+    # §252 (2026-11-25): the layer list's Link dialog, split from "layers" (10.1 KB with Set from view, lesson 820); 1.4 KB measured.
+    "hcm-link-dialog": 2,
     "history": 8,
     "admins": 6,
     "home": 5,
