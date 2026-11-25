@@ -25870,7 +25870,7 @@
             "area": "viewer",
             "path": "happy",
             "title": "A click on the shot direction turns the map to the way the image was shot",
-            "asserts": "the 1966 layer with shotDirection 135 on top -> a button named and titled \"Turn the map to the image's shot direction (135°)\"; a click -> the address 14/lat/lng/135 and the camera at bearing 135",
+            "asserts": "the 1966 layer with shotDirection 135 on top -> a button named and titled \"Turn the map to the image's shot direction (135°)\"; the icon follows the camera bearing; a click -> the address 14/lat/lng/135, the camera at bearing 135 and the icon pointing up",
             "tier": "e2e-viewer",
             "status": "exists",
             "notes": "The owner, 2026-11-23. Tests: e2e/specs/viewer/shot-direction.spec.ts, packages/ui/test/viewer/shot-direction.test.ts, packages/engine/test/core/store-shot-direction.test.ts, functions/test/publish/assemble.test.ts."

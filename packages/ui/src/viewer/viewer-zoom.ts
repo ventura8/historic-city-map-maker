@@ -93,7 +93,7 @@ export function zoomButtons(
                 @click=${onLocate}
             ></hcm-icon-button>
         </div>
-        ${shotButton(locale, shot, onShotDirection)}
+        ${shotButton(locale, shot, camera, onShotDirection)}
         <div class="dock compass" data-layout-check="compass">
             <hcm-compass .source=${camera} locale=${locale} title=${translate(locale, 'viewer.compass')} @click=${onCompass}></hcm-compass>
         </div>
@@ -108,13 +108,13 @@ export function zoomButtons(
 }
 
 /** V93: the round button that turns the map to the image's shot direction, its name its tooltip; none without one. */
-function shotButton(locale: ViewerLocale, shot: number | null, onClick: () => void): TemplateResult {
+function shotButton(locale: ViewerLocale, shot: number | null, camera: CameraSource | null, onClick: () => void): TemplateResult {
     if (shot === null) {
         return html``;
     }
     const label = translate(locale, 'viewer.shotDirection', { degrees: String(Math.round(shot) % 360) });
     return html`<div class="dock shot" data-layout-check="shot-direction">
-        <hcm-icon-button icon="satellite_alt" .label=${label} title=${label} @click=${onClick}></hcm-icon-button>
+        <hcm-shot-compass .shot=${shot} .source=${camera} locale=${locale} title=${label} @click=${onClick}></hcm-shot-compass>
     </div>`;
 }
 

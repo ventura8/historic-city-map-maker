@@ -3,6 +3,7 @@ import { page, userEvent } from 'vitest/browser';
 
 import { frontShotDirection } from '../../src/viewer/shot-direction.js';
 import { defineViewerElements } from '../../src/viewer/define.js';
+import type { HcmShotCompass } from '../../src/viewer/hcm-shot-compass.js';
 import { defineKitDoubles } from './doubles.js';
 import { readyState } from './fake-store.js';
 import { testManifest } from './fixtures.js';
@@ -58,9 +59,29 @@ describe('<hcm-map-viewer>: the shot direction button', () => {
         await userEvent.click(page.getByRole('button', { name }));
 
         expect(mounted.store.callsOf('faceBearing')).toEqual([[135]]);
-        expect(part(mounted, '.dock.shot hcm-icon-button').getAttribute('title')).toBe(name);
-        expect(part(mounted, '.dock.shot hcm-icon-button').getAttribute('icon')).toBe('satellite_alt');
+        expect(part(mounted, '.dock.shot hcm-shot-compass').getAttribute('title')).toBe(name);
+        const control = mounted.element.shadowRoot?.querySelector('hcm-shot-compass');
+        expect(control?.shadowRoot?.querySelector('hcm-icon')?.getAttribute('name')).toBe('satellite_alt');
         expect(part(mounted, '.dock.locate').classList.contains('over-shot')).toBe(true);
+    });
+
+    it('tracks camera rotation and describes its bearing', async () => {
+        const mounted = await mountViewer(readyState(shotManifest(135), { year: 1966, locale: 'en' }));
+        const control = mounted.element.shadowRoot?.querySelector<HcmShotCompass>('hcm-shot-compass');
+        if (control === null || control === undefined) {
+            throw new Error('shot control missing');
+        }
+        await control.updateComplete;
+        const icon = control.shadowRoot?.querySelector<HTMLElement>('hcm-icon');
+        expect(icon?.style.transform).toBe('rotate(135deg)');
+        mounted.store.moveCamera({ bearing: 45, pitch: 0 });
+        await control.updateComplete;
+        expect(icon?.style.transform).toBe('rotate(90deg)');
+        expect(control.shadowRoot?.querySelector('button')?.getAttribute('aria-describedby')).toBe('heading');
+        expect(control.shadowRoot?.querySelector('#heading')?.textContent).toBe('The map is turned 45° from north.');
+        mounted.store.moveCamera({ bearing: 135, pitch: 0 });
+        await control.updateComplete;
+        expect(icon?.style.transform).toBe('rotate(0deg)');
     });
 
     it('badPath_noShotDirectionNoButton @S-V93-BAD-NO-DIRECTION', async () => {
@@ -72,7 +93,7 @@ describe('<hcm-map-viewer>: the shot direction button', () => {
 
     it('badPath_aClickAfterTheImageLeftTheTopTurnsNothing', async () => {
         const mounted = await mountViewer(readyState(shotManifest(90), { year: 1966 }));
-        const button = part(mounted, '.dock.shot hcm-icon-button');
+        const button = part(mounted, '.dock.shot hcm-shot-compass');
         mounted.store.set({ year: null });
 
         button.click();

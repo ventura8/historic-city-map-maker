@@ -5,6 +5,7 @@
  * the engine side-loads them the first time one opens (`extras-loader.ts`).
  */
 import { defineHcmCompass, HCM_COMPASS_TAG } from './hcm-compass.js';
+import { defineHcmShotCompass, HCM_SHOT_COMPASS_TAG } from './hcm-shot-compass.js';
 import { defineHcmDateMenu, HCM_DATE_MENU_TAG } from './hcm-date-menu.js';
 import { defineHcmErrorCard, HCM_ERROR_CARD_TAG } from './hcm-error-card.js';
 import { defineHcmFavoriteStar, HCM_FAVORITE_STAR_TAG } from './hcm-favorite-star.js';
@@ -32,6 +33,7 @@ export const VIEWER_TAGS = [
     HCM_STORIES_TAG,
     HCM_ERROR_CARD_TAG,
     HCM_COMPASS_TAG,
+    HCM_SHOT_COMPASS_TAG,
     HCM_DATE_MENU_TAG,
     HCM_PHOTOS_CONTROL_TAG,
     HCM_FAVORITE_STAR_TAG,
@@ -50,6 +52,7 @@ const DEFINERS: readonly ((registry: CustomElementRegistry) => void)[] = [
     defineHcmStories,
     defineHcmErrorCard,
     defineHcmCompass,
+    defineHcmShotCompass,
     defineHcmDateMenu,
     defineHcmPhotosControl,
     defineHcmFavoriteStar,
