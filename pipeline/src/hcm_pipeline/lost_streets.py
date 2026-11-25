@@ -205,9 +205,9 @@ def _current_name(tags: Mapping[str, str], name: str) -> str | None:
     return next((candidate for candidate in names if candidate and candidate != name), None)
 
 
-def category_of(street: Street) -> str:
-    """`renamed-streets` when the street still exists under another name, else `lost-streets`."""
-    return RENAMED_CATEGORY if street.current_name else CATEGORY
+def category_of(street: Street, disappeared_category: str = CATEGORY) -> str:
+    """Use the renamed category for a current name, otherwise the city's disappeared category."""
+    return RENAMED_CATEGORY if street.current_name else disappeared_category
 
 
 def _wanted(source: Source, tags: Mapping[str, str]) -> bool:
@@ -445,7 +445,7 @@ def _current_name_property(street: Street) -> dict[str, object]:
     return {"currentName": {"ro": street.current_name, "en": street.current_name}} if street.current_name else {}
 
 
-def feature_of(street: Street, bounds: Bounds) -> dict[str, object] | None:
+def feature_of(street: Street, bounds: Bounds, disappeared_category: str = CATEGORY) -> dict[str, object] | None:
     """A street as a place of the admin's import format, or None when fewer than two positions remain."""
     coordinates = clean_line(street.line, bounds)
     if len(coordinates) < MIN_POSITIONS:
@@ -453,7 +453,7 @@ def feature_of(street: Street, bounds: Bounds) -> dict[str, object] | None:
     years = {"yearStart": street.year_start} if street.year_start is not None else {}
     years |= {"yearEnd": street.year_end} if street.year_end is not None else {}
     properties: dict[str, object] = {
-        "category": category_of(street),
+        "category": category_of(street, disappeared_category),
         "title": {"ro": street.name, "en": street.name},
         **_current_name_property(street),
         "description": _description(street),
@@ -508,7 +508,7 @@ def _count_features(features: list[dict[str, object]], counts: Counts) -> None:
         counts.features[source.key] = sum(str(feature["id"]).startswith(f"ls-{source.key}-") for feature in features)
 
 
-def build(bounds: Bounds, fetchers: Fetchers) -> tuple[dict[str, object], Counts]:
+def build(bounds: Bounds, fetchers: Fetchers, disappeared_category: str = CATEGORY) -> tuple[dict[str, object], Counts]:
     """The FeatureCollection of a city's lost streets and what each source gave."""
     counts = Counts()
     # OHM first: it is the main source, and its ways come before OSM's in the file.
@@ -517,7 +517,7 @@ def build(bounds: Bounds, fetchers: Fetchers) -> tuple[dict[str, object], Counts
     counts.fetched[WIKIDATA.key] = len(items)
     streets = enrich(streets, items, counts)
     counts.kept[WIKIDATA.key] = counts.enriched
-    features = [feature for feature in (feature_of(street, bounds) for street in streets) if feature is not None]
+    features = [feature for feature in (feature_of(street, bounds, disappeared_category) for street in streets) if feature is not None]
     _count_features(features, counts)
     collection: dict[str, object] = {
         "type": "FeatureCollection",
@@ -536,17 +536,41 @@ def bounds_of(text: str) -> Bounds:
     return Bounds.of({"west": west, "south": south, "east": east, "north": north})
 
 
+def _configured_category(category: object) -> str | None:
+    ident, labels = _member(category, "id"), _member(category, "label")
+    if isinstance(ident, str) and (ident in (CATEGORY, "strazi-disparute") or _member(labels, "en") == "Disappeared streets"):
+        return ident
+    return None
+
+
+def _place_category(place: object) -> str | None:
+    ident, category = _member(place, "id"), _member(place, "category")
+    if isinstance(ident, str) and ident.startswith("ls-") and isinstance(category, str) and category != RENAMED_CATEGORY:
+        return category
+    return None
+
+
+def disappeared_category_of(manifest: object) -> str:
+    """Find an existing disappeared-street category in a city manifest, or use the new-city default."""
+    if not isinstance(manifest, dict):
+        raise ValueError("city manifest must be an object")
+    categories = (_configured_category(item) for item in _list(_member(manifest, "poiCategories")))
+    places = (_place_category(item) for item in _list(_member(manifest, "pois")))
+    return next((category for category in chain(categories, places) if category), CATEGORY)
+
+
 def parse_args(argv: Sequence[str] | None) -> argparse.Namespace:
     parser = argparse.ArgumentParser(prog="hcm_pipeline.lost_streets", description="Build a city's lost streets from open data.")
     parser.add_argument("--bounds", required=True, help="W,S,E,N in degrees")
     parser.add_argument("--out", required=True, type=Path, help="the GeoJSON file to write")
+    parser.add_argument("--city-manifest", type=Path, help="existing city manifest with POI categories and places")
     return parser.parse_args(argv)
 
 
-def run(bounds: Bounds, out: Path, fetchers: Fetchers) -> int:
+def run(bounds: Bounds, out: Path, fetchers: Fetchers, disappeared_category: str = CATEGORY) -> int:
     """Builds and writes the batch; 0 when written, 1 when a source did not answer."""
     try:
-        collection, counts = build(bounds, fetchers)
+        collection, counts = build(bounds, fetchers, disappeared_category)
     except (ReferenceUnavailableError, httpx.HTTPError, ValueError) as error:
         LOG.error("a source did not answer", extra=fields(reason=type(error).__name__, detail=str(error)))
         return 1
@@ -564,14 +588,15 @@ def main(argv: Sequence[str] | None = None, fetchers: Fetchers | None = None) ->
     args = parse_args(argv)
     try:
         bounds = bounds_of(args.bounds)
-    except ValueError as error:
-        LOG.error("bad bounds", extra=fields(bounds=args.bounds, detail=str(error)))
+        category = disappeared_category_of(json.loads(args.city_manifest.read_text(encoding="utf-8"))) if args.city_manifest else CATEGORY
+    except (ValueError, OSError) as error:
+        LOG.error("bad bounds or city manifest", extra=fields(bounds=args.bounds, detail=str(error)))
         return 2
     if fetchers is not None:
-        return run(bounds, args.out, fetchers)
+        return run(bounds, args.out, fetchers, category)
     headers = {"User-Agent": USER_AGENT, "Accept": "application/json, application/sparql-results+json"}
     with httpx.Client(headers=headers, timeout=TIMEOUT_SECONDS) as http:
-        return run(bounds, args.out, http_fetchers(http, time.sleep))
+        return run(bounds, args.out, http_fetchers(http, time.sleep), category)
 
 
 if __name__ == "__main__":

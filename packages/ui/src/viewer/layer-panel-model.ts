@@ -109,9 +109,23 @@ export function splitPinned(overlays: readonly Overlay[], manifest: Manifest, pi
  * category (M27's Disappeared streets) leads the places (the owner, 2026-11-22: in Places, no longer in the strip).
  */
 export function listedOverlays(overlays: readonly Overlay[], manifest: Manifest): readonly Overlay[] {
-    return [...splitPinned(overlays, manifest, true), ...splitPinned(overlays, manifest, false)].filter(
+    const listed = [...splitPinned(overlays, manifest, true), ...splitPinned(overlays, manifest, false)].filter(
         (overlay) => overlay.kind !== 'photos',
     );
+    const disappeared = (manifest.poiCategories ?? []).find(isDisappearedCategory);
+    const index = listed.findIndex((overlay) => overlay.kind === 'poi' && overlay.id === disappeared?.id);
+    const renamed = listed.findIndex((overlay) => overlay.kind === 'poi' && overlay.id === 'renamed-streets');
+    if (index >= 0 && renamed >= 0) {
+        const [row] = listed.splice(renamed, 1);
+        if (row !== undefined) {
+            listed.splice(listed.findIndex((overlay) => overlay.id === disappeared?.id) + 1, 0, row);
+        }
+    }
+    return listed;
+}
+
+function isDisappearedCategory(category: NonNullable<Manifest['poiCategories']>[number]): boolean {
+    return category.id === 'strazi-disparute' || category.id === 'lost-streets' || category.label.en === 'Disappeared streets';
 }
 
 /** The group headings: historical layers always, places only when the manifest has POI categories. */

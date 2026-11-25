@@ -425,6 +425,26 @@ describe('<hcm-layer-panel> M27 pinned Disappeared streets', () => {
         expect(overlaysFromManifest(manifest).find((overlay) => overlay.id === 'strazi-disparute')?.visible).toBe(false);
     });
 
+    it('places the renamed category beside the existing disappeared category', async () => {
+        const manifest = lostStreetsManifest();
+        manifest.poiCategories?.push({
+            id: 'renamed-streets',
+            label: { ro: 'Străzi redenumite', en: 'Renamed streets' },
+            icon: 'route',
+            color: '#B3261E',
+            defaultOpacity: 1,
+        });
+        const element = await panel({
+            manifest,
+            overlays: overlaysFromManifest(manifest),
+            mode: 'docked',
+            canCompare: false,
+            labels: null,
+        });
+        const places = element.shadowRoot?.querySelector('[data-section="places"] hcm-overlay-list') as unknown as OverlayListProps;
+        expect(places.items.map((item) => item.id)).toEqual(['strazi-disparute', 'renamed-streets', 'cladiri', 'evenimente']);
+    });
+
     it('happyPath_itsCreditShowsOnlyWhileItIsVisible', () => {
         const manifest = lostStreetsManifest();
         const overlays = overlaysFromManifest(manifest);

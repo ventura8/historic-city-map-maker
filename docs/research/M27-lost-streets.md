@@ -159,3 +159,12 @@ from `name`) are classified into `renamed-streets` (`RENAMED_CATEGORY`) with `cu
 stay in `lost-streets` (`CATEGORY`). The viewer's detail sheet (`hcm-poi-detail.ts`) shows `poi.currentName` as
 "Nume actual: {name}" / "Current name: {name}" (translated across all 16 viewer catalogues) alongside the historical
 title. Scenarios: `S-V71-HAPPY-RENAMED` and `S-V71-BAD-RENAMED-EMPTY` in `e2e/scenarios.json`.
+
+
+## 9. Addendum: existing city category IDs (2026-11-25)
+
+The generator accepts `--city-manifest` pointing to the existing city's published manifest. It uses the disappeared
+street category from `poiCategories` (the known IDs or its English label), or from an existing generated `ls-` place
+when no matching category is configured. A new city or an omitted manifest defaults to `lost-streets`. Bucharest keeps
+`strazi-disparute`; renamed streets use `renamed-streets` and appear beside the existing category in the Layers panel.
+An unreadable or invalid manifest stops the command rather than silently writing a batch under the wrong ID.
