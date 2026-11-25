@@ -644,7 +644,7 @@ A release is a tag `vX.Y.Z` of this repository ([releases/README.md](releases/RE
 
 ## Search
 
-The viewer includes a floating search box (`<hcm-search>`, `packages/ui/src/viewer/hcm-search.ts`, `packages/ui/src/viewer/viewer-search.ts`, scenario V78) that searches the already-loaded static manifest with no Firestore reads and no extra network calls:
+The viewer includes a floating search box (`<hcm-search>`, `packages/ui/src/viewer/hcm-search.ts`, `packages/ui/src/viewer/viewer-search.ts`, scenario V78, `e2e/specs/viewer/search.spec.ts`) that searches the already-loaded static manifest with no Firestore reads and no extra network calls:
 
 - Matches places, POIs, disappeared streets, photos and stories by title across both Romanian (`ro`) and English (`en`), diacritics-insensitively, ranking prefix matches ahead of substring matches.
 - Picking a result (by click or `ArrowUp`/`ArrowDown` + `Enter`) flies the map to the item's coordinates (when it has any), enables a hidden POI category overlay (such as disappeared streets) if needed, and opens its detail sheet.

@@ -25318,8 +25318,8 @@
             "title": "Searching the viewer finds places, disappeared streets, photos and stories and flies to the picked result",
             "asserts": "typing a diacritics-insensitive query in ro or en in <hcm-search> -> matching manifest POIs, disappeared streets, photos and stories appear without extra network calls; picking one flies the map there and opens its sheet",
             "tier": "e2e-viewer",
-            "status": "planned",
-            "notes": "Unit coverage today: packages/ui/test/viewer/viewer-search.test.ts, packages/ui/test/viewer/hcm-search.test.ts."
+            "status": "exists",
+            "notes": "Test: e2e/specs/viewer/search.spec.ts. Unit coverage: packages/ui/test/viewer/viewer-search.test.ts, packages/ui/test/viewer/hcm-search.test.ts."
         },
         {
             "id": "S-V78-BAD-NO-RESULTS",
@@ -25329,8 +25329,8 @@
             "title": "An unmatched viewer search shows a plain empty state and clears cleanly",
             "asserts": "typing a query that matches no manifest item -> shows the localized empty message without errors or network requests; clearing resets the box",
             "tier": "e2e-viewer",
-            "status": "planned",
-            "notes": "Unit coverage today: packages/ui/test/viewer/viewer-search.test.ts, packages/ui/test/viewer/hcm-search.test.ts."
+            "status": "exists",
+            "notes": "Test: e2e/specs/viewer/search.spec.ts. Unit coverage: packages/ui/test/viewer/viewer-search.test.ts, packages/ui/test/viewer/hcm-search.test.ts."
         },
         {
             "id": "S-A194-BAD-NOT-READ",

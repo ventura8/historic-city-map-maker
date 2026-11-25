@@ -63,6 +63,7 @@ The public viewer engine `@hcm/engine` (`packages/engine`): a data-driven histor
 
 - Favourites (V91; `docs/ENGINE_API.md` → *Favourites*): `favorites.ts` holds the page's one `FavoritesStore` (`hcm:<cityId>:favorites` in localStorage, every access guarded), loaded by `<hcm-map-viewer>` when a manifest arrives; `<hcm-favorite-star>` and `<hcm-favorites>` follow its `change`. A new kind of item is a `FavoriteKind`, its title in `favoriteEntries` and its open event in `OPEN_EVENTS` of `hcm-favorites.ts`. A layer's star rides the kit's generic `OverlayListItem.trailing`, never a viewer import in the kit.
 - Licence and citation (V92; `docs/ENGINE_API.md` → *Licence and citation*): the `licence` sheet is About's dialog in `licence` mode (`dialogMode`), its body `<hcm-licence-panel>` side-loaded with About (`hcm-licence-panel.ts` and `licence.ts` are in the part's `OWN` list of `packages/engine/vite.part.config.ts`; what they import from the entry is exported by `extras-kit.ts`). Only a layer `isPublicDomainLayer` (USGS or Landsat in its credit) may offer a download; never add one for a third-party scan.
+- Search (V78; `docs/ENGINE_API.md` → *Search*): `<hcm-search>` (`packages/ui/src/viewer/hcm-search.ts`, `viewer-search.ts`) searches the loaded manifest (POIs, disappeared streets, photos, stories) diacritics-insensitively across `ro` and `en` with no network calls, flies to the picked item and opens its sheet (`e2e/specs/viewer/search.spec.ts`).
 
 ## Rules
 
