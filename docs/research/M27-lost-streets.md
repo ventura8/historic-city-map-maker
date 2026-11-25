@@ -160,7 +160,6 @@ stay in `lost-streets` (`CATEGORY`). The viewer's detail sheet (`hcm-poi-detail.
 "Nume actual: {name}" / "Current name: {name}" (translated across all 16 viewer catalogues) alongside the historical
 title. Scenarios: `S-V71-HAPPY-RENAMED` and `S-V71-BAD-RENAMED-EMPTY` in `e2e/scenarios.json`.
 
-
 ## 9. Addendum: existing city category IDs (2026-11-25)
 
 The generator accepts `--city-manifest` pointing to the existing city's published manifest. It uses the disappeared

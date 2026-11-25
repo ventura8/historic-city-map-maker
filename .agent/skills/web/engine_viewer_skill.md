@@ -71,6 +71,5 @@ The public viewer engine `@hcm/engine` (`packages/engine`): a data-driven histor
 - Logging through `createLogger('engine', …)`; no `console`.
 - A user-visible change edits its scenario rows (`quality/e2e_scenario_matrix_skill.md`).
 
-
 M27: the Layers panel keeps `renamed-streets` beside the city's existing disappeared-street category; its ID can be
 `strazi-disparute`, `lost-streets`, or a configured ID with the English label `Disappeared streets`.

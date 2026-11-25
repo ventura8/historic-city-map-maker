@@ -24,7 +24,7 @@ import json
 import re
 import sys
 import time
-from collections.abc import Callable, Iterable, Mapping, Sequence
+from collections.abc import Callable, Iterable, Iterator, Mapping, Sequence
 from dataclasses import dataclass, field, replace
 from itertools import chain
 from pathlib import Path
@@ -550,13 +550,17 @@ def _place_category(place: object) -> str | None:
     return None
 
 
+def _category_candidates(manifest: dict[str, object]) -> Iterator[str | None]:
+    """The categories the manifest configures, then those its places use, in that order."""
+    yield from (_configured_category(item) for item in _list(_member(manifest, "poiCategories")))
+    yield from (_place_category(item) for item in _list(_member(manifest, "pois")))
+
+
 def disappeared_category_of(manifest: object) -> str:
     """Find an existing disappeared-street category in a city manifest, or use the new-city default."""
     if not isinstance(manifest, dict):
         raise ValueError("city manifest must be an object")
-    categories = (_configured_category(item) for item in _list(_member(manifest, "poiCategories")))
-    places = (_place_category(item) for item in _list(_member(manifest, "pois")))
-    return next((category for category in chain(categories, places) if category), CATEGORY)
+    return next(filter(None, _category_candidates(manifest)), CATEGORY)
 
 
 def parse_args(argv: Sequence[str] | None) -> argparse.Namespace:
