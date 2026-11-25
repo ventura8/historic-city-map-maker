@@ -4738,3 +4738,7 @@ Append a numbered entry to *Lessons from this repository* in the task that finds
     - Cause: lesson 809 had left the chunk 1 byte under; any addition to the layer editor's store or page went over.
     - Fix: the Link dialog, opened only when asked, is its own chunk (`<hcm-link-dialog>`, DECISIONS §252), as the shot direction is (V93); `layers` is 9.4 KB.
     - **A chunk at its budget is split before the next feature lands in it, not trimmed byte by byte.**
+821. **"Nothing to resume" matched two elements once the snackbar announced it** (2026-11-26, pause:110 at admin-l1440-en, 1 of 45).
+    - Cause: `<hcm-snackbar>` copies its message into a polite live region 150 ms after showing it (`ANNOUNCE_DELAY_MS`); a `getByText` read after that found the line and its announcement (strict mode).
+    - Fix: the spec reads the snackbar's own line (`:not([aria-live])`), as the publish and smoke specs do.
+    - **A toast's text is looked for outside its live region.**

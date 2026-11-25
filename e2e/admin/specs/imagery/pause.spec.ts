@@ -120,6 +120,8 @@ test(
 
         await page.goto(adminPath(lang, 'jobs'));
         await page.getByRole('button', { name: contentText(lang, 'adminContent.jobs.resumeAll') }).click();
-        await expect(page.getByText(contentText(lang, 'adminContent.jobs.nothingToResume'))).toBeVisible({ timeout: FUNCTIONS_TIMEOUT_MS });
+        // The snackbar's own line, not the copy its live region announces a moment later (lesson 821).
+        const nothing = page.getByText(contentText(lang, 'adminContent.jobs.nothingToResume')).and(page.locator(':not([aria-live])'));
+        await expect(nothing).toBeVisible({ timeout: FUNCTIONS_TIMEOUT_MS });
     },
 );
