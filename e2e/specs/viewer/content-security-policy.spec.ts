@@ -120,8 +120,11 @@ test(
         ).toBeVisible();
         await callController(page, 'openPhoto', 'strandul-opereta-1976');
         await page.getByRole('button', { name: t(lang, 'photo.openLightbox') }).click();
-        await page.keyboard.press('+');
-        await page.keyboard.press('Escape');
+        // The full-size view is a side-loaded part: its keys go to it once it is open (lesson 811), not before.
+        const lightbox = page.getByRole('dialog', { name: t(lang, 'lightbox.label') });
+        await lightbox.press('+');
+        await lightbox.press('Escape');
+        await expect(lightbox).toBeHidden();
         await closeVisibleSheet(page, lang);
         await chooseMenuItem(page, lang, t(lang, 'photos.list'));
         await closeVisibleSheet(page, lang);

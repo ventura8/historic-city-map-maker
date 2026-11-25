@@ -180,8 +180,11 @@ test(
         expect(new URL(page.url()).origin).toBe(ADMIN_ORIGIN);
         // A Linux starter from before §210 reads its list with curl and no -L: a redirect would stop its self-update.
         expect(['/admin/starter.json', '/', `/${E2E_CITY_ID}/`].filter((path) => rule.pattern.test(path))).toEqual([]);
-        // The page may still be reading the bucket's manifest: its route ends before the test does, or the closing context
-        // disposed of the response the route was reading ("Response has been disposed", 2026-11-24).
+        // The page may still be reading the bucket (its manifest, the photos' thumbnails): it leaves first, so nothing new is
+        // asked, and the bucket's routes finish what was asked before they go. Unrouted while the viewer still loaded
+        // thumbnails, those reached the firewall half-handled ("Route is already handled", lesson 811); closed with the
+        // routes on, the context disposed of a response a route was reading ("Response has been disposed", 2026-11-24).
+        await page.goto('about:blank');
         await page.unrouteAll({ behavior: 'wait' });
     },
 );

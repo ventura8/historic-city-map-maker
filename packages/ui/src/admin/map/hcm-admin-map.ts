@@ -96,8 +96,13 @@ export class HcmAdminMap extends LitElement {
             }
 
             /* A layer's own attribution text runs into Mapbox's links: underlined, they read as links without colour
-               (axe link-in-text-block, CR-M3-35 l). */
+               (axe link-in-text-block, CR-M3-35 l). They are 24 px targets as the logo is (below): a page scrolled to leave only
+               the map's foot under the app's bar put the 14 px links within reach of the bar's buttons (orders at 768 px,
+               lesson 811). */
             .mapboxgl-ctrl-attrib a {
+                display: inline-block;
+                min-block-size: 24px;
+                line-height: 24px;
                 text-decoration: underline;
             }
 

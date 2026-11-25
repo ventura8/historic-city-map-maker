@@ -105,21 +105,25 @@ test(
 
         const last = panel.getByRole('switch').last();
         await last.focus();
-        const box = await last.boundingBox();
-        const hit = await page.evaluate(
-            ({ x, y }) => {
-                let element = document.elementFromPoint(x, y);
-                while (element?.shadowRoot) {
-                    const inner = element.shadowRoot.elementFromPoint(x, y);
-                    if (inner === null || inner === element) {
-                        break;
+        // The focus scrolls the sheet's list to the switch: measured while it still moved, its centre was off the page
+        // (`elementFromPoint` found nothing, lesson 811), so the hit is read again until the list has settled.
+        const hit = async (): Promise<string> => {
+            const box = await last.boundingBox();
+            return page.evaluate(
+                ({ x, y }) => {
+                    let element = document.elementFromPoint(x, y);
+                    while (element?.shadowRoot) {
+                        const inner = element.shadowRoot.elementFromPoint(x, y);
+                        if (inner === null || inner === element) {
+                            break;
+                        }
+                        element = inner;
                     }
-                    element = inner;
-                }
-                return element?.getAttribute('role') ?? element?.tagName.toLowerCase() ?? '';
-            },
-            { x: (box?.x ?? 0) + (box?.width ?? 0) / 2, y: (box?.y ?? 0) + (box?.height ?? 0) / 2 },
-        );
-        expect(hit, 'the focused switch is the element under its own centre').toBe('switch');
+                    return element?.getAttribute('role') ?? element?.tagName.toLowerCase() ?? '';
+                },
+                { x: (box?.x ?? 0) + (box?.width ?? 0) / 2, y: (box?.y ?? 0) + (box?.height ?? 0) / 2 },
+            );
+        };
+        await expect.poll(hit, { message: 'the focused switch is the element under its own centre' }).toBe('switch');
     },
 );
