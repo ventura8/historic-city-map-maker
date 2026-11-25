@@ -238,9 +238,11 @@ describe('<hcm-consent-note>', () => {
 
     it('happyPath_defineHcmConsentNoteRegistersOnceAndIgnoresRepeatCalls', () => {
         const defined = new Map<string, CustomElementConstructor>();
+        let defineCalls = 0;
         const registry = {
             get: (name: string) => defined.get(name),
             define: (name: string, ctor: CustomElementConstructor) => {
+                defineCalls += 1;
                 defined.set(name, ctor);
             },
         } as unknown as CustomElementRegistry;
@@ -249,6 +251,7 @@ describe('<hcm-consent-note>', () => {
         defineHcmConsentNote(registry);
         defineHcmConsentNote();
 
+        expect(defineCalls).toBe(1);
         expect(defined.size).toBe(1);
         expect(defined.has(HCM_CONSENT_NOTE_TAG)).toBe(true);
     });
