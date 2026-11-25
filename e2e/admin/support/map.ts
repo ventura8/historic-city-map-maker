@@ -34,7 +34,22 @@ export async function adminMapReady(page: Page): Promise<void> {
  * map with it) and the map is idle.
  */
 export async function mapPointOf(page: Page, lngLat: LngLat): Promise<ScreenPoint> {
-    await page.locator('hcm-admin-map').scrollIntoViewIfNeeded();
+    const map = page.locator('hcm-admin-map');
+    await map.scrollIntoViewIfNeeded();
+    // The pane or the editor's layout may still move it: read then, the point was one the map was leaving, and the click landed 150 px off
+    // (a photo's direction at l1440-dark, lesson 817). The same box twice, then the point.
+    let last = '';
+    await expect
+        .poll(
+            async () => {
+                const seen = JSON.stringify(await map.boundingBox());
+                const still = seen === last;
+                last = seen;
+                return still;
+            },
+            { message: 'the map has stopped moving', intervals: [100] },
+        )
+        .toBe(true);
     await mapIdle(page);
     return screenPointOf(page, lngLat);
 }

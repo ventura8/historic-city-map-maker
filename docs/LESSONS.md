@@ -4724,3 +4724,6 @@ Append a numbered entry to *Lessons from this repository* in the task that finds
     - Cause: an editor `.field` stacks its parts 4 px apart, and the new button stood right above Clear: each 40 px `hcm-button` has a 48 px target, so the later button's target covered the earlier one's last 4 px.
     - Fix: in a field, a button that follows a button stands 4 px further down (8 px between them), so the targets meet and do not overlap.
     - **Controls with 48 px targets around 40 px boxes need 8 px between them wherever they stack.**
+817. **A photo's direction click landed 150 px off the map point it aimed at** (2026-11-25, photos/editor:63 at l1440-dark, 1 of 69).
+    - Cause: `mapPointOf` scrolled the map into view and computed the point at once; the editor beside it was still settling after Set direction, so the map box moved before the click, which landed below the marker and set no direction.
+    - Fix: `mapPointOf` computes the point once the map's box is the same on two reads in a row (like `pillOn`, lesson 815).
