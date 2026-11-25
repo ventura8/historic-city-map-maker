@@ -63,7 +63,22 @@ export async function pillOn(page: Page, lang: Locale, index: number): Promise<P
         await page.keyboard.press('ArrowRight');
     }
     await expect(slider).toHaveAttribute('aria-valuenow', String(index));
-    const box = await viewer(page).locator('hcm-timeline .thumb').boundingBox();
+    // The card scrolls the selected year into view, smoothly: read while it moved, the pill's place was one it was leaving,
+    // and the finger went down beside it and scrolled the card instead (touch scrub at 360 px, lesson 815). The same box twice.
+    const thumb = viewer(page).locator('hcm-timeline .thumb');
+    let last = '';
+    await expect
+        .poll(
+            async () => {
+                const seen = JSON.stringify(await thumb.boundingBox());
+                const still = seen === last;
+                last = seen;
+                return still;
+            },
+            { message: 'the pill has stopped moving', intervals: [100] },
+        )
+        .toBe(true);
+    const box = await thumb.boundingBox();
     return { x: (box?.x ?? 0) + (box?.width ?? 0) / 2, y: (box?.y ?? 0) + (box?.height ?? 0) / 2 };
 }
 

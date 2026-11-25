@@ -4716,3 +4716,7 @@ Append a numbered entry to *Lessons from this repository* in the task that finds
     - Cause: the claim stood after the older layer's publish, but the page asked for the paid frame's copy again later (the functions log: `browse image not copied` at 18:44:18, as the bought scene opened), the seeded copy having been replaced by a harvest pass's state. The fake browse host never serves that frame by design.
     - Fix: the spec claims that 503 once at its end, covering every page of the test; the functions log (lesson 812) is what showed when it came.
     - **A known console error a spec cannot avoid is claimed where nothing more can raise it: at the end, unless the spec checks it.**
+815. **A finger's scrub at 360 px sometimes selected nothing: it went down where the pill had been a moment before** (2026-11-25, timeline-chip:129 at fn-m768, 2 of 76).
+    - Cause: `pillOn` moved the pill with the keyboard and read its box at once, while the standing card still scrolled the selected year into view (smoothly); on a slower run the finger went down beside the pill, where a finger scrolls the card, so the press scrolled and selected nothing.
+    - Fix: `pillOn` returns the pill's centre once its box is the same on two reads in a row.
+    - **A place read to aim a gesture is read once the page has stopped moving it.**
