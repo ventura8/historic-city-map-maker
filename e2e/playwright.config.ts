@@ -87,7 +87,8 @@ function adminServers(): WebServer[] {
         {
             command: emulators,
             cwd: '..',
-            env: { ...EMULATOR_ENV },
+            // The functions' own log lines, kept for the failures that only the server's side explains (lesson 812).
+            env: { ...EMULATOR_ENV, HCM_EMULATOR_LOG: 'reports/e2e-emulators/functions.log' },
             // A GET of a loaded callable answers 400; before the functions are loaded the emulator answers 404.
             url: `${emulatorOrigin('functions')}/${E2E_PROJECT_ID}/us-central1/admin-session`,
             reuseExistingServer: !CI,

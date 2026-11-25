@@ -7,6 +7,7 @@
  */
 import { USGS_DATASETS, type UiLocale, type UsgsDataset } from '@hcm/shared';
 import { html, type TemplateResult } from 'lit';
+import { repeat } from 'lit/directives/repeat.js';
 
 import { countLine, current, errorTemplate, listWindow, loadingTemplate } from '../editing/states.js';
 import { contentText, noticeOf } from '../shell/text.js';
@@ -318,9 +319,15 @@ function sceneRows(context: ImageryContext): TemplateResult {
     if (view.visible.length === 0) {
         return noScenes(context);
     }
+    // Keyed by scene: a card keeps its own elements when the ranking moves it (a measured preview re-ranks the list), so a
+    // press lands on the scene it was aimed at, never on the one that took its place (lesson 812).
     const rows = (scenes: readonly SceneItemPort[]): TemplateResult =>
         html`<ul class="rows" aria-label=${contentText(locale, 'adminContent.imagery.scenesLabel')}>
-            ${scenes.map((scene) => sceneRow(context, scene))}
+            ${repeat(
+                scenes,
+                (scene) => scene.id,
+                (scene) => sceneRow(context, scene),
+            )}
         </ul>`;
     const more = (): void => {
         intents?.more();

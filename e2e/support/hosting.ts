@@ -61,6 +61,16 @@ export async function serveCityIcons(page: Page, folder: string): Promise<void> 
 }
 
 /**
+ * A photo the page still loaded when its test ended: the closing page or context disposed of the answer the route was
+ * reading, and nobody waits for it any more (hosting.spec at c360, lesson 812). Any other failure is the test's.
+ */
+function unlessClosed(error: unknown): void {
+    if (!/has been disposed|has been closed|Target closed/.test(String(error))) {
+        throw error;
+    }
+}
+
+/**
  * Answers the public bucket's folder of `source.city` as the admin's publish leaves it, for a city whose editor uploaded
  * its tab icon (the manifest's `city.ownIcon`): the manifest and, relative to it,
  * the photos, and the city's tab icon (behaviour V54: the generic city page fetches it to show it). Returns the addresses
@@ -76,7 +86,10 @@ export async function serveBucketCity(page: Page, source: BucketCity): Promise<s
             await publishedManifest(route, source);
             return;
         }
-        await route.fulfill({ response: await route.fetch({ url: `${SITE_ORIGIN}/${source.site}/data/${url.slice(folder.length)}` }) });
+        const answer = async (): Promise<void> => {
+            await route.fulfill({ response: await route.fetch({ url: `${SITE_ORIGIN}/${source.site}/data/${url.slice(folder.length)}` }) });
+        };
+        await answer().catch(unlessClosed);
     });
     await serveCityIcons(page, folder);
     return asked;
