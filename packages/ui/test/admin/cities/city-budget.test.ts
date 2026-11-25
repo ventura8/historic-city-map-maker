@@ -34,10 +34,10 @@ function sectionOf(overrides: Partial<BudgetSectionPort> = {}): BudgetSectionPor
 
 function draw(
     view: BudgetSectionPort,
-    options: { readonly locale?: Locale; readonly readOnly?: boolean } = {},
+    options: { readonly locale?: Locale; readonly readOnly?: boolean; readonly intents?: BudgetIntentsPort | null } = {},
 ): { root: HTMLElement; calls: string[] } {
     const calls: string[] = [];
-    const intents: BudgetIntentsPort = {
+    const defaultIntents: BudgetIntentsPort = {
         setLimit: (field, text) => calls.push(`setLimit ${field} ${text}`),
         saveLimits: () => {
             calls.push('saveLimits');
@@ -46,6 +46,7 @@ function draw(
         discardLimits: () => calls.push('discardLimits'),
         retryBudget: () => calls.push('retryBudget'),
     };
+    const intents = options.intents === undefined ? defaultIntents : options.intents;
     const root = document.createElement('div');
     document.body.append(root);
     render(budgetCard({ locale: options.locale ?? 'en', view, intents, readOnly: options.readOnly === true }), root);
@@ -120,6 +121,33 @@ describe('the city budget card', () => {
         await click(deep(root, 'hcm-button'));
 
         expect(calls).toEqual(['retryBudget']);
+    });
+
+    it('happyPath_savingDisablesBothActions', () => {
+        const { root } = draw(sectionOf({ draft: { rasterJobsPerDay: '5' }, saving: true }));
+
+        expect(deepAll(root, 'hcm-button').every((button) => button.hasAttribute('disabled'))).toBe(true);
+    });
+
+    it('badPath_nullIntentsIgnoresInputSaveDiscardAndRetry', async () => {
+        const { root } = draw(sectionOf({ draft: { rasterJobsPerDay: '5' } }), { intents: null });
+        const field = deep(root, '#limit-exportsPerDay') as HTMLInputElement;
+        field.value = '4';
+        field.dispatchEvent(new Event('input'));
+        const [save, discard] = deepAll(root, 'hcm-button');
+        if (save === undefined || discard === undefined) {
+            throw new Error('the owner has Save and Discard');
+        }
+        await click(save);
+        await click(discard);
+
+        const { root: errorRoot } = draw(sectionOf({ status: 'error', failure: { kind: 'denied', code: 'permission-denied' } }), {
+            intents: null,
+        });
+        await click(deep(errorRoot, 'hcm-button'));
+
+        expect(deepAll(root, 'hcm-button')).toHaveLength(2);
+        expect(deepAll(errorRoot, 'hcm-button')).toHaveLength(1);
     });
 });
 
