@@ -43,8 +43,8 @@ export interface TimelinePointerHost {
     readonly scroller: () => HTMLElement | null;
     /** The number of stops. */
     readonly count: () => number;
-    /** Selects a stop during a press (live: the timeline sends at most one event per frame). */
-    readonly select: (index: number) => void;
+    /** Selects a stop during a press (live: one event per frame); `moving`: a sweep moved it there, not the press itself. */
+    readonly select: (index: number, moving?: boolean) => void;
     /**
      * The press is over: the last year selected is sent now, and announced if the press changed it; `released` when the
      * visitor lifted it (a tap, a click, the end of a drag or a scrub), not when it was cancelled or replaced.
@@ -168,8 +168,8 @@ export class TimelinePointer {
             onIndex: (index) => {
                 this.#host.touchTip(index);
             },
-            onSelect: (index) => {
-                this.#host.select(index);
+            onSelect: (index, moving) => {
+                this.#host.select(index, moving);
             },
             peek: (event, lifted) => this.#host.peek(event, lifted),
             onEnd: (released) => {
@@ -214,7 +214,7 @@ export class TimelinePointer {
         const edges = this.#edges(track);
         const move = (moveEvent: PointerEvent): void => {
             edges?.update(moveEvent);
-            this.#host.select(this.#indexAt(track, moveEvent));
+            this.#host.select(this.#indexAt(track, moveEvent), true);
         };
         const up = (): void => {
             this.end(true);

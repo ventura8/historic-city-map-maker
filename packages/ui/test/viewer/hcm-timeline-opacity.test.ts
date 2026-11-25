@@ -290,6 +290,21 @@ describe('the timeline opacity card on a long press', () => {
         expect(card(element)).not.toBeNull();
     });
 
+    it('badPath_aSweepThatMovesTheYearAfterTheHoldClosesTheCard', async () => {
+        const element = await timeline();
+        vi.useFakeTimers({ toFake: ['setTimeout', 'clearTimeout'] });
+        pointer(thumb(element), 'pointerdown', 'touch');
+        vi.advanceTimersByTime(600);
+        await element.updateComplete;
+        expect(card(element), 'held').not.toBeNull();
+        const before = element.value;
+        const track = element.getBoundingClientRect();
+        window.dispatchEvent(new PointerEvent('pointermove', { clientX: track.right - 2, clientY: track.top + 10, pointerType: 'touch' }));
+        await element.updateComplete;
+        expect(element.value).not.toBe(before);
+        expect(card(element), 'swept').toBeNull();
+    });
+
     it('badPath_aFingerThatMovesOrIsCancelledBeforeTheHoldShowsNothing', async () => {
         const element = await timeline();
         vi.useFakeTimers({ toFake: ['setTimeout', 'clearTimeout'] });

@@ -131,9 +131,12 @@ export class HcmTimeline extends LitElement {
         scrolls: () => this.density === 'scroll',
         scroller: () => this.#scroller(),
         count: () => this.stops.length,
-        select: (index) => {
+        // A sweep that moved the year chose a year: an opacity card a hold opened under it closes (lesson 806).
+        select: (index, moving = false) => {
+            const before = this.value;
             this.#select(index, true);
             this.#pointerStop = this.value;
+            this.#reveal.sweep(moving && this.value !== before);
         },
         settle: (released) => {
             this.#settle(released);
@@ -145,8 +148,6 @@ export class HcmTimeline extends LitElement {
             this.dragging = dragging;
             if (dragging) {
                 this.#peek.stop(true);
-                // A scrub chooses a year: the opacity card a slow first move let a hold open closes, so the chip shows (lesson 806).
-                this.#reveal.hide();
             }
         },
         touchTip: (index) => {

@@ -224,6 +224,13 @@ export class OpacityReveal {
         this.#set(false);
     }
 
+    /** A finger's sweep that moved the year chose a year: a card a hold opened under it closes (lesson 806). */
+    sweep(moved: boolean): void {
+        if (moved) {
+            this.hide();
+        }
+    }
+
     disconnect(): void {
         clearTimeout(this.#hiding);
         this.#hold.cancel();

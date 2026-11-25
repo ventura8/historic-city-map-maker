@@ -4678,7 +4678,7 @@ Append a numbered entry to *Lessons from this repository* in the task that finds
     - **A new import in a side-part file (`vite.part.config.ts` → `OWN`) goes into `extras-kit.ts` in the same change.**
 806. **At 4K the year chip never showed under a finger that scrubbed the timeline** (2026-11-25, tour-x3840 since the year panel's changes).
     - Cause: a 4K frame is slow enough that the finger's first move came after the 500 ms long press, which opened the opacity card; the scrub then hid the card (`dragging`) but left it marked shown, and the chip gives way to a shown card, so neither was drawn, and after the scrub the card stayed in the chip's place.
-    - Fix: a scrub closes the opacity card and forgets a pending hold (`OpacityReveal.hide`, called when `dragging` starts).
+    - Fix: a scrub that moves the year closes the opacity card and forgets a pending hold (`OpacityReveal.hide`, called from the pointer's `select` when the year changes). A first fix called it when `dragging` starts, but that is the same pointerdown that starts the hold's timer, so a hold firing later in the scrub (the NUC's 4K run) still opened it.
     - **A state that one gesture opens and another hides is closed by the second gesture, not only hidden.**
 807. **A toast held under the pointer timed out once the focus left it** (2026-11-25, tour-x3840 `viewer.gamepad-refused`, intermittent since before 46dc84b2).
     - Cause: `<hcm-snackbar>` paused its timer on `pointerenter` and `focusin` but restarted it on either `pointerleave` or `focusout`, so Tab moving off its Close restarted the 6 s timer under a resting pointer. The 4K Tab round takes longer than 6 s, the toast closed mid-round and Tab never came back to Close (WCAG 2.2.1: a paused message stays paused).

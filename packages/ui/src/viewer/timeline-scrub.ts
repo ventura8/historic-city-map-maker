@@ -20,8 +20,8 @@ export interface ScrubHooks {
     readonly indexAt: (event: PointerEvent) => number;
     /** The stop under the finger changed (also once at the press): the chip follows it. */
     readonly onIndex: (index: number) => void;
-    /** The year under a finger moving along the track, or under one lifted where it went down (a tap). */
-    readonly onSelect: (index: number) => void;
+    /** The year under a finger moving along the track (`moving`), or under one lifted where it went down (a tap). */
+    readonly onSelect: (index: number, moving?: boolean) => void;
     /** The finger is up (`released`), or the press was cancelled (the browser took it). */
     readonly onEnd: (released: boolean) => void;
     /** Where the finger is against a peek of the year's dates (`lifted`: it is up, the menu picks the date under it). */
@@ -110,7 +110,7 @@ export function startScrub(down: PointerEvent, hooks: ScrubHooks, win: Window = 
         }
         enter(hooks.indexAt(event));
         if (intent === 'drag') {
-            hooks.onSelect(index);
+            hooks.onSelect(index, true);
         }
     };
     /** Lifted over the peek's menu the date under it was picked; elsewhere the year under the finger is selected. */
