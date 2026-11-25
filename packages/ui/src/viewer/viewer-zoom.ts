@@ -114,7 +114,7 @@ function shotButton(locale: ViewerLocale, shot: number | null, onClick: () => vo
     }
     const label = translate(locale, 'viewer.shotDirection', { degrees: String(Math.round(shot) % 360) });
     return html`<div class="dock shot" data-layout-check="shot-direction">
-        <hcm-icon-button icon="explore" .label=${label} title=${label} @click=${onClick}></hcm-icon-button>
+        <hcm-icon-button icon="satellite_alt" .label=${label} title=${label} @click=${onClick}></hcm-icon-button>
     </div>`;
 }
 

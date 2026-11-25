@@ -59,6 +59,7 @@ describe('<hcm-map-viewer>: the shot direction button', () => {
 
         expect(mounted.store.callsOf('faceBearing')).toEqual([[135]]);
         expect(part(mounted, '.dock.shot hcm-icon-button').getAttribute('title')).toBe(name);
+        expect(part(mounted, '.dock.shot hcm-icon-button').getAttribute('icon')).toBe('satellite_alt');
         expect(part(mounted, '.dock.locate').classList.contains('over-shot')).toBe(true);
     });
 
