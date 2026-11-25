@@ -655,3 +655,5 @@ The viewer includes a floating search box (`<hcm-search>`, `packages/ui/src/view
 - No HTML is rendered from data: Lit templates and `textContent` only; Mapbox popups use `setDOMContent` (`docs/research/design-review-security-cost.md` §1.7). POI descriptions are rendered like About: by walking `parseMarkdown(...).paragraphs` into DOM nodes.
 - Only https URLs and the URL-restricted Mapbox public token reach the page; a secret token cannot pass the schema.
 - The page's meta CSP and headers: [research/design-review-security-cost.md](research/design-review-security-cost.md) §1.8. Analytics hosts join the CSP only for the consent-gated SDKs.
+
+The engine contains a preparatory display-only Mapbox forward geocoding adapter. It is not yet connected to viewer search and does not change the public search behaviour.
