@@ -116,6 +116,24 @@ describe('<hcm-snackbar>', () => {
         expect(dismissals).toEqual([{ reason: 'timeout' }]);
     });
 
+    it('badPath_theFocusLeavingAToastThePointerHoldsDoesNotTimeItOut', async () => {
+        vi.useFakeTimers();
+        const element = await snackbar(6000);
+        const dismissals = recordEvents(element, 'hcm-dismiss');
+        const box = shadowPart(element, '.snackbar');
+
+        box.dispatchEvent(new PointerEvent('pointerenter'));
+        box.dispatchEvent(new FocusEvent('focusin'));
+        box.dispatchEvent(new FocusEvent('focusout'));
+        vi.advanceTimersByTime(60_000);
+        expect(dismissals, 'still held by the pointer').toEqual([]);
+
+        element.message = 'Alt mesaj';
+        await element.updateComplete;
+        vi.advanceTimersByTime(6000);
+        expect(dismissals, 'a new message is held by nothing yet').toEqual([{ reason: 'timeout' }]);
+    });
+
     it('happyPath_theFocusRingStandsOutOnTheInverseSurface', async () => {
         // The tour measured the toast's Close ring at 1.62:1: the secondary ring on the inverse surface (3:1 needed).
         const element = await snackbar(0, '');

@@ -31,40 +31,47 @@ export class HcmSearch extends LitElement {
         css`
             :host {
                 display: block;
-                inline-size: min(320px, calc(100vw - 2 * var(--hcm-gutter, 16px)));
+                inline-size: 100%;
             }
 
             .box {
                 position: relative;
             }
 
+            /*
+             * The input is the pill itself, its outline the field's boundary at 3:1 or more against its surface (WCAG 1.4.11;
+             * lesson 804: a borderless input inside a filled pill reached 1:1, and over the map the pill's own edge cannot be
+             * measured). The search icon and the clear button sit over its ends.
+             */
             .field {
-                display: flex;
-                align-items: center;
-                gap: 8px;
-                min-block-size: 44px;
-                padding-inline: 12px 6px;
+                position: relative;
                 border-radius: var(--md-sys-shape-corner-full);
-                background: var(--md-sys-color-surface-container-high);
-                color: var(--md-sys-color-on-surface);
                 box-shadow: var(--md-sys-elevation-level2);
             }
 
-            .field hcm-icon {
-                flex: none;
+            .field > hcm-icon {
+                position: absolute;
+                inset-block-start: 50%;
+                inset-inline-start: 12px;
+                translate: 0 -50%;
                 color: var(--md-sys-color-on-surface-variant);
+                pointer-events: none;
             }
 
             input {
-                flex: 1 1 auto;
-                min-inline-size: 0;
-                border: none;
-                background: transparent;
-                color: inherit;
+                box-sizing: border-box;
+                inline-size: 100%;
+                min-block-size: 48px;
+                margin: 0;
+                padding-block: 0;
+                padding-inline: 44px;
+                border: 1px solid var(--md-sys-color-outline);
+                border-radius: var(--md-sys-shape-corner-full);
+                background: var(--md-sys-color-surface-container-high);
+                color: var(--md-sys-color-on-surface);
                 font: inherit;
                 font-size: var(--md-sys-typescale-body-medium-size, 14px);
                 line-height: 1.4;
-                outline: none;
             }
 
             input::placeholder {
@@ -72,6 +79,10 @@ export class HcmSearch extends LitElement {
             }
 
             .clear {
+                position: absolute;
+                inset-block-start: 50%;
+                inset-inline-end: 4px;
+                translate: 0 -50%;
                 display: inline-grid;
                 place-items: center;
                 flex: none;

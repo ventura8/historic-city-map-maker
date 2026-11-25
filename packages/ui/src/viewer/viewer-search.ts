@@ -19,6 +19,7 @@ import {
 } from '@hcm/shared';
 import { html, type TemplateResult } from 'lit';
 
+import { EMPTY } from './empty.js';
 import type { ViewerStorePort } from './store-port.js';
 import { localizedText, photoDateText, type DataText } from './text.js';
 
@@ -224,8 +225,11 @@ export interface SearchHandlers {
     readonly onSearchSelect: (event: CustomEvent<{ readonly result: SearchResult }>) => void;
 }
 
-/** The search bar's dock, at the top of the map. */
-export function searchDock(manifest: Manifest, locale: ViewerLocale, handlers: SearchHandlers): TemplateResult {
+/** The search bar's dock, at the top of the map; none without a map, where the photo list takes the page (lesson 804). */
+export function searchDock(webgl: boolean, manifest: Manifest, locale: ViewerLocale, handlers: SearchHandlers): TemplateResult {
+    if (!webgl) {
+        return EMPTY;
+    }
     return html`<div class="dock search">
         <hcm-search
             data-layout-check="search"

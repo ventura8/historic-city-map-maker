@@ -121,6 +121,8 @@ export class HcmSnackbar extends LitElement {
 
     private timer: ReturnType<typeof setTimeout> | undefined;
     private announceTimer: ReturnType<typeof setTimeout> | undefined;
+    /** What holds the message (WCAG 2.2.1): a pointer resting on it, the focus in it; it times out only when neither does. */
+    private readonly holds = new Set<'pointer' | 'focus'>();
 
     constructor() {
         super();
@@ -143,6 +145,7 @@ export class HcmSnackbar extends LitElement {
         if (changed.has('message')) {
             this.dismissed = false;
             this.announcement = '';
+            this.holds.clear();
         }
     }
 
@@ -174,10 +177,10 @@ export class HcmSnackbar extends LitElement {
         return html`<div
             class="snackbar"
             part="snackbar"
-            @pointerenter=${this.stopTimer}
-            @pointerleave=${this.startTimer}
-            @focusin=${this.stopTimer}
-            @focusout=${this.startTimer}
+            @pointerenter=${this.holdByPointer}
+            @pointerleave=${this.releasePointer}
+            @focusin=${this.holdByFocus}
+            @focusout=${this.releaseFocus}
         >
             <span class="message body-medium">${this.message}</span>
             ${
@@ -189,9 +192,36 @@ export class HcmSnackbar extends LitElement {
         </div>`;
     }
 
+    private readonly holdByPointer = (): void => {
+        this.hold('pointer', true);
+    };
+
+    private readonly releasePointer = (): void => {
+        this.hold('pointer', false);
+    };
+
+    private readonly holdByFocus = (): void => {
+        this.hold('focus', true);
+    };
+
+    private readonly releaseFocus = (): void => {
+        this.hold('focus', false);
+    };
+
+    /** The focus leaving a toast the pointer still rests on keeps it (lesson 807: it timed out under a held pointer). */
+    private hold(what: 'pointer' | 'focus', held: boolean): void {
+        if (held) {
+            this.holds.add(what);
+            this.stopTimer();
+            return;
+        }
+        this.holds.delete(what);
+        this.startTimer();
+    }
+
     private readonly startTimer = (): void => {
         this.stopTimer();
-        if (this.message !== '' && !this.dismissed && this.timeoutMs > 0) {
+        if (this.message !== '' && !this.dismissed && this.timeoutMs > 0 && this.holds.size === 0) {
             this.timer = setTimeout(() => {
                 this.dismiss('timeout');
             }, this.timeoutMs);

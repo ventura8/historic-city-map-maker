@@ -5,10 +5,12 @@ import {
     geometryCenter,
     normalizeSearchText,
     pickSearchResult,
+    searchDock,
     searchManifest,
     selectSearchResult,
     type SearchResult,
 } from '../../src/viewer/viewer-search.js';
+import { EMPTY } from '../../src/viewer/empty.js';
 import { FakeStore, readyState } from './fake-store.js';
 import { testManifest } from './fixtures.js';
 
@@ -208,7 +210,9 @@ describe('viewer-search', () => {
         expect(store.callsOf('flyTo')).toHaveLength(2);
         expect(store.callsOf('openStory')).toEqual([['story-none']]);
     });
+});
 
+describe('viewer-search without its data or its map', () => {
     it('badPath_missingLinksListsAndCategoryLeaveAResultWithNoPlaceAndNoOverlay', () => {
         const manifest = manifestWithSearchData();
         const lost: Story = {
@@ -235,5 +239,12 @@ describe('viewer-search', () => {
         expect(store.callsOf('flyTo')).toEqual([]);
         expect(store.callsOf('toggleOverlay')).toEqual([]);
         expect(store.callsOf('openPoi')).toEqual([['piata-unirii']]);
+    });
+
+    it('badPath_noSearchBarWithoutAMap', () => {
+        const manifest = manifestWithSearchData();
+        const handlers = { onSearchSelect: () => undefined };
+        expect(searchDock(false, manifest, 'ro', handlers)).toBe(EMPTY);
+        expect(searchDock(true, manifest, 'ro', handlers)).not.toBe(EMPTY);
     });
 });

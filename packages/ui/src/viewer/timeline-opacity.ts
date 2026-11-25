@@ -217,9 +217,10 @@ export class OpacityReveal {
         this.#set(true);
     }
 
-    /** Hides the card at once: the year's date menu opened in its place (one card at a time). */
+    /** Hides the card at once, a pending hold forgotten: the year's date menu opened in its place, or a scrub began. */
     hide(): void {
         clearTimeout(this.#hiding);
+        this.#hold.cancel();
         this.#set(false);
     }
 

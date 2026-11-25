@@ -12,10 +12,27 @@ export const dockStyles = css`
         z-index: 10;
     }
 
+    /* As wide as the map leaves it after the top docks' start and the trailing gutter, never wider (a wider bar scrolled the map's pane). */
     .dock.search {
         z-index: 20;
         inset-block-start: calc(var(--hcm-gutter) + env(safe-area-inset-top, 0px));
         inset-inline-start: var(--hcm-top-start, var(--hcm-gutter));
+        inline-size: min(320px, calc(100% - var(--hcm-top-start, var(--hcm-gutter)) - var(--hcm-gutter)));
+    }
+
+    /*
+     * The search bar shares the top row with what shows there for a while: the consent banner, a toast or the update's
+     * snackbar, swipe compare's bar, the open menu or a year's dates growing up to it, the Layers sheet's lifted credits
+     * and the focused skip link. While one shows, the bar steps aside, as the floating controls do under the open menu
+     * (lesson 804).
+     */
+    .viewer:has(> .modal-layer hcm-date-menu) .dock.search {
+        visibility: hidden;
+    }
+
+    .frame:is([data-menu-open], [data-layers-sheet], :has(.skip:focus-visible, .dock.consent, .dock.toast hcm-snackbar, hcm-compare))
+        .dock.search {
+        visibility: hidden;
     }
 
     /* The menu's and the toast's docks are as wide as their popup or their row: only what they draw takes the pointer. */

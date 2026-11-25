@@ -20,6 +20,8 @@ export {
     streetViewUrl,
     translate,
 } from '@hcm/shared';
+// The Licence and citation panel words each layer's credit in the visitor's language (lesson 805).
+export { localizedCredit } from '@hcm/shared/credits';
 export { installApp, installGivesAccent, watchInstall } from '../app-install.js';
 export { cssProperties } from '../components/css-properties.js';
 export { deviceAccentState } from '../theme/device-accent.js';

@@ -145,6 +145,8 @@ export class HcmTimeline extends LitElement {
             this.dragging = dragging;
             if (dragging) {
                 this.#peek.stop(true);
+                // A scrub chooses a year: the opacity card a slow first move let a hold open closes, so the chip shows (lesson 806).
+                this.#reveal.hide();
             }
         },
         touchTip: (index) => {

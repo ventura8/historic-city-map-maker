@@ -321,7 +321,7 @@ function controls(view: ViewerView, ready: Ready, handlers: ViewerHandlers): Tem
     const items = menuActions({ webgl: state.webgl, layersDocked: view.layout.layersDocked, manifest }).map((action) =>
         menuItem(action, view.locale, state.myLocation !== null),
     );
-    return html`${timelineArea(view, ready, handlers)} ${searchDock(manifest, view.locale, handlers)}
+    return html`${timelineArea(view, ready, handlers)} ${searchDock(state.webgl, manifest, view.locale, handlers)}
         ${nearYearChip(
             { locale: view.locale, wide: view.finePointer && textChip(state.windowClass, state.compactHeight) },
             state.year,
