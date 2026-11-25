@@ -83,6 +83,16 @@ export const LICENSE_URLS: Readonly<Partial<Record<(typeof LICENSES)[number], st
 
 export const LAYER_KINDS = ['satellite', 'aerial', 'map'] as const;
 
+/** M20 (§7): the licences a published map layer may carry. */
+export const LAYER_LICENSES = ['PD', 'CC0', 'CC-BY-4.0', 'CC-BY-SA-4.0', 'permission'] as const;
+
+/**
+ * What a layer's rights may say (the owner, 2026-11-24): a licence, or `unclear`, rights not confirmed yet. Such a layer stays on the
+ * public map; its credit line reads "rights unclear" (`UNCLEAR_CREDIT`, the viewer's `layers.attribution.unclear`) beside its author
+ * and scan source.
+ */
+export const LAYER_RIGHTS_LICENCES = [...LAYER_LICENSES, 'unclear'] as const;
+
 /** The four generated colour schemes of a city theme. */
 export const THEME_SCHEMES = ['light', 'dark', 'highContrastLight', 'highContrastDark'] as const;
 
@@ -207,6 +217,8 @@ export const layerSchema = z
         kind: z.enum(LAYER_KINDS),
         sensor: plainText(100).optional(),
         attribution: plainText(500),
+        /** The layer's licence from `layers/{layer}.rights.licence`, when set. */
+        licence: z.enum(LAYER_RIGHTS_LICENCES).optional(),
         source: layerSourceSchema,
         minzoom: zoomSchema,
         maxzoom: zoomSchema,

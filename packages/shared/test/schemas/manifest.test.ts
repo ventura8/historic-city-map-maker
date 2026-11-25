@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest';
 
-import { LICENSE_URLS, LICENSES, MAX_LAYERS, photoKindOf } from '../../src/schemas/manifest.js';
+import { LAYER_RIGHTS_LICENCES, LICENSE_URLS, LICENSES, MAX_LAYERS, photoKindOf } from '../../src/schemas/manifest.js';
 import { MAX_GEOMETRY_VERTICES, MAX_POLYGON_RINGS } from '../../src/schemas/geometry.js';
 import { MAX_LINKS } from '../../src/schemas/primitives.js';
 import { parseManifestJson, validateManifest, type ValidationIssue } from '../../src/schemas/validation.js';
@@ -82,6 +82,12 @@ describe('manifest v1: happy paths', () => {
         [{ type: 'pmtiles', url: 'https://cdn.example.org/kh4.pmtiles' }],
     ])('happyPath_layerSource_%j_isValid', (source) => {
         expect(issuesOf(patched(['layers', 0, 'source'], source))).toEqual([]);
+    });
+
+    it.each(LAYER_RIGHTS_LICENCES)('happyPath_layerLicence_%s_isValid', (licence) => {
+        const result = validateManifest(patched(['layers', 0, 'licence'], licence));
+
+        expect(result.ok && result.value.layers[0]?.licence).toBe(licence);
     });
 
     it('happyPath_theFirebaseWebAppIdsForAnalytics', () => {
@@ -281,6 +287,7 @@ const RULES = [
     ['a brightness over 1', ['layers', 0, 'adjustments', 'brightnessMax'], 1.2, 'layers[0].adjustments.brightnessMax', 'validation.tooBig'],
     ['an unknown adjustment', ['layers', 0, 'adjustments', 'gamma'], 2, 'layers[0].adjustments.gamma', 'validation.unknownKey'],
     ['an unknown layer kind', ['layers', 0, 'kind'], 'drawing', 'layers[0].kind', 'validation.value'],
+    ['an unknown layer licence', ['layers', 0, 'licence'], 'unknown', 'layers[0].licence', 'validation.value'],
     ['an unknown photo kind', ['photos', 0, 'kind'], 'underwater', 'photos[0].kind', 'validation.value'],
     ['a layer named like the photos overlay', ['layers', 0, 'id'], 'photos', 'layers[0].id', 'validation.duplicateId'],
     ['an end year before the year', ['photos', 0, 'yearEnd'], 1970, 'photos[0].yearEnd', 'validation.yearRange'],

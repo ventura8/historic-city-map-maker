@@ -617,3 +617,28 @@ describe('assembleManifest unclear rights', () => {
         expect(manifestOf(assembly).layers.map((layer) => [layer.id, layer.attribution])).toEqual([['plan-1911', attribution]]);
     });
 });
+
+describe('assembleManifest: layer licence', () => {
+    it.each(['PD', 'CC0', 'CC-BY-4.0', 'CC-BY-SA-4.0', 'permission', 'unclear'] as const)(
+        'happyPath_aLayersLicenceFlowsIntoTheManifestEntry (%s)',
+        (licence) => {
+            const layer = layerDoc({ rights: { licence } });
+            const assembly = assembleManifest(content({ layers: result([['flight-1940', layer]]) }), TEST_CONFIG.errorEndpoint);
+            const manifest = manifestOf(assembly);
+
+            expect(validateManifest(manifest).ok).toBe(true);
+            expect(assembly.skipped).toEqual([]);
+            expect(manifest.layers[0]?.licence).toBe(licence);
+        },
+    );
+
+    it('happyPath_aLayerWithoutRightsHasNoLicence', () => {
+        const manifest = manifestOf(
+            assembleManifest(content({ layers: result([['flight-1940', layerDoc()]]) }), TEST_CONFIG.errorEndpoint),
+        );
+        const published: object = JSON.parse(JSON.stringify(manifest.layers[0])) as object;
+
+        expect(manifest.layers[0]?.licence).toBeUndefined();
+        expect(Object.keys(published)).not.toContain('licence');
+    });
+});

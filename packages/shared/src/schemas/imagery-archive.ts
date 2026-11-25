@@ -17,7 +17,10 @@ import { DEFAULT_MAP_THRESHOLD_MAX_M } from './imagery-settings.js';
 export { DEFAULT_MAP_THRESHOLD_MAX_M, MAP_THRESHOLD_MAX_RANGE } from './imagery-settings.js';
 import { stitchedSchema } from './imagery-help.js';
 import { layoutAnswerSchema } from './imagery-tiles.js';
+import { LAYER_RIGHTS_LICENCES } from './manifest.js';
 import { coded, httpsUrlSchema, idSchema, plainText } from './primitives.js';
+
+export { LAYER_LICENSES, LAYER_RIGHTS_LICENCES } from './manifest.js';
 
 /** At most this many series in one archive's report (the document stays far below Firestore's 1 MiB). */
 export const ARCHIVE_MAX_SERIES = 200;
@@ -73,23 +76,12 @@ export const ARCHIVE_AUTO_LIKELIHOODS = ['likely', 'possible', 'points'] as cons
  */
 export const ARCHIVE_PLACE_METHODS = ['embedded', 'grid', 'atlas', 'pieces', 'match', 'gcps', 'grid-names', 'overview'] as const;
 
-/** M20 (§7): the licences a published map layer may carry. */
-export const LAYER_LICENSES = ['PD', 'CC0', 'CC-BY-4.0', 'CC-BY-SA-4.0', 'permission'] as const;
-
-/**
- * What a layer's rights may say (the owner, 2026-11-24): a licence, or `unclear`, rights not confirmed yet. Such a layer stays on the
- * public map; its credit line reads "rights unclear" (`UNCLEAR_CREDIT`, the viewer's `layers.attribution.unclear`) beside its author
- * and scan source.
- */
-export const LAYER_RIGHTS_LICENCES = [...LAYER_LICENSES, 'unclear'] as const;
-
 /** The stored English of an unclear layer's licence part in its attribution (`STORED_CREDITS` translates it on the map). */
 export const UNCLEAR_CREDIT = 'rights unclear';
 
 /**
- * `layers/{layer}.rights` (§7): a drawn map's licence, its author and where its scan came from; plain text only. The manifest does
- * not carry it yet: the engine's bundle has no bytes left for it (`docs/research/M20-import-local.md` §14), and `attribution`
- * carries the same credit line.
+ * `layers/{layer}.rights` (§7): a drawn map's licence, its author and where its scan came from; plain text only. The manifest carries
+ * `licence`, and `attribution` carries the credit line.
  */
 export const layerRightsSchema = z.strictObject({
     licence: z.enum(LAYER_RIGHTS_LICENCES),

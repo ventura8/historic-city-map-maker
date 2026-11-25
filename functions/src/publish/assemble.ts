@@ -159,6 +159,7 @@ function layerEntry(layer: LayerDoc, id: string, listed: Listed): unknown {
         kind: layer.kind,
         sensor: layer.sensor,
         attribution: publicLayerCredit(layer),
+        licence: layer.rights?.licence,
         source: layer.source,
         minzoom: layer.minzoom,
         maxzoom: layer.maxzoom,
