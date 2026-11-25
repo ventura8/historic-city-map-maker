@@ -175,6 +175,13 @@ export class TimelineDock implements ReactiveController {
         }
     };
 
+    /** A picked date turns a peek into the persistent menu of the selected year. */
+    readonly keepDates = (): void => {
+        clearTimeout(this.#closing);
+        this.peek = false;
+        this.#host.requestUpdate();
+    };
+
     /** Closes a peek, the focus left where it is. */
     readonly closePeek = (): void => {
         clearTimeout(this.#closing);
@@ -393,7 +400,10 @@ export function dateMenu(
         .peek=${dock.peek}
         .side=${side !== null}
         .showLabel=${(name: string) => translate(view.locale, 'timeline.showOnMap', { name })}
-        @hcm-date-pick=${on.onDatePick}
+        @hcm-date-pick=${(event: CustomEvent<{ readonly layerId: string }>) => {
+            dock.keepDates();
+            on.onDatePick(event);
+        }}
         @hcm-date-show=${on.onDateShow}
         @hcm-date-menu-pointer=${dock.onMenuPointer}
         @hcm-close=${dock.closeDates}

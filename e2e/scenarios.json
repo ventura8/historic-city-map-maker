@@ -23076,7 +23076,7 @@
             "area": "viewer",
             "path": "happy",
             "title": "A finger resting on a multi-date year opens its dates; sliding onto one and lifting picks it",
-            "asserts": "at 360x800 and 768x1024: a finger scrubbing from today onto 1980 and resting 400 ms opens the menu (none at 350 ms) beside it and clear of the controls; slid off the card onto March and lifted, March is picked (the slider on 1980, layers= names it last); lifting on the year instead keeps the menu open, the checked date focused, for a tap; unit: a haptic tick when it opens",
+            "asserts": "at 360x800 and 768x1024: a finger scrubbing from today onto 1980 and resting 400 ms opens the menu (none at 350 ms) beside it and clear of the controls; slid off the card onto March and lifted, March is picked (the slider on 1980, layers= names it last), the menu remains open and Escape closes it; lifting on the year instead keeps the menu open, the checked date focused, for a tap; unit: a haptic tick when it opens",
             "tier": "e2e-viewer",
             "status": "exists",
             "notes": "The owner, 2026-11-13 (DECISIONS-for-review.md §195i). packages/ui/src/viewer/timeline-peek.ts, hcm-timeline.ts, timeline-scrub.ts, timeline-dock.ts, hcm-date-menu.ts (peek, touchAt); unit tests in packages/ui/test/viewer/timeline-peek.test.ts, hcm-timeline-peek.test.ts, timeline-dock-peek.test.ts and hcm-date-menu.test.ts. Test: e2e/specs/viewer/timeline-peek.spec.ts."

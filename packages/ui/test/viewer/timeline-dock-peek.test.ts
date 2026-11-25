@@ -1,5 +1,6 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 
+import type { HcmDateMenu } from '../../src/viewer/hcm-date-menu.js';
 import type { HcmTimeline } from '../../src/viewer/hcm-timeline.js';
 import { PEEK_LEAVE_MS, datesPeekEvent } from '../../src/viewer/timeline-peek.js';
 import { shadowQuery } from './doubles.js';
@@ -26,8 +27,8 @@ function timelineOf(mounted: Mounted): HcmTimeline {
     return part(mounted, 'hcm-timeline') as HcmTimeline;
 }
 
-function menuOf(mounted: Mounted): Element | null {
-    return mounted.element.shadowRoot?.querySelector('hcm-date-menu') ?? null;
+function menuOf(mounted: Mounted): HcmDateMenu | null {
+    return mounted.element.shadowRoot?.querySelector<HcmDateMenu>('hcm-date-menu') ?? null;
 }
 
 async function peek(mounted: Mounted, year: number | null, gently = false): Promise<void> {
@@ -90,6 +91,13 @@ describe('<hcm-map-viewer>: the peek of a year of several dates (V13)', () => {
 
         expect(mounted.store.callsOf('pickLayer')).toEqual([['kh4-1966b']]);
         expect(menuOf(mounted), 'picking a date keeps the menu open').not.toBeNull();
+        await peek(mounted, null);
+        expect(menuOf(mounted), 'scrub cleanup does not close the picked menu').not.toBeNull();
+        const menu = part(mounted, 'hcm-date-menu');
+        await menuOf(mounted)?.updateComplete;
+        shadowQuery(menu, '[data-item="kh4-1966b"]').dispatchEvent(new KeyboardEvent('keydown', { key: 'Escape', bubbles: true }));
+        await mounted.element.updateComplete;
+        expect(menuOf(mounted)).toBeNull();
     });
 
     it('happyPath_theMouseOnItsWayToTheMenuKeepsItThenLeavingBothClosesIt', async () => {

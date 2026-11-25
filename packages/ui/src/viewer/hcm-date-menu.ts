@@ -333,10 +333,14 @@ export class HcmDateMenu extends LitElement implements DateRowView {
         if (PLACING.some((key) => changed.has(key))) {
             this.#place(pair, this.anchor);
         }
-        if (changed.has('anchor')) {
+        this.#focusOnChange(changed);
+        this.#keepFocus();
+    }
+
+    #focusOnChange(changed: PropertyValues<this>): void {
+        if (changed.has('anchor') || changed.has('peek')) {
             this.#focusChecked();
         }
-        this.#keepFocus();
     }
 
     /** The part of a row that last had the focus. */

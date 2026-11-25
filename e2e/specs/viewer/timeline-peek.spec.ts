@@ -195,6 +195,8 @@ for (const { name, use } of FINGER_WINDOWS) {
                 await slide(cdp, [beside, march]);
                 await lift(cdp);
 
+                await expect(datesMenu(page, lang), 'picking a date keeps the menu open').toBeVisible();
+                await page.keyboard.press('Escape');
                 await expect(datesMenu(page, lang)).toBeHidden();
                 await expect(slider(page, lang)).toHaveAttribute(
                     'aria-valuetext',
