@@ -5,7 +5,7 @@ import { afterEach, beforeAll, describe, expect, it } from 'vitest';
 import type { AdminStatePort } from '../../../src/admin/admin-port.js';
 import type { HcmBlockedPanel } from '../../../src/admin/auth/hcm-blocked-panel.js';
 import type { HcmClaimPanel } from '../../../src/admin/auth/hcm-claim-panel.js';
-import type { HcmConsentNote } from '../../../src/admin/auth/hcm-consent-note.js';
+import { defineHcmConsentNote, HCM_CONSENT_NOTE_TAG, type HcmConsentNote } from '../../../src/admin/auth/hcm-consent-note.js';
 import type { HcmJoinPanel } from '../../../src/admin/auth/hcm-join-panel.js';
 import type { HcmSignIn } from '../../../src/admin/auth/hcm-sign-in.js';
 import { adminState, cleanup, deep, deepAll, deepText, defineAll, FakeAdminApp, mount, updated } from '../shell/fake-app.js';
@@ -250,5 +250,33 @@ describe('<hcm-consent-note>', () => {
         expect(deepText(note)).toContain('The permission stays in this tab only, for at most an hour, and is never saved.');
         expect(deepText(note)).toContain('Google may say that it has not verified this app.');
         expect(deep(note, 'aside').getAttribute('aria-label')).toBe('Google permission');
+    });
+
+    it('happyPath_defaultsRenderReadOnlyConsentInDefaultLocale', async () => {
+        const note = await mount<HcmConsentNote>(html`<hcm-consent-note></hcm-consent-note>`);
+
+        expect(note.locale).toBe('ro');
+        expect(note.scope).toBe('cloudReadOnly');
+        expect(note.projectId).toBe('');
+        expect(note.amount).toBe('');
+        expect(note.domain).toBe('');
+        expect(deep(note, 'aside').getAttribute('aria-label')).toBe('Permisiune Google');
+    });
+
+    it('happyPath_defineHcmConsentNoteRegistersOnceAndIgnoresRepeatCalls', () => {
+        const defined = new Map<string, CustomElementConstructor>();
+        const registry = {
+            get: (name: string) => defined.get(name),
+            define: (name: string, ctor: CustomElementConstructor) => {
+                defined.set(name, ctor);
+            },
+        } as unknown as CustomElementRegistry;
+
+        defineHcmConsentNote(registry);
+        defineHcmConsentNote(registry);
+        defineHcmConsentNote();
+
+        expect(defined.size).toBe(1);
+        expect(defined.has(HCM_CONSENT_NOTE_TAG)).toBe(true);
     });
 });
