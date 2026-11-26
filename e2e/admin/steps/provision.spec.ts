@@ -32,6 +32,11 @@ test.beforeEach(async ({ adminWorld, upstream }) => {
     await upstream.scenario('billing-budgets.appBudget', 'browser');
 });
 
+// Live doctor rows settle before setup.recordCloud does. Keep the shared project until the preceding run has been recorded.
+test.afterEach(async ({ page, lang }) => {
+    await expect(new SetupPage(page, lang).card('provision').locator('[data-busy]')).toHaveCount(0, { timeout: 60_000 });
+});
+
 /** The Compute Engine default account: the functions' build account (finding 33 of 2026-10-31). */
 const COMPUTE_EMAIL = `${ADMIN_PROJECT.projectNumber}-compute@developer.gserviceaccount.com`;
 const COMPUTE = `serviceAccount:${COMPUTE_EMAIL}`;
@@ -212,6 +217,7 @@ test(
             await route.fallback();
         });
         const { card, run } = await provisionCard(page, lang);
+        await expect(card.locator('[data-item="secrets"]')).toHaveAttribute('data-state', 'missing');
         await withConsent(page, consent, run, setupBudget.inputs('provision', 1), setupBudget.consents('provision', 1));
 
         const proceed = card.getByRole('button', { name: shellText(lang, 'adminShell.session.continue') });
