@@ -103,3 +103,5 @@ export function defineHcmExample(registry: CustomElementRegistry = customElement
 - A live region exists, empty, before the text it announces: one created together with its text is not announced. `hcm-snackbar` keeps a visually hidden polite region and fills it with the message alone `ANNOUNCE_DELAY_MS` after it shows (`docs/LESSONS.md` #20); the overlay list's region is always rendered.
 - Forced colours stay readable; nothing is conveyed by colour alone.
 - Tests: Vitest browser mode with `page.getByRole`, keyboard interaction, RO and EN strings, window-class variants, reduced motion (`quality/testing_strategy_skill.md`).
+
+For pointer tests on a moving sheet handle, wait for the Lit update and the panel’s Web Animations promises before aiming each click (lesson 830).

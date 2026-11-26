@@ -29,6 +29,16 @@ async function open(sheet: HcmSheet, opener: HTMLButtonElement): Promise<void> {
     await sheet.updateComplete;
 }
 
+/** A click on the handle needs the sheet to finish entering or changing height first. */
+async function settledSheet(sheet: HcmSheet): Promise<void> {
+    await sheet.updateComplete;
+    await Promise.all(
+        shadowPart(sheet, '.sheet')
+            .getAnimations()
+            .map((animation) => animation.finished),
+    );
+}
+
 function pointer(target: EventTarget, type: string, clientY: number, button = 0): void {
     target.dispatchEvent(new PointerEvent(type, { clientY, button, bubbles: true, composed: true }));
 }
@@ -110,8 +120,12 @@ describe('<hcm-sheet>', () => {
         await open(sheet, opener);
         const handle = page.getByRole('button', { name: 'Redimensionează' });
 
+        await settledSheet(sheet);
         await userEvent.click(handle);
+        expect(sheet.detent).toBe('full');
+        await settledSheet(sheet);
         await userEvent.click(handle);
+        expect(sheet.detent).toBe('peek');
         press(shadowPart(sheet, '.handle'), 'ArrowUp');
         press(shadowPart(sheet, '.handle'), 'ArrowUp');
         press(shadowPart(sheet, '.handle'), 'ArrowDown');
