@@ -249,7 +249,10 @@ def test_bad_path_readers_refuse_wrong_shapes() -> None:
 
 
 def test_happy_path_every_regeoref_params_the_server_writes_parse_here() -> None:
-    """Scenarios: S-P20-HAPPY-REGEOREF-SHARED (the golden the shared schema reads too: a fake job can no longer hide a new key)."""
+    """The golden the shared schema reads too: a fake job can no longer hide a new key.
+
+    Scenarios: S-P20-HAPPY-REGEOREF-SHARED
+    """
     cases = golden("job-params.regeoref.json")["cases"]
     assert isinstance(cases, list)
     parsed = [RegeorefParams.of(case) for case in cases]

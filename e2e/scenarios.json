@@ -6985,6 +6985,17 @@
             "notes": "Milestone M3, CR-M3-47 (the M3 security and minimum-input reviews)."
         },
         {
+            "id": "S-A12-BAD-STALE-CLOUD",
+            "behaviour": "A12",
+            "area": "admin",
+            "path": "bad",
+            "title": "A stale cloud dispatch starts nothing",
+            "asserts": "a queued cloud job replaced before the dispatch transaction (cancelled, not due yet, waiting for a later day, out of attempts, or held by a worker) is skipped",
+            "tier": "functions",
+            "status": "exists",
+            "notes": "Test: functions/test/imagery/dispatch.test.ts."
+        },
+        {
             "id": "S-A12-BAD-NOT-RETRYABLE",
             "behaviour": "A12",
             "area": "admin",
@@ -14405,7 +14416,7 @@
             "path": "happy",
             "title": "The layer page sets what a layer is: map, aerial photo or satellite image",
             "asserts": "the What it is control edits kind on the layer; the rules allow kind in satellite/aerial/map; an upload named as a map (impartirea, administrativ, sistematizare, plan...) or without a photo word finalizes as a map",
-            "tier": "unit",
+            "tier": "rules",
             "status": "exists",
             "notes": "Live 2026-11-22 (1966 and 1935 maps listed as photos). Tests: packages/ui/test/admin/layers/layers-page.test.ts, firebase/rules-tests/test/layers.test.ts, functions/test/imagery/finalize.test.ts."
         },
@@ -14416,7 +14427,7 @@
             "path": "bad",
             "title": "A kind the viewer does not know is refused; a photo upload stays aerial",
             "asserts": "kind 'drawing' -> rules deny; an upload named Ortofoto -> aerial",
-            "tier": "unit",
+            "tier": "rules",
             "status": "exists",
             "notes": "Live 2026-11-22. Tests: firebase/rules-tests/test/layers.test.ts, functions/test/imagery/finalize.test.ts."
         },
@@ -21540,7 +21551,7 @@
         {
             "id": "S-P20-HAPPY-REGEOREF-HOLDER",
             "behaviour": "P20",
-            "area": "functions",
+            "area": "pipeline",
             "path": "happy",
             "title": "A regeoref of an archive version names its archive and is claimed by the holder",
             "asserts": "startRegeoref on an archive base sets params.originalArchiveId (a USGS base does not); archiveHere returns true and worker.claim hands the job to a worker holding that archive whole",
@@ -21551,7 +21562,7 @@
         {
             "id": "S-P20-BAD-REGEOREF-NOT-HOLDER",
             "behaviour": "P20",
-            "area": "functions",
+            "area": "pipeline",
             "path": "bad",
             "title": "A worker without the archive cannot claim a regeoref of an archive version",
             "asserts": "a worker without the archive cannot claim a regeoref of an archive version before the holder's copy, nor one handed back for a new copy; a frame's regeoref reads no archive copy",
@@ -24541,17 +24552,6 @@
             "notes": "Rules: firebase/rules-tests/test/photos.test.ts; unit: packages/shared/test/schemas/manifest.test.ts."
         },
         {
-            "id": "S-A194-HAPPY",
-            "behaviour": "A194",
-            "area": "admin",
-            "path": "happy",
-            "title": "After the Statistics page read the numbers, Home's Visitors card shows them with the trend and the top lists",
-            "asserts": "Show the numbers on Statistics (one consent) -> back on Home the card shows the period's visitors and visits, the trend, the last day, new against returning, the top countries, languages, devices, years, layers and photos, with All the numbers",
-            "tier": "e2e-admin",
-            "status": "exists",
-            "notes": "The owner's request, 2026-11-16. Test: e2e/admin/specs/ops/statistics.spec.ts; unit: packages/ui/test/admin/home/visitors.test.ts, packages/admin/test/home/visitors.test.ts."
-        },
-        {
             "id": "S-A195-HAPPY-RULES",
             "behaviour": "A195",
             "area": "admin",
@@ -24581,7 +24581,7 @@
             "title": "The admin draws the area of an aerial photo in front of the camera and saves it",
             "asserts": "an aerial photo with a place and a direction north -> Draw the area in front of the camera shows Reset and Remove; Save writes viewedArea of four corners, the far ones north of the near ones",
             "tier": "e2e-admin",
-            "status": "planned",
+            "status": "exists",
             "notes": "The owner, 2026-11-22. Unit coverage today: packages/admin/test/photos/store.test.ts, packages/ui/test/admin/photos/photo-editor.test.ts."
         },
         {
@@ -24592,7 +24592,7 @@
             "title": "A crossed viewed area says why and is not saved",
             "asserts": "an aerial photo whose stored area crosses itself -> the Viewed area section shows the validation.viewedArea message; Reset clears it",
             "tier": "e2e-admin",
-            "status": "planned",
+            "status": "exists",
             "notes": "The owner, 2026-11-22. Unit coverage today: packages/admin/test/photos/store.test.ts (area.refused)."
         },
         {
@@ -24625,7 +24625,7 @@
             "title": "Selecting or hovering an aerial photo draws its viewed area",
             "asserts": "a manifest with an aerial photo and a viewedArea -> hovering its marker or opening it fills and outlines the area (hcm-photos-area-fill / -line); leaving it hides the area",
             "tier": "e2e-viewer",
-            "status": "planned",
+            "status": "exists",
             "notes": "The owner, 2026-11-22. Unit coverage today: packages/ui/test/map/mapbox-adapter.test.ts, packages/engine/test/core/map-specs.test.ts."
         },
         {

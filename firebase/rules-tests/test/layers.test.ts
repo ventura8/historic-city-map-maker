@@ -49,7 +49,7 @@ describe('presentation', () => {
         ['an old city plan (Specht, 1790)', { year: 1790 }],
         ['a corrected licence and author', { rights: { licence: 'CC-BY-SA-4.0', author: 'Institutul Geografic' } }],
         ['removed rights', { rights: deleted() }],
-        ['a drawn map, once taken for an aerial photo', { kind: 'map' }],
+        ['a drawn map, once taken for an aerial photo @S-A33-HAPPY-LAYER-KIND', { kind: 'map' }],
         ['a small-area map of a place @S-A199-HAPPY-LAYER-PLACES', { placeIds: ['parcul-carol'] }],
     ])('happyPath_adminSaves_%s', async (_label, changes) => {
         expect(await edit(changes)).toBe('allow');
@@ -66,7 +66,7 @@ describe('presentation', () => {
         ['a fractional order', { order: 1.5 }],
         ['a visibility that is not a boolean', { defaultVisible: 'yes' }],
         ['a published flag that is not a boolean', { published: 1 }],
-        ['a kind the viewer does not know', { kind: 'drawing' }],
+        ['a kind the viewer does not know @S-A33-BAD-LAYER-KIND', { kind: 'drawing' }],
         ['places that are not a list @S-A199-BAD-LAYER-PLACES', { placeIds: 'parcul-carol' }],
         ['a label over 200 characters', { label: { ro: 'x'.repeat(201) } }],
         ['a label without Romanian', { label: { en: 'Corona 1966' } }],
