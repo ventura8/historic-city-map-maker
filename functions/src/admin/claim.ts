@@ -46,7 +46,8 @@ function isGrantedBy(email: string, info: TokenInfo): boolean {
 }
 
 function hasClaimScope(info: TokenInfo): boolean {
-    return info.scopes.includes(CLAIM_OAUTH_SCOPE) || info.scopes.includes(CLOUD_PLATFORM_SCOPE);
+    const scopes = new Set(info.scopes);
+    return scopes.has(CLAIM_OAUTH_SCOPE) || scopes.has(CLOUD_PLATFORM_SCOPE);
 }
 
 /**

@@ -17,7 +17,13 @@ export type CrashNoise = 'injected' | 'extension' | 'aborted';
 const INJECTED_GLOBALS = /__firefox__|__gCrWeb|webkit\.messageHandlers|_AutofillCallbackHandler|__isAndroid|ucbrowser/i;
 const EXTENSION_FRAME = /(?:chrome|moz|safari|safari-web|ms-browser)-extension:\/\//;
 /** A frame at line 1 of an HTML page (`…/:1:12`, `…/index.html:1:3`): an injected script, our code lives in `.js` files. */
-const PAGE_FRAME = /https?:\/\/[^\s()]*?(?:\/|\.html?):1:\d+\)?$/;
+const PAGE_POSITION = /(?:\/|\.html?):1:\d+$/;
+
+function pageFrame(frame: string): boolean {
+    const tokens = frame.replace(/\)$/, '').split(/[\s()]/);
+    const url = tokens.at(-1) ?? '';
+    return /https?:\/\//.test(url) && PAGE_POSITION.test(url);
+}
 const FRAME = /(?:^\s*at\s|@)/;
 
 /** A field of an error-like value as text: a string error is its own message; anything else gives ''. */
@@ -43,7 +49,7 @@ function framesOf(stack: string): readonly string[] {
 }
 
 function injected(message: string, frames: readonly string[]): boolean {
-    return INJECTED_GLOBALS.test(message) || (frames.length > 0 && frames.every((frame) => PAGE_FRAME.test(frame)));
+    return INJECTED_GLOBALS.test(message) || (frames.length > 0 && frames.every(pageFrame));
 }
 
 /** The reason `error` is no crash of the page's, or null when it is one. */

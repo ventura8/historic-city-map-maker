@@ -7,6 +7,11 @@ set -euo pipefail
 
 main() {
 	local base="${LINT_BASE:-origin/feat/engine-rewrite}"
+	# A PC checkout can have only HEAD. Fail before the process substitution can hide a bad base.
+	git rev-parse --verify --quiet "${base}^{commit}" >/dev/null || {
+		echo "[lint:changed] missing Git base $base. Set LINT_BASE to the commit to compare." >&2
+		return 1
+	}
 	local -a files=()
 	local file
 	while IFS= read -r -d '' file; do

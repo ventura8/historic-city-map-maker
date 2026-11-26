@@ -138,7 +138,7 @@ test(
         expect(new Set(Object.keys(released.files))).toEqual(new Set([...manifest.files.map((file) => file.path), 'admin/project.json']));
         expectManifestReleased(manifest, released.bytes);
         expectGenericTree(manifest);
-        expect(JSON.stringify(released.config)).toContain(`"${PROJECT}`.replace('"', ''));
+        expect(JSON.stringify(released.config)).toContain(PROJECT);
         expect(JSON.stringify(released.config)).not.toContain('__HCM_PROJECT_ID__');
         const project = JSON.parse(released.files['admin/project.json'] ?? '{}') as Record<string, unknown>;
         expect(project).toMatchObject({

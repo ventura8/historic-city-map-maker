@@ -25,7 +25,9 @@ const ADMIN_MADE_CITY = 'bacau';
 function firebaseRequests(page: Page): Request[] {
     const seen: Request[] = [];
     page.on('request', (request) => {
-        if (/firestore\.googleapis\.com|firebase(?:io|installations|remoteconfig)?\.googleapis\.com|firebaseio\.com/.test(request.url())) {
+        const { hostname } = new URL(request.url());
+        const googleService = /^(?:firestore|firebase(?:io|installations|remoteconfig)?)\.googleapis\.com$/.test(hostname);
+        if (googleService || /(?:^|\.)firebaseio\.com$/.test(hostname)) {
             seen.push(request);
         }
     });

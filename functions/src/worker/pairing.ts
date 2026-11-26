@@ -25,7 +25,7 @@ const PAIR_ID_LENGTH = 40;
 
 /** A new one-time code: 26 base32 characters from the system's random source. */
 export function newPairCode(random: (size: number) => Uint8Array = randomBytes): string {
-    return [...random(CODE_LENGTH)].map((byte) => BASE32[byte % BASE32.length] ?? 'a').join('');
+    return [...random(CODE_LENGTH)].map((byte) => BASE32[byte & 31] ?? 'a').join('');
 }
 
 /** The pairing's id: the first 40 hex characters of the code's SHA-256 (the code itself is never stored). */

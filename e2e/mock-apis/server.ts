@@ -1,6 +1,7 @@
 import { createServer, type IncomingHttpHeaders, type IncomingMessage, type Server, type ServerResponse } from 'node:http';
-import { readFile, stat } from 'node:fs/promises';
-import { extname, join, normalize, resolve, sep } from 'node:path';
+import { constants } from 'node:fs';
+import { open, realpath, stat } from 'node:fs/promises';
+import { extname, join, resolve, sep } from 'node:path';
 import { gzipSync } from 'node:zlib';
 
 import { TEST_HEADER } from '../fixtures/world.js';
@@ -262,19 +263,44 @@ export async function isFile(path: string): Promise<boolean> {
     }
 }
 
+/** Read a regular file from a served tree. Check the opened file itself before returning any bytes (Linux). */
+export async function readSiteFile(dir: string, name: string): Promise<Buffer | undefined> {
+    const root = resolve(dir);
+    const file = resolve(join(root, name));
+    if (!file.startsWith(`${root}${sep}`)) {
+        return undefined;
+    }
+    try {
+        const handle = await open(file, constants.O_RDONLY | constants.O_NONBLOCK);
+        try {
+            const opened = await realpath(`/proc/self/fd/${String(handle.fd)}`);
+            if (opened.startsWith(`${await realpath(root)}${sep}`) && (await handle.stat()).isFile()) {
+                return await handle.readFile();
+            }
+        } finally {
+            await handle.close();
+        }
+    } catch (error) {
+        if (!['ENOENT', 'ENOTDIR', 'ELOOP'].includes((error as NodeJS.ErrnoException).code ?? '')) {
+            throw error;
+        }
+    }
+    return undefined;
+}
+
 /** The file a site URL names below `dir`, or null outside `dir` or when missing; a folder means its index.html. */
-async function siteFile(dir: string, pathname: string): Promise<{ file: string } | { redirect: true } | null> {
-    const target = normalize(join(dir, decodeURIComponent(pathname)));
-    if (target !== dir && !target.startsWith(`${dir}${sep}`)) {
+async function siteFile(dir: string, pathname: string): Promise<{ file: string; bytes: Buffer } | { redirect: true } | null> {
+    const name = decodeURIComponent(pathname);
+    const bytes = await readSiteFile(dir, name);
+    if (bytes !== undefined) {
+        return { file: name, bytes };
+    }
+    const file = join(name, 'index.html');
+    const index = await readSiteFile(dir, file);
+    if (index === undefined) {
         return null;
     }
-    if (await isFile(target)) {
-        return { file: target };
-    }
-    if (!(await isFile(join(target, 'index.html')))) {
-        return null;
-    }
-    return pathname.endsWith('/') ? { file: join(target, 'index.html') } : { redirect: true };
+    return pathname.endsWith('/') ? { file, bytes: index } : { redirect: true };
 }
 
 /**
@@ -303,7 +329,7 @@ async function handleSite(request: IncomingMessage, response: ServerResponse, di
         send(response, { status: 301 }, { location: `${url.pathname}/${url.search}` });
     } else {
         const type = SITE_TYPES[extname(found.file)] ?? 'application/octet-stream';
-        sendFile(request, response, type, await readFile(found.file));
+        sendFile(request, response, type, found.bytes);
     }
 }
 

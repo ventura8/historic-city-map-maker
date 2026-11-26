@@ -178,7 +178,10 @@ test(
         await title.fill('Gara de Nord');
 
         // An hour later Firebase Auth asks the Auth emulator for a new ID token, without a word to the admin.
-        const refreshed = page.waitForRequest(/securetoken\.googleapis\.com\/v1\/token/);
+        const refreshed = page.waitForRequest((request) => {
+            const url = new URL(request.url());
+            return url.origin === 'https://securetoken.googleapis.com' && url.pathname === '/v1/token';
+        });
         await page.clock.fastForward('01:00:00');
         await refreshed;
         await expect(page.getByRole('button', { name: translateAdminShell(lang, 'adminShell.auth.signIn') })).toHaveCount(0);

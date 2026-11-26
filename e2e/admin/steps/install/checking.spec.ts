@@ -133,6 +133,6 @@ test(
         await expect(card.getByRole('button', { name: setupText(lang, 'adminSetup.install.updateAction') })).toHaveCount(0);
         expect(await submittedBuilds(upstream)).toEqual([]);
         // The browser logs each 503 Cloud Build answered meanwhile (the cards keep looking).
-        expect(consoleErrors.takeMatching(/503.*cloudbuild\.googleapis\.com/).length).toBeGreaterThan(0);
+        expect(consoleErrors.takeMatching(/503.*https:\/\/cloudbuild\.googleapis\.com\//).length).toBeGreaterThan(0);
     },
 );

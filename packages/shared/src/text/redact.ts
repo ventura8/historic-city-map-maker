@@ -7,7 +7,12 @@
  */
 import { REDACTED } from '../log.js';
 
-const URL_TAIL = /(https?:\/\/[^\s?#'"()]+)[?#][^\s'"()]*/g;
+const URL_TEXT = /https?:\/\/[^\s'"()]+/g;
+
+function withoutUrlTail(url: string): string {
+    const tail = url.search(/[?#]/);
+    return tail < 0 ? url : url.slice(0, tail);
+}
 const SECRETS = [
     /\b[ps]k\.[\w.-]{8,}/g,
     /\bAIza[\w-]{20,}/g,
@@ -19,5 +24,5 @@ const SECRETS = [
 
 /** `text` without URL queries and fragments, tokens and e-mail addresses. */
 export function redactText(text: string): string {
-    return SECRETS.reduce((current, pattern) => current.replace(pattern, REDACTED), text.replace(URL_TAIL, '$1'));
+    return SECRETS.reduce((current, pattern) => current.replace(pattern, REDACTED), text.replace(URL_TEXT, withoutUrlTail));
 }

@@ -187,7 +187,12 @@ describe('httpsPinnedGet over a loopback server', () => {
                     });
                 },
             };
-            (answers[String(request.url)] ?? answers['/missing'])?.();
+            const handler = new Map(Object.entries(answers)).get(request.url ?? '');
+            if (handler === undefined) {
+                response.writeHead(404).end();
+            } else {
+                handler();
+            }
         });
         await new Promise<void>((resolve) => server.listen(0, '127.0.0.1', resolve));
         port = (server.address() as AddressInfo).port;

@@ -73,7 +73,10 @@ const ADDRESSES = emulatorAddresses();
 /** `http://127.0.0.1:<port>` of an emulator. */
 export function emulatorOrigin(name: EmulatorName): string {
     const { host, port } = ADDRESSES[name];
-    return `http://${host}:${String(port)}`;
+    if (host !== '127.0.0.1' || !Number.isInteger(port) || port < 1 || port > 65535) {
+        throw new Error(`The ${name} emulator requires 127.0.0.1 and a port between 1 and 65535.`);
+    }
+    return `http://127.0.0.1:${String(port)}`;
 }
 
 /**

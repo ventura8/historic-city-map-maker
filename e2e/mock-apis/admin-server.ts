@@ -1,4 +1,3 @@
-import { readFile } from 'node:fs/promises';
 import { statSync } from 'node:fs';
 import { createServer, type IncomingMessage, type Server, type ServerResponse } from 'node:http';
 import { extname, join, normalize, resolve, sep } from 'node:path';
@@ -12,7 +11,7 @@ import {
     type HostingConfig,
 } from '../../scripts/site/src/admin/hosting.js';
 import type { MockResponse } from './router.js';
-import { failed, listen, SITE_TYPES } from './server.js';
+import { failed, listen, readSiteFile, SITE_TYPES } from './server.js';
 
 /**
  * The e2e Hosting server (docs/research/M2b-interfaces.md §6.2, M6-interfaces.md §2, §7): the e2e build's Firebase Hosting
@@ -141,8 +140,7 @@ async function served(dir: string, answer: HostingAnswer): Promise<MockResponse>
     if (answer.kind === 'missing') {
         return NOT_FOUND;
     }
-    const file = join(dir, answer.file);
-    return { status: answer.status, type: SITE_TYPES[extname(file)] ?? 'application/octet-stream', body: await readFile(file) };
+    return staticAnswer(dir, answer.file, answer.status);
 }
 
 /** The folder of what this browser's test released, or undefined (M14). */
@@ -156,12 +154,13 @@ async function staticFolder(dir: string | undefined, prefix: string, pathname: s
     if (dir === undefined || !pathname.startsWith(prefix)) {
         return undefined;
     }
-    const relative = normalize(decodeURIComponent(pathname.slice(prefix.length)) || 'index.html');
-    const file = resolve(dir, relative);
-    if (!file.startsWith(`${resolve(dir)}${sep}`) || !statSync(file, { throwIfNoEntry: false })?.isFile()) {
-        return NOT_FOUND;
-    }
-    return { status: 200, type: SITE_TYPES[extname(file)] ?? 'application/octet-stream', body: await readFile(file) };
+    return staticAnswer(dir, decodeURIComponent(pathname.slice(prefix.length)) || 'index.html', 200);
+}
+
+/** Serve bytes and their media type only after checking the opened file belongs to this tree. */
+async function staticAnswer(dir: string, name: string, status: number): Promise<MockResponse> {
+    const body = await readSiteFile(dir, name);
+    return body === undefined ? NOT_FOUND : { status, type: SITE_TYPES[extname(name)] ?? 'application/octet-stream', body };
 }
 
 /** The start site at `/start/` (M14) or the landing page at `/landing/`, or undefined for any other address. */

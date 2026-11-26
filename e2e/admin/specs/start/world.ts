@@ -155,10 +155,20 @@ export async function claimProjectRead(consoleErrors: Recorder): Promise<void> {
 }
 
 function bundleServer(folder: string, projectFile: string): Promise<{ readonly origin: string; readonly close: () => void }> {
+    const files = new Map(
+        readdirSync(folder, { withFileTypes: true })
+            .filter((entry) => entry.isFile())
+            .map((entry) => [entry.name, join(folder, entry.name)] as const),
+    );
+    files.set('project.json', projectFile);
     const server = createServer((request, response) => {
         const name = (request.url ?? '').split('/').pop() ?? '';
-        response.writeHead(200);
-        response.end(readFileSync(name === 'project.json' ? projectFile : join(folder, name)));
+        const file = files.get(name);
+        if (file === undefined) {
+            response.writeHead(404).end();
+            return;
+        }
+        response.writeHead(200).end(readFileSync(file));
     });
     return new Promise((done) => {
         server.listen(0, '127.0.0.1', () => {

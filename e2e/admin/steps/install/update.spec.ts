@@ -339,7 +339,7 @@ test(
         await expect(update).toHaveCount(0);
         expect((await adminWorld.emulators.document('setup/status'))?.['provision']).not.toHaveProperty('setVersion');
         await upstream.fail('cloud-build', null, 'browser');
-        expect(consoleErrors.takeMatching(/503.*cloudbuild\.googleapis\.com/).length).toBeGreaterThan(0);
+        expect(consoleErrors.takeMatching(/503.*https:\/\/cloudbuild\.googleapis\.com\//).length).toBeGreaterThan(0);
         await page.clock.fastForward(20_000);
         await expect(deploy.locator('.install [role="alert"]')).not.toContainText(apiText(lang, 'apiError.unavailable'));
 
