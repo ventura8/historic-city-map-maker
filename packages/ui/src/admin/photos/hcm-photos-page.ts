@@ -24,7 +24,12 @@ import type { PhotosIntentsPort, PhotosViewState, StickyPort } from './photos-po
 
 export const HCM_PHOTOS_PAGE_TAG = 'hcm-photos-page';
 
-/** Window classes where the list and the detail show side by side (the map then shows without an open photo). */
+function backgroundTitle(locale: UiLocale, label: PhotosViewState['backgrounds'][number]['label']): string {
+    if (label === null) {
+        return photoText(locale, 'adminContent.photos.map.satellite');
+    }
+    return locale === 'en' ? (label.en ?? label.ro) : label.ro;
+}
 
 export class HcmPhotosPage extends AreaPage<PhotosViewState, PhotosIntentsPort> {
     static override readonly properties = { ...AreaPage.properties, settingFields: { state: true } };
@@ -122,9 +127,7 @@ export class HcmPhotosPage extends AreaPage<PhotosViewState, PhotosIntentsPort> 
                 <option value="">${photoText(locale, 'adminContent.settings.basemap.standard')}</option>
                 ${view.backgrounds.map(
                     ({ id, label }) =>
-                        html`<option value=${id} .selected=${id === view.background}>
-                            ${locale === 'en' ? (label.en ?? label.ro) : label.ro}
-                        </option>`,
+                        html`<option value=${id} .selected=${id === view.background}>${backgroundTitle(locale, label)}</option>`,
                 )}
             </select>
         </label>`;

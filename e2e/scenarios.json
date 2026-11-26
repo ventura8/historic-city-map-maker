@@ -26063,8 +26063,8 @@
             "behaviour": "A195",
             "area": "admin",
             "path": "bad",
-            "title": "Without city imagery the editor shows the photo on the standard map",
-            "asserts": "The pin is visible on the ready map and no empty layer picker is offered.",
+            "title": "Without saved layers the editor places a photo against current satellite imagery",
+            "asserts": "Start on the street map, choose current satellite imagery, see the provider credits and the photo pin, then return to streets.",
             "tier": "e2e-admin",
             "status": "exists",
             "notes": "Test: e2e/admin/specs/photos/viewed-area.spec.ts."

@@ -80,11 +80,33 @@ test('A satellite layer helps place a photo on the same map', { tag: '@S-A195-HA
 });
 
 test(
-    'Without city imagery the editor shows the photo on the standard map',
+    'Without saved layers the editor places a photo against current satellite imagery',
     { tag: '@S-A195-BAD-NO-BACKGROUND' },
     async ({ page, content, lang }) => {
+        const satellite = 'mapbox.satellite';
+        let reads = 0;
+        // Only this photo scenario answers the real provider address locally; georeferencing keeps the firewall.
+        await page.route('https://api.mapbox.com/v4/mapbox.satellite.json*', (route) => {
+            reads += 1;
+            return route.fulfill({
+                json: {
+                    tilejson: '2.2.0',
+                    tiles: ['https://api.mapbox.com/v4/e2e-user.satellite/{z}/{x}/{y}.webp'],
+                    attribution: 'Photo imagery test provider',
+                },
+            });
+        });
         await openAerial(page, content, lang, {});
-        await expect(page.getByRole('combobox', { name: photosText(lang, 'adminContent.photos.map.background') })).toHaveCount(0);
+        const picker = page.getByRole('combobox', { name: photosText(lang, 'adminContent.photos.map.background') });
+        await expect(picker.locator('option')).toHaveCount(2);
+        expect(reads).toBe(0);
+        await picker.selectOption({ label: photosText(lang, 'adminContent.photos.map.satellite') });
+        await expect.poll(() => reads).toBeGreaterThan(0);
+        await adminMapReady(page);
+        await expect.poll(() => rasterPaint(page, satellite, 'raster-opacity')).toBe(1);
+        await expect(page.locator('.mapboxgl-ctrl-attrib-inner')).toContainText('Photo imagery test provider');
         await expect.poll(() => photoMarker(page, 'air')).toEqual([START.lng, START.lat]);
+        await picker.selectOption('');
+        await expect.poll(() => rasterPaint(page, satellite, 'raster-opacity')).toBeUndefined();
     },
 );

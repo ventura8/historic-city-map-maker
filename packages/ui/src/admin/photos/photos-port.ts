@@ -202,7 +202,10 @@ export interface PhotosViewState {
     readonly uploads: readonly UploadItemPort[];
     readonly sticky: StickyPort;
     readonly editor: PhotoEditorPort | null;
-    readonly backgrounds: readonly { readonly id: string; readonly label: { readonly ro: string; readonly en?: string | undefined } }[];
+    readonly backgrounds: readonly {
+        readonly id: string;
+        readonly label: { readonly ro: string; readonly en?: string | undefined } | null;
+    }[];
     readonly background: string;
     readonly map: MapStatusPort;
     readonly confirm: { readonly ids: readonly string[]; readonly title: string | null } | null;

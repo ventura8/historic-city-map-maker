@@ -306,7 +306,7 @@ export interface PmtilesCustomSource extends Readonly<Record<string, unknown>> {
 export interface RasterSourceFields {
     readonly minzoom: number;
     readonly maxzoom: number;
-    readonly attribution: string;
+    readonly attribution?: string;
     readonly bounds?: readonly number[];
 }
 

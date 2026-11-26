@@ -513,13 +513,19 @@ describe('the photo placement background', () => {
 
     it('chooses an imagery layer by its local title', async () => {
         const backgrounds = [
+            { id: 'mapbox.satellite', label: null },
             { id: 'plan', label: { ro: 'Plan vechi', en: 'Old map' } },
             { id: 'image', label: { ro: 'Corona' } },
         ];
         const photos = area(photosState({ map: 'ready', backgrounds, background: 'plan' }));
         const { element } = await photosPage(photos);
         const picker = deep(element, '.detail select') as HTMLSelectElement;
-        expect(Array.from(picker.options, (item) => item.textContent.trim())).toEqual(['Mapbox Standard', 'Old map', 'Corona']);
+        expect(Array.from(picker.options, (item) => item.textContent.trim())).toEqual([
+            'Mapbox Standard',
+            'Current satellite imagery (Mapbox)',
+            'Old map',
+            'Corona',
+        ]);
         expect(picker.value).toBe('plan');
         picker.value = 'image';
         picker.dispatchEvent(new Event('change'));

@@ -14,7 +14,7 @@ import { readPlacePicks } from '../content/place-picks.js';
 import { ownerOnlyOf, type Stored } from '../content/services.js';
 import { PhotoActions, type ActionIntents } from './actions.js';
 import { photoAssists, type PhotoAssistIntents } from './assists.js';
-import { canChooseBackground, photoBackgrounds } from './backgrounds.js';
+import { canChooseBackground, chosenBackground, photoBackgrounds } from './backgrounds.js';
 import type { AreaContext, CityPlace } from './context.js';
 import { PhotoEditing, type EditingIntents } from './editing.js';
 import { PhotoList } from './list.js';
@@ -279,9 +279,9 @@ export class PhotosArea implements PhotosStore {
     }
 
     #background(id: string): void {
-        const layer = this.#layers.list.items.find((item) => item.id === id) ?? { id: '', raster: null };
-        this.#map?.background(layer.raster);
-        this.#set({ background: layer.id });
+        const raster = chosenBackground(id, this.#layers.list.items);
+        this.#map?.background(raster);
+        this.#set({ background: raster?.id ?? '' });
     }
 
     #showMap(): void {

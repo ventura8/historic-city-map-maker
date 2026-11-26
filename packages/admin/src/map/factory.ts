@@ -1,7 +1,7 @@
 /**
  * The admin's map (docs/research/M2c-interfaces.md §3): the viewer's `MapPort` and Mapbox adapter (`@hcm/ui/map`), one
- * map per page visit, always the Standard style without 3D objects: **Mapbox Satellite is never loaded in the admin**,
- * whatever the city's basemap, so it can never become an alignment reference. The token is the admin's own
+ * map per page visit, starting on the Standard style without 3D objects. Photos alone can add current satellite imagery
+ * beneath a pin. The georeferencer uses OSM and Sentinel-2 to align historical imagery. The token is the admin's own
  * URL-restricted public token (`setup/status.mapbox.adminToken`); without it the page shows the unavailable map and
  * every field still works. Mapbox GL JS is loaded on the first map of the session; the drawing tools on first use:
  * Terra Draw when its loader is given and succeeds, else the click-only tools (`createClickDrawPort`).

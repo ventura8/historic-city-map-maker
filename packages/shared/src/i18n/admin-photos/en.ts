@@ -6,6 +6,7 @@ import type { AdminPhotosKey } from './ro.js';
  */
 export const en: Readonly<Record<AdminPhotosKey, string>> = {
     // [section photos] owner: photos; keys adminContent.photos.*
+    'adminContent.photos.map.satellite': 'Current satellite imagery (Mapbox)',
     'adminContent.photos.map.background': 'Map background',
     'adminContent.photos.title': 'Photos',
     'adminContent.photos.empty': 'No photos yet. Add the first ones with Add photos.',

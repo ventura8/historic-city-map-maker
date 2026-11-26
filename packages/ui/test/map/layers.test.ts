@@ -125,6 +125,8 @@ describe('raster layers', () => {
         expect(rasterSource({ ...RASTER, attribution })['attribution']).toBe(
             '&lt;a href="https://phish.example"&gt;USGS&lt;/a&gt; &amp; &lt;img src=x onerror=alert(1)&gt;',
         );
+        expect(rasterSource({ ...RASTER, attribution: null })).not.toHaveProperty('attribution');
+        expect(rasterSource({ ...RASTER, attribution: '' })['attribution']).toBe('');
         expect(attributionText('USGS EROS © 1966')).toBe('USGS EROS © 1966');
     });
 

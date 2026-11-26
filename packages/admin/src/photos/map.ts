@@ -1,6 +1,6 @@
 /**
  * The photos page's map (`docs/research/M2c-interfaces.md` §3, §4.4, §5.2, §6.3): one map per page visit from the
- * admin's factory (Standard style, never Satellite), every loaded photo as a marker with its view cone, the edited
+ * admin's factory (Standard streets, current satellite imagery or a saved city layer), every loaded photo as a marker with its view cone, the edited
  * photo drawn from its draft (place, direction and field of view live, nothing written), the pin selected in the drawing
  * tools' `select` mode (dragged, or moved by a click on the map with the click tools) and the camera's target picked with
  * one click (`pick`). Without a factory, a token or

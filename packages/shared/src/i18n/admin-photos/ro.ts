@@ -8,6 +8,7 @@
  */
 export const ro = {
     // [section photos] owner: photos; keys adminContent.photos.*
+    'adminContent.photos.map.satellite': 'Imagini din satelit actuale (Mapbox)',
     'adminContent.photos.map.background': 'Fundalul hărții',
     'adminContent.photos.title': 'Fotografii',
     'adminContent.photos.empty': 'Nicio fotografie încă. Adaugă primele cu Adaugă fotografii.',

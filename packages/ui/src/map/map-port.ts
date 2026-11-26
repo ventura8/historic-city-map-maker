@@ -29,8 +29,8 @@ export interface RasterLayerSpec {
     readonly adjustments?: LayerAdjustments;
     /** Higher draws on top of lower within the slot: the viewer passes the layer's place in its stack (the timeline's on top, then by year). */
     readonly order: number;
-    /** Added to the attribution control while the layer is visible. */
-    readonly attribution: string;
+    /** Added to the attribution control while visible. Null retains the provider's own TileJSON credits. */
+    readonly attribution: string | null;
     /** M12: from this zoom on the picture's pixels are drawn square (the admin's look at what it approves); smooth when absent. */
     readonly sharpFrom?: number;
 }

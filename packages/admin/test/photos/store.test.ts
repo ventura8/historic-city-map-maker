@@ -28,6 +28,9 @@ describe('the photo placement background', () => {
         store.intents.attachMap(CONTAINER, () => undefined);
         await settle();
         const draft = store.state.editor?.value;
+        expect(store.state.backgrounds.map(({ id }) => id)).toContain('mapbox.satellite');
+        store.intents.selectBackground('mapbox.satellite');
+        expect([...world.maps.port.backgrounds]).toEqual(['mapbox.satellite']);
         store.intents.selectBackground('plan');
         expect([...world.maps.port.backgrounds]).toEqual(['plan']);
         store.intents.selectBackground('corona');

@@ -29,8 +29,8 @@ each with how the first run proves it.
    an unsaved edit.
 3. **The admin map is the viewer's map** (§3): `MapPort`, the Mapbox adapter and their helpers move from
    `packages/engine/src/map/` to `packages/ui/src/map/` (the `@hcm/ui/map` entry), which both apps may import
-   (CR-M2c-1). One map per page visit; the style is always `mapbox://styles/mapbox/standard`: **Mapbox Satellite is never
-   loaded in the admin**, so it can never become an alignment reference (the GCP editor of M3 uses OSM and Sentinel-2).
+   (CR-M2c-1). Each page uses one map with the `mapbox://styles/mapbox/standard` style. Photos can display current
+   Mapbox Satellite imagery behind its pin. The GCP editor of M3 aligns historical imagery using OSM and Sentinel-2.
 4. **`MapDrawPort` on Terra Draw** (§4): `terra-draw` **1.37.0** with `terra-draw-mapbox-gl-adapter` **1.5.0** (MIT,
    no runtime dependencies, the adapter declares `mapbox-gl ^3.9.2`, which 3.32.0 satisfies), bundled into the admin
    only, behind our own port; Mapbox GL Draw 1.5.2 was evaluated and not chosen (§4.1). Every drawing has a keyboard
@@ -365,9 +365,9 @@ export interface AdminMapHandle {
 
 - The token is `setup/status.mapbox.adminToken` (minted by `setup.saveMapbox` for the admin's origins, admin-readable);
   none: `reason: 'no-token'` and the unavailable-map state of §1.4.
-- The style is always `mapbox://styles/mapbox/standard` with `show3dObjects: false`, whatever the city's basemap: the
-  admin never requests a Satellite style or tileset. A unit test pins the options, and the e2e admin firewall fails a
-  request to any `mapbox.satellite` or `satellite-` style or tileset address.
+- Every admin map opens with `mapbox://styles/mapbox/standard` and `show3dObjects: false`. For photo placement,
+  selecting current satellite imagery adds the `mapbox.satellite` tileset on that map. The photo scenario serves
+  synthetic satellite tiles. The georeferencer's firewall rejects Mapbox Satellite requests.
 - Mapbox GL JS 3.32.0 is loaded on the first map of the session, by a `<script src>` added to the page (the admin's CSP
   already allows `api.mapbox.com` for scripts, styles and connections: `scripts/site/src/admin/csp.ts`), and its CSS is
   linked inside the element's shadow root, as the viewer does; never bundled. The e2e admin tier serves both from the

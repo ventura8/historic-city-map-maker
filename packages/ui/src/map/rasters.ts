@@ -50,7 +50,8 @@ export function rasterSource(spec: RasterLayerSpec): Readonly<Record<string, unk
     const fields = {
         minzoom: spec.minzoom,
         maxzoom: spec.maxzoom,
-        attribution: attributionText(spec.attribution),
+        // A provider-owned background supplies its credits from TileJSON.
+        ...(spec.attribution === null ? {} : { attribution: attributionText(spec.attribution) }),
         ...(spec.bounds === undefined ? {} : { bounds: [...spec.bounds[0], ...spec.bounds[1]] }),
     };
     return source.type === 'pmtiles'
