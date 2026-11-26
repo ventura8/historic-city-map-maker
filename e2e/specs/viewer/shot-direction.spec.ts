@@ -43,7 +43,7 @@ test('A click on the shot direction turns the map to the way the image was shot'
         t(lang, 'viewer.shotDirection', { degrees: '135' }),
     );
 
-    const icon = viewer(page).locator('.dock.shot hcm-shot-compass hcm-icon');
+    const icon = viewer(page).locator('.dock.shot hcm-shot-compass svg');
     await expect(icon).toHaveCSS('transform', 'matrix(-0.707107, 0.707107, -0.707107, -0.707107, 0, 0)');
     await button.click();
 
