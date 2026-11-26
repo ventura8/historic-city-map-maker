@@ -8,7 +8,7 @@
  */
 import { SITE_PUBLISH_TRANSFER_MB, SITE_PUBLISH_TRANSFER_TRIMMED_MB } from '@hcm/shared';
 
-import type { SetupContext } from './context.js';
+import { canUseCityStep, type SetupContext } from './context.js';
 import { apiFailure, setupMessage } from './messages.js';
 import type { LegacyImportProgress, SetupNotice } from './ports.js';
 import type { StepPatch } from './state.js';
@@ -44,6 +44,9 @@ class LegacyImport implements LegacyImportFlow {
     constructor(private readonly ctx: SetupContext) {}
 
     async detect(): Promise<void> {
+        if (!canUseCityStep(this.ctx, 'legacyImport')) {
+            return;
+        }
         try {
             this.progress(await this.ctx.deps.importer.detect(), false);
         } catch (error) {
@@ -52,6 +55,9 @@ class LegacyImport implements LegacyImportFlow {
     }
 
     async run(): Promise<void> {
+        if (!canUseCityStep(this.ctx, 'legacyImport')) {
+            return;
+        }
         this.ctx.count('legacyImport', 'inputs');
         this.ctx.patchStep('legacyImport', { busy: true, error: null });
         this.ctx.update((state) => ({ ...state, legacyImport: { ...state.legacyImport, running: true } }));

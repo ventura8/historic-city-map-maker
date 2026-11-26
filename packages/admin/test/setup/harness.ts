@@ -297,6 +297,7 @@ export function createHarness(): Harness {
         projectNumber: '123456789012',
         authDomain: `${PROJECT_ID}.firebaseapp.com`,
         cityId: 'bucharest',
+        canUseCity: vi.fn(() => true),
         github: true,
         cityBBox: [25.96, 44.33, 26.23, 44.54],
         serverDeployed: vi.fn<SetupHost['serverDeployed']>().mockResolvedValue(true),

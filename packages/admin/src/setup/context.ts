@@ -89,6 +89,16 @@ export interface SetupContext {
     nowIso(): string;
 }
 
+/** The Sources and legacy-import cards both target the project's primary city, even when another city is open. */
+export function canUseCityStep(ctx: SetupContext, step: 'sources' | 'legacyImport'): boolean {
+    if (ctx.deps.host.canUseCity()) {
+        return true;
+    }
+    const detail = { key: 'adminSetup.cityAccess', params: { city: ctx.deps.host.cityId } } as const;
+    ctx.patchStep(step, { state: 'unavailable', busy: false, detail });
+    return false;
+}
+
 /** A step's token must live this much longer to count as live (`MIN_TOKEN_LIFE_MS` of `google-access.ts`). */
 const LIVE_TOKEN_MS = 5 * 60_000;
 

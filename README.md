@@ -31,7 +31,7 @@ An npm-workspaces monorepo:
 | Path | Contents |
 | --- | --- |
 | `packages/engine` | `@hcm/engine`, the public viewer (Lit + Mapbox GL JS 3.34.1, loaded from Mapbox's CDN, never bundled); exposes `window.HistoricCityMap` |
-| `packages/admin` | `@hcm/admin`, the admin: its Setup Assistant and the editors (photos, places, layers, settings, history, jobs, admins, crash reports); photo placement against current satellite imagery or the city’s maps and scans, listed newest first above the two base maps |
+| `packages/admin` | `@hcm/admin`, the admin: its Setup Assistant with city-scoped source and legacy-photo checks, and the editors (photos, places, layers, settings, history, jobs, admins, crash reports); photo placement against current satellite imagery or the city’s maps and scans, listed newest first above the two base maps |
 | `packages/ui` | `@hcm/ui`, the Material 3 Expressive component kit, its self-hosted fonts and the viewer's elements ([packages/ui/README.md](packages/ui/README.md)) |
 | `packages/shared` | `@hcm/shared`, schemas (City Manifest v1), the overlay model, the URL hash, i18n (25 languages for the viewer, the admin and the start page, RO and EN bundled, the others fetched when chosen, a missing text in English, `docs/I18N.md`), logging |
 | `packages/test-support` | `@hcm/test-support`, fakes and fixtures for tests |

@@ -5,6 +5,8 @@ import { expectStateSound } from '../../../support/state-check.js';
 import { adminVisit } from '../../../tour/states.js';
 import { expect, test } from '../../support/content-test.js';
 import type { ContentWorld } from '../../support/content.js';
+import { setupText } from '../../support/i18n.js';
+import { SetupPage } from '../../support/setup-page.js';
 import { seedPhotosCity } from '../../support/photos.js';
 import { ADMIN_URL } from '../../world.js';
 
@@ -39,6 +41,12 @@ test(
     'The admin is an installable app at its own folder, and the account menu offers Install app',
     { tag: '@S-A185-HAPPY-INSTALLABLE' },
     async ({ page, context, content }) => {
+        const legacyRequests: string[] = [];
+        page.on('request', (request) => {
+            if (new URL(request.url()).pathname.includes('/legacy/')) {
+                legacyRequests.push(new URL(request.url()).pathname);
+            }
+        });
         await openAdmin(page, content);
 
         expect(await page.evaluate(async () => (await navigator.serviceWorker.getRegistration())?.scope)).toBe(ADMIN_URL);
@@ -76,6 +84,14 @@ test(
             .click();
         await expect.poll(() => page.evaluate(() => (window as unknown as { hcmPrompted?: number }).hcmPrompted)).toBe(1);
         await expect(page.getByRole('button', { name: translate('en', 'app.install') })).toHaveCount(0);
+        // The account owns only this city. Even when Setup opens, its primary-city steps explain the access they need.
+        await page.goto(content.address('en', 'setup/sources'));
+        const setup = new SetupPage(page, 'en');
+        const message = setupText('en', 'adminSetup.cityAccess', { city: 'bucharest' });
+        for (const step of ['sources', 'legacyImport'] as const) {
+            await expect((await setup.show(step)).getByText(message, { exact: true })).toBeVisible();
+        }
+        expect(legacyRequests).toEqual([]);
     },
 );
 

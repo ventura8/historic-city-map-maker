@@ -6,6 +6,7 @@
  * `adminSetup.link.<links.json id>`. One entry per line, each within 140 columns.
  */
 export const ro = {
+    'adminSetup.cityAccess': 'Acest pas folosește harta „{city}”. Cere unui proprietar al acelei hărți să îți dea acces de editor.',
     'adminSetup.title': 'Configurare',
     'adminSetup.progress': '{done} din {total} pași gata',
     'adminSetup.recheck': 'Verifică din nou',

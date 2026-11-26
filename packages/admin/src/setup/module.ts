@@ -8,6 +8,7 @@
  */
 import {
     isContributorOnly,
+    isStaffRole,
     type AdminCallableName,
     type CallableRequest,
     type CallableResponse,
@@ -110,6 +111,12 @@ function limitedAccount(view: ShellView): boolean {
     return isContributorOnly(Object.fromEntries((view.cities ?? []).map((city) => [city.id, city.role])));
 }
 
+/** Before M5 (and before the first city) there was no membership list. An explicit list scopes the city's Setup reads. */
+function canUseCity(view: ShellView, cityId: string): boolean {
+    const cities = view.cities ?? [];
+    return cities.length === 0 || cities.some((city) => city.id === cityId && isStaffRole(city.role));
+}
+
 /** The shell's failures as the codes `consentFailure` reads; a closed popup is `null` (nothing changed). */
 const CONSENT_CODES = new Map<string, string>([
     ['popupBlocked', 'auth/popup-blocked'],
@@ -162,6 +169,7 @@ export function setupDepsOf(shell: SetupShell, options: SetupModuleOptions): Set
             projectNumber: messagingSenderId,
             authDomain,
             cityId: options.cityId,
+            canUseCity: () => canUseCity(shell.getState(), options.cityId),
             github: options.github,
             cityBBox: options.cityBBox,
             serverDeployed: () => shell.serverReady(),

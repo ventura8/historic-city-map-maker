@@ -125,6 +125,29 @@ describe('createSetupModule', () => {
         expect(call).not.toHaveBeenCalledWith('setup.status', {});
     });
 
+    it('reads project status without probing a primary city the Photos editor cannot administer', async () => {
+        const { shell, move, call, latest } = fakeShell();
+        const config = options();
+        const intents = createSetupModule(config).create(shell);
+        move({ auth: 'admin', cities: [{ id: 'bacau', role: 'owner' }], route: { id: 'photos', params: [] } });
+        await flush();
+
+        expect(call).toHaveBeenCalledWith('setup.status', {});
+        expect(config.sources.read).not.toHaveBeenCalled();
+        expect(config.importer.detect).not.toHaveBeenCalled();
+        expect(latest()?.steps.legacyImport.detail).toEqual({ key: 'adminSetup.cityAccess', params: { city: 'bucharest' } });
+        await intents.saveSources();
+        await intents.importLegacy();
+        expect(config.sources.save).not.toHaveBeenCalled();
+        expect(config.importer.run).not.toHaveBeenCalled();
+
+        move({ cities: [{ id: 'bucharest', role: 'editor' }] });
+        await intents.recheck('sources');
+        await intents.recheck('legacyImport');
+        expect(config.sources.read).toHaveBeenCalledOnce();
+        expect(config.importer.detect).toHaveBeenCalledOnce();
+    });
+
     it('happyPath_anAdminSessionStartsInNormalModeAtTheAddressedStep', async () => {
         const { shell, move, latest } = fakeShell();
         createSetupModule(options()).create(shell);

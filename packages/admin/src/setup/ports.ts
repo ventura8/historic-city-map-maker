@@ -213,6 +213,8 @@ export interface SetupHost {
     /** The Firebase `authDomain`: where Google's unverified-app screen says to continue (§2.4). */
     readonly authDomain: string;
     readonly cityId: string;
+    /** Whether the current session can work with the primary city’s sources and legacy photos. */
+    canUseCity(): boolean;
     /** CR-M5-7: the project names a GitHub repository, so the deploy card offers GitHub Actions' variables. */
     readonly github: boolean;
     /** The city's bounding box `[west, south, east, north]` for the USGS access request, or null. */

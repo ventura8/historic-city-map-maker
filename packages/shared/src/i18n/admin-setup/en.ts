@@ -2,6 +2,7 @@ import type { AdminSetupMessages } from './ro.js';
 
 /** English texts of the Setup Assistant; typed against the Romanian source of truth (a missing or extra key is a type error). */
 export const en: AdminSetupMessages = {
+    'adminSetup.cityAccess': 'This step uses the map “{city}”. Ask an owner of that map to give you editor access.',
     'adminSetup.title': 'Setup',
     'adminSetup.progress': '{done} of {total} steps done',
     'adminSetup.recheck': 'Check again',

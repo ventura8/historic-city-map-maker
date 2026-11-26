@@ -24821,7 +24821,7 @@
             "area": "admin",
             "path": "happy",
             "title": "The admin is an installable app at /admin/ and the account menu offers Install app",
-            "asserts": "the worker's scope is /admin/; Chrome reads /admin/app.webmanifest without an error (standalone, scope and id ./); once the browser offers the install the account menu shows App with Install app and, on a computer, Device accent says installing brings the device's colour; a click shows the prompt once and Install app goes",
+            "asserts": "the worker's scope is /admin/; Chrome reads /admin/app.webmanifest without an error (standalone, scope and id ./); once the browser offers the install the account menu shows App with Install app and, on a computer, Device accent says installing brings the device's colour; a click shows the prompt once and Install app goes; opening Photos as the owner of a secondary city requests no primary-city legacy bundle",
             "tier": "e2e-admin",
             "status": "exists",
             "notes": "docs/ENGINE_API.md → Installable app; DECISIONS-for-review.md §226. Unit: scripts/site/test/app.test.ts, packages/ui/test/admin/shell/nav-and-menu.test.ts, packages/admin/test/firebase/messaging.test.ts. Test: e2e/admin/specs/shell/app.spec.ts."

@@ -7,7 +7,7 @@
  */
 import { needsUsgsAccount, sourcesOf, type SourceChoices, type SourceToggle } from '@hcm/shared/sources';
 
-import type { SetupContext } from './context.js';
+import { canUseCityStep, type SetupContext } from './context.js';
 import { NO_FINDER, type CountryFinder } from './sources-state.js';
 import { apiFailure, setupMessage, type StepFailure } from './messages.js';
 
@@ -35,6 +35,9 @@ class Sources implements SourcesFlow {
     constructor(private readonly ctx: SetupContext) {}
 
     async detect(): Promise<void> {
+        if (!canUseCityStep(this.ctx, 'sources')) {
+            return;
+        }
         try {
             const stored = await this.ctx.deps.sources.read();
             const saved = stored === undefined ? null : sourcesOf(stored);
@@ -66,6 +69,9 @@ class Sources implements SourcesFlow {
     }
 
     async save(): Promise<void> {
+        if (!canUseCityStep(this.ctx, 'sources')) {
+            return;
+        }
         this.ctx.count('sources', 'inputs');
         this.ctx.patchStep('sources', { busy: true, error: null });
         const choices = this.ctx.state().sources.choices;
