@@ -127,11 +127,11 @@ export class HcmPhotosPage extends AreaPage<PhotosViewState, PhotosIntentsPort> 
         return html`<label class="field background-picker"
             >${photoText(locale, 'adminContent.photos.map.background')}
             <select @change=${(event: Event) => this.intents?.selectBackground((event.target as HTMLSelectElement).value)}>
-                <option value="">${photoText(locale, 'adminContent.settings.basemap.standard')}</option>
                 ${view.backgrounds.map(
                     ({ id, label }) =>
                         html`<option value=${id} .selected=${id === view.background}>${backgroundTitle(locale, label)}</option>`,
                 )}
+                <option value="" .selected=${view.background === ''}>${photoText(locale, 'adminContent.settings.basemap.standard')}</option>
             </select>
         </label>`;
     }

@@ -70,14 +70,21 @@ test('A crossed viewed area says why and is not saved', { tag: ['@S-A195-BAD-SHA
 test('A satellite layer helps place a photo on the same map', { tag: '@S-A195-HAPPY-BACKGROUND' }, async ({ page, content, lang }) => {
     await seedLayer(content, 'corona', AT);
     await seedLayer(content, 'survey', AT, { year: 1992, label: { ro: 'Atlas 1992' } });
+    await seedLayer(content, 'b-scan', AT, { year: 1992, date: '1992-05-01', label: { ro: 'Scan B' } });
+    await seedLayer(content, 'a-scan', AT, { year: 1992, date: '1992-05-01', label: { ro: 'Scan A' } });
+    await seedLayer(content, 'autumn', AT, { year: 1992, date: '1992-10-23', label: { ro: 'Scan Oct' } });
     await openAerial(page, content, lang, {});
     const picker = page.getByRole('combobox', { name: photosText(lang, 'adminContent.photos.map.background') });
     await expect(picker.locator('option')).toHaveText([
-        photosText(lang, 'adminContent.settings.basemap.standard'),
-        photosText(lang, 'adminContent.photos.map.satellite'),
+        'Scan Oct',
+        'Scan A',
+        'Scan B',
         'Atlas 1992',
         'Corona 1968',
+        photosText(lang, 'adminContent.photos.map.satellite'),
+        photosText(lang, 'adminContent.settings.basemap.standard'),
     ]);
+    await expect(picker).toHaveValue('');
     await picker.selectOption('corona');
     await expect.poll(() => rasterPaint(page, 'corona', 'raster-opacity')).toBe(1);
     await expect.poll(() => photoMarker(page, 'air')).toEqual([START.lng, START.lat]);
@@ -105,7 +112,11 @@ test(
         });
         await openAerial(page, content, lang, {});
         const picker = page.getByRole('combobox', { name: photosText(lang, 'adminContent.photos.map.background') });
-        await expect(picker.locator('option')).toHaveCount(2);
+        await expect(picker.locator('option')).toHaveText([
+            photosText(lang, 'adminContent.photos.map.satellite'),
+            photosText(lang, 'adminContent.settings.basemap.standard'),
+        ]);
+        await expect(picker).toHaveValue('');
         expect(reads).toBe(0);
         await picker.selectOption({ label: photosText(lang, 'adminContent.photos.map.satellite') });
         await expect.poll(() => reads).toBeGreaterThan(0);

@@ -27,7 +27,7 @@ describe('the photo placement background', () => {
         store.intents.attachMap(CONTAINER, () => undefined);
         await settle();
         const draft = store.state.editor?.value;
-        expect(store.state.backgrounds.map(({ id }) => id)).toEqual(['mapbox.satellite', 'plan', 'corona']);
+        expect(store.state.backgrounds.map(({ id }) => id)).toEqual(['plan', 'corona', 'mapbox.satellite']);
         store.intents.selectBackground('mapbox.satellite');
         expect([...world.maps.port.backgrounds]).toEqual(['mapbox.satellite']);
         store.intents.selectBackground('plan');
@@ -38,6 +38,25 @@ describe('the photo placement background', () => {
         expect([...world.maps.port.backgrounds]).toEqual([]);
         expect(world.maps.created).toHaveLength(1);
         expect(store.state.editor?.value).toEqual(draft);
+        store.destroy();
+    });
+
+    it('orders saved imagery by year, known date and id, ahead of current satellite imagery', () => {
+        const { world, store } = area();
+        const layers = [
+            ['archive', layerDoc({ year: 1988 })],
+            ['bravo', layerDoc({ year: 1992, date: '1992-05-01' })],
+            ['year-only', layerDoc({ year: 1992 })],
+            ['autumn', layerDoc({ year: 1992, date: '1992-10-23' })],
+            ['alpha', layerDoc({ year: 1992, date: '1992-05-01' })],
+        ] as const;
+        for (const [id, layer] of layers) {
+            world.store.docs.set(FIRESTORE_PATHS.layer(CITY, id), layer);
+        }
+        store.open([]);
+        const options = store.state.backgrounds.map(({ id }) => id);
+        expect(options).toEqual(['autumn', 'alpha', 'bravo', 'year-only', 'archive', 'mapbox.satellite']);
+        expect(store.state.background).toBe('');
         store.destroy();
     });
 

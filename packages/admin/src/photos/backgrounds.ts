@@ -29,9 +29,16 @@ export function photoBackgrounds(services: PhotosServices, changed: (items: Phot
         collection: FIRESTORE_PATHS.layers(cityId),
         schema: layerDocSchema,
         pageSize: MAX_LAYERS,
-        map: ({ id, data }) => ({ id, label: data.label, raster: { ...rasterOf(id, data), opacity: 1 } }),
+        map: ({ id, data }) => ({
+            id,
+            year: data.year,
+            date: data.date ?? '',
+            label: data.label,
+            raster: { ...rasterOf(id, data), opacity: 1 },
+        }),
         changed: ({ items }) => {
-            changed([{ id: CURRENT_SATELLITE.id, label: null }, ...items]);
+            const newest = items.toSorted((a, b) => b.year - a.year || b.date.localeCompare(a.date) || a.id.localeCompare(b.id, 'en'));
+            changed([...newest, { id: CURRENT_SATELLITE.id, label: null }]);
         },
     });
 }
