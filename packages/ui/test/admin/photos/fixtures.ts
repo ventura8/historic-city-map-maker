@@ -100,6 +100,8 @@ export function photosState(overrides: Partial<PhotosViewState> = {}): PhotosVie
         uploads: [],
         sticky: {},
         editor: null,
+        backgrounds: [],
+        background: '',
         map: 'none',
         confirm: null,
         report: null,

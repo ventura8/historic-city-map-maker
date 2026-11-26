@@ -18,6 +18,8 @@ import {
     type MapView,
 } from '@hcm/shared';
 
+import type { RasterLayerSpec } from '@hcm/ui/map';
+
 import type { Unsubscribe } from '../app/ports.js';
 import type {
     DrawChange,
@@ -94,6 +96,17 @@ export function photoFeatures(photos: readonly MapPhoto[]): PhotoFeatures {
 
 export type MapStatus = 'none' | 'loading' | 'ready' | 'unavailable' | 'no-token' | 'no-webgl' | 'failed';
 
+export interface MapIntents {
+    /** Creates the page's map in `container`; a click on a photo calls `open` with its id. */
+    attachMap(container: HTMLElement, open: (photoId: string) => void): void;
+    detachMap(): void;
+    /** Moves the map to a photo (selected in the list). */
+    focusPhoto(photoId: string): void;
+    selectBackground(id: string): void;
+    /** The map box's zoom buttons: one step in (+1) or out (-1). */
+    zoomBy(delta: number): void;
+}
+
 export interface PhotoMapEvents {
     readonly status: (status: MapStatus) => void;
     /** A marker or cone was clicked: open that photo. */
@@ -155,10 +168,26 @@ export class PhotoMapSession {
     #alive = true;
     /** The open photo the camera last went to (null: none since the editor closed). */
     #revealed: string | null = null;
+    #background: RasterLayerSpec | null = null;
 
     constructor(factory: PhotoMapFactory | null, events: PhotoMapEvents) {
         this.#factory = factory;
         this.#events = events;
+    }
+
+    /** Replace the placement background beneath the pin on the same map. */
+    background(layer: RasterLayerSpec | null): void {
+        if (this.#handle === null) {
+            return;
+        }
+        const { port } = this.#handle;
+        if (this.#background !== null) {
+            port.removeLayer(this.#background.id);
+        }
+        this.#background = layer;
+        if (layer !== null) {
+            port.addRasterLayer(layer, 'middle');
+        }
     }
 
     /** Creates the page's map in `container` (once per page visit). */

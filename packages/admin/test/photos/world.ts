@@ -145,6 +145,14 @@ class FakeDraw implements PhotoDrawPort {
 }
 
 class FakeMapPort implements PhotoMapPort {
+    readonly backgrounds = new Set<string>();
+    addRasterLayer(layer: { readonly id: string }): void {
+        this.backgrounds.add(layer.id);
+    }
+    removeLayer(id: string): void {
+        this.backgrounds.delete(id);
+    }
+
     readonly data: PhotoFeatures[] = [];
     readonly flights: unknown[] = [];
     center: [number, number] = [26.1, 44.43];

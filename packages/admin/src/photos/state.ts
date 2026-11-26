@@ -78,6 +78,8 @@ export interface PhotosState {
     /** What a new photo gets (shown above the drop zone). */
     readonly sticky: StickyFields;
     readonly editor: PhotoEditorState | null;
+    readonly backgrounds: readonly { readonly id: string; readonly label: { readonly ro: string; readonly en?: string | undefined } }[];
+    readonly background: string;
     readonly map: MapStatus;
     readonly confirm: PhotosConfirm | null;
     /** The last bulk action's outcome, open after "See why". */
@@ -110,6 +112,8 @@ export function initialPhotosState(sticky: StickyFields, role: CityRole | null =
         uploads: [],
         sticky,
         editor: null,
+        backgrounds: [],
+        background: '',
         map: 'none',
         confirm: null,
         report: null,

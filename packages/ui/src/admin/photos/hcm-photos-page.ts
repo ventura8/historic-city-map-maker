@@ -20,7 +20,7 @@ import { EMPTY } from '../shell/empty.js';
 import { deleteDialog, reportDialog, setFieldsDialog } from './photo-dialogs.js';
 import { photoStyles } from './photo-styles.js';
 import { photoText } from './photo-text.js';
-import type { MapStatusPort, PhotosIntentsPort, PhotosViewState, StickyPort } from './photos-port.js';
+import type { PhotosIntentsPort, PhotosViewState, StickyPort } from './photos-port.js';
 
 export const HCM_PHOTOS_PAGE_TAG = 'hcm-photos-page';
 
@@ -107,23 +107,43 @@ export class HcmPhotosPage extends AreaPage<PhotosViewState, PhotosIntentsPort> 
                         this.settingFields = { count: view.list.selection.length };
                     }}
                 ></hcm-admin-photo-list>
-                <div slot="detail" class="detail">${this.#map(locale, view.map)} ${this.#detail(locale, view, open)}</div>
+                <div slot="detail" class="detail">${this.#map(locale, view)} ${this.#detail(locale, view, open)}</div>
             </hcm-list-detail>
             ${this.#dialogs(locale, view)}`;
     }
 
-    #map(locale: UiLocale, status: MapStatusPort): TemplateResult {
+    #background(locale: UiLocale, view: PhotosViewState): TemplateResult {
+        if (view.map !== 'ready' || view.backgrounds.length === 0) {
+            return EMPTY;
+        }
+        return html`<label class="field background-picker"
+            >${photoText(locale, 'adminContent.photos.map.background')}
+            <select @change=${(event: Event) => this.intents?.selectBackground((event.target as HTMLSelectElement).value)}>
+                <option value="">${photoText(locale, 'adminContent.settings.basemap.standard')}</option>
+                ${view.backgrounds.map(
+                    ({ id, label }) =>
+                        html`<option value=${id} .selected=${id === view.background}>
+                            ${locale === 'en' ? (label.en ?? label.ro) : label.ro}
+                        </option>`,
+                )}
+            </select>
+        </label>`;
+    }
+
+    #map(locale: UiLocale, view: PhotosViewState): TemplateResult {
         // The detail pane is the region named after the map (`hcm-list-detail`'s detailLabel): the box itself is not another.
         return html`<hcm-admin-map
             class="map"
-            .status=${status}
+            .status=${view.map}
             .locale=${locale}
             @hcm-map-host=${(event: CustomEvent<{ readonly container: HTMLElement }>) => {
                 this.#container = event.detail.container;
                 this.#attachMap();
             }}
             @hcm-zoom=${(event: CustomEvent<{ readonly delta: number }>) => this.intents?.zoomBy(event.detail.delta)}
-        ></hcm-admin-map>`;
+        >
+            ${this.#background(locale, view)}
+        </hcm-admin-map>`;
     }
 
     #detail(locale: UiLocale, view: PhotosViewState, open: string): TemplateResult {

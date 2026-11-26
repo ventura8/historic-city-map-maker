@@ -7,6 +7,7 @@
  * every field still works. DOM-free: an `HTMLElement` only travels from the page to the map factory.
  */
 import type { BBox, UiLocale, LngLat, MapView } from '@hcm/shared';
+import type { MapPort } from '@hcm/ui/map';
 
 import type { Unsubscribe } from '../app/ports.js';
 import type { ContentServices } from '../content/services.js';
@@ -74,6 +75,8 @@ export interface PhotoDrawPort {
 
 /** The part of `MapPort` (`@hcm/ui/map`) the photos use. */
 export interface PhotoMapPort {
+    addRasterLayer: MapPort['addRasterLayer'];
+    removeLayer: MapPort['removeLayer'];
     setPhotosData(data: PhotoFeatures): void;
     onPhotoClick(handler: (photoId: string) => void): Unsubscribe;
     flyTo(view: Partial<MapView>, options?: { readonly animate?: boolean }): void;

@@ -237,6 +237,15 @@ export const photoStyles = [
             min-block-size: 0;
         }
 
+        .background-picker {
+            box-sizing: border-box;
+            max-inline-size: 100%;
+            padding: 4px 8px;
+            border-radius: var(--md-sys-shape-corner-small, 8px);
+            background: var(--md-sys-color-surface-container, Canvas);
+            color: var(--md-sys-color-on-surface, CanvasText);
+        }
+
         .map:focus-visible {
             outline-offset: -3px;
         }

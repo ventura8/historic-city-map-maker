@@ -4,8 +4,10 @@ import type { Locator, Page } from '@playwright/test';
 import { expect, test } from '../../support/content-test.js';
 import type { ContentWorld } from '../../support/content.js';
 import { seedPublicCity } from '../../support/flows.js';
-import { adminMapReady } from '../../support/map.js';
+import { adminMapReady, photoMarker, rasterPaint } from '../../support/map.js';
 import { photosText, seedPhoto, servePhotoImages } from '../../support/photos.js';
+
+import { seedLayer } from '../settings/world.js';
 
 /**
  * A195 (the owner, 2026-11-22): an aerial photo's viewed area in the photo editor. Draw puts a four-corner trapezoid in
@@ -64,3 +66,25 @@ test('A crossed viewed area says why and is not saved', { tag: ['@S-A195-BAD-SHA
         .click();
     await expect(areaSection(page).getByRole('alert')).toHaveCount(0);
 });
+
+test('A satellite layer helps place a photo on the same map', { tag: '@S-A195-HAPPY-BACKGROUND' }, async ({ page, content, lang }) => {
+    await seedLayer(content, 'corona', AT);
+    await openAerial(page, content, lang, {});
+    const picker = page.getByRole('combobox', { name: photosText(lang, 'adminContent.photos.map.background') });
+    await picker.selectOption('corona');
+    await expect.poll(() => rasterPaint(page, 'corona', 'raster-opacity')).toBe(1);
+    await expect.poll(() => photoMarker(page, 'air')).toEqual([START.lng, START.lat]);
+    await picker.selectOption('');
+    await expect.poll(() => rasterPaint(page, 'corona', 'raster-opacity')).toBeUndefined();
+    await adminMapReady(page);
+});
+
+test(
+    'Without city imagery the editor shows the photo on the standard map',
+    { tag: '@S-A195-BAD-NO-BACKGROUND' },
+    async ({ page, content, lang }) => {
+        await openAerial(page, content, lang, {});
+        await expect(page.getByRole('combobox', { name: photosText(lang, 'adminContent.photos.map.background') })).toHaveCount(0);
+        await expect.poll(() => photoMarker(page, 'air')).toEqual([START.lng, START.lat]);
+    },
+);

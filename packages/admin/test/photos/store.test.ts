@@ -7,6 +7,7 @@ import { describe, expect, it } from 'vitest';
 import { PHOTOS_MODULE } from '../../src/photos/module.js';
 import { LAST_PIN_KEY, STICKY_KEY } from '../../src/photos/session.js';
 import { cityPlace, DEFAULT_CITY_ZOOM, type PhotosStore } from '../../src/photos/store.js';
+import { layerDoc } from '../layers/fixtures.js';
 import { at, CITY, CONTAINER, file, photoDoc, photoPath, photosWorld, seedCity, seedPhoto, settle, type PhotosWorld } from './world.js';
 
 function area(world: PhotosWorld = photosWorld()): { world: PhotosWorld; store: PhotosStore } {
@@ -15,6 +16,37 @@ function area(world: PhotosWorld = photosWorld()): { world: PhotosWorld; store: 
 }
 
 const HISTORY = FIRESTORE_PATHS.history({ entity: 'photo', cityId: CITY, entityId: 'p1' });
+
+describe('the photo placement background', () => {
+    it('switches from a scanned map to satellite imagery while keeping the same map and draft', async () => {
+        const { world, store } = area();
+        seedPhoto(world, 'p1');
+        for (const id of ['plan', 'corona']) {
+            world.store.docs.set(FIRESTORE_PATHS.layer(CITY, id), layerDoc({ defaultVisible: false }));
+        }
+        store.open(['p1']);
+        store.intents.attachMap(CONTAINER, () => undefined);
+        await settle();
+        const draft = store.state.editor?.value;
+        store.intents.selectBackground('plan');
+        expect([...world.maps.port.backgrounds]).toEqual(['plan']);
+        store.intents.selectBackground('corona');
+        expect([...world.maps.port.backgrounds]).toEqual(['corona']);
+        store.intents.selectBackground('');
+        expect([...world.maps.port.backgrounds]).toEqual([]);
+        expect(world.maps.created).toHaveLength(1);
+        expect(store.state.editor?.value).toEqual(draft);
+        store.destroy();
+    });
+
+    it('offers no private layers to an uploader', () => {
+        const { world, store } = area(photosWorld({ cityRole: () => 'uploader' }));
+        world.store.docs.set(FIRESTORE_PATHS.layer(CITY, 'draft'), layerDoc({ published: false }));
+        store.open([]);
+        expect(store.state.backgrounds).toEqual([]);
+        store.destroy();
+    });
+});
 
 describe('the photos area: list and bulk', () => {
     it('happyPath_theListOpensWithItsRowsAndTheSticky', () => {

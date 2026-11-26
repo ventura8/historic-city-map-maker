@@ -26046,6 +26046,28 @@
             "tier": "e2e-admin",
             "status": "exists",
             "notes": "The owner, 2026-11-25 (DECISIONS §251). Tests: e2e/admin/specs/imagery/order-hold.spec.ts, packages/ui/test/admin/imagery/scene-order-hold.test.ts."
+        },
+        {
+            "id": "S-A195-HAPPY-BACKGROUND",
+            "behaviour": "A195",
+            "area": "admin",
+            "path": "happy",
+            "title": "A satellite layer helps place a photo on the same map",
+            "asserts": "Choose the city satellite layer, see its raster under the same photo pin, then switch back to the standard map.",
+            "tier": "e2e-admin",
+            "status": "exists",
+            "notes": "Test: e2e/admin/specs/photos/viewed-area.spec.ts."
+        },
+        {
+            "id": "S-A195-BAD-NO-BACKGROUND",
+            "behaviour": "A195",
+            "area": "admin",
+            "path": "bad",
+            "title": "Without city imagery the editor shows the photo on the standard map",
+            "asserts": "The pin is visible on the ready map and no empty layer picker is offered.",
+            "tier": "e2e-admin",
+            "status": "exists",
+            "notes": "Test: e2e/admin/specs/photos/viewed-area.spec.ts."
         }
     ]
 }

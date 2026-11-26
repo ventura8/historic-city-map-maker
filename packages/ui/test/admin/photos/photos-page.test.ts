@@ -506,3 +506,23 @@ describe('<hcm-photos-page>: the dialogs', () => {
         expect(element.shadowRoot?.childElementCount ?? 0).toBe(0);
     });
 });
+
+describe('the photo placement background', () => {
+    beforeAll(defineAll);
+    afterEach(cleanup);
+
+    it('chooses an imagery layer by its local title', async () => {
+        const backgrounds = [
+            { id: 'plan', label: { ro: 'Plan vechi', en: 'Old map' } },
+            { id: 'image', label: { ro: 'Corona' } },
+        ];
+        const photos = area(photosState({ map: 'ready', backgrounds, background: 'plan' }));
+        const { element } = await photosPage(photos);
+        const picker = deep(element, '.detail select') as HTMLSelectElement;
+        expect(Array.from(picker.options, (item) => item.textContent.trim())).toEqual(['Mapbox Standard', 'Old map', 'Corona']);
+        expect(picker.value).toBe('plan');
+        picker.value = 'image';
+        picker.dispatchEvent(new Event('change'));
+        expect(photos.named('selectBackground')).toEqual(['selectBackground "image"']);
+    });
+});

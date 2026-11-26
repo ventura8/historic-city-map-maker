@@ -14,10 +14,11 @@ import { readPlacePicks } from '../content/place-picks.js';
 import { ownerOnlyOf, type Stored } from '../content/services.js';
 import { PhotoActions, type ActionIntents } from './actions.js';
 import { photoAssists, type PhotoAssistIntents } from './assists.js';
+import { canChooseBackground, photoBackgrounds } from './backgrounds.js';
 import type { AreaContext, CityPlace } from './context.js';
 import { PhotoEditing, type EditingIntents } from './editing.js';
 import { PhotoList } from './list.js';
-import { PhotoMapSession, type MapPhoto } from './map.js';
+import { PhotoMapSession, type MapIntents, type MapPhoto } from './map.js';
 import { nullable, type PhotoFilter, type PhotoSearch } from './model.js';
 import type { PhotosServices } from './ports.js';
 import { PhotoMemory } from './session.js';
@@ -44,16 +45,6 @@ export interface UploadIntents {
     cancelUpload(key: number): void;
     dismissUpload(key: number): void;
     clearUploads(): void;
-}
-
-export interface MapIntents {
-    /** Creates the page's map in `container`; a click on a photo calls `open` with its id. */
-    attachMap(container: HTMLElement, open: (photoId: string) => void): void;
-    detachMap(): void;
-    /** Moves the map to a photo (selected in the list). */
-    focusPhoto(photoId: string): void;
-    /** The map box's zoom buttons: one step in (+1) or out (-1). */
-    zoomBy(delta: number): void;
 }
 
 export type PhotosIntents = ListIntents & UploadIntents & EditingIntents & ActionIntents & MapIntents & PhotoAssistIntents;
@@ -94,6 +85,7 @@ export class PhotosArea implements PhotosStore {
     readonly #assists: EditorAssists;
     readonly intents: PhotosIntents;
     #state: PhotosState;
+    readonly #layers;
     #city: CityPlace | null = null;
     readonly #cityDoc: LiveDoc<CityDoc>;
     #map: PhotoMapSession | null = null;
@@ -104,6 +96,7 @@ export class PhotosArea implements PhotosStore {
         this.#services = services;
         const memory = new PhotoMemory(services.local);
         this.#state = initialPhotosState(memory.sticky(), services.cityRole());
+        this.#layers = this.#newBackgrounds();
         const list = new PhotoList({
             ...listPartsOf(services),
             checkPlace: () => memory.checkPlace(),
@@ -112,15 +105,7 @@ export class PhotosArea implements PhotosStore {
                 this.#showMap();
             },
         });
-        this.#cityDoc = new LiveDoc({
-            store: services.store,
-            clock: services.clock,
-            schema: cityDocSchema,
-            changed: (city) => {
-                this.#cityRead(city.doc);
-            },
-            denied: services.denied,
-        });
+        this.#cityDoc = this.#newCityDoc(services);
         const uploads = new UploadQueue({
             services,
             memory,
@@ -189,6 +174,9 @@ export class PhotosArea implements PhotosStore {
 
     open(params: readonly string[]): void {
         this.#context.list.open();
+        if (!this.#layers.active && canChooseBackground(this.#state.role)) {
+            this.#layers.show({});
+        }
         if (this.#cityDoc.path === '') {
             this.#cityDoc.show(FIRESTORE_PATHS.city(this.#services.cityId));
         }
@@ -209,6 +197,7 @@ export class PhotosArea implements PhotosStore {
 
     close(): void {
         this.#context.list.close();
+        this.#layers.stop();
         this.#cityDoc.stop();
         this.#editing.open(null);
         this.#detachMap();
@@ -270,6 +259,31 @@ export class PhotosArea implements PhotosStore {
         );
     }
 
+    #newCityDoc(services: PhotosServices): LiveDoc<CityDoc> {
+        return new LiveDoc({
+            store: services.store,
+            clock: services.clock,
+            schema: cityDocSchema,
+            changed: (city) => {
+                this.#cityRead(city.doc);
+            },
+            denied: services.denied,
+        });
+    }
+
+    #newBackgrounds() {
+        return photoBackgrounds(this.#services, (backgrounds) => {
+            this.#set({ backgrounds });
+            this.#background(this.#state.background);
+        });
+    }
+
+    #background(id: string): void {
+        const layer = this.#layers.list.items.find((item) => item.id === id) ?? { id: '', raster: null };
+        this.#map?.background(layer.raster);
+        this.#set({ background: layer.id });
+    }
+
     #showMap(): void {
         this.#map?.show(this.#mapPhotos());
     }
@@ -282,6 +296,7 @@ export class PhotosArea implements PhotosStore {
                 this.#set({ map });
                 if (map === 'ready') {
                     this.#showMap();
+                    this.#background(this.#state.background);
                     this.#editing.mapReady();
                 }
             },
@@ -375,6 +390,9 @@ export class PhotosArea implements PhotosStore {
                 if (stored?.data.location !== undefined) {
                     this.#map?.focus(stored.data.location);
                 }
+            },
+            selectBackground: (id) => {
+                this.#background(id);
             },
             zoomBy: (delta) => {
                 this.#map?.zoomBy(delta);
