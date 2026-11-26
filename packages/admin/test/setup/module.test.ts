@@ -53,7 +53,7 @@ function fakeShell() {
     return { shell, call, google, move, published, latest: () => published.at(-1) };
 }
 
-function options(): SetupModuleOptions {
+function options() {
     const { cloud, importer, installer, sources } = createHarness();
     return {
         ...{
@@ -66,7 +66,7 @@ function options(): SetupModuleOptions {
             cityBBox: null,
         },
         ...{ installer, release: '1.0.0+abc1234', releaseTime: 1_761_955_200, siteAddress: 'https://demo-hcm.web.app/' },
-    };
+    } satisfies SetupModuleOptions;
 }
 
 describe('createSetupModule', () => {
