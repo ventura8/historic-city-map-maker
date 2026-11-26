@@ -7389,3 +7389,7 @@ The end-to-end server now imports the committed emulator configuration as JSON, 
 On both release PRs, GitHub cancelled the unit and coverage job at its 20-minute limit. In the first run the Python raster suite was at 25 percent. The two admin browser shards also reached their 40-minute deadlines with 531 and 740 cases started out of 1,156 apiece. CI now runs the same admin, smoke, accessibility and no-WebGL cases in four shards. The unit job has 60 minutes and browser jobs have 75 minutes. The pipeline gates, assertions and coverage thresholds are unchanged.
 
 In the first four-shard run, shard two reached 562 of 578 cases at 75 minutes, with no failed assertions. Shard one passed in 70 minutes. The four admin jobs now have 105 minutes for their serial emulator scenarios. The viewer and tour jobs retain 75 minutes.
+
+## 258. Preserve each release bundle’s directory tree (2026-11-26)
+
+The engine and admin both ship a third-party notices file, fonts and translations. GitHub release attachments share one filename namespace. The release gate now packs each build directory into its own versioned archive alongside the CLI tarball. The publish job uploads those three files.

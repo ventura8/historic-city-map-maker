@@ -127,7 +127,6 @@ DEPENDENCY_UPDATES = ("python3", "scripts/ci/check_dependency_updates.py")
 # The release stage's outputs (docs/research/M5-interfaces.md §2.5, §4.6): the pinned addresses with their integrity, and
 # the create-historic-city package the user publishes from their own terminal. Nothing here publishes anything.
 RELEASE_ADDRESSES = "reports/release/engine-addresses.md"
-RELEASE_PACK = "mkdir -p reports/release && npm pack --workspace create-historic-city --pack-destination reports/release"
 SELF_HOST_BUNDLE = ("node", "--import", "./scripts/site/register-ts.mjs", "packages/create-historic-city/build-self-host.ts")
 # M6: the Firebase Hosting tree from the build stage's own builds (`npm run build:hosting` would build the admin and the
 # engine again): dist/hosting-public and dist/hosting (docs/research/M6-interfaces.md §2.1, §2.5)
@@ -252,7 +251,7 @@ GATES: dict[str, Gate] = {
         # project could not publish its map (M14)
         Gate("self-host-bundle", SELF_HOST_BUNDLE, needs=("vite-build", "start-build")),
         # create-historic-city's package from that build, its self-host bundle in it, for the publish (M5-interfaces §4.6)
-        Gate("release-pack", ("bash", "-c", RELEASE_PACK), needs=("vite-build", "self-host-bundle")),
+        Gate("release-pack", ("bash", "scripts/release/pack-assets.sh"), needs=("vite-build", "self-host-bundle")),
         # contract (weekly, network): Setup Assistant deep links and third-party API shapes
         Gate("contracts", ("python3", "scripts/ci/check_contracts.py")),
         # sonar (part of `all`): SonarQube Cloud analysis and the strict verdict; skipped without a token

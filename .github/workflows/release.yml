@@ -64,8 +64,7 @@ jobs:
               with:
                   name: release
                   path: |
-                      packages/engine/dist/
-                      packages/admin/dist/
+                      reports/release/hcm-*.tar.gz
                       docs/releases/
                       reports/release/create-historic-city-*.tgz
                   if-no-files-found: error
@@ -113,6 +112,5 @@ jobs:
                   body_path: release/docs/releases/${{ github.ref_name }}_github_description.md
                   fail_on_unmatched_files: true
                   files: |
-                      release/packages/engine/dist/*
-                      release/packages/admin/dist/*
+                      release/reports/release/hcm-*.tar.gz
                       release/reports/release/create-historic-city-*.tgz
