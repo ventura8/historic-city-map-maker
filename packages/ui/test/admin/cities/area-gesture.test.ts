@@ -83,11 +83,16 @@ describe('the area gesture', () => {
     it('badPath_anotherButtonACancelledPressOrAPointerTheBrowserForgotDrawNothing', () => {
         const drawn: unknown[] = [];
         const gesture = new AreaGesture((from, to) => drawn.push([from, to]));
+        gesture.setDrawing(false);
+        gesture.setDrawing(true);
         const { map, canvas } = mapElement();
         gesture.attach(map);
 
         press(canvas, 'pointerdown', 10, 10, { button: 2 });
         press(canvas, 'pointerup', 90, 90);
+        press(canvas, 'pointerdown', 10, 10, { pointerId: 1 });
+        press(canvas, 'pointerup', 90, 90, { pointerId: 2 });
+        map.dispatchEvent(new PointerEvent('pointercancel'));
         press(canvas, 'pointerdown', 10, 10, { pointerId: 987 });
         map.dispatchEvent(new PointerEvent('pointercancel'));
         press(canvas, 'pointermove', 50, 50);
