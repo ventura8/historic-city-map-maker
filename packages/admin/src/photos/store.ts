@@ -175,7 +175,7 @@ export class PhotosArea implements PhotosStore {
     open(params: readonly string[]): void {
         this.#context.list.open();
         if (!this.#layers.active && canChooseBackground(this.#state.role)) {
-            this.#layers.show({});
+            this.#layers.show({ orderBy: [['year', 'desc']] });
         }
         if (this.#cityDoc.path === '') {
             this.#cityDoc.show(FIRESTORE_PATHS.city(this.#services.cityId));

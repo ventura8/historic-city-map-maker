@@ -21,14 +21,13 @@ describe('the photo placement background', () => {
     it('switches from a scanned map to satellite imagery while keeping the same map and draft', async () => {
         const { world, store } = area();
         seedPhoto(world, 'p1');
-        for (const id of ['plan', 'corona']) {
-            world.store.docs.set(FIRESTORE_PATHS.layer(CITY, id), layerDoc({ defaultVisible: false }));
-        }
+        world.store.docs.set(FIRESTORE_PATHS.layer(CITY, 'corona'), layerDoc({ year: 1968, defaultVisible: false }));
+        world.store.docs.set(FIRESTORE_PATHS.layer(CITY, 'plan'), layerDoc({ year: 1980, defaultVisible: false }));
         store.open(['p1']);
         store.intents.attachMap(CONTAINER, () => undefined);
         await settle();
         const draft = store.state.editor?.value;
-        expect(store.state.backgrounds.map(({ id }) => id)).toContain('mapbox.satellite');
+        expect(store.state.backgrounds.map(({ id }) => id)).toEqual(['mapbox.satellite', 'plan', 'corona']);
         store.intents.selectBackground('mapbox.satellite');
         expect([...world.maps.port.backgrounds]).toEqual(['mapbox.satellite']);
         store.intents.selectBackground('plan');

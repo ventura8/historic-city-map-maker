@@ -69,8 +69,15 @@ test('A crossed viewed area says why and is not saved', { tag: ['@S-A195-BAD-SHA
 
 test('A satellite layer helps place a photo on the same map', { tag: '@S-A195-HAPPY-BACKGROUND' }, async ({ page, content, lang }) => {
     await seedLayer(content, 'corona', AT);
+    await seedLayer(content, 'survey', AT, { year: 1992, label: { ro: 'Atlas 1992' } });
     await openAerial(page, content, lang, {});
     const picker = page.getByRole('combobox', { name: photosText(lang, 'adminContent.photos.map.background') });
+    await expect(picker.locator('option')).toHaveText([
+        photosText(lang, 'adminContent.settings.basemap.standard'),
+        photosText(lang, 'adminContent.photos.map.satellite'),
+        'Atlas 1992',
+        'Corona 1968',
+    ]);
     await picker.selectOption('corona');
     await expect.poll(() => rasterPaint(page, 'corona', 'raster-opacity')).toBe(1);
     await expect.poll(() => photoMarker(page, 'air')).toEqual([START.lng, START.lat]);
