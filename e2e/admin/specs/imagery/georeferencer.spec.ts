@@ -319,7 +319,10 @@ test(
             .click();
 
         // The snackbar says the version's map did not load; its figures still show and the preview is the pairs' fit.
-        await expect(page.getByText(georefText(lang, 'adminContent.georef.mapUnavailable'))).toBeVisible();
+        const message = georefText(lang, 'adminContent.georef.mapUnavailable');
+        const snackbar = page.locator('hcm-snackbar');
+        await expect(snackbar.locator('.message').filter({ hasText: message })).toBeVisible();
+        await expect(snackbar.getByRole('status')).toHaveText(message);
         await georeferencerReady(page, lang);
         await expect(errorsLine(page)).toContainText(georefText(lang, 'adminContent.georef.fit', { rmse: metres(lang, stored.fitRmseM) }));
         await expect.poll(async () => (await page.evaluate(warpedCornersInPage)).length).toBe(4);
@@ -327,7 +330,7 @@ test(
         // Snap my points: nothing is sent, the page says why and stays where it is (S-A89-BAD-SNAP-CHUNK).
         await addPair(page, lang, landmark(0));
         await page.getByRole('button', { name: georefText(lang, 'adminContent.georef.snap') }).click();
-        await expect(page.getByText(georefText(lang, 'adminContent.georef.snapUnavailable'))).toBeVisible();
+        await expect(page.getByRole('alert').filter({ hasText: georefText(lang, 'adminContent.georef.snapUnavailable') })).toBeVisible();
         await expect(page).toHaveURL(new RegExp(`#/georef/${versionId}$`));
         // Chromium logs each aborted fetch of the chunk.
         expect(consoleErrors.takeMatching(/georef-extras-/).length).toBeGreaterThan(0);
