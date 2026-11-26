@@ -1,0 +1,576 @@
+{
+    "version": 1,
+    "city": {
+        "id": "bucuresti",
+        "name": {
+            "ro": "București dispărut",
+            "en": "Lost Bucharest"
+        },
+        "center": [
+            26.085298,
+            44.427037
+        ],
+        "zoom": 14.5,
+        "minZoom": 10,
+        "maxZoom": 20,
+        "bounds": [
+            [
+                25.93,
+                44.33
+            ],
+            [
+                26.25,
+                44.55
+            ]
+        ],
+        "about": {
+            "ro": "**București dispărut** arată orașul de altădată pe harta de azi: fotografii vechi așezate acolo unde au fost făcute, fiecare cu direcția în care privea aparatul.\n\nFotografiile vin din proiectul comunitar original (2015–2022) și sunt publicate cu permisiunea autorilor; drepturile lor sunt în curs de verificare. Dacă ești autorul unei fotografii și vrei să fie creditată altfel sau retrasă, [scrie-ne pe GitHub](https://github.com/ventura8/bucurestiuldisparut.github.io/issues).\n\n_În curând:_ straturi istorice din imagini satelitare declasificate ale USGS (anii 1960–1980), georeferențiate pentru București.",
+            "en": "**Lost Bucharest** shows the city of the past on today's map: old photos placed where they were taken, each with the direction the camera faced.\n\nThe photos come from the original community project (2015–2022) and are published with their authors' permission; their rights are being reviewed. If you took one of these photos and want it credited differently or removed, [write to us on GitHub](https://github.com/ventura8/bucurestiuldisparut.github.io/issues).\n\n_Coming soon:_ historical layers from declassified USGS satellite imagery (1960s to 1980s), georeferenced for Bucharest."
+        },
+        "credits": [
+            {
+                "label": {
+                    "ro": "Fotografii: Studiourile Buftea",
+                    "en": "Photos: Studiourile Buftea"
+                }
+            },
+            {
+                "label": {
+                    "ro": "Fotografii fără autor cunoscut: arhive și publicații de epocă (de exemplu Realitatea Ilustrată, 1934–1935)",
+                    "en": "Photos without a known author: period archives and publications (for example Realitatea Ilustrată, 1934–1935)"
+                }
+            },
+            {
+                "label": {
+                    "ro": "Proiectul comunitar original București dispărut (2015–2022)",
+                    "en": "The original Lost Bucharest community project (2015–2022)"
+                }
+            },
+            {
+                "label": {
+                    "ro": "Imagini satelitare istorice: USGS EROS (în curând)",
+                    "en": "Historical satellite imagery: USGS EROS (coming soon)"
+                },
+                "url": "https://www.usgs.gov/centers/eros"
+            },
+            {
+                "label": {
+                    "ro": "Hartă de bază © Mapbox",
+                    "en": "Basemap © Mapbox"
+                },
+                "url": "https://www.mapbox.com/about/maps/"
+            },
+            {
+                "label": {
+                    "ro": "Date cartografice © colaboratorii OpenStreetMap",
+                    "en": "Map data © OpenStreetMap contributors"
+                },
+                "url": "https://www.openstreetmap.org/copyright"
+            }
+        ],
+        "privacy": {
+            "ro": "Fără acordul tău, această hartă nu folosește cookie-uri și nu trimite statistici. **Statisticile anonime** (Google Analytics) se încarcă doar dacă le accepți; poți retrage acordul oricând din secțiunea Despre.\n\nHarta este afișată cu **Mapbox**: browserul tău trimite adresa IP către Mapbox la încărcarea hărții, iar Mapbox păstrează în browser un identificator anonim pentru telemetria proprie ([politica Mapbox](https://www.mapbox.com/legal/privacy)).\n\nPagina este găzduită de GitHub Pages, iar fotografiile de Google Cloud Storage; acești furnizori văd adresa IP a vizitatorilor. Erorile tehnice sunt raportate fără date personale. Fotografiile publicate nu conțin date EXIF.",
+            "en": "Without your consent this map uses no cookies and sends no statistics. **Anonymous statistics** (Google Analytics) load only if you accept them; you can withdraw your consent at any time in About.\n\nThe map is shown with **Mapbox**: your browser sends your IP address to Mapbox when the map loads, and Mapbox keeps an anonymous identifier in your browser for its own telemetry ([Mapbox privacy policy](https://www.mapbox.com/legal/privacy)).\n\nThe page is hosted by GitHub Pages and the photos by Google Cloud Storage; these providers see visitors' IP addresses. Technical errors are reported without personal data. Published photos carry no EXIF data."
+        },
+        "theme": {
+            "seedColor": "#8B5E3C",
+            "tokens": {
+                "light": {
+                    "--md-sys-color-background": "#fff8f5",
+                    "--md-sys-color-on-background": "#3d3027",
+                    "--md-sys-color-surface": "#fff8f5",
+                    "--md-sys-color-surface-dim": "#ebd6c9",
+                    "--md-sys-color-surface-bright": "#fff8f5",
+                    "--md-sys-color-surface-container-lowest": "#ffffff",
+                    "--md-sys-color-surface-container-low": "#fff1e9",
+                    "--md-sys-color-surface-container": "#fdeadf",
+                    "--md-sys-color-surface-container-high": "#f8e4d9",
+                    "--md-sys-color-surface-container-highest": "#f4ded1",
+                    "--md-sys-color-on-surface": "#3d3027",
+                    "--md-sys-color-on-surface-variant": "#6c5c52",
+                    "--md-sys-color-outline": "#89776c",
+                    "--md-sys-color-outline-variant": "#c2aea2",
+                    "--md-sys-color-inverse-surface": "#130d09",
+                    "--md-sys-color-inverse-on-surface": "#a69b94",
+                    "--md-sys-color-primary": "#875329",
+                    "--md-sys-color-primary-dim": "#78471f",
+                    "--md-sys-color-on-primary": "#fff7f4",
+                    "--md-sys-color-primary-container": "#fdb886",
+                    "--md-sys-color-on-primary-container": "#62350d",
+                    "--md-sys-color-primary-fixed": "#fdb886",
+                    "--md-sys-color-primary-fixed-dim": "#edaa79",
+                    "--md-sys-color-on-primary-fixed": "#482200",
+                    "--md-sys-color-on-primary-fixed-variant": "#6d3d16",
+                    "--md-sys-color-inverse-primary": "#fdb886",
+                    "--md-sys-color-secondary": "#755945",
+                    "--md-sys-color-secondary-dim": "#684d3a",
+                    "--md-sys-color-on-secondary": "#fff7f4",
+                    "--md-sys-color-secondary-container": "#ffdcc5",
+                    "--md-sys-color-on-secondary-container": "#674c39",
+                    "--md-sys-color-secondary-fixed": "#ffdcc5",
+                    "--md-sys-color-secondary-fixed-dim": "#f3cdb4",
+                    "--md-sys-color-on-secondary-fixed": "#533a28",
+                    "--md-sys-color-on-secondary-fixed-variant": "#715642",
+                    "--md-sys-color-tertiary": "#676028",
+                    "--md-sys-color-tertiary-dim": "#5b541e",
+                    "--md-sys-color-on-tertiary": "#fff9e5",
+                    "--md-sys-color-tertiary-container": "#f5eaa4",
+                    "--md-sys-color-on-tertiary-container": "#5d561f",
+                    "--md-sys-color-tertiary-fixed": "#f5eaa4",
+                    "--md-sys-color-tertiary-fixed-dim": "#e6db97",
+                    "--md-sys-color-on-tertiary-fixed": "#4a430e",
+                    "--md-sys-color-on-tertiary-fixed-variant": "#676028",
+                    "--md-sys-color-error": "#a73b21",
+                    "--md-sys-color-error-dim": "#791903",
+                    "--md-sys-color-on-error": "#fff7f6",
+                    "--md-sys-color-error-container": "#fd795a",
+                    "--md-sys-color-on-error-container": "#6e1400",
+                    "--md-sys-color-shadow": "#000000",
+                    "--md-sys-color-scrim": "#000000",
+                    "--md-sys-color-surface-variant": "#f4ded1",
+                    "--md-sys-color-surface-tint": "#875329"
+                },
+                "dark": {
+                    "--md-sys-color-background": "#130d09",
+                    "--md-sys-color-on-background": "#f7e1d4",
+                    "--md-sys-color-surface": "#130d09",
+                    "--md-sys-color-surface-dim": "#130d09",
+                    "--md-sys-color-surface-bright": "#362a21",
+                    "--md-sys-color-surface-container-lowest": "#000000",
+                    "--md-sys-color-surface-container-low": "#19120c",
+                    "--md-sys-color-surface-container": "#211811",
+                    "--md-sys-color-surface-container-high": "#281e16",
+                    "--md-sys-color-surface-container-highest": "#2f231b",
+                    "--md-sys-color-on-surface": "#f7e1d4",
+                    "--md-sys-color-on-surface-variant": "#bba79b",
+                    "--md-sys-color-outline": "#837267",
+                    "--md-sys-color-outline-variant": "#53453c",
+                    "--md-sys-color-inverse-surface": "#fff8f5",
+                    "--md-sys-color-inverse-on-surface": "#5d534d",
+                    "--md-sys-color-primary": "#f4bb92",
+                    "--md-sys-color-primary-dim": "#e5ad86",
+                    "--md-sys-color-on-primary": "#5d3719",
+                    "--md-sys-color-primary-container": "#724929",
+                    "--md-sys-color-on-primary-container": "#ffddc6",
+                    "--md-sys-color-primary-fixed": "#fdc39a",
+                    "--md-sys-color-primary-fixed-dim": "#eeb58d",
+                    "--md-sys-color-on-primary-fixed": "#4d2a0c",
+                    "--md-sys-color-on-primary-fixed-variant": "#6e4526",
+                    "--md-sys-color-inverse-primary": "#815534",
+                    "--md-sys-color-secondary": "#e4bfa7",
+                    "--md-sys-color-secondary-dim": "#d5b29a",
+                    "--md-sys-color-on-secondary": "#543b29",
+                    "--md-sys-color-secondary-container": "#4e3624",
+                    "--md-sys-color-on-secondary-container": "#dcb8a0",
+                    "--md-sys-color-secondary-fixed": "#ffdcc5",
+                    "--md-sys-color-secondary-fixed-dim": "#f3cdb4",
+                    "--md-sys-color-on-secondary-fixed": "#533a28",
+                    "--md-sys-color-on-secondary-fixed-variant": "#715642",
+                    "--md-sys-color-tertiary": "#fff7d2",
+                    "--md-sys-color-tertiary-dim": "#efe49f",
+                    "--md-sys-color-on-tertiary": "#665e27",
+                    "--md-sys-color-tertiary-container": "#f5eaa4",
+                    "--md-sys-color-on-tertiary-container": "#5d561f",
+                    "--md-sys-color-tertiary-fixed": "#f5eaa4",
+                    "--md-sys-color-tertiary-fixed-dim": "#e6db97",
+                    "--md-sys-color-on-tertiary-fixed": "#4a430e",
+                    "--md-sys-color-on-tertiary-fixed-variant": "#676028",
+                    "--md-sys-color-error": "#f97758",
+                    "--md-sys-color-error-dim": "#c44f34",
+                    "--md-sys-color-on-error": "#450900",
+                    "--md-sys-color-error-container": "#85230a",
+                    "--md-sys-color-on-error-container": "#ff9b82",
+                    "--md-sys-color-shadow": "#000000",
+                    "--md-sys-color-scrim": "#000000",
+                    "--md-sys-color-surface-variant": "#2f231b",
+                    "--md-sys-color-surface-tint": "#f4bb92"
+                },
+                "highContrastLight": {
+                    "--md-sys-color-background": "#fff8f5",
+                    "--md-sys-color-on-background": "#000000",
+                    "--md-sys-color-surface": "#fff8f5",
+                    "--md-sys-color-surface-dim": "#ebd6c9",
+                    "--md-sys-color-surface-bright": "#fff8f5",
+                    "--md-sys-color-surface-container-lowest": "#ffffff",
+                    "--md-sys-color-surface-container-low": "#fff1e9",
+                    "--md-sys-color-surface-container": "#fdeadf",
+                    "--md-sys-color-surface-container-high": "#f8e4d9",
+                    "--md-sys-color-surface-container-highest": "#f4ded1",
+                    "--md-sys-color-on-surface": "#000000",
+                    "--md-sys-color-on-surface-variant": "#2d2119",
+                    "--md-sys-color-outline": "#4e4037",
+                    "--md-sys-color-outline-variant": "#5e4f45",
+                    "--md-sys-color-inverse-surface": "#130d09",
+                    "--md-sys-color-inverse-on-surface": "#ffffff",
+                    "--md-sys-color-primary": "#3c1b00",
+                    "--md-sys-color-primary-dim": "#2d1300",
+                    "--md-sys-color-on-primary": "#ffd1b2",
+                    "--md-sys-color-primary-container": "#77461e",
+                    "--md-sys-color-on-primary-container": "#ffffff",
+                    "--md-sys-color-primary-fixed": "#77461e",
+                    "--md-sys-color-primary-fixed-dim": "#693b13",
+                    "--md-sys-color-on-primary-fixed": "#ffffff",
+                    "--md-sys-color-on-primary-fixed-variant": "#ffffff",
+                    "--md-sys-color-inverse-primary": "#fdb886",
+                    "--md-sys-color-secondary": "#341f0f",
+                    "--md-sys-color-secondary-dim": "#281506",
+                    "--md-sys-color-on-secondary": "#f9d3ba",
+                    "--md-sys-color-secondary-container": "#674d39",
+                    "--md-sys-color-on-secondary-container": "#ffffff",
+                    "--md-sys-color-secondary-fixed": "#674d39",
+                    "--md-sys-color-secondary-fixed-dim": "#5a412f",
+                    "--md-sys-color-on-secondary-fixed": "#ffffff",
+                    "--md-sys-color-on-secondary-fixed-variant": "#ffffff",
+                    "--md-sys-color-tertiary": "#292400",
+                    "--md-sys-color-tertiary-dim": "#1e1a00",
+                    "--md-sys-color-on-tertiary": "#e6db97",
+                    "--md-sys-color-tertiary-container": "#5a531d",
+                    "--md-sys-color-on-tertiary-container": "#ffffff",
+                    "--md-sys-color-tertiary-fixed": "#5a531d",
+                    "--md-sys-color-tertiary-fixed-dim": "#4e4712",
+                    "--md-sys-color-on-tertiary-fixed": "#ffffff",
+                    "--md-sys-color-on-tertiary-fixed-variant": "#ffffff",
+                    "--md-sys-color-error": "#4c0a00",
+                    "--md-sys-color-error-dim": "#390600",
+                    "--md-sys-color-on-error": "#ffcfc4",
+                    "--md-sys-color-error-container": "#952e15",
+                    "--md-sys-color-on-error-container": "#ffffff",
+                    "--md-sys-color-shadow": "#000000",
+                    "--md-sys-color-scrim": "#000000",
+                    "--md-sys-color-surface-variant": "#f4ded1",
+                    "--md-sys-color-surface-tint": "#3c1b00"
+                },
+                "highContrastDark": {
+                    "--md-sys-color-background": "#130d09",
+                    "--md-sys-color-on-background": "#ffffff",
+                    "--md-sys-color-surface": "#130d09",
+                    "--md-sys-color-surface-dim": "#130d09",
+                    "--md-sys-color-surface-bright": "#362a21",
+                    "--md-sys-color-surface-container-lowest": "#000000",
+                    "--md-sys-color-surface-container-low": "#19120c",
+                    "--md-sys-color-surface-container": "#211811",
+                    "--md-sys-color-surface-container-high": "#281e16",
+                    "--md-sys-color-surface-container-highest": "#2f231b",
+                    "--md-sys-color-on-surface": "#ffffff",
+                    "--md-sys-color-on-surface-variant": "#f7e1d4",
+                    "--md-sys-color-outline": "#c9b5a9",
+                    "--md-sys-color-outline-variant": "#b3a094",
+                    "--md-sys-color-inverse-surface": "#fff8f5",
+                    "--md-sys-color-inverse-on-surface": "#000000",
+                    "--md-sys-color-primary": "#ffdfcb",
+                    "--md-sys-color-primary-dim": "#ffcaa5",
+                    "--md-sys-color-on-primary": "#452406",
+                    "--md-sys-color-primary-container": "#cd9872",
+                    "--md-sys-color-on-primary-container": "#000000",
+                    "--md-sys-color-primary-fixed": "#fdc39a",
+                    "--md-sys-color-primary-fixed-dim": "#eeb58d",
+                    "--md-sys-color-on-primary-fixed": "#000000",
+                    "--md-sys-color-on-primary-fixed-variant": "#130500",
+                    "--md-sys-color-inverse-primary": "#532f11",
+                    "--md-sys-color-secondary": "#ffdfcb",
+                    "--md-sys-color-secondary-dim": "#f6d0b7",
+                    "--md-sys-color-on-secondary": "#3d2716",
+                    "--md-sys-color-secondary-container": "#bf9d86",
+                    "--md-sys-color-on-secondary-container": "#000000",
+                    "--md-sys-color-secondary-fixed": "#ffdcc5",
+                    "--md-sys-color-secondary-fixed-dim": "#f3cdb4",
+                    "--md-sys-color-on-secondary-fixed": "#000000",
+                    "--md-sys-color-on-secondary-fixed-variant": "#2f1b0b",
+                    "--md-sys-color-tertiary": "#fff7d2",
+                    "--md-sys-color-tertiary-dim": "#efe49f",
+                    "--md-sys-color-on-tertiary": "#3d3703",
+                    "--md-sys-color-tertiary-container": "#f5eaa4",
+                    "--md-sys-color-on-tertiary-container": "#342e00",
+                    "--md-sys-color-tertiary-fixed": "#f5eaa4",
+                    "--md-sys-color-tertiary-fixed-dim": "#e6db97",
+                    "--md-sys-color-on-tertiary-fixed": "#000000",
+                    "--md-sys-color-on-tertiary-fixed-variant": "#292400",
+                    "--md-sys-color-error": "#ffded7",
+                    "--md-sys-color-error-dim": "#ffc8bb",
+                    "--md-sys-color-on-error": "#5a0e00",
+                    "--md-sys-color-error-container": "#ff7e5e",
+                    "--md-sys-color-on-error-container": "#000000",
+                    "--md-sys-color-shadow": "#000000",
+                    "--md-sys-color-scrim": "#000000",
+                    "--md-sys-color-surface-variant": "#2f231b",
+                    "--md-sys-color-surface-tint": "#ffdfcb"
+                }
+            }
+        },
+        "basemap": {
+            "style": "mapbox://styles/mapbox/standard-satellite"
+        },
+        "mapbox": {
+            "publicToken": "pk.REPLACE_AT_DEPLOY"
+        },
+        "analytics": {}
+    },
+    "layers": [],
+    "photos": [
+        {
+            "id": "piata-obor-1956",
+            "title": {
+                "ro": "Piata Obor"
+            },
+            "year": 1956,
+            "license": "permission-legacy",
+            "rightsReview": true,
+            "links": [],
+            "image": {
+                "web": "derived/piata-obor-1956/web.webp",
+                "thumb": "derived/piata-obor-1956/thumb.webp",
+                "w": 1000,
+                "h": 692
+            },
+            "location": {
+                "lat": 44.449352,
+                "lng": 26.125903
+            },
+            "bearing": 131.6,
+            "fov": 62
+        },
+        {
+            "id": "piata-obor-1956-2",
+            "title": {
+                "ro": "Piata Obor"
+            },
+            "year": 1956,
+            "license": "permission-legacy",
+            "rightsReview": true,
+            "links": [],
+            "image": {
+                "web": "derived/piata-obor-1956-2/web.webp",
+                "thumb": "derived/piata-obor-1956-2/thumb.webp",
+                "w": 960,
+                "h": 726
+            },
+            "location": {
+                "lat": 44.449352,
+                "lng": 26.125903
+            },
+            "bearing": 104.1,
+            "fov": 59
+        },
+        {
+            "id": "strada-gradinarilor",
+            "title": {
+                "ro": "Strada Gradinarilor"
+            },
+            "year": 1970,
+            "author": "Studiourile Buftea",
+            "license": "permission-legacy",
+            "rightsReview": true,
+            "links": [],
+            "image": {
+                "web": "derived/strada-gradinarilor/web.webp",
+                "thumb": "derived/strada-gradinarilor/thumb.webp",
+                "w": 1080,
+                "h": 724
+            },
+            "location": {
+                "lat": 44.414593,
+                "lng": 26.126315
+            },
+            "bearing": 289.7,
+            "fov": 47
+        },
+        {
+            "id": "la-statuie",
+            "title": {
+                "ro": "La Statuie"
+            },
+            "year": 1964,
+            "license": "permission-legacy",
+            "rightsReview": true,
+            "links": [],
+            "image": {
+                "web": "derived/la-statuie/web.webp",
+                "thumb": "derived/la-statuie/thumb.webp",
+                "w": 1080,
+                "h": 674
+            },
+            "location": {
+                "lat": 44.413136,
+                "lng": 26.163427
+            },
+            "bearing": 125.1,
+            "fov": 58
+        },
+        {
+            "id": "la-leu",
+            "title": {
+                "ro": "La Leu"
+            },
+            "year": 1920,
+            "license": "permission-legacy",
+            "rightsReview": true,
+            "links": [],
+            "image": {
+                "web": "derived/la-leu/web.webp",
+                "thumb": "derived/la-leu/thumb.webp",
+                "w": 1080,
+                "h": 684
+            },
+            "location": {
+                "lat": 44.434426,
+                "lng": 26.059068
+            },
+            "bearing": 235.4,
+            "fov": 61
+        },
+        {
+            "id": "monetaria-de-la-sosea",
+            "title": {
+                "ro": "Monetaria de la Sosea"
+            },
+            "year": 1906,
+            "license": "permission-legacy",
+            "rightsReview": true,
+            "links": [],
+            "image": {
+                "web": "derived/monetaria-de-la-sosea/web.webp",
+                "thumb": "derived/monetaria-de-la-sosea/thumb.webp",
+                "w": 796,
+                "h": 432
+            },
+            "location": {
+                "lat": 44.454772,
+                "lng": 26.085002
+            },
+            "bearing": 268,
+            "fov": 73
+        },
+        {
+            "id": "1940-02-macheta-statuii-regelui",
+            "title": {
+                "ro": "Macheta Statue Ferdinand"
+            },
+            "year": 1940,
+            "license": "permission-legacy",
+            "rightsReview": true,
+            "links": [],
+            "image": {
+                "web": "derived/1940-02-macheta-statuii-regelui/web.webp",
+                "thumb": "derived/1940-02-macheta-statuii-regelui/thumb.webp",
+                "w": 2048,
+                "h": 1489
+            },
+            "location": {
+                "lat": 44.452795,
+                "lng": 26.085817
+            },
+            "bearing": 102.9,
+            "fov": 52
+        },
+        {
+            "id": "mosilor-70",
+            "title": {
+                "ro": "Calea Mosilor"
+            },
+            "year": 1976,
+            "license": "permission-legacy",
+            "rightsReview": true,
+            "links": [],
+            "image": {
+                "web": "derived/mosilor-70/web.webp",
+                "thumb": "derived/mosilor-70/thumb.webp",
+                "w": 2000,
+                "h": 1606
+            },
+            "location": {
+                "lat": 44.447553,
+                "lng": 26.123087
+            },
+            "bearing": 24,
+            "fov": 50
+        },
+        {
+            "id": "hala-obor",
+            "title": {
+                "ro": "Hala Mosilor"
+            },
+            "year": 1910,
+            "license": "permission-legacy",
+            "rightsReview": true,
+            "links": [],
+            "image": {
+                "web": "derived/hala-obor/web.webp",
+                "thumb": "derived/hala-obor/thumb.webp",
+                "w": 800,
+                "h": 568
+            },
+            "location": {
+                "lat": 44.45032,
+                "lng": 26.125753
+            },
+            "bearing": 99.5,
+            "fov": 60
+        },
+        {
+            "id": "bucur-obor-1986",
+            "title": {
+                "ro": "Bucur Obor"
+            },
+            "year": 1986,
+            "license": "permission-legacy",
+            "rightsReview": true,
+            "links": [],
+            "image": {
+                "web": "derived/bucur-obor-1986/web.webp",
+                "thumb": "derived/bucur-obor-1986/thumb.webp",
+                "w": 960,
+                "h": 720
+            },
+            "location": {
+                "lat": 44.449646,
+                "lng": 26.125293
+            },
+            "bearing": 38.2,
+            "fov": 48
+        },
+        {
+            "id": "obor-6",
+            "title": {
+                "ro": "Hala Mosilor"
+            },
+            "year": 1930,
+            "license": "permission-legacy",
+            "rightsReview": true,
+            "links": [],
+            "image": {
+                "web": "derived/obor-6/web.webp",
+                "thumb": "derived/obor-6/thumb.webp",
+                "w": 2048,
+                "h": 1536
+            },
+            "location": {
+                "lat": 44.449857,
+                "lng": 26.126817
+            },
+            "bearing": 316.5,
+            "fov": 46
+        },
+        {
+            "id": "ansamblul-gara-de-nord-in-constructie",
+            "title": {
+                "ro": "Ansamblu Gara de Nord"
+            },
+            "year": 1959,
+            "license": "permission-legacy",
+            "rightsReview": true,
+            "links": [],
+            "image": {
+                "web": "derived/ansamblul-gara-de-nord-in-constructie/web.webp",
+                "thumb": "derived/ansamblul-gara-de-nord-in-constructie/thumb.webp",
+                "w": 1280,
+                "h": 960
+            },
+            "location": {
+                "lat": 44.446003,
+                "lng": 26.081442
+            },
+            "bearing": 270.3,
+            "fov": 34
+        }
+    ]
+}

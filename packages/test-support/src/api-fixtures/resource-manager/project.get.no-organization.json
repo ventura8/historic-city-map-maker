@@ -1,0 +1,14 @@
+{
+    "call": "GET https://cloudresourcemanager.googleapis.com/v3/projects/<project>",
+    "note": "A project created outside any organisation (a personal Google account): no parent (M2b item org-policies).",
+    "status": 200,
+    "body": {
+        "name": "projects/{{projectNumber}}",
+        "projectId": "{{projectId}}",
+        "state": "ACTIVE",
+        "displayName": "Historic City Map e2e",
+        "createTime": "2026-10-11T08:00:00.000Z",
+        "updateTime": "2026-10-11T08:00:00.000Z",
+        "etag": "W/\"e2e-project-etag\""
+    }
+}

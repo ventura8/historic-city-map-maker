@@ -1,0 +1,32 @@
+extends: default
+
+# Gitignored and third-party trees (same exclusion set as .markdownlint-cli2.jsonc, .gitleaks.toml,
+# .prettierignore and scripts/ci/check_no_inline_suppressions.py).
+ignore: |
+    node_modules/
+    **/node_modules/
+    dist/
+    **/dist/
+    reports/
+    coverage/
+    playwright-report/
+    test-results/
+    .venv/
+    seed/
+    vendor/
+    .claude/worktrees/
+
+rules:
+    line-length:
+        # 140, the repository-wide limit (.editorconfig). Pinned action references
+        # (`uses: owner/repo@<sha>  # vX.Y.Z`) are the long lines.
+        max: 140
+        level: warning
+    truthy:
+        # GitHub Actions' `on:` key is a bare truthy-looking word by design.
+        check-keys: false
+    document-start: disable
+    comments:
+        min-spaces-from-content: 1
+    indentation:
+        spaces: 4

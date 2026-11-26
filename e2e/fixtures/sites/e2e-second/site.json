@@ -1,0 +1,13 @@
+{
+    "lang": "ro",
+    "title": "Al doilea oraș (e2e)",
+    "description": "Al doilea oraș al lumii e2e: o hartă istorică servită din dosarul ei de pe GitHub Pages.",
+    "themeColor": "#3A6EA5",
+    "noscript": {
+        "ro": "Harta are nevoie de JavaScript. Activează JavaScript în browser ca să vezi fotografiile istorice ale orașului.",
+        "en": "The map needs JavaScript. Turn JavaScript on in your browser to see the historical photos of the city."
+    },
+    "media": "seed/bucharest/derived",
+    "publicManifest": true,
+    "pagesPath": "e2e-second/"
+}

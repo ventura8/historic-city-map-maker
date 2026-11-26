@@ -1,0 +1,79 @@
+# Historic City Map Maker
+
+[![Coverage](.github/badges/coverage.svg)](docs/TESTING.md)
+[![Branches](.github/badges/branches.svg)](docs/TESTING.md)
+[![Quality Gate Status](https://sonarcloud.io/api/project_badges/measure?project=ventura8_bucurestiuldisparut.github.io&metric=alert_status)](https://sonarcloud.io/summary/new_code?id=ventura8_bucurestiuldisparut.github.io)
+
+**Historic City Map Maker** is a data-driven historical map engine and a "do-everything" admin for any city: old photographs placed on today's map with the direction the camera faced, vanished places, stories, and historical imagery (declassified USGS photographs from the 1960s–1980s, Landsat, scanned maps of your own) georeferenced and published as layers to compare with today's city. A city starts from a three-file starter kit, or from a browser with no install, and its admin does almost everything automatically — setting up the Google Cloud, Mapbox and USGS accounts, finding and importing imagery, georeferencing and publishing layers, managing photos and points of interest, with a live transparency slider for every layer, the photos and each category of places. The interface is in Romanian (default) and English, Material Design 3, adaptive to every screen.
+
+The project's landing page: <https://ventura8.github.io/historic-city-map-maker/> (`sites/landing/`, built by `npm run build:landing`).
+
+**Example: [București dispărut](https://bucurestiul-disparut.web.app/)** ("Lost Bucharest"), the first map made with it: Bucharest's old photographs and historical imagery.
+
+> Status: **v1.0.0-beta.1**, the first beta of the engine rewrite ([docs/releases/v1.0.0-beta.1.md](docs/releases/v1.0.0-beta.1.md)). The viewer, the admin with its Setup Assistant and no-terminal install, the backend, the USGS imagery pipeline and the georeferencer, joins of one date's frames, the import of local archives, the start page, stories, roles and review, many cities in one project, the static export and the local worker are in it; the milestones' records are `docs/research/M3-status.md` to `docs/research/M6-status.md` and the later milestone documents. A beta can still change in a breaking way before v1.0.0.
+
+## Your city
+
+### Start your own map (no install)
+
+**[Start the setup wizard for a new place →](https://start-historic-city.web.app/)**
+
+Open the link, sign in with Google and name your place: the wizard makes your own Google Cloud project, installs the map and its admin there, and takes you to the admin's Setup Assistant, which finishes the rest (billing, Mapbox, USGS). Nothing to install and no terminal; terms, billing and every password stay on Google's and the providers' own pages. What it does, step by step: [docs/research/M14-start-your-map.md](docs/research/M14-start-your-map.md). Pornește-ți propria hartă: același link, în română.
+
+### From a terminal
+
+A new city starts from the starter kit: `npx https://github.com/ventura8/historic-city-map-maker/releases/download/v1.0.0-beta.1/create-historic-city-1.0.0-beta.1.tgz my-city` asks for the city's name and its rectangle on the map and writes the three files (the page, `city.json`, the README), ready for GitHub Pages. With a Firebase project of your own and the admin app, `npx https://github.com/ventura8/historic-city-map-maker/releases/download/v1.0.0-beta.1/create-historic-city-1.0.0-beta.1.tgz self-host my-city --project <id>` walks you through the steps, with a yes/no for each; signing in to Google, the terms and billing happen in Google's own pages only, and the admin's Setup Assistant finishes the rest ([docs/SELF_HOST.md](docs/SELF_HOST.md)).
+
+## Repository
+
+An npm-workspaces monorepo:
+
+| Path | Contents |
+| --- | --- |
+| `packages/engine` | `@hcm/engine`, the public viewer (Lit + Mapbox GL JS 3.34.1, loaded from Mapbox's CDN, never bundled); exposes `window.HistoricCityMap` |
+| `packages/admin` | `@hcm/admin`, the admin: its Setup Assistant and the editors (photos, places, layers, settings, history, jobs, admins, crash reports); photo placement against current satellite imagery or the city’s maps and scans, listed newest first |
+| `packages/ui` | `@hcm/ui`, the Material 3 Expressive component kit, its self-hosted fonts and the viewer's elements ([packages/ui/README.md](packages/ui/README.md)) |
+| `packages/shared` | `@hcm/shared`, schemas (City Manifest v1), the overlay model, the URL hash, i18n (25 languages for the viewer, the admin and the start page, RO and EN bundled, the others fetched when chosen, a missing text in English, `docs/I18N.md`), logging |
+| `packages/test-support` | `@hcm/test-support`, fakes and fixtures for tests |
+| `sites/<city>/`, `starter-kit/` | each city's optional GitHub Pages site (the public map itself is on Firebase Hosting; `sites/bucharest` at the root, every other city at `/<city>/`; `npm run site:add` writes a new one) and the M1 kit the site build makes (`config.js`, `site.json`, `site.css`; the page is generated by `scripts/site/`, see [starter-kit/README.md](starter-kit/README.md)) |
+| `templates/starter-kit/` | the starter kit a new city copies (M5): `index.html` (the engine from jsDelivr at a pinned version, with Subresource Integrity), `city.json` and an English [README](templates/starter-kit/README.md) |
+| `packages/create-historic-city` | the `create-historic-city` CLI (`npx https://github.com/ventura8/historic-city-map-maker/releases/download/v1.0.0-beta.1/create-historic-city-1.0.0-beta.1.tgz`): a new city's three files with minimum input, and the guided steps for a Firebase project of the owner's own ([docs/SELF_HOST.md](docs/SELF_HOST.md)) |
+| `functions/`, `firebase/`, `pipeline/`, `e2e/` | Cloud Functions, Firestore and Storage rules with their tests, the Python + GDAL raster pipeline, Playwright end-to-end tests behind mock APIs (`e2e/mock-apis/`) |
+| `seed/bucharest` | the legacy photos and their metadata, migrated as they are |
+| `docs/` | documentation; `docs/research/` holds the approved plan and the research behind it |
+
+## Quick start
+
+Everything runs in Docker; the host needs only Docker and git ([docs/SETUP.md](docs/SETUP.md)).
+
+```bash
+PIPELINE_STAGE=static bash scripts/ci/run-all-checks.sh   # lint, format, types, secrets, audits
+PIPELINE_STAGE=tests bash scripts/ci/run-all-checks.sh    # unit, component and rules tests, 90 % coverage per file
+PIPELINE_STAGE=e2e bash scripts/ci/run-all-checks.sh      # Playwright end-to-end tests (E2E_TIER=smoke,fn for a subset)
+PIPELINE_STAGE=e2e bash scripts/ci/e2e-split.sh           # the same, split with a second Docker machine over ssh (the NUC)
+PIPELINE_STAGE=build bash scripts/ci/run-all-checks.sh    # engine and admin bundles (and the admin's Hosting folder), then the sites in dist/site/ and the Pages tree dist/pages/
+```
+
+## Documentation
+
+- [Architecture](docs/ARCHITECTURE.md)
+- [Engine API](docs/ENGINE_API.md) (config.js, the element, the JavaScript API, the URL hash, City Manifest v1)
+- [CI pipeline](docs/CI_PIPELINE.md)
+- [Testing](docs/TESTING.md)
+- [Manual test plan and the local stack](docs/MANUAL_TEST_PLAN.md)
+- [Developer setup](docs/SETUP.md)
+- [Start your own map](docs/research/M14-start-your-map.md): the public start page, what it does from a browser, and what only a real run proves
+- [Self-hosting a city](docs/SELF_HOST.md): the starter kit and `create-historic-city`
+- [Admin guide](docs/ADMIN_GUIDE.en.md)
+- [Lessons](docs/LESSONS.md)
+- [Release notes](docs/releases/README.md)
+- [Approved plan](docs/research/PLAN.md), the [M0 hand-off](docs/research/M0-handoff.md), the [M1 interfaces](docs/research/M1-interfaces.md) and the latest milestone's [status](docs/research/M6-status.md)
+- For AI agents: [AGENTS.md](AGENTS.md)
+
+## Credits
+
+Historical photographs: their authors and rights holders, credited on each photo. Satellite imagery: USGS EROS, declassified (public domain). Base map: © Mapbox, © OpenStreetMap contributors.
+
+## Licences
+
+The engine and the admin bundle third-party npm packages (Lit, zod, the Firebase JS SDK, Terra Draw and its Mapbox GL adapter, among others) and self-host two font families. Each build writes `THIRD_PARTY_NOTICES.txt` beside its entry script (`packages/engine/dist/`, `packages/admin/dist/`): every bundled package and every package a font comes from, with its exact version, its licence and the licence text, generated from the installed packages by `scripts/site/src/notices.ts`. The engine's file travels with the engine (the city sites, the GitHub Release and jsDelivr); Firebase Hosting serves the admin's next to the admin. The `notices` gate of the `build` stage checks each file against the build's source maps and allows only permissive licences (MIT, ISC, BSD-2-Clause, BSD-3-Clause, Apache-2.0, OFL-1.1, 0BSD, CC0-1.0); the fonts' licences are also in [packages/ui/fonts/LICENSES.md](packages/ui/fonts/LICENSES.md). Mapbox GL JS is not bundled: pages load it from Mapbox's CDN under Mapbox's own terms. The project's own code carries no open-source licence yet (`UNLICENSED` in every `package.json`).

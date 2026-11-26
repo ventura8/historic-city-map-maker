@@ -1,0 +1,17 @@
+{
+    "call": "GET https://orgpolicy.googleapis.com/v2/projects/<project>/policies/<list constraint>:getEffectivePolicy",
+    "note": "A list constraint restricted to named values (iam.allowedPolicyMemberDomains: only this customer's members).",
+    "status": 200,
+    "body": {
+        "name": "projects/{{projectNumber}}/policies/{{constraint}}",
+        "spec": {
+            "rules": [
+                {
+                    "values": {
+                        "allowedValues": ["C0e2e0000"]
+                    }
+                }
+            ]
+        }
+    }
+}

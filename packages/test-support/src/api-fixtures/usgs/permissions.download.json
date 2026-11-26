@@ -1,0 +1,13 @@
+{
+    "call": "POST https://m2m.cr.usgs.gov/api/api/json/stable/permissions",
+    "note": "UNVERIFIED: the permission names come from the M2M docs; `download` means M2M access is approved.",
+    "status": 200,
+    "body": {
+        "requestId": 1000001,
+        "version": "stable",
+        "sessionId": 2000001,
+        "data": ["user", "download", "order"],
+        "errorCode": null,
+        "errorMessage": null
+    }
+}

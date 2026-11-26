@@ -1,0 +1,25 @@
+{
+    "name": "@hcm/functions",
+    "version": "1.0.0-beta.1",
+    "private": true,
+    "description": "Firebase Functions v2 (Node 24, us-central1): thin triggers over pure handlers and ports. `npm run build` writes the deploy artifact functions/dist/{index.js,package.json} (firebase.json functions.source).",
+    "license": "UNLICENSED",
+    "type": "module",
+    "engines": {
+        "node": "24"
+    },
+    "scripts": {
+        "build": "node build.mjs",
+        "deploy-lock": "node deploy-lock.mjs"
+    },
+    "dependencies": {
+        "@hcm/shared": "1.0.0-beta.1",
+        "firebase-admin": "14.5.1",
+        "firebase-functions": "7.4.0",
+        "google-auth-library": "11.3.4",
+        "sharp": "0.35.5"
+    },
+    "devDependencies": {
+        "@hcm/test-support": "1.0.0-beta.1"
+    }
+}

@@ -1,0 +1,15 @@
+{
+    "call": "GET https://orgpolicy.googleapis.com/v2/projects/<project>/policies/<constraint>:getEffectivePolicy",
+    "note": "A list constraint answers allowAll, a boolean one enforce false; both mean nothing is restricted.",
+    "status": 200,
+    "body": {
+        "name": "projects/{{projectNumber}}/policies/{{constraint}}",
+        "spec": {
+            "rules": [
+                {
+                    "allowAll": true
+                }
+            ]
+        }
+    }
+}

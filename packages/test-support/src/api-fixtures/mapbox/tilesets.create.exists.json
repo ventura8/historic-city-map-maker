@@ -1,0 +1,7 @@
+{
+    "call": "POST https://api.mapbox.com/tilesets/v1/<tileset>?access_token=<sk>",
+    "status": 400,
+    "body": {
+        "message": "Tileset {{tilesetId}} already exists"
+    }
+}

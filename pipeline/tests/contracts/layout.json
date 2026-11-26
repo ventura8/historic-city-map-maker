@@ -1,0 +1,217 @@
+{
+    "layout": {
+        "revision": 1,
+        "rows": 2,
+        "cols": 3,
+        "width": 1383,
+        "height": 698,
+        "sheets": [
+            {
+                "name": "r1c1.tif",
+                "row": 0,
+                "col": 0,
+                "turn": 0,
+                "flip": false,
+                "source": "name",
+                "matrix": [1.0, 0.0, 0.039, 0.0, 1.0, 0.032],
+                "width": 480,
+                "height": 360
+            },
+            {
+                "name": "r1c2.tif",
+                "row": 0,
+                "col": 1,
+                "turn": 0,
+                "flip": false,
+                "source": "name",
+                "matrix": [1.0, 0.0, 451.02, 0.0, 1.0, 0.017],
+                "width": 480,
+                "height": 360
+            },
+            {
+                "name": "r1c3.tif",
+                "row": 0,
+                "col": 2,
+                "turn": 0,
+                "flip": false,
+                "source": "name",
+                "matrix": [1.0, 0.0, 902.09, 0.0, 1.0, 0.0],
+                "width": 480,
+                "height": 360
+            },
+            {
+                "name": "r2c1.tif",
+                "row": 1,
+                "col": 0,
+                "turn": 0,
+                "flip": false,
+                "source": "name",
+                "matrix": [1.0, 0.0, 0.0, 0.0, 1.0, 337.997],
+                "width": 480,
+                "height": 360
+            },
+            {
+                "name": "r2c2.tif",
+                "row": 1,
+                "col": 1,
+                "turn": 0,
+                "flip": false,
+                "source": "name",
+                "matrix": [1.0, 0.0, 451.031, 0.0, 1.0, 337.978],
+                "width": 480,
+                "height": 360
+            },
+            {
+                "name": "r2c3.tif",
+                "row": 1,
+                "col": 2,
+                "turn": 0,
+                "flip": false,
+                "source": "name",
+                "matrix": [1.0, 0.0, 902.11, 0.0, 1.0, 337.983],
+                "width": 480,
+                "height": 360
+            },
+            {
+                "name": "legendx.tif",
+                "row": 0,
+                "col": 0,
+                "turn": 0,
+                "flip": false,
+                "source": "name",
+                "matrix": [1.0, 0.0, -0.013, 0.0, 1.0, 0.02],
+                "width": 480,
+                "height": 360,
+                "out": "no-join"
+            }
+        ],
+        "seams": [
+            {
+                "a": 0,
+                "b": 1,
+                "side": "right",
+                "dx": 450.95,
+                "dy": -0.03,
+                "score": 1.0,
+                "rmsPx": 0.06,
+                "overlapPx": 29,
+                "state": "strong"
+            },
+            {
+                "a": 0,
+                "b": 3,
+                "side": "below",
+                "dx": -0.01,
+                "dy": 337.98,
+                "score": 1.0,
+                "rmsPx": 0.03,
+                "overlapPx": 22,
+                "state": "strong"
+            },
+            {
+                "a": 1,
+                "b": 2,
+                "side": "right",
+                "dx": 451.07,
+                "dy": -0.02,
+                "score": 1.0,
+                "rmsPx": 0.07,
+                "overlapPx": 29,
+                "state": "strong"
+            },
+            {
+                "a": 1,
+                "b": 4,
+                "side": "below",
+                "dx": -0.02,
+                "dy": 337.95,
+                "score": 1.0,
+                "rmsPx": 0.05,
+                "overlapPx": 22,
+                "state": "strong"
+            },
+            {
+                "a": 2,
+                "b": 5,
+                "side": "below",
+                "dx": -13.0,
+                "dy": 360.0,
+                "score": 0.095,
+                "rmsPx": 1.0,
+                "overlapPx": 0,
+                "state": "missing",
+                "suggestion": {
+                    "a": [240.0, 360.0],
+                    "b": [253.0, 0.0]
+                },
+                "strip": {
+                    "row": 0,
+                    "a": [0, 270, 480, 90],
+                    "b": [0, 0, 480, 90]
+                }
+            },
+            {
+                "a": 3,
+                "b": 4,
+                "side": "right",
+                "dx": 451.06,
+                "dy": -0.01,
+                "score": 1.0,
+                "rmsPx": 0.06,
+                "overlapPx": 29,
+                "state": "strong"
+            },
+            {
+                "a": 4,
+                "b": 5,
+                "side": "right",
+                "dx": 480.0,
+                "dy": -29.0,
+                "score": 0.179,
+                "rmsPx": 1.0,
+                "overlapPx": 0,
+                "state": "missing",
+                "suggestion": {
+                    "a": [480.0, 180.0],
+                    "b": [0.0, 209.0]
+                },
+                "strip": {
+                    "row": 1,
+                    "a": [360, 0, 120, 360],
+                    "b": [0, 0, 120, 360]
+                }
+            }
+        ],
+        "quality": {
+            "placedPct": 71.4,
+            "seamMedian": 1.0,
+            "seamRmsPx": 0.07,
+            "verdict": "check"
+        }
+    },
+    "summary": {
+        "rows": 2,
+        "cols": 3,
+        "revision": 1,
+        "quality": {
+            "placedPct": 71.4,
+            "seamMedian": 1.0,
+            "seamRmsPx": 0.07,
+            "verdict": "check"
+        },
+        "weakSeams": [
+            {
+                "a": 2,
+                "b": 5,
+                "side": "below",
+                "score": 0.095
+            },
+            {
+                "a": 4,
+                "b": 5,
+                "side": "right",
+                "score": 0.179
+            }
+        ]
+    }
+}

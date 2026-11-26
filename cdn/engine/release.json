@@ -1,0 +1,258 @@
+{
+    "version": "1.0.0-beta.1",
+    "repository": "ventura8/historic-city-map-maker",
+    "base": "https://cdn.jsdelivr.net/gh/ventura8/historic-city-map-maker@v1.0.0-beta.1/cdn/engine/",
+    "mapboxGl": {
+        "version": "3.34.1",
+        "script": {
+            "url": "https://api.mapbox.com/mapbox-gl-js/v3.34.1/mapbox-gl.js",
+            "integrity": "sha384-bRGpP2/mvLNdh4nRXgIf97xnGmUJRpB58iFa5NaGLEFu8v+0T/Bc0c+iX+AvMgVP"
+        },
+        "stylesheet": {
+            "url": "https://api.mapbox.com/mapbox-gl-js/v3.34.1/mapbox-gl.css",
+            "integrity": "sha384-QWCpuitI3tz8lJHSbcFQpEAx5BkQcYir4RLGZBb8zOIH0es6XDO8Kv6Gat+wOJRN"
+        }
+    },
+    "files": [
+        {
+            "path": "THIRD_PARTY_NOTICES.txt",
+            "bytes": 110033,
+            "integrity": "sha384-elRwskqfc1NVO0b7yOdYPt9Ukw0g9bbM4wxfwKN4dUBSAfvUurBXR/QTWMAP/b1w"
+        },
+        {
+            "path": "compare-BPAgEPDM.js",
+            "bytes": 10659,
+            "integrity": "sha384-gGgZyD4C+iOKkS3sBvw6YWoTdwWWCqSqmv2sv/h+ugYqm2ChuCjszHE0yQyPXOSy"
+        },
+        {
+            "path": "engine.css",
+            "bytes": 693,
+            "integrity": "sha384-CRpPdjzXaxayEUJd7QaGGTEpbrbi1+l7GzlfuObh0Ff16aumTb6HWXwBM5Z/LXEO"
+        },
+        {
+            "path": "engine.extras.js",
+            "bytes": 23789,
+            "integrity": "sha384-ATjdHHedpbzr9n1Eka30Ab6GNMaJG9R0CLD1KIqsIAoCo5IXWjzf4W3pJzM/hNiv"
+        },
+        {
+            "path": "engine.iife.js",
+            "bytes": 457581,
+            "integrity": "sha384-XZHo7xEgi6igibQXSgh3TleG1oTzYtu6aSo+zhO93Lu4L+O0RTuRYEEqducqhJQ6"
+        },
+        {
+            "path": "engine.mjs",
+            "bytes": 359100,
+            "integrity": "sha384-ESYci884jH5O38FEi0kzrReS+ffxtNyghFhjhkzd/8L5wvti/gkoQ6KcQYwe8AOl"
+        },
+        {
+            "path": "extra-compare-Y-DRKNUv.js",
+            "bytes": 21017,
+            "integrity": "sha384-Y+DRKNUvsSIz/NIzlk5+s9TBWzGmOpgbfrGscuqgV6NN5k671xToN+WybF6zs4Ey"
+        },
+        {
+            "path": "extra-field-sdk-o-zNh3jj.js",
+            "bytes": 15775,
+            "integrity": "sha384-o+zNh3jjiM0QXnYIT29B/2fTygdfFveR+fxhDJqpILZA5r3DRWB8FAm/Qo0LXTjG"
+        },
+        {
+            "path": "extra-firebase-sdk-4tFRHb4K.js",
+            "bytes": 42003,
+            "integrity": "sha384-4tFRHb4KKkVMnJ9cqJ5JX5iHjQKnJGcwtsmgPNLPHuVWT+vUpULyQ2UVhylhqnbo"
+        },
+        {
+            "path": "extra-gamepad-X_oz2StB.js",
+            "bytes": 3795,
+            "integrity": "sha384-X/oz2StB1cr5osEJpRGbu1TKOMvFpWEhJz87RZgeTJwfsWz2UmhW+mc8p+C92nAh"
+        },
+        {
+            "path": "extra-wikipedia-fcpZPGz2.js",
+            "bytes": 973,
+            "integrity": "sha384-fcpZPGz2TO+go6G4ihw00PRtrxsQHuyXU68z4ICW4a5hyTnO2r9ZGcgcA02nZ/Sf"
+        },
+        {
+            "path": "field-sdk-BKGx-5W-.js",
+            "bytes": 20779,
+            "integrity": "sha384-2Cqxd2VCdfmBkMHeeRviepoWq9DPke3AfxO7hv355meaZ5ZeiYctCJofVswL9aGo"
+        },
+        {
+            "path": "firebase-sdk-BUBWsb7y.js",
+            "bytes": 41827,
+            "integrity": "sha384-VAW9JbjxlGW6fFfeKzb35grP4ACyh6B7EmMHIJvkslsVUW76u4u7LabSrfouC1cb"
+        },
+        {
+            "path": "fonts/LICENSES.md",
+            "bytes": 18124,
+            "integrity": "sha384-9lEc3EPdogOFifmqMBYEc8i9afcA/SRu/AUORqwwl6kowcAHJerwbNXKPTJj/piX"
+        },
+        {
+            "path": "fonts/material-symbols-rounded.woff2",
+            "bytes": 17568,
+            "integrity": "sha384-Qqb2hUgodmc1AgeygS4UA9kEPfKRupnDRFL/Jh+XKSIFlCPnVewzQ+FnTr8jnvbU"
+        },
+        {
+            "path": "fonts/roboto-flex-cyrillic-wght.woff2",
+            "bytes": 15652,
+            "integrity": "sha384-2SKZHBMuQsVwd90lvySjNNFF80l/NCq5sEkmh9n80gPPUkwa+uJs8OR/G8w8kA/d"
+        },
+        {
+            "path": "fonts/roboto-flex-latin-ext-wght.woff2",
+            "bytes": 23480,
+            "integrity": "sha384-ZbxRz+AsosoNcLlmHhb6NcWSxA0/Z27AW8j1AAXuftQkA9MaZaAmc6I44pCIwwzI"
+        },
+        {
+            "path": "fonts/roboto-flex-latin-wght.woff2",
+            "bytes": 34320,
+            "integrity": "sha384-PxteXbRXolrh1kE3ROuzHP+geBD1/7bEJIGn3ZrzRm4wf/Y+mM1s0r9YVRB1IQro"
+        },
+        {
+            "path": "gamepad-y2yLQT7v.js",
+            "bytes": 3059,
+            "integrity": "sha384-HBPoc0skx0VWr6sQVa+XMaUTCvwvig7d3rNzZChvR+bAXWAdxmG3WEgN44Pove0h"
+        },
+        {
+            "path": "i18n/ar.json",
+            "bytes": 21408,
+            "integrity": "sha384-gr9pUjeHemyKo7WT5nLBnJFuNjehjZruxKh+rijGGp0kGypyFT9BVzQivi2cTqG2"
+        },
+        {
+            "path": "i18n/bg.json",
+            "bytes": 70,
+            "integrity": "sha384-7We0jff6yjwgMD1CNhWaNJukITOMc4629LLAmmZxrobOagTLlNuvLntWpTy0IM1o"
+        },
+        {
+            "path": "i18n/bn.json",
+            "bytes": 70,
+            "integrity": "sha384-n5XDiL6AwXAPI+gtPa/V5Eq5ps4/vwhnQYXG1hBhc5IbIL3bBQ+2+PPnAXS6V3Pa"
+        },
+        {
+            "path": "i18n/de.json",
+            "bytes": 17880,
+            "integrity": "sha384-oh0zFicCd/kBZ852GahbglYX//lQIdZK3KqH4+fBZtOJMcWk2ElKdsLZoyCnDqv0"
+        },
+        {
+            "path": "i18n/el.json",
+            "bytes": 70,
+            "integrity": "sha384-jQo8kw6x0JJPKNxDGixvspUT4e6jSCzNuYrDd7wwhfnR6lVAPAXtqvqOG5gTFJs3"
+        },
+        {
+            "path": "i18n/en.json",
+            "bytes": 15965,
+            "integrity": "sha384-bse60ShiRwkxRsJ9GozQN/hYZj2mAHZ7rw+Z9ZRziGWDxV7T952VpQWKIBLqQ2YR"
+        },
+        {
+            "path": "i18n/es.json",
+            "bytes": 17347,
+            "integrity": "sha384-K8i67ECBKp8HqqvenGx3Tm7nDZGQX8ns/IZGHFXOvJrOPG5TTI0n/h9mJdfjP5NG"
+        },
+        {
+            "path": "i18n/fa.json",
+            "bytes": 70,
+            "integrity": "sha384-pzGhEXmMzdZUxgUi+bkPM+3VhfadRtK7GydsKicDftNbKbMdagp7Hn0eVfe7+R4m"
+        },
+        {
+            "path": "i18n/fr.json",
+            "bytes": 18383,
+            "integrity": "sha384-BxMCWfWnJvr81OeUUTvTdWvrBvnWQo0wzY6RUUUklccA7nB04qD8cDKQ63stXXwc"
+        },
+        {
+            "path": "i18n/hi.json",
+            "bytes": 29911,
+            "integrity": "sha384-6aUoifEwOQ28c+7OE59LZaBZ50sdEbmGffD0G3+FgzE1ivbMcbG005NOdaPov3o5"
+        },
+        {
+            "path": "i18n/hu.json",
+            "bytes": 70,
+            "integrity": "sha384-mq1zB6QlS+6wp0jjjD8X6W0lvVpb8ogzpYHyqXckJQ30rE4tT9a8STBIUIl/QU8y"
+        },
+        {
+            "path": "i18n/id.json",
+            "bytes": 70,
+            "integrity": "sha384-ymrP7A+5ZelLkQhia2lg9UbQLtssORSaPpiX5V6TkM5DrFvVQK+pmbvlPVcwaiS8"
+        },
+        {
+            "path": "i18n/it.json",
+            "bytes": 17298,
+            "integrity": "sha384-Ay55OBOZgWWzwCh1B3cQYjRdvBrN6n7GffOqaVoIaeQqNIzXtJDgsdp67uGJT9oS"
+        },
+        {
+            "path": "i18n/ja.json",
+            "bytes": 20025,
+            "integrity": "sha384-tTVqXbr8GBQoqyFoILz7U7ApVKCFGJHT9enEA289XcWUX+O2Cpife+YifC/RHoCF"
+        },
+        {
+            "path": "i18n/ko.json",
+            "bytes": 18558,
+            "integrity": "sha384-B53aLcoqtRKQNfqls316x3upyCrub/2JC5RaIm4Qf5SXVNQp02sQ4y8PwoepD8PX"
+        },
+        {
+            "path": "i18n/nl.json",
+            "bytes": 70,
+            "integrity": "sha384-WTTQQ2BIwOkNr1prVYf3kU07kDMKK9KhUTee1B3JvoqXSrKmmmpqhykJTItn9Bv3"
+        },
+        {
+            "path": "i18n/pl.json",
+            "bytes": 17287,
+            "integrity": "sha384-9aI6yP30IGF3EsjrhFxqgUKDGxS+zG9qOSrl/2LLDEhTDpET31Z2B+9vJ5ERlHyA"
+        },
+        {
+            "path": "i18n/pt.json",
+            "bytes": 17216,
+            "integrity": "sha384-K17SdNg1RoBZrTjURbTQqYjUvN/KDkHu4no7ATJlBKwJ9XRMnty+vUTZC9nHpdCY"
+        },
+        {
+            "path": "i18n/ro.json",
+            "bytes": 17287,
+            "integrity": "sha384-q6hoVA7UnQQbVVmAC/Dwal1xjb/lle7QgR7nwn7S+k0lzR2TpznUcj0bafWFMwpr"
+        },
+        {
+            "path": "i18n/ru.json",
+            "bytes": 24640,
+            "integrity": "sha384-3GBHGWNAXpdJju+O9knk+qwJePzL1tPZf4ICPs8ILde1G1sNvHW2Nkautaei6tl8"
+        },
+        {
+            "path": "i18n/tr.json",
+            "bytes": 17500,
+            "integrity": "sha384-yDEW/mAgjBVKlLexMX83Pxlh0vd76uzzBCijK08brjl/Q47b5kCp4Rx7J/2j83cf"
+        },
+        {
+            "path": "i18n/uk.json",
+            "bytes": 24036,
+            "integrity": "sha384-9VYfDYzZ7pLMDCWZZ1WAYSegnLJxRouR7SdBHuwT75v3Si7KKjLu53bPQrfcsm7j"
+        },
+        {
+            "path": "i18n/ur.json",
+            "bytes": 70,
+            "integrity": "sha384-IGSzUDLncYkyBHJSyFNnR3H2BWulsYx+kQ0fycBVSxS1oJsihZzese+KqOAazdro"
+        },
+        {
+            "path": "i18n/vi.json",
+            "bytes": 70,
+            "integrity": "sha384-Jn6DnYmC1Kp8FQwuXgS/2ZXyTsmC09EUNpCQW5tbVr8Iwl4o9hCZUmN98cSJ59NP"
+        },
+        {
+            "path": "i18n/zh.json",
+            "bytes": 16026,
+            "integrity": "sha384-O+9BmIvJBNC13zvqstGHDUZs/1Lyny2aUa8tgGu3rJdEA4nYO67onkj5sqWPcGCl"
+        },
+        {
+            "path": "locales-dtuIb_F1.js",
+            "bytes": 753,
+            "integrity": "sha384-vRT8kz6AsLlTBIYU30h5Wb6Nb90b7bnEH8SD+bn+7JddMD+khG4rby0eVwGDCb/Y"
+        },
+        {
+            "path": "manifest-BtH7cIAP.js",
+            "bytes": 13315,
+            "integrity": "sha384-zrZ2D2yJZqNRwsFCixpNuLiEC9sX2XEupGA2mOk0nZU3HnPsef8ks0uLecHMQg0B"
+        },
+        {
+            "path": "primitives-BbQvtuMt.js",
+            "bytes": 83270,
+            "integrity": "sha384-ydeDztTriYu5cv3gEeepw+vUD8pXreW8jLutALDVr4lmWk/CqOqHLI4roabLJ3PP"
+        },
+        {
+            "path": "wikipedia-C16hIoff.js",
+            "bytes": 477,
+            "integrity": "sha384-QzoFpTbkojZGW7ItPJG/RdwdGgC2XWpjpRbv2emv5hpGeFLq2PvhII+M2z9mcDUy"
+        }
+    ]
+}

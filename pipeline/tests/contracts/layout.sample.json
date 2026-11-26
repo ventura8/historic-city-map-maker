@@ -1,0 +1,131 @@
+{
+    "revision": 2,
+    "rows": 2,
+    "cols": 2,
+    "width": 5900,
+    "height": 3950,
+    "sheets": [
+        {
+            "name": "atlas/r1c1.jpg",
+            "row": 0,
+            "col": 0,
+            "turn": 0,
+            "flip": false,
+            "source": "name",
+            "matrix": [1, 0, 0, 0, 1, 0],
+            "width": 3000,
+            "height": 2000
+        },
+        {
+            "name": "atlas/r1c2.jpg",
+            "row": 0,
+            "col": 1,
+            "turn": 0,
+            "flip": false,
+            "source": "name",
+            "matrix": [1, 0, 2900, 0, 1, 0],
+            "width": 3000,
+            "height": 2000
+        },
+        {
+            "name": "atlas/r2c1.jpg",
+            "row": 1,
+            "col": 0,
+            "turn": 180,
+            "flip": false,
+            "source": "seam",
+            "matrix": [1, 0, 0, 0, 1, 1950],
+            "width": 3000,
+            "height": 2000
+        },
+        {
+            "name": "atlas/r2c2.jpg",
+            "row": 1,
+            "col": 1,
+            "turn": 0,
+            "flip": false,
+            "source": "order",
+            "matrix": [1, 0, 2900, 0, 1, 1950],
+            "width": 3000,
+            "height": 2000
+        },
+        {
+            "name": "atlas/blank.jpg",
+            "row": 0,
+            "col": 0,
+            "turn": 0,
+            "flip": false,
+            "source": "order",
+            "matrix": [1, 0, 0, 0, 1, 0],
+            "width": 3000,
+            "height": 2000,
+            "out": "blank"
+        }
+    ],
+    "seams": [
+        {
+            "a": 0,
+            "b": 1,
+            "side": "right",
+            "dx": 2900,
+            "dy": 2,
+            "score": 0.81,
+            "rmsPx": 0.9,
+            "overlapPx": 100,
+            "state": "strong"
+        },
+        {
+            "a": 0,
+            "b": 2,
+            "side": "below",
+            "dx": 0,
+            "dy": 1950,
+            "score": 0.74,
+            "rmsPx": 1.2,
+            "overlapPx": 50,
+            "state": "strong"
+        },
+        {
+            "a": 1,
+            "b": 3,
+            "side": "below",
+            "dx": 3,
+            "dy": 1948,
+            "score": 0.21,
+            "rmsPx": 6.5,
+            "overlapPx": 52,
+            "state": "weak",
+            "suggestion": {
+                "a": [1500, 1990],
+                "b": [1497, 42]
+            },
+            "strip": {
+                "row": 0,
+                "a": [0, 1500, 3000, 500],
+                "b": [0, 0, 3000, 500]
+            }
+        },
+        {
+            "a": 2,
+            "b": 3,
+            "side": "right",
+            "dx": 0,
+            "dy": 0,
+            "score": 0,
+            "rmsPx": 0,
+            "overlapPx": 0,
+            "state": "missing",
+            "strip": {
+                "row": 1,
+                "a": [2500, 0, 500, 2000],
+                "b": [0, 0, 500, 2000]
+            }
+        }
+    ],
+    "quality": {
+        "placedPct": 80,
+        "seamMedian": 0.48,
+        "seamRmsPx": 6.5,
+        "verdict": "check"
+    }
+}

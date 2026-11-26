@@ -1,0 +1,9 @@
+{
+    "call": "GET https://dds.cr.usgs.gov/<download>?<signature>",
+    "note": "A signed delivery address past its expiry: ask download-retrieve for a fresh one.",
+    "status": 403,
+    "headers": {
+        "content-type": "application/xml"
+    },
+    "text": "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n<Error><Code>AccessDenied</Code><Message>Request has expired</Message></Error>\n"
+}

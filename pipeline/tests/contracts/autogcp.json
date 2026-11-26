@@ -1,0 +1,11 @@
+{
+    "comment": "M4 automatic GCP suggestions (docs/research/M4-interfaces.md §2): the constants of packages/shared/src/schemas/autogcp.ts, which the pipeline's georef step uses the same; packages/shared/test/schemas/pipeline-contract.test.ts keeps them equal on the TypeScript side, the autogcp workstream's pytest on the Python side.",
+    "AUTO_GCP_METHODS": ["sift", "orb", "junctions"],
+    "MATCH_CHANNELS": ["s2", "osm"],
+    "AUTO_GCP_MIN_CONFIDENCE": 0.6,
+    "AUTO_GCP_SUGGEST_MIN": 0.3,
+    "AUTO_GCP_CHECKPOINT_SHARE": 0.2,
+    "CHECKPOINT_MIN_PAIRS": 15,
+    "MAX_SUGGESTIONS": 100,
+    "AUTO_GCP_TILE_PX": 256
+}

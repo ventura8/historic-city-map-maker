@@ -1,0 +1,31 @@
+{
+    "call": "POST https://m2m.cr.usgs.gov/api/api/json/stable/download-retrieve",
+    "status": 200,
+    "body": {
+        "requestId": 1000001,
+        "version": "stable",
+        "sessionId": 2000001,
+        "data": {
+            "available": [
+                {
+                    "downloadId": 300000001,
+                    "entityId": "DS1105-1071DF075",
+                    "eulaCode": null,
+                    "filesize": 734003200,
+                    "productId": "5e83a1e6b3d2e5f0",
+                    "statusCode": "A",
+                    "statusText": "Available",
+                    "url": "https://dds.cr.usgs.gov/e2e/download/300000001",
+                    "displayId": "DS1105-1071DF075",
+                    "datasetId": "5e839febdccb64b3",
+                    "collectionName": "Declass 1 (1996)"
+                }
+            ],
+            "requested": [],
+            "queueSize": 0,
+            "eulas": []
+        },
+        "errorCode": null,
+        "errorMessage": null
+    }
+}

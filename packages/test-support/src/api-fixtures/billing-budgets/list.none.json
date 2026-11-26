@@ -1,0 +1,5 @@
+{
+    "call": "GET https://billingbudgets.googleapis.com/v1/billingAccounts/<account>/budgets",
+    "status": 200,
+    "body": {}
+}

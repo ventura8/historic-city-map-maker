@@ -1,0 +1,19 @@
+{
+    "name": "@hcm/e2e",
+    "version": "1.0.0-beta.1",
+    "private": true,
+    "description": "Playwright end-to-end tests (PIPELINE_STAGE=e2e): the scenario registry e2e/scenarios.json, the tiers of e2e/projects.ts, the site server and mock APIs (e2e/mock-apis), the e2e fixture manifest and site build, the network firewall, console and placeholder guards, and the specs tagged with their @S-... scenario ids.",
+    "license": "UNLICENSED",
+    "type": "module",
+    "scripts": {
+        "test:e2e": "playwright test"
+    },
+    "devDependencies": {
+        "@axe-core/playwright": "4.13.0",
+        "@hcm/shared": "1.0.0-beta.1",
+        "@hcm/test-support": "1.0.0-beta.1",
+        "@playwright/test": "1.65.1",
+        "mapbox-gl": "3.34.1",
+        "sharp": "0.35.5"
+    }
+}

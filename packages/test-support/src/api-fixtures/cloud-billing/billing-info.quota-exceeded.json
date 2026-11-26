@@ -1,0 +1,23 @@
+{
+    "call": "PUT https://cloudbilling.googleapis.com/v1/projects/<project>/billingInfo",
+    "note": "The billing account already has as many projects as its quota allows (S-A04-BAD-BILLING-QUOTA). UNVERIFIED detail shape.",
+    "status": 400,
+    "body": {
+        "error": {
+            "code": 400,
+            "message": "Precondition check failed.",
+            "status": "FAILED_PRECONDITION",
+            "details": [
+                {
+                    "@type": "type.googleapis.com/google.rpc.QuotaFailure",
+                    "violations": [
+                        {
+                            "subject": "billingAccounts/{{billingAccountId}}",
+                            "description": "Cloud billing quota exceeded: https://support.google.com/code/contact/billing_quota_increase"
+                        }
+                    ]
+                }
+            ]
+        }
+    }
+}

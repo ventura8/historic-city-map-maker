@@ -1,0 +1,11 @@
+{
+    "call": "POST https://cloudtasks.googleapis.com/v2/projects/<project>/locations/<region>/queues/<queue>/tasks",
+    "status": 404,
+    "body": {
+        "error": {
+            "code": 404,
+            "message": "Queue does not exist. If you just created the queue, wait at least a minute for the queue to initialize.",
+            "status": "NOT_FOUND"
+        }
+    }
+}

@@ -1,0 +1,6 @@
+# gitleaks reads this file from the scanned directory by itself. Each line is the fingerprint of ONE reviewed false
+# positive (commit:file:rule:line), so nothing else is tolerated; docs/research/DECISIONS-for-review.md §6a.
+#
+# Commit 14d4d7b (already pushed): the multi-line curl-auth-user false positive in
+# docs/research/quality-conventions.md, reworded later (docs/research/M0-handoff.md §7, §10e).
+14d4d7b4a397704bc4488f09f29f1811a9983b77:docs/research/quality-conventions.md:curl-auth-user:520

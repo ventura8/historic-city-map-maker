@@ -1,0 +1,9 @@
+// End-to-end tests of the migration CLI (scripts/seed/migrate-legacy.mjs), the `tools` project of vitest.config.ts.
+{
+    "extends": "../../../tsconfig.base.json",
+    "compilerOptions": {
+        "types": ["node"]
+    },
+    "include": ["."],
+    "references": [{ "path": "../../../packages/shared" }]
+}

@@ -1,0 +1,10 @@
+{
+    "call": "POST https://overpass-api.de/api/interpreter",
+    "note": "Overpass refuses a client over its slot quota: try again after a while.",
+    "status": 429,
+    "headers": {
+        "content-type": "text/html; charset=utf-8",
+        "retry-after": "30"
+    },
+    "text": "<!DOCTYPE html>\n<html><head><title>OSM3S Response</title></head>\n<body><p><strong style=\"color:#FF0000\">Error</strong>: runtime error: open64: 0 Success /osm3s_osm_base Dispatcher_Client::request_read_and_idx::rate_limited. Please check /api/status for the quota of your IP address.</p></body></html>\n"
+}

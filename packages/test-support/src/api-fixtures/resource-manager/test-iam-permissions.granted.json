@@ -1,0 +1,7 @@
+{
+    "call": "POST https://cloudresourcemanager.googleapis.com/v3/projects/<project>:testIamPermissions",
+    "status": 200,
+    "body": {
+        "permissions": ["resourcemanager.projects.setIamPolicy"]
+    }
+}

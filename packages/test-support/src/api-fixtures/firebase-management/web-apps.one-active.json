@@ -1,0 +1,18 @@
+{
+    "call": "GET https://firebase.googleapis.com/v1beta1/projects/<project>/webApps",
+    "status": 200,
+    "body": {
+        "apps": [
+            {
+                "name": "projects/{{projectId}}/webApps/{{appId}}",
+                "appId": "{{appId}}",
+                "displayName": "historic-city-map",
+                "projectId": "{{projectId}}",
+                "webId": "0e2e0e2e-web",
+                "apiKeyId": "e2e-api-key-id",
+                "state": "ACTIVE",
+                "etag": "1_e2e"
+            }
+        ]
+    }
+}

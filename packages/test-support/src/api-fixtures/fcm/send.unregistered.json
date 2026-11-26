@@ -1,0 +1,13 @@
+{
+    "call": "POST https://fcm.googleapis.com/v1/projects/<project>/messages:send",
+    "note": "A token FCM no longer knows (the browser unsubscribed, or the token expired).",
+    "status": 404,
+    "body": {
+        "error": {
+            "code": 404,
+            "message": "Requested entity was not found.",
+            "status": "NOT_FOUND",
+            "details": [{ "@type": "type.googleapis.com/google.firebase.fcm.v1.FcmError", "errorCode": "UNREGISTERED" }]
+        }
+    }
+}

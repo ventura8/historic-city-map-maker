@@ -1,0 +1,5 @@
+{
+    "call": "GET https://firebase.googleapis.com/v1beta1/projects/<project>/webApps",
+    "status": 200,
+    "body": {}
+}

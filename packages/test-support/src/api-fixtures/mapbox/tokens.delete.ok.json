@@ -1,0 +1,4 @@
+{
+    "call": "DELETE https://api.mapbox.com/tokens/v2/<user>/<tokenId>?access_token=<sk>",
+    "status": 204
+}

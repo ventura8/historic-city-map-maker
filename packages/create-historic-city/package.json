@@ -1,0 +1,32 @@
+{
+    "name": "create-historic-city",
+    "version": "1.0.0-beta.1",
+    "description": "Start a historical map of your city: the Historic City Map Maker starter kit in three files, and the guided steps to host its admin in a Firebase project of your own (npm create historic-city).",
+    "license": "UNLICENSED",
+    "type": "module",
+    "bin": {
+        "create-historic-city": "dist/cli.mjs"
+    },
+    "files": [
+        "dist/cli.mjs",
+        "dist/template/",
+        "dist/self-host/",
+        "dist/THIRD_PARTY_NOTICES.txt",
+        "README.md"
+    ],
+    "engines": {
+        "node": ">=24.12.0"
+    },
+    "repository": {
+        "type": "git",
+        "url": "git+https://github.com/ventura8/historic-city-map-maker.git",
+        "directory": "packages/create-historic-city"
+    },
+    "scripts": {
+        "build": "vite build"
+    },
+    "devDependencies": {
+        "@hcm/shared": "1.0.0-beta.1",
+        "@hcm/ui": "1.0.0-beta.1"
+    }
+}

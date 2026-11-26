@@ -1,0 +1,458 @@
+{
+    "comment": "Golden georeferencing cases (docs/research/M3-interfaces.md §6.3): the TypeScript transforms (packages/shared/src/georef/) and the pipeline's (hcm_pipeline.georef) must both reproduce them. Pixels are full-resolution scan pixels (origin top-left, y down); geo is WGS84; fits run in EPSG:3857 metres and residuals are ground metres (Mercator metres times the cosine of the latitude). The exact cases were generated from a known pixel-to-EPSG:3857 affine map, so every residual is 0 within the tolerance.",
+    "affine": {
+        "x0": 2888740.786085449,
+        "y0": 5550954.22762416,
+        "a": 2.0,
+        "b": 0.1,
+        "c": -0.05,
+        "d": -2.0
+    },
+    "cases": [
+        {
+            "name": "exact-affine",
+            "transform": "affine",
+            "gcps": [
+                {
+                    "id": "g1",
+                    "pixel": {
+                        "x": 0,
+                        "y": 0
+                    },
+                    "geo": {
+                        "lat": 44.55,
+                        "lng": 25.95
+                    },
+                    "enabled": true,
+                    "origin": "manual"
+                },
+                {
+                    "id": "g2",
+                    "pixel": {
+                        "x": 15000,
+                        "y": 0
+                    },
+                    "geo": {
+                        "lat": 44.545198496,
+                        "lng": 26.219494585
+                    },
+                    "enabled": true,
+                    "origin": "manual"
+                },
+                {
+                    "id": "g3",
+                    "pixel": {
+                        "x": 15000,
+                        "y": 12000
+                    },
+                    "geo": {
+                        "lat": 44.391341263,
+                        "lng": 26.230274369
+                    },
+                    "enabled": true,
+                    "origin": "manual"
+                },
+                {
+                    "id": "g4",
+                    "pixel": {
+                        "x": 0,
+                        "y": 12000
+                    },
+                    "geo": {
+                        "lat": 44.39615544,
+                        "lng": 25.960779783
+                    },
+                    "enabled": true,
+                    "origin": "manual"
+                }
+            ],
+            "expect": {
+                "ok": true,
+                "fitRmseM": 0,
+                "toleranceM": 0.01,
+                "checkpointKind": "leave-one-out"
+            }
+        },
+        {
+            "name": "exact-affine-poly2",
+            "transform": "poly2",
+            "gcps": [
+                {
+                    "id": "g1",
+                    "pixel": {
+                        "x": 0,
+                        "y": 0
+                    },
+                    "geo": {
+                        "lat": 44.55,
+                        "lng": 25.95
+                    },
+                    "enabled": true,
+                    "origin": "manual"
+                },
+                {
+                    "id": "g2",
+                    "pixel": {
+                        "x": 15000,
+                        "y": 0
+                    },
+                    "geo": {
+                        "lat": 44.545198496,
+                        "lng": 26.219494585
+                    },
+                    "enabled": true,
+                    "origin": "manual"
+                },
+                {
+                    "id": "g3",
+                    "pixel": {
+                        "x": 15000,
+                        "y": 12000
+                    },
+                    "geo": {
+                        "lat": 44.391341263,
+                        "lng": 26.230274369
+                    },
+                    "enabled": true,
+                    "origin": "manual"
+                },
+                {
+                    "id": "g4",
+                    "pixel": {
+                        "x": 0,
+                        "y": 12000
+                    },
+                    "geo": {
+                        "lat": 44.39615544,
+                        "lng": 25.960779783
+                    },
+                    "enabled": true,
+                    "origin": "manual"
+                },
+                {
+                    "id": "g5",
+                    "pixel": {
+                        "x": 7500,
+                        "y": 6000
+                    },
+                    "geo": {
+                        "lat": 44.470724544,
+                        "lng": 26.090137184
+                    },
+                    "enabled": true,
+                    "origin": "manual"
+                },
+                {
+                    "id": "g6",
+                    "pixel": {
+                        "x": 3000,
+                        "y": 9000
+                    },
+                    "geo": {
+                        "lat": 44.433692431,
+                        "lng": 26.011983755
+                    },
+                    "enabled": true,
+                    "origin": "manual"
+                },
+                {
+                    "id": "g7",
+                    "pixel": {
+                        "x": 12000,
+                        "y": 2500
+                    },
+                    "geo": {
+                        "lat": 44.514139211,
+                        "lng": 26.167841456
+                    },
+                    "enabled": true,
+                    "origin": "manual"
+                }
+            ],
+            "expect": {
+                "ok": true,
+                "fitRmseM": 0,
+                "toleranceM": 0.01,
+                "checkpointKind": "leave-one-out"
+            }
+        },
+        {
+            "name": "held-out-checkpoint",
+            "transform": "affine",
+            "gcps": [
+                {
+                    "id": "g1",
+                    "pixel": {
+                        "x": 0,
+                        "y": 0
+                    },
+                    "geo": {
+                        "lat": 44.55,
+                        "lng": 25.95
+                    },
+                    "enabled": true,
+                    "origin": "manual"
+                },
+                {
+                    "id": "g2",
+                    "pixel": {
+                        "x": 15000,
+                        "y": 0
+                    },
+                    "geo": {
+                        "lat": 44.545198496,
+                        "lng": 26.219494585
+                    },
+                    "enabled": true,
+                    "origin": "manual"
+                },
+                {
+                    "id": "g3",
+                    "pixel": {
+                        "x": 15000,
+                        "y": 12000
+                    },
+                    "geo": {
+                        "lat": 44.391341263,
+                        "lng": 26.230274369
+                    },
+                    "enabled": true,
+                    "origin": "manual"
+                },
+                {
+                    "id": "g4",
+                    "pixel": {
+                        "x": 0,
+                        "y": 12000
+                    },
+                    "geo": {
+                        "lat": 44.39615544,
+                        "lng": 25.960779783
+                    },
+                    "enabled": true,
+                    "origin": "manual"
+                },
+                {
+                    "id": "g5",
+                    "pixel": {
+                        "x": 7500,
+                        "y": 6000
+                    },
+                    "geo": {
+                        "lat": 44.470724544,
+                        "lng": 26.090137184
+                    },
+                    "enabled": false,
+                    "origin": "manual"
+                }
+            ],
+            "expect": {
+                "ok": true,
+                "fitRmseM": 0,
+                "checkpointRmseM": 0,
+                "checkpointCount": 1,
+                "toleranceM": 0.01,
+                "checkpointKind": "held-out"
+            }
+        },
+        {
+            "name": "collinear",
+            "transform": "affine",
+            "gcps": [
+                {
+                    "id": "g1",
+                    "pixel": {
+                        "x": 0,
+                        "y": 0
+                    },
+                    "geo": {
+                        "lat": 44.55,
+                        "lng": 25.95
+                    },
+                    "enabled": true,
+                    "origin": "manual"
+                },
+                {
+                    "id": "g2",
+                    "pixel": {
+                        "x": 5000,
+                        "y": 5000
+                    },
+                    "geo": {
+                        "lat": 44.484345169,
+                        "lng": 26.044323105
+                    },
+                    "enabled": true,
+                    "origin": "manual"
+                },
+                {
+                    "id": "g3",
+                    "pixel": {
+                        "x": 10000,
+                        "y": 10000
+                    },
+                    "geo": {
+                        "lat": 44.418616364,
+                        "lng": 26.13864621
+                    },
+                    "enabled": true,
+                    "origin": "manual"
+                },
+                {
+                    "id": "g4",
+                    "pixel": {
+                        "x": 15000,
+                        "y": 15000
+                    },
+                    "geo": {
+                        "lat": 44.352813587,
+                        "lng": 26.232969314
+                    },
+                    "enabled": true,
+                    "origin": "manual"
+                }
+            ],
+            "expect": {
+                "ok": false,
+                "reason": "degenerate"
+            }
+        },
+        {
+            "name": "too-few-for-poly2",
+            "transform": "poly2",
+            "gcps": [
+                {
+                    "id": "g1",
+                    "pixel": {
+                        "x": 0,
+                        "y": 0
+                    },
+                    "geo": {
+                        "lat": 44.55,
+                        "lng": 25.95
+                    },
+                    "enabled": true,
+                    "origin": "manual"
+                },
+                {
+                    "id": "g2",
+                    "pixel": {
+                        "x": 15000,
+                        "y": 0
+                    },
+                    "geo": {
+                        "lat": 44.545198496,
+                        "lng": 26.219494585
+                    },
+                    "enabled": true,
+                    "origin": "manual"
+                },
+                {
+                    "id": "g3",
+                    "pixel": {
+                        "x": 15000,
+                        "y": 12000
+                    },
+                    "geo": {
+                        "lat": 44.391341263,
+                        "lng": 26.230274369
+                    },
+                    "enabled": true,
+                    "origin": "manual"
+                },
+                {
+                    "id": "g4",
+                    "pixel": {
+                        "x": 0,
+                        "y": 12000
+                    },
+                    "geo": {
+                        "lat": 44.39615544,
+                        "lng": 25.960779783
+                    },
+                    "enabled": true,
+                    "origin": "manual"
+                },
+                {
+                    "id": "g5",
+                    "pixel": {
+                        "x": 7500,
+                        "y": 6000
+                    },
+                    "geo": {
+                        "lat": 44.470724544,
+                        "lng": 26.090137184
+                    },
+                    "enabled": true,
+                    "origin": "manual"
+                }
+            ],
+            "expect": {
+                "ok": false,
+                "reason": "too-few"
+            }
+        },
+        {
+            "name": "disabled-pairs-do-not-count",
+            "transform": "affine",
+            "gcps": [
+                {
+                    "id": "g1",
+                    "pixel": {
+                        "x": 0,
+                        "y": 0
+                    },
+                    "geo": {
+                        "lat": 44.55,
+                        "lng": 25.95
+                    },
+                    "enabled": true,
+                    "origin": "manual"
+                },
+                {
+                    "id": "g2",
+                    "pixel": {
+                        "x": 15000,
+                        "y": 0
+                    },
+                    "geo": {
+                        "lat": 44.545198496,
+                        "lng": 26.219494585
+                    },
+                    "enabled": true,
+                    "origin": "manual"
+                },
+                {
+                    "id": "g3",
+                    "pixel": {
+                        "x": 15000,
+                        "y": 12000
+                    },
+                    "geo": {
+                        "lat": 44.391341263,
+                        "lng": 26.230274369
+                    },
+                    "enabled": false,
+                    "origin": "manual"
+                },
+                {
+                    "id": "g4",
+                    "pixel": {
+                        "x": 0,
+                        "y": 12000
+                    },
+                    "geo": {
+                        "lat": 44.39615544,
+                        "lng": 25.960779783
+                    },
+                    "enabled": false,
+                    "origin": "manual"
+                }
+            ],
+            "expect": {
+                "ok": false,
+                "reason": "too-few"
+            }
+        }
+    ]
+}

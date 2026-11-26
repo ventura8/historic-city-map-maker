@@ -1,0 +1,7 @@
+{
+    "call": "GET https://apikeys.googleapis.com/v2/projects/<project>/locations/global/keys/<key>/keyString",
+    "status": 200,
+    "body": {
+        "keyString": "{{apiKey}}"
+    }
+}

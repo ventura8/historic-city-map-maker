@@ -1,0 +1,13 @@
+// The release scripts (scripts/release: the version bump, the engine's release folder cdn/engine/, the release notes'
+// pinned addresses): Node code run through type stripping (`node --import ./scripts/site/register-ts.mjs`), so only
+// erasable TypeScript syntax is allowed. They reuse the site build's file system, page constants and SRI helper. Their
+// unit tests are scripts/release/test (their own project).
+{
+    "extends": "../../tsconfig.base.json",
+    "compilerOptions": {
+        "types": ["node"],
+        "erasableSyntaxOnly": true
+    },
+    "include": ["src", "bump.ts", "cdn.ts", "notes-sri.ts", "pin-kit.ts"],
+    "references": [{ "path": "../../packages/shared" }, { "path": "../site" }]
+}

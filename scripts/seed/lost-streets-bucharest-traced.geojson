@@ -1,0 +1,4161 @@
+{
+ "type": "FeatureCollection",
+ "sources": [
+  {
+   "name": "harta-bucuresti-1939",
+   "kind": "traced on our georeferenced plan",
+   "licence": "PD",
+   "count": 98
+  }
+ ],
+ "features": [
+  {
+   "type": "Feature",
+   "id": "ls-trace-rozelor",
+   "properties": {
+    "category": "lost-streets",
+    "title": {
+     "ro": "Strada Rozelor",
+     "en": "Strada Rozelor"
+    },
+    "description": {
+     "ro": "Trasată pe harta București 1939 (1939), din harta orașului.",
+     "en": "Traced on harta București 1939 (1939), from the city's own map."
+    },
+    "links": [],
+    "yearSeen": 1939,
+    "sourceLayer": "harta-bucuresti-1939",
+    "published": true
+   },
+   "geometry": {
+    "type": "LineString",
+    "coordinates": [
+     [
+      26.084118,
+      44.430746
+     ],
+     [
+      26.084225,
+      44.431282
+     ],
+     [
+      26.0843,
+      44.431665
+     ],
+     [
+      26.08444,
+      44.432048
+     ],
+     [
+      26.084869,
+      44.432317
+     ]
+    ]
+   }
+  },
+  {
+   "type": "Feature",
+   "id": "ls-trace-simonide",
+   "properties": {
+    "category": "lost-streets",
+    "title": {
+     "ro": "Strada Simonide",
+     "en": "Strada Simonide"
+    },
+    "description": {
+     "ro": "Trasată pe harta București 1939 (1939), din harta orașului.",
+     "en": "Traced on harta București 1939 (1939), from the city's own map."
+    },
+    "links": [],
+    "yearSeen": 1939,
+    "sourceLayer": "harta-bucuresti-1939",
+    "published": true
+   },
+   "geometry": {
+    "type": "LineString",
+    "coordinates": [
+     [
+      26.086403,
+      44.433198
+     ],
+     [
+      26.086639,
+      44.432891
+     ],
+     [
+      26.087015,
+      44.432508
+     ],
+     [
+      26.087229,
+      44.432125
+     ],
+     [
+      26.087358,
+      44.431857
+     ]
+    ]
+   }
+  },
+  {
+   "type": "Feature",
+   "id": "ls-trace-liliac",
+   "properties": {
+    "category": "lost-streets",
+    "title": {
+     "ro": "Strada Liliac",
+     "en": "Strada Liliac"
+    },
+    "description": {
+     "ro": "Trasată pe harta București 1939 (1939), din harta orașului.",
+     "en": "Traced on harta București 1939 (1939), from the city's own map."
+    },
+    "links": [],
+    "yearSeen": 1939,
+    "sourceLayer": "harta-bucuresti-1939",
+    "published": true
+   },
+   "geometry": {
+    "type": "LineString",
+    "coordinates": [
+     [
+      26.085706,
+      44.432661
+     ],
+     [
+      26.085781,
+      44.432431
+     ],
+     [
+      26.085856,
+      44.432202
+     ]
+    ]
+   }
+  },
+  {
+   "type": "Feature",
+   "id": "ls-trace-bujor",
+   "properties": {
+    "category": "lost-streets",
+    "title": {
+     "ro": "Strada Bujor",
+     "en": "Strada Bujor"
+    },
+    "description": {
+     "ro": "Trasată pe harta București 1939 (1939), din harta orașului.",
+     "en": "Traced on harta București 1939 (1939), from the city's own map."
+    },
+    "links": [],
+    "yearSeen": 1939,
+    "sourceLayer": "harta-bucuresti-1939",
+    "published": true
+   },
+   "geometry": {
+    "type": "LineString",
+    "coordinates": [
+     [
+      26.085856,
+      44.432968
+     ],
+     [
+      26.085942,
+      44.432738
+     ],
+     [
+      26.086071,
+      44.432508
+     ],
+     [
+      26.086156,
+      44.432317
+     ]
+    ]
+   }
+  },
+  {
+   "type": "Feature",
+   "id": "ls-trace-craitelor",
+   "properties": {
+    "category": "lost-streets",
+    "title": {
+     "ro": "Strada Crăițelor",
+     "en": "Strada Crăițelor"
+    },
+    "description": {
+     "ro": "Trasată pe harta București 1939 (1939), din harta orașului.",
+     "en": "Traced on harta București 1939 (1939), from the city's own map."
+    },
+    "links": [],
+    "yearSeen": 1939,
+    "sourceLayer": "harta-bucuresti-1939",
+    "published": true
+   },
+   "geometry": {
+    "type": "LineString",
+    "coordinates": [
+     [
+      26.085674,
+      44.431857
+     ],
+     [
+      26.086156,
+      44.432048
+     ],
+     [
+      26.086854,
+      44.43234
+     ]
+    ]
+   }
+  },
+  {
+   "type": "Feature",
+   "id": "ls-trace-v-a-urechia",
+   "properties": {
+    "category": "lost-streets",
+    "title": {
+     "ro": "Strada V.A. Urechia",
+     "en": "Strada V.A. Urechia"
+    },
+    "description": {
+     "ro": "Trasată pe harta București 1939 (1939), din harta orașului.",
+     "en": "Traced on harta București 1939 (1939), from the city's own map."
+    },
+    "links": [],
+    "yearSeen": 1939,
+    "sourceLayer": "harta-bucuresti-1939",
+    "published": true
+   },
+   "geometry": {
+    "type": "LineString",
+    "coordinates": [
+     [
+      26.084354,
+      44.432531
+     ],
+     [
+      26.084923,
+      44.432378
+     ],
+     [
+      26.085405,
+      44.432163
+     ],
+     [
+      26.085727,
+      44.431895
+     ],
+     [
+      26.085942,
+      44.431589
+     ],
+     [
+      26.086071,
+      44.431321
+     ]
+    ]
+   }
+  },
+  {
+   "type": "Feature",
+   "id": "ls-trace-izvor",
+   "properties": {
+    "category": "lost-streets",
+    "title": {
+     "ro": "Strada Izvor",
+     "en": "Strada Izvor"
+    },
+    "description": {
+     "ro": "Trasată pe harta București 1939 (1939), din harta orașului.",
+     "en": "Traced on harta București 1939 (1939), from the city's own map."
+    },
+    "links": [],
+    "yearSeen": 1939,
+    "sourceLayer": "harta-bucuresti-1939",
+    "published": true
+   },
+   "geometry": {
+    "type": "LineString",
+    "coordinates": [
+     [
+      26.079934,
+      44.428792
+     ],
+     [
+      26.082509,
+      44.429735
+     ],
+     [
+      26.084332,
+      44.430325
+     ],
+     [
+      26.086371,
+      44.431374
+     ],
+     [
+      26.089268,
+      44.432738
+     ],
+     [
+      26.089965,
+      44.43306
+     ]
+    ]
+   }
+  },
+  {
+   "type": "Feature",
+   "id": "ls-trace-curiati",
+   "properties": {
+    "category": "lost-streets",
+    "title": {
+     "ro": "Strada Curiați",
+     "en": "Strada Curiați"
+    },
+    "description": {
+     "ro": "Trasată pe harta București 1939 (1939), din harta orașului.",
+     "en": "Traced on harta București 1939 (1939), from the city's own map."
+    },
+    "links": [],
+    "yearSeen": 1939,
+    "sourceLayer": "harta-bucuresti-1939",
+    "published": true
+   },
+   "geometry": {
+    "type": "LineString",
+    "coordinates": [
+     [
+      26.088141,
+      44.433236
+     ],
+     [
+      26.088248,
+      44.432891
+     ],
+     [
+      26.088409,
+      44.432585
+     ],
+     [
+      26.088549,
+      44.432294
+     ]
+    ]
+   }
+  },
+  {
+   "type": "Feature",
+   "id": "ls-trace-al-odobescu",
+   "properties": {
+    "category": "lost-streets",
+    "title": {
+     "ro": "Strada Al. Odobescu",
+     "en": "Strada Al. Odobescu"
+    },
+    "description": {
+     "ro": "Trasată pe harta București 1939 (1939), din harta orașului.",
+     "en": "Traced on harta București 1939 (1939), from the city's own map."
+    },
+    "links": [],
+    "yearSeen": 1939,
+    "sourceLayer": "harta-bucuresti-1939",
+    "published": true
+   },
+   "geometry": {
+    "type": "LineString",
+    "coordinates": [
+     [
+      26.087551,
+      44.432171
+     ],
+     [
+      26.088302,
+      44.431849
+     ],
+     [
+      26.088946,
+      44.431596
+     ],
+     [
+      26.089504,
+      44.431443
+     ]
+    ]
+   }
+  },
+  {
+   "type": "Feature",
+   "id": "ls-trace-pr-mircea",
+   "properties": {
+    "category": "lost-streets",
+    "title": {
+     "ro": "Strada Pr. Mircea",
+     "en": "Strada Pr. Mircea"
+    },
+    "description": {
+     "ro": "Trasată pe harta București 1939 (1939), din harta orașului.",
+     "en": "Traced on harta București 1939 (1939), from the city's own map."
+    },
+    "links": [],
+    "yearSeen": 1939,
+    "sourceLayer": "harta-bucuresti-1939",
+    "published": true
+   },
+   "geometry": {
+    "type": "LineString",
+    "coordinates": [
+     [
+      26.089965,
+      44.433075
+     ],
+     [
+      26.089804,
+      44.432554
+     ],
+     [
+      26.089643,
+      44.431941
+     ],
+     [
+      26.089504,
+      44.431175
+     ]
+    ]
+   }
+  },
+  {
+   "type": "Feature",
+   "id": "ls-trace-uranus",
+   "properties": {
+    "category": "lost-streets",
+    "title": {
+     "ro": "Strada Uranus",
+     "en": "Strada Uranus"
+    },
+    "description": {
+     "ro": "Trasată pe harta București 1939 (1939), din harta orașului.",
+     "en": "Traced on harta București 1939 (1939), from the city's own map."
+    },
+    "links": [],
+    "yearSeen": 1939,
+    "sourceLayer": "harta-bucuresti-1939",
+    "published": true
+   },
+   "geometry": {
+    "type": "LineString",
+    "coordinates": [
+     [
+      26.089461,
+      44.431083
+     ],
+     [
+      26.088603,
+      44.429459
+     ],
+     [
+      26.087852,
+      44.428616
+     ],
+     [
+      26.087101,
+      44.428041
+     ],
+     [
+      26.086242,
+      44.427237
+     ],
+     [
+      26.085598,
+      44.426394
+     ],
+     [
+      26.085384,
+      44.425934
+     ]
+    ]
+   }
+  },
+  {
+   "type": "Feature",
+   "id": "ls-trace-fonteriei",
+   "properties": {
+    "category": "lost-streets",
+    "title": {
+     "ro": "Strada Fonteriei",
+     "en": "Strada Fonteriei"
+    },
+    "description": {
+     "ro": "Trasată pe harta București 1939 (1939), din harta orașului.",
+     "en": "Traced on harta București 1939 (1939), from the city's own map."
+    },
+    "links": [],
+    "yearSeen": 1939,
+    "sourceLayer": "harta-bucuresti-1939",
+    "published": true
+   },
+   "geometry": {
+    "type": "LineString",
+    "coordinates": [
+     [
+      26.087497,
+      44.429106
+     ],
+     [
+      26.087712,
+      44.429796
+     ],
+     [
+      26.087927,
+      44.430409
+     ],
+     [
+      26.088195,
+      44.431098
+     ]
+    ]
+   }
+  },
+  {
+   "type": "Feature",
+   "id": "ls-trace-alex-orascu",
+   "properties": {
+    "category": "lost-streets",
+    "title": {
+     "ro": "Strada Alex Orăscu",
+     "en": "Strada Alex Orăscu"
+    },
+    "description": {
+     "ro": "Trasată pe harta București 1939 (1939), din harta orașului.",
+     "en": "Traced on harta București 1939 (1939), from the city's own map."
+    },
+    "links": [],
+    "yearSeen": 1939,
+    "sourceLayer": "harta-bucuresti-1939",
+    "published": true
+   },
+   "geometry": {
+    "type": "LineString",
+    "coordinates": [
+     [
+      26.084687,
+      44.429474
+     ],
+     [
+      26.085598,
+      44.42988
+     ],
+     [
+      26.086242,
+      44.430187
+     ],
+     [
+      26.086886,
+      44.43047
+     ]
+    ]
+   }
+  },
+  {
+   "type": "Feature",
+   "id": "ls-trace-ceres",
+   "properties": {
+    "category": "lost-streets",
+    "title": {
+     "ro": "Strada Ceres",
+     "en": "Strada Ceres"
+    },
+    "description": {
+     "ro": "Trasată pe harta București 1939 (1939), din harta orașului.",
+     "en": "Traced on harta București 1939 (1939), from the city's own map."
+    },
+    "links": [],
+    "yearSeen": 1939,
+    "sourceLayer": "harta-bucuresti-1939",
+    "published": true
+   },
+   "geometry": {
+    "type": "LineString",
+    "coordinates": [
+     [
+      26.084365,
+      44.43001
+     ],
+     [
+      26.084633,
+      44.429612
+     ],
+     [
+      26.084901,
+      44.429152
+     ],
+     [
+      26.085169,
+      44.428693
+     ]
+    ]
+   }
+  },
+  {
+   "type": "Feature",
+   "id": "ls-trace-jupiter",
+   "properties": {
+    "category": "lost-streets",
+    "title": {
+     "ro": "Strada Jupiter",
+     "en": "Strada Jupiter"
+    },
+    "description": {
+     "ro": "Trasată pe harta București 1939 (1939), din harta orașului.",
+     "en": "Traced on harta București 1939 (1939), from the city's own map."
+    },
+    "links": [],
+    "yearSeen": 1939,
+    "sourceLayer": "harta-bucuresti-1939",
+    "published": true
+   },
+   "geometry": {
+    "type": "LineString",
+    "coordinates": [
+     [
+      26.086403,
+      44.430455
+     ],
+     [
+      26.086671,
+      44.430072
+     ],
+     [
+      26.08694,
+      44.429689
+     ],
+     [
+      26.087101,
+      44.429382
+     ]
+    ]
+   }
+  },
+  {
+   "type": "Feature",
+   "id": "ls-trace-putu-cu-apa-rece",
+   "properties": {
+    "category": "lost-streets",
+    "title": {
+     "ro": "Strada Puțu cu apă rece",
+     "en": "Strada Puțu cu apă rece"
+    },
+    "description": {
+     "ro": "Trasată pe harta București 1939 (1939), din harta orașului.",
+     "en": "Traced on harta București 1939 (1939), from the city's own map."
+    },
+    "links": [],
+    "yearSeen": 1939,
+    "sourceLayer": "harta-bucuresti-1939",
+    "published": true
+   },
+   "geometry": {
+    "type": "LineString",
+    "coordinates": [
+     [
+      26.08533,
+      44.428555
+     ],
+     [
+      26.086135,
+      44.429076
+     ],
+     [
+      26.086886,
+      44.429574
+     ],
+     [
+      26.087637,
+      44.430072
+     ]
+    ]
+   }
+  },
+  {
+   "type": "Feature",
+   "id": "ls-trace-proserpina",
+   "properties": {
+    "category": "lost-streets",
+    "title": {
+     "ro": "Strada Proserpina",
+     "en": "Strada Proserpina"
+    },
+    "description": {
+     "ro": "Trasată pe harta București 1939 (1939), din harta orașului.",
+     "en": "Traced on harta București 1939 (1939), from the city's own map."
+    },
+    "links": [],
+    "yearSeen": 1939,
+    "sourceLayer": "harta-bucuresti-1939",
+    "published": true
+   },
+   "geometry": {
+    "type": "LineString",
+    "coordinates": [
+     [
+      26.08415,
+      44.428769
+     ],
+     [
+      26.084633,
+      44.428999
+     ],
+     [
+      26.085169,
+      44.429267
+     ]
+    ]
+   }
+  },
+  {
+   "type": "Feature",
+   "id": "ls-trace-pelerinilor",
+   "properties": {
+    "category": "lost-streets",
+    "title": {
+     "ro": "Strada Pelerinilor",
+     "en": "Strada Pelerinilor"
+    },
+    "description": {
+     "ro": "Trasată pe harta București 1939 (1939), din harta orașului.",
+     "en": "Traced on harta București 1939 (1939), from the city's own map."
+    },
+    "links": [],
+    "yearSeen": 1939,
+    "sourceLayer": "harta-bucuresti-1939",
+    "published": true
+   },
+   "geometry": {
+    "type": "LineString",
+    "coordinates": [
+     [
+      26.085813,
+      44.428846
+     ],
+     [
+      26.085706,
+      44.428386
+     ],
+     [
+      26.085598,
+      44.427927
+     ],
+     [
+      26.085545,
+      44.427543
+     ]
+    ]
+   }
+  },
+  {
+   "type": "Feature",
+   "id": "ls-trace-vanatori",
+   "properties": {
+    "category": "lost-streets",
+    "title": {
+     "ro": "Strada Vânători",
+     "en": "Strada Vânători"
+    },
+    "description": {
+     "ro": "Trasată pe harta București 1939 (1939), din harta orașului.",
+     "en": "Traced on harta București 1939 (1939), from the city's own map."
+    },
+    "links": [],
+    "yearSeen": 1939,
+    "sourceLayer": "harta-bucuresti-1939",
+    "published": true
+   },
+   "geometry": {
+    "type": "LineString",
+    "coordinates": [
+     [
+      26.091177,
+      44.427835
+     ],
+     [
+      26.092143,
+      44.428294
+     ],
+     [
+      26.093109,
+      44.428831
+     ],
+     [
+      26.094074,
+      44.42929
+     ],
+     [
+      26.094718,
+      44.429597
+     ]
+    ]
+   }
+  },
+  {
+   "type": "Feature",
+   "id": "ls-trace-bateriilor",
+   "properties": {
+    "category": "lost-streets",
+    "title": {
+     "ro": "Strada Bateriilor",
+     "en": "Strada Bateriilor"
+    },
+    "description": {
+     "ro": "Trasată pe harta București 1939 (1939), din harta orașului.",
+     "en": "Traced on harta București 1939 (1939), from the city's own map."
+    },
+    "links": [],
+    "yearSeen": 1939,
+    "sourceLayer": "harta-bucuresti-1939",
+    "published": true
+   },
+   "geometry": {
+    "type": "LineString",
+    "coordinates": [
+     [
+      26.090856,
+      44.427835
+     ],
+     [
+      26.091124,
+      44.428524
+     ],
+     [
+      26.091392,
+      44.429214
+     ],
+     [
+      26.091607,
+      44.42975
+     ],
+     [
+      26.091928,
+      44.430286
+     ]
+    ]
+   }
+  },
+  {
+   "type": "Feature",
+   "id": "ls-trace-lt-rosca",
+   "properties": {
+    "category": "lost-streets",
+    "title": {
+     "ro": "Strada Lt. Roșca",
+     "en": "Strada Lt. Roșca"
+    },
+    "description": {
+     "ro": "Trasată pe harta București 1939 (1939), din harta orașului.",
+     "en": "Traced on harta București 1939 (1939), from the city's own map."
+    },
+    "links": [],
+    "yearSeen": 1939,
+    "sourceLayer": "harta-bucuresti-1939",
+    "published": true
+   },
+   "geometry": {
+    "type": "LineString",
+    "coordinates": [
+     [
+      26.090051,
+      44.42808
+     ],
+     [
+      26.090641,
+      44.428126
+     ],
+     [
+      26.091124,
+      44.428179
+     ]
+    ]
+   }
+  },
+  {
+   "type": "Feature",
+   "id": "ls-trace-poenaru-bordea",
+   "properties": {
+    "category": "lost-streets",
+    "title": {
+     "ro": "Strada Poenaru Bordea",
+     "en": "Strada Poenaru Bordea"
+    },
+    "description": {
+     "ro": "Trasată pe harta București 1939 (1939), din harta orașului.",
+     "en": "Traced on harta București 1939 (1939), from the city's own map."
+    },
+    "links": [],
+    "yearSeen": 1939,
+    "sourceLayer": "harta-bucuresti-1939",
+    "published": true
+   },
+   "geometry": {
+    "type": "LineString",
+    "coordinates": [
+     [
+      26.095104,
+      44.428716
+     ],
+     [
+      26.095963,
+      44.428294
+     ],
+     [
+      26.096821,
+      44.427835
+     ],
+     [
+      26.097679,
+      44.427375
+     ],
+     [
+      26.098162,
+      44.427145
+     ]
+    ]
+   }
+  },
+  {
+   "type": "Feature",
+   "id": "ls-trace-b-p-hasdeu",
+   "properties": {
+    "category": "lost-streets",
+    "title": {
+     "ro": "Strada B.P. Hasdeu",
+     "en": "Strada B.P. Hasdeu"
+    },
+    "description": {
+     "ro": "Trasată pe harta București 1939 (1939), din harta orașului.",
+     "en": "Traced on harta București 1939 (1939), from the city's own map."
+    },
+    "links": [],
+    "yearSeen": 1939,
+    "sourceLayer": "harta-bucuresti-1939",
+    "published": true
+   },
+   "geometry": {
+    "type": "LineString",
+    "coordinates": [
+     [
+      26.084257,
+      44.433236
+     ],
+     [
+      26.084096,
+      44.432508
+     ],
+     [
+      26.083925,
+      44.431819
+     ],
+     [
+      26.083775,
+      44.431129
+     ],
+     [
+      26.083689,
+      44.430363
+     ]
+    ]
+   }
+  },
+  {
+   "type": "Feature",
+   "id": "ls-trace-clucerul-udricani",
+   "properties": {
+    "category": "lost-streets",
+    "title": {
+     "ro": "Strada Clucerul Udricani",
+     "en": "Strada Clucerul Udricani"
+    },
+    "description": {
+     "ro": "Trasată pe harta București 1939 (1939), din harta orașului.",
+     "en": "Traced on harta București 1939 (1939), from the city's own map."
+    },
+    "links": [],
+    "yearSeen": 1939,
+    "sourceLayer": "harta-bucuresti-1939",
+    "published": true
+   },
+   "geometry": {
+    "type": "LineString",
+    "coordinates": [
+     [
+      26.108311,
+      44.428861
+     ],
+     [
+      26.108966,
+      44.429129
+     ],
+     [
+      26.109599,
+      44.429321
+     ],
+     [
+      26.110007,
+      44.429903
+     ],
+     [
+      26.110511,
+      44.430524
+     ]
+    ]
+   }
+  },
+  {
+   "type": "Feature",
+   "id": "ls-trace-puisor",
+   "properties": {
+    "category": "lost-streets",
+    "title": {
+     "ro": "Strada Puișor",
+     "en": "Strada Puișor"
+    },
+    "description": {
+     "ro": "Trasată pe harta București 1939 (1939), din harta orașului.",
+     "en": "Traced on harta București 1939 (1939), from the city's own map."
+    },
+    "links": [],
+    "yearSeen": 1939,
+    "sourceLayer": "harta-bucuresti-1939",
+    "published": true
+   },
+   "geometry": {
+    "type": "LineString",
+    "coordinates": [
+     [
+      26.077391,
+      44.4248
+     ],
+     [
+      26.07782,
+      44.425544
+     ],
+     [
+      26.078303,
+      44.42631
+     ],
+     [
+      26.078839,
+      44.427114
+     ]
+    ]
+   }
+  },
+  {
+   "type": "Feature",
+   "id": "ls-trace-acvila",
+   "properties": {
+    "category": "lost-streets",
+    "title": {
+     "ro": "Strada Acvila",
+     "en": "Strada Acvila"
+    },
+    "description": {
+     "ro": "Trasată pe harta București 1939 (1939), din harta orașului.",
+     "en": "Traced on harta București 1939 (1939), from the city's own map."
+    },
+    "links": [],
+    "yearSeen": 1939,
+    "sourceLayer": "harta-bucuresti-1939",
+    "published": true
+   },
+   "geometry": {
+    "type": "LineString",
+    "coordinates": [
+     [
+      26.079537,
+      44.425237
+     ],
+     [
+      26.079751,
+      44.424663
+     ],
+     [
+      26.080019,
+      44.423896
+     ],
+     [
+      26.080341,
+      44.42313
+     ],
+     [
+      26.080556,
+      44.422517
+     ]
+    ]
+   }
+  },
+  {
+   "type": "Feature",
+   "id": "ls-trace-lantului",
+   "properties": {
+    "category": "lost-streets",
+    "title": {
+     "ro": "Strada Lanțului",
+     "en": "Strada Lanțului"
+    },
+    "description": {
+     "ro": "Trasată pe harta București 1939 (1939), din harta orașului.",
+     "en": "Traced on harta București 1939 (1939), from the city's own map."
+    },
+    "links": [],
+    "yearSeen": 1939,
+    "sourceLayer": "harta-bucuresti-1939",
+    "published": true
+   },
+   "geometry": {
+    "type": "LineString",
+    "coordinates": [
+     [
+      26.078088,
+      44.423666
+     ],
+     [
+      26.078625,
+      44.424203
+     ],
+     [
+      26.079161,
+      44.424892
+     ]
+    ]
+   }
+  },
+  {
+   "type": "Feature",
+   "id": "ls-trace-sabinelor",
+   "properties": {
+    "category": "lost-streets",
+    "title": {
+     "ro": "Strada Sabinelor",
+     "en": "Strada Sabinelor"
+    },
+    "description": {
+     "ro": "Trasată pe harta București 1939 (1939), din harta orașului.",
+     "en": "Traced on harta București 1939 (1939), from the city's own map."
+    },
+    "links": [],
+    "yearSeen": 1939,
+    "sourceLayer": "harta-bucuresti-1939",
+    "published": true
+   },
+   "geometry": {
+    "type": "LineString",
+    "coordinates": [
+     [
+      26.078303,
+      44.42267
+     ],
+     [
+      26.079376,
+      44.422287
+     ],
+     [
+      26.080449,
+      44.421981
+     ],
+     [
+      26.081522,
+      44.421674
+     ],
+     [
+      26.082702,
+      44.421368
+     ]
+    ]
+   }
+  },
+  {
+   "type": "Feature",
+   "id": "ls-trace-sirenelor",
+   "properties": {
+    "category": "lost-streets",
+    "title": {
+     "ro": "Strada Sirenelor",
+     "en": "Strada Sirenelor"
+    },
+    "description": {
+     "ro": "Trasată pe harta București 1939 (1939), din harta orașului.",
+     "en": "Traced on harta București 1939 (1939), from the city's own map."
+    },
+    "links": [],
+    "yearSeen": 1939,
+    "sourceLayer": "harta-bucuresti-1939",
+    "published": true
+   },
+   "geometry": {
+    "type": "LineString",
+    "coordinates": [
+     [
+      26.078732,
+      44.423513
+     ],
+     [
+      26.079912,
+      44.42313
+     ],
+     [
+      26.080985,
+      44.4229
+     ],
+     [
+      26.082273,
+      44.422655
+     ]
+    ]
+   }
+  },
+  {
+   "type": "Feature",
+   "id": "ls-trace-luceafarului",
+   "properties": {
+    "category": "lost-streets",
+    "title": {
+     "ro": "Strada Luceafărului",
+     "en": "Strada Luceafărului"
+    },
+    "description": {
+     "ro": "Trasată pe harta București 1939 (1939), din harta orașului.",
+     "en": "Traced on harta București 1939 (1939), from the city's own map."
+    },
+    "links": [],
+    "yearSeen": 1939,
+    "sourceLayer": "harta-bucuresti-1939",
+    "published": true
+   },
+   "geometry": {
+    "type": "LineString",
+    "coordinates": [
+     [
+      26.077927,
+      44.42359
+     ],
+     [
+      26.078035,
+      44.42313
+     ],
+     [
+      26.078196,
+      44.422594
+     ]
+    ]
+   }
+  },
+  {
+   "type": "Feature",
+   "id": "ls-trace-maior-ene",
+   "properties": {
+    "category": "lost-streets",
+    "title": {
+     "ro": "Strada Maior Ene",
+     "en": "Strada Maior Ene"
+    },
+    "description": {
+     "ro": "Trasată pe harta București 1939 (1939), din harta orașului.",
+     "en": "Traced on harta București 1939 (1939), from the city's own map."
+    },
+    "links": [],
+    "yearSeen": 1939,
+    "sourceLayer": "harta-bucuresti-1939",
+    "published": true
+   },
+   "geometry": {
+    "type": "LineString",
+    "coordinates": [
+     [
+      26.084096,
+      44.427451
+     ],
+     [
+      26.084955,
+      44.42762
+     ],
+     [
+      26.08592,
+      44.427835
+     ]
+    ]
+   }
+  },
+  {
+   "type": "Feature",
+   "id": "ls-trace-militarilor",
+   "properties": {
+    "category": "lost-streets",
+    "title": {
+     "ro": "Strada Militarilor",
+     "en": "Strada Militarilor"
+    },
+    "description": {
+     "ro": "Trasată pe harta București 1939 (1939), din harta orașului.",
+     "en": "Traced on harta București 1939 (1939), from the city's own map."
+    },
+    "links": [],
+    "yearSeen": 1939,
+    "sourceLayer": "harta-bucuresti-1939",
+    "published": true
+   },
+   "geometry": {
+    "type": "LineString",
+    "coordinates": [
+     [
+      26.085491,
+      44.426655
+     ],
+     [
+      26.086886,
+      44.426578
+     ],
+     [
+      26.088281,
+      44.426532
+     ],
+     [
+      26.089461,
+      44.426463
+     ]
+    ]
+   }
+  },
+  {
+   "type": "Feature",
+   "id": "ls-trace-dr-clinciu",
+   "properties": {
+    "category": "lost-streets",
+    "title": {
+     "ro": "Strada Dr. Clinciu",
+     "en": "Strada Dr. Clinciu"
+    },
+    "description": {
+     "ro": "Trasată pe harta București 1939 (1939), din harta orașului.",
+     "en": "Traced on harta București 1939 (1939), from the city's own map."
+    },
+    "links": [],
+    "yearSeen": 1939,
+    "sourceLayer": "harta-bucuresti-1939",
+    "published": true
+   },
+   "geometry": {
+    "type": "LineString",
+    "coordinates": [
+     [
+      26.083453,
+      44.425659
+     ],
+     [
+      26.083292,
+      44.425046
+     ],
+     [
+      26.083131,
+      44.424433
+     ],
+     [
+      26.083024,
+      44.423743
+     ]
+    ]
+   }
+  },
+  {
+   "type": "Feature",
+   "id": "ls-trace-fenix",
+   "properties": {
+    "category": "lost-streets",
+    "title": {
+     "ro": "Strada Fenix",
+     "en": "Strada Fenix"
+    },
+    "description": {
+     "ro": "Trasată pe harta București 1939 (1939), din harta orașului.",
+     "en": "Traced on harta București 1939 (1939), from the city's own map."
+    },
+    "links": [],
+    "yearSeen": 1939,
+    "sourceLayer": "harta-bucuresti-1939",
+    "published": true
+   },
+   "geometry": {
+    "type": "LineString",
+    "coordinates": [
+     [
+      26.087315,
+      44.426517
+     ],
+     [
+      26.087369,
+      44.426118
+     ],
+     [
+      26.087422,
+      44.425735
+     ]
+    ]
+   }
+  },
+  {
+   "type": "Feature",
+   "id": "ls-trace-seneca",
+   "properties": {
+    "category": "lost-streets",
+    "title": {
+     "ro": "Strada Seneca",
+     "en": "Strada Seneca"
+    },
+    "description": {
+     "ro": "Trasată pe harta București 1939 (1939), din harta orașului.",
+     "en": "Traced on harta București 1939 (1939), from the city's own map."
+    },
+    "links": [],
+    "yearSeen": 1939,
+    "sourceLayer": "harta-bucuresti-1939",
+    "published": true
+   },
+   "geometry": {
+    "type": "LineString",
+    "coordinates": [
+     [
+      26.08694,
+      44.426501
+     ],
+     [
+      26.086832,
+      44.425812
+     ],
+     [
+      26.086671,
+      44.425199
+     ],
+     [
+      26.08651,
+      44.424624
+     ]
+    ]
+   }
+  },
+  {
+   "type": "Feature",
+   "id": "ls-trace-lazureanu",
+   "properties": {
+    "category": "lost-streets",
+    "title": {
+     "ro": "Strada Lăzureanu",
+     "en": "Strada Lăzureanu"
+    },
+    "description": {
+     "ro": "Trasată pe harta București 1939 (1939), din harta orașului.",
+     "en": "Traced on harta București 1939 (1939), from the city's own map."
+    },
+    "links": [],
+    "yearSeen": 1939,
+    "sourceLayer": "harta-bucuresti-1939",
+    "published": true
+   },
+   "geometry": {
+    "type": "LineString",
+    "coordinates": [
+     [
+      26.084526,
+      44.4248
+     ],
+     [
+      26.085813,
+      44.424685
+     ],
+     [
+      26.086993,
+      44.424571
+     ],
+     [
+      26.088495,
+      44.424341
+     ],
+     [
+      26.08989,
+      44.424126
+     ]
+    ]
+   }
+  },
+  {
+   "type": "Feature",
+   "id": "ls-trace-gh-panu",
+   "properties": {
+    "category": "lost-streets",
+    "title": {
+     "ro": "Strada Gh. Panu",
+     "en": "Strada Gh. Panu"
+    },
+    "description": {
+     "ro": "Trasată pe harta București 1939 (1939), din harta orașului.",
+     "en": "Traced on harta București 1939 (1939), from the city's own map."
+    },
+    "links": [],
+    "yearSeen": 1939,
+    "sourceLayer": "harta-bucuresti-1939",
+    "published": true
+   },
+   "geometry": {
+    "type": "LineString",
+    "coordinates": [
+     [
+      26.088817,
+      44.424571
+     ],
+     [
+      26.089568,
+      44.424739
+     ],
+     [
+      26.090426,
+      44.424931
+     ]
+    ]
+   }
+  },
+  {
+   "type": "Feature",
+   "id": "ls-trace-minotaurului",
+   "properties": {
+    "category": "lost-streets",
+    "title": {
+     "ro": "Strada Minotaurului",
+     "en": "Strada Minotaurului"
+    },
+    "description": {
+     "ro": "Trasată pe harta București 1939 (1939), din harta orașului.",
+     "en": "Traced on harta București 1939 (1939), from the city's own map."
+    },
+    "links": [],
+    "yearSeen": 1939,
+    "sourceLayer": "harta-bucuresti-1939",
+    "published": true
+   },
+   "geometry": {
+    "type": "LineString",
+    "coordinates": [
+     [
+      26.084365,
+      44.424394
+     ],
+     [
+      26.085813,
+      44.424264
+     ],
+     [
+      26.086993,
+      44.424126
+     ],
+     [
+      26.088495,
+      44.423973
+     ],
+     [
+      26.089675,
+      44.423858
+     ]
+    ]
+   }
+  },
+  {
+   "type": "Feature",
+   "id": "ls-trace-ecoului",
+   "properties": {
+    "category": "lost-streets",
+    "title": {
+     "ro": "Strada Ecoului",
+     "en": "Strada Ecoului"
+    },
+    "description": {
+     "ro": "Trasată pe harta București 1939 (1939), din harta orașului.",
+     "en": "Traced on harta București 1939 (1939), from the city's own map."
+    },
+    "links": [],
+    "yearSeen": 1939,
+    "sourceLayer": "harta-bucuresti-1939",
+    "published": true
+   },
+   "geometry": {
+    "type": "LineString",
+    "coordinates": [
+     [
+      26.084096,
+      44.423781
+     ],
+     [
+      26.085813,
+      44.423628
+     ],
+     [
+      26.086993,
+      44.423551
+     ],
+     [
+      26.088495,
+      44.423498
+     ],
+     [
+      26.089568,
+      44.423437
+     ]
+    ]
+   }
+  },
+  {
+   "type": "Feature",
+   "id": "ls-trace-meteorilor",
+   "properties": {
+    "category": "lost-streets",
+    "title": {
+     "ro": "Strada Meteorilor",
+     "en": "Strada Meteorilor"
+    },
+    "description": {
+     "ro": "Trasată pe harta București 1939 (1939), din harta orașului.",
+     "en": "Traced on harta București 1939 (1939), from the city's own map."
+    },
+    "links": [],
+    "yearSeen": 1939,
+    "sourceLayer": "harta-bucuresti-1939",
+    "published": true
+   },
+   "geometry": {
+    "type": "LineString",
+    "coordinates": [
+     [
+      26.083882,
+      44.42336
+     ],
+     [
+      26.085813,
+      44.423283
+     ],
+     [
+      26.086993,
+      44.423245
+     ],
+     [
+      26.088495,
+      44.423207
+     ],
+     [
+      26.089568,
+      44.423168
+     ]
+    ]
+   }
+  },
+  {
+   "type": "Feature",
+   "id": "ls-trace-ion-creanga",
+   "properties": {
+    "category": "lost-streets",
+    "title": {
+     "ro": "Strada Ion Creangă",
+     "en": "Strada Ion Creangă"
+    },
+    "description": {
+     "ro": "Trasată pe harta București 1939 (1939), din harta orașului.",
+     "en": "Traced on harta București 1939 (1939), from the city's own map."
+    },
+    "links": [],
+    "yearSeen": 1939,
+    "sourceLayer": "harta-bucuresti-1939",
+    "published": true
+   },
+   "geometry": {
+    "type": "LineString",
+    "coordinates": [
+     [
+      26.081307,
+      44.423015
+     ],
+     [
+      26.082594,
+      44.423398
+     ],
+     [
+      26.084096,
+      44.423858
+     ]
+    ]
+   }
+  },
+  {
+   "type": "Feature",
+   "id": "ls-trace-i-taranu",
+   "properties": {
+    "category": "lost-streets",
+    "title": {
+     "ro": "Strada I. Țăranu",
+     "en": "Strada I. Țăranu"
+    },
+    "description": {
+     "ro": "Trasată pe harta București 1939 (1939), din harta orașului.",
+     "en": "Traced on harta București 1939 (1939), from the city's own map."
+    },
+    "links": [],
+    "yearSeen": 1939,
+    "sourceLayer": "harta-bucuresti-1939",
+    "published": true
+   },
+   "geometry": {
+    "type": "LineString",
+    "coordinates": [
+     [
+      26.08651,
+      44.424586
+     ],
+     [
+      26.086457,
+      44.423896
+     ],
+     [
+      26.086403,
+      44.42313
+     ],
+     [
+      26.086349,
+      44.422364
+     ],
+     [
+      26.086296,
+      44.421751
+     ]
+    ]
+   }
+  },
+  {
+   "type": "Feature",
+   "id": "ls-trace-arionoaia",
+   "properties": {
+    "category": "lost-streets",
+    "title": {
+     "ro": "Strada Arionoaia",
+     "en": "Strada Arionoaia"
+    },
+    "description": {
+     "ro": "Trasată pe harta București 1939 (1939), din harta orașului.",
+     "en": "Traced on harta București 1939 (1939), from the city's own map."
+    },
+    "links": [],
+    "yearSeen": 1939,
+    "sourceLayer": "harta-bucuresti-1939",
+    "published": true
+   },
+   "geometry": {
+    "type": "LineString",
+    "coordinates": [
+     [
+      26.083667,
+      44.422938
+     ],
+     [
+      26.085277,
+      44.422862
+     ],
+     [
+      26.086993,
+      44.422785
+     ],
+     [
+      26.088495,
+      44.422747
+     ],
+     [
+      26.089354,
+      44.422709
+     ]
+    ]
+   }
+  },
+  {
+   "type": "Feature",
+   "id": "ls-trace-salvatorului",
+   "properties": {
+    "category": "lost-streets",
+    "title": {
+     "ro": "Strada Salvatorului",
+     "en": "Strada Salvatorului"
+    },
+    "description": {
+     "ro": "Trasată pe harta București 1939 (1939), din harta orașului.",
+     "en": "Traced on harta București 1939 (1939), from the city's own map."
+    },
+    "links": [],
+    "yearSeen": 1939,
+    "sourceLayer": "harta-bucuresti-1939",
+    "published": true
+   },
+   "geometry": {
+    "type": "LineString",
+    "coordinates": [
+     [
+      26.083506,
+      44.422272
+     ],
+     [
+      26.08474,
+      44.422134
+     ],
+     [
+      26.086028,
+      44.422019
+     ],
+     [
+      26.087315,
+      44.421904
+     ]
+    ]
+   }
+  },
+  {
+   "type": "Feature",
+   "id": "ls-trace-tismana",
+   "properties": {
+    "category": "lost-streets",
+    "title": {
+     "ro": "Strada Tismana",
+     "en": "Strada Tismana"
+    },
+    "description": {
+     "ro": "Trasată pe harta București 1939 (1939), din harta orașului.",
+     "en": "Traced on harta București 1939 (1939), from the city's own map."
+    },
+    "links": [],
+    "yearSeen": 1939,
+    "sourceLayer": "harta-bucuresti-1939",
+    "published": true
+   },
+   "geometry": {
+    "type": "LineString",
+    "coordinates": [
+     [
+      26.090834,
+      44.423222
+     ],
+     [
+      26.091156,
+      44.422762
+     ],
+     [
+      26.091478,
+      44.422379
+     ],
+     [
+      26.0918,
+      44.422034
+     ]
+    ]
+   }
+  },
+  {
+   "type": "Feature",
+   "id": "ls-trace-zebrului",
+   "properties": {
+    "category": "lost-streets",
+    "title": {
+     "ro": "Strada Zebrului",
+     "en": "Strada Zebrului"
+    },
+    "description": {
+     "ro": "Trasată pe harta București 1939 (1939), din harta orașului.",
+     "en": "Traced on harta București 1939 (1939), from the city's own map."
+    },
+    "links": [],
+    "yearSeen": 1939,
+    "sourceLayer": "harta-bucuresti-1939",
+    "published": true
+   },
+   "geometry": {
+    "type": "LineString",
+    "coordinates": [
+     [
+      26.090566,
+      44.42405
+     ],
+     [
+      26.091156,
+      44.423912
+     ],
+     [
+      26.091746,
+      44.423774
+     ]
+    ]
+   }
+  },
+  {
+   "type": "Feature",
+   "id": "ls-trace-palas",
+   "properties": {
+    "category": "lost-streets",
+    "title": {
+     "ro": "Strada Palas",
+     "en": "Strada Palas"
+    },
+    "description": {
+     "ro": "Trasată pe harta București 1939 (1939), din harta orașului.",
+     "en": "Traced on harta București 1939 (1939), from the city's own map."
+    },
+    "links": [],
+    "yearSeen": 1939,
+    "sourceLayer": "harta-bucuresti-1939",
+    "published": true
+   },
+   "geometry": {
+    "type": "LineString",
+    "coordinates": [
+     [
+      26.090716,
+      44.425965
+     ],
+     [
+      26.091092,
+      44.425582
+     ],
+     [
+      26.091521,
+      44.425161
+     ]
+    ]
+   }
+  },
+  {
+   "type": "Feature",
+   "id": "ls-trace-c-tin-moroiu",
+   "properties": {
+    "category": "lost-streets",
+    "title": {
+     "ro": "Strada C-tin Moroiu",
+     "en": "Strada C-tin Moroiu"
+    },
+    "description": {
+     "ro": "Trasată pe harta București 1939 (1939), din harta orașului.",
+     "en": "Traced on harta București 1939 (1939), from the city's own map."
+    },
+    "links": [],
+    "yearSeen": 1939,
+    "sourceLayer": "harta-bucuresti-1939",
+    "published": true
+   },
+   "geometry": {
+    "type": "LineString",
+    "coordinates": [
+     [
+      26.090319,
+      44.425927
+     ],
+     [
+      26.090394,
+      44.425352
+     ],
+     [
+      26.090448,
+      44.424739
+     ],
+     [
+      26.090502,
+      44.424164
+     ]
+    ]
+   }
+  },
+  {
+   "type": "Feature",
+   "id": "ls-trace-logofat-nestor",
+   "properties": {
+    "category": "lost-streets",
+    "title": {
+     "ro": "Strada Logofăt Nestor",
+     "en": "Strada Logofăt Nestor"
+    },
+    "description": {
+     "ro": "Trasată pe harta București 1939 (1939), din harta orașului.",
+     "en": "Traced on harta București 1939 (1939), from the city's own map."
+    },
+    "links": [],
+    "yearSeen": 1939,
+    "sourceLayer": "harta-bucuresti-1939",
+    "published": true
+   },
+   "geometry": {
+    "type": "LineString",
+    "coordinates": [
+     [
+      26.091553,
+      44.427835
+     ],
+     [
+      26.091821,
+      44.427375
+     ],
+     [
+      26.092143,
+      44.426915
+     ],
+     [
+      26.092465,
+      44.426379
+     ]
+    ]
+   }
+  },
+  {
+   "type": "Feature",
+   "id": "ls-trace-sf-nicolae-jignita",
+   "properties": {
+    "category": "lost-streets",
+    "title": {
+     "ro": "Strada Sf. Nicolae Jignița",
+     "en": "Strada Sf. Nicolae Jignița"
+    },
+    "description": {
+     "ro": "Trasată pe harta București 1939 (1939), din harta orașului.",
+     "en": "Traced on harta București 1939 (1939), from the city's own map."
+    },
+    "links": [],
+    "yearSeen": 1939,
+    "sourceLayer": "harta-bucuresti-1939",
+    "published": true
+   },
+   "geometry": {
+    "type": "LineString",
+    "coordinates": [
+     [
+      26.107142,
+      44.427237
+     ],
+     [
+      26.108,
+      44.427329
+     ],
+     [
+      26.108859,
+      44.427444
+     ],
+     [
+      26.109481,
+      44.427497
+     ]
+    ]
+   }
+  },
+  {
+   "type": "Feature",
+   "id": "ls-trace-rovine",
+   "properties": {
+    "category": "lost-streets",
+    "title": {
+     "ro": "Strada Rovine",
+     "en": "Strada Rovine"
+    },
+    "description": {
+     "ro": "Trasată pe harta București 1939 (1939), din harta orașului.",
+     "en": "Traced on harta București 1939 (1939), from the city's own map."
+    },
+    "links": [],
+    "yearSeen": 1939,
+    "sourceLayer": "harta-bucuresti-1939",
+    "published": true
+   },
+   "geometry": {
+    "type": "LineString",
+    "coordinates": [
+     [
+      26.108719,
+      44.426586
+     ],
+     [
+      26.10888,
+      44.426088
+     ],
+     [
+      26.109041,
+      44.425628
+     ],
+     [
+      26.109202,
+      44.425283
+     ]
+    ]
+   }
+  },
+  {
+   "type": "Feature",
+   "id": "ls-trace-brumarei",
+   "properties": {
+    "category": "lost-streets",
+    "title": {
+     "ro": "Strada Brumărei",
+     "en": "Strada Brumărei"
+    },
+    "description": {
+     "ro": "Trasată pe harta București 1939 (1939), din harta orașului.",
+     "en": "Traced on harta București 1939 (1939), from the city's own map."
+    },
+    "links": [],
+    "yearSeen": 1939,
+    "sourceLayer": "harta-bucuresti-1939",
+    "published": true
+   },
+   "geometry": {
+    "type": "LineString",
+    "coordinates": [
+     [
+      26.109148,
+      44.425306
+     ],
+     [
+      26.109738,
+      44.425398
+     ],
+     [
+      26.110382,
+      44.425513
+     ]
+    ]
+   }
+  },
+  {
+   "type": "Feature",
+   "id": "ls-trace-dinsarbi",
+   "properties": {
+    "category": "lost-streets",
+    "title": {
+     "ro": "Strada Dinsârbi",
+     "en": "Strada Dinsârbi"
+    },
+    "description": {
+     "ro": "Trasată pe harta București 1939 (1939), din harta orașului.",
+     "en": "Traced on harta București 1939 (1939), from the city's own map."
+    },
+    "links": [],
+    "yearSeen": 1939,
+    "sourceLayer": "harta-bucuresti-1939",
+    "published": true
+   },
+   "geometry": {
+    "type": "LineString",
+    "coordinates": [
+     [
+      26.109309,
+      44.424785
+     ],
+     [
+      26.109685,
+      44.424846
+     ],
+     [
+      26.110114,
+      44.424923
+     ]
+    ]
+   }
+  },
+  {
+   "type": "Feature",
+   "id": "ls-trace-hameiului",
+   "properties": {
+    "category": "lost-streets",
+    "title": {
+     "ro": "Strada Hameiului",
+     "en": "Strada Hameiului"
+    },
+    "description": {
+     "ro": "Trasată pe harta București 1939 (1939), din harta orașului.",
+     "en": "Traced on harta București 1939 (1939), from the city's own map."
+    },
+    "links": [],
+    "yearSeen": 1939,
+    "sourceLayer": "harta-bucuresti-1939",
+    "published": true
+   },
+   "geometry": {
+    "type": "LineString",
+    "coordinates": [
+     [
+      26.110404,
+      44.422544
+     ],
+     [
+      26.110833,
+      44.422632
+     ],
+     [
+      26.111315,
+      44.422747
+     ]
+    ]
+   }
+  },
+  {
+   "type": "Feature",
+   "id": "ls-trace-anton-pann",
+   "properties": {
+    "category": "lost-streets",
+    "title": {
+     "ro": "Strada Anton Pann",
+     "en": "Strada Anton Pann"
+    },
+    "description": {
+     "ro": "Trasată pe harta București 1939 (1939), din harta orașului.",
+     "en": "Traced on harta București 1939 (1939), from the city's own map."
+    },
+    "links": [],
+    "yearSeen": 1939,
+    "sourceLayer": "harta-bucuresti-1939",
+    "published": true
+   },
+   "geometry": {
+    "type": "LineString",
+    "coordinates": [
+     [
+      26.113799,
+      44.428804
+     ],
+     [
+      26.114362,
+      44.428267
+     ],
+     [
+      26.114979,
+      44.427693
+     ],
+     [
+      26.115274,
+      44.427406
+     ],
+     [
+      26.115328,
+      44.427022
+     ],
+     [
+      26.115382,
+      44.426678
+     ]
+    ]
+   }
+  },
+  {
+   "type": "Feature",
+   "id": "ls-trace-faurari",
+   "properties": {
+    "category": "lost-streets",
+    "title": {
+     "ro": "Strada Făurari",
+     "en": "Strada Făurari"
+    },
+    "description": {
+     "ro": "Trasată pe harta București 1939 (1939), din harta orașului.",
+     "en": "Traced on harta București 1939 (1939), from the city's own map."
+    },
+    "links": [],
+    "yearSeen": 1939,
+    "sourceLayer": "harta-bucuresti-1939",
+    "published": true
+   },
+   "geometry": {
+    "type": "LineString",
+    "coordinates": [
+     [
+      26.116052,
+      44.426409
+     ],
+     [
+      26.116267,
+      44.426754
+     ],
+     [
+      26.116669,
+      44.426869
+     ],
+     [
+      26.117259,
+      44.426888
+     ]
+    ]
+   }
+  },
+  {
+   "type": "Feature",
+   "id": "ls-trace-cpt-p-carp",
+   "properties": {
+    "category": "lost-streets",
+    "title": {
+     "ro": "Strada Cpt. P. Carp",
+     "en": "Strada Cpt. P. Carp"
+    },
+    "description": {
+     "ro": "Trasată pe harta București 1939 (1939), din harta orașului.",
+     "en": "Traced on harta București 1939 (1939), from the city's own map."
+    },
+    "links": [],
+    "yearSeen": 1939,
+    "sourceLayer": "harta-bucuresti-1939",
+    "published": true
+   },
+   "geometry": {
+    "type": "LineString",
+    "coordinates": [
+     [
+      26.120489,
+      44.427314
+     ],
+     [
+      26.120435,
+      44.426471
+     ],
+     [
+      26.120328,
+      44.425705
+     ],
+     [
+      26.12036,
+      44.424977
+     ]
+    ]
+   }
+  },
+  {
+   "type": "Feature",
+   "id": "ls-trace-turturelelor",
+   "properties": {
+    "category": "lost-streets",
+    "title": {
+     "ro": "Strada Turturelelor",
+     "en": "Strada Turturelelor"
+    },
+    "description": {
+     "ro": "Trasată pe harta București 1939 (1939), din harta orașului.",
+     "en": "Traced on harta București 1939 (1939), from the city's own map."
+    },
+    "links": [],
+    "yearSeen": 1939,
+    "sourceLayer": "harta-bucuresti-1939",
+    "published": true
+   },
+   "geometry": {
+    "type": "LineString",
+    "coordinates": [
+     [
+      26.121562,
+      44.426793
+     ],
+     [
+      26.122742,
+      44.42693
+     ],
+     [
+      26.124297,
+      44.427084
+     ]
+    ]
+   }
+  },
+  {
+   "type": "Feature",
+   "id": "ls-trace-vulturilor",
+   "properties": {
+    "category": "lost-streets",
+    "title": {
+     "ro": "Strada Vulturilor",
+     "en": "Strada Vulturilor"
+    },
+    "description": {
+     "ro": "Trasată pe harta București 1939 (1939), din harta orașului.",
+     "en": "Traced on harta București 1939 (1939), from the city's own map."
+    },
+    "links": [],
+    "yearSeen": 1939,
+    "sourceLayer": "harta-bucuresti-1939",
+    "published": true
+   },
+   "geometry": {
+    "type": "LineString",
+    "coordinates": [
+     [
+      26.122824,
+      44.426877
+     ],
+     [
+      26.12285,
+      44.426696
+     ],
+     [
+      26.122875,
+      44.426516
+     ],
+     [
+      26.122891,
+      44.426336
+     ],
+     [
+      26.122903,
+      44.426156
+     ],
+     [
+      26.122916,
+      44.425975
+     ],
+     [
+      26.122929,
+      44.425795
+     ],
+     [
+      26.122943,
+      44.425614
+     ],
+     [
+      26.122959,
+      44.425432
+     ],
+     [
+      26.122975,
+      44.42525
+     ],
+     [
+      26.122991,
+      44.425068
+     ],
+     [
+      26.122999,
+      44.424977
+     ]
+    ]
+   }
+  },
+  {
+   "type": "Feature",
+   "id": "ls-trace-n-gane",
+   "properties": {
+    "category": "lost-streets",
+    "title": {
+     "ro": "Strada N. Gane",
+     "en": "Strada N. Gane"
+    },
+    "description": {
+     "ro": "Trasată pe harta București 1939 (1939), din harta orașului.",
+     "en": "Traced on harta București 1939 (1939), from the city's own map."
+    },
+    "links": [],
+    "yearSeen": 1939,
+    "sourceLayer": "harta-bucuresti-1939",
+    "published": true
+   },
+   "geometry": {
+    "type": "LineString",
+    "coordinates": [
+     [
+      26.121669,
+      44.426394
+     ],
+     [
+      26.122634,
+      44.426417
+     ]
+    ]
+   }
+  },
+  {
+   "type": "Feature",
+   "id": "ls-trace-spoitori",
+   "properties": {
+    "category": "lost-streets",
+    "title": {
+     "ro": "Strada Spoitori",
+     "en": "Strada Spoitori"
+    },
+    "description": {
+     "ro": "Trasată pe harta București 1939 (1939), din harta orașului.",
+     "en": "Traced on harta București 1939 (1939), from the city's own map."
+    },
+    "links": [],
+    "yearSeen": 1939,
+    "sourceLayer": "harta-bucuresti-1939",
+    "published": true
+   },
+   "geometry": {
+    "type": "LineString",
+    "coordinates": [
+     [
+      26.121669,
+      44.425934
+     ],
+     [
+      26.122688,
+      44.425973
+     ]
+    ]
+   }
+  },
+  {
+   "type": "Feature",
+   "id": "ls-trace-nerva-traian",
+   "properties": {
+    "category": "lost-streets",
+    "title": {
+     "ro": "Strada Nerva Traian",
+     "en": "Strada Nerva Traian"
+    },
+    "description": {
+     "ro": "Trasată pe harta București 1939 (1939), din harta orașului.",
+     "en": "Traced on harta București 1939 (1939), from the city's own map."
+    },
+    "links": [],
+    "yearSeen": 1939,
+    "sourceLayer": "harta-bucuresti-1939",
+    "published": true
+   },
+   "geometry": {
+    "type": "LineString",
+    "coordinates": [
+     [
+      26.118493,
+      44.425513
+     ],
+     [
+      26.118392,
+      44.425342
+     ],
+     [
+      26.118291,
+      44.42517
+     ],
+     [
+      26.11819,
+      44.424999
+     ],
+     [
+      26.118089,
+      44.424828
+     ],
+     [
+      26.117948,
+      44.424668
+     ],
+     [
+      26.117793,
+      44.424513
+     ],
+     [
+      26.117638,
+      44.424357
+     ],
+     [
+      26.117521,
+      44.424188
+     ],
+     [
+      26.117444,
+      44.424006
+     ],
+     [
+      26.117367,
+      44.423824
+     ],
+     [
+      26.117289,
+      44.423642
+     ],
+     [
+      26.117207,
+      44.423464
+     ],
+     [
+      26.117123,
+      44.423286
+     ],
+     [
+      26.11704,
+      44.423108
+     ],
+     [
+      26.116956,
+      44.42293
+     ],
+     [
+      26.116872,
+      44.422752
+     ],
+     [
+      26.116783,
+      44.422578
+     ],
+     [
+      26.116689,
+      44.422409
+     ],
+     [
+      26.116595,
+      44.42224
+     ],
+     [
+      26.116501,
+      44.422071
+     ],
+     [
+      26.116407,
+      44.421902
+     ],
+     [
+      26.116313,
+      44.421733
+     ],
+     [
+      26.116219,
+      44.421563
+     ],
+     [
+      26.116125,
+      44.421394
+     ],
+     [
+      26.11606,
+      44.42122
+     ],
+     [
+      26.116005,
+      44.421044
+     ]
+    ]
+   }
+  },
+  {
+   "type": "Feature",
+   "id": "ls-trace-al-moruzi",
+   "properties": {
+    "category": "lost-streets",
+    "title": {
+     "ro": "Strada Al. Moruzi",
+     "en": "Strada Al. Moruzi"
+    },
+    "description": {
+     "ro": "Trasată pe harta București 1939 (1939), din harta orașului.",
+     "en": "Traced on harta București 1939 (1939), from the city's own map."
+    },
+    "links": [],
+    "yearSeen": 1939,
+    "sourceLayer": "harta-bucuresti-1939",
+    "published": true
+   },
+   "geometry": {
+    "type": "LineString",
+    "coordinates": [
+     [
+      26.1186,
+      44.422831
+     ],
+     [
+      26.119566,
+      44.422333
+     ],
+     [
+      26.120639,
+      44.421567
+     ],
+     [
+      26.121819,
+      44.420724
+     ]
+    ]
+   }
+  },
+  {
+   "type": "Feature",
+   "id": "ls-trace-i-procopiu",
+   "properties": {
+    "category": "lost-streets",
+    "title": {
+     "ro": "Strada I. Procopiu",
+     "en": "Strada I. Procopiu"
+    },
+    "description": {
+     "ro": "Trasată pe harta București 1939 (1939), din harta orașului.",
+     "en": "Traced on harta București 1939 (1939), from the city's own map."
+    },
+    "links": [],
+    "yearSeen": 1939,
+    "sourceLayer": "harta-bucuresti-1939",
+    "published": true
+   },
+   "geometry": {
+    "type": "LineString",
+    "coordinates": [
+     [
+      26.11271,
+      44.424498
+     ],
+     [
+      26.1133,
+      44.424019
+     ],
+     [
+      26.113837,
+      44.423617
+     ],
+     [
+      26.114212,
+      44.423214
+     ],
+     [
+      26.114588,
+      44.422831
+     ],
+     [
+      26.11491,
+      44.422582
+     ]
+    ]
+   }
+  },
+  {
+   "type": "Feature",
+   "id": "ls-trace-st-o-iosif",
+   "properties": {
+    "category": "lost-streets",
+    "title": {
+     "ro": "Strada St. O. Iosif",
+     "en": "Strada St. O. Iosif"
+    },
+    "description": {
+     "ro": "Trasată pe harta București 1939 (1939), din harta orașului.",
+     "en": "Traced on harta București 1939 (1939), from the city's own map."
+    },
+    "links": [],
+    "yearSeen": 1939,
+    "sourceLayer": "harta-bucuresti-1939",
+    "published": true
+   },
+   "geometry": {
+    "type": "LineString",
+    "coordinates": [
+     [
+      26.115435,
+      44.42467
+     ],
+     [
+      26.115382,
+      44.424019
+     ],
+     [
+      26.115328,
+      44.423253
+     ]
+    ]
+   }
+  },
+  {
+   "type": "Feature",
+   "id": "ls-trace-v-carlova",
+   "properties": {
+    "category": "lost-streets",
+    "title": {
+     "ro": "Strada V. Cârlova",
+     "en": "Strada V. Cârlova"
+    },
+    "description": {
+     "ro": "Trasată pe harta București 1939 (1939), din harta orașului.",
+     "en": "Traced on harta București 1939 (1939), from the city's own map."
+    },
+    "links": [],
+    "yearSeen": 1939,
+    "sourceLayer": "harta-bucuresti-1939",
+    "published": true
+   },
+   "geometry": {
+    "type": "LineString",
+    "coordinates": [
+     [
+      26.118171,
+      44.423559
+     ],
+     [
+      26.119137,
+      44.423674
+     ],
+     [
+      26.120263,
+      44.423751
+     ]
+    ]
+   }
+  },
+  {
+   "type": "Feature",
+   "id": "ls-trace-i-ciurcu",
+   "properties": {
+    "category": "lost-streets",
+    "title": {
+     "ro": "Strada Alex. Ciurcu",
+     "en": "Strada Alex. Ciurcu"
+    },
+    "description": {
+     "ro": "Alte nume: Strada I. Ciurcu. Trasată pe harta București 1939 (1939), din harta orașului.",
+     "en": "Other names: Strada I. Ciurcu. Traced on harta București 1939 (1939), from the city's own map."
+    },
+    "links": [],
+    "yearSeen": 1939,
+    "sourceLayer": "harta-bucuresti-1939",
+    "published": true
+   },
+   "geometry": {
+    "type": "LineString",
+    "coordinates": [
+     [
+      26.120317,
+      44.423866
+     ],
+     [
+      26.121283,
+      44.423253
+     ],
+     [
+      26.121926,
+      44.422716
+     ],
+     [
+      26.12257,
+      44.422257
+     ]
+    ]
+   }
+  },
+  {
+   "type": "Feature",
+   "id": "ls-trace-d-anghel",
+   "properties": {
+    "category": "lost-streets",
+    "title": {
+     "ro": "Strada D. Anghel",
+     "en": "Strada D. Anghel"
+    },
+    "description": {
+     "ro": "Trasată pe harta București 1939 (1939), din harta orașului.",
+     "en": "Traced on harta București 1939 (1939), from the city's own map."
+    },
+    "links": [],
+    "yearSeen": 1939,
+    "sourceLayer": "harta-bucuresti-1939",
+    "published": true
+   },
+   "geometry": {
+    "type": "LineString",
+    "coordinates": [
+     [
+      26.111906,
+      44.422785
+     ],
+     [
+      26.112442,
+      44.423023
+     ],
+     [
+      26.112978,
+      44.423291
+     ],
+     [
+      26.113542,
+      44.423567
+     ]
+    ]
+   }
+  },
+  {
+   "type": "Feature",
+   "id": "ls-trace-p-cerna",
+   "properties": {
+    "category": "lost-streets",
+    "title": {
+     "ro": "Strada P. Cerna",
+     "en": "Strada P. Cerna"
+    },
+    "description": {
+     "ro": "Trasată pe harta București 1939 (1939), din harta orașului.",
+     "en": "Traced on harta București 1939 (1939), from the city's own map."
+    },
+    "links": [],
+    "yearSeen": 1939,
+    "sourceLayer": "harta-bucuresti-1939",
+    "published": true
+   },
+   "geometry": {
+    "type": "LineString",
+    "coordinates": [
+     [
+      26.114631,
+      44.422793
+     ],
+     [
+      26.115704,
+      44.423161
+     ],
+     [
+      26.11683,
+      44.423023
+     ]
+    ]
+   }
+  },
+  {
+   "type": "Feature",
+   "id": "ls-trace-logofat-tautu",
+   "properties": {
+    "category": "lost-streets",
+    "title": {
+     "ro": "Strada Logofăt Tăutu",
+     "en": "Strada Logofăt Tăutu"
+    },
+    "description": {
+     "ro": "Trasată pe harta București 1939 (1939), din harta orașului.",
+     "en": "Traced on harta București 1939 (1939), from the city's own map."
+    },
+    "links": [],
+    "yearSeen": 1939,
+    "sourceLayer": "harta-bucuresti-1939",
+    "published": true
+   },
+   "geometry": {
+    "type": "LineString",
+    "coordinates": [
+     [
+      26.118075,
+      44.423812
+     ],
+     [
+      26.117987,
+      44.423634
+     ],
+     [
+      26.117899,
+      44.423456
+     ],
+     [
+      26.117811,
+      44.423279
+     ],
+     [
+      26.117723,
+      44.423101
+     ],
+     [
+      26.117635,
+      44.422923
+     ],
+     [
+      26.117577,
+      44.422745
+     ],
+     [
+      26.117519,
+      44.422567
+     ],
+     [
+      26.117461,
+      44.42239
+     ],
+     [
+      26.117403,
+      44.422212
+     ],
+     [
+      26.117345,
+      44.422034
+     ],
+     [
+      26.117345,
+      44.421848
+     ],
+     [
+      26.117345,
+      44.421663
+     ],
+     [
+      26.117345,
+      44.421477
+     ],
+     [
+      26.117345,
+      44.421292
+     ],
+     [
+      26.117358,
+      44.421108
+     ],
+     [
+      26.117383,
+      44.420927
+     ],
+     [
+      26.117409,
+      44.420746
+     ],
+     [
+      26.117428,
+      44.42061
+     ]
+    ]
+   }
+  },
+  {
+   "type": "Feature",
+   "id": "ls-trace-e-garleanu",
+   "properties": {
+    "category": "lost-streets",
+    "title": {
+     "ro": "Strada E. Gârleanu",
+     "en": "Strada E. Gârleanu"
+    },
+    "description": {
+     "ro": "Trasată pe harta București 1939 (1939), din harta orașului.",
+     "en": "Traced on harta București 1939 (1939), from the city's own map."
+    },
+    "links": [],
+    "yearSeen": 1939,
+    "sourceLayer": "harta-bucuresti-1939",
+    "published": true
+   },
+   "geometry": {
+    "type": "LineString",
+    "coordinates": [
+     [
+      26.117903,
+      44.422946
+     ],
+     [
+      26.118922,
+      44.423023
+     ],
+     [
+      26.120371,
+      44.422946
+     ]
+    ]
+   }
+  },
+  {
+   "type": "Feature",
+   "id": "ls-trace-a-panu",
+   "properties": {
+    "category": "lost-streets",
+    "title": {
+     "ro": "Strada A. Panu",
+     "en": "Strada A. Panu"
+    },
+    "description": {
+     "ro": "Trasată pe harta București 1939 (1939), din harta orașului.",
+     "en": "Traced on harta București 1939 (1939), from the city's own map."
+    },
+    "links": [],
+    "yearSeen": 1939,
+    "sourceLayer": "harta-bucuresti-1939",
+    "published": true
+   },
+   "geometry": {
+    "type": "LineString",
+    "coordinates": [
+     [
+      26.120274,
+      44.424877
+     ],
+     [
+      26.120328,
+      44.423881
+     ],
+     [
+      26.120381,
+      44.423038
+     ],
+     [
+      26.120403,
+      44.422042
+     ]
+    ]
+   }
+  },
+  {
+   "type": "Feature",
+   "id": "ls-trace-dobroteasa",
+   "properties": {
+    "category": "lost-streets",
+    "title": {
+     "ro": "Strada Dobroteasa",
+     "en": "Strada Dobroteasa"
+    },
+    "description": {
+     "ro": "Trasată pe harta București 1939 (1939), din harta orașului.",
+     "en": "Traced on harta București 1939 (1939), from the city's own map."
+    },
+    "links": [],
+    "yearSeen": 1939,
+    "sourceLayer": "harta-bucuresti-1939",
+    "published": true
+   },
+   "geometry": {
+    "type": "LineString",
+    "coordinates": [
+     [
+      26.112388,
+      44.422264
+     ],
+     [
+      26.113032,
+      44.422402
+     ],
+     [
+      26.113729,
+      44.422563
+     ],
+     [
+      26.114373,
+      44.422747
+     ]
+    ]
+   }
+  },
+  {
+   "type": "Feature",
+   "id": "ls-trace-al-vlahuta",
+   "properties": {
+    "category": "lost-streets",
+    "title": {
+     "ro": "Strada Al. Vlahuță",
+     "en": "Strada Al. Vlahuță"
+    },
+    "description": {
+     "ro": "Trasată pe harta București 1939 (1939), din harta orașului.",
+     "en": "Traced on harta București 1939 (1939), from the city's own map."
+    },
+    "links": [],
+    "yearSeen": 1939,
+    "sourceLayer": "harta-bucuresti-1939",
+    "published": true
+   },
+   "geometry": {
+    "type": "LineString",
+    "coordinates": [
+     [
+      26.114309,
+      44.422295
+     ],
+     [
+      26.115274,
+      44.422371
+     ],
+     [
+      26.11624,
+      44.42241
+     ]
+    ]
+   }
+  },
+  {
+   "type": "Feature",
+   "id": "ls-trace-lt-col-papazoglu",
+   "properties": {
+    "category": "lost-streets",
+    "title": {
+     "ro": "Strada Lt. Col. Papazoglu",
+     "en": "Strada Lt. Col. Papazoglu"
+    },
+    "description": {
+     "ro": "Trasată pe harta București 1939 (1939), din harta orașului.",
+     "en": "Traced on harta București 1939 (1939), from the city's own map."
+    },
+    "links": [],
+    "yearSeen": 1939,
+    "sourceLayer": "harta-bucuresti-1939",
+    "published": true
+   },
+   "geometry": {
+    "type": "LineString",
+    "coordinates": [
+     [
+      26.112469,
+      44.42195
+     ],
+     [
+      26.113032,
+      44.421969
+     ],
+     [
+      26.113837,
+      44.421873
+     ],
+     [
+      26.114373,
+      44.421682
+     ],
+     [
+      26.115178,
+      44.421375
+     ]
+    ]
+   }
+  },
+  {
+   "type": "Feature",
+   "id": "ls-trace-calea-laptelui",
+   "properties": {
+    "category": "lost-streets",
+    "title": {
+     "ro": "Calea Laptelui",
+     "en": "Calea Laptelui"
+    },
+    "description": {
+     "ro": "Trasată pe harta București 1939 (1939), din harta orașului.",
+     "en": "Traced on harta București 1939 (1939), from the city's own map."
+    },
+    "links": [],
+    "yearSeen": 1939,
+    "sourceLayer": "harta-bucuresti-1939",
+    "published": true
+   },
+   "geometry": {
+    "type": "LineString",
+    "coordinates": [
+     [
+      26.127656,
+      44.426118
+     ],
+     [
+      26.128621,
+      44.425674
+     ],
+     [
+      26.129694,
+      44.425214
+     ],
+     [
+      26.130981,
+      44.424831
+     ],
+     [
+      26.132269,
+      44.424617
+     ],
+     [
+      26.133127,
+      44.424509
+     ]
+    ]
+   }
+  },
+  {
+   "type": "Feature",
+   "id": "ls-trace-cornul-caprei",
+   "properties": {
+    "category": "lost-streets",
+    "title": {
+     "ro": "Strada Cornul Caprei",
+     "en": "Strada Cornul Caprei"
+    },
+    "description": {
+     "ro": "Trasată pe harta București 1939 (1939), din harta orașului.",
+     "en": "Traced on harta București 1939 (1939), from the city's own map."
+    },
+    "links": [],
+    "yearSeen": 1939,
+    "sourceLayer": "harta-bucuresti-1939",
+    "published": true
+   },
+   "geometry": {
+    "type": "LineString",
+    "coordinates": [
+     [
+      26.127763,
+      44.42621
+     ],
+     [
+      26.128728,
+      44.425942
+     ],
+     [
+      26.129694,
+      44.425636
+     ],
+     [
+      26.130767,
+      44.425329
+     ]
+    ]
+   }
+  },
+  {
+   "type": "Feature",
+   "id": "ls-trace-al-cotescu",
+   "properties": {
+    "category": "lost-streets",
+    "title": {
+     "ro": "Strada Al. Cotescu",
+     "en": "Strada Al. Cotescu"
+    },
+    "description": {
+     "ro": "Trasată pe harta București 1939 (1939), din harta orașului.",
+     "en": "Traced on harta București 1939 (1939), from the city's own map."
+    },
+    "links": [],
+    "yearSeen": 1939,
+    "sourceLayer": "harta-bucuresti-1939",
+    "published": true
+   },
+   "geometry": {
+    "type": "LineString",
+    "coordinates": [
+     [
+      26.126797,
+      44.425827
+     ],
+     [
+      26.127656,
+      44.425482
+     ],
+     [
+      26.128514,
+      44.425138
+     ]
+    ]
+   }
+  },
+  {
+   "type": "Feature",
+   "id": "ls-trace-gh-manea",
+   "properties": {
+    "category": "lost-streets",
+    "title": {
+     "ro": "Strada Gh. Manea",
+     "en": "Strada Gh. Manea"
+    },
+    "description": {
+     "ro": "Trasată pe harta București 1939 (1939), din harta orașului.",
+     "en": "Traced on harta București 1939 (1939), from the city's own map."
+    },
+    "links": [],
+    "yearSeen": 1939,
+    "sourceLayer": "harta-bucuresti-1939",
+    "published": true
+   },
+   "geometry": {
+    "type": "LineString",
+    "coordinates": [
+     [
+      26.125188,
+      44.424065
+     ],
+     [
+      26.126046,
+      44.424831
+     ],
+     [
+      26.126904,
+      44.425597
+     ]
+    ]
+   }
+  },
+  {
+   "type": "Feature",
+   "id": "ls-trace-p-cumpanei",
+   "properties": {
+    "category": "lost-streets",
+    "title": {
+     "ro": "Strada Prof. P. Cumpănici",
+     "en": "Strada Prof. P. Cumpănici"
+    },
+    "description": {
+     "ro": "Alte nume: Strada P. Cumpănei. Trasată pe harta București 1939 (1939), din harta orașului.",
+     "en": "Other names: Strada P. Cumpănei. Traced on harta București 1939 (1939), from the city's own map."
+    },
+    "links": [],
+    "yearSeen": 1939,
+    "sourceLayer": "harta-bucuresti-1939",
+    "published": true
+   },
+   "geometry": {
+    "type": "LineString",
+    "coordinates": [
+     [
+      26.126583,
+      44.423605
+     ],
+     [
+      26.127226,
+      44.424371
+     ],
+     [
+      26.12787,
+      44.424984
+     ],
+     [
+      26.128299,
+      44.425252
+     ]
+    ]
+   }
+  },
+  {
+   "type": "Feature",
+   "id": "ls-trace-m-dobrescu",
+   "properties": {
+    "category": "lost-streets",
+    "title": {
+     "ro": "Strada Dim. D. Dobrescu",
+     "en": "Strada Dim. D. Dobrescu"
+    },
+    "description": {
+     "ro": "Alte nume: Strada M. Dobrescu. Trasată pe harta București 1939 (1939), din harta orașului.",
+     "en": "Other names: Strada M. Dobrescu. Traced on harta București 1939 (1939), from the city's own map."
+    },
+    "links": [],
+    "yearSeen": 1939,
+    "sourceLayer": "harta-bucuresti-1939",
+    "published": true
+   },
+   "geometry": {
+    "type": "LineString",
+    "coordinates": [
+     [
+      26.125993,
+      44.423843
+     ],
+     [
+      26.12669,
+      44.424571
+     ],
+     [
+      26.127548,
+      44.425452
+     ]
+    ]
+   }
+  },
+  {
+   "type": "Feature",
+   "id": "ls-trace-scoala-ciocanul",
+   "properties": {
+    "category": "lost-streets",
+    "title": {
+     "ro": "Strada Școala Ciocanul",
+     "en": "Strada Școala Ciocanul"
+    },
+    "description": {
+     "ro": "Trasată pe harta București 1939 (1939), din harta orașului.",
+     "en": "Traced on harta București 1939 (1939), from the city's own map."
+    },
+    "links": [],
+    "yearSeen": 1939,
+    "sourceLayer": "harta-bucuresti-1939",
+    "published": true
+   },
+   "geometry": {
+    "type": "LineString",
+    "coordinates": [
+     [
+      26.126851,
+      44.420356
+     ],
+     [
+      26.127377,
+      44.421306
+     ],
+     [
+      26.128246,
+      44.42254
+     ],
+     [
+      26.128975,
+      44.423207
+     ],
+     [
+      26.129576,
+      44.423873
+     ],
+     [
+      26.130016,
+      44.424938
+     ]
+    ]
+   }
+  },
+  {
+   "type": "Feature",
+   "id": "ls-trace-pascal",
+   "properties": {
+    "category": "lost-streets",
+    "title": {
+     "ro": "Strada Pascal",
+     "en": "Strada Pascal"
+    },
+    "description": {
+     "ro": "Trasată pe harta București 1939 (1939), din harta orașului.",
+     "en": "Traced on harta București 1939 (1939), from the city's own map."
+    },
+    "links": [],
+    "yearSeen": 1939,
+    "sourceLayer": "harta-bucuresti-1939",
+    "published": true
+   },
+   "geometry": {
+    "type": "LineString",
+    "coordinates": [
+     [
+      26.130391,
+      44.42264
+     ],
+     [
+      26.131089,
+      44.423329
+     ],
+     [
+      26.13184,
+      44.424019
+     ],
+     [
+      26.132483,
+      44.424594
+     ]
+    ]
+   }
+  },
+  {
+   "type": "Feature",
+   "id": "ls-trace-popa-farcas",
+   "properties": {
+    "category": "lost-streets",
+    "title": {
+     "ro": "Strada Popa Farcaș",
+     "en": "Strada Popa Farcaș"
+    },
+    "description": {
+     "ro": "Trasată pe harta București 1939 (1939), din harta orașului.",
+     "en": "Traced on harta București 1939 (1939), from the city's own map."
+    },
+    "links": [],
+    "yearSeen": 1939,
+    "sourceLayer": "harta-bucuresti-1939",
+    "published": true
+   },
+   "geometry": {
+    "type": "LineString",
+    "coordinates": [
+     [
+      26.131142,
+      44.42218
+     ],
+     [
+      26.13184,
+      44.42287
+     ],
+     [
+      26.132483,
+      44.423483
+     ],
+     [
+      26.133127,
+      44.424172
+     ]
+    ]
+   }
+  },
+  {
+   "type": "Feature",
+   "id": "ls-trace-baba-dochia",
+   "properties": {
+    "category": "lost-streets",
+    "title": {
+     "ro": "Strada Baba Dochia",
+     "en": "Strada Baba Dochia"
+    },
+    "description": {
+     "ro": "Trasată pe harta București 1939 (1939), din harta orașului.",
+     "en": "Traced on harta București 1939 (1939), from the city's own map."
+    },
+    "links": [],
+    "yearSeen": 1939,
+    "sourceLayer": "harta-bucuresti-1939",
+    "published": true
+   },
+   "geometry": {
+    "type": "LineString",
+    "coordinates": [
+     [
+      26.111541,
+      44.419843
+     ],
+     [
+      26.112292,
+      44.420073
+     ],
+     [
+      26.113311,
+      44.420326
+     ]
+    ]
+   }
+  },
+  {
+   "type": "Feature",
+   "id": "ls-trace-virginia",
+   "properties": {
+    "category": "lost-streets",
+    "title": {
+     "ro": "Strada Virginia",
+     "en": "Strada Virginia"
+    },
+    "description": {
+     "ro": "Trasată pe harta București 1939 (1939), din harta orașului.",
+     "en": "Traced on harta București 1939 (1939), from the city's own map."
+    },
+    "links": [],
+    "yearSeen": 1939,
+    "sourceLayer": "harta-bucuresti-1939",
+    "published": true
+   },
+   "geometry": {
+    "type": "LineString",
+    "coordinates": [
+     [
+      26.112077,
+      44.419613
+     ],
+     [
+      26.112828,
+      44.41969
+     ],
+     [
+      26.113472,
+      44.419766
+     ]
+    ]
+   }
+  },
+  {
+   "type": "Feature",
+   "id": "ls-trace-siminocului",
+   "properties": {
+    "category": "lost-streets",
+    "title": {
+     "ro": "Strada Siminocului",
+     "en": "Strada Siminocului"
+    },
+    "description": {
+     "ro": "Trasată pe harta București 1939 (1939), din harta orașului.",
+     "en": "Traced on harta București 1939 (1939), from the city's own map."
+    },
+    "links": [],
+    "yearSeen": 1939,
+    "sourceLayer": "harta-bucuresti-1939",
+    "published": true
+   },
+   "geometry": {
+    "type": "LineString",
+    "coordinates": [
+     [
+      26.1186,
+      44.420402
+     ],
+     [
+      26.119673,
+      44.42067
+     ],
+     [
+      26.121175,
+      44.421092
+     ]
+    ]
+   }
+  },
+  {
+   "type": "Feature",
+   "id": "ls-trace-vlad-dracul",
+   "properties": {
+    "category": "lost-streets",
+    "title": {
+     "ro": "Strada Vlad Dracul",
+     "en": "Strada Vlad Dracul"
+    },
+    "description": {
+     "ro": "Trasată pe harta București 1939 (1939), din harta orașului.",
+     "en": "Traced on harta București 1939 (1939), from the city's own map."
+    },
+    "links": [],
+    "yearSeen": 1939,
+    "sourceLayer": "harta-bucuresti-1939",
+    "published": true
+   },
+   "geometry": {
+    "type": "LineString",
+    "coordinates": [
+     [
+      26.117903,
+      44.417529
+     ],
+     [
+      26.118171,
+      44.418257
+     ],
+     [
+      26.118493,
+      44.419099
+     ],
+     [
+      26.118761,
+      44.419942
+     ]
+    ]
+   }
+  },
+  {
+   "type": "Feature",
+   "id": "ls-trace-apele-minerale",
+   "properties": {
+    "category": "lost-streets",
+    "title": {
+     "ro": "Strada Apele Minerale",
+     "en": "Strada Apele Minerale"
+    },
+    "description": {
+     "ro": "Trasată pe harta București 1939 (1939), din harta orașului.",
+     "en": "Traced on harta București 1939 (1939), from the city's own map."
+    },
+    "links": [],
+    "yearSeen": 1939,
+    "sourceLayer": "harta-bucuresti-1939",
+    "published": true
+   },
+   "geometry": {
+    "type": "LineString",
+    "coordinates": [
+     [
+      26.114244,
+      44.417643
+     ],
+     [
+      26.115532,
+      44.41762
+     ],
+     [
+      26.116819,
+      44.417506
+     ],
+     [
+      26.117892,
+      44.417237
+     ],
+     [
+      26.118858,
+      44.416854
+     ],
+     [
+      26.119555,
+      44.416318
+     ],
+     [
+      26.119877,
+      44.415436
+     ],
+     [
+      26.120092,
+      44.414517
+     ],
+     [
+      26.120199,
+      44.41375
+     ],
+     [
+      26.120263,
+      44.412907
+     ]
+    ]
+   }
+  },
+  {
+   "type": "Feature",
+   "id": "ls-trace-morilor",
+   "properties": {
+    "category": "lost-streets",
+    "title": {
+     "ro": "Strada Morilor",
+     "en": "Strada Morilor"
+    },
+    "description": {
+     "ro": "Trasată pe harta București 1939 (1939), din harta orașului.",
+     "en": "Traced on harta București 1939 (1939), from the city's own map."
+    },
+    "links": [],
+    "yearSeen": 1939,
+    "sourceLayer": "harta-bucuresti-1939",
+    "published": true
+   },
+   "geometry": {
+    "type": "LineString",
+    "coordinates": [
+     [
+      26.11639,
+      44.414992
+     ],
+     [
+      26.117463,
+      44.415605
+     ],
+     [
+      26.118536,
+      44.416218
+     ],
+     [
+      26.119609,
+      44.416946
+     ],
+     [
+      26.120682,
+      44.417483
+     ],
+     [
+      26.121755,
+      44.417843
+     ],
+     [
+      26.122828,
+      44.41808
+     ],
+     [
+      26.123847,
+      44.418211
+     ]
+    ]
+   }
+  },
+  {
+   "type": "Feature",
+   "id": "ls-trace-vlaicu-voda",
+   "properties": {
+    "category": "lost-streets",
+    "title": {
+     "ro": "Strada Vlaicu Vodă",
+     "en": "Strada Vlaicu Vodă"
+    },
+    "description": {
+     "ro": "Trasată pe harta București 1939 (1939), din harta orașului.",
+     "en": "Traced on harta București 1939 (1939), from the city's own map."
+    },
+    "links": [],
+    "yearSeen": 1939,
+    "sourceLayer": "harta-bucuresti-1939",
+    "published": true
+   },
+   "geometry": {
+    "type": "LineString",
+    "coordinates": [
+     [
+      26.118407,
+      44.418716
+     ],
+     [
+      26.119802,
+      44.418816
+     ],
+     [
+      26.121411,
+      44.418946
+     ],
+     [
+      26.122591,
+      44.419023
+     ],
+     [
+      26.123879,
+      44.418962
+     ],
+     [
+      26.125166,
+      44.418778
+     ]
+    ]
+   }
+  },
+  {
+   "type": "Feature",
+   "id": "ls-trace-m-foisoreanu",
+   "properties": {
+    "category": "lost-streets",
+    "title": {
+     "ro": "Strada M. Foișoreanu",
+     "en": "Strada M. Foișoreanu"
+    },
+    "description": {
+     "ro": "Trasată pe harta București 1939 (1939), din harta orașului.",
+     "en": "Traced on harta București 1939 (1939), from the city's own map."
+    },
+    "links": [],
+    "yearSeen": 1939,
+    "sourceLayer": "harta-bucuresti-1939",
+    "published": true
+   },
+   "geometry": {
+    "type": "LineString",
+    "coordinates": [
+     [
+      26.11919,
+      44.418701
+     ],
+     [
+      26.119566,
+      44.418011
+     ],
+     [
+      26.120102,
+      44.417398
+     ],
+     [
+      26.120853,
+      44.416862
+     ],
+     [
+      26.121658,
+      44.416287
+     ]
+    ]
+   }
+  },
+  {
+   "type": "Feature",
+   "id": "ls-trace-m-mugurel",
+   "properties": {
+    "category": "lost-streets",
+    "title": {
+     "ro": "Strada M. Mugurel",
+     "en": "Strada M. Mugurel"
+    },
+    "description": {
+     "ro": "Trasată pe harta București 1939 (1939), din harta orașului.",
+     "en": "Traced on harta București 1939 (1939), from the city's own map."
+    },
+    "links": [],
+    "yearSeen": 1939,
+    "sourceLayer": "harta-bucuresti-1939",
+    "published": true
+   },
+   "geometry": {
+    "type": "LineString",
+    "coordinates": [
+     [
+      26.119781,
+      44.415559
+     ],
+     [
+      26.120746,
+      44.415866
+     ],
+     [
+      26.121819,
+      44.416233
+     ]
+    ]
+   }
+  },
+  {
+   "type": "Feature",
+   "id": "ls-trace-victor-babes",
+   "properties": {
+    "category": "lost-streets",
+    "title": {
+     "ro": "Strada Victor Babeș",
+     "en": "Strada Victor Babeș"
+    },
+    "description": {
+     "ro": "Trasată pe harta București 1939 (1939), din harta orașului.",
+     "en": "Traced on harta București 1939 (1939), from the city's own map."
+    },
+    "links": [],
+    "yearSeen": 1939,
+    "sourceLayer": "harta-bucuresti-1939",
+    "published": true
+   },
+   "geometry": {
+    "type": "LineString",
+    "coordinates": [
+     [
+      26.087229,
+      44.433236
+     ],
+     [
+      26.087497,
+      44.432891
+     ],
+     [
+      26.087744,
+      44.432508
+     ],
+     [
+      26.087894,
+      44.432087
+     ]
+    ]
+   }
+  },
+  {
+   "type": "Feature",
+   "id": "ls-trace-gen-ghenea",
+   "properties": {
+    "category": "lost-streets",
+    "title": {
+     "ro": "Strada Gen. Ghenea",
+     "en": "Strada Gen. Ghenea"
+    },
+    "description": {
+     "ro": "Trasată pe harta București 1939 (1939), din harta orașului.",
+     "en": "Traced on harta București 1939 (1939), from the city's own map."
+    },
+    "links": [],
+    "yearSeen": 1939,
+    "sourceLayer": "harta-bucuresti-1939",
+    "published": true
+   },
+   "geometry": {
+    "type": "LineString",
+    "coordinates": [
+     [
+      26.090266,
+      44.428792
+     ],
+     [
+      26.090856,
+      44.428831
+     ],
+     [
+      26.091338,
+      44.428846
+     ]
+    ]
+   }
+  },
+  {
+   "type": "Feature",
+   "id": "ls-trace-schitul-maicilor",
+   "properties": {
+    "category": "lost-streets",
+    "title": {
+     "ro": "Strada Schitul Maicilor",
+     "en": "Strada Schitul Maicilor"
+    },
+    "description": {
+     "ro": "Trasată pe harta București 1939 (1939), din harta orașului.",
+     "en": "Traced on harta București 1939 (1939), from the city's own map."
+    },
+    "links": [],
+    "yearSeen": 1939,
+    "sourceLayer": "harta-bucuresti-1939",
+    "published": true
+   },
+   "geometry": {
+    "type": "LineString",
+    "coordinates": [
+     [
+      26.088839,
+      44.424624
+     ],
+     [
+      26.089375,
+      44.425275
+     ],
+     [
+      26.089911,
+      44.425888
+     ],
+     [
+      26.090662,
+      44.426157
+     ],
+     [
+      26.091413,
+      44.426425
+     ]
+    ]
+   }
+  },
+  {
+   "type": "Feature",
+   "id": "ls-trace-cpt-p-stefanescu",
+   "properties": {
+    "category": "lost-streets",
+    "title": {
+     "ro": "Strada Cpt. P. Ștefănescu",
+     "en": "Strada Cpt. P. Ștefănescu"
+    },
+    "description": {
+     "ro": "Trasată pe harta București 1939 (1939), din harta orașului.",
+     "en": "Traced on harta București 1939 (1939), from the city's own map."
+    },
+    "links": [],
+    "yearSeen": 1939,
+    "sourceLayer": "harta-bucuresti-1939",
+    "published": true
+   },
+   "geometry": {
+    "type": "LineString",
+    "coordinates": [
+     [
+      26.114239,
+      44.422601
+     ],
+     [
+      26.114078,
+      44.422333
+     ],
+     [
+      26.113917,
+      44.422065
+     ],
+     [
+      26.11381,
+      44.421835
+     ]
+    ]
+   }
+  },
+  {
+   "type": "Feature",
+   "id": "ls-trace-inundatiei",
+   "properties": {
+    "category": "lost-streets",
+    "title": {
+     "ro": "Strada Inundației",
+     "en": "Strada Inundației"
+    },
+    "description": {
+     "ro": "Trasată pe harta București 1939 (1939), din harta orașului.",
+     "en": "Traced on harta București 1939 (1939), from the city's own map."
+    },
+    "links": [],
+    "yearSeen": 1939,
+    "sourceLayer": "harta-bucuresti-1939",
+    "published": true
+   },
+   "geometry": {
+    "type": "LineString",
+    "coordinates": [
+     [
+      26.085706,
+      44.429114
+     ],
+     [
+      26.086135,
+      44.429344
+     ],
+     [
+      26.086457,
+      44.429535
+     ]
+    ]
+   }
+  }
+ ]
+}

@@ -1,0 +1,115 @@
+{
+    "type": "usgs-import",
+    "status": "running",
+    "params": {
+        "entityId": "DS1035-1057DA023",
+        "dataset": "corona2",
+        "sensor": "KH-4A"
+    },
+    "createdBy": "uid-owner",
+    "createdAt": {
+        "seconds": 1792000000,
+        "nanoseconds": 0
+    },
+    "step": "georef",
+    "progress": 0.55,
+    "dispatchAt": {
+        "seconds": 1792000010,
+        "nanoseconds": 0
+    },
+    "executionName": "projects/demo-hcm/locations/us-central1/jobs/raster-pipeline/executions/raster-pipeline-x7k2m",
+    "machine": "std",
+    "attempt": 1,
+    "lease": {
+        "owner": "raster-pipeline-x7k2m/0",
+        "until": {
+            "seconds": 1792004200,
+            "nanoseconds": 0
+        }
+    },
+    "steps": {
+        "fetch": {
+            "status": "done",
+            "gcsPath": "usgs-raw/corona2/DS1035-1057DA023/DS1035-1057DA023.tgz",
+            "generation": "1792000900123456",
+            "sha256": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+            "bytes": 734003200,
+            "startedAt": {
+                "seconds": 1792000030,
+                "nanoseconds": 0
+            },
+            "finishedAt": {
+                "seconds": 1792000900,
+                "nanoseconds": 0
+            }
+        },
+        "extract": {
+            "status": "done",
+            "gcsPath": "work/bucharest/job-1966-0712/segments/a.tif",
+            "startedAt": {
+                "seconds": 1792000901,
+                "nanoseconds": 0
+            },
+            "finishedAt": {
+                "seconds": 1792001100,
+                "nanoseconds": 0
+            }
+        },
+        "stitch": {
+            "status": "done",
+            "gcsPath": "work/bucharest/job-1966-0712/frame.json",
+            "startedAt": {
+                "seconds": 1792001101,
+                "nanoseconds": 0
+            },
+            "finishedAt": {
+                "seconds": 1792001700,
+                "nanoseconds": 0
+            }
+        },
+        "locate": {
+            "status": "done",
+            "gcsPath": "rasters/bucharest/kh-4a-corona-1966/job-1966-0712/scan.tif",
+            "generation": "1792002300654321",
+            "sha256": "bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb",
+            "startedAt": {
+                "seconds": 1792001701,
+                "nanoseconds": 0
+            },
+            "finishedAt": {
+                "seconds": 1792002300,
+                "nanoseconds": 0
+            }
+        },
+        "reference": {
+            "status": "done",
+            "gcsPath": "reference/bucharest/s2/0f3c9a2e.tif",
+            "startedAt": {
+                "seconds": 1792002301,
+                "nanoseconds": 0
+            },
+            "finishedAt": {
+                "seconds": 1792002900,
+                "nanoseconds": 0
+            }
+        },
+        "georef": {
+            "status": "running",
+            "startedAt": {
+                "seconds": 1792002901,
+                "nanoseconds": 0
+            }
+        }
+    },
+    "layerId": "kh-4a-corona-1966",
+    "versionId": "job-1966-0712",
+    "startedAt": {
+        "seconds": 1792000030,
+        "nanoseconds": 0
+    },
+    "updatedBy": "system:pipeline",
+    "updatedAt": {
+        "seconds": 1792003600,
+        "nanoseconds": 0
+    }
+}

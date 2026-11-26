@@ -1,0 +1,466 @@
+/**
+ * `<hcm-date-menu>`: the date picker of a timeline year with several dates (V13, the owner 2026-11-13). An M3 menu beside
+ * the badge or the slider that asked for it (`hcm-dates-open`, `timeline-dates.ts`): above a lying timeline, on the
+ * trailing side of a standing one, kept inside the viewer and clear of the strip of Mapbox's legal line and of the floating
+ * controls it is given (`avoid`, `date-menu-clear.ts`). Each date is a
+ * `menuitemcheckbox` (48 px tall), the one on top in bold (2026-11-22), with its own checkbox that shows or hides it on the map
+ * right there (`date-menu-row.ts`, 2026-11-24). It is modal: a transparent scrim takes a press anywhere else and
+ * closes it, the viewer makes the frame under it inert and gives the focus back to the slider. The arrow keys, Home and End
+ * move between the dates, left and right between a row's checkbox and date, Tab walks both, Esc closes, Enter or a press picks one.
+ *
+ * A peek (`peek`: a mouse or a scrubbing finger resting on the year, `timeline-peek.ts`) is not modal: no scrim, the focus
+ * stays where it was, the frame stays live. The mouse entering or leaving it says so (`hcm-date-menu-pointer`), so the dock
+ * keeps it open on the way from the year; a finger sliding over it marks the date under it (`touchAt`) and lifting picks it.
+ *
+ * With `side` (a menu of the selected year, a peek too) the year's opacity sliders, slotted, sit beside the dates in one row
+ * (`.pair`, the owner 2026-11-23: never stacked, but for a room too narrow for both, 2026-11-24; never over each other), placed as one box; on a narrow phone the two columns
+ * share the width and their labels wrap instead of being cut. Tab goes from the dates to them, Esc in them closes.
+ *
+ * Events (viewer-internal): `hcm-date-pick` (`{layerId}`), `hcm-date-show` (`{layerId, visible}`), `hcm-close`, `hcm-date-menu-pointer` (`{inside}`).
+ */
+import { LitElement, css, html, type PropertyValues, type TemplateResult } from 'lit';
+
+import { EMPTY } from './empty.js';
+import { clearOf } from './date-menu-clear.js';
+import {
+    dateMenuOrigin,
+    MAX_WIDTH,
+    PAIR_MAX_WIDTH,
+    pairHeight,
+    pairStacks,
+    sideRoom,
+    stackedHeight,
+    type Side,
+} from './date-menu-place.js';
+import { closeEvent } from './sheet-frame.js';
+import { baseStyles } from './shared-styles.js';
+import { touchTarget } from '../components/styles.js';
+import type { DateItem, DatesOpenDetail } from './timeline-dates.js';
+import { across, dateRow, dateRowStyles, rowIndex, type DateRowView } from './date-menu-row.js';
+
+export const HCM_DATE_MENU_TAG = 'hcm-date-menu';
+
+/** The strip at the foot of the map kept for Mapbox's logo and attribution (`--hcm-map-chrome`). */
+const LEGAL_STRIP = 42;
+
+type Box = DatesOpenDetail['anchor'];
+
+/** The properties that move or resize the menu or its sliders. */
+/** Whether the sliders go under the dates: only with sliders, in a room too narrow for both side by side (§249). */
+function stacks(side: boolean, room: number): boolean {
+    return side && pairStacks(room);
+}
+
+/** A stacked pair is tall: it ends above the map's buttons under it rather than over them (its columns scroll). */
+function fitStacked(
+    pair: HTMLElement,
+    at: { readonly left: number; readonly right: number; readonly top: number },
+    avoided: readonly Box[],
+): void {
+    if (!pair.hasAttribute('data-stacked')) {
+        return;
+    }
+    const height = stackedHeight(at, avoided);
+    if (height !== null && height < pair.offsetHeight) {
+        pair.style.setProperty('max-block-size', `${String(height)}px`);
+    }
+}
+
+const PLACING: readonly (keyof HcmDateMenu)[] = ['anchor', 'side', 'items', 'vertical'];
+
+/** The top of the box the anchor lies in (the card around its thumb): above a lying card the row starts there, never over it. */
+function cardTop(anchor: Box, boxes: readonly Box[]): number {
+    const x = anchor.x + anchor.width / 2;
+    const y = anchor.y + anchor.height / 2;
+    const around = boxes.filter((box) => x >= box.x && x <= box.x + box.width && y >= box.y && y <= box.y + box.height);
+    return Math.min(anchor.y, ...around.map((box) => box.y));
+}
+
+/** Whether the point (`x`, `y`) is in `rect`, its edges included. */
+function contains(rect: DOMRect, x: number, y: number): boolean {
+    return x >= rect.left && x <= rect.right && y >= rect.top && y <= rect.bottom;
+}
+
+const NEXT: Readonly<Record<string, (index: number, count: number) => number>> = {
+    ArrowDown: (index, count) => (index + 1) % count,
+    ArrowUp: (index, count) => (index - 1 + count) % count,
+    Home: () => 0,
+    End: (_index, count) => count - 1,
+};
+
+export class HcmDateMenu extends LitElement implements DateRowView {
+    static override readonly properties = {
+        items: { attribute: false },
+        selected: { attribute: false },
+        shown: { attribute: false },
+        label: { type: String },
+        anchor: { attribute: false },
+        side: { type: Boolean },
+        avoid: { attribute: false },
+        vertical: { type: Boolean },
+        peek: { type: Boolean },
+        showLabel: { attribute: false },
+    };
+
+    static override readonly styles = [
+        baseStyles,
+        touchTarget,
+        dateRowStyles,
+        css`
+            /* Over the whole viewer; only the scrim and the menu take the pointer, and only while open. */
+            :host {
+                position: absolute;
+                inset: 0;
+                z-index: 40;
+                pointer-events: none;
+            }
+
+            .scrim {
+                position: absolute;
+                inset: 0;
+                pointer-events: auto;
+            }
+
+            /* The dates and the sliders in one row, placed as one box: never over each other; their bottoms aligned (stacked only below). */
+            .pair {
+                position: absolute;
+                display: flex;
+                gap: 8px;
+                align-items: flex-end;
+                box-sizing: border-box;
+                max-inline-size: calc(100% - 16px);
+                max-block-size: calc(100% - 58px);
+                pointer-events: none;
+            }
+
+            .menu {
+                display: flex;
+                flex: 0 1 auto;
+                flex-direction: column;
+                box-sizing: border-box;
+                min-inline-size: 112px;
+                max-inline-size: 280px;
+                max-block-size: inherit;
+                padding-block: 8px;
+                overflow: auto;
+                border-radius: var(--md-sys-shape-corner-extra-small);
+                background: var(--md-sys-color-surface-container);
+                color: var(--md-sys-color-on-surface);
+                box-shadow: var(--md-sys-elevation-level2);
+                pointer-events: auto;
+            }
+
+            .side {
+                display: flex;
+                flex: 0 1 240px;
+                flex-direction: column;
+                box-sizing: border-box;
+
+                /* The kit's slider needs about 150 px: the dates give way first on a narrow phone. */
+                min-inline-size: 152px;
+                max-block-size: inherit;
+                padding: 8px 16px;
+                overflow: auto;
+                border-radius: var(--md-sys-shape-corner-large);
+                background: var(--md-sys-color-surface-container);
+                color: var(--md-sys-color-on-surface);
+                box-shadow: var(--md-sys-elevation-level2);
+                pointer-events: auto;
+            }
+
+            /*
+             * Too narrow for both side by side (beside a standing timeline on a 320 px phone): the sliders under the dates,
+             * as wide as the room, each column scrolling in its share of the height (the owner, 2026-11-24, §249).
+             */
+            .pair[data-stacked] {
+                flex-direction: column;
+                align-items: stretch;
+            }
+
+            .pair[data-stacked] > .menu,
+            .pair[data-stacked] > .side {
+                flex: 0 1 auto;
+                min-block-size: 0;
+                max-inline-size: none;
+            }
+
+            .item {
+                display: flex;
+                flex: 1 1 auto;
+                gap: 12px;
+                align-items: center;
+                min-block-size: 48px;
+                padding-inline: 0 8px;
+                border: 0;
+                background: none;
+                color: inherit;
+                font: inherit;
+                text-align: start;
+                cursor: pointer;
+            }
+
+            .item:hover,
+            .item:focus-visible,
+            .item[data-armed] {
+                background: color-mix(in srgb, var(--md-sys-color-on-surface) 8%, transparent);
+                outline: 2px solid var(--md-sys-color-secondary);
+                outline-offset: -2px;
+            }
+
+            .text {
+                display: grid;
+                min-inline-size: 0;
+                overflow-wrap: anywhere;
+            }
+
+            .date {
+                font-size: var(--md-sys-typescale-label-large-size);
+                font-weight: 600;
+            }
+
+            .label {
+                font-size: var(--md-sys-typescale-body-small-size);
+                color: var(--md-sys-color-on-surface-variant);
+            }
+
+            /* The layer drawn on top among the ticked ones (the owner, 2026-11-22: a tick for every plan that is on). */
+            .item[data-front] .label {
+                font-weight: 700;
+            }
+
+            /* Forced colours drop the menu's fill and shadow: an edge keeps it apart from the map. */
+            @media (forced-colors: active) {
+                .menu,
+                .side {
+                    border: 1px solid CanvasText;
+                }
+            }
+        `,
+    ];
+
+    declare items: readonly DateItem[];
+    /** The layer on top: its date is checked. */
+    declare selected: string | null;
+    /** The year's layers that are on: each has its tick (the one on top, `selected`, is also marked). */
+    declare shown: ReadonlySet<string>;
+    declare label: string;
+    /** The box (client px) the menu opens beside; null: closed. */
+    declare anchor: Box | null;
+    /** The floating controls (client px) the menu keeps clear of, measured each time it is placed (`timeline-dock.ts`). */
+    declare avoid: () => readonly Box[];
+    /** The timeline stands (a phone held upright): the menu opens on its trailing side, else above it. */
+    declare vertical: boolean;
+    /** Shown by a resting pointer, not by selecting the year: not modal. */
+    declare peek: boolean;
+    /** The year's opacity sliders are slotted: they show beside the dates, in the same row. */
+    declare side: boolean;
+    /** The row checkbox's accessible name for a layer (`timeline.showOnMap`). */
+    declare showLabel: (name: string) => string;
+
+    constructor() {
+        super();
+        this.items = [];
+        this.selected = null;
+        this.shown = new Set();
+        this.label = '';
+        this.anchor = null;
+        this.avoid = () => [];
+        this.vertical = false;
+        this.peek = false;
+        this.side = false;
+        this.showLabel = (name) => name;
+    }
+
+    override render(): TemplateResult {
+        if (this.anchor === null) {
+            return EMPTY;
+        }
+        return html`${this.#scrim()}
+            <div class="pair" @pointerenter=${this.#onPointer} @pointerleave=${this.#onPointer}>
+                <div
+                    class="menu"
+                    role="menu"
+                    aria-label=${this.label}
+                    data-layout-check="date-menu"
+                    @keydown=${this.#onKey}
+                    @focusin=${this.#onFocus}
+                >
+                    ${this.items.map((item) => dateRow(this, item, this))}
+                </div>
+                ${this.side ? html`<div class="side" @keydown=${this.#onSideKey}><slot></slot></div>` : EMPTY}
+            </div>`;
+    }
+
+    /** Esc in the sliders closes the menu as in the dates. */
+    readonly #onSideKey = (event: KeyboardEvent): void => {
+        if (event.key === 'Escape') {
+            event.preventDefault();
+            this.#close();
+        }
+    };
+
+    /** The modal menu's scrim, which takes a press anywhere else and closes it; a peek has none. */
+    #scrim(): TemplateResult {
+        return this.peek ? EMPTY : html`<div class="scrim" @pointerdown=${this.#close}></div>`;
+    }
+
+    /** Places the menu again when it or the viewer changes size (a window resized, larger text spacing). */
+    readonly #resize = new ResizeObserver(() => {
+        const pair = this.renderRoot.querySelector<HTMLElement>('.pair');
+        if (pair !== null && this.anchor !== null) {
+            this.#place(pair, this.anchor);
+        }
+    });
+
+    override connectedCallback(): void {
+        super.connectedCallback();
+        this.#resize.observe(this);
+    }
+
+    override disconnectedCallback(): void {
+        this.#resize.disconnect();
+        super.disconnectedCallback();
+    }
+
+    protected override updated(changed: PropertyValues<this>): void {
+        const pair = this.renderRoot.querySelector<HTMLElement>('.pair');
+        if (pair === null || this.anchor === null) {
+            return;
+        }
+        this.#resize.observe(pair);
+        // Placed again on every change that moves or resizes it, not only a new anchor: a year's sliders slotted after the
+        // anchor (side turned on, new items) kept their unplaced corner, over the dates, so only the opacity panel showed.
+        if (PLACING.some((key) => changed.has(key))) {
+            this.#place(pair, this.anchor);
+        }
+        this.#focusOnChange(changed);
+        this.#keepFocus();
+    }
+
+    #focusOnChange(changed: PropertyValues<this>): void {
+        if (changed.has('anchor') || changed.has('peek')) {
+            this.#focusChecked();
+        }
+    }
+
+    /** The part of a row that last had the focus. */
+    #focused: HTMLElement | null = null;
+
+    readonly #onFocus = (event: FocusEvent): void => {
+        this.#focused = event.target as HTMLElement;
+    };
+
+    /** A checkbox switched on became the front's, disabled, and lost the focus: its date takes it, so Tab and the arrows go on. */
+    #keepFocus(): void {
+        const row = this.#focused?.matches(':disabled') === true ? this.#focused.closest('.row') : null;
+        row?.querySelector<HTMLElement>('.item')?.focus();
+    }
+
+    /** A modal menu takes the focus to the checked date, else the first; a peek leaves it where it is. */
+    #focusChecked(): void {
+        if (!this.peek) {
+            (this.#items().find((item) => item.hasAttribute('data-front')) ?? this.#items()[0])?.focus();
+        }
+    }
+
+    /** The dates and the sliders as one box beside `at` (client px), inside the viewer, clear of the controls to avoid. */
+    #place(pair: HTMLElement, at: Box): void {
+        const host = this.getBoundingClientRect();
+        const local = (box: Box): Box => ({ x: box.x - host.x, y: box.y - host.y, width: box.width, height: box.height });
+        const avoided = this.avoid().map(local);
+        const side = this.#side();
+        const thumb = local(at);
+        const top = side === 'above' ? cardTop(thumb, avoided) : thumb.y;
+        const anchor = { ...thumb, y: top, height: thumb.y + thumb.height - top };
+        const widest = this.side ? PAIR_MAX_WIDTH : MAX_WIDTH;
+        const room = sideRoom(anchor, host.width, side, widest);
+        pair.toggleAttribute('data-stacked', stacks(this.side, room));
+        pair.style.setProperty('max-inline-size', `${String(room)}px`);
+        pair.style.setProperty('max-block-size', `${String(pairHeight(anchor, host.height, side))}px`);
+        // Measured at the corner: an absolute box shrinks to the room past its left (a box placed right measured narrow).
+        pair.style.setProperty('left', '0px');
+        const size = { width: pair.offsetWidth, height: pair.offsetHeight };
+        const wanted = { ...dateMenuOrigin(anchor, size, host, side), ...size };
+        const origin = clearOf(wanted, [anchor, ...avoided], host, { foot: LEGAL_STRIP, axis: side === 'above' ? 'x' : 'y' });
+        pair.style.setProperty('left', `${String(origin.x)}px`);
+        pair.style.setProperty('top', `${String(origin.y)}px`);
+        fitStacked(pair, { left: origin.x, right: origin.x + size.width, top: origin.y }, avoided);
+    }
+
+    #side(): Side {
+        if (!this.vertical) {
+            return 'above';
+        }
+        return this.matches(':dir(rtl)') ? 'start' : 'end';
+    }
+
+    /**
+     * A finger at (`x`, `y`) client px: over the menu it marks the date under it, and picks it when `lifted`; false when the
+     * finger is not over the menu (no date marked then).
+     */
+    touchAt(x: number, y: number, lifted: boolean): boolean {
+        const inside = (box: Element | null): boolean => box !== null && contains(box.getBoundingClientRect(), x, y);
+        const over = inside(this.renderRoot.querySelector('.menu'));
+        const item = over ? this.#items().find(inside) : undefined;
+        for (const each of this.#items()) {
+            each.toggleAttribute('data-armed', each === item);
+        }
+        if (lifted && item !== undefined) {
+            item.click();
+        }
+        return over;
+    }
+
+    readonly #onPointer = (event: PointerEvent): void => {
+        if (event.pointerType !== 'touch') {
+            const detail = { inside: event.type === 'pointerenter' };
+            this.dispatchEvent(new CustomEvent('hcm-date-menu-pointer', { bubbles: true, composed: false, detail }));
+        }
+    };
+
+    #items(): HTMLElement[] {
+        return [...this.renderRoot.querySelectorAll<HTMLElement>('.item')];
+    }
+
+    readonly #close = (): void => {
+        this.dispatchEvent(closeEvent());
+    };
+
+    readonly #onKey = (event: KeyboardEvent): void => {
+        if (event.key === 'Escape') {
+            event.preventDefault();
+            this.#close();
+            return;
+        }
+        this.#move(event);
+    };
+
+    /** The arrows, Home and End: across a row, else to another date. */
+    #move(event: KeyboardEvent): void {
+        const active = this.#active();
+        const next = NEXT[event.key];
+        if (across(event, active) || next === undefined) {
+            return;
+        }
+        event.preventDefault();
+        const items = this.#items();
+        items[next(rowIndex(items, active), items.length)]?.focus();
+    }
+
+    #active(): Element | null {
+        return this.shadowRoot?.activeElement ?? null;
+    }
+}
+
+/** Registers `<hcm-date-menu>` once; calling it again is a no-op. */
+export function defineHcmDateMenu(registry: CustomElementRegistry = customElements): void {
+    if (registry.get(HCM_DATE_MENU_TAG) === undefined) {
+        registry.define(HCM_DATE_MENU_TAG, HcmDateMenu);
+    }
+}
+
+declare global {
+    interface HTMLElementTagNameMap {
+        'hcm-date-menu': HcmDateMenu;
+    }
+}

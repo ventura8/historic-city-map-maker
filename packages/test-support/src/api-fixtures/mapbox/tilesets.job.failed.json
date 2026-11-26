@@ -1,0 +1,18 @@
+{
+    "call": "GET https://api.mapbox.com/tilesets/v1/<tileset>/jobs/<job>?access_token=<sk>",
+    "status": 200,
+    "body": {
+        "id": "{{jobId}}",
+        "stage": "failed",
+        "created": 1791793800000,
+        "created_nice": "Mon Oct 12 2026 08:30:00 GMT+0000",
+        "published": 1791793800000,
+        "tilesetId": "{{tilesetId}}",
+        "errors": ["Invalid raster source: the GeoTIFF has no georeferencing."],
+        "warnings": [],
+        "completed": 1791794100000,
+        "tileset_precisions": {
+            "1m": 1260
+        }
+    }
+}

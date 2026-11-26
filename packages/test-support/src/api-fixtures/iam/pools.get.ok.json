@@ -1,0 +1,10 @@
+{
+    "call": "GET https://iam.googleapis.com/v1/projects/<project>/locations/global/workloadIdentityPools/<pool>",
+    "status": 200,
+    "body": {
+        "name": "projects/{{projectNumber}}/locations/global/workloadIdentityPools/{{poolId}}",
+        "displayName": "GitHub Actions",
+        "description": "Keyless CI deploys",
+        "state": "ACTIVE"
+    }
+}

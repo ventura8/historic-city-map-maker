@@ -1,0 +1,17 @@
+{
+    "call": "POST https://storage.googleapis.com/storage/v1/b?project=<project>",
+    "status": 409,
+    "body": {
+        "error": {
+            "code": 409,
+            "message": "Your previous request to create the named bucket succeeded and you already own it.",
+            "errors": [
+                {
+                    "message": "Your previous request to create the named bucket succeeded and you already own it.",
+                    "domain": "global",
+                    "reason": "conflict"
+                }
+            ]
+        }
+    }
+}

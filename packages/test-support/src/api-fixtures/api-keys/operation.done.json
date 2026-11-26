@@ -1,0 +1,11 @@
+{
+    "call": "PATCH https://apikeys.googleapis.com/v2/projects/<project>/locations/global/keys/<key> (and GET of the operation)",
+    "status": 200,
+    "body": {
+        "name": "{{operationName}}",
+        "done": true,
+        "response": {
+            "@type": "type.googleapis.com/google.api.apikeys.v2.Key"
+        }
+    }
+}

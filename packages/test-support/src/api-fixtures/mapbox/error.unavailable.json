@@ -1,0 +1,7 @@
+{
+    "call": "any https://api.mapbox.com call during an outage",
+    "status": 503,
+    "body": {
+        "message": "Service Unavailable"
+    }
+}

@@ -1,0 +1,10 @@
+{
+    "call": "POST https://serviceusage.googleapis.com/v1/projects/<project>/services:batchEnable",
+    "status": 200,
+    "body": {
+        "name": "operations/acat.p2-{{projectNumber}}-{{operationId}}",
+        "metadata": {
+            "@type": "type.googleapis.com/google.protobuf.Empty"
+        }
+    }
+}

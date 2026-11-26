@@ -1,0 +1,8 @@
+{
+    "call": "any https://earth-search.aws.element84.com call while the catalogue is down",
+    "status": 503,
+    "body": {
+        "code": "ServiceUnavailable",
+        "description": "The service is temporarily unavailable."
+    }
+}

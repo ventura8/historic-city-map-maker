@@ -1,0 +1,93 @@
+{
+    "$comment": "Setup Assistant deep links (docs/research/design-review-onboarding.md section 2), verified 2026-10-11; gcp.errorGroup (the crash reports page, CR-M2c-15) added 2026-10-18 in the console's documented errors/detail/{groupId} form, gcp.billingCreate (the billing card's Create a billing account, M6 finding 3) added 2026-10-25 in the console's documented billing/create form, and gcp.quotas (the install cards' quota line, finding 47 of 2026-11-01) added 2026-11-01 in the console's iam-admin/quotas form with its service filter (UNVERIFIED filter parameter until the next weekly run), each checked by the next weekly run, which opens an issue when it does not resolve. {name} placeholders are filled at run time; `sample` holds the values the weekly contract check (scripts/ci/check_contracts.py, .github/workflows/contract.yml) uses. Only verified links belong here.",
+    "links": [
+        {
+            "id": "gcp.firebaseConsole",
+            "step": "A2",
+            "purpose": "Accept the Google Cloud and Firebase terms (first time only)",
+            "url": "https://console.firebase.google.com/"
+        },
+        {
+            "id": "gcp.billingAccounts",
+            "step": "A3",
+            "purpose": "Create or pick a Cloud Billing account (the card is entered on Google's page)",
+            "url": "https://console.cloud.google.com/billing"
+        },
+        {
+            "id": "gcp.billingCreate",
+            "step": "A3",
+            "purpose": "Create a Cloud Billing account (the card is entered on Google's page; the billing card waits for it)",
+            "url": "https://console.cloud.google.com/billing/create"
+        },
+        {
+            "id": "gcp.blazeUpgrade",
+            "step": "A4",
+            "purpose": "Link the billing account to the project (Blaze plan)",
+            "url": "https://console.firebase.google.com/project/{projectId}/usage/details",
+            "sample": { "projectId": "demo-hcm" }
+        },
+        {
+            "id": "mapbox.signup",
+            "step": "B1",
+            "purpose": "Create a Mapbox account",
+            "url": "https://account.mapbox.com/auth/signup/"
+        },
+        {
+            "id": "mapbox.console",
+            "step": "B2",
+            "purpose": "Leave demo access: the console, where the payment method is added (the hint beside the link says so, and to choose Rotate token if Mapbox asks)",
+            "url": "https://console.mapbox.com/"
+        },
+        {
+            "id": "mapbox.usageThresholds",
+            "step": "B3",
+            "purpose": "Tick the usage alert thresholds",
+            "url": "https://console.mapbox.com/account/settings/usage-thresholds"
+        },
+        {
+            "id": "mapbox.accessTokens",
+            "step": "B4",
+            "purpose": "Create the secret token historic-map-server with the listed scopes",
+            "url": "https://console.mapbox.com/account/access-tokens/"
+        },
+        {
+            "id": "usgs.register",
+            "step": "C1",
+            "purpose": "Register a USGS ERS account",
+            "url": "https://ers.cr.usgs.gov/register"
+        },
+        {
+            "id": "usgs.accessRequest",
+            "step": "C2",
+            "purpose": "Request M2M API access",
+            "url": "https://ers.cr.usgs.gov/profile/access"
+        },
+        {
+            "id": "usgs.applicationToken",
+            "step": "C3",
+            "purpose": "Create the M2M application token (shown for 60 seconds)",
+            "url": "https://ers.cr.usgs.gov/password/appgenerate"
+        },
+        {
+            "id": "usgs.sceneMetadata",
+            "step": "C6",
+            "purpose": "Open a scene in EarthExplorer to order its scan",
+            "url": "https://earthexplorer.usgs.gov/scene/metadata/full/{datasetId}/{entityId}/",
+            "sample": { "datasetId": "5e839febdccb64b3", "entityId": "DS1105-2248DF076" }
+        },
+        {
+            "id": "gcp.errorGroup",
+            "step": "A22",
+            "purpose": "Open a crash report's error group in Error Reporting (the crash reports page's detail)",
+            "url": "https://console.cloud.google.com/errors/detail/{groupId}?project={projectId}",
+            "sample": { "groupId": "CNi8pqm0zP7GVA", "projectId": "demo-hcm" }
+        },
+        {
+            "id": "gcp.quotas",
+            "step": "D3",
+            "purpose": "The Quotas page of the project, filtered to the API whose quota stopped an install build (finding 47 of 2026-11-01): upgrade a free-trial account or ask for a higher quota",
+            "url": "https://console.cloud.google.com/iam-admin/quotas?project={projectId}&service={service}",
+            "sample": { "projectId": "demo-hcm", "service": "run.googleapis.com" }
+        }
+    ]
+}

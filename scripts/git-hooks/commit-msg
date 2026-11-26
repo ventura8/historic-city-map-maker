@@ -1,0 +1,50 @@
+#!/usr/bin/env bash
+# ==============================================================================
+# git commit-msg hook: the message follows Conventional Commits, `type(scope): summary`
+# (types feat fix docs refactor test build ci perf chore revert; `chore(wip): ...` for work in progress).
+#
+# The rule lives in scripts/ci/check_commits.py, which the `commits` gate also applies to every commit
+# of a pull request or push in CI; this hook runs it with --message-file on the message being written.
+# Comment lines and the scissors section are ignored (git drops them); git's own `Merge ...` subjects and
+# autosquash subjects (`fixup! `, `squash! `, `amend! `) pass here, and the gate refuses the latter in CI.
+#
+# Install once per clone: git config core.hooksPath scripts/git-hooks (docs/SETUP.md).
+# The check runs inside the quality image (HCM_IMAGE, default hcm-quality:local), never with the host's
+# Python, like every pipeline gate; inside the image itself (HCM_TEST_IMAGE=1) it runs directly. The
+# message reaches the container on stdin, so no git directory needs a mount.
+# ==============================================================================
+set -euo pipefail
+
+ROOT_DIR="$(git rev-parse --show-toplevel)"
+IMAGE="${HCM_IMAGE:-hcm-quality:local}"
+
+fail() {
+	echo "[commit-msg] refused: $1" >&2
+	exit 1
+}
+
+check_message() {
+	if [[ "${HCM_TEST_IMAGE:-}" == "1" ]]; then
+		python3 "${ROOT_DIR}/scripts/ci/check_commits.py" --message-file -
+		return
+	fi
+	if ! command -v docker >/dev/null 2>&1; then
+		fail "docker is required: the hook runs its check inside the quality image (docs/SETUP.md)"
+	fi
+	if ! docker image inspect "$IMAGE" >/dev/null 2>&1; then
+		fail "the quality image ${IMAGE} is missing; build it once with: bash scripts/ci/build-and-test.sh"
+	fi
+	docker run --rm --interactive --network none --user "$(id -u):$(id -g)" --env HOME=/tmp/hcm-home \
+		"--volume=${ROOT_DIR}:${ROOT_DIR}" --workdir "$ROOT_DIR" "$IMAGE" \
+		python3 scripts/ci/check_commits.py --message-file -
+}
+
+# git passes the path of the message file (relative to the work tree root) as the only argument.
+main() {
+	[[ $# -eq 1 && -f "$1" ]] || fail "expected the commit message file as the only argument"
+	check_message <"$1" ||
+		fail "write the subject as type(scope): summary (docs/SETUP.md -> Git hooks)"
+	return 0
+}
+
+main "$@"

@@ -1,0 +1,10 @@
+{
+    "call": "GET https://firebaseappcheck.googleapis.com/v1/projects/<project>/apps/<app>/recaptchaEnterpriseConfig (and the answer of PATCH)",
+    "note": "Without a configured key the siteKey field is absent.",
+    "status": 200,
+    "body": {
+        "name": "projects/{{projectNumber}}/apps/{{appId}}/recaptchaEnterpriseConfig",
+        "siteKey": "{{siteKey}}",
+        "tokenTtl": "3600s"
+    }
+}

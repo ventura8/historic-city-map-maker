@@ -1,0 +1,208 @@
+# The production copy gate (scripts/ci/check_copy.py): words that tell how the app was built or tested, never
+# what a visitor, an owner or an editor sees. Every i18n catalogue value (packages/*/src/i18n, ro and en) is
+# scanned, plus the sources below. A term matches as a whole word (no letter, digit or underscore around it).
+# An exception goes in [[allow]] with the reason; never widen a term's scope to pass the gate.
+
+# ---------------------------------------------------------------------------------------------------------------
+# Terms. `pattern` is a Python regular expression, wrapped in word boundaries; `ignore_case` defaults to true;
+# `locales` (catalogues only) limits a term to those catalogues: an English word inside Romanian text.
+
+[[term]]
+pattern = 'simulat\w*|simulated|simulation'
+why = "how a feature was tried (the gamepad's 'tried only simulated')"
+
+[[term]]
+pattern = 'mock\w*|fakes?|stubs?|stubbed|fixtures?'
+why = 'test doubles'
+
+[[term]]
+pattern = 'emulators?|emulatorul\w*'
+why = 'the Firebase emulators the tests run on'
+
+[[term]]
+pattern = 'playwright|vitest|pytest|e2e'
+why = 'test runners and tiers'
+
+[[term]]
+pattern = 'todo|fixme|xxx|lorem'
+why = 'unfinished work'
+
+[[term]]
+pattern = 'M\d+'
+ignore_case = false
+why = "a milestone (M5's kit); M2M, USGS's API, is one word and does not match"
+
+[[term]]
+pattern = 'CR-M\d+\w*|DECISIONS|LESSONS'
+ignore_case = false
+why = "change requests and the repository's decision and lesson logs"
+
+[[term]]
+pattern = 'lessons?|docs/research'
+why = 'the lesson log and the research notes'
+
+[[term]]
+pattern = '§'
+why = 'a section of a design note'
+
+[[term]]
+pattern = 'roles/\w[\w.]*'
+why = "a raw IAM role id: say which permission is missing and where to fix it"
+
+[[term]]
+pattern = 'service[ -]?worker\w*'
+why = "the browser's internals: say what failed for the user"
+
+[[term]]
+pattern = 'unverified'
+why = 'a note to the developers'
+
+[[term]]
+pattern = 'pipeline\w*|tile-\w+'
+locales = ['ro']
+why = "English inside Romanian: 'fluxul de imagini', 'procesarea', 'dalele'"
+
+# Out-of-date or unfinished copy (track/stale-text, the owner 2026-11-12: "no dev text or old text anywhere").
+[[term]]
+pattern = 'coming soon|în curând|wip|dummy|debug\w*|placeholder'
+why = "a promise or a stand-in: say what exists today ('coming soon' stayed after the layers went live)"
+
+[[term]]
+pattern = 'GitHub Pages'
+ignore_case = false
+why = "the public map is on Firebase Hosting; GitHub Pages serves only a static kit or export"
+
+[[term]]
+pattern = 'https?://\S*bucurestiuldisparut\S*'
+why = "the repository's old address: it is ventura8/historic-city-map-maker"
+
+[[term]]
+pattern = 'Historic City Map(?! Maker)'
+ignore_case = false
+why = "the product's old name: Historic City Map Maker"
+
+# ---------------------------------------------------------------------------------------------------------------
+# Sources besides the catalogues. `kind`: `html` (the text and attributes a visitor sees, comments left out),
+# `json` (every string value), `text` (the whole file), `say` (only the messages a script prints: the
+# argument of `say` or `Write-Host`), `strings` (the quoted string literals of a TypeScript file).
+
+[[source]]
+path = 'templates/starter-kit/index.html'
+kind = 'html'
+
+[[source]]
+path = 'templates/starter-kit/city.json'
+kind = 'json'
+
+[[source]]
+path = 'templates/starter-kit/README.md'
+kind = 'text'
+
+[[source]]
+path = 'starter-kit/README.md'
+kind = 'text'
+
+[[source]]
+path = 'starter-kit/data/manifest.json'
+kind = 'json'
+
+[[source]]
+path = 'sites/bucharest/site.json'
+kind = 'json'
+
+[[source]]
+path = 'packages/admin/starter/hcm-worker.sh'
+kind = 'say'
+
+[[source]]
+path = 'packages/admin/starter/hcm-worker.bat'
+kind = 'say'
+
+[[source]]
+path = 'functions/src/export/documents.ts'
+kind = 'strings'
+
+[[source]]
+path = 'functions/src/imagery/relocate.ts'
+kind = 'strings'
+
+# The start page's privacy policy and terms (the consent screen links to them): prose a visitor reads, kept outside the catalogues.
+[[source]]
+path = 'scripts/site/src/start/legal-text.ts'
+kind = 'strings'
+
+# The seed a new Bucharest setup imports (About, credits, privacy) and a new city's default About and privacy.
+[[source]]
+path = 'scripts/seed/bucharest.city.json'
+kind = 'json'
+
+[[source]]
+path = 'functions/src/cities/texts.ts'
+kind = 'strings'
+
+# The project's landing page, and the Hosting site's static pages: the 404, the page of a map being set up, the admin's shell.
+[[source]]
+path = 'sites/landing/index.html'
+kind = 'html'
+
+[[source]]
+path = 'sites/landing/ro.html'
+kind = 'html'
+
+[[source]]
+path = 'scripts/site/src/hosting/static-pages.ts'
+kind = 'strings'
+
+[[source]]
+path = 'scripts/site/src/admin/page.ts'
+kind = 'strings'
+
+[[source]]
+path = 'scripts/site/src/start/legal.ts'
+kind = 'strings'
+
+[[source]]
+path = 'scripts/site/src/start/tree.ts'
+kind = 'strings'
+
+# The local pages of "Use this computer" (http://127.0.0.1 on the owner's computer): the worker's state and the import of local files.
+[[source]]
+path = 'pipeline/src/hcm_pipeline/worker/page.py'
+kind = 'strings'
+
+[[source]]
+path = 'pipeline/src/hcm_pipeline/worker/import_page.py'
+kind = 'strings'
+
+# ---------------------------------------------------------------------------------------------------------------
+# Allowed uses. `where` is a catalogue key or a source path; `term` the exact text matched (any case).
+
+[[allow]]
+where = 'adminContent.imagery.wait.rateLimited'
+term = 'în curând'
+why = "USGS asked to slow down: the app retries by itself in a moment, a true statement of what happens next"
+
+[[allow]]
+where = 'templates/starter-kit/README.md'
+term = 'GitHub Pages'
+why = "the starter kit is a static site: GitHub Pages is where its README publishes it"
+
+[[allow]]
+where = 'starter-kit/README.md'
+term = 'GitHub Pages'
+why = "the M1 kit is static, published on GitHub Pages like the starter kit"
+
+[[allow]]
+where = 'functions/src/export/documents.ts'
+term = 'GitHub Pages'
+why = "the static export's README: an export runs on any static host, GitHub Pages among them"
+
+[[allow]]
+where = 'pipeline/src/hcm_pipeline/worker/page.py'
+term = 'emulators'
+why = "the module's docstrings name the `--emulators` flag (the Auth emulator of the tests); the page's own texts are its TEXTS table"
+
+[[allow]]
+where = 'pipeline/src/hcm_pipeline/worker/page.py'
+term = 'emulator'
+why = "the same docstring: the Auth emulator under `--emulators`"

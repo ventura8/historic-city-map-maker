@@ -1,0 +1,24 @@
+{
+    "comment": "A PMTiles archive from hcm_pipeline.tiles.pack (docs/research/M12-own-tiles.md): pipeline/tests/unit/test_tiles_pack.py writes exactly these bytes, and packages/ui/test/map/pmtiles-source.test.ts reads these tiles with the viewer's reader.",
+    "tiles": [
+        {
+            "z": 10,
+            "x": 584,
+            "y": 361,
+            "text": "tile-a"
+        },
+        {
+            "z": 10,
+            "x": 585,
+            "y": 361,
+            "text": "tile-b"
+        },
+        {
+            "z": 12,
+            "x": 2339,
+            "y": 1447,
+            "text": "tile-c"
+        }
+    ],
+    "base64": "UE1UaWxlcwN/AAAAAAAAACYAAAAAAAAApQAAAAAAAABBAAAAAAAAAOYAAAAAAAAAAAAAAAAAAADmAAAAAAAAABIAAAAAAAAAAwAAAAAAAAADAAAAAAAAAAMAAAAAAAAAAQIBBAoMwAZwD8CkZxrAD60PgGuVGgpAi44PIIh+Gh+LCAAAAAAAAv9jvnbYm3HG9zccjIyMbGxsjAwMAN8b7EgSAAAAH4sIAAAAAAAC/6tWykvMTVWyUlDKztC1VNJRUCqpLADz88tSi3ISK0FCaflFuYklIMHy1KQCpVoAHNFHyzUAAAB0aWxlLWF0aWxlLWJ0aWxlLWM="
+}

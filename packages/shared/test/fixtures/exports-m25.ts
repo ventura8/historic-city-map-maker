@@ -1,0 +1,20 @@
+/** M25 (`docs/research/M25-landsat.md`): the public API of Landsat's datasets, credit, search, auto-import and report, for `index.test.ts`. */
+export const M25_EXPORTS = [
+    'DECLASS_DATASETS',
+    'DEFAULT_LANDSAT_YEARS',
+    'ETM_SLC_OFF_DATE',
+    'LANDSAT_ATTRIBUTION',
+    'LANDSAT_AUTO_MAX_CLOUD',
+    'LANDSAT_AUTO_MAX_PER_TICK',
+    'LANDSAT_AUTO_PER_TICK',
+    'LANDSAT_DATASETS',
+    'LANDSAT_MAX_CITY_CLOUD_PCT',
+    'LANDSAT_MAX_OFFSET_PX',
+    'LANDSAT_MONTHS',
+    'LANDSAT_SEARCH_MAX_CLOUD',
+    'LEAF_ON_MONTHS',
+    'isLandsatDataset',
+    'landsatClear',
+    'landsatReportSchema',
+    'landsatYearsOf',
+];

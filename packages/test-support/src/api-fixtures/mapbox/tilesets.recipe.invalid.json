@@ -1,0 +1,9 @@
+{
+    "call": "PATCH https://api.mapbox.com/tilesets/v1/<tileset>/recipe?access_token=<sk> (or the POST that creates the tileset)",
+    "note": "A raster recipe Mapbox refuses (UNVERIFIED shape: the fake checks exactly rasterRecipe of @hcm/shared).",
+    "status": 400,
+    "body": {
+        "message": "Recipe is invalid.",
+        "errors": ["{{recipeError}}"]
+    }
+}

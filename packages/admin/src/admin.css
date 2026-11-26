@@ -1,0 +1,23 @@
+/*
+ * The admin page's own styles: everything else lives in the shadow roots of `<hcm-admin-shell>` and the kit, coloured
+ * from the M3 tokens the shell applies (packages/ui/src/theme). The admin uses a navigation bar or rail, never a drawer.
+ */
+html,
+body {
+    margin: 0;
+    min-block-size: 100dvh;
+}
+
+hcm-admin-shell {
+    display: block;
+}
+
+/*
+ * The framed screens (the navigation, the top bar, the page in its own scroller) are an app shell as tall as the window:
+ * the page under them never scrolls into blank space nor rubber-bands past it (the tour's no-blank-scroll check). The
+ * sign-in, claim and blocked panels are documents: the page scrolls them.
+ */
+:root:has(> body > hcm-admin-shell[data-frame]) {
+    overflow: hidden;
+    overscroll-behavior: none;
+}

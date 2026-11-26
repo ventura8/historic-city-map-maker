@@ -1,0 +1,13 @@
+{
+    "call": "GET https://iam.googleapis.com/v1/projects/<project>/serviceAccounts/<email>",
+    "status": 200,
+    "body": {
+        "name": "projects/{{projectId}}/serviceAccounts/{{accountId}}@{{projectId}}.iam.gserviceaccount.com",
+        "projectId": "{{projectId}}",
+        "uniqueId": "100000000000000000101",
+        "email": "{{accountId}}@{{projectId}}.iam.gserviceaccount.com",
+        "displayName": "{{displayName}}",
+        "etag": "MDEwMjE5MjA=",
+        "oauth2ClientId": "100000000000000000101"
+    }
+}

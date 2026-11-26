@@ -1,0 +1,26 @@
+/* Page frame of a city site: the viewer fills the window; everything inside it is styled by the engine. */
+:root {
+    color-scheme: light dark;
+}
+
+html,
+body {
+    block-size: 100%;
+    margin: 0;
+    background: Canvas;
+    color: CanvasText;
+}
+
+#historic-city-map {
+    block-size: 100dvh;
+}
+
+/* Shown only without JavaScript (<noscript>). */
+.site-noscript {
+    max-inline-size: 40rem;
+    margin: 2rem auto;
+    padding-inline: 1rem;
+    font:
+        1.125rem/1.5 system-ui,
+        sans-serif;
+}

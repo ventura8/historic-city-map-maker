@@ -1,0 +1,23 @@
+{
+    "call": "GET https://nominatim.openstreetmap.org/search?q=<name>&format=jsonv2&limit=1&accept-language=ro",
+    "note": "A city found by its name (M5 New city, cities.locate): a list of one place with its bounding box [south, north, west, east].",
+    "status": 200,
+    "body": [
+        {
+            "place_id": 100000101,
+            "licence": "Data © OpenStreetMap contributors, ODbL 1.0. http://osm.org/copyright",
+            "osm_type": "relation",
+            "osm_id": 200000101,
+            "lat": "46.7693",
+            "lon": "23.5900",
+            "category": "boundary",
+            "type": "administrative",
+            "place_rank": 16,
+            "importance": 0.7,
+            "addresstype": "city",
+            "name": "Cluj-Napoca",
+            "display_name": "Cluj-Napoca, Cluj, România",
+            "boundingbox": ["46.7181", "46.8167", "23.4846", "23.6919"]
+        }
+    ]
+}

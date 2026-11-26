@@ -1,0 +1,22 @@
+{
+    "call": "GET https://serviceusage.googleapis.com/v1/operations/<operation>",
+    "status": 200,
+    "body": {
+        "name": "{{operationName}}",
+        "done": true,
+        "response": {
+            "@type": "type.googleapis.com/google.api.serviceusage.v1.BatchEnableServicesResponse",
+            "services": [
+                {
+                    "name": "projects/{{projectNumber}}/services/{{service}}",
+                    "config": {
+                        "name": "{{service}}",
+                        "title": "{{serviceTitle}}"
+                    },
+                    "state": "ENABLED",
+                    "parent": "projects/{{projectNumber}}"
+                }
+            ]
+        }
+    }
+}

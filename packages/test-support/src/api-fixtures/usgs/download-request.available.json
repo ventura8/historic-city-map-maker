@@ -1,0 +1,27 @@
+{
+    "call": "POST https://m2m.cr.usgs.gov/api/api/json/stable/download-request",
+    "status": 200,
+    "body": {
+        "requestId": 1000001,
+        "version": "stable",
+        "sessionId": 2000001,
+        "data": {
+            "availableDownloads": [
+                {
+                    "downloadId": 300000001,
+                    "eulaCode": null,
+                    "url": "https://dds.cr.usgs.gov/e2e/download/300000001"
+                }
+            ],
+            "duplicateProducts": [],
+            "preparingDownloads": [],
+            "failed": [],
+            "newRecords": {
+                "300000001": "DS1105-1071DF075"
+            },
+            "numInvalidScenes": 0
+        },
+        "errorCode": null,
+        "errorMessage": null
+    }
+}

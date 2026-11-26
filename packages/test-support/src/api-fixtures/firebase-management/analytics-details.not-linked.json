@@ -1,0 +1,11 @@
+{
+    "call": "GET https://firebase.googleapis.com/v1beta1/projects/<project>/analyticsDetails",
+    "status": 404,
+    "body": {
+        "error": {
+            "code": 404,
+            "message": "Analytics resource does not exist for project '{{projectNumber}}'.",
+            "status": "NOT_FOUND"
+        }
+    }
+}

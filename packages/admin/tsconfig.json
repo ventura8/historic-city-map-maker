@@ -1,0 +1,13 @@
+// Admin app. `vite/client` types the CSS side-effect import of the admin stylesheet and `import.meta.env.MODE`.
+{
+    "extends": "../../tsconfig.base.json",
+    "compilerOptions": {
+        // firebase/firestore's declarations name `Temporal.Instant` (Timestamp.fromInstant); `skipLibCheck` is off, so
+        // the admin, the one package that imports Firestore in the browser, adds the Temporal declarations.
+        "lib": ["es2023", "dom", "dom.iterable", "esnext.temporal"],
+        "types": ["vite/client"],
+        "resolveJsonModule": true
+    },
+    "include": ["src", "package.json"],
+    "references": [{ "path": "../shared" }, { "path": "../ui" }]
+}

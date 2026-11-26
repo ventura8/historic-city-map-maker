@@ -1,0 +1,9 @@
+# taplo (TOML format + lint). Same exclusion set as the other linters.
+include = ["**/*.toml"]
+exclude = ["node_modules/**", "**/node_modules/**", "reports/**", ".venv/**", "seed/**", "vendor/**", "**/dist/**", "**/.tsbuild/**"]
+
+[formatting]
+indent_string = "    "
+column_width = 140
+align_comments = false
+array_auto_collapse = false

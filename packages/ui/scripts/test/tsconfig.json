@@ -1,0 +1,9 @@
+// End-to-end tests of the theme CLI (packages/ui/scripts/gen-theme.mjs), the `tools` project of vitest.config.ts.
+{
+    "extends": "../../../../tsconfig.base.json",
+    "compilerOptions": {
+        "types": ["node"]
+    },
+    "include": ["."],
+    "references": [{ "path": "../../../shared" }]
+}

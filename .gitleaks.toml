@@ -1,0 +1,37 @@
+# gitleaks runs in dir mode over the working tree (`gitleaks dir`, static gate), so it also walks
+# gitignored local trees: node_modules (third-party test fixtures full of example keys), tool caches
+# and the pipeline's own reports/. This allowlist is about scan SCOPE, not about tolerating a finding.
+# Two entries name the developer's local secret files (.sonar-token, .env.local) so the directory scan does
+# not report them; the repo-policy gate and the pre-commit hook refuse both files in git's view. History
+# mode (`gitleaks-history`, CI) uses .gitleaks-history.toml, which has no path allowlist at all, so every
+# committed path is scanned there; reviewed false positives are named by fingerprint in .gitleaksignore.
+# The Firebase web config and the Mapbox token never enter git; they are injected at build time
+# (docs/research/quality-conventions.md §4.4).
+
+[extend]
+useDefault = true
+
+[[allowlists]]
+description = "Gitignored local caches of third-party code, tool scratch space and pipeline output"
+paths = [
+    '''^node_modules/''',
+    '''/node_modules/''',
+    '''^reports/''',
+    '''(^|/)dist/''',
+    '''(^|/)\.tsbuild/''',
+    '''^coverage/''',
+    '''^playwright-report/''',
+    '''^test-results/''',
+    '''^\.venv/''',
+    '''^\.mypy_cache/''',
+    '''^\.ruff_cache/''',
+    '''^\.scannerwork/''',
+    '''^\.firebase/''',
+    # The Firebase emulators' logs (gitignored): an e2e run whose emulators Playwright stops leaves them at the root,
+    # full of the Auth emulator's generated test tokens (§73l, lesson 287).
+    '''^(firebase|firestore|database|pubsub|storage|ui)-debug(\.[^/]*)?\.log$''',
+    '''^\.claude/worktrees/''',
+    '''^\.docker-build-cache''',
+    '''^\.sonar-token$''',
+    '''^\.env\.local$''',
+]

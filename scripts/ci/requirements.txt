@@ -1,0 +1,74 @@
+# Python tooling for scripts/ci (gates, pipeline runner and their tests), installed into the
+# quality image venv (/opt/hcm/venv) with `pip install --only-binary :all: -r` (docker/Dockerfile.quality).
+# Every package is pinned exactly, transitive dependencies included, so the image is reproducible;
+# `pip-audit --no-deps --disable-pip -r scripts/ci/requirements.txt` audits this exact set (static gate).
+# Python 3.14 (the interpreter of ghcr.io/osgeo/gdal:ubuntu-small-3.13.3). The raster pipeline keeps
+# its own Poetry lock in pipeline/ (M3).
+
+# Direct tools
+ruff==0.17.5
+mypy==2.4.1
+pytest==9.2.0
+pytest-cov==7.1.0
+# Runs the CI tooling tests on four worker processes (pytest.ini)
+pytest-xdist==3.8.0
+coverage==7.17.3
+yamllint==1.38.0
+check-jsonschema==0.39.0
+bandit==1.9.4
+pip-audit==2.10.1
+radon==6.0.1
+defusedxml==0.7.1
+editorconfig==0.17.1
+requests-mock==1.12.1
+taplo==0.9.3
+# Type stubs for defusedxml (mypy --strict; the XML readers of check_coverage.py and check_data_files.py)
+types-defusedxml==0.7.0.20260504
+
+# Transitive dependencies (regenerate: install the direct tools in a fresh venv of the image, then `pip freeze`)
+ast_serialize==0.13.1
+attrs==26.1.0
+boolean.py==5.0
+CacheControl==0.14.4
+certifi==2026.10.23
+charset-normalizer==3.5.2
+click==8.5.1
+colorama==0.4.6
+cyclonedx-python-lib==11.12.0
+execnet==2.1.2
+filelock==4.2.10
+idna==3.20
+iniconfig==2.3.1
+jsonschema-specifications==2025.9.1
+jsonschema==4.26.0
+librt==0.16.0
+license-expression==30.4.4
+mando==0.7.1
+markdown-it-py==4.3.0
+mdurl==0.1.2
+msgpack==1.2.4
+mypy_extensions==1.2.0
+packageurl-python==0.17.6
+packaging==26.3
+pathspec==1.1.1
+pip-requirements-parser==32.0.1
+pip_api==0.0.35
+platformdirs==4.14.5
+pluggy==1.7.0
+py-serializable==2.2.0
+Pygments==2.21.0
+pyparsing==3.3.3
+PyYAML==6.0.3
+referencing==0.37.0
+regress==2026.9.1
+requests==2.34.2
+rich==15.0.0
+rpds-py==2026.9.1
+ruamel.yaml==0.19.1
+six==1.17.0
+sortedcontainers==2.4.0
+stevedore==5.10.0
+tomli==2.5.0
+tomli_w==1.2.0
+typing_extensions==4.16.0
+urllib3==2.8.0

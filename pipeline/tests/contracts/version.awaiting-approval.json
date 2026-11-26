@@ -1,0 +1,240 @@
+{
+    "layerId": "kh-4a-corona-1966",
+    "jobId": "job-1966-0712",
+    "origin": "usgs",
+    "state": "awaiting_approval",
+    "source": {
+        "kind": "usgs",
+        "entityId": "DS1035-1057DA023",
+        "dataset": "corona2",
+        "sensor": "KH-4A",
+        "acquisitionDate": "1966-07-12"
+    },
+    "label": {
+        "ro": "KH-4A Corona, 12 iulie 1966",
+        "en": "KH-4A Corona, 12 July 1966"
+    },
+    "year": 1966,
+    "date": "1966-07-12",
+    "sensor": "KH-4A",
+    "scan": {
+        "path": "rasters/bucharest/kh-4a-corona-1966/job-1966-0712/scan.tif",
+        "width": 20480,
+        "height": 16384,
+        "sha256": "bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb",
+        "previewPath": "rasters/bucharest/kh-4a-corona-1966/job-1966-0712/scan-preview.jpg",
+        "previewScale": 0.2,
+        "detailPath": "rasters/bucharest/kh-4a-corona-1966/job-1966-0712/scan-tiles.bin",
+        "detailScale": 0.8
+    },
+    "reference": {
+        "bounds": {
+            "west": 25.95,
+            "south": 44.33,
+            "east": 26.25,
+            "north": 44.55
+        },
+        "osmPath": "rasters/bucharest/kh-4a-corona-1966/job-1966-0712/reference-osm.png",
+        "s2Path": "rasters/bucharest/kh-4a-corona-1966/job-1966-0712/reference-s2.jpg",
+        "s2Item": "S2B_35TMK_20250803_0_L2A",
+        "s2Date": "2025-08-03"
+    },
+    "georef": {
+        "method": "auto",
+        "transform": "poly2",
+        "gcps": [
+            {
+                "id": "g1",
+                "pixel": {
+                    "x": 1200,
+                    "y": 900
+                },
+                "geo": {
+                    "lat": 44.538091544,
+                    "lng": 25.972368051
+                },
+                "enabled": true,
+                "origin": "auto",
+                "score": 0.91,
+                "residualM": 5.1
+            },
+            {
+                "id": "g2",
+                "pixel": {
+                    "x": 14100,
+                    "y": 1300
+                },
+                "geo": {
+                    "lat": 44.528838401,
+                    "lng": 26.20449272
+                },
+                "enabled": true,
+                "origin": "auto",
+                "score": 0.88,
+                "residualM": 6.8
+            },
+            {
+                "id": "g3",
+                "pixel": {
+                    "x": 13800,
+                    "y": 11200
+                },
+                "geo": {
+                    "lat": 44.40199611,
+                    "lng": 26.20799615
+                },
+                "enabled": true,
+                "origin": "auto",
+                "score": 0.86,
+                "residualM": 7.2
+            },
+            {
+                "id": "g4",
+                "pixel": {
+                    "x": 900,
+                    "y": 10800
+                },
+                "geo": {
+                    "lat": 44.411269382,
+                    "lng": 25.97587148
+                },
+                "enabled": true,
+                "origin": "auto",
+                "score": 0.9,
+                "residualM": 4.4
+            },
+            {
+                "id": "g5",
+                "pixel": {
+                    "x": 7600,
+                    "y": 5900
+                },
+                "geo": {
+                    "lat": 44.471974569,
+                    "lng": 26.091843983
+                },
+                "enabled": true,
+                "origin": "auto",
+                "score": 0.95,
+                "residualM": 3.9
+            },
+            {
+                "id": "g6",
+                "pixel": {
+                    "x": 4000,
+                    "y": 8000
+                },
+                "geo": {
+                    "lat": 44.446199406,
+                    "lng": 26.029051745
+                },
+                "enabled": true,
+                "origin": "auto",
+                "score": 0.83,
+                "residualM": 8.0
+            },
+            {
+                "id": "g7",
+                "pixel": {
+                    "x": 10500,
+                    "y": 3500
+                },
+                "geo": {
+                    "lat": 44.501806965,
+                    "lng": 26.141790313
+                },
+                "enabled": false,
+                "origin": "auto",
+                "score": 0.8,
+                "residualM": 9.6
+            },
+            {
+                "id": "g8",
+                "pixel": {
+                    "x": 2500,
+                    "y": 4200
+                },
+                "geo": {
+                    "lat": 44.495399574,
+                    "lng": 25.998688688
+                },
+                "enabled": false,
+                "origin": "corner",
+                "residualM": 8.1
+            }
+        ],
+        "fitRmseM": 6.1,
+        "checkpointRmseM": 8.9,
+        "checkpointCount": 2,
+        "checkpointKind": "held-out"
+    },
+    "output": {
+        "cogPath": "rasters/bucharest/kh-4a-corona-1966/job-1966-0712/cog.tif",
+        "cogBytes": 212000000,
+        "cogSha256": "cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc",
+        "previewPath": "rasters/bucharest/kh-4a-corona-1966/job-1966-0712/preview.png",
+        "bounds": {
+            "west": 25.95,
+            "south": 44.33,
+            "east": 26.25,
+            "north": 44.55
+        },
+        "minzoom": 10,
+        "maxzoom": 16,
+        "areaKm2": 612.5,
+        "studioPath": "rasters/bucharest/kh-4a-corona-1966/job-1966-0712/studio.tif",
+        "studioBytes": 180000000,
+        "coveragePct": 94.2
+    },
+    "createdBy": "uid-owner",
+    "createdAt": {
+        "seconds": 1792000000,
+        "nanoseconds": 0
+    },
+    "updatedBy": "system:pipeline",
+    "updatedAt": {
+        "seconds": 1792005400,
+        "nanoseconds": 0
+    },
+    "calibration": {
+        "how": "votes",
+        "measuredPct": 88.2,
+        "model": {
+            "camera": "panoramic",
+            "rotation": 0,
+            "mirrored": false,
+            "scale": 0.946,
+            "rotationDeg": -0.17,
+            "dxM": -1765.2,
+            "dyM": 13931.4
+        },
+        "votes": {
+            "agreed": 22,
+            "tiles": 196
+        },
+        "tiles": {
+            "agreed": 712,
+            "tried": 946
+        },
+        "crossValidatedM": 13.5,
+        "coveredPct": 94.2,
+        "outline": [
+            {
+                "lat": 44.3,
+                "lng": 25.9
+            },
+            {
+                "lat": 44.3,
+                "lng": 26.3
+            },
+            {
+                "lat": 44.6,
+                "lng": 26.3
+            },
+            {
+                "lat": 44.6,
+                "lng": 25.9
+            }
+        ]
+    }
+}

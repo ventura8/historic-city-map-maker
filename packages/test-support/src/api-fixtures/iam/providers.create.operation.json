@@ -1,0 +1,7 @@
+{
+    "call": "POST https://iam.googleapis.com/v1/projects/{{projectNumber}}/locations/global/workloadIdentityPools/{{poolId}}/providers?workloadIdentityPoolProviderId=<provider>",
+    "status": 200,
+    "body": {
+        "name": "projects/{{projectNumber}}/locations/global/workloadIdentityPools/{{poolId}}/providers/{{providerId}}/operations/{{operationId}}"
+    }
+}

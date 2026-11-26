@@ -1,0 +1,5 @@
+{
+    "call": "GET https://api.mapbox.com/styles/v1/<user>?access_token=<sk>",
+    "status": 200,
+    "body": []
+}

@@ -1,0 +1,13 @@
+// create-historic-city: a Node CLI bundled into one file (vite.config.ts): Node's types, and the DOM lib only for the colour
+// library's declarations (it names HTMLImageElement); its package.json is
+// read for its version (resolveJsonModule). Tests are test/tsconfig.json.
+{
+    "extends": "../../tsconfig.base.json",
+    "compilerOptions": {
+        "lib": ["es2023", "dom"],
+        "types": ["node"],
+        "resolveJsonModule": true
+    },
+    "include": ["src", "cli.ts", "build-self-host.ts", "package.json"],
+    "references": [{ "path": "../shared" }, { "path": "../ui" }]
+}

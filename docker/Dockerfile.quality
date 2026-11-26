@@ -1,0 +1,201 @@
+# syntax=docker/dockerfile:1.29.0@sha256:572cebbc2b15e6f84c077742952674889cb63cd5e9b80abdffcbe587b6f19183
+#
+# Quality image: the ONLY place where lint, tests, e2e and builds run (locally and in CI).
+# Build: bash scripts/ci/build-and-test.sh (tag hcm-quality:local). Run: scripts/ci/run-all-checks.sh,
+# which bind-mounts the repository at its host path; nothing from the host home is mounted.
+# Every base image is pinned by digest (tag in the comment above it); apt packages by version.
+
+# --- static tool binaries ---------------------------------------------------------------------
+# rhysd/actionlint:1.7.12
+FROM rhysd/actionlint@sha256:b1934ee5f1c509618f2508e6eb47ee0d3520686341fec936f3b79331f9315667 AS actionlint
+# hadolint/hadolint:v2.15.1-debian
+FROM hadolint/hadolint@sha256:9a3944b7fddcb947d1ffd90829ac1a6e5c30479223358f249d8b96c7d0019e27 AS hadolint
+# koalaman/shellcheck:v0.11.0
+FROM koalaman/shellcheck@sha256:61862eba1fcf09a484ebcc6feea46f1782532571a34ed51fedf90dd25f925a8d AS shellcheck
+# mvdan/shfmt:v3.14.1
+FROM mvdan/shfmt@sha256:8c06884a35683d8763fba6c0d9484d11a61a96da65f8d497d6f625825a6043f2 AS shfmt
+# zricethezav/gitleaks:v8.30.1
+FROM zricethezav/gitleaks@sha256:c00b6bd0aeb3071cbcb79009cb16a60dd9e0a7c60e2be9ab65d25e6bc8abbb7f AS gitleaks
+# node:24-bookworm-slim (Node 24.22.3, npm 11.19.1)
+FROM node:24-bookworm-slim@sha256:dc26ae92c9fb15cf6b1d63e20f0944b2efe0f115b20e00be48fb23fceb061c54 AS node
+# sonarsource/sonar-scanner-cli:12.4.0.4321_8.4.0 (SonarScanner CLI 8.4.0.16527, as in scripts/ci/sonar_scan.sh)
+FROM sonarsource/sonar-scanner-cli@sha256:6e6eca4d552695a98fb7dab84f0c1bd0885ebbfe272654d1552e24bd7f452d51 AS sonar-scanner
+
+# --- npm manifests without their scripts or their own versions -------------------------------
+# The npm layer of the quality image fills the npm cache and installs the browsers and the emulator JARs: it depends
+# on the registry packages the manifests and the lockfile name, not on their scripts or on the workspaces' own
+# versions. Copying the manifests with the scripts dropped (all but `emulators:setup`, which that layer runs) keeps an
+# npm script edit from rebuilding about four and a half minutes of layers; BuildKit keys the COPY below on the files'
+# content (DECISIONS-for-review.md §31e). The workspaces' versions and their dependencies on one another read 0.0.0
+# here, so a release's bump (scripts/release/bump.ts) rebuilds nothing either, and the lockfile's entries of a workspace
+# this stage does not copy are dropped: a workspace whose dependencies are all workspaces (create-historic-city) adds
+# no registry package, so it needs no line here (DECISIONS-for-review.md §63b). No manifest has an install lifecycle
+# script, and the pipeline's own `npm ci` installs from the real manifests and lockfile.
+FROM node AS manifests
+WORKDIR /m
+COPY package.json package-lock.json .npmrc ./
+COPY packages/shared/package.json packages/shared/
+COPY packages/ui/package.json packages/ui/
+COPY packages/engine/package.json packages/engine/
+COPY packages/admin/package.json packages/admin/
+COPY packages/test-support/package.json packages/test-support/
+COPY functions/package.json functions/
+COPY firebase/rules-tests/package.json firebase/rules-tests/
+COPY e2e/package.json e2e/
+RUN node -e "const fs = require('node:fs'); \
+        const files = process.argv.slice(1); \
+        const read = (file) => JSON.parse(fs.readFileSync(file, 'utf8')); \
+        const manifests = files.map(read); \
+        const ours = new Set(manifests.map((manifest) => manifest.name)); \
+        const steady = (entry) => { \
+            if ('version' in entry) { entry.version = '0.0.0'; } \
+            for (const field of ['dependencies', 'devDependencies']) { \
+                for (const name of Object.keys(entry[field] ?? {})) { \
+                    if (ours.has(name)) { entry[field][name] = '0.0.0'; } \
+                } \
+            } \
+        }; \
+        files.forEach((file, index) => { \
+            const manifest = manifests[index]; \
+            const setup = manifest.scripts?.['emulators:setup']; \
+            delete manifest.scripts; \
+            if (setup) { manifest.scripts = { 'emulators:setup': setup }; } \
+            steady(manifest); \
+            fs.writeFileSync(file, JSON.stringify(manifest, null, 4)); \
+        }); \
+        const lock = read('package-lock.json'); \
+        const globs = lock.packages[''].workspaces; \
+        const workspace = (folder) => globs.some((glob) => (glob.endsWith('/*') \
+            ? folder.startsWith(glob.slice(0, -1)) && !folder.slice(glob.length - 1).includes('/') \
+            : folder === glob)); \
+        steady(lock); \
+        for (const [path, entry] of Object.entries(lock.packages)) { \
+            const folder = entry.link ? entry.resolved : path; \
+            if (workspace(folder) && !fs.existsSync(folder + '/package.json')) { \
+                delete lock.packages[path]; \
+            } else if (path === '' || workspace(path)) { \
+                steady(entry); \
+            } \
+        } \
+        fs.writeFileSync('package-lock.json', JSON.stringify(lock, null, 4) + '\n');" \
+        package.json packages/*/package.json functions/package.json firebase/rules-tests/package.json e2e/package.json
+
+# --- quality image ----------------------------------------------------------------------------
+# ghcr.io/osgeo/gdal:ubuntu-small-3.13.3 (Ubuntu 26.04, Python 3.14.4 with matching osgeo bindings)
+FROM ghcr.io/osgeo/gdal:ubuntu-small-3.13.3@sha256:64250faf833c06d4b21afce4c27190039ba7ab58d70f0eebc87cf77d929c0b40 AS quality
+
+SHELL ["/bin/bash", "-o", "pipefail", "-c"]
+
+ARG PIP_VERSION=26.2.1
+
+ENV DEBIAN_FRONTEND=noninteractive \
+    LANG=C.UTF-8 \
+    PYTHONDONTWRITEBYTECODE=1 \
+    PIP_DISABLE_PIP_VERSION_CHECK=1 \
+    PATH=/opt/hcm/venv/bin:$PATH \
+    PLAYWRIGHT_BROWSERS_PATH=/ms-playwright \
+    FIREBASE_EMULATORS_PATH=/opt/hcm/firebase-emulators \
+    npm_config_cache=/opt/hcm/npm-cache \
+    npm_config_update_notifier=false
+
+# JDK 21: firebase-tools 15 emulators refuse older Java. git: the pipeline lists files and hashes
+# `git status`. python3.14-venv: the CI tool venv (the GDAL image ships no ensurepip).
+RUN --mount=type=cache,id=hcm-apt-cache,target=/var/cache/apt,sharing=locked \
+    --mount=type=cache,id=hcm-apt-lists,target=/var/lib/apt/lists,sharing=locked \
+    rm -f /etc/apt/apt.conf.d/docker-clean \
+    && apt-get update \
+    && apt-get install -y --no-install-recommends \
+        openjdk-21-jre-headless=21.0.13* \
+        git=1:2.53.0* \
+        curl=8.18.0* \
+        python3.14-venv=3.14.4* \
+    && java -version
+
+# Node 24 from the official image (binary, npm, corepack, headers for node-gyp).
+COPY --from=node /usr/local/bin/node /usr/local/bin/node
+COPY --from=node /usr/local/lib/node_modules /usr/local/lib/node_modules
+COPY --from=node /usr/local/include/node /usr/local/include/node
+RUN ln -s ../lib/node_modules/npm/bin/npm-cli.js /usr/local/bin/npm \
+    && ln -s ../lib/node_modules/npm/bin/npx-cli.js /usr/local/bin/npx \
+    && node --version && npm --version
+
+COPY --from=actionlint /usr/local/bin/actionlint /usr/local/bin/actionlint
+COPY --from=hadolint /usr/bin/hadolint /usr/local/bin/hadolint
+COPY --from=shellcheck /bin/shellcheck /usr/local/bin/shellcheck
+COPY --from=shfmt /bin/shfmt /usr/local/bin/shfmt
+COPY --from=gitleaks /usr/bin/gitleaks /usr/local/bin/gitleaks
+RUN actionlint -version && hadolint --version && shellcheck --version && shfmt --version && gitleaks version
+
+# Python CI tooling (ruff, mypy, pytest, yamllint, taplo, ...): wheels only, every package pinned.
+COPY scripts/ci/requirements.txt /opt/hcm/requirements.txt
+RUN --mount=type=cache,id=hcm-pip,target=/root/.cache/pip,sharing=locked \
+    python3 -m venv /opt/hcm/venv \
+    && /opt/hcm/venv/bin/pip install "pip==${PIP_VERSION}" \
+    && /opt/hcm/venv/bin/pip install --only-binary :all: -r /opt/hcm/requirements.txt \
+    && ruff --version && mypy --version && taplo --version
+
+# npm workspaces: manifests (their scripts dropped, stage `manifests`) and lockfile only (the source is
+# bind-mounted at run time). This fills the baked npm cache that the pipeline's runtime
+# `npm ci --prefer-offline` installs from, then installs the Playwright browsers and the Firebase
+# emulator JARs at versions locked here. The build-time node_modules is dropped afterwards; nothing at
+# run time uses it. Chromium is installed as its headless shell only (`--only-shell`, 2026-11-12): every Vitest browser
+# project and every Playwright project launches it headless, which Playwright serves from the shell; the full Chromium
+# (about 400 MB) ran nowhere. Firefox and WebKit stay: the admin's forms run on both (e2e/projects.ts). A new workspace with registry dependencies of its own needs its line in the `manifests` stage (and
+# in .dockerignore).
+WORKDIR /opt/hcm/workspace
+COPY --from=manifests /m/ ./
+COPY vendor/npm/braces vendor/npm/braces
+COPY vendor/npm/minimatch vendor/npm/minimatch
+RUN --mount=type=cache,id=hcm-apt-cache,target=/var/cache/apt,sharing=locked \
+    --mount=type=cache,id=hcm-apt-lists,target=/var/lib/apt/lists,sharing=locked \
+    npm ci --no-audit --no-fund \
+    && npx playwright install --with-deps --only-shell chromium firefox webkit \
+    && npm run emulators:setup \
+    && rm -rf node_modules \
+    && chmod -R a+rwX /opt/hcm/npm-cache /opt/hcm/firebase-emulators \
+    && chmod -R a+rX /ms-playwright
+
+# Raster pipeline (pipeline/, docs/research/M0-handoff.md): its tests and type checks run in THIS image,
+# which already is the GDAL image the pipeline ships on (pipeline/Dockerfile uses the same base digest).
+# Poetry lives in its own venv (/opt/hcm/poetry, pinned with every transitive dependency by
+# pipeline/requirements-poetry.txt). The pipeline's locked runtime and dev dependencies go into
+# /opt/hcm/pipeline-venv: no pip of its own (Poetry installs into it), --system-site-packages so the base
+# image's `osgeo` bindings are importable (its numpy shadows the system one, same 2.x ABI). The pipeline
+# source is bind-mounted at run time, hence --no-root.
+COPY pipeline/requirements-poetry.txt pipeline/pyproject.toml pipeline/poetry.lock /opt/hcm/pipeline/
+RUN --mount=type=cache,id=hcm-pip,target=/root/.cache/pip,sharing=locked \
+    --mount=type=cache,id=hcm-poetry,target=/root/.cache/pypoetry,sharing=locked \
+    python3 -m venv /opt/hcm/poetry \
+    && /opt/hcm/poetry/bin/pip install "pip==${PIP_VERSION}" \
+    && /opt/hcm/poetry/bin/pip install --only-binary :all: -r /opt/hcm/pipeline/requirements-poetry.txt \
+    && python3 -m venv --without-pip --system-site-packages /opt/hcm/pipeline-venv \
+    && VIRTUAL_ENV=/opt/hcm/pipeline-venv /opt/hcm/poetry/bin/poetry --directory /opt/hcm/pipeline \
+        install --no-root --with dev --no-interaction \
+    && /opt/hcm/pipeline-venv/bin/python -c "import cv2, httpx, numpy, pytest, respx; from osgeo import gdal, gdal_array"
+
+# SonarScanner CLI for the `sonar` stage (scripts/ci/sonar_scan.sh runs it directly in this image). Only the
+# launcher, its jar and its default config: it runs on this image's JDK 21 (/usr/bin/java), and the analysers
+# it downloads from SonarCloud at scan time use this image's Node 24. Late in the file on purpose: a scanner
+# bump rebuilds only the layers below, not the npm, Playwright and emulator layers above.
+COPY --from=sonar-scanner /opt/sonar-scanner/bin /opt/sonar-scanner/bin
+COPY --from=sonar-scanner /opt/sonar-scanner/lib /opt/sonar-scanner/lib
+COPY --from=sonar-scanner /opt/sonar-scanner/conf /opt/sonar-scanner/conf
+RUN ln -s /opt/sonar-scanner/bin/sonar-scanner /usr/local/bin/sonar-scanner \
+    && HOME=/tmp/sonar-version sonar-scanner --version \
+    && rm -rf /tmp/sonar-version
+
+# Runs as the host uid (docker run --user) on a bind-mounted checkout; git must accept it.
+RUN git config --system --add safe.directory '*'
+
+# The GDAL base image preloads tcmalloc into EVERY process (LD_PRELOAD=libtcmalloc_minimal.so.4).
+# Chromium's own allocator aborts under it ("tcmalloc: Attempt to free invalid pointer", SIGILL), so
+# the quality image clears it: here it only runs linters, tests and browsers. The raster pipeline's
+# runtime image (pipeline/Dockerfile, M3) keeps the preload for GDAL's large warps.
+ENV LD_PRELOAD=""
+
+# scripts/ci/in-container.sh refuses to run anywhere this marker is missing.
+ENV HCM_TEST_IMAGE=1
+
+WORKDIR /opt/hcm
+USER 10001:10001
+CMD ["bash", "-c", "echo 'Run PIPELINE_STAGE=<stage> bash scripts/ci/run-all-checks.sh from the repository root.' >&2; exit 2"]

@@ -1,0 +1,9 @@
+{
+    "call": "GET https://ims.cr.usgs.gov/browse/<folder>/<entityId>.jpg",
+    "note": "The browse image server failing (a 503 from its proxy): the harvest records the browse as failed and the card offers Try again.",
+    "status": 503,
+    "headers": {
+        "content-type": "text/html"
+    },
+    "text": "<html>\n<head><title>503 Service Temporarily Unavailable</title></head>\n<body>\n<center><h1>503 Service Temporarily Unavailable</h1></center>\n</body>\n</html>\n"
+}
