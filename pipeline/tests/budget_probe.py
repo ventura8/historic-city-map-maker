@@ -168,13 +168,14 @@ class _Staged:
 def crop(size: tuple[int, int], folder: Path) -> None:
     """Two segments side by side, each half the crop and a tenth more, and the crop over both written and previewed."""
     width, height = size
+    # The fixture contributes to this process's peak RSS. Give GDAL the worker budget before its first raster block.
+    _settings("4096", "2")
     half = width // 2 + width // 10
     paths = [folder / "segment-a.tif", folder / "segment-b.tif"]
     for path in paths:
         _scan(path, half, height)
     placements = (Placement(str(paths[0]), 0, 0, half, height), Placement(str(paths[1]), width - half, 0, half, height))
     layout = FrameLayout(width, height, 1, placements)
-    _settings("4096", "2")
     written = write_crop(cast(JobContext, _Staged()), layout, Crop(0, 0, width, height, ()), folder / "scan.tif")
     scan_preview(written)
 

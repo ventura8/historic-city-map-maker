@@ -133,3 +133,5 @@ The Python + GDAL pipeline that turns declassified USGS film scans (Corona KH-4,
 ## Wiring into the repository (done in M0)
 
 `pipeline/pyproject.toml` holds the Poetry project and the pipeline's pytest, coverage and mypy configuration; every command runs from the repository root, so `reports/coverage/pipeline.xml` and `reports/junit/pipeline.xml` carry repository-relative paths for Sonar and `scripts/ci/check_coverage.py`. `ruff.toml` already covers every Python file. The quality image carries Poetry (`/opt/hcm/poetry`) and the locked venv (`/opt/hcm/pipeline-venv`); the gates `pipeline-lock`, `pipeline-mypy`, `pipeline-radon`, `pipeline-bandit`, `pipeline-pip-audit` (static) and `pipeline-pytest` (tests) use them. Commands, layout and the re-lock recipe: `pipeline/README.md`; decisions: `docs/research/M0-handoff.md` → *Raster pipeline*.
+
+The crop memory probe applies the simulated worker's GDAL cache budget before writing its input segments. The process peak includes fixture creation as well as the crop and preview.

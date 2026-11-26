@@ -282,3 +282,5 @@ The admin's states (`ADMIN_STATES`) are visited by its specs at its five project
 - A bug a test finds goes into [LESSONS.md](LESSONS.md).
 
 Auth panel component tests exercise sign-in and invitation actions, unavailable app ports, busy invitations, consent explanations and blocked states using the rendered controls.
+
+The crop memory probe applies the simulated worker's GDAL cache budget before writing its input segments. The process peak includes fixture creation as well as the crop and preview.
