@@ -120,9 +120,13 @@ export class HarvestSearch {
         }
     }
 
-    /** USGS can search and the newest harvest is stale. */
+    /** The automatic search is on (`autoSearch`, off for the `e2e` build's own city), USGS can search and the newest harvest is stale. */
     #wanted(usgs: ServiceState, newest: string | null): boolean {
-        return usgsCanSearch(usgs) && harvestIsStale(newest, this.#services.clock.now(), HARVEST_EVERY_DAYS);
+        return (
+            this.#services.autoSearch !== false &&
+            usgsCanSearch(usgs) &&
+            harvestIsStale(newest, this.#services.clock.now(), HARVEST_EVERY_DAYS)
+        );
     }
 
     async search(): Promise<void> {

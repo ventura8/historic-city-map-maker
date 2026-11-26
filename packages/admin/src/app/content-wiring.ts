@@ -25,6 +25,8 @@ export interface AreaServiceSources {
     readonly fetch: typeof fetch;
     /** The `e2e` build's map token for the test's own city (`E2eKit.mapToken`: null for none); undefined in production. */
     readonly mapToken?: string | null | undefined;
+    /** False: the Imagery area does not search by itself (`E2eKit.autoSearch`, the `e2e` build's own city); undefined in production. */
+    readonly autoSearch?: boolean | undefined;
     /** The `e2e` build's test id (`?test=`): push through the stand-in registrar, never FCM; undefined in production. */
     readonly pushTest?: string | undefined;
     /** `runtime.json`'s release and build time (Home reads the recorded installs against them), or null without one. */
@@ -59,6 +61,7 @@ export function areaServices(sources: AreaServiceSources): AreaServiceParts {
         files: firebaseFiles(FILES_SDK, sources.handles.storage, globalThis, createLogger('admin-files')),
         pictures: browserPictures(globalThis),
         layerCrop: cropChunkLoader(() => globalThis.customElements),
+        ...(sources.autoSearch === undefined ? {} : { autoSearch: sources.autoSearch }),
         // [end imagery]
         // [section inbox] owner: assists-notify
         push: pushOf(sources),

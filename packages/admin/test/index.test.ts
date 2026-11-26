@@ -3,6 +3,7 @@
 import { createFakeFetch, E2E_PROJECT_CONFIG, jsonResponse } from '@hcm/test-support/fakes';
 import { afterEach, describe, expect, it, vi } from 'vitest';
 
+import { E2E_KIT, e2eAutoSearch, e2eCity, e2eMapToken } from '../src/app/e2e-kit.js';
 import { CONSENT_KEY } from '../src/app/telemetry.js';
 import { createStandInPopup, STAND_IN_ORIGIN } from '../src/auth/stand-in.js';
 import {
@@ -11,9 +12,6 @@ import {
     browserDeps,
     browserParts,
     contentDepsFor,
-    E2E_KIT,
-    e2eCity,
-    e2eMapToken,
     guardUnload,
     loadColourLibrary,
     projectOf,
@@ -98,7 +96,7 @@ function fakeWindow(files: Readonly<Record<string, Response>> = {}) {
 }
 
 /** The `e2e` build's kit, as `E2E_KIT` is in that build. */
-const E2E = { standInPopup: createStandInPopup, city: e2eCity, mapToken: e2eMapToken };
+const E2E = { standInPopup: createStandInPopup, city: e2eCity, mapToken: e2eMapToken, autoSearch: e2eAutoSearch };
 
 /** One configuration for every test: Firebase keeps one default app per process. */
 const CONFIG = { ...E2E_WEB_CONFIG, measurementId: 'G-E2E0000000' };
@@ -414,5 +412,44 @@ describe('autoStart', () => {
         autoStart({}, s.w.win, null, testLog().log);
 
         expect(s.defined).toEqual([]);
+    });
+});
+
+describe("the Imagery area's automatic search in each build", () => {
+    it('happyPath_theE2eBuildsOwnCityNeverSearchesByItself', () => {
+        // The test's own city does not own `setup/status`: its Imagery area never searches USGS by itself (lesson 823).
+        const w = fakeWindow();
+        Object.assign(w.win.location, { search: '?test=spec-1&city=e2e-photos-1' });
+        const deps = contentDepsFor(
+            browserParts(w.win, E2E, testLog().log),
+            { firestore: () => ({}), auth: { currentUser: null } } as never,
+            fetch,
+            {
+                release: 'dev',
+            },
+        );
+
+        expect(deps.areas.autoSearch).toBe(false);
+        expect([e2eAutoSearch('?city=cluj'), e2eAutoSearch('?city=Not_Valid'), e2eAutoSearch('')]).toEqual([false, true, true]);
+    });
+
+    it('happyPath_aProductionBuildKeepsTheAutomaticSearchWhateverTheAddressSays', () => {
+        // Production has no kit (`E2E_KIT` is null outside the `e2e` build): `?city=` and `?mapToken=` change nothing, and
+        // the Imagery area searches by itself as it always does.
+        const w = fakeWindow();
+        Object.assign(w.win.location, { search: '?city=cluj&mapToken=pk.e2e-fake-token' });
+        const parts = browserParts(w.win, null, testLog().log);
+        const deps = contentDepsFor(parts, { firestore: () => ({}), auth: { currentUser: null } } as never, fetch, { release: 'dev' });
+
+        expect(E2E_KIT).toBeNull();
+        expect(deps.cityId).toBeNull();
+        expect('autoSearch' in deps.areas).toBe(false);
+    });
+
+    it('happyPath_theE2eBuildWithoutATestsCityKeepsTheAutomaticSearch', () => {
+        const parts = browserParts(fakeWindow().win, E2E, testLog().log);
+        const deps = contentDepsFor(parts, { firestore: () => ({}), auth: { currentUser: null } } as never, fetch, { release: 'dev' });
+
+        expect(deps.areas.autoSearch).toBe(true);
     });
 });

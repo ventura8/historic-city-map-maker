@@ -6465,7 +6465,7 @@
             "asserts": "Search -> ranked scenes (free first, then by score) with the city's boundary on the admin map and the open scene's footprint alone and browse previews (copies in our bucket read with the Storage SDK, never a USGS address from the browser); for Bucharest the 1966, 1976, 1977, 1978 and 1980 frames rank on top",
             "tier": "e2e-admin",
             "status": "exists",
-            "notes": "Milestone M3 (docs/research/M3-interfaces.md §11; owner: e2e-fakes; the integrator, 2026-10-24). Test: e2e/admin/specs/imagery/search.spec.ts. The state check passes at every admin project since the CR-M3-35 fixes."
+            "notes": "Milestone M3 (docs/research/M3-interfaces.md §11; owner: e2e-fakes; the integrator, 2026-10-24). Test: e2e/admin/specs/imagery/search.spec.ts. The state check passes at every admin project since the CR-M3-35 fixes. The e2e build turns the Imagery area's automatic search off for a content world's own city (`?city=`, `E2eKit.autoSearch`; lesson 823): such a spec does not own `setup/status`, which the server's search checks and the locked specs rewrite. Vitest packages/admin/test/index.test.ts and packages/admin/test/imagery/search.test.ts."
         },
         {
             "id": "S-A11-BAD-ZERO-RESULTS",
@@ -23405,7 +23405,7 @@
             "asserts": "the two strips show with the guess; Enter answers the seam; the answer is sent with the layout",
             "tier": "e2e-admin",
             "status": "exists",
-            "notes": "Test: e2e/admin/specs/imagery/tiles.spec.ts; Vitest packages/admin/test/tiles/ and packages/ui/test/admin/tiles/."
+            "notes": "Test: e2e/admin/specs/imagery/tiles.spec.ts; Vitest packages/admin/test/tiles/ and packages/ui/test/admin/tiles/. Its content world opens the Imagery area with no automatic USGS search (`?city=`, lesson 823): a 400 of imagery-search once failed it when a locked spec rewrote `setup/status` meanwhile."
         },
         {
             "id": "S-A-HAPPY-TILE-WIZARD-PREVIEW",
@@ -23449,7 +23449,7 @@
             "asserts": "the page says to keep at least one sheet and Place it on the map is off",
             "tier": "e2e-admin",
             "status": "exists",
-            "notes": "Test: e2e/admin/specs/imagery/tiles.spec.ts; Vitest packages/admin/test/tiles/ and packages/ui/test/admin/tiles/."
+            "notes": "Test: e2e/admin/specs/imagery/tiles.spec.ts; Vitest packages/admin/test/tiles/ and packages/ui/test/admin/tiles/. Its content world opens the Imagery area with no automatic USGS search (`?city=`, lesson 823): a 400 of imagery-search once failed it when a locked spec rewrote `setup/status` meanwhile."
         },
         {
             "id": "S-A-BAD-TILE-WIZARD-PREVIEW-POOR",

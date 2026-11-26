@@ -34,6 +34,23 @@ describe('the automatic search', () => {
         expect(harvest.state).toEqual({ phase: 'done', found: 7, added: 5, failedDatasets: ['declassiii'], error: null });
     });
 
+    it('badPath_anAreaWhoseAutomaticSearchIsOffSearchesOnlyWhenAsked', async () => {
+        // The `e2e` build's own city (`autoSearch: false`): a stale harvest and USGS ready start nothing by themselves.
+        const world = imageryWorld();
+        world.clock.current = Date.parse('2026-10-20T09:00:00Z');
+        const harvest = new HarvestSearch({ ...world.services, autoSearch: false }, () => undefined);
+        answer(world.callables, 'imagery.search', () => SEARCHED);
+
+        harvest.known('ok', null);
+        await settle();
+        expect(callsOf(world.callables, 'imagery.search')).toEqual([]);
+        expect(harvest.state.phase).toBe('idle');
+
+        // Search still runs when the admin asks.
+        await harvest.search();
+        expect(callsOf(world.callables, 'imagery.search')).toEqual([{ cityId: 'bucharest' }]);
+    });
+
     it('happyPath_aFreshHarvestOrUsgsNotSetUpSearchesNothing', async () => {
         const fresh = search();
         fresh.harvest.known('ok', '2026-10-19T00:00:00Z');

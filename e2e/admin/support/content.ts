@@ -12,7 +12,8 @@ import { signInContext } from './session.js';
  * admin of the map, so the editors' specs and the admin tour run in parallel beside the locked admin tests, whose reset
  * keeps it (`content-ids.ts`). Its address names the city (`?city=`) and the admin map's token (`?mapToken=`, the e2e
  * token the mock Mapbox accepts) for the `e2e` build's kit: the singleton `setup/status`, which the locked Setup specs
- * rewrite, is never needed. Everything is written past the rules, as the server or an earlier session would have.
+ * rewrite, is never needed; for the same reason the `e2e` build's Imagery area does not search USGS by itself in a test's own
+ * city (lesson 823). Everything is written past the rules, as the server or an earlier session would have.
  */
 
 /**

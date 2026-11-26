@@ -182,6 +182,11 @@ export interface ContentServices {
     readonly pictures?: PicturePort | null;
     /** The layer editor's Crop: loads the `layer-geometry` chunk (`../layers/crop-chunk.ts`, CR-M3-7). */
     readonly layerCrop?: (() => Promise<CropToolFactory>) | null;
+    /**
+     * False when the Imagery area must not search USGS by itself on opening: the `e2e` build's own city (`?city=`, whose
+     * test does not own the singleton `setup/status` the server checks; lesson 823). Never false in production.
+     */
+    readonly autoSearch?: boolean;
     // [end imagery]
     // [section inbox] owner: assists-notify (`push`: `../firebase/messaging.ts`, docs/research/M4-interfaces.md §5.4)
     /** This browser's web push: the browser's own permission prompt and its FCM token (none without push). */

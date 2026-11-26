@@ -6,7 +6,7 @@
  */
 import './admin.css';
 
-import { CITY_ID_PATTERN, createLogger, privacySignal, type CityRole, type Logger, type PrivacyNavigator } from '@hcm/shared';
+import { createLogger, privacySignal, type CityRole, type Logger, type PrivacyNavigator } from '@hcm/shared';
 import { installFonts, windowClassFor, type FontFaceConstructor } from '@hcm/ui';
 import { SETUP_PAGE_TAGS, defineAdminElements, defineSetupElements, type HcmAdminShell } from '@hcm/ui/admin';
 
@@ -24,7 +24,6 @@ import type { AdminProject, SetupModuleSpec } from './app/services.js';
 import { setupModuleFor } from './app/setup-wiring.js';
 import { AdminTelemetry, expireAnalyticsCookies } from './app/telemetry.js';
 import { createGoogleAuth, type PopupSignIn } from './auth/google-auth.js';
-import { createStandInPopup } from './auth/stand-in.js';
 import { CONTENT_AREAS } from './content/areas.js';
 import type { ContentDeps } from './content/registry.js';
 import { createAnalytics, surfaceOf, type AnalyticsPort, type EventParams } from './firebase/analytics.js';
@@ -38,6 +37,7 @@ import type { SetupState } from './setup/state.js';
 import { initFirebase, loadAnalyticsSdk, loadFieldSdk, type FirebaseHandles } from './firebase/app.js';
 import { firebaseSdk } from './firebase/sdk.js';
 import { adminReleaseFields, installPlace } from './app/admin-site.js';
+import { E2E_KIT, type E2eKit } from './app/e2e-kit.js';
 import { AREA_CHUNKS, areaPageLoader, type ContentModuleSlots } from './routing/area-pages.js';
 import { PageRegistry, type PageLoader } from './routing/pages.js';
 import type { AdminRouteId } from './routing/routes.js';
@@ -89,43 +89,6 @@ function testIdOf(win: AdminWindow): string {
 }
 
 /** Google's popup through Firebase, or the e2e stand-in's page. */
-/** What only the `e2e` build carries: the OAuth stand-in and the per-test city; the Firebase emulators come with it. */
-export interface E2eKit {
-    readonly standInPopup: typeof createStandInPopup;
-    /** The address's `?city=` (a test's own city, CR-M2c-7), or null. */
-    readonly city: (search: string) => string | null;
-    /**
-     * The address's `?mapToken=`: the admin map's token for that city, so it needs no `setup/status` (CR-M2c-7); `none` (or
-     * anything that is not a public token) is no token at all; undefined without the parameter (the token of `setup/status`).
-     */
-    readonly mapToken: (search: string) => string | null | undefined;
-}
-
-/** The `?city=` of the `e2e` build's address: a valid city id, else null (the project's first city). */
-export function e2eCity(search: string): string | null {
-    const city = new URLSearchParams(search).get('city');
-    return city !== null && CITY_ID_PATTERN.test(city) ? city : null;
-}
-
-/**
- * The `?mapToken=` of the `e2e` build's address: a Mapbox public token (`pk.`); null for any other value (`none`: the test's
- * city has no map); undefined without the parameter (the admin map reads `setup/status`, as in production).
- */
-export function e2eMapToken(search: string): string | null | undefined {
-    const token = new URLSearchParams(search).get('mapToken');
-    if (token === null) {
-        return undefined;
-    }
-    return /^pk\.[A-Za-z0-9._-]{1,200}$/.test(token) ? token : null;
-}
-
-/**
- * The kit of the `e2e` build, null in production: the mode is a constant for the bundler, so the production bundle
- * carries no stand-in, no city override and no map token.
- */
-export const E2E_KIT: E2eKit | null =
-    import.meta.env.MODE === 'e2e' ? { standInPopup: createStandInPopup, city: e2eCity, mapToken: e2eMapToken } : null;
-
 function popupFor(win: AdminWindow, handles: FirebaseHandles, e2e: E2eKit | null, clock: Clock): PopupSignIn {
     if (e2e === null) {
         return firebasePopup(firebaseSdk, handles);
@@ -290,6 +253,15 @@ function adminReleaseOf(runtime: Pick<AdminRuntime, 'release' | 'releaseTime'>):
     return { release: runtime.release, time: runtime.releaseTime ?? null };
 }
 
+/** What the `e2e` build's address gives the areas (its map token, the automatic search's switch, the push stand-in); nothing in production. */
+function e2eAreaSources(parts: BrowserParts) {
+    if (parts.e2e === null) {
+        return {};
+    }
+    const { search } = parts.win.location;
+    return { mapToken: parts.e2e.mapToken(search), autoSearch: parts.e2e.autoSearch(search), pushTest: testIdOf(parts.win) };
+}
+
 /** The editors' dependencies over the real Firestore (`docs/research/M2c-interfaces.md` §2.2). */
 export function contentDepsFor(
     parts: BrowserParts,
@@ -304,11 +276,7 @@ export function contentDepsFor(
             log: createLogger('admin-store'),
         }),
         theme: themeFromSeed,
-        areas: areaServices({
-            ...{ handles, fetch: fetcher, mapToken: parts.e2e?.mapToken(parts.win.location.search) },
-            pushTest: parts.e2e === null ? undefined : testIdOf(parts.win),
-            adminRelease: adminReleaseOf(runtime),
-        }),
+        areas: areaServices({ handles, fetch: fetcher, ...e2eAreaSources(parts), adminRelease: adminReleaseOf(runtime) }),
         cityId: parts.e2e?.city(parts.win.location.search) ?? null,
     };
 }
