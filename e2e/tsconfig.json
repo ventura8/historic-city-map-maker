@@ -15,6 +15,7 @@
     },
     "include": [
         "../firebase.json",
+        "../pipeline/tests/contracts/layout.sample.json",
         "playwright.config.ts",
         "projects.ts",
         "split.ts",

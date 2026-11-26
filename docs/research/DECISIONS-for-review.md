@@ -7393,3 +7393,7 @@ In the first four-shard run, shard two reached 562 of 578 cases at 75 minutes, w
 ## 258. Preserve each release bundle’s directory tree (2026-11-26)
 
 The engine and admin both ship a third-party notices file, fonts and translations. GitHub release attachments share one filename namespace. The release gate now packs each build directory into its own versioned archive alongside the CLI tarball. The publish job uploads those three files.
+
+## 259. Import the tile wizard’s fixed sample as a module (2026-11-26)
+
+CodeQL identified a filesystem read whose bytes reached a Storage emulator upload. The tile wizard tests now import the checked-in layout contract directly. The e2e TypeScript project includes that single JSON file and checks its inferred fields.

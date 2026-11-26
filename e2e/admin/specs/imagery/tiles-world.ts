@@ -1,9 +1,8 @@
 import { RASTER_PATHS, type VersionFile } from '@hcm/shared';
 import { translateAdminTiles, type AdminTilesKey } from '@hcm/shared/admin-tiles';
-import { readFileSync } from 'node:fs';
-import { resolve } from 'node:path';
 import sharp from 'sharp';
 
+import sample from '../../../../pipeline/tests/contracts/layout.sample.json' with { type: 'json' };
 import type { ContentWorld } from '../../support/content.js';
 import { uploadObject } from '../../support/imagery-store.js';
 import { seedCity, seedJob } from '../../support/ops.js';
@@ -18,7 +17,6 @@ import { seedCity, seedJob } from '../../support/ops.js';
 export const SERIES = 'ar-mw993zri-s-4054e55659a3';
 const LAYER = 'atlas-1911';
 const AT = new Date('2026-11-12T08:00:00Z');
-const CONTRACTS = resolve(import.meta.dirname, '../../../../pipeline/tests/contracts');
 
 interface Quality {
     readonly placedPct: number;
@@ -37,7 +35,6 @@ export function tilesText(lang: 'ro' | 'en', key: AdminTilesKey, params: Readonl
 }
 
 function layoutFile(revision: number, quality: Quality, noSeam = false): Record<string, unknown> {
-    const sample = JSON.parse(readFileSync(resolve(CONTRACTS, 'layout.sample.json'), 'utf8')) as { sheets: Record<string, unknown>[] };
     const sheets = sample.sheets.map((sheet, index) => (noSeam && index === 3 ? { ...sheet, out: 'no-seam' } : sheet));
     return { ...sample, sheets, revision, quality };
 }
