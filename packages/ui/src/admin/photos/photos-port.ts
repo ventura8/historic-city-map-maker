@@ -195,7 +195,7 @@ export interface BulkReportPort {
     readonly skipped: readonly { readonly id: string; readonly title: string; readonly reason: string }[];
 }
 
-export type MapStatusPort = 'none' | 'loading' | 'ready' | 'unavailable' | 'no-token' | 'no-webgl' | 'failed';
+type MapStatusPort = 'none' | 'loading' | 'ready' | 'unavailable' | 'no-token' | 'no-webgl' | 'failed';
 
 export interface PhotosViewState {
     readonly list: PhotosListPort;
