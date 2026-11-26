@@ -43,14 +43,14 @@ test('A click on the shot direction turns the map to the way the image was shot'
         t(lang, 'viewer.shotDirection', { degrees: '135' }),
     );
 
-    const icon = viewer(page).locator('.dock.shot hcm-shot-compass svg');
-    await expect(icon).toHaveCSS('transform', 'matrix(-0.707107, 0.707107, -0.707107, -0.707107, 0, 0)');
+    const icon = viewer(page).locator('.dock.shot hcm-shot-compass hcm-icon');
+    await expect(icon).toHaveCSS('transform', 'matrix(1, 0, 0, 1, 0, 0)');
     await button.click();
 
     await expect.poll(async () => (await currentHash(page)).split('&')[0]).toBe('14/44.42704/26.0853/135');
     await mapIdle(page);
     expect(Math.round((await cameras(page))[0]?.bearing ?? Number.NaN)).toBe(135);
-    await expect(icon).toHaveCSS('transform', 'matrix(1, 0, 0, 1, 0, 0)');
+    await expect(icon).toHaveCSS('transform', 'matrix(-0.707107, -0.707107, 0.707107, -0.707107, 0, 0)');
 });
 
 test('A layer without a shot direction shows no button', { tag: '@S-V93-BAD-NO-DIRECTION' }, async ({ page, lang }) => {

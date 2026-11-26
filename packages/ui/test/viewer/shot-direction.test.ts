@@ -61,7 +61,7 @@ describe('<hcm-map-viewer>: the shot direction button', () => {
         expect(mounted.store.callsOf('faceBearing')).toEqual([[135]]);
         expect(part(mounted, '.dock.shot hcm-shot-compass').getAttribute('title')).toBe(name);
         const control = mounted.element.shadowRoot?.querySelector('hcm-shot-compass');
-        expect(control?.shadowRoot?.querySelector('svg')?.getAttribute('viewBox')).toBe('0 0 24 24');
+        expect(control?.shadowRoot?.querySelector('hcm-icon')?.getAttribute('name')).toBe('satellite_alt');
         expect(part(mounted, '.dock.locate').classList.contains('over-shot')).toBe(true);
     });
 
@@ -72,16 +72,16 @@ describe('<hcm-map-viewer>: the shot direction button', () => {
             throw new Error('shot control missing');
         }
         await control.updateComplete;
-        const icon = control.shadowRoot?.querySelector<SVGSVGElement>('svg');
-        expect(icon?.style.transform).toBe('rotate(135deg)');
+        const icon = control.shadowRoot?.querySelector<HTMLElement>('hcm-icon');
+        expect(icon?.style.transform).toBe('rotate(0deg)');
         mounted.store.moveCamera({ bearing: 45, pitch: 0 });
         await control.updateComplete;
-        expect(icon?.style.transform).toBe('rotate(90deg)');
+        expect(icon?.style.transform).toBe('rotate(-45deg)');
         expect(control.shadowRoot?.querySelector('button')?.getAttribute('aria-describedby')).toBe('heading');
         expect(control.shadowRoot?.querySelector('#heading')?.textContent).toBe('The map is turned 45° from north.');
         mounted.store.moveCamera({ bearing: 135, pitch: 0 });
         await control.updateComplete;
-        expect(icon?.style.transform).toBe('rotate(0deg)');
+        expect(icon?.style.transform).toBe('rotate(-135deg)');
     });
 
     it('badPath_noShotDirectionNoButton @S-V93-BAD-NO-DIRECTION', async () => {
