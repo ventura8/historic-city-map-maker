@@ -1,3 +1,4 @@
+import { CLOUD_ESTIMATE_VERSION, RANKING_VERSION } from '@hcm/shared';
 import type { Page } from '@playwright/test';
 
 import { FUNCTIONS_TIMEOUT_MS } from '../../support/emulators.js';
@@ -21,16 +22,18 @@ const SCENES = [...TARGET_FRAMES, FREE_1968];
 
 async function seeded(world: ImageryWorld): Promise<void> {
     for (const entityId of SCENES) {
-        await world.seedScene(entityId, FRESH_HARVEST);
+        await world.seedScene(entityId, FRESH_HARVEST, {
+            cloudEstimate: { percent: 0, version: CLOUD_ESTIMATE_VERSION },
+            rank: { score: 50, reasons: [], version: RANKING_VERSION },
+        });
+        await world.seedBrowse(entityId, FRESH_HARVEST);
     }
 }
 
 /** The server ranks `entityId` first, with a coverage of `percent` as its first reason. */
 async function rankFirst(world: ImageryWorld, entityId: string, percent: string): Promise<void> {
     const path = `cities/${world.city}/usgsScenes/${entityId}`;
-    const scene = await world.cityWorld.emulators.document(path);
-    const version = (scene?.['rank'] as { version?: number } | undefined)?.version ?? 1;
-    const rank = { score: 100, reasons: [{ code: 'coverage', params: { percent } }], version };
+    const rank = { score: 100, reasons: [{ code: 'coverage', params: { percent } }], version: RANKING_VERSION };
     await world.cityWorld.emulators.updateFields(path, { rank }, ['rank']);
 }
 
@@ -51,7 +54,7 @@ test(
         await expect(sceneList(page, lang).getByRole('link')).toHaveCount(SCENES.length, { timeout: FUNCTIONS_TIMEOUT_MS });
         const note = page.locator('hcm-imagery-page p.resorted');
 
-        // The pointer in the list first: the previews still measured meanwhile may re-rank it until then, not after.
+        // The previews already have measurements. The next server rank change happens while the pointer is in the list.
         await sceneList(page, lang).getByRole('link').first().hover();
         const before = await listedScenes(page, lang);
         const last = before.at(-1) ?? '';
