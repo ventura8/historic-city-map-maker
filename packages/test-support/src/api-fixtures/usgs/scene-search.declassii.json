@@ -1,0 +1,374 @@
+{
+    "call": "POST https://m2m.cr.usgs.gov/api/api/json/stable/scene-search (declassii, metadataType full)",
+    "note": "Declass 2 (KH-7, KH-9 mapping camera) over Bucharest with metadataType full: the 1976, 1977 and 1978 target frames, all free. UNVERIFIED field names and values (docs/research/M3-interfaces.md §3.2, §14).",
+    "status": 200,
+    "body": {
+        "requestId": 1000001,
+        "version": "stable",
+        "sessionId": 2000001,
+        "data": {
+            "results": [
+                {
+                    "browse": [
+                        {
+                            "id": "e2e-browse-DZB1211-500043L007001",
+                            "browseName": "Standard Browse",
+                            "browsePath": "https://ims.cr.usgs.gov/browse/declass2/DZB1211-500043L007001.jpg",
+                            "overlayPath": "",
+                            "thumbnailPath": "https://ims.cr.usgs.gov/thumbnail/declass2/DZB1211-500043L007001.jpg"
+                        }
+                    ],
+                    "cloudCover": "5",
+                    "entityId": "DZB1211-500043L007001",
+                    "displayId": "DZB1211-500043L007001",
+                    "metadata": [
+                        {
+                            "id": "e2e-field-01",
+                            "fieldName": "Entity ID",
+                            "value": "DZB1211-500043L007001"
+                        },
+                        {
+                            "id": "e2e-field-02",
+                            "fieldName": "Acquisition Date",
+                            "value": "1976/02/20"
+                        },
+                        {
+                            "id": "e2e-field-03",
+                            "fieldName": "Mission",
+                            "value": "1211-5"
+                        },
+                        {
+                            "id": "e2e-field-04",
+                            "fieldName": "Frame",
+                            "value": "007"
+                        },
+                        {
+                            "id": "e2e-field-05",
+                            "fieldName": "Camera Type",
+                            "value": "KH-9-mapping"
+                        },
+                        {
+                            "id": "e2e-field-06",
+                            "fieldName": "NW Corner Lat dec",
+                            "value": "45.000000"
+                        },
+                        {
+                            "id": "e2e-field-07",
+                            "fieldName": "NW Corner Long dec",
+                            "value": "25.200000"
+                        },
+                        {
+                            "id": "e2e-field-08",
+                            "fieldName": "NE Corner Lat dec",
+                            "value": "45.000000"
+                        },
+                        {
+                            "id": "e2e-field-09",
+                            "fieldName": "NE Corner Long dec",
+                            "value": "27.000000"
+                        },
+                        {
+                            "id": "e2e-field-10",
+                            "fieldName": "SE Corner Lat dec",
+                            "value": "43.900000"
+                        },
+                        {
+                            "id": "e2e-field-11",
+                            "fieldName": "SE Corner Long dec",
+                            "value": "27.000000"
+                        },
+                        {
+                            "id": "e2e-field-12",
+                            "fieldName": "SW Corner Lat dec",
+                            "value": "43.900000"
+                        },
+                        {
+                            "id": "e2e-field-13",
+                            "fieldName": "SW Corner Long dec",
+                            "value": "25.200000"
+                        }
+                    ],
+                    "options": {
+                        "bulk": true,
+                        "download": true,
+                        "order": true,
+                        "secondary": false
+                    },
+                    "selected": null,
+                    "spatialBounds": {
+                        "type": "Polygon",
+                        "coordinates": [
+                            [
+                                [25.2, 43.9],
+                                [27.0, 43.9],
+                                [27.0, 45.0],
+                                [25.2, 45.0],
+                                [25.2, 43.9]
+                            ]
+                        ]
+                    },
+                    "spatialCoverage": {
+                        "type": "Polygon",
+                        "coordinates": [
+                            [
+                                [25.2, 43.9],
+                                [27.0, 43.9],
+                                [27.0, 45.0],
+                                [25.2, 45.0],
+                                [25.2, 43.9]
+                            ]
+                        ]
+                    },
+                    "temporalCoverage": {
+                        "endDate": "1976-02-20 00:00:00",
+                        "startDate": "1976-02-20 00:00:00"
+                    },
+                    "publishDate": "2014-02-01 00:00:00"
+                },
+                {
+                    "browse": [
+                        {
+                            "id": "e2e-browse-DZB1213-500159L010001",
+                            "browseName": "Standard Browse",
+                            "browsePath": "https://ims.cr.usgs.gov/browse/declass2/DZB1213-500159L010001.jpg",
+                            "overlayPath": "",
+                            "thumbnailPath": "https://ims.cr.usgs.gov/thumbnail/declass2/DZB1213-500159L010001.jpg"
+                        }
+                    ],
+                    "cloudCover": "20",
+                    "entityId": "DZB1213-500159L010001",
+                    "displayId": "DZB1213-500159L010001",
+                    "metadata": [
+                        {
+                            "id": "e2e-field-01",
+                            "fieldName": "Entity ID",
+                            "value": "DZB1213-500159L010001"
+                        },
+                        {
+                            "id": "e2e-field-02",
+                            "fieldName": "Acquisition Date",
+                            "value": "1977/09/13"
+                        },
+                        {
+                            "id": "e2e-field-03",
+                            "fieldName": "Mission",
+                            "value": "1213-5"
+                        },
+                        {
+                            "id": "e2e-field-04",
+                            "fieldName": "Frame",
+                            "value": "010"
+                        },
+                        {
+                            "id": "e2e-field-05",
+                            "fieldName": "Camera Type",
+                            "value": "KH-9-mapping"
+                        },
+                        {
+                            "id": "e2e-field-06",
+                            "fieldName": "NW Corner Lat dec",
+                            "value": "45.050000"
+                        },
+                        {
+                            "id": "e2e-field-07",
+                            "fieldName": "NW Corner Long dec",
+                            "value": "25.300000"
+                        },
+                        {
+                            "id": "e2e-field-08",
+                            "fieldName": "NE Corner Lat dec",
+                            "value": "44.950000"
+                        },
+                        {
+                            "id": "e2e-field-09",
+                            "fieldName": "NE Corner Long dec",
+                            "value": "27.100000"
+                        },
+                        {
+                            "id": "e2e-field-10",
+                            "fieldName": "SE Corner Lat dec",
+                            "value": "43.850000"
+                        },
+                        {
+                            "id": "e2e-field-11",
+                            "fieldName": "SE Corner Long dec",
+                            "value": "27.050000"
+                        },
+                        {
+                            "id": "e2e-field-12",
+                            "fieldName": "SW Corner Lat dec",
+                            "value": "43.950000"
+                        },
+                        {
+                            "id": "e2e-field-13",
+                            "fieldName": "SW Corner Long dec",
+                            "value": "25.250000"
+                        }
+                    ],
+                    "options": {
+                        "bulk": true,
+                        "download": true,
+                        "order": true,
+                        "secondary": false
+                    },
+                    "selected": null,
+                    "spatialBounds": {
+                        "type": "Polygon",
+                        "coordinates": [
+                            [
+                                [25.25, 43.85],
+                                [27.1, 43.85],
+                                [27.1, 45.05],
+                                [25.25, 45.05],
+                                [25.25, 43.85]
+                            ]
+                        ]
+                    },
+                    "spatialCoverage": {
+                        "type": "Polygon",
+                        "coordinates": [
+                            [
+                                [25.25, 43.95],
+                                [27.05, 43.85],
+                                [27.1, 44.95],
+                                [25.3, 45.05],
+                                [25.25, 43.95]
+                            ]
+                        ]
+                    },
+                    "temporalCoverage": {
+                        "endDate": "1977-09-13 00:00:00",
+                        "startDate": "1977-09-13 00:00:00"
+                    },
+                    "publishDate": "2014-02-01 00:00:00"
+                },
+                {
+                    "browse": [
+                        {
+                            "id": "e2e-browse-DZB1214-500094L005001",
+                            "browseName": "Standard Browse",
+                            "browsePath": "https://ims.cr.usgs.gov/browse/declass2/DZB1214-500094L005001.jpg",
+                            "overlayPath": "",
+                            "thumbnailPath": "https://ims.cr.usgs.gov/thumbnail/declass2/DZB1214-500094L005001.jpg"
+                        }
+                    ],
+                    "cloudCover": "0",
+                    "entityId": "DZB1214-500094L005001",
+                    "displayId": "DZB1214-500094L005001",
+                    "metadata": [
+                        {
+                            "id": "e2e-field-01",
+                            "fieldName": "Entity ID",
+                            "value": "DZB1214-500094L005001"
+                        },
+                        {
+                            "id": "e2e-field-02",
+                            "fieldName": "Acquisition Date",
+                            "value": "1978/03/30"
+                        },
+                        {
+                            "id": "e2e-field-03",
+                            "fieldName": "Mission",
+                            "value": "1214-5"
+                        },
+                        {
+                            "id": "e2e-field-04",
+                            "fieldName": "Frame",
+                            "value": "005"
+                        },
+                        {
+                            "id": "e2e-field-05",
+                            "fieldName": "Camera Type",
+                            "value": "KH-9-mapping"
+                        },
+                        {
+                            "id": "e2e-field-06",
+                            "fieldName": "NW Corner Lat dec",
+                            "value": "44.980000"
+                        },
+                        {
+                            "id": "e2e-field-07",
+                            "fieldName": "NW Corner Long dec",
+                            "value": "25.250000"
+                        },
+                        {
+                            "id": "e2e-field-08",
+                            "fieldName": "NE Corner Lat dec",
+                            "value": "44.980000"
+                        },
+                        {
+                            "id": "e2e-field-09",
+                            "fieldName": "NE Corner Long dec",
+                            "value": "27.050000"
+                        },
+                        {
+                            "id": "e2e-field-10",
+                            "fieldName": "SE Corner Lat dec",
+                            "value": "43.880000"
+                        },
+                        {
+                            "id": "e2e-field-11",
+                            "fieldName": "SE Corner Long dec",
+                            "value": "27.050000"
+                        },
+                        {
+                            "id": "e2e-field-12",
+                            "fieldName": "SW Corner Lat dec",
+                            "value": "43.880000"
+                        },
+                        {
+                            "id": "e2e-field-13",
+                            "fieldName": "SW Corner Long dec",
+                            "value": "25.250000"
+                        }
+                    ],
+                    "options": {
+                        "bulk": true,
+                        "download": true,
+                        "order": true,
+                        "secondary": false
+                    },
+                    "selected": null,
+                    "spatialBounds": {
+                        "type": "Polygon",
+                        "coordinates": [
+                            [
+                                [25.25, 43.88],
+                                [27.05, 43.88],
+                                [27.05, 44.98],
+                                [25.25, 44.98],
+                                [25.25, 43.88]
+                            ]
+                        ]
+                    },
+                    "spatialCoverage": {
+                        "type": "Polygon",
+                        "coordinates": [
+                            [
+                                [25.25, 43.88],
+                                [27.05, 43.88],
+                                [27.05, 44.98],
+                                [25.25, 44.98],
+                                [25.25, 43.88]
+                            ]
+                        ]
+                    },
+                    "temporalCoverage": {
+                        "endDate": "1978-03-30 00:00:00",
+                        "startDate": "1978-03-30 00:00:00"
+                    },
+                    "publishDate": "2014-02-01 00:00:00"
+                }
+            ],
+            "recordsReturned": 3,
+            "totalHits": 3,
+            "totalHitsAccuracy": "exact",
+            "isCustomized": false,
+            "numExcluded": 0,
+            "startingNumber": 1,
+            "nextRecord": 4
+        },
+        "errorCode": null,
+        "errorMessage": null
+    }
+}

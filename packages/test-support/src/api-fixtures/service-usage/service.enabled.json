@@ -1,0 +1,13 @@
+{
+    "call": "GET https://serviceusage.googleapis.com/v1/projects/<project>/services/<service>",
+    "status": 200,
+    "body": {
+        "name": "projects/{{projectNumber}}/services/{{service}}",
+        "config": {
+            "name": "{{service}}",
+            "title": "{{serviceTitle}}"
+        },
+        "state": "ENABLED",
+        "parent": "projects/{{projectNumber}}"
+    }
+}

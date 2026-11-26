@@ -1,0 +1,7 @@
+{
+    "call": "POST https://firebase.googleapis.com/v1beta1/projects/<project>:addGoogleAnalytics",
+    "status": 200,
+    "body": {
+        "name": "operations/analytics/{{operationId}}"
+    }
+}

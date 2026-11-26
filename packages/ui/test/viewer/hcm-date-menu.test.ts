@@ -1,0 +1,441 @@
+import { afterEach, describe, expect, it } from 'vitest';
+import { page } from 'vitest/browser';
+
+import { dateMenuOrigin, pairHeight, sideRoom, stackedHeight } from '../../src/viewer/date-menu-place.js';
+import { HCM_DATE_MENU_TAG, HcmDateMenu, defineHcmDateMenu } from '../../src/viewer/hcm-date-menu.js';
+import { recordEvents, shadowQuery, shadowQueryAll } from './doubles.js';
+
+const ITEMS = [
+    { id: 'b', date: '12 aprilie 1966', label: 'Corona A' },
+    { id: 'a', date: '3 septembrie 1966', label: 'Corona B' },
+    { id: 'c', date: '1966', label: 'Hartă 1966' },
+];
+const ANCHOR = { x: 200, y: 500, width: 64, height: 40 };
+const ROOM = { width: 400, height: 700 };
+
+async function menu(properties: Partial<HcmDateMenu> = {}): Promise<HcmDateMenu> {
+    defineHcmDateMenu();
+    const holder = document.createElement('div');
+    holder.style.cssText = 'position: relative; width: 400px; height: 700px';
+    const element = document.createElement(HCM_DATE_MENU_TAG);
+    Object.assign(element, { items: ITEMS, selected: 'a', label: 'Datele din 1966', anchor: ANCHOR, ...properties });
+    holder.append(element);
+    document.body.append(holder);
+    await element.updateComplete;
+    return element;
+}
+
+function key(element: HcmDateMenu, name: string): void {
+    shadowQuery(element, '[role="menu"]').dispatchEvent(new KeyboardEvent('keydown', { key: name, bubbles: true, cancelable: true }));
+}
+
+function focusedItem(element: HcmDateMenu): string | null | undefined {
+    return element.shadowRoot?.activeElement?.getAttribute('data-item');
+}
+
+describe('<hcm-date-menu>', () => {
+    afterEach(() => {
+        document.body.replaceChildren();
+    });
+
+    it('happyPath_everyShownDateTickedTheOneOnTopMarkedAndFocused', async () => {
+        const element = await menu({ shown: new Set(['a', 'c']) });
+
+        await expect.element(page.getByRole('menu', { name: 'Datele din 1966' })).toBeVisible();
+        const items = shadowQueryAll(element, '.item');
+        expect(items.map((item) => item.getAttribute('aria-checked'))).toEqual(['false', 'true', 'true']);
+        expect(items.map((item) => item.hasAttribute('data-front'))).toEqual([false, true, false]);
+        expect(items.every((item) => item.getBoundingClientRect().height >= 48)).toBe(true);
+        expect(focusedItem(element)).toBe('a');
+    });
+
+    it('happyPath_arrowsHomeEndMoveAndAPressPicks', async () => {
+        const element = await menu({ selected: null });
+        const events = recordEvents(element, 'hcm-date-pick', 'hcm-close');
+        expect(focusedItem(element)).toBe('b');
+
+        key(element, 'ArrowDown');
+        expect(focusedItem(element)).toBe('a');
+        key(element, 'End');
+        expect(focusedItem(element)).toBe('c');
+        key(element, 'ArrowDown');
+        expect(focusedItem(element)).toBe('b');
+        key(element, 'ArrowUp');
+        expect(focusedItem(element)).toBe('c');
+        key(element, 'Home');
+        expect(focusedItem(element)).toBe('b');
+        key(element, 'x');
+        shadowQuery(element, '[data-item="c"]').click();
+
+        expect(events).toEqual([{ type: 'hcm-date-pick', detail: { layerId: 'c' } }]);
+    });
+
+    it('badPath_escOrAPressElsewhereClosesWithoutAPickTabDoesNot', async () => {
+        const element = await menu();
+        const events = recordEvents(element, 'hcm-date-pick', 'hcm-close');
+
+        key(element, 'Escape');
+        key(element, 'Tab');
+        shadowQuery(element, '.scrim').dispatchEvent(new PointerEvent('pointerdown', { bubbles: true }));
+
+        expect(events.map((event) => event.type)).toEqual(['hcm-close', 'hcm-close']);
+    });
+
+    it('badPath_closedItRendersNothing', async () => {
+        const element = await menu({ anchor: null });
+
+        expect(element.shadowRoot?.querySelector('[role="menu"]')).toBeNull();
+    });
+
+    it('happyPath_standingItOpensOnTheTrailingSideAndInsideTheViewer', async () => {
+        const element = await menu({ vertical: true, anchor: { x: 16, y: 300, width: 68, height: 48 } });
+        const box = shadowQuery(element, '.menu').getBoundingClientRect();
+        const host = element.getBoundingClientRect();
+
+        expect(box.left).toBe(16 + 68 + 8);
+        expect(box.bottom).toBeLessThanOrEqual(host.bottom - 42);
+    });
+
+    it('happyPath_lyingItOpensAboveTheAnchorCentred', () => {
+        const origin = dateMenuOrigin(ANCHOR, { width: 100, height: 150 }, ROOM, 'above');
+
+        expect(origin).toEqual({ x: 182, y: 342 });
+    });
+
+    it('badPath_nearAnEdgeItStaysInsideAndOffTheLegalStrip', () => {
+        expect(dateMenuOrigin({ x: 0, y: 10, width: 40, height: 40 }, { width: 100, height: 150 }, ROOM, 'above')).toEqual({ x: 8, y: 8 });
+        expect(dateMenuOrigin({ x: 380, y: 690, width: 20, height: 10 }, { width: 100, height: 150 }, ROOM, 'end')).toEqual({
+            x: 292,
+            y: 508,
+        });
+        expect(dateMenuOrigin({ x: 300, y: 300, width: 68, height: 48 }, { width: 100, height: 100 }, ROOM, 'start')).toEqual({
+            x: 192,
+            y: 274,
+        });
+    });
+
+    it('happyPath_besideAStandingTimelineItIsNoWiderThanTheRoomPastIt', () => {
+        const card = { x: 16, y: 16, width: 68, height: 600 };
+
+        expect(sideRoom(card, 360, 'end')).toBe(360 - 84 - 16);
+        expect(sideRoom({ ...card, x: 276 }, 360, 'start')).toBe(260);
+        expect(sideRoom(card, 1024, 'above')).toBe(280);
+        expect(sideRoom({ ...card, x: 200 }, 300, 'end')).toBe(112);
+    });
+
+    it('badPath_definingTwiceKeepsTheFirstRegistration', () => {
+        defineHcmDateMenu();
+        defineHcmDateMenu();
+
+        expect(customElements.get(HCM_DATE_MENU_TAG)).toBe(HcmDateMenu);
+    });
+});
+
+describe('<hcm-date-menu> as a peek (a pointer resting on the year)', () => {
+    afterEach(() => {
+        document.body.replaceChildren();
+    });
+
+    function centre(element: Element): { readonly x: number; readonly y: number } {
+        const box = element.getBoundingClientRect();
+        return { x: box.left + box.width / 2, y: box.top + box.height / 2 };
+    }
+
+    it('happyPath_noScrimAndTheFocusStaysWhereItWas', async () => {
+        const element = await menu({ peek: true });
+
+        expect(element.shadowRoot?.querySelector('.scrim')).toBeNull();
+        expect(focusedItem(element)).toBeUndefined();
+        await expect.element(page.getByRole('menu', { name: 'Datele din 1966' })).toBeVisible();
+    });
+
+    it('happyPath_aFingerSlidingOverItMarksTheDateAndLiftingPicksIt', async () => {
+        const element = await menu({ peek: true });
+        const events = recordEvents(element, 'hcm-date-pick');
+        const item = shadowQuery(element, '[data-item="c"]');
+        const at = centre(item);
+
+        expect(element.touchAt(at.x, at.y, false)).toBe(true);
+        expect(item.hasAttribute('data-armed')).toBe(true);
+        expect(element.touchAt(at.x, at.y, true)).toBe(true);
+
+        expect(events).toEqual([{ type: 'hcm-date-pick', detail: { layerId: 'c' } }]);
+    });
+
+    it('badPath_aFingerOffTheMenuMarksNothingAndPicksNothing', async () => {
+        const element = await menu({ peek: true });
+        const events = recordEvents(element, 'hcm-date-pick');
+        const at = centre(shadowQuery(element, '[data-item="a"]'));
+        element.touchAt(at.x, at.y, false);
+
+        expect(element.touchAt(1, 1, true)).toBe(false);
+        expect(shadowQueryAll(element, '[data-armed]')).toHaveLength(0);
+        expect(events).toEqual([]);
+        const closed = await menu({ anchor: null });
+        expect(closed.touchAt(1, 1, true)).toBe(false);
+    });
+
+    it('happyPath_itKeepsClearOfTheControlsItIsGiven', async () => {
+        const control = { x: 180, y: 380, width: 140, height: 120 };
+        const element = await menu({ peek: true, avoid: () => [control] });
+        const box = shadowQuery(element, '.menu').getBoundingClientRect();
+        const host = element.getBoundingClientRect();
+        const at = control;
+
+        const meets = box.left < at.x + control.width && at.x < box.right && box.top < at.y + control.height && at.y < box.bottom;
+        expect(meets).toBe(false);
+        expect(box.bottom).toBeLessThanOrEqual(ANCHOR.y + host.y - 8);
+    });
+
+    it('happyPath_theMouseEnteringAndLeavingSaysSoAFingerDoesNot', async () => {
+        const element = await menu({ peek: true });
+        const events = recordEvents(element, 'hcm-date-menu-pointer');
+        const box = shadowQuery(element, '.pair');
+
+        box.dispatchEvent(new PointerEvent('pointerenter', { pointerType: 'mouse' }));
+        box.dispatchEvent(new PointerEvent('pointerleave', { pointerType: 'mouse' }));
+        box.dispatchEvent(new PointerEvent('pointerenter', { pointerType: 'touch' }));
+
+        expect(events.map((event) => event.detail)).toEqual([{ inside: true }, { inside: false }]);
+    });
+
+    /** Two boxes overlap (client px). */
+    function overlaps(a: DOMRect, b: DOMRect): boolean {
+        return a.left < b.right && b.left < a.right && a.top < b.bottom && b.top < a.bottom;
+    }
+
+    /** The two boxes sit in one row: apart along it, sharing some of their height. */
+    function sideBySide(a: DOMRect, b: DOMRect): boolean {
+        return !overlaps(a, b) && a.top < b.bottom && b.top < a.bottom;
+    }
+
+    it('happyPath_slidersTurnedOnAfterTheAnchorSitBesideTheDatesInOneRow', async () => {
+        const element = await menu();
+        element.parentElement?.style.setProperty('width', '1000px');
+        const sliders = document.createElement('div');
+        sliders.style.cssText = 'height: 300px';
+        element.append(sliders);
+        element.side = true;
+        await element.updateComplete;
+        const dates = shadowQuery(element, '.menu').getBoundingClientRect();
+        const side = shadowQuery(element, '.side').getBoundingClientRect();
+        expect(sideBySide(dates, side), 'the dates and the sliders side by side').toBe(true);
+        expect(shadowQuery(element, '.pair').style.top).not.toBe('');
+    });
+
+    it('happyPath_onANarrowPhoneBothColumnsShareTheWidthAndStayInside', async () => {
+        const element = await menu({ side: true });
+        element.parentElement?.style.setProperty('width', '360px');
+        const sliders = document.createElement('div');
+        sliders.style.cssText = 'height: 200px';
+        sliders.textContent = 'KH-9 Hexagon (mapping camera), 30 martie 1978';
+        element.append(sliders);
+        element.anchor = { ...ANCHOR, x: 150 };
+        await element.updateComplete;
+        const dates = shadowQuery(element, '.menu').getBoundingClientRect();
+        const side = shadowQuery(element, '.side').getBoundingClientRect();
+        const host = element.getBoundingClientRect();
+        expect(sideBySide(dates, side)).toBe(true);
+        expect(Math.min(dates.left, side.left)).toBeGreaterThanOrEqual(host.left + 8 - 0.5);
+        expect(Math.max(dates.right, side.right)).toBeLessThanOrEqual(host.right - 8 + 0.5);
+    });
+
+    it('badPath_tallSlidersAboveALyingTimelineNeverReachDownOverIt', async () => {
+        const element = await menu({ side: true });
+        const sliders = document.createElement('div');
+        sliders.style.cssText = 'width: 120px; height: 900px';
+        element.append(sliders);
+        element.anchor = { ...ANCHOR, y: ANCHOR.y + 1 };
+        await element.updateComplete;
+        const side = shadowQuery(element, '.side').getBoundingClientRect();
+        const host = element.getBoundingClientRect();
+        expect(side.bottom - host.top).toBeLessThanOrEqual(ANCHOR.y + 1 - 8 + 0.5);
+    });
+
+    it('badPath_aboveALyingCardThePairEndsAboveTheCardNotOnlyAboveTheThumb', async () => {
+        const card = { x: 0, y: ANCHOR.y - 12, width: 400, height: 80 };
+        const element = await menu({ side: true, avoid: () => [card] });
+        const sliders = document.createElement('div');
+        sliders.style.cssText = 'height: 900px';
+        element.append(sliders);
+        element.anchor = { ...ANCHOR, y: ANCHOR.y + 1 };
+        await element.updateComplete;
+        const pair = shadowQuery(element, '.pair').getBoundingClientRect();
+        expect(pair.bottom - element.getBoundingClientRect().top).toBeLessThanOrEqual(card.y - 8 + 0.5);
+    });
+});
+
+describe('<hcm-date-menu> placed by its year (the owner, 2026-11-23: never in the corner)', () => {
+    afterEach(() => {
+        document.body.replaceChildren();
+    });
+
+    it('happyPath_menuBoxCentredOnPillAt1440x900And360x800', () => {
+        const widePill = { x: 688, y: 780, width: 64, height: 40 };
+        expect(dateMenuOrigin(widePill, { width: 400, height: 160 }, { width: 1440, height: 900 }, 'above')).toEqual({
+            x: 520,
+            y: 612,
+        });
+
+        const phonePill = { x: 16, y: 360, width: 68, height: 40 };
+        expect(dateMenuOrigin(phonePill, { width: 260, height: 160 }, { width: 360, height: 800 }, 'end')).toEqual({
+            x: 92,
+            y: 300,
+        });
+    });
+
+    it('badPath_pillNearRightEdgeClampsAndShiftsAlongTimelineNotCorner', async () => {
+        const element = await menu({ side: true });
+        element.parentElement?.style.setProperty('width', '1440px');
+        element.parentElement?.style.setProperty('height', '900px');
+        const sliders = document.createElement('div');
+        sliders.style.cssText = 'height: 120px';
+        element.append(sliders);
+        const card = { x: 400, y: 780, width: 960, height: 72 };
+        const control = { x: 1384, y: 620, width: 40, height: 100 };
+        element.avoid = () => [card, control];
+        element.anchor = { x: 1300, y: 792, width: 56, height: 40 };
+        await element.updateComplete;
+        const pair = shadowQuery(element, '.pair').getBoundingClientRect();
+        const host = element.getBoundingClientRect();
+        expect(pair.right - host.left).toBeLessThanOrEqual(control.x - 8 + 0.5);
+        expect(pair.left - host.left).toBeGreaterThanOrEqual(8 - 0.5);
+        expect(Math.abs(card.y - 8 - (pair.bottom - host.top))).toBeLessThanOrEqual(1);
+    });
+
+    it('badPath_pairHeightKeepsAMinimumAndUsesTheViewerBesideAStandingTimeline', () => {
+        expect(pairHeight({ ...ANCHOR, y: 40 }, 700, 'above')).toBe(96);
+        expect(pairHeight(ANCHOR, 700, 'above')).toBe(484);
+        expect(pairHeight(ANCHOR, 700, 'end')).toBe(650);
+        expect(sideRoom(ANCHOR, 1440, 'above', 568)).toBe(568);
+    });
+});
+
+describe('<hcm-date-menu> on a very narrow phone (the owner, 2026-11-24)', () => {
+    afterEach(() => {
+        document.body.replaceChildren();
+    });
+
+    /** The two boxes sit in one row: apart along it, sharing some of their height. */
+    function besideInRow(a: DOMRect, b: DOMRect): boolean {
+        return (a.right <= b.left || b.right <= a.left) && a.top < b.bottom && b.top < a.bottom;
+    }
+
+    it('happyPath_aStackedPairEndsAboveTheButtonsUnderIt_edgeNoneBelowOrBesideLeavesIt', () => {
+        const pair = { left: 92, right: 296, top: 8 };
+        const locate = { x: 196, y: 262, width: 48, height: 48 };
+        expect(stackedHeight(pair, [locate, { x: 256, y: 322, width: 48, height: 96 }])).toBe(246);
+        expect(
+            stackedHeight(pair, [
+                { x: 16, y: 300, width: 60, height: 48 },
+                { x: 196, y: 0, width: 48, height: 4 },
+            ]),
+        ).toBeNull();
+        expect(stackedHeight(pair, [{ ...locate, y: 20 }])).toBe(96);
+    });
+
+    it('happyPath_besideAStandingTimelineOnA320pxPhoneTheSlidersGoUnderTheDates', async () => {
+        // The owner, 2026-11-24: "Stack on very narrow phones": 228 px beside the timeline, under the 272 px of both side by side.
+        const element = await menu({ side: true, vertical: true, anchor: { x: 24, y: 120, width: 52, height: 40 } });
+        element.parentElement?.style.setProperty('width', '320px');
+        element.parentElement?.style.setProperty('height', '568px');
+        const sliders = document.createElement('div');
+        sliders.style.cssText = 'height: 120px';
+        element.append(sliders);
+        element.anchor = { x: 24, y: 121, width: 52, height: 40 };
+        await element.updateComplete;
+        const dates = shadowQuery(element, '.menu').getBoundingClientRect();
+        const side = shadowQuery(element, '.side').getBoundingClientRect();
+        const host = element.getBoundingClientRect();
+        expect(shadowQuery(element, '.pair').hasAttribute('data-stacked')).toBe(true);
+        expect(side.top, 'the sliders under the dates').toBeGreaterThanOrEqual(dates.bottom);
+        expect(side.right).toBeLessThanOrEqual(host.right - 8 + 0.5);
+    });
+
+    it('badPath_whereBothFitBesideItTheyStaySideBySide', async () => {
+        const element = await menu({ side: true, vertical: true, anchor: { x: 24, y: 120, width: 52, height: 40 } });
+        element.parentElement?.style.setProperty('width', '412px');
+        element.parentElement?.style.setProperty('height', '800px');
+        const sliders = document.createElement('div');
+        sliders.style.cssText = 'height: 120px';
+        element.append(sliders);
+        element.anchor = { x: 24, y: 121, width: 52, height: 40 };
+        await element.updateComplete;
+        expect(shadowQuery(element, '.pair').hasAttribute('data-stacked')).toBe(false);
+        expect(
+            besideInRow(shadowQuery(element, '.menu').getBoundingClientRect(), shadowQuery(element, '.side').getBoundingClientRect()),
+        ).toBe(true);
+    });
+});
+
+describe("<hcm-date-menu>: each row's checkbox (the owner, 2026-11-24)", () => {
+    afterEach(() => {
+        document.body.replaceChildren();
+    });
+
+    it('happyPath_eachRowsCheckboxShowsOrHidesItsLayerAndTheFrontStaysOn', async () => {
+        const element = await menu({ shown: new Set(['a', 'c']), showLabel: (name: string) => `Arată pe hartă: ${name}` });
+        const events = recordEvents(element, 'hcm-date-show', 'hcm-date-pick');
+        const boxes = shadowQueryAll(element, '.box') as HTMLButtonElement[];
+
+        expect(boxes.map((box) => box.getAttribute('aria-checked'))).toEqual(['false', 'true', 'true']);
+        expect(boxes.map((box) => box.disabled)).toEqual([false, true, false]);
+        expect(boxes[0]?.getAttribute('aria-label')).toBe('Arată pe hartă: Corona A, 12 aprilie 1966');
+        const target = boxes[0]?.parentElement?.getBoundingClientRect();
+        expect(getComputedStyle(boxes[0] as Element, '::after').width).toBe('48px');
+        expect([target?.width, target?.height]).toEqual([40, 48]);
+        boxes[0]?.click();
+        boxes[2]?.click();
+
+        expect(events).toEqual([
+            { type: 'hcm-date-show', detail: { layerId: 'b', visible: true } },
+            { type: 'hcm-date-show', detail: { layerId: 'c', visible: false } },
+        ]);
+    });
+
+    it('happyPath_leftAndRightMoveBetweenARowsCheckboxAndItsDateUpAndDownBetweenRows', async () => {
+        const element = await menu({ selected: null, items: [...ITEMS, { id: 'd', date: '1966', label: '' }] });
+        const active = (): Element | null | undefined => element.shadowRoot?.activeElement;
+        expect(focusedItem(element)).toBe('b');
+
+        key(element, 'ArrowRight');
+        expect(active()?.getAttribute('data-show')).toBe('b');
+        key(element, 'ArrowDown');
+        expect(focusedItem(element)).toBe('a');
+        key(element, 'ArrowLeft');
+        expect(active()?.getAttribute('data-show')).toBe('a');
+        key(element, 'ArrowLeft');
+        expect(focusedItem(element)).toBe('a');
+        expect(shadowQuery(element, '[data-show="d"]').getAttribute('aria-label')).toBe('1966');
+    });
+
+    it('badPath_aFrontThatIsOffIsUntickedAndCanBeTurnedOn', async () => {
+        const element = await menu({ selected: 'c', shown: new Set() });
+        const events = recordEvents(element, 'hcm-date-show');
+        const box = shadowQuery(element, '[data-show="c"]') as HTMLButtonElement;
+
+        expect([box.getAttribute('aria-checked'), box.disabled]).toEqual(['false', false]);
+        box.click();
+
+        expect(events).toEqual([{ type: 'hcm-date-show', detail: { layerId: 'c', visible: true } }]);
+    });
+
+    it('badPath_aCheckboxThatBecomesTheFrontsLeavesTheFocusOnItsDate', async () => {
+        const element = await menu({ shown: new Set(['a']) });
+        shadowQuery(element, '[data-show="b"]').focus();
+
+        Object.assign(element, { selected: 'b', shown: new Set(['a', 'b']) });
+        await element.updateComplete;
+
+        expect(focusedItem(element)).toBe('b');
+    });
+
+    it('badPath_leftOrRightOutsideARowMoveNothing', async () => {
+        const element = await menu({ selected: null });
+        (element.shadowRoot?.activeElement as HTMLElement | null)?.blur();
+
+        key(element, 'ArrowRight');
+
+        expect(element.shadowRoot?.activeElement ?? null).toBeNull();
+    });
+});

@@ -1,0 +1,8 @@
+{
+    "call": "POST https://fcm.googleapis.com/v1/projects/<project>/messages:send",
+    "note": "A message accepted (also the answer of a validate_only dry run). Recorded shape, test values.",
+    "status": 200,
+    "body": {
+        "name": "projects/{{projectId}}/messages/0:1761294600000000%e2e0000000000001"
+    }
+}

@@ -1,0 +1,797 @@
+{
+    "type": "FeatureCollection",
+    "features": [
+        {
+            "type": "Feature",
+            "properties": {
+                "id": "",
+                "title": "Piata Obor",
+                "description": "",
+                "marker-size": "medium",
+                "marker-color": "#1087bf",
+                "marker-symbol": "camera",
+                "photo": "https://bucurestiuldisparut.github.io/photos/piata obor 1956.jpg",
+                "thumbnail": "https://bucurestiuldisparut.github.io/thumbnails/piata obor 1956.jpg",
+                "author": "",
+                "year": "1956",
+                "source": ""
+            },
+            "geometry": {
+                "type": "Point",
+                "coordinates": [
+                    26.125903,
+                    44.449352
+                ]
+            },
+            "id": "ci9l6usag007xkkm5f377j125"
+        },
+        {
+            "type": "Feature",
+            "properties": {
+                "title": "Piata Obor",
+                "description": "",
+                "id": "",
+                "stroke": "#7ec9b1",
+                "stroke-width": 1,
+                "stroke-opacity": 0.5,
+                "fill": "#7ec9b1",
+                "fill-opacity": 0.5,
+                "photo": "https://bucurestiuldisparut.github.io/photos/piata obor 1956.jpg",
+                "thumbnail": "https://bucurestiuldisparut.github.io/thumbnails/piata obor 1956.jpg",
+                "author": "",
+                "year": "1956",
+                "source": ""
+            },
+            "geometry": {
+                "type": "Polygon",
+                "coordinates": [
+                    [
+                        [
+                            26.125903,
+                            44.449352
+                        ],
+                        [
+                            26.126082,
+                            44.449328
+                        ],
+                        [
+                            26.125932,
+                            44.449286
+                        ],
+                        [
+                            26.125903,
+                            44.449352
+                        ]
+                    ]
+                ]
+            },
+            "id": "ci9l6usah227ykkm5d1h4465r"
+        },
+        {
+            "type": "Feature",
+            "properties": {
+                "id": "",
+                "title": "Piata Obor",
+                "description": "",
+                "marker-size": "medium",
+                "marker-color": "#1087bf",
+                "marker-symbol": "camera",
+                "photo": "https://bucurestiuldisparut.github.io/photos/piata obor 1956-2.jpg",
+                "thumbnail": "https://bucurestiuldisparut.github.io/thumbnails/piata obor 1956-2.jpg",
+                "author": "",
+                "year": "1956",
+                "source": ""
+            },
+            "geometry": {
+                "type": "Point",
+                "coordinates": [
+                    26.125903,
+                    44.449352
+                ]
+            },
+            "id": "ci9l6usag007xkkm5f377j146"
+        },
+        {
+            "type": "Feature",
+            "properties": {
+                "title": "Piata Obor",
+                "description": "",
+                "id": "",
+                "stroke": "#7ec9b1",
+                "stroke-width": 1,
+                "stroke-opacity": 0.5,
+                "fill": "#7ec9b1",
+                "fill-opacity": 0.5,
+                "photo": "https://bucurestiuldisparut.github.io/photos/piata obor 1956-2.jpg",
+                "thumbnail": "https://bucurestiuldisparut.github.io/thumbnails/piata obor 1956-2.jpg",
+                "author": "",
+                "year": "1956",
+                "source": ""
+            },
+            "geometry": {
+                "type": "Polygon",
+                "coordinates": [
+                    [
+                        [
+                            26.125903,
+                            44.449352
+                        ],
+                        [
+                            26.126005,
+                            44.449283
+                        ],
+                        [
+                            26.126102,
+                            44.449391
+                        ],
+                        [
+                            26.125903,
+                            44.449352
+                        ]
+                    ]
+                ]
+            },
+            "id": "ci9l6usah227ykkm5d1h4465r"
+        },
+        {
+            "type": "Feature",
+            "properties": {
+                "id": "",
+                "title": "Strada Gradinarilor",
+                "description": "",
+                "marker-size": "medium",
+                "marker-color": "#1087bf",
+                "marker-symbol": "camera",
+                "photo": "https://bucurestiuldisparut.github.io/photos/strada gradinarilor.jpeg",
+                "thumbnail": "https://bucurestiuldisparut.github.io/thumbnails/strada gradinarilor.jpeg",
+                "author": "Studiourile Buftea",
+                "year": "1970",
+                "source": ""
+            },
+            "geometry": {
+                "type": "Point",
+                "coordinates": [
+                    26.126315,
+                    44.414593
+                ]
+            },
+            "id": "ci9l6usag007xkkm5f377j176"
+        },
+        {
+            "type": "Feature",
+            "properties": {
+                "title": "Strada Gradinarilor",
+                "description": "",
+                "id": "",
+                "stroke": "#7ec9b1",
+                "stroke-width": 1,
+                "stroke-opacity": 0.5,
+                "fill": "#7ec9b1",
+                "fill-opacity": 0.5,
+                "photo": "https://bucurestiuldisparut.github.io/photos/strada gradinarilor.jpeg",
+                "thumbnail": "https://bucurestiuldisparut.github.io/thumbnails/strada gradinarilor.jpeg",
+                "author": "Studiourile Buftea",
+                "year": "1970",
+                "source": ""
+            },
+            "geometry": {
+                "type": "Polygon",
+                "coordinates": [
+                    [
+                        [
+                            26.126315,
+                            44.414593
+                        ],
+                        [
+                            26.12619,
+                            44.414587
+                        ],
+                        [
+                            26.1262,
+                            44.41467
+                        ],
+                        [
+                            26.126315,
+                            44.414593
+                        ]
+                    ]
+                ]
+            },
+            "id": "ci9l6usah007ykkm5d1h4465r"
+        },
+        {
+            "type": "Feature",
+            "properties": {
+                "id": "",
+                "title": "La Statuie",
+                "description": "",
+                "marker-size": "medium",
+                "marker-color": "#1087bf",
+                "marker-symbol": "camera",
+                "photo": "https://bucurestiuldisparut.github.io/photos/la statuie.jpeg",
+                "thumbnail": "https://bucurestiuldisparut.github.io/thumbnails/la statuie.jpeg",
+                "author": "",
+                "year": "1964",
+                "source": ""
+            },
+            "geometry": {
+                "type": "Point",
+                "coordinates": [
+                    26.163427,
+                    44.413136
+                ]
+            },
+            "id": "ci9l6usag007xkkm5f377j526"
+        },
+        {
+            "type": "Feature",
+            "properties": {
+                "title": "La Statuie",
+                "description": "",
+                "id": "",
+                "stroke": "#7ec9b1",
+                "stroke-width": 1,
+                "stroke-opacity": 0.5,
+                "fill": "#7ec9b1",
+                "fill-opacity": 0.5,
+                "photo": "https://bucurestiuldisparut.github.io/photos/la statuie.jpeg",
+                "thumbnail": "https://bucurestiuldisparut.github.io/thumbnails/la statuie.jpeg",
+                "author": "",
+                "year": "1964",
+                "source": ""
+            },
+            "geometry": {
+                "type": "Polygon",
+                "coordinates": [
+                    [
+                        [
+                            26.163427,
+                            44.413136
+                        ],
+                        [
+                            26.16368,
+                            44.413117
+                        ],
+                        [
+                            26.16355,
+                            44.412954
+                        ],
+                        [
+                            26.163427,
+                            44.413136
+                        ]
+                    ]
+                ]
+            },
+            "id": "ci9l6usah227ykkm5d1h4465r"
+        },
+        {
+            "type": "Feature",
+            "properties": {
+                "id": "",
+                "title": "La Leu",
+                "description": "",
+                "marker-size": "medium",
+                "marker-color": "#1087bf",
+                "marker-symbol": "camera",
+                "photo": "https://bucurestiuldisparut.github.io/photos/la leu.jpeg",
+                "thumbnail": "https://bucurestiuldisparut.github.io/thumbnails/la leu.jpeg",
+                "author": "",
+                "year": "1920",
+                "source": ""
+            },
+            "geometry": {
+                "type": "Point",
+                "coordinates": [
+                    26.059068,
+                    44.434426
+                ]
+            },
+            "id": "ci9l6usag00754km5f377j526"
+        },
+        {
+            "type": "Feature",
+            "properties": {
+                "title": "La Leu",
+                "description": "",
+                "id": "",
+                "stroke": "#7ec9b1",
+                "stroke-width": 1,
+                "stroke-opacity": 0.5,
+                "fill": "#7ec9b1",
+                "fill-opacity": 0.5,
+                "photo": "https://bucurestiuldisparut.github.io/photos/la leu.jpeg",
+                "thumbnail": "https://bucurestiuldisparut.github.io/thumbnails/la leu.jpeg",
+                "author": "",
+                "year": "1920",
+                "source": ""
+            },
+            "geometry": {
+                "type": "Polygon",
+                "coordinates": [
+                    [
+                        [
+                            26.059068,
+                            44.434426
+                        ],
+                        [
+                            26.058833,
+                            44.434414
+                        ],
+                        [
+                            26.05898,
+                            44.43429
+                        ],
+                        [
+                            26.059068,
+                            44.434426
+                        ]
+                    ]
+                ]
+            },
+            "id": "ci9l6u167227ykkm5d1h4465r"
+        },
+        {
+            "type": "Feature",
+            "properties": {
+                "id": "",
+                "title": "Monetaria de la Sosea",
+                "description": "",
+                "marker-size": "medium",
+                "marker-color": "#1087bf",
+                "marker-symbol": "camera",
+                "photo": "https://bucurestiuldisparut.github.io/photos/monetaria de la sosea.jpg",
+                "thumbnail": "https://bucurestiuldisparut.github.io/thumbnails/monetaria de la sosea.jpg",
+                "author": "",
+                "year": "1906",
+                "source": ""
+            },
+            "geometry": {
+                "type": "Point",
+                "coordinates": [
+                    26.085002,
+                    44.454772
+                ]
+            },
+            "id": "ci9l6usag00754km5f377j526"
+        },
+        {
+            "type": "Feature",
+            "properties": {
+                "title": "Monetaria de la Sosea",
+                "description": "",
+                "id": "",
+                "stroke": "#7ec9b1",
+                "stroke-width": 1,
+                "stroke-opacity": 0.5,
+                "fill": "#7ec9b1",
+                "fill-opacity": 0.5,
+                "photo": "https://bucurestiuldisparut.github.io/photos/monetaria de la sosea.jpg",
+                "thumbnail": "https://bucurestiuldisparut.github.io/thumbnails/monetaria de la sosea.jpg",
+                "author": "",
+                "year": "1906",
+                "source": ""
+            },
+            "geometry": {
+                "type": "Polygon",
+                "coordinates": [
+                    [
+                        [
+                            26.085002,
+                            44.454772
+                        ],
+                        [
+                            26.084804,
+                            44.454659
+                        ],
+                        [
+                            26.084738,
+                            44.454902
+                        ],
+                        [
+                            26.085002,
+                            44.454772
+                        ]
+                    ]
+                ]
+            },
+            "id": "ci9l6u167227ykkm5d1h4465r"
+        },
+        {
+            "type": "Feature",
+            "properties": {
+                "id": "",
+                "title": "Macheta Statue Ferdinand",
+                "description": "",
+                "marker-size": "medium",
+                "marker-color": "#1087bf",
+                "marker-symbol": "camera",
+                "photo": "https://bucurestiuldisparut.github.io/photos/1940 02 Macheta statuii Regelui Ferdinand în Piaţa Victoriei duplex.jpg",
+                "thumbnail": "https://bucurestiuldisparut.github.io/thumbnails/1940 02 Macheta statuii Regelui Ferdinand în Piaţa Victoriei duplex.jpg",
+                "author": "",
+                "year": "1940",
+                "source": ""
+            },
+            "geometry": {
+                "type": "Point",
+                "coordinates": [
+                    26.085817,
+                    44.452795
+                ]
+            },
+            "id": "ci9l6u51300754km5f377j526"
+        },
+        {
+            "type": "Feature",
+            "properties": {
+                "title": "Macheta Statue Ferdinand",
+                "description": "",
+                "id": "",
+                "stroke": "#7ec9b1",
+                "stroke-width": 1,
+                "stroke-opacity": 0.5,
+                "fill": "#7ec9b1",
+                "fill-opacity": 0.5,
+                "photo": "https://bucurestiuldisparut.github.io/photos/1940 02 Macheta statuii Regelui Ferdinand în Piaţa Victoriei duplex.jpg",
+                "thumbnail": "https://bucurestiuldisparut.github.io/thumbnails/1940 02 Macheta statuii Regelui Ferdinand în Piaţa Victoriei duplex.jpg",
+                "author": "",
+                "year": "1940",
+                "source": ""
+            },
+            "geometry": {
+                "type": "Polygon",
+                "coordinates": [
+                    [
+                        [
+                            26.085817,
+                            44.452795
+                        ],
+                        [
+                            26.085982,
+                            44.4527
+                        ],
+                        [
+                            26.085997,
+                            44.452825
+                        ],
+                        [
+                            26.085817,
+                            44.452795
+                        ]
+                    ]
+                ]
+            },
+            "id": "ci9l6u167227y6675d1h4465r"
+        },
+        {
+            "type": "Feature",
+            "properties": {
+                "id": "",
+                "title": "Calea Mosilor",
+                "description": "",
+                "marker-size": "medium",
+                "marker-color": "#1087bf",
+                "marker-symbol": "camera",
+                "photo": "https://bucurestiuldisparut.github.io/photos/mosilor_70.png",
+                "thumbnail": "https://bucurestiuldisparut.github.io/thumbnails/mosilor_70.png",
+                "author": "",
+                "year": "1976",
+                "source": ""
+            },
+            "geometry": {
+                "type": "Point",
+                "coordinates": [
+                    26.123087,
+                    44.447553
+                ]
+            },
+            "id": "ci9l6u51300754km5f366j526"
+        },
+        {
+            "type": "Feature",
+            "properties": {
+                "title": "Calea Mosilor",
+                "description": "",
+                "id": "",
+                "stroke": "#7ec9b1",
+                "stroke-width": 1,
+                "stroke-opacity": 0.5,
+                "fill": "#7ec9b1",
+                "fill-opacity": 0.5,
+                "photo": "https://bucurestiuldisparut.github.io/photos/mosilor_70.png",
+                "thumbnail": "https://bucurestiuldisparut.github.io/thumbnails/mosilor_70.png",
+                "author": "",
+                "year": "1976",
+                "source": ""
+            },
+            "geometry": {
+                "type": "Polygon",
+                "coordinates": [
+                    [
+                        [
+                            26.123087,
+                            44.447553
+                        ],
+                        [
+                            26.123198,
+                            44.447622
+                        ],
+                        [
+                            26.123084,
+                            44.447691
+                        ],
+                        [
+                            26.123087,
+                            44.447553
+                        ]
+                    ]
+                ]
+            },
+            "id": "ci9l6u167667y6675d1h4465r"
+        },
+        {
+            "type": "Feature",
+            "properties": {
+                "id": "",
+                "title": "Hala Mosilor",
+                "description": "",
+                "marker-size": "medium",
+                "marker-color": "#1087bf",
+                "marker-symbol": "camera",
+                "photo": "https://bucurestiuldisparut.github.io/photos/Hala_Obor.png",
+                "thumbnail": "https://bucurestiuldisparut.github.io/thumbnails/Hala_Obor.png",
+                "author": "",
+                "year": "1910",
+                "source": ""
+            },
+            "geometry": {
+                "type": "Point",
+                "coordinates": [
+                    26.125753,
+                    44.45032
+                ]
+            },
+            "id": "ci9l6u51300754km5h366j526"
+        },
+        {
+            "type": "Feature",
+            "properties": {
+                "title": "Hala Mosilor",
+                "description": "",
+                "id": "",
+                "stroke": "#7ec9b1",
+                "stroke-width": 1,
+                "stroke-opacity": 0.5,
+                "fill": "#7ec9b1",
+                "fill-opacity": 0.5,
+                "photo": "https://bucurestiuldisparut.github.io/photos/Hala_Obor.png",
+                "thumbnail": "https://bucurestiuldisparut.github.io/thumbnails/Hala_Obor.png",
+                "author": "",
+                "year": "1910",
+                "source": ""
+            },
+            "geometry": {
+                "type": "Polygon",
+                "coordinates": [
+                    [
+                        [
+                            26.125753,
+                            44.45032
+                        ],
+                        [
+                            26.125811,
+                            44.450286
+                        ],
+                        [
+                            26.125836,
+                            44.450342
+                        ],
+                        [
+                            26.125753,
+                            44.45032
+                        ]
+                    ]
+                ]
+            },
+            "id": "ci9l6u167667y6675d1h4465e"
+        },
+        {
+            "type": "Feature",
+            "properties": {
+                "id": "",
+                "title": "Bucur Obor",
+                "description": "",
+                "marker-size": "medium",
+                "marker-color": "#1087bf",
+                "marker-symbol": "camera",
+                "photo": "https://bucurestiuldisparut.github.io/photos/Bucur_Obor_(1986).jpg",
+                "thumbnail": "https://bucurestiuldisparut.github.io/thumbnails/Bucur_Obor_(1986).jpg",
+                "author": "",
+                "year": "1986",
+                "source": ""
+            },
+            "geometry": {
+                "type": "Point",
+                "coordinates": [
+                    26.125293,
+                    44.449646
+                ]
+            },
+            "id": "ci9l6u51300754km5h36fj526"
+        },
+        {
+            "type": "Feature",
+            "properties": {
+                "title": "Bucur Obor",
+                "description": "",
+                "id": "",
+                "stroke": "#7ec9b1",
+                "stroke-width": 1,
+                "stroke-opacity": 0.5,
+                "fill": "#7ec9b1",
+                "fill-opacity": 0.5,
+                "photo": "https://bucurestiuldisparut.github.io/photos/Bucur_Obor_(1986).jpg",
+                "thumbnail": "https://bucurestiuldisparut.github.io/thumbnails/Bucur_Obor_(1986).jpg",
+                "author": "",
+                "year": "1986",
+                "source": ""
+            },
+            "geometry": {
+                "type": "Polygon",
+                "coordinates": [
+                    [
+                        [
+                            26.125293,
+                            44.449646
+                        ],
+                        [
+                            26.125352,
+                            44.449668
+                        ],
+                        [
+                            26.125318,
+                            44.449718
+                        ],
+                        [
+                            26.125293,
+                            44.449646
+                        ]
+                    ]
+                ]
+            },
+            "id": "ci9l6w167667y6675d1h4465e"
+        },
+        {
+            "type": "Feature",
+            "properties": {
+                "id": "",
+                "title": "Hala Mosilor",
+                "description": "",
+                "marker-size": "medium",
+                "marker-color": "#1087bf",
+                "marker-symbol": "camera",
+                "photo": "https://bucurestiuldisparut.github.io/photos/obor-6.jpg",
+                "thumbnail": "https://bucurestiuldisparut.github.io/thumbnails/obor-6.jpg",
+                "author": "",
+                "year": "1930",
+                "source": ""
+            },
+            "geometry": {
+                "type": "Point",
+                "coordinates": [
+                    26.126817,
+                    44.449857
+                ]
+            },
+            "id": "ci9l6u51300754km5h386j526"
+        },
+        {
+            "type": "Feature",
+            "properties": {
+                "title": "Hala Mosilor",
+                "description": "",
+                "id": "",
+                "stroke": "#7ec9b1",
+                "stroke-width": 1,
+                "stroke-opacity": 0.5,
+                "fill": "#7ec9b1",
+                "fill-opacity": 0.5,
+                "photo": "https://bucurestiuldisparut.github.io/photos/obor-6.jpg",
+                "thumbnail": "https://bucurestiuldisparut.github.io/thumbnails/obor-6.jpg",
+                "author": "",
+                "year": "1930",
+                "source": ""
+            },
+            "geometry": {
+                "type": "Polygon",
+                "coordinates": [
+                    [
+                        [
+                            26.126817,
+                            44.449857
+                        ],
+                        [
+                            26.126698,
+                            44.449894
+                        ],
+                        [
+                            26.126745,
+                            44.449994
+                        ],
+                        [
+                            26.126817,
+                            44.449857
+                        ]
+                    ]
+                ]
+            },
+            "id": "ci9l6u167667y6675d1h4665e"
+        },
+        {
+            "type": "Feature",
+            "properties": {
+                "id": "",
+                "title": "Ansamblu Gara de Nord",
+                "description": "",
+                "marker-size": "medium",
+                "marker-color": "#1087bf",
+                "marker-symbol": "camera",
+                "photo": "https://bucurestiuldisparut.github.io/photos/ansamblul-gara-de-nord-in-constructie.JPG",
+                "thumbnail": "https://bucurestiuldisparut.github.io/thumbnails/ansamblul-gara-de-nord-in-constructie.JPG",
+                "author": "",
+                "year": "1959",
+                "source": ""
+            },
+            "geometry": {
+                "type": "Point",
+                "coordinates": [
+                    26.081442,
+                    44.446003
+                ]
+            },
+            "id": "ci9l6u51300754km5h396j526"
+        },
+        {
+            "type": "Feature",
+            "properties": {
+                "title": "Ansamblu Gara de Nord",
+                "description": "",
+                "id": "",
+                "stroke": "#7ec9b1",
+                "stroke-width": 1,
+                "stroke-opacity": 0.5,
+                "fill": "#7ec9b1",
+                "fill-opacity": 0.5,
+                "photo": "https://bucurestiuldisparut.github.io/photos/ansamblul-gara-de-nord-in-constructie.JPG",
+                "thumbnail": "https://bucurestiuldisparut.github.io/thumbnails/ansamblul-gara-de-nord-in-constructie.JPG",
+                "author": "",
+                "year": "1959",
+                "source": ""
+            },
+            "geometry": {
+                "type": "Polygon",
+                "coordinates": [
+                    [
+                        [
+                            26.081442,
+                            44.446003
+                        ],
+                        [
+                            26.080092,
+                            44.446301
+                        ],
+                        [
+                            26.080193,
+                            44.445736
+                        ],
+                        [
+                            26.081442,
+                            44.446003
+                        ]
+                    ]
+                ]
+            },
+            "id": "ci9l6u197667y6675d1h4665e"
+        }
+    ]
+}

@@ -1,0 +1,93 @@
+# CodeRabbit review configuration. The rules themselves live in AGENTS.md and the agent skills;
+# knowledge_base.code_guidelines hands those files to the reviewer, so the path_instructions below
+# only add what a path-scoped reviewer needs on top of them.
+language: en-US
+knowledge_base:
+    code_guidelines:
+        enabled: true
+        filePatterns:
+            - AGENTS.md
+            - .agents/skills/**/SKILL.md
+            - .agent/skills/**/*.md
+reviews:
+    high_level_summary: true
+    review_status: true
+    poem: false
+    path_filters:
+        # Byte mirror of .agents/skills (static gate): review the canonical copy only.
+        - '!.claude/skills/**'
+        # Generated from e2e/scenarios.json (scripts/ci/gen_scenarios_doc.py): review the registry.
+        - '!docs/E2E_SCENARIOS.md'
+        # Legacy data migrated as is, third-party code vendored for an advisory, generated files.
+        - '!seed/**'
+        - '!vendor/**'
+        - '!package-lock.json'
+        - '!pipeline/poetry.lock'
+        - '!docs/research/*.json'
+        - '!.github/badges/**'
+    path_instructions:
+        - path: 'packages/*/src/**'
+          instructions: |
+              Lit 3 custom elements (prefix hcm-, no decorators) and shared TypeScript. Flag any HTML
+              rendered from data (innerHTML, unsafeHTML, insertAdjacentHTML; Lit templates and
+              textContent only), any import of mapbox-gl outside the map adapter (mapbox-gl is the
+              external global mapboxgl, never bundled), any Firestore or Firebase SDK use in the
+              public viewer (it reads only the static manifest), a second Mapbox map in one view,
+              console.* instead of createLogger, a UI string missing from ro or en, and any inline
+              suppression. Complexity at most 5 per function, functions at most 60 lines, files at
+              most 400. Every user-visible behaviour needs a happy and a bad row in e2e/scenarios.json.
+        - path: 'packages/*/test/**'
+          instructions: |
+              Vitest (Lit components in browser mode). Tests mock only external boundaries (Mapbox,
+              USGS, STAC, Nominatim, AI, the network), never an owned module; no network, sleeps or
+              wall clock. Flag .only/.skip, a test that asserts nothing but "no exception", and a
+              coverage gap that would take a file under 90 % lines or branches.
+        - path: 'functions/src/**'
+          instructions: |
+              Cloud Functions v2 handlers behind ports. Secrets come from Secret Manager only and are
+              never logged, returned or put in argv. Callables check auth and the admin claim first.
+              Flag any IAM, quota or cost risk (Mapbox MTS publishes only after approval and within
+              the compute-unit guard; the GCP budget alarm pauses the pipeline, never the site).
+        - path: 'firebase/*.rules'
+          instructions: |
+              Firestore is fully private; the public reads only the manifest from Storage. Flag any
+              rule that widens read or write access, and any rule branch without a rules test
+              (rules-coverage gate).
+        - path: 'pipeline/**'
+          instructions: |
+              Python 3.14 raster pipeline (GDAL from the pinned image). Georeferencing references OSM
+              and Sentinel-2 only, never Mapbox Satellite; nothing from fostulbucuresti. Logging via
+              the log module, no print. Tests use synthetic scans and fake M2M/MTS, no network.
+        - path: 'e2e/**'
+          instructions: |
+              Playwright end-to-end tests: drive the app from outside, assert what the user sees,
+              mock only external APIs, no sleeps. Every scenario id must match a row of
+              e2e/scenarios.json (happy and bad rows per behaviour).
+        - path: 'scripts/ci/**'
+          instructions: |
+              The quality pipeline: gates are data in scripts/ci/pipeline.py and run only inside the
+              quality image. Python is ruff + mypy --strict, complexity at most 5, logging through
+              cilog (no print), 90 % line and branch coverage per file from scripts/ci/tests. Tests
+              never touch the network (conftest blocks it). Flag a lowered threshold, a skipped gate
+              or an inline waiver.
+        - path: 'scripts/git-hooks/*'
+          instructions: |
+              Hooks every agent and human runs (git config core.hooksPath scripts/git-hooks).
+              pre-commit: secret-file refusal, suppression scan and gitleaks on the staged contents,
+              tools from the quality image. pre-push: master and v* tags need
+              reports/pipeline/green-all.json for the pushed commit and a clean tree. Flag any bypass,
+              any network call and any drift from the marker that scripts/ci/pipeline.py writes.
+        - path: '.github/workflows/*.yml'
+          instructions: |
+              Actions pinned to a full commit SHA with a `# vX.Y.Z` comment; least-privilege
+              permissions per job; persist-credentials false; timeout-minutes on every job. Jobs call
+              only `bash scripts/ci/run-all-checks.sh` per stage (or build-and-test.sh for the image):
+              flag a lint or test tool called directly. Deploys stay behind vars.DEPLOY_ENABLED and
+              use Workload Identity Federation, never a key. Flag pull_request_target and any
+              ${{ }} expression interpolated into a run script instead of passed through env.
+        - path: '**/*.md'
+          instructions: |
+              Documentation is part of the deliverable: README.md, docs/*.md and the .agent/ assets
+              must describe the implementation of the same PR. Stage definitions live only in
+              .agent/skills/quality/pipeline_skill.md and test counts only in the Counts section of
+              docs/E2E_SCENARIOS.md; flag a restated definition or count and a path that does not exist.

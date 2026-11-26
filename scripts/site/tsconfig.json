@@ -1,0 +1,22 @@
+// The static site build (scripts/site: the city sites, the admin's Hosting folder and, since M6, the Hosting tree): Node code run through type
+// stripping (`node --import ./scripts/site/register-ts.mjs`), so only erasable TypeScript syntax is allowed. Its unit
+// tests are scripts/site/test (their own project).
+{
+    "extends": "../../tsconfig.base.json",
+    "compilerOptions": {
+        "types": ["node"],
+        "erasableSyntaxOnly": true
+    },
+    "include": [
+        "src",
+        "build-site.ts",
+        "build-admin.ts",
+        "build-hosting.ts",
+        "build-install.ts",
+        "build-start.ts",
+        "build-landing.ts",
+        "add-site.ts",
+        "split-admin-site.ts"
+    ],
+    "references": [{ "path": "../../packages/shared" }]
+}

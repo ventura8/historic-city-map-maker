@@ -1,0 +1,13 @@
+{
+    "call": "POST https://m2m.cr.usgs.gov/api/api/json/stable/login-token",
+    "note": "An ERS account without M2M access. M2M spells the code AUTH_UNAUTHROIZED (sic); the HTTP status is UNVERIFIED (JSON errors arrive as 500).",
+    "status": 500,
+    "body": {
+        "requestId": 1000002,
+        "version": "stable",
+        "sessionId": null,
+        "data": null,
+        "errorCode": "AUTH_UNAUTHROIZED",
+        "errorMessage": "User does not have access to the requested endpoint"
+    }
+}

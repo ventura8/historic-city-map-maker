@@ -1,0 +1,11 @@
+// Unit tests of @hcm/engine, type-checked apart from src/ so Node and Vitest types never leak into product code.
+{
+    "extends": "../../../tsconfig.base.json",
+    "compilerOptions": {
+        // Vitest's own declarations (including the browser-mode API) reference Node types such as BufferEncoding;
+        // `vite/client` types the stylesheet side-effect import that src/index.ts keeps in its declarations.
+        "types": ["node", "vite/client"]
+    },
+    "include": ["."],
+    "references": [{ "path": ".." }, { "path": "../../test-support" }]
+}

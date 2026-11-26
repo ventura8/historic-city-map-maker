@@ -1,0 +1,12 @@
+{
+    "call": "GET https://iam.googleapis.com/v1/projects/<project>/roles/<role>",
+    "status": 200,
+    "body": {
+        "name": "projects/{{projectId}}/roles/{{roleId}}",
+        "title": "Historic City Map Maker: Vertex AI drafts",
+        "description": "generateContent and countTokens of the pinned Gemini model, for the RO-EN translation drafts",
+        "includedPermissions": ["aiplatform.endpoints.predict"],
+        "stage": "GA",
+        "etag": "BwYABcDeF0g="
+    }
+}

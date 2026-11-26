@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="utf-8">
+        <meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'none'; style-src 'self'; img-src 'self' data:; base-uri 'none'; form-action 'none'; object-src 'none'">
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        <meta name="description" content="Make a historical map of your city: old photos, vanished places and maps of the past over today’s map.">
+        <meta name="color-scheme" content="light dark">
+        <title>Historic City Map Maker</title>
+        <link rel="icon" href="data:,">
+        <link rel="stylesheet" href="landing.css">
+    </head>
+    <body>
+        <header class="landing-header">
+            <nav class="landing-switch" aria-label="Language">
+                <a class="landing-link" href="ro.html" lang="ro" hreflang="ro">Română</a>
+            </nav>
+        </header>
+        <main class="landing">
+            <h1>Historic City Map Maker</h1>
+            <p class="landing-lead">Historic City Map Maker makes a historical map of any city: old photos, vanished places, stories and maps of the past over today’s map, with an admin that does almost everything for you.</p>
+            <ul class="landing-points">
+                <li>Old photos placed where they were taken, each with the direction the camera faced, beside places and stories.</li>
+                <li>Historical imagery (declassified USGS frames, Landsat, scanned maps of your own) found, georeferenced and published as layers.</li>
+                <li>An admin that sets up Google Cloud, Mapbox and USGS with buttons, in your own project, in Romanian and English.</li>
+            </ul>
+            <p>
+                <a class="landing-start" href="https://start-historic-city.web.app/">Start your map</a>
+            </p>
+            <p>Sign in with Google and name your place: the map and its admin are installed in a Google project of your own.</p>
+            <section aria-labelledby="terminal">
+                <h2 id="terminal">Prefer the terminal?</h2>
+                <p>With Node.js and the Firebase and Google Cloud command lines installed, run:</p>
+                <p class="landing-command">
+                    <code>npx create-historic-city@1.0.0-beta.1 self-host</code>
+                </p>
+            </section>
+            <section aria-labelledby="example">
+                <h2 id="example">See an example</h2>
+                <p>
+                    The first map made with Historic City Map Maker:
+                    <a href="https://bucurestiul-disparut.web.app/">București dispărut (Lost Bucharest)</a>
+                </p>
+            </section>
+            <section aria-labelledby="links">
+                <h2 id="links">Learn more</h2>
+                <ul class="landing-links">
+                    <li>
+                        <a class="landing-link" href="https://github.com/ventura8/historic-city-map-maker">Source code</a>
+                    </li>
+                    <li>
+                        <a class="landing-link" href="https://github.com/ventura8/historic-city-map-maker/blob/master/docs/SETUP.md">Setup guide</a>
+                    </li>
+                    <li>
+                        <a class="landing-link" href="https://github.com/ventura8/historic-city-map-maker/blob/master/docs/SELF_HOST.md">Self-hosting guide</a>
+                    </li>
+                    <li>
+                        <a class="landing-link" href="https://github.com/ventura8/historic-city-map-maker/blob/master/docs/ENGINE_API.md">Engine API</a>
+                    </li>
+                    <li>
+                        <a class="landing-link" href="https://github.com/ventura8/historic-city-map-maker/releases">Releases</a>
+                    </li>
+                    <li>
+                        <a class="landing-link" href="https://start-historic-city.web.app/privacy.html">Privacy policy</a>
+                    </li>
+                    <li>
+                        <a class="landing-link" href="https://start-historic-city.web.app/terms.html">Terms of service</a>
+                    </li>
+                </ul>
+            </section>
+        </main>
+        <footer class="landing-footer">
+            <p>Historic City Map Maker is open source. This page sets no cookie and loads no script.</p>
+        </footer>
+    </body>
+</html>

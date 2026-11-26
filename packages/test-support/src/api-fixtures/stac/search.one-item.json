@@ -1,0 +1,60 @@
+{
+    "call": "POST https://earth-search.aws.element84.com/v1/search",
+    "note": "Sentinel-2 L2A over the window, the last three years, under 20 % clouds, sorted by cloud cover: one item whose visual asset (an 8-bit true-colour COG) the pipeline reads through GDAL /vsicurl/ for the window only. {{cogOrigin}} is the COG host (the fake's own, or the e2e mock APIs' loopback forward). UNVERIFIED availability (docs/research/M3-interfaces.md §5.5, §14).",
+    "status": 200,
+    "headers": {
+        "content-type": "application/geo+json"
+    },
+    "body": {
+        "type": "FeatureCollection",
+        "stac_version": "1.0.0",
+        "context": {
+            "returned": 1,
+            "limit": 10,
+            "matched": 1
+        },
+        "numberMatched": 1,
+        "numberReturned": 1,
+        "features": [
+            {
+                "type": "Feature",
+                "stac_version": "1.0.0",
+                "id": "S2B_35TMK_20250803_0_L2A",
+                "collection": "sentinel-2-l2a",
+                "bbox": [25.75, 44.1, 26.55, 44.85],
+                "geometry": {
+                    "type": "Polygon",
+                    "coordinates": [
+                        [
+                            [25.75, 44.1],
+                            [26.55, 44.1],
+                            [26.55, 44.85],
+                            [25.75, 44.85],
+                            [25.75, 44.1]
+                        ]
+                    ]
+                },
+                "properties": {
+                    "datetime": "2025-08-03T09:15:42.024000Z",
+                    "platform": "sentinel-2b",
+                    "constellation": "sentinel-2",
+                    "eo:cloud_cover": 1.8,
+                    "proj:epsg": 32635,
+                    "mgrs:utm_zone": 35,
+                    "mgrs:latitude_band": "T",
+                    "mgrs:grid_square": "MK"
+                },
+                "assets": {
+                    "visual": {
+                        "href": "{{cogOrigin}}/sentinel-s2-l2a-cogs/35/T/MK/2025/8/S2B_35TMK_20250803_0_L2A/TCI.tif",
+                        "type": "image/tiff; application=geotiff; profile=cloud-optimized",
+                        "title": "True color image",
+                        "roles": ["visual"]
+                    }
+                },
+                "links": []
+            }
+        ],
+        "links": []
+    }
+}

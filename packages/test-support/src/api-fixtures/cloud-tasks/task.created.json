@@ -1,0 +1,15 @@
+{
+    "call": "POST https://cloudtasks.googleapis.com/v2/projects/<project>/locations/<region>/queues/<queue>/tasks",
+    "status": 200,
+    "body": {
+        "name": "projects/{{projectId}}/locations/{{region}}/queues/{{queue}}/tasks/{{task}}",
+        "scheduleTime": "2026-10-12T08:31:00Z",
+        "createTime": "2026-10-12T08:30:00Z",
+        "dispatchDeadline": "600s",
+        "view": "BASIC",
+        "httpRequest": {
+            "url": "https://{{region}}-{{projectId}}.cloudfunctions.net/{{queue}}",
+            "httpMethod": "POST"
+        }
+    }
+}

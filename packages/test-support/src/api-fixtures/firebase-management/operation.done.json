@@ -1,0 +1,23 @@
+{
+    "call": "GET https://firebase.googleapis.com/v1beta1/operations/<operation>",
+    "status": 200,
+    "body": {
+        "name": "{{operationName}}",
+        "done": true,
+        "response": {
+            "@type": "type.googleapis.com/google.firebase.service.v1beta1.AnalyticsDetails",
+            "analyticsProperty": {
+                "id": "properties/{{analyticsPropertyId}}",
+                "displayName": "Historic City Map",
+                "analyticsAccountId": "300000001"
+            },
+            "streamMappings": [
+                {
+                    "app": "projects/{{projectId}}/webApps/{{appId}}",
+                    "streamId": "500000001",
+                    "measurementId": "{{measurementId}}"
+                }
+            ]
+        }
+    }
+}

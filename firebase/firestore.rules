@@ -1,0 +1,986 @@
+rules_version = '2';
+
+// Firestore security rules (docs/research/design-review-security-cost.md §1.4, docs/research/M2-interfaces.md §2).
+//
+// Firestore is private: the public viewer never reads it (it fetches the static manifest from the
+// public bucket). Only verified Google accounts that hold the `admin` custom claim AND have an
+// admins/{uid} document read or write here; everything else is denied by default. Cloud Functions
+// and the Cloud Run job use the Admin SDK, which bypasses these rules, so every server writer
+// re-validates with the shared zod schemas. Server-owned documents (admins, setup, invites, usage,
+// ops, manifests, job logs, history) have no client write rule at all.
+//
+// The client-writable fields mirror CLIENT_WRITES (packages/shared/src/schemas/client-writes.ts)
+// field by field: a create may contain exactly the `create` fields, an update may change exactly
+// the `update` fields, everything else is server-owned. The value checks follow the zod document
+// schemas (schemas/firestore.ts, schemas/firestore-ops.ts) within two limits of the rules language:
+//
+// - One request may evaluate at most 1000 expressions, and every reference to a function argument
+//   evaluates the argument again (a single check costs about ten). So each field gets as few checks
+//   as possible: a text is one bounded pattern (`[\s\S]{1,200}`: a string of 1 to 200 characters;
+//   zod also trims, so a blank optional text passes here and is refused by the server), an optional
+//   field is checked with its neutral default (`data.get('bearing', 0)`), and the heaviest
+//   legitimate write stays well within the limit (rules-tests/test/limits.test.ts).
+// - Rules have no loops: links are checked one by one (at most five), a geometry by its size, its
+//   first vertex and its closing vertex, the theme's token maps by their sizes. What rules cannot see
+//   (each token value, Markdown links, every vertex) is checked again by the manifest builder, which
+//   skips a document its schema refuses (M2-interfaces §3.5).
+//
+// Every write validates the whole document it leaves; on update the city bounds are only consulted
+// when the photo's location changes, so an edit never fails on a city boundary moved since.
+//
+// Tests: firebase/rules-tests (allow/deny matrix per persona, collection and operation; field
+// validation per entity). The tests stage fails when any expression below was never evaluated or
+// an `allow` never allowed or never denied a request (scripts/ci/check_rules_coverage.py).
+service cloud.firestore {
+    match /databases/{database}/documents {
+
+        // ---- Who is asking -----------------------------------------------------------------
+
+        // A signed-in, verified Google account: admins only ever sign in with Google.
+        function authed() {
+            return request.auth != null
+                && request.auth.token.email_verified == true
+                && request.auth.token.firebase.sign_in_provider == 'google.com';
+        }
+
+        // The custom claim alone stays valid in an ID token for up to an hour after revocation;
+        // also requiring admins/{uid} makes removing an admin take effect immediately.
+        function isAdmin() {
+            return authed()
+                && request.auth.token.get('admin', false) == true
+                && exists(/databases/$(database)/documents/admins/$(request.auth.uid));
+        }
+
+        // ---- M5: which city (docs/research/M5-interfaces.md §1.2, §1.4; owner: multi-city) ----------------------------
+        //
+        // Membership lives on the admin's own document (`admins/{uid}.cities`: city id -> 'owner' | 'editor', written by
+        // the functions only); the `exists` of isAdmin() and this `get` of the same document are one read. A document
+        // without `cities` (from before M5, until admin.session or ops.tick migrates it) belongs to no city: fail closed.
+        function cityRole(city) {
+            return get(/databases/$(database)/documents/admins/$(request.auth.uid)).data.get('cities', {}).get(city, '');
+        }
+
+        // Every city path: an admin with a staff role in that city; the admins of other cities read and write nothing of it.
+        // M13 (docs/research/M13-roles.md §1): the new roles are named where they are allowed, never subtracted, so every rule
+        // that asks for this stays closed to `moderator` and `uploader`.
+        function isCityMember(city) {
+            return isAdmin() && cityRole(city) in ['owner', 'editor'];
+        }
+
+        // M13: reviews, edits or unpublishes any photo or place of the city.
+        function isCityReviewer(city) {
+            return isAdmin() && cityRole(city) in ['owner', 'editor', 'moderator'];
+        }
+
+        // M13: adds photos and places that wait for review, and sees only those.
+        function isCityUploader(city) {
+            return isAdmin() && cityRole(city) == 'uploader';
+        }
+
+        // M13: role requests hold an applicant's address; only the city's owners read them.
+        function isCityOwner(city) {
+            return isAdmin() && cityRole(city) == 'owner';
+        }
+
+        // M13: any role in the city (its name, its bounds and its categories, which every screen of it needs).
+        function hasCityRole(city) {
+            return isAdmin() && cityRole(city) in ['owner', 'editor', 'moderator', 'uploader'];
+        }
+
+        // M13 §1: the project's own state (Setup, budgets, the guard) is for staff: an account with cities and none as staff
+        // reads none of it. No city at all keeps what it had: a project before its first city, a document from before M5.
+        function isStaff() {
+            let cities = get(/databases/$(database)/documents/admins/$(request.auth.uid)).data.get('cities', {});
+            return isAdmin() && (cities.size() == 0 || cities.values().hasAny(['owner', 'editor']));
+        }
+
+        // M13 §2: what an uploader may do to their own item while it waits. The list leaves out `published`, `legacyId` and
+        // `rightsReview`, which are never theirs.
+        function ownItem(data) {
+            return data.get('createdBy', '') == request.auth.uid;
+        }
+
+        // M13 §2: a pending or refused item is published through `review.decide` only, whoever asks.
+        function publishedStaysTheServers() {
+            return !('published' in changedKeys()) || resource.data.get('reviewStatus', 'approved') == 'approved';
+        }
+
+        // The account that claimed the project: it reads every admin and every invitation.
+        function isProjectOwner() {
+            return isAdmin() && get(/databases/$(database)/documents/admins/$(request.auth.uid)).data.get('role', '') == 'owner';
+        }
+
+        // ---- Value checks ------------------------------------------------------------------
+        //
+        // A check reads every key it needs: a missing key is an error, and an error denies.
+
+        // Patterns of a string of 1 to N characters (`matches` refuses anything but a string). RE2
+        // repeats stop at 1000, so longer bounds chain blocks of at most 1000.
+        function upTo2000() {
+            return '[\\s\\S]{1,1000}[\\s\\S]{0,1000}';
+        }
+
+        function upTo5000() {
+            return upTo2000() + '[\\s\\S]{0,1000}[\\s\\S]{0,1000}[\\s\\S]{0,1000}';
+        }
+
+        function upTo10000() {
+            return upTo5000() + '[\\s\\S]{0,1000}[\\s\\S]{0,1000}[\\s\\S]{0,1000}[\\s\\S]{0,1000}[\\s\\S]{0,1000}';
+        }
+
+        // An absolute https URL of at most 2048 characters without credentials or white space (no
+        // javascript:, data: or http:): what zod `httpsUrlSchema` accepts, a little stricter.
+        function httpsUrl() {
+            return 'https://[^\\s/?#@]{1,253}([/?#][^\\s]{0,999}[^\\s]{0,786})?';
+        }
+
+        // `httpsUrl()` whose host has only letters, digits, dots and hyphens (and a port): an address whose origin a
+        // page's Content Security Policy names, where a `;` or a quote in the host would end the directive (zod
+        // `basemapSchema`, `isCspOrigin`; docs/LESSONS.md 241).
+        function httpsHostUrl() {
+            return 'https://[A-Za-z0-9.-]{1,253}(:[0-9]{1,5})?([/?#][^\\s]{0,999}[^\\s]{0,786})?';
+        }
+
+        // {ro, en?}: Romanian required, English optional (zod `localizedPartial`), `pattern` bounds both.
+        function localized(value, pattern) {
+            return value.keys().hasOnly(['ro', 'en']) && value.ro.matches(pattern) && value.get('en', 'x').matches(pattern);
+        }
+
+        // A required title or name: also never blank.
+        function titled(value, pattern) {
+            return localized(value, pattern) && value.ro.matches('[\\s\\S]*\\S[\\s\\S]*');
+        }
+
+        // Ids of photos, POIs, categories and jobs (`ID_PATTERN`): what paths and the manifest accept.
+        function isId(value) {
+            return value.matches('[A-Za-z0-9_-]{1,40}');
+        }
+
+        // A year 1500-2100 (an old city plan, 1770, 2026-11-22): the digits of an integer (a fraction or a string never matches both).
+        function isYear(value) {
+            return value is int && string(value).matches('1[5-9][0-9][0-9]|20[0-9][0-9]|2100');
+        }
+
+        // {lat, lng} in degrees: photo locations and POI vertices.
+        function latLng(value) {
+            return value.keys().hasOnly(['lat', 'lng'])
+                && value.lat >= -90
+                && value.lat <= 90
+                && value.lng >= -180
+                && value.lng <= 180;
+        }
+
+        // A labelled link {url, label}.
+        function link(value) {
+            return value.keys().hasOnly(['url', 'label']) && value.url.matches(httpsUrl()) && value.label.matches('[\\s\\S]{1,200}');
+        }
+
+        // At most five links (`MAX_LINKS`), each checked.
+        function validLinks(links) {
+            return links.size() <= 5
+                && (links.size() < 1 || link(links[0]))
+                && (links.size() < 2 || link(links[1]))
+                && (links.size() < 3 || link(links[2]))
+                && (links.size() < 4 || link(links[3]))
+                && (links.size() < 5 || link(links[4]));
+        }
+
+        // Every client write records who made it, with the server's clock (serverTimestamp()).
+        function stamped(data) {
+            return data.updatedBy == request.auth.uid && data.updatedAt == request.time;
+        }
+
+        // A client create also records its creator, once.
+        function created(data) {
+            return data.createdBy == request.auth.uid && data.createdAt == request.time;
+        }
+
+        // The keys an update changes, adds or removes.
+        function changedKeys() {
+            return request.resource.data.diff(resource.data).affectedKeys();
+        }
+
+        // ---- Cities (CLIENT_WRITES.city: update only) --------------------------------------
+
+        // {west, south, east, north} in degrees, west < east and south < north.
+        function validBounds(bounds) {
+            return bounds.keys().hasOnly(['west', 'south', 'east', 'north'])
+                && bounds.west >= -180
+                && bounds.west < bounds.east
+                && bounds.east <= 180
+                && bounds.south >= -90
+                && bounds.south < bounds.north
+                && bounds.north <= 90;
+        }
+
+        // One generated colour scheme: 1 to MAX_TOKENS (200) tokens; the builder checks each value.
+        function tokenMap(value) {
+            return value is map && value.size() >= 1 && value.size() <= 200;
+        }
+
+        function validTheme(theme) {
+            return theme.keys().hasOnly(['seedColor', 'tokens'])
+                && theme.seedColor.matches('#[0-9A-Fa-f]{6}')
+                && theme.tokens.keys().hasOnly(['light', 'dark', 'highContrastLight', 'highContrastDark'])
+                && tokenMap(theme.tokens.light)
+                && tokenMap(theme.tokens.dark)
+                && tokenMap(theme.tokens.highContrastLight)
+                && tokenMap(theme.tokens.highContrastDark);
+        }
+
+        // `mapbox://styles/<owner>/<style>` or an https style URL, plus at most 30 Standard config properties.
+        function validBasemap(basemap) {
+            return basemap.keys().hasOnly(['style', 'config'])
+                && basemap.style.matches('mapbox://styles/[A-Za-z0-9_-]{1,64}/[A-Za-z0-9_-]{1,64}|' + httpsHostUrl())
+                && basemap.get('config', {}) is map
+                && basemap.get('config', {}).size() <= 30;
+        }
+
+        // At most MAX_TARGET_YEARS (20) target years, each a year (`isYear`), distinct (zod `cityImagerySchema`).
+        // Rules have no loops, so each place is checked like the links are. Every reference to `years` evaluates
+        // its argument again, so the city's other settings are not validated in the same request when only the
+        // imagery settings change (the Settings section saves them on their own; see the `cities/{city}` match).
+        function validYears(years) {
+            return years is list
+                && years.size() <= 20
+                && years.toSet().size() == years.size()
+                && (years.size() < 1 || isYear(years[0]))
+                && (years.size() < 2 || isYear(years[1]))
+                && (years.size() < 3 || isYear(years[2]))
+                && (years.size() < 4 || isYear(years[3]))
+                && (years.size() < 5 || isYear(years[4]))
+                && (years.size() < 6 || isYear(years[5]))
+                && (years.size() < 7 || isYear(years[6]))
+                && (years.size() < 8 || isYear(years[7]))
+                && (years.size() < 9 || isYear(years[8]))
+                && (years.size() < 10 || isYear(years[9]))
+                && (years.size() < 11 || isYear(years[10]))
+                && (years.size() < 12 || isYear(years[11]))
+                && (years.size() < 13 || isYear(years[12]))
+                && (years.size() < 14 || isYear(years[13]))
+                && (years.size() < 15 || isYear(years[14]))
+                && (years.size() < 16 || isYear(years[15]))
+                && (years.size() < 17 || isYear(years[16]))
+                && (years.size() < 18 || isYear(years[17]))
+                && (years.size() < 19 || isYear(years[18]))
+                && (years.size() < 20 || isYear(years[19]));
+        }
+
+        // M3 imagery settings (`cityImagerySchema`, CR-M3-2): auto-publish, its RMSE threshold in metres (1-200) and
+        // the target years; every field optional. M20 (docs/research/M20-import-local.md §5): a drawn map's threshold cap
+        // in metres (15-200) and whether a map publishes on its own. M25 (docs/research/M25-landsat.md §4): whether the tick imports
+        // Landsat on its own, and the years from and to.
+        function validImagery(imagery) {
+            return imagery.keys().hasOnly([
+                    'autoPublish', 'rmseThresholdM', 'targetYears', 'publishThroughMapbox', 'mapThresholdMaxM', 'mapAutoPublish',
+                    'landsatAuto', 'landsatFrom', 'landsatTo'
+                ])
+                && imagery.get('landsatAuto', true) is bool
+                && isYear(imagery.get('landsatFrom', 1984))
+                && isYear(imagery.get('landsatTo', 2000))
+                && imagery.get('autoPublish', true) is bool
+                && imagery.get('mapAutoPublish', true) is bool
+                && imagery.get('mapThresholdMaxM', 60) is number
+                && imagery.get('mapThresholdMaxM', 60) >= 15
+                && imagery.get('mapThresholdMaxM', 60) <= 200
+                && imagery.get('publishThroughMapbox', false) is bool
+                && imagery.get('rmseThresholdM', 15) is number
+                && imagery.get('rmseThresholdM', 15) >= 1
+                && imagery.get('rmseThresholdM', 15) <= 200
+                && validYears(imagery.get('targetYears', []));
+        }
+
+        // M28 sources (`citySourcesSchema`, docs/research/M28-sources.md §3): which sources the map uses, each an optional
+        // boolean; saved on their own, as the imagery settings are. A source added to `SOURCE_TOGGLES` is added here too.
+        function validSources(sources) {
+            return sources is map
+                && sources.keys().hasOnly(['usgs', 'usgsOrders', 'landsat', 'archives', 'contributors', 'openData', 'localAi', 'cloudAi'])
+                && sources.get('usgs', true) is bool
+                && sources.get('usgsOrders', false) is bool
+                && sources.get('landsat', true) is bool
+                && sources.get('archives', true) is bool
+                && sources.get('contributors', true) is bool
+                && sources.get('openData', true) is bool
+                && sources.get('localAi', true) is bool
+                && sources.get('cloudAi', false) is bool;
+        }
+
+        // The settings an admin edits; id, mapbox, analytics, engine and createdAt are server-owned.
+        function validCity(data) {
+            return titled(data.name, '[\\s\\S]{1,100}')
+                && validBounds(data.bounds)
+                && (!('center' in data) || latLng(data.center))
+                && data.get('zoom', 0) >= 0 && data.get('zoom', 0) <= 24
+                && data.get('minZoom', 0) >= 0 && data.get('minZoom', 0) <= 24
+                && data.get('maxZoom', 0) >= 0 && data.get('maxZoom', 0) <= 24
+                && localized(data.get('about', {'ro': 'x'}), upTo10000())
+                && localized(data.get('privacy', {'ro': 'x'}), upTo10000())
+                && data.get('credits', []) is list
+                && data.get('credits', []).size() <= 50
+                && (!('theme' in data) || validTheme(data.theme))
+                && (!('basemap' in data) || validBasemap(data.basemap))
+                && (!('photosOverlay' in data)
+                    || (data.photosOverlay.keys().hasOnly(['defaultOpacity'])
+                        && data.photosOverlay.defaultOpacity >= 0
+                        && data.photosOverlay.defaultOpacity <= 1))
+                && data.published is bool
+                && stamped(data);
+        }
+
+        // ---- Photos (CLIENT_WRITES.photo) --------------------------------------------------
+
+        // Within the city's bounds, with half a degree of slack for photos taken from outside them.
+        function inCity(location, city) {
+            let bounds = get(/databases/$(database)/documents/cities/$(city)).data.bounds;
+            return location.keys().hasOnly(['lat', 'lng'])
+                && location.lat >= bounds.south - 0.5
+                && location.lat <= bounds.north + 0.5
+                && location.lng >= bounds.west - 0.5
+                && location.lng <= bounds.east + 0.5;
+        }
+
+        // A month's days in the Gregorian calendar (zod `withPhotoDate`).
+        function daysInMonth(year, month) {
+            return month == 2
+                ? ((year % 4 == 0 && (year % 100 != 0 || year % 400 == 0)) ? 29 : 28)
+                : (month in [4, 6, 9, 11] ? 30 : 31);
+        }
+
+        // zod `withPhotoDate`: a month needs a year and dates one year, a day needs a month and exists in it.
+        function validPhotoDate(data) {
+            return (!('month' in data)
+                    || (data.month is int && data.month >= 1 && data.month <= 12
+                        && 'year' in data && data.get('yearEnd', data.year) == data.year))
+                && (!('day' in data)
+                    || (data.day is int && 'month' in data && data.day >= 1 && data.day <= daysInMonth(data.year, data.month)));
+        }
+
+        // zod `versionCredits`: who improved or colorized the photo, each at most 200 characters.
+        function validVersionCredits(credits) {
+            return credits is map
+                && credits.keys().hasOnly(['improved', 'colorized'])
+                && credits.get('improved', 'x').matches('[\\s\\S]{1,200}')
+                && credits.get('colorized', 'x').matches('[\\s\\S]{1,200}');
+        }
+
+        // A reviewer may remove an improved or colorized version; only photos.onUpload adds or changes one.
+        function versionsOnlyRemoved(before, after) {
+            return after is map
+                && after.diff(before).addedKeys().size() == 0
+                && after.diff(before).changedKeys().size() == 0;
+        }
+
+        // The photo as an admin leaves it; image, exif, processing, processingError, duplicateOf,
+        // suggested and original belong to photos.onUpload, createdAt and createdBy to the create.
+        // The location is checked by the caller (against the city only when it changes).
+        function validPhoto(data) {
+            return titled(data.title, '[\\s\\S]{1,200}')
+                && localized(data.get('description', {'ro': 'x'}), upTo5000())
+                && localized(data.get('dateText', {'ro': 'x'}), '[\\s\\S]{1,100}')
+                // zod `validYearRange`: an end year needs a start year, and never comes before it.
+                && isYear(data.get('year', 1800))
+                && (!('yearEnd' in data) || (isYear(data.yearEnd) && data.year <= data.yearEnd))
+                && validPhotoDate(data)
+                && data.get('author', 'x').matches('[\\s\\S]{1,200}')
+                && data.get('rightsHolder', 'x').matches('[\\s\\S]{1,200}')
+                && data.get('sourceLabel', 'x').matches('[\\s\\S]{1,200}')
+                && data.get('sourceUrl', 'https://x').matches(httpsUrl())
+                && data.get('permissionNote', 'x').matches(upTo2000())
+                && data.get('legacyId', 'x').matches('[\\s\\S]{1,64}')
+                && data.get('credit', 'x').matches('[\\s\\S]{1,100}')
+                && validVersionCredits(data.get('versionCredits', {}))
+                && validLinks(data.get('links', []))
+                && data.get('bearing', 0) >= 0 && data.get('bearing', 0) <= 360
+                && data.get('fov', 1) >= 1 && data.get('fov', 1) <= 180
+                // zod `viewedAreaSchema`: an aerial photo's footprint has four corners (convexity is the admin's and zod's check).
+                && (!('viewedArea' in data) || (data.viewedArea is list && data.viewedArea.size() == 4))
+                && data.license in ['CC0', 'CC-BY-4.0', 'CC-BY-SA-4.0', 'CC-BY-3.0', 'CC-BY-SA-3.0', 'CC-BY-SA-3.0-RO', 'CC-BY-2.0',
+                    'CC-BY-SA-2.0', 'PD', 'permission', 'permission-legacy', 'unknown']
+                && data.published is bool
+                && data.get('rightsReview', false) is bool
+                && data.get('kind', 'ground') in ['ground', 'aerial', 'interior']
+                // An absent optional field costs one expression: a request's rules evaluate at most 1,000 (the largest place and photo).
+                && (!('placeIds' in data) || validPlaceIds(data.placeIds))
+                && (!('level' in data) || (data.level is number && data.level >= -10 && data.level <= 200))
+                && stamped(data);
+        }
+
+        // M17 §14 (zod `planLevelSchema`): a building plan's level, its order and its label.
+        function validLevel(level) {
+            return level is map && level.keys().hasOnly(['order', 'label'])
+                && level.order is number && level.order >= -10 && level.order <= 200
+                && titled(level.label, '[\\s\\S]{1,60}');
+        }
+
+        // M17 §13 (zod `placeFactsSchema`): a place's facts; its fields' shapes are zod's, the rules keep the keys and sizes.
+        function validFacts(facts) {
+            return facts is map
+                && facts.keys().hasOnly(['architects', 'yearBuilt', 'yearDemolished', 'yearAbandoned', 'style', 'floors', 'heightM',
+                    'uses', 'lmiCode', 'addresses', 'relatedPlaceIds'])
+                // Each field is read only when present: a request's rules evaluate at most 1,000 expressions.
+                && (!('architects' in facts) || (facts.architects is list && facts.architects.size() <= 10))
+                && (!('yearBuilt' in facts) || isYear(facts.yearBuilt))
+                && (!('yearDemolished' in facts) || isYear(facts.yearDemolished))
+                && (!('yearAbandoned' in facts) || isYear(facts.yearAbandoned))
+                && (!('floors' in facts) || (facts.floors is int && facts.floors >= 0 && facts.floors <= 200))
+                && (!('heightM' in facts) || (facts.heightM is number && facts.heightM >= 0 && facts.heightM <= 1000))
+                && (!('uses' in facts) || (facts.uses is list && facts.uses.size() <= 20))
+                && (!('addresses' in facts) || (facts.addresses is list && facts.addresses.size() <= 20))
+                && (!('lmiCode' in facts) || facts.lmiCode.matches('[A-Z]{1,2}-(I|II|III|IV)-[masf]-[AB]-[0-9]{5}([.][0-9]{1,3}){0,2}'))
+                && (!('relatedPlaceIds' in facts) || (facts.relatedPlaceIds is list && facts.relatedPlaceIds.size() <= 20));
+        }
+
+        // M17 §12 (zod `placeIdsSchema`): the places whose Media list a photo or a map, one to ten ids, each once.
+        function validPlaceIds(ids) {
+            return ids is list && ids.size() >= 1 && ids.size() <= 10 && ids.toSet().size() == ids.size();
+        }
+
+        // Publishing needs processed derivatives (photos.onUpload wrote `image`) and a known licence.
+        // A photo's update; `changed` (its affected keys) and `reviewer` are worked out once: a request's rules evaluate at most 1,000
+        // expressions, and a photo with every field and five links comes close.
+        function validPhotoUpdate(city, changed, reviewer) {
+            return (reviewer
+                    ? (!('published' in changed) || resource.data.get('reviewStatus', 'approved') == 'approved')
+                    : (isCityUploader(city) && ownItem(resource.data) && resource.data.get('reviewStatus', '') == 'pending'
+                        && !changed.hasAny(['published', 'legacyId', 'rightsReview'])))
+                && changed.hasOnly(['kind', 'title', 'description', 'year', 'yearEnd', 'month', 'day', 'dateText', 'author', 'license',
+                    'rightsHolder', 'sourceUrl', 'sourceLabel', 'permissionNote', 'legacyId', 'links', 'location', 'bearing', 'fov', 'viewedArea', 'published',
+                    'placeIds', 'level', 'rightsReview', 'credit', 'versionCredits', 'versions', 'updatedBy', 'updatedAt'])
+                && (!('versions' in changed)
+                    || (reviewer
+                        && versionsOnlyRemoved(resource.data.get('versions', {}), request.resource.data.get('versions', {}))))
+                && validPhoto(request.resource.data)
+                && (!('location' in changed) || inCity(request.resource.data.location, city))
+                // zod `aimedOnlyIfPlaced`, as on create: a document the server's schema refuses gets stuck in every callable.
+                && ('location' in request.resource.data
+                    || (!('bearing' in request.resource.data) && !('fov' in request.resource.data)
+                        && !('viewedArea' in request.resource.data)))
+                && (!changed.hasAny(['published', 'license']) || publishable(request.resource.data));
+        }
+
+        function publishable(data) {
+            return data.published == false
+                || (resource.data.processing == 'done' && 'image' in resource.data && data.license != 'unknown');
+        }
+
+        // ---- Layers (CLIENT_WRITES.layer: update only) -------------------------------------
+
+        // LAYER_ADJUSTMENT_RANGES (absent means neutral); brightness min never above max.
+        function validAdjustments(value) {
+            return value.keys().hasOnly(['brightnessMin', 'brightnessMax', 'contrast', 'saturation'])
+                && value.get('brightnessMin', 0) >= 0
+                && value.get('brightnessMin', 0) <= value.get('brightnessMax', 1)
+                && value.get('brightnessMax', 1) <= 1
+                && value.get('contrast', 0) >= -1 && value.get('contrast', 0) <= 1
+                && value.get('saturation', 0) >= -1 && value.get('saturation', 0) <= 1;
+        }
+
+        // A drawn map's licence, author and source (layerRightsSchema), editable after the import.
+        function validLayerRights(rights) {
+            return rights is map
+                && rights.keys().hasOnly(['licence', 'author', 'source'])
+                && rights.licence in ['PD', 'CC0', 'CC-BY-4.0', 'CC-BY-SA-4.0', 'permission', 'unclear']
+                && rights.get('author', 'x').matches('[\\s\\S]{1,200}')
+                && validRightsSource(rights.get('source', {'label': 'x'}));
+        }
+
+        function validRightsSource(source) {
+            return source is map
+                && source.keys().hasOnly(['label', 'url'])
+                && source.label.matches('[\\s\\S]{1,200}')
+                && source.get('url', 'https://x').matches(httpsUrl());
+        }
+
+        // The presentation an admin edits; the pipeline owns the source, zooms, bounds, status,
+        // provenance and Mapbox ids.
+        function validLayer(data) {
+            return isYear(data.year)
+                // `YYYY-MM-DD` (zod `z.iso.date`; the calendar check is the server's).
+                && data.get('date', '2000-01-01').matches('[0-9]{4}-(0[1-9]|1[0-2])-(0[1-9]|[12][0-9]|3[01])')
+                && titled(data.label, '[\\s\\S]{1,200}')
+                && localized(data.get('description', {'ro': 'x'}), upTo5000())
+                && data.get('attribution', 'x').matches('[\\s\\S]{1,500}')
+                && validLayerRights(data.get('rights', {'licence': 'PD'}))
+                && data.order is int
+                && data.kind in ['satellite', 'aerial', 'map']
+                && data.opacity >= 0 && data.opacity <= 1
+                && data.defaultVisible is bool
+                && validAdjustments(data.get('adjustments', {}))
+                && (!('placeIds' in data) || validPlaceIds(data.placeIds))
+                && (!('level' in data) || validLevel(data.level))
+                // zod `bearingSchema`: the shot direction of a satellite or aerial image, degrees from north.
+                && (!('shotDirection' in data) || (data.shotDirection is number && data.shotDirection >= 0 && data.shotDirection <= 360))
+                && data.published is bool
+                && stamped(data);
+        }
+
+        // ---- POI categories (CLIENT_WRITES.poiCategory) ------------------------------------
+
+        function validCategory(data) {
+            return titled(data.label, '[\\s\\S]{1,100}')
+                && data.icon.matches('[a-z0-9_]{1,64}')
+                && data.color.matches('#[0-9A-Fa-f]{6}')
+                && data.defaultOpacity >= 0 && data.defaultOpacity <= 1
+                && data.order is int
+                // M27: hidden at start, pinned to the Layers panel's top strip, the data's credit.
+                && data.get('defaultVisible', true) is bool
+                && data.get('pinned', false) is bool
+                && data.get('attribution', 'x').matches('[\\s\\S]{1,500}')
+                && stamped(data);
+        }
+
+        // ---- POIs (CLIENT_WRITES.poi) ------------------------------------------------------
+
+        // A list of `least` to 500 (MAX_GEOMETRY_VERTICES) {lat, lng} vertices; the first is checked here.
+        function vertices(points, least) {
+            return points.size() >= least && points.size() <= 500 && latLng(points[0]);
+        }
+
+        // geometryDocSchema: Point {point}, LineString {points}, Polygon {rings: [{points}]} (1 to 20
+        // rings, each closed: it ends where it starts; the outer ring is checked in full).
+        function validGeometry(geometry) {
+            return geometry.type in ['Point', 'LineString', 'Polygon']
+                && (geometry.type != 'Point' || (geometry.keys().hasOnly(['type', 'point']) && latLng(geometry.point)))
+                && (geometry.type != 'LineString' || (geometry.keys().hasOnly(['type', 'points']) && vertices(geometry.points, 2)))
+                && (geometry.type != 'Polygon' || (geometry.keys().hasOnly(['type', 'rings'])
+                    && geometry.rings.size() >= 1
+                    && geometry.rings.size() <= 20
+                    && geometry.rings[0].keys().hasOnly(['points'])
+                    && vertices(geometry.rings[0].points, 4)
+                    && geometry.rings[0].points[0] == geometry.rings[0].points[geometry.rings[0].points.size() - 1]
+                    && geometry.rings[geometry.rings.size() - 1].points.size() >= 4
+                    && geometry.rings[geometry.rings.size() - 1].points[0]
+                        == geometry.rings[geometry.rings.size() - 1].points[geometry.rings[geometry.rings.size() - 1].points.size() - 1]));
+        }
+
+        function validPoi(data) {
+            return isId(data.category)
+                && validGeometry(data.geometry)
+                && titled(data.title, '[\\s\\S]{1,200}')
+                && (!('currentName' in data) || titled(data.currentName, '[\\s\\S]{1,200}'))
+                && localized(data.get('description', {'ro': 'x'}), upTo5000())
+                // zod `validYearSpan`: either bound may be missing, never inverted.
+                && isYear(data.get('yearStart', 1800))
+                && isYear(data.get('yearEnd', 2100))
+                && data.get('yearStart', 1800) <= data.get('yearEnd', 2100)
+                && isYear(data.get('yearSeen', 1800))
+                && validLinks(data.get('links', []))
+                && data.get('photoIds', []) is list
+                && data.get('photoIds', []).size() <= 20
+                && data.get('credit', 'x').matches('[\\s\\S]{1,100}')
+                // M27: the layer the place was traced on.
+                && isId(data.get('sourceLayer', 'x'))
+                // A sub-group of the category (bridges, lakes…; 2026-11-22).
+                && data.get('group', 'x').matches('[\\s\\S]{1,60}')
+                // An absent optional field costs one expression: a request's rules evaluate at most 1,000 (the largest place and photo).
+                && (!('facts' in data) || validFacts(data.facts))
+                && data.published is bool
+                && stamped(data);
+        }
+
+        // A place's years are optional (the owner's request of 2026-11-22: a railway imported before research dates it shows
+        // at every timeline year, "Years unknown (research ongoing)"). A year it names is not after next year
+        // (`latestPlaceYear` of @hcm/shared), as the editor and the import say.
+        function yearsInRange(data) {
+            return data.get('yearStart', 0) <= request.time.year() + 1
+                && data.get('yearEnd', 0) <= request.time.year() + 1
+                && data.get('yearSeen', 0) <= request.time.year() + 1;
+        }
+
+        // ---- Stories (CLIENT_WRITES.story; M17, docs/research/M17-stories.md §1) ----------
+        //
+        // The body's https links and its photo figures are checked by zod (`storyDocSchema`) and the builder, as a place's
+        // Markdown; here its size.
+        function validStory(data) {
+            return titled(data.title, '[\\s\\S]{1,200}')
+                && localized(data.get('body', {'ro': 'x'}), upTo10000())
+                && isYear(data.get('yearStart', 1800))
+                && isYear(data.get('yearEnd', 2100))
+                && data.get('yearStart', 1800) <= data.get('yearEnd', 2100)
+                && data.get('photoIds', []) is list
+                && data.get('photoIds', []).size() <= 20
+                && data.get('poiIds', []) is list
+                && data.get('poiIds', []).size() <= 20
+                && data.get('credit', 'x').matches('[\\s\\S]{1,100}')
+                // M27: the layer the place was traced on.
+                && isId(data.get('sourceLayer', 'x'))
+                && data.published is bool
+                && stamped(data);
+        }
+
+        // ---- Matches -----------------------------------------------------------------------
+
+        // Default deny: nothing is readable or writable unless a rule below allows it.
+        match /{document=**} {
+            allow read, write: if false;
+        }
+
+        // Written by admin.claim, admin.join, admins.revoke and the bootstrap script only (M5: the cities callables and
+        // the migration too). A signed-in Google account reads its own document (admin.session tells the app the rest);
+        // M5: the project's owner reads every one, and a city's admins list theirs through admins.list.
+        match /admins/{uid} {
+            allow read: if (authed() && request.auth.uid == uid) || isProjectOwner();
+        }
+
+        // ---- M4 notifications and assists (docs/research/M4-interfaces.md §4.2, §5.6; owner: assists-notify) ------------
+        //
+        // Each admin reads only their own inbox, settings and devices. notify.onEvent creates the inbox items (one per
+        // notification event) and notify.registerDevice the devices; a client only marks its own item read (the read
+        // time is the server's) and writes its own push settings (CLIENT_WRITES.inboxItem, .notifySettings).
+        // notificationEvents/* has no client rule at all: the producers create them, the fan-out reads them.
+
+        // The kinds an admin may have pushed (`NOTIFICATION_KINDS` of @hcm/shared, the same order), each at most once. A kind
+        // added there must be added here too: the rules test `notify.test.ts` saves every kind and the default list.
+        function validPushKinds(kinds) {
+            return kinds is list
+                && kinds.size() <= 15
+                && kinds.toSet().size() == kinds.size()
+                && kinds.hasOnly(['usgs.approved', 'order.delivered', 'order.imported', 'order.reminder', 'order.expired', 'job.failed',
+                    'layer.readyToApprove', 'layer.needsPoints', 'budget.paused', 'crash.spike', 'job.needsOk', 'job.noWorker',
+                    'review.waiting', 'suggestion.waiting', 'role.requested']);
+        }
+
+        function ownAdmin(uid) {
+            return isAdmin() && request.auth.uid == uid;
+        }
+
+        match /admins/{uid}/inbox/{item} {
+            allow read: if ownAdmin(uid);
+            allow update: if ownAdmin(uid)
+                && changedKeys().hasOnly(['read', 'readAt', 'updatedBy', 'updatedAt'])
+                && request.resource.data.read == true
+                && (!('readAt' in changedKeys()) || request.resource.data.readAt == request.time)
+                && stamped(request.resource.data);
+        }
+
+        // The one settings document: created by the admin's first change (or by notify.registerDevice), then updated.
+        function validNotifySettings(data) {
+            return data.push is bool && validPushKinds(data.pushKinds) && stamped(data);
+        }
+
+        match /admins/{uid}/notify/{doc} {
+            allow read: if ownAdmin(uid);
+            allow create: if ownAdmin(uid)
+                && doc == 'settings'
+                && request.resource.data.keys().hasOnly(['push', 'pushKinds', 'createdAt', 'updatedBy', 'updatedAt'])
+                && request.resource.data.createdAt == request.time
+                && validNotifySettings(request.resource.data);
+            allow update: if ownAdmin(uid)
+                && doc == 'settings'
+                && changedKeys().hasOnly(['push', 'pushKinds', 'updatedBy', 'updatedAt'])
+                && validNotifySettings(request.resource.data);
+        }
+
+        match /admins/{uid}/pushDevices/{device} {
+            allow read: if ownAdmin(uid);
+        }
+
+        // The reverse-geocoding cache of assist.suggestTitle: the editors listen to a cell until the queue answers.
+        match /assistGeocodes/{cell} {
+            allow read: if isStaff();
+        }
+
+        // ---- end of M4 notifications and assists --------------------------------------------------------------------
+
+        // M28: where each country keeps its old maps and images, written by ops.tick only; Setup's Sources step reads it.
+        match /countrySources/{country} {
+            allow read: if isStaff();
+        }
+
+        // setup/status (non-secret health: secrets live in Secret Manager, never here) and setup/owner.
+        match /setup/{doc} {
+            allow read: if isStaff();
+        }
+
+        // Invitations, keyed by the SHA-256 of the invited address (the address itself is never stored). M5: the project's
+        // owner reads them; a city's owners list their city's through admins.list.
+        match /invites/{invite} {
+            allow read: if isProjectOwner();
+        }
+
+        // Mapbox usage counters (usage/mapbox-YYYY-MM) and, since M4, the AI drafts' monthly counters (usage/ai-YYYY-MM).
+        match /usage/{doc} {
+            allow read: if isStaff();
+        }
+
+        // The budget guard and the last ops.tick (ops/guard), the dispatcher's execution slots (ops/dispatch) and each
+        // city's last USGS harvest attempt (ops/harvest-{city}): written by the functions only (CR-M3-47). M4: the
+        // Nominatim cool-down (ops/assist) and the crash-spike baseline (ops/crashes).
+        // M5: a city's harvest state is its admins'; the other documents are project state every city's screens show,
+        // and an ops id the contract does not name stays closed.
+        match /ops/{doc} {
+            allow read: if doc.matches('harvest-.+')
+                ? isCityMember(doc.replace('^harvest-', ''))
+                : (doc in ['guard', 'dispatch', 'assist', 'crashes'] && isStaff());
+        }
+
+        // Each city's manifest builds (the admin's "Published" chip); publish.* writes them. M5: the city's admins only.
+        match /manifests/{city} {
+            allow read: if hasCityRole(city);
+        }
+
+        // History's recent changes (M2c, CR-M2c-6): one collection-group query over every audited document's
+        // `history` subcollection, kept to one city by the `cityId` each entry carries (CR-M2c-14; the composite
+        // indexes start with it). M5: the query's own `where('cityId', '==', <city>)` lets the rules prove the entries
+        // are of a city the admin belongs to; a single entry is read only under cities/ and only by that city's admins
+        // (a `history` document anywhere else stays closed, as every path the contract does not name). No client writes
+        // an entry.
+        match /{path=**}/history/{entry} {
+            allow list: if isCityMember(resource.data.cityId);
+            allow get: if path[0] == 'cities' && isCityMember(path[1]);
+        }
+
+        // Cities are created and deleted by callables; admins edit the settings. M5: every rule of the city and of its
+        // subcollections asks for a role in that city (isCityMember), so an admin of another city is denied all of it;
+        // `limits` (cities.setLimits) is in no client write list.
+        match /cities/{city} {
+            allow read: if hasCityRole(city);
+            // The imagery settings (M3) are saved on their own and checked on their own: a request has room for twenty
+            // target years or for the rest of the settings, not for both (the 1000 expressions of a request). M28: so are
+            // the sources (Setup's Sources step and Settings → Sources).
+            allow update: if isCityMember(city)
+                && changedKeys().hasOnly(['name', 'bounds', 'center', 'zoom', 'minZoom', 'maxZoom', 'about', 'privacy', 'credits',
+                    'theme', 'basemap', 'photosOverlay', 'imagery', 'sources', 'published', 'updatedBy', 'updatedAt'])
+                && (changedKeys().hasOnly(['imagery', 'updatedBy', 'updatedAt'])
+                    ? (!('imagery' in request.resource.data) || validImagery(request.resource.data.imagery)) && stamped(request.resource.data)
+                    : (changedKeys().hasOnly(['sources', 'updatedBy', 'updatedAt'])
+                        ? validSources(request.resource.data.sources) && stamped(request.resource.data)
+                        : !('imagery' in changedKeys()) && !('sources' in changedKeys()) && validCity(request.resource.data)));
+
+            // Every audited document keeps a `history` subcollection written by the history.*
+            // triggers and history.revert only: admins read it, nobody writes it from a client.
+            match /history/{entry} {
+                allow read: if isCityMember(city);
+            }
+
+            // New photos start unpublished and unprocessed; photos.onUpload owns the image fields.
+            match /photos/{photo} {
+                // M13: an uploader reads their own items only, so their queries ask `createdBy == uid`. Their create
+                // transaction first reads its new id, as stories do, so a missing document is readable too.
+                allow read: if isCityReviewer(city) || (isCityUploader(city) && (resource == null || ownItem(resource.data)));
+                // A location is optional (M13 §5: a photo may wait for a place), and without one so are a direction and a field
+                // of view. An uploader's item must say it waits, staff's must not say anything, and a moderator adds nothing.
+                allow create: if (isCityMember(city) ? !('reviewStatus' in request.resource.data)
+                        : (isCityUploader(city) && request.resource.data.get('reviewStatus', '') == 'pending'
+                            && !('legacyId' in request.resource.data)))
+                    && isId(photo)
+                    && request.resource.data.keys().hasOnly(['kind', 'title', 'description', 'year', 'yearEnd', 'month', 'day', 'dateText', 'author', 'license',
+                        'rightsHolder', 'sourceUrl', 'sourceLabel', 'permissionNote', 'legacyId', 'links', 'location', 'bearing', 'fov', 'viewedArea',
+                        'placeIds', 'level', 'published', 'rightsReview', 'credit', 'versionCredits', 'reviewStatus', 'processing', 'createdAt', 'createdBy',
+                        'updatedBy', 'updatedAt'])
+                    && validPhoto(request.resource.data)
+                    && ('location' in request.resource.data
+                        ? inCity(request.resource.data.location, city)
+                        : !('bearing' in request.resource.data) && !('fov' in request.resource.data)
+                            && !('viewedArea' in request.resource.data))
+                    && request.resource.data.processing == 'pending'
+                    && request.resource.data.published == false
+                    && created(request.resource.data);
+                allow update: if validPhotoUpdate(city, changedKeys(), isCityReviewer(city));
+                // M13: a moderator unpublishes and never deletes; an uploader takes back their own until it is approved.
+                allow delete: if isCityMember(city)
+                    || (isCityUploader(city) && ownItem(resource.data) && resource.data.get('reviewStatus', '') in ['pending', 'refused']);
+
+                match /history/{entry} {
+                    allow read: if isCityReviewer(city);
+                }
+            }
+
+            // Layers are created by the pipeline; admins edit presentation, kind, opacity and adjustments.
+            match /layers/{layer} {
+                allow read: if isCityMember(city);
+                allow update: if isCityMember(city)
+                    && changedKeys().hasOnly(['label', 'description', 'attribution', 'rights', 'year', 'date', 'order', 'opacity',
+                        'defaultVisible', 'adjustments', 'published', 'kind', 'placeIds', 'level', 'shotDirection', 'updatedBy',
+                        'updatedAt'])
+                    && validLayer(request.resource.data);
+
+                match /history/{entry} {
+                    allow read: if isCityMember(city);
+                }
+            }
+
+            // Points of interest, drawn and edited by admins.
+            match /pois/{poi} {
+                // The uploader's create transaction reads its new id before writing it, as photos and stories do.
+                allow read: if isCityReviewer(city) || (isCityUploader(city) && (resource == null || ownItem(resource.data)));
+                allow create: if (isCityMember(city) ? !('reviewStatus' in request.resource.data)
+                        : (isCityUploader(city) && request.resource.data.get('reviewStatus', '') == 'pending'))
+                    && isId(poi)
+                    && request.resource.data.keys().hasOnly(['category', 'geometry', 'title', 'currentName', 'description', 'yearStart', 'yearEnd',
+                        'yearSeen', 'links', 'photoIds', 'published', 'credit', 'sourceLayer', 'group', 'facts', 'reviewStatus', 'createdAt', 'createdBy',
+                        'updatedBy', 'updatedAt'])
+                    && validPoi(request.resource.data)
+                    && yearsInRange(request.resource.data)
+                    && (isCityMember(city) || request.resource.data.published == false)
+                    && created(request.resource.data);
+                allow update: if (isCityReviewer(city)
+                        ? publishedStaysTheServers()
+                        : (isCityUploader(city) && ownItem(resource.data) && resource.data.get('reviewStatus', '') == 'pending'
+                            && !('published' in changedKeys())))
+                    && changedKeys().hasOnly(['category', 'geometry', 'title', 'currentName', 'description', 'yearStart', 'yearEnd', 'yearSeen',
+                        'links', 'photoIds', 'published', 'credit', 'sourceLayer', 'group', 'facts', 'updatedBy', 'updatedAt'])
+                    && validPoi(request.resource.data)
+                    && yearsInRange(request.resource.data);
+                allow delete: if isCityMember(city)
+                    || (isCityUploader(city) && ownItem(resource.data) && resource.data.get('reviewStatus', '') in ['pending', 'refused']);
+
+                match /history/{entry} {
+                    allow read: if isCityReviewer(city);
+                }
+            }
+
+            // M17 (docs/research/M17-stories.md §2): stories, as places: staff write them, an uploader's own wait for review.
+            match /stories/{story} {
+                // An uploader's New story reads the id it is about to create (the admin's create is a transaction): a story
+                // that does not exist yet says nothing, so that read is theirs too.
+                allow read: if isCityReviewer(city) || (isCityUploader(city) && (resource == null || ownItem(resource.data)));
+                allow create: if (isCityMember(city) ? !('reviewStatus' in request.resource.data)
+                        : (isCityUploader(city) && request.resource.data.get('reviewStatus', '') == 'pending'))
+                    && isId(story)
+                    && request.resource.data.keys().hasOnly(['title', 'body', 'yearStart', 'yearEnd', 'photoIds', 'poiIds', 'published',
+                        'credit', 'reviewStatus', 'createdAt', 'createdBy', 'updatedBy', 'updatedAt'])
+                    && validStory(request.resource.data)
+                    && (isCityMember(city) || request.resource.data.published == false)
+                    && created(request.resource.data);
+                allow update: if (isCityReviewer(city)
+                        ? publishedStaysTheServers()
+                        : (isCityUploader(city) && ownItem(resource.data) && resource.data.get('reviewStatus', '') == 'pending'
+                            && !('published' in changedKeys())))
+                    && changedKeys().hasOnly(['title', 'body', 'yearStart', 'yearEnd', 'photoIds', 'poiIds', 'published', 'credit',
+                        'updatedBy', 'updatedAt'])
+                    && validStory(request.resource.data);
+                allow delete: if isCityMember(city)
+                    || (isCityUploader(city) && ownItem(resource.data) && resource.data.get('reviewStatus', '') in ['pending', 'refused']);
+
+                match /history/{entry} {
+                    allow read: if isCityReviewer(city);
+                }
+            }
+
+            // POI categories share the overlay namespace with layer ids and `photos` (PHOTOS_OVERLAY_ID).
+            match /poiCategories/{category} {
+                allow read: if hasCityRole(city);
+                allow create: if isCityMember(city)
+                    && isId(category)
+                    && category != 'photos'
+                    && request.resource.data.keys().hasOnly(['label', 'icon', 'color', 'defaultOpacity', 'order', 'defaultVisible', 'pinned',
+                        'attribution', 'createdAt', 'updatedBy', 'updatedAt'])
+                    && validCategory(request.resource.data)
+                    && request.resource.data.createdAt == request.time;
+                allow update: if isCityMember(city)
+                    && changedKeys().hasOnly(['label', 'icon', 'color', 'defaultOpacity', 'order', 'defaultVisible', 'pinned', 'attribution',
+                        'updatedBy', 'updatedAt'])
+                    && validCategory(request.resource.data);
+                allow delete: if isCityMember(city);
+
+                match /history/{entry} {
+                    allow read: if isCityMember(city);
+                }
+            }
+
+            // Jobs are created by the callables and triggers that check them (the budget guard, the daily cap, the
+            // version, M3-interfaces §2.8); admins may ask an unfinished one to stop. The dispatcher, the pipeline and
+            // the publisher own every other field. Pause (2026-11-13): `paused` and `releaseRequested` are imagery.pause's
+            // alone (it logs who paused and when); no client writes them, and a paused job can still be cancelled.
+            match /jobs/{job} {
+                allow read: if isCityMember(city);
+                allow update: if isCityMember(city)
+                    && changedKeys().hasOnly(['cancelRequested', 'updatedBy', 'updatedAt'])
+                    && request.resource.data.cancelRequested == true
+                    && stamped(request.resource.data)
+                    && !(resource.data.status in ['succeeded', 'failed', 'cancelled']);
+                // Review of M18 item 3: an editor placing points on a frame parked for them marks its job, so imagery.tick
+                // does not send it searching again under their hands (PLACING_POINTS_HOLD_MS; the time is the stamp's).
+                allow update: if isCityMember(city)
+                    && changedKeys().hasOnly(['placingPoints', 'updatedBy', 'updatedAt'])
+                    && request.resource.data.placingPoints == true
+                    && stamped(request.resource.data)
+                    && resource.data.status == 'awaiting_gcps';
+
+                // Redacted job log lines, written by the job runner only.
+                match /logs/{line} {
+                    allow read: if isCityMember(city);
+                }
+            }
+
+            // Layer versions (M3): a georeferenced rendition on its way to a layer, written by the imagery
+            // functions and the raster pipeline only; admins read them (the Imagery area, the georeferencer).
+            match /layerVersions/{version} {
+                allow read: if isCityMember(city);
+            }
+
+            // M5 (docs/research/M5-interfaces.md §1.8): the city's month-to-date counters beside the project's, written by
+            // the functions only; the city's budget section reads them.
+            match /usage/{month} {
+                allow read: if isCityMember(city);
+            }
+
+            // M5 (docs/research/M5-interfaces.md §5.3, CR-M5-11): the static exports' records, written by export.start and
+            // export.build only; the Settings card follows them live.
+            match /exports/{exportId} {
+                allow read: if isCityMember(city);
+            }
+
+            // M7 (docs/research/M7-local-worker.md §2.4, §3): the city's local workers (`w-…`) and its remembered choice of
+            // where raster jobs run (`choice`), written by the worker callables, imagery.runOn and imagery.pause (a computer's
+            // `paused`) only; the Jobs page, the pipeline card and the version page read them.
+            match /workers/{doc} {
+                allow read: if isCityMember(city);
+            }
+
+            // M8 (docs/research/M8-join-interfaces.md §2, §5): the plan of whole-city dates, written by the imagery functions
+            // only; the Imagery area's Find reads it.
+            match /imageryPlans/{id} {
+                allow read: if isCityMember(city);
+            }
+
+            // M20 (docs/research/M20-import-local.md §2.4): a local archive's scan report and its sample of skipped paths, written by
+            // worker.archiveReport and imagery.archiveImport only; the Imagery area's import card and report read them. The city's sheet
+            // grids (§2.3) likewise.
+            match /archives/{archive} {
+                allow read: if isCityMember(city);
+
+                match /issues/{issue} {
+                    allow read: if isCityMember(city);
+                }
+            }
+
+            match /grids/{grid} {
+                allow read: if isCityMember(city);
+            }
+
+            // M9 (docs/research/M9-calibration.md §2): imageryPasses/{key} has no client rule. imagery.onJobWrite writes a pass's last
+            // proved model and only the pipeline reads it, through the Admin SDK or worker.step.
+
+            // M13 (docs/research/M13-roles.md §§3, 4, 6): none of these has a client write rule; the callables check the account,
+            // the block and the limit. Who suggested what stays with the reviewers; an applicant's address with the owners.
+            match /suggestions/{suggestion} {
+                allow read: if isCityReviewer(city);
+            }
+
+            match /contributors/{contributor} {
+                allow read: if isCityReviewer(city);
+            }
+
+            match /roleRequests/{request} {
+                allow read: if isCityOwner(city);
+            }
+
+            // USGS scenes are harvested server-side; admins triage them (candidate, rejected) and annotate
+            // them, whatever state the harvest left them in. M4 (docs/research/M4-interfaces.md §1.8): an
+            // order is usgs.markOrdered's, which asks USGS first, so no client writes `ordered` or `available`,
+            // and `order` and `eeDatasetId` are server-owned like every field outside the list below. The owner's
+            // "not useful" (`unusable`, imagery.markScene, which writes the plan again) and the browse image's
+            // `cloudEstimate` are server-owned too (2026-11-13).
+            match /usgsScenes/{scene} {
+                allow read: if isCityMember(city);
+                allow update: if isCityMember(city)
+                    && changedKeys().hasOnly(['status', 'note', 'updatedBy', 'updatedAt'])
+                    && (!('status' in changedKeys()) || request.resource.data.status in ['candidate', 'rejected'])
+                    && request.resource.data.get('note', 'x').matches('[\\s\\S]{1,1000}')
+                    && stamped(request.resource.data);
+            }
+        }
+    }
+}

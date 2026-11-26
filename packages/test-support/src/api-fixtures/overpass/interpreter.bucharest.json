@@ -1,0 +1,225 @@
+{
+    "call": "POST https://overpass-api.de/api/interpreter",
+    "note": "One Overpass query for the window ([out:json]; highways down to residential, railways, waterways and water areas; out geom): a few of Bucharest's lines, drawn by the reference step and matched against the scan. UNVERIFIED policy limits (docs/research/M3-interfaces.md §5.5, §14).",
+    "status": 200,
+    "body": {
+        "version": 0.6,
+        "generator": "Overpass API 0.7.62 e2e",
+        "osm3s": {
+            "timestamp_osm_base": "2026-10-01T00:00:00Z",
+            "copyright": "The data included in this document is from www.openstreetmap.org. The data is made available under ODbL."
+        },
+        "elements": [
+            {
+                "type": "way",
+                "id": 1001,
+                "bounds": {
+                    "minlat": 44.43,
+                    "minlon": 26.087,
+                    "maxlat": 44.454,
+                    "maxlon": 26.096
+                },
+                "nodes": [100100, 100101, 100102],
+                "geometry": [
+                    {
+                        "lat": 44.454,
+                        "lon": 26.087
+                    },
+                    {
+                        "lat": 44.442,
+                        "lon": 26.092
+                    },
+                    {
+                        "lat": 44.43,
+                        "lon": 26.096
+                    }
+                ],
+                "tags": {
+                    "highway": "primary",
+                    "name": "Calea Victoriei"
+                }
+            },
+            {
+                "type": "way",
+                "id": 1002,
+                "bounds": {
+                    "minlat": 44.433,
+                    "minlon": 26.099,
+                    "maxlat": 44.458,
+                    "maxlon": 26.102
+                },
+                "nodes": [100200, 100201, 100202],
+                "geometry": [
+                    {
+                        "lat": 44.458,
+                        "lon": 26.099
+                    },
+                    {
+                        "lat": 44.445,
+                        "lon": 26.1005
+                    },
+                    {
+                        "lat": 44.433,
+                        "lon": 26.102
+                    }
+                ],
+                "tags": {
+                    "highway": "trunk",
+                    "name": "Bulevardul General Gheorghe Magheru"
+                }
+            },
+            {
+                "type": "way",
+                "id": 1003,
+                "bounds": {
+                    "minlat": 44.435,
+                    "minlon": 26.07,
+                    "maxlat": 44.436,
+                    "maxlon": 26.115
+                },
+                "nodes": [100300, 100301, 100302],
+                "geometry": [
+                    {
+                        "lat": 44.435,
+                        "lon": 26.07
+                    },
+                    {
+                        "lat": 44.4355,
+                        "lon": 26.092
+                    },
+                    {
+                        "lat": 44.436,
+                        "lon": 26.115
+                    }
+                ],
+                "tags": {
+                    "highway": "secondary",
+                    "name": "Bulevardul Regina Elisabeta"
+                }
+            },
+            {
+                "type": "way",
+                "id": 1004,
+                "bounds": {
+                    "minlat": 44.4316,
+                    "minlon": 26.096,
+                    "maxlat": 44.4318,
+                    "maxlon": 26.103
+                },
+                "nodes": [100400, 100401],
+                "geometry": [
+                    {
+                        "lat": 44.4318,
+                        "lon": 26.096
+                    },
+                    {
+                        "lat": 44.4316,
+                        "lon": 26.103
+                    }
+                ],
+                "tags": {
+                    "highway": "residential",
+                    "name": "Strada Lipscani"
+                }
+            },
+            {
+                "type": "way",
+                "id": 1005,
+                "bounds": {
+                    "minlat": 44.41,
+                    "minlon": 26.03,
+                    "maxlat": 44.43,
+                    "maxlon": 26.18
+                },
+                "nodes": [100500, 100501, 100502, 100503],
+                "geometry": [
+                    {
+                        "lat": 44.42,
+                        "lon": 26.03
+                    },
+                    {
+                        "lat": 44.43,
+                        "lon": 26.08
+                    },
+                    {
+                        "lat": 44.425,
+                        "lon": 26.13
+                    },
+                    {
+                        "lat": 44.41,
+                        "lon": 26.18
+                    }
+                ],
+                "tags": {
+                    "waterway": "river",
+                    "name": "Dâmbovița"
+                }
+            },
+            {
+                "type": "way",
+                "id": 1006,
+                "bounds": {
+                    "minlat": 44.447,
+                    "minlon": 26.0,
+                    "maxlat": 44.48,
+                    "maxlon": 26.12
+                },
+                "nodes": [100600, 100601, 100602],
+                "geometry": [
+                    {
+                        "lat": 44.45,
+                        "lon": 26.0
+                    },
+                    {
+                        "lat": 44.447,
+                        "lon": 26.07
+                    },
+                    {
+                        "lat": 44.48,
+                        "lon": 26.12
+                    }
+                ],
+                "tags": {
+                    "railway": "rail"
+                }
+            },
+            {
+                "type": "way",
+                "id": 1007,
+                "bounds": {
+                    "minlat": 44.47,
+                    "minlon": 26.07,
+                    "maxlat": 44.48,
+                    "maxlon": 26.1
+                },
+                "nodes": [100700, 100701, 100702, 100703, 100704],
+                "geometry": [
+                    {
+                        "lat": 44.475,
+                        "lon": 26.07
+                    },
+                    {
+                        "lat": 44.48,
+                        "lon": 26.085
+                    },
+                    {
+                        "lat": 44.476,
+                        "lon": 26.1
+                    },
+                    {
+                        "lat": 44.47,
+                        "lon": 26.085
+                    },
+                    {
+                        "lat": 44.475,
+                        "lon": 26.07
+                    }
+                ],
+                "tags": {
+                    "natural": "water",
+                    "name": "Lacul Herăstrău"
+                }
+            }
+        ]
+    }
+}

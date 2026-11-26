@@ -1,0 +1,39 @@
+{
+    "name": "minimatch",
+    "description": "minimatch 11.0.3 (GHSA-g3hv-75wg-m249 is fixed from 11.0.1) with a callable CommonJS entry for the dependants written against 3.x to 10.x, vendored until they move to 11 (README.md).",
+    "version": "11.0.3-callable.1",
+    "author": "Isaac Z. Schlueter <i@izs.me> (http://blog.izs.me)",
+    "repository": {
+        "type": "git",
+        "url": "git@github.com:isaacs/minimatch"
+    },
+    "license": "BlueOak-1.0.0",
+    "main": "./index.cjs",
+    "types": "./commonjs/index.d.ts",
+    "exports": {
+        "./package.json": "./package.json",
+        ".": {
+            "import": {
+                "types": "./esm/index.d.ts",
+                "default": "./index.mjs"
+            },
+            "require": {
+                "types": "./commonjs/index.d.ts",
+                "default": "./index.cjs"
+            }
+        }
+    },
+    "files": [
+        "index.cjs",
+        "index.mjs",
+        "commonjs",
+        "esm"
+    ],
+    "engines": {
+        "node": "18 || 20 || >=22"
+    },
+    "dependencies": {
+        "@isaacs/nonrecursive-glob-match": "^1.0.3",
+        "brace-expansion": "^5.0.12"
+    }
+}

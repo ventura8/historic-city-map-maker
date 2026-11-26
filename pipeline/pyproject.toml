@@ -1,0 +1,84 @@
+# Raster pipeline (Cloud Run Jobs): USGS M2M fetch, crop, georeference, warp, export and MTS publish.
+# Poetry 2.5.1 (pipeline/requirements-poetry.txt) locks the dependencies in poetry.lock. GDAL is NOT a pip
+# dependency: osgeo.gdal comes from the pinned ghcr.io/osgeo/gdal base image (Python 3.14), and the venv is
+# created with --system-site-packages so it is importable (docs/research/M0-handoff.md, "Raster pipeline").
+# Every command below (pytest, mypy, coverage) runs from the REPOSITORY ROOT, as the quality pipeline does,
+# so report paths are repository-relative like Sonar expects.
+
+[project]
+name = "hcm-pipeline"
+version = "0.0.0"
+description = "Historic City Map raster pipeline: USGS imagery to georeferenced Mapbox tilesets (Cloud Run Jobs)."
+readme = "README.md"
+requires-python = ">=3.14,<3.15"
+dependencies = [
+    "numpy==2.5.4",
+    "opencv-python-headless==5.0.0.93",
+    "httpx==0.28.1",
+    "google-cloud-firestore==2.34.1",
+    "google-cloud-storage==3.17.1",
+    # M20 (docs/research/M20-import-local.md §3, PDFs): page images out of an archive's PDFs without re-encoding, an owner-only
+    # encrypted file (an empty user password) read, a password one skipped. qpdf is bundled in its wheel.
+    "pikepdf==10.18.1",
+]
+
+[tool.poetry]
+packages = [{ include = "hcm_pipeline", from = "src" }]
+
+[tool.poetry.group.dev.dependencies]
+pytest = "9.2.0"
+pytest-cov = "7.1.0"
+coverage = "7.17.3"
+respx = "0.23.1"
+hypothesis = "6.170.15"
+
+[build-system]
+requires = ["poetry-core==2.5.0"]
+build-backend = "poetry.core.masonry.api"
+
+# pytest: `python -m pytest -c pipeline/pyproject.toml --rootdir .` from the repository root (quality gate
+# `pipeline-pytest`; `-c` alone would make pipeline/ the rootdir and ignore testpaths). testpaths is relative
+# to the rootdir, pythonpath (an ini "paths" value) to THIS file. Warnings are errors; skips and xfails are
+# banned (suppression scan).
+[tool.pytest.ini_options]
+testpaths = ["pipeline/tests"]
+pythonpath = ["src"]
+addopts = [
+    "-p",
+    "no:cacheprovider",
+    "--strict-markers",
+    "--strict-config",
+    "-ra",
+    "--cov",
+    "--cov-config=pipeline/pyproject.toml",
+    "--cov-report=term-missing:skip-covered",
+    "--cov-report=xml:reports/coverage/pipeline.xml",
+    "--junitxml=reports/junit/pipeline.xml",
+]
+xfail_strict = true
+filterwarnings = ["error"]
+
+# Branch coverage of the product code only (the tests are Sonar `tests`). No exclusion pragma and no
+# exclude list: every line is measured, `if __name__ == "__main__":` included (tests use runpy).
+[tool.coverage.run]
+branch = true
+source_pkgs = ["hcm_pipeline"]
+data_file = "reports/.coverage-pipeline"
+relative_files = true
+
+[tool.coverage.report]
+fail_under = 90
+show_missing = true
+skip_covered = true
+
+# mypy --strict over the product code and the tests, run with the CI mypy against the pipeline venv:
+# `mypy --config-file pipeline/pyproject.toml --python-executable <pipeline venv>/bin/python`.
+# GDAL ships no type information, so typings/osgeo holds stubs for exactly the API we call.
+[tool.mypy]
+python_version = "3.14"
+strict = true
+warn_unreachable = true
+explicit_package_bases = true
+mypy_path = "pipeline/typings:pipeline/src:pipeline"
+files = ["pipeline/src", "pipeline/tests"]
+cache_dir = "reports/.cache/mypy-pipeline"

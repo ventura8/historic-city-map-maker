@@ -1,0 +1,28 @@
+/** The field measurements' part of the public API (DECISIONS-for-review.md §76), listed apart as the M6 parts are. */
+export const FIELD_EXPORTS: readonly string[] = [
+    'ADMIN_EVENT_PARAMS',
+    'APP_SURFACES',
+    'COMMON_EVENT_PARAMS',
+    'FIELD_EVENT_BUDGET',
+    'GA_LIMITS',
+    'SURFACE_PARAMS',
+    'MAP_ERROR_KINDS',
+    'VIEWER_EVENT_PARAMS',
+    'VIEWER_PHASES',
+    'VITAL_DEBUG_NUMBERS',
+    'WEB_VITAL_NAMES',
+    'WINDOW_CLASS_NAMES',
+    'createAdminGuard',
+    'createFieldGuard',
+    'createViewerGuard',
+    'eventProblem',
+    'eventSchemas',
+    'observeWebVitals',
+    'sanitizeTarget',
+    'shortTarget',
+    'vitalParams',
+    // The wizard funnels' events and the privacy signal (DECISIONS-for-review.md §200; the funnel itself: @hcm/shared/funnels).
+    'FUNNEL_EVENT_PARAMS',
+    'INPUT_DEVICES',
+    'privacySignal',
+];

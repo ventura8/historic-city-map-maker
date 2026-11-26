@@ -1,0 +1,16 @@
+{
+    "call": "POST https://iam.googleapis.com/v1/projects/<project>/serviceAccounts/<email>:getIamPolicy",
+    "status": 200,
+    "body": {
+        "version": 1,
+        "etag": "ACAB",
+        "bindings": [
+            {
+                "role": "roles/iam.workloadIdentityUser",
+                "members": [
+                    "principalSet://iam.googleapis.com/projects/{{projectNumber}}/locations/global/workloadIdentityPools/{{poolId}}/attribute.repository/ventura8/historic-city-map-maker"
+                ]
+            }
+        ]
+    }
+}

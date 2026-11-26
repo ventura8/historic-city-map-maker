@@ -1,0 +1,88 @@
+{
+    "layerId": "kh-9-hexagon-1972",
+    "jobId": "job-1972-0808-join",
+    "origin": "join",
+    "state": "awaiting_approval",
+    "source": {
+        "kind": "join",
+        "parts": [
+            {
+                "versionId": "job-1972-f039",
+                "layerId": "kh-9-hexagon-1972-f039",
+                "entityId": "D3C1202-200149F039",
+                "dataset": "declassiii",
+                "sensor": "KH-9-pan",
+                "acquisitionDate": "1972-08-08"
+            },
+            {
+                "versionId": "job-1972-f040",
+                "layerId": "kh-9-hexagon-1972-f040",
+                "entityId": "D3C1202-200149F040",
+                "dataset": "declassiii",
+                "sensor": "KH-9-pan",
+                "acquisitionDate": "1972-08-08"
+            }
+        ]
+    },
+    "label": {
+        "ro": "KH-9 Hexagon, 8 august 1972",
+        "en": "KH-9 Hexagon, 8 August 1972"
+    },
+    "year": 1972,
+    "date": "1972-08-08",
+    "sensor": "KH-9-pan",
+    "output": {
+        "cogPath": "rasters/bucharest/kh-9-hexagon-1972/job-1972-0808-join/cog.tif",
+        "cogBytes": 2147483648,
+        "cogSha256": "cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc",
+        "previewPath": "rasters/bucharest/kh-9-hexagon-1972/job-1972-0808-join/preview.png",
+        "bounds": {
+            "west": 25.88,
+            "south": 44.31,
+            "east": 26.3,
+            "north": 44.57
+        },
+        "minzoom": 10,
+        "maxzoom": 17,
+        "areaKm2": 512.25
+    },
+    "join": {
+        "seams": [
+            {
+                "a": "D3C1202-200149F039",
+                "b": "D3C1202-200149F040",
+                "measured": true,
+                "applied": true,
+                "samples": 24,
+                "heldOut": 4,
+                "beforeRmseM": 61.25,
+                "afterRmseM": 9.5,
+                "maxShiftM": 42.75
+            },
+            {
+                "a": "D3C1202-200149F040",
+                "b": "D3C1202-200149F041",
+                "measured": false,
+                "applied": false,
+                "samples": 3,
+                "heldOut": 0,
+                "maxShiftM": 0
+            }
+        ],
+        "omitted": ["D3C1202-200149A039"],
+        "coveragePct": 97.5,
+        "checkpointRmseM": 51.6,
+        "checkpointCount": 3,
+        "maxShiftM": 42.75
+    },
+    "createdBy": "uid-owner",
+    "createdAt": {
+        "seconds": 1793000000,
+        "nanoseconds": 0
+    },
+    "updatedBy": "system:pipeline",
+    "updatedAt": {
+        "seconds": 1793000600,
+        "nanoseconds": 0
+    }
+}

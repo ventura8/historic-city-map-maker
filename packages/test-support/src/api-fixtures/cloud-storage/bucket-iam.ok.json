@@ -1,0 +1,16 @@
+{
+    "call": "GET https://storage.googleapis.com/storage/v1/b/<bucket>/iam",
+    "status": 200,
+    "body": {
+        "kind": "storage#policy",
+        "resourceId": "projects/_/buckets/{{bucket}}",
+        "version": 1,
+        "etag": "CAE=",
+        "bindings": [
+            {
+                "role": "roles/storage.legacyBucketOwner",
+                "members": ["projectEditor:{{projectId}}", "projectOwner:{{projectId}}"]
+            }
+        ]
+    }
+}

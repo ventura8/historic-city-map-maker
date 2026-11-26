@@ -1,0 +1,17 @@
+{
+    "call": "GET https://iam.googleapis.com/v1/projects/{{projectNumber}}/locations/global/workloadIdentityPools/{{poolId}}/providers/<provider>",
+    "status": 200,
+    "body": {
+        "name": "projects/{{projectNumber}}/locations/global/workloadIdentityPools/{{poolId}}/providers/{{providerId}}",
+        "displayName": "GitHub OIDC",
+        "state": "ACTIVE",
+        "attributeMapping": {
+            "google.subject": "assertion.sub",
+            "attribute.repository": "assertion.repository"
+        },
+        "attributeCondition": "assertion.repository == 'ventura8/historic-city-map-maker'",
+        "oidc": {
+            "issuerUri": "https://token.actions.githubusercontent.com"
+        }
+    }
+}

@@ -1,0 +1,15 @@
+{
+    "call": "GET https://oauth2.googleapis.com/tokeninfo?access_token=<token>",
+    "status": 200,
+    "body": {
+        "azp": "{{oauthClientId}}",
+        "aud": "{{oauthClientId}}",
+        "sub": "100000000000000000001",
+        "scope": "openid https://www.googleapis.com/auth/userinfo.email https://www.googleapis.com/auth/cloud-platform.read-only",
+        "exp": "1791797400",
+        "expires_in": "3599",
+        "email": "{{ownerEmail}}",
+        "email_verified": "true",
+        "access_type": "online"
+    }
+}

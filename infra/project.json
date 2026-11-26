@@ -1,0 +1,15 @@
+{
+    "projectId": "bucurestiul-disparut",
+    "projectNumber": "804854330662",
+    "region": "us-central1",
+    "cities": ["bucharest"],
+    "viewerOrigins": ["https://bucurestiul-disparut.web.app", "https://bucurestiul-disparut.firebaseapp.com", "https://ventura8.github.io"],
+    "github": {
+        "owner": "ventura8",
+        "ownerId": 6506625,
+        "repo": "historic-city-map-maker",
+        "repoId": 243934124,
+        "branch": "master",
+        "environment": "deploy"
+    }
+}

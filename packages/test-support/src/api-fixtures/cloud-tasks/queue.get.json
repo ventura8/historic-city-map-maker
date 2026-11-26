@@ -1,0 +1,19 @@
+{
+    "call": "GET https://cloudtasks.googleapis.com/v2/projects/<project>/locations/<region>/queues/<queue>",
+    "status": 200,
+    "body": {
+        "name": "projects/{{projectId}}/locations/{{region}}/queues/{{queue}}",
+        "rateLimits": {
+            "maxDispatchesPerSecond": 500,
+            "maxBurstSize": 100,
+            "maxConcurrentDispatches": 1
+        },
+        "retryConfig": {
+            "maxAttempts": 3,
+            "minBackoff": "10s",
+            "maxBackoff": "300s",
+            "maxDoublings": 4
+        },
+        "state": "RUNNING"
+    }
+}

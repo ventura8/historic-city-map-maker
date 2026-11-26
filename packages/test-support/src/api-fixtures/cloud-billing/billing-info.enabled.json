@@ -1,0 +1,10 @@
+{
+    "call": "GET https://cloudbilling.googleapis.com/v1/projects/<project>/billingInfo",
+    "status": 200,
+    "body": {
+        "name": "projects/{{projectId}}/billingInfo",
+        "projectId": "{{projectId}}",
+        "billingAccountName": "billingAccounts/{{billingAccountId}}",
+        "billingEnabled": true
+    }
+}

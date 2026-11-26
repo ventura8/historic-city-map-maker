@@ -1,0 +1,11 @@
+{
+    "call": "POST https://cloudresourcemanager.googleapis.com/v3/projects/<project>:testIamPermissions",
+    "status": 403,
+    "body": {
+        "error": {
+            "code": 403,
+            "message": "The caller does not have permission",
+            "status": "PERMISSION_DENIED"
+        }
+    }
+}

@@ -1,0 +1,17 @@
+{
+    "call": "POST https://iam.googleapis.com/v1/projects/<project>/serviceAccounts",
+    "status": 409,
+    "body": {
+        "error": {
+            "code": 409,
+            "message": "Service account {{accountId}} already exists within project projects/{{projectId}}.",
+            "status": "ALREADY_EXISTS",
+            "details": [
+                {
+                    "@type": "type.googleapis.com/google.rpc.ResourceInfo",
+                    "resourceName": "projects/{{projectId}}/serviceAccounts/{{accountId}}@{{projectId}}.iam.gserviceaccount.com"
+                }
+            ]
+        }
+    }
+}

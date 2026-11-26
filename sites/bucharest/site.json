@@ -1,0 +1,16 @@
+{
+    "lang": "ro",
+    "title": "București dispărut",
+    "description": "Bucureștiul de altădată pe harta de azi: fotografii vechi așezate acolo unde au fost făcute și straturi istorice ale orașului.",
+    "themeColor": "#8B5E3C",
+    "noscript": {
+        "ro": "Harta are nevoie de JavaScript. Activează JavaScript în browser ca să vezi fotografiile și straturile istorice ale Bucureștiului.",
+        "en": "The map needs JavaScript. Turn JavaScript on in your browser to see the historical photos and layers of Bucharest."
+    },
+    "manifest": "seed/bucharest/manifest.static.json",
+    "legacyCityId": "bucuresti",
+    "media": "seed/bucharest/derived",
+    "additions": ["seed/bucharest-2023"],
+    "publicManifest": true,
+    "pagesPath": ""
+}

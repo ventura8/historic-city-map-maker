@@ -1,0 +1,14 @@
+{
+    "call": "POST https://serviceusage.googleapis.com/v1beta1/projects/<project>/services/<service>:generateServiceIdentity",
+    "note": "Done at once; the response names the service agent (M2b item iam).",
+    "status": 200,
+    "body": {
+        "name": "operations/finaf.p2-{{projectNumber}}-{{operationId}}",
+        "done": true,
+        "response": {
+            "@type": "type.googleapis.com/google.api.serviceusage.v1beta1.ServiceIdentity",
+            "email": "service-{{projectNumber}}@gcp-sa-{{serviceAgent}}.iam.gserviceaccount.com",
+            "uniqueId": "100000000000000000001"
+        }
+    }
+}

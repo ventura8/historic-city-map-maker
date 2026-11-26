@@ -1,0 +1,29 @@
+{
+    "call": "GET https://nominatim.openstreetmap.org/reverse?format=jsonv2&lat=<lat>&lon=<lon>",
+    "status": 200,
+    "body": {
+        "place_id": 100000001,
+        "licence": "Data © OpenStreetMap contributors, ODbL 1.0. http://osm.org/copyright",
+        "osm_type": "way",
+        "osm_id": 200000001,
+        "lat": "44.4355",
+        "lon": "26.0974",
+        "category": "highway",
+        "type": "primary",
+        "place_rank": 26,
+        "importance": 0.4,
+        "addresstype": "road",
+        "name": "Calea Victoriei",
+        "display_name": "Calea Victoriei, Sector 1, București, 010063, România",
+        "address": {
+            "road": "Calea Victoriei",
+            "suburb": "Sector 1",
+            "city": "București",
+            "ISO3166-2-lvl4": "RO-B",
+            "postcode": "010063",
+            "country": "România",
+            "country_code": "ro"
+        },
+        "boundingbox": ["44.4300", "44.4410", "26.0950", "26.0990"]
+    }
+}

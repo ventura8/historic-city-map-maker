@@ -1,0 +1,18 @@
+{
+    "comment": "A regeoref's params as functions/src/imagery/regeoref.ts writes them: a frame's, and (M20 §19.18) an archive version's naming its archive and series. Both sides parse these with their real schemas: @hcm/shared JOB_PARAMS_SCHEMAS.regeoref and the pipeline's RegeorefParams (docs/LESSONS.md, 2026-11-22).",
+    "cases": [
+        { "basedOn": "im-mws0aa00-kh-4a-corona-1966" },
+        {
+            "basedOn": "rg-mws801mm-planul-municipiului-bucurest",
+            "originalArchiveId": "ar-d6de189b65a0b61b",
+            "originalSeriesId": "s-0123456789ab"
+        },
+        {
+            "basedOn": "rg-mws801mm-planul-municipiului-bucurest",
+            "originalArchiveId": "ar-d6de189b65a0b61b",
+            "originalSeriesId": "s-0123456789ab",
+            "recordFrom": ["rg-mws801mm-planul-municipiului-bucurest", "ar-mw993zri-s-0123456789ab"],
+            "fullResolution": true
+        }
+    ]
+}

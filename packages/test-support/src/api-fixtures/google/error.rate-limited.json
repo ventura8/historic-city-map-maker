@@ -1,0 +1,25 @@
+{
+    "call": "any Google REST call over its quota",
+    "status": 429,
+    "headers": {
+        "retry-after": "30"
+    },
+    "body": {
+        "error": {
+            "code": 429,
+            "message": "Quota exceeded for quota metric 'Requests' and limit 'Requests per minute' of service '{{service}}' for consumer 'project_number:{{projectNumber}}'.",
+            "status": "RESOURCE_EXHAUSTED",
+            "details": [
+                {
+                    "@type": "type.googleapis.com/google.rpc.ErrorInfo",
+                    "reason": "RATE_LIMIT_EXCEEDED",
+                    "domain": "googleapis.com",
+                    "metadata": {
+                        "service": "{{service}}",
+                        "consumer": "projects/{{projectNumber}}"
+                    }
+                }
+            ]
+        }
+    }
+}

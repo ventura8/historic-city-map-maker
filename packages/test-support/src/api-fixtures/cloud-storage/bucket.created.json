@@ -1,0 +1,24 @@
+{
+    "call": "POST https://storage.googleapis.com/storage/v1/b?project=<project>",
+    "status": 200,
+    "body": {
+        "kind": "storage#bucket",
+        "selfLink": "https://storage.googleapis.com/storage/v1/b/{{bucket}}",
+        "id": "{{bucket}}",
+        "name": "{{bucket}}",
+        "projectNumber": "{{projectNumber}}",
+        "metageneration": "1",
+        "location": "US-CENTRAL1",
+        "storageClass": "STANDARD",
+        "etag": "CAE=",
+        "timeCreated": "2026-10-12T08:30:00.000Z",
+        "updated": "2026-10-12T08:30:00.000Z",
+        "iamConfiguration": {
+            "uniformBucketLevelAccess": {
+                "enabled": true
+            },
+            "publicAccessPrevention": "inherited"
+        },
+        "locationType": "region"
+    }
+}

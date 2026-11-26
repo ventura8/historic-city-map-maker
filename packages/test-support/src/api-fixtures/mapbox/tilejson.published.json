@@ -1,0 +1,20 @@
+{
+    "call": "GET https://api.mapbox.com/v4/<tileset>.json?access_token=<token>",
+    "note": "A published raster tileset's TileJSON: the publisher's smoke test reads its zoom range; the viewer and the admin map read its tiles. The fake fills minzoom and maxzoom from the recipe that was published.",
+    "status": 200,
+    "body": {
+        "tilejson": "2.2.0",
+        "id": "{{tilesetId}}",
+        "name": "{{tilesetName}}",
+        "scheme": "xyz",
+        "format": "png",
+        "type": "raster",
+        "minzoom": 10,
+        "maxzoom": 16,
+        "bounds": [-180, -85.0511, 180, 85.0511],
+        "center": [0, 0, 10],
+        "tiles": ["https://api.mapbox.com/v4/{{tilesetId}}/{z}/{x}/{y}.png"],
+        "attribution": "USGS EROS, declassified imagery (public domain)",
+        "version": "1.0.0"
+    }
+}

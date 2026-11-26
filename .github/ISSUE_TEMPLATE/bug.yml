@@ -1,0 +1,44 @@
+name: Bug report
+description: Something in the map, the admin or the tooling does not work as described.
+labels: [bug]
+body:
+    - type: dropdown
+      id: area
+      attributes:
+          label: Area
+          options:
+              - Public map (viewer)
+              - Admin and Setup Assistant
+              - Engine (embedding in another city's site)
+              - Firebase backend (functions, rules)
+              - Raster pipeline (USGS imagery)
+              - CI, tooling or docs
+      validations:
+          required: true
+    - type: textarea
+      id: what-happened
+      attributes:
+          label: What happened
+          description: What you did, what you saw, and what you expected instead.
+      validations:
+          required: true
+    - type: textarea
+      id: reproduce
+      attributes:
+          label: Steps to reproduce
+          placeholder: |
+              1. Open ...
+              2. Click ...
+      validations:
+          required: true
+    - type: input
+      id: environment
+      attributes:
+          label: Browser, device and language
+          placeholder: Firefox 140 on Android, phone, Romanian
+    - type: textarea
+      id: logs
+      attributes:
+          label: Console output or pipeline log
+          description: Never paste tokens, keys or passwords; redact them.
+          render: text

@@ -1,0 +1,75 @@
+{
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
+    "title": "Repository policy for GitHub workflows and composite actions",
+    "description": "Static gate `workflow-policy` (scripts/ci/pipeline.py): the AGENTS.md workflow rules that the GitHub schemas do not cover. No pull_request_target trigger; a workflow declares top-level permissions and never write-all; every actions/checkout step sets persist-credentials: false; a run: script never interpolates ${{ }} (values reach it through env:). Fix guide: .agent/skills/quality/ci_quality_gates_skill.md.",
+    "type": "object",
+    "properties": {
+        "on": {
+            "description": "pull_request_target runs fork code with this repository's secrets and a write token: never used (AGENTS.md -> Boundaries).",
+            "not": { "$ref": "#/$defs/mentionsPullRequestTarget" }
+        },
+        "permissions": { "$ref": "#/$defs/permissions" },
+        "jobs": {
+            "type": "object",
+            "additionalProperties": { "$ref": "#/$defs/job" }
+        },
+        "runs": {
+            "type": "object",
+            "properties": { "steps": { "$ref": "#/$defs/steps" } }
+        }
+    },
+    "if": { "required": ["jobs"] },
+    "then": {
+        "description": "A workflow sets the least-privilege default for every job (contents: read); jobs widen it one by one.",
+        "required": ["permissions"]
+    },
+    "$defs": {
+        "mentionsPullRequestTarget": {
+            "anyOf": [
+                { "const": "pull_request_target" },
+                { "type": "array", "contains": { "const": "pull_request_target" } },
+                { "type": "object", "required": ["pull_request_target"] }
+            ]
+        },
+        "permissions": {
+            "description": "Name each permission a job needs; write-all and read-all grant everything.",
+            "not": { "enum": ["write-all", "read-all"] }
+        },
+        "job": {
+            "type": "object",
+            "properties": {
+                "permissions": { "$ref": "#/$defs/permissions" },
+                "steps": { "$ref": "#/$defs/steps" }
+            }
+        },
+        "steps": {
+            "type": "array",
+            "items": { "$ref": "#/$defs/step" }
+        },
+        "step": {
+            "type": "object",
+            "properties": {
+                "run": {
+                    "description": "A ${{ }} expression inside a script is spliced into the shell source (script injection): pass the value through env: and quote the variable.",
+                    "type": "string",
+                    "not": { "pattern": "\\$\\{\\{" }
+                }
+            },
+            "if": {
+                "required": ["uses"],
+                "properties": { "uses": { "type": "string", "pattern": "^actions/checkout@" } }
+            },
+            "then": {
+                "description": "actions/checkout must not leave the job token in .git/config, where every later step and container could read it.",
+                "required": ["with"],
+                "properties": {
+                    "with": {
+                        "type": "object",
+                        "required": ["persist-credentials"],
+                        "properties": { "persist-credentials": { "const": false } }
+                    }
+                }
+            }
+        }
+    }
+}

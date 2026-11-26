@@ -1,0 +1,33 @@
+// Solution file: `tsc -b` builds (type-checks) every project below in dependency order. Each package
+// has two projects: `<pkg>` (src/, product code) and `<pkg>/test` (tests, with Node + Vitest types).
+// functions/ uses Node (nodenext) resolution; firebase/rules-tests and e2e (Playwright) have tests only;
+// scripts/site is the static site build (Node, run through type stripping) with its unit tests, scripts/release the
+// release scripts (the version bump, cdn/engine/, the notes' pinned addresses) with theirs; the JavaScript CLIs'
+// tests (scripts/seed/test, packages/ui/scripts/test) are projects of their own, like vitest.config.ts's `tools` project.
+{
+    "files": [],
+    "references": [
+        { "path": "packages/shared" },
+        { "path": "packages/shared/test" },
+        { "path": "packages/ui" },
+        { "path": "packages/ui/test" },
+        { "path": "packages/engine" },
+        { "path": "packages/engine/test" },
+        { "path": "packages/admin" },
+        { "path": "packages/admin/test" },
+        { "path": "packages/test-support" },
+        { "path": "packages/create-historic-city" },
+        { "path": "packages/create-historic-city/test" },
+        { "path": "functions" },
+        { "path": "functions/test" },
+        { "path": "firebase/rules-tests" },
+        { "path": "packages/ui/scripts/test" },
+        { "path": "scripts/seed/test" },
+        { "path": "scripts/site" },
+        { "path": "scripts/site/test" },
+        { "path": "scripts/release" },
+        { "path": "scripts/release/test" },
+        { "path": "e2e" },
+        { "path": "tsconfig.tools.json" }
+    ]
+}

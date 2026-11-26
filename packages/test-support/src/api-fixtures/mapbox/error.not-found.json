@@ -1,0 +1,7 @@
+{
+    "call": "any https://api.mapbox.com call naming a missing resource",
+    "status": 404,
+    "body": {
+        "message": "Not Found"
+    }
+}

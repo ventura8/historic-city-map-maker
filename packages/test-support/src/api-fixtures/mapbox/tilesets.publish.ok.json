@@ -1,0 +1,8 @@
+{
+    "call": "POST https://api.mapbox.com/tilesets/v1/<tileset>/publish?access_token=<sk>",
+    "status": 200,
+    "body": {
+        "message": "Processing {{tilesetId}}",
+        "jobId": "{{jobId}}"
+    }
+}

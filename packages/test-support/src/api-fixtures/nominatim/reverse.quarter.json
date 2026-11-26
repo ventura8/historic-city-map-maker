@@ -1,0 +1,29 @@
+{
+    "call": "GET https://nominatim.openstreetmap.org/reverse?format=jsonv2&lat=<lat>&lon=<lon>&zoom=18&addressdetails=1&namedetails=1",
+    "note": "A place with no named object or road nearby: only its quarter. Recorded shape, test values.",
+    "status": 200,
+    "body": {
+        "place_id": 100000003,
+        "licence": "Data © OpenStreetMap contributors, ODbL 1.0. http://osm.org/copyright",
+        "osm_type": "relation",
+        "osm_id": 200000003,
+        "lat": "44.4325",
+        "lon": "26.0700",
+        "category": "boundary",
+        "type": "administrative",
+        "place_rank": 22,
+        "importance": 0.3,
+        "addresstype": "quarter",
+        "name": "",
+        "display_name": "Cotroceni, Sector 5, București, România",
+        "address": {
+            "quarter": "Cotroceni",
+            "city": "București",
+            "ISO3166-2-lvl4": "RO-B",
+            "country": "România",
+            "country_code": "ro"
+        },
+        "namedetails": {},
+        "boundingbox": ["44.4250", "44.4400", "26.0600", "26.0800"]
+    }
+}

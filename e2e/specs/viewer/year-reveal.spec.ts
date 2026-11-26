@@ -1,0 +1,85 @@
+import type { Locator, Page } from '@playwright/test';
+
+import { mapIdle } from '../../support/map.js';
+import { sitePath } from '../../support/site.js';
+import { expect, test } from '../../support/test.js';
+import { callController, viewer, waitForEngineEvent } from '../../support/viewer.js';
+
+/**
+ * A year chosen on the timeline shows its layer in the Layers panel (the owner, 2026-11-22: 1970 stayed hidden under the
+ * sticky strip), and no row is ever drawn under anything.
+ */
+
+async function bootWide(page: Page): Promise<Locator> {
+    await page.setViewportSize({ width: 1680, height: 720 });
+    await page.goto(sitePath('bucharest', { hash: '15/44.42700/26.08530' }));
+    await waitForEngineEvent(page, 'hcm-ready');
+    await mapIdle(page);
+    return viewer(page).locator('.pane.leading hcm-layer-panel');
+}
+
+/** Whether the element at the row's centre is the row itself or inside it. */
+async function rowOnTop(row: Locator): Promise<boolean> {
+    return row.evaluate((element) => {
+        const box = element.getBoundingClientRect();
+        const x = box.left + 8;
+        const y = box.top + box.height / 2;
+        const root = element.getRootNode() as ShadowRoot;
+        const hit = root.elementFromPoint(x, y);
+        return hit !== null && (hit === element || element.contains(hit));
+    });
+}
+
+test(
+    "Choosing a year expands its layer's section and brings its row into view",
+    { tag: ['@S-V03-HAPPY-YEAR-REVEALS-ITS-LAYER', '@layer-sections-default'] },
+    async ({ page }) => {
+        const pane = await bootWide(page);
+        await callController(page, 'setYear', 1980);
+        const row = pane.locator('li[data-overlay="e2e-1980"]');
+        await expect(row).toBeVisible();
+        await expect.poll(() => rowOnTop(row)).toBe(true);
+        // Polled: the pane scrolls the row in smoothly, so one read may land mid-scroll.
+        const inside = async (): Promise<boolean> => {
+            const body = await pane.evaluate(
+                (panel) => panel.shadowRoot?.querySelector('.body')?.getBoundingClientRect().toJSON() as DOMRect,
+            );
+            return row.evaluate((element, frame) => {
+                const box = element.getBoundingClientRect();
+                return box.y >= frame.y - 1 && box.y + box.height <= frame.y + frame.height + 1;
+            }, body);
+        };
+        await expect.poll(inside, { message: 'inside the pane' }).toBe(true);
+    },
+);
+
+test('No row of the Layers pane is ever drawn under another part', { tag: '@S-V03-BAD-ROWS-NEVER-UNDER-THE-STRIP' }, async ({ page }) => {
+    const pane = await bootWide(page);
+    const scrolled = await pane
+        .locator('hcm-overlay-list')
+        .last()
+        .evaluate((element) => {
+            for (
+                let node: Node | null = element;
+                node !== null;
+                node = node.parentNode ?? (node instanceof ShadowRoot ? node.host : null)
+            ) {
+                if (node instanceof HTMLElement && node.scrollHeight > node.clientHeight && getComputedStyle(node).overflowY === 'auto') {
+                    node.scrollTop = node.scrollHeight / 3;
+                    return node.scrollTop;
+                }
+            }
+            return 0;
+        });
+    expect(scrolled, 'the pane scrolls').toBeGreaterThan(0);
+    // Every row in the viewport's middle band whose centre is covered by something else: none may be.
+    const covered = await pane.locator('li[data-overlay]').evaluateAll((rows) =>
+        rows.flatMap((element, index) => {
+            const box = element.getBoundingClientRect();
+            const inBand = box.height > 0 && box.y > 80 && box.y < 1000;
+            const hit = (element.getRootNode() as ShadowRoot).elementFromPoint(box.left + 8, box.top + box.height / 2);
+            return inBand && !(hit !== null && (hit === element || element.contains(hit))) ? [index] : [];
+        }),
+    );
+    expect(covered, 'rows drawn under another part').toEqual([]);
+});

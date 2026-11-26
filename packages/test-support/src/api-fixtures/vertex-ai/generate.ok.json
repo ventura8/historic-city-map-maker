@@ -1,0 +1,23 @@
+{
+    "call": "POST https://us-central1-aiplatform.googleapis.com/v1/projects/<project>/locations/us-central1/publishers/google/models/gemini-3.5-flash-lite:generateContent",
+    "note": "One candidate of plain text (responseMimeType text/plain); the fake puts its scripted draft into candidates[0]. Recorded shape, test values.",
+    "status": 200,
+    "body": {
+        "candidates": [
+            {
+                "content": { "role": "model", "parts": [{ "text": "Romanian Athenaeum" }] },
+                "finishReason": "STOP",
+                "avgLogprobs": -0.05
+            }
+        ],
+        "usageMetadata": {
+            "promptTokenCount": 96,
+            "candidatesTokenCount": 4,
+            "totalTokenCount": 100,
+            "trafficType": "ON_DEMAND"
+        },
+        "modelVersion": "gemini-3.5-flash-lite",
+        "createTime": "2026-10-24T08:30:00.000000Z",
+        "responseId": "e2e-vertex-response-0001"
+    }
+}

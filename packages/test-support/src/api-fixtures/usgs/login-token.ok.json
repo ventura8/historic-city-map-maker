@@ -1,0 +1,13 @@
+{
+    "call": "POST https://m2m.cr.usgs.gov/api/api/json/stable/login-token",
+    "note": "`data` is the two-hour API key.",
+    "status": 200,
+    "body": {
+        "requestId": 1000001,
+        "version": "stable",
+        "sessionId": 2000001,
+        "data": "{{usgsApiKey}}",
+        "errorCode": null,
+        "errorMessage": null
+    }
+}

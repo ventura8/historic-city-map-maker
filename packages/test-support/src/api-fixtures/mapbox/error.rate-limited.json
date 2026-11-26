@@ -1,0 +1,13 @@
+{
+    "call": "any https://api.mapbox.com call over the rate limit",
+    "status": 429,
+    "headers": {
+        "x-rate-limit-interval": "60",
+        "x-rate-limit-limit": "100",
+        "x-rate-limit-reset": "1791793860",
+        "retry-after": "60"
+    },
+    "body": {
+        "message": "Too Many Requests"
+    }
+}

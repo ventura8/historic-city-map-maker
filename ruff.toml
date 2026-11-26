@@ -1,0 +1,35 @@
+# ruff (lint + format) for every Python file: scripts/ci now, pipeline/ from M3. Inline `noqa`
+# comments are banned (scripts/ci/check_no_inline_suppressions.py): relaxations live here only.
+target-version = "py314"
+line-length = 140
+# Markdown belongs to markdownlint (as in .prettierignore): code in docs is illustration, not source.
+extend-exclude = ["seed", "vendor", "*.md"]
+
+[lint]
+select = ["E", "F", "W", "B", "C90", "I", "N", "UP", "S", "SIM", "RUF", "T20", "PT", "PL"]
+# S603 flags EVERY subprocess call without shell=True; it is an audit marker, not a defect. The CI
+# scripts exist to run linters and test runners with argument lists from constant tables, and
+# shell=True (S602) stays forbidden.
+ignore = ["S603"]
+
+[lint.mccabe]
+# Complexity 5 per function, the same bar as ESLint `complexity` and Radon grade A.
+max-complexity = 5
+
+[lint.pylint]
+max-args = 5
+
+[lint.per-file-ignores]
+# Only the test suites (and, below, the GDAL stubs) are relaxed:
+# - S101: pytest's assertion rewriting IS the assertion API.
+# - S108: tests use fake /tmp-like strings as data; real files go to pytest's tmp_path.
+# - S105/S106: fake tokens are fixtures of the secret-handling tests (never real secrets; gitleaks gate).
+# - S607: tests run `git` and `bash` from PATH, exactly as the pipeline does inside the quality image.
+# - PLR2004: literal expected values are the point of an assertion.
+"**/tests/**/*.py" = ["S101", "S105", "S106", "S108", "S607", "PLR2004"]
+# GDAL's Python API is CamelCase (gdal.Open, Dataset.GetGeoTransform); its stubs must spell it as GDAL does.
+"pipeline/typings/**/*.pyi" = ["N802"]
+
+[format]
+quote-style = "double"
+indent-style = "space"

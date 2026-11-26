@@ -1,0 +1,46 @@
+# Normalise line endings to LF in the repository and in every checkout.
+* text=auto eol=lf
+
+# Explicit text types (LF everywhere, including extension-less configs).
+*.ts text eol=lf
+*.mts text eol=lf
+*.cts text eol=lf
+*.js text eol=lf
+*.mjs text eol=lf
+*.cjs text eol=lf
+*.css text eol=lf
+*.html text eol=lf
+*.json text eol=lf
+*.jsonc text eol=lf
+*.geojson text eol=lf
+*.rules text eol=lf
+*.md text eol=lf
+*.yml text eol=lf
+*.yaml text eol=lf
+*.toml text eol=lf
+*.py text eol=lf
+*.sh text eol=lf
+*.txt text eol=lf
+.editorconfig text eol=lf
+.gitattributes text eol=lf
+.gitignore text eol=lf
+.npmrc text eol=lf
+.nvmrc text eol=lf
+.prettierignore text eol=lf
+.yamllint text eol=lf
+.htmlhintrc text eol=lf
+.dockerignore text eol=lf
+Dockerfile* text eol=lf
+
+# Binary assets: never diffed, never normalised.
+*.jpg binary
+*.jpeg binary
+*.png binary
+*.webp binary
+*.gif binary
+*.ico binary
+*.tif binary
+*.tiff binary
+*.pdf binary
+*.woff binary
+*.woff2 binary

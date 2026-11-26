@@ -1,0 +1,9 @@
+{
+    "call": "GET https://iam.googleapis.com/v1/<operation>",
+    "status": 200,
+    "body": {
+        "name": "{{operationName}}",
+        "done": true,
+        "response": {}
+    }
+}

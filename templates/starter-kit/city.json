@@ -1,0 +1,346 @@
+{
+    "version": 1,
+    "city": {
+        "id": "orasul-meu",
+        "name": {
+            "ro": "Orașul meu",
+            "en": "My city"
+        },
+        "center": [26.085298, 44.427037],
+        "zoom": 14.5,
+        "minZoom": 10,
+        "maxZoom": 20,
+        "bounds": [
+            [25.93, 44.33],
+            [26.25, 44.55]
+        ],
+        "about": {
+            "ro": "**Orașul meu** este un exemplu de hartă istorică făcută cu trusa de pornire Historic City Map Maker.\n\nÎnlocuiește în city.json numele orașului, limitele și vederea de start, acest text, textul despre confidențialitate, creditele și locurile de exemplu cu ale tale, apoi adaugă fotografiile și straturile istorice (pașii sunt în README.md).",
+            "en": "**My city** is an example of a historical map made with the Historic City Map Maker starter kit.\n\nIn city.json, replace the name of the city, its bounds and start view, this text, the privacy text, the credits and the example places with your own, then add your photos and historical layers (the steps are in README.md)."
+        },
+        "credits": [
+            {
+                "label": {
+                    "ro": "Făcută cu Historic City Map Maker",
+                    "en": "Made with Historic City Map Maker"
+                },
+                "url": "https://github.com/ventura8/historic-city-map-maker"
+            }
+        ],
+        "privacy": {
+            "ro": "Această hartă nu folosește cookie-uri. Harta este afișată cu **Mapbox**: browserul tău trimite adresa IP către Mapbox. Descrie aici și găzduirea site-ului tău.",
+            "en": "This map uses no cookies. The map is drawn by **Mapbox**: your browser sends your IP address to Mapbox. Describe your own site hosting here too."
+        },
+        "theme": {
+            "seedColor": "#8B5E3C",
+            "tokens": {
+                "light": {
+                    "--md-sys-color-background": "#fff8f5",
+                    "--md-sys-color-on-background": "#3d3027",
+                    "--md-sys-color-surface": "#fff8f5",
+                    "--md-sys-color-surface-dim": "#ebd6c9",
+                    "--md-sys-color-surface-bright": "#fff8f5",
+                    "--md-sys-color-surface-container-lowest": "#ffffff",
+                    "--md-sys-color-surface-container-low": "#fff1e9",
+                    "--md-sys-color-surface-container": "#fdeadf",
+                    "--md-sys-color-surface-container-high": "#f8e4d9",
+                    "--md-sys-color-surface-container-highest": "#f4ded1",
+                    "--md-sys-color-on-surface": "#3d3027",
+                    "--md-sys-color-on-surface-variant": "#6c5c52",
+                    "--md-sys-color-outline": "#89776c",
+                    "--md-sys-color-outline-variant": "#c2aea2",
+                    "--md-sys-color-inverse-surface": "#130d09",
+                    "--md-sys-color-inverse-on-surface": "#a69b94",
+                    "--md-sys-color-primary": "#875329",
+                    "--md-sys-color-primary-dim": "#78471f",
+                    "--md-sys-color-on-primary": "#fff7f4",
+                    "--md-sys-color-primary-container": "#fdb886",
+                    "--md-sys-color-on-primary-container": "#62350d",
+                    "--md-sys-color-primary-fixed": "#fdb886",
+                    "--md-sys-color-primary-fixed-dim": "#edaa79",
+                    "--md-sys-color-on-primary-fixed": "#482200",
+                    "--md-sys-color-on-primary-fixed-variant": "#6d3d16",
+                    "--md-sys-color-inverse-primary": "#fdb886",
+                    "--md-sys-color-secondary": "#755945",
+                    "--md-sys-color-secondary-dim": "#684d3a",
+                    "--md-sys-color-on-secondary": "#fff7f4",
+                    "--md-sys-color-secondary-container": "#ffdcc5",
+                    "--md-sys-color-on-secondary-container": "#674c39",
+                    "--md-sys-color-secondary-fixed": "#ffdcc5",
+                    "--md-sys-color-secondary-fixed-dim": "#f3cdb4",
+                    "--md-sys-color-on-secondary-fixed": "#533a28",
+                    "--md-sys-color-on-secondary-fixed-variant": "#715642",
+                    "--md-sys-color-tertiary": "#676028",
+                    "--md-sys-color-tertiary-dim": "#5b541e",
+                    "--md-sys-color-on-tertiary": "#fff9e5",
+                    "--md-sys-color-tertiary-container": "#f5eaa4",
+                    "--md-sys-color-on-tertiary-container": "#5d561f",
+                    "--md-sys-color-tertiary-fixed": "#f5eaa4",
+                    "--md-sys-color-tertiary-fixed-dim": "#e6db97",
+                    "--md-sys-color-on-tertiary-fixed": "#4a430e",
+                    "--md-sys-color-on-tertiary-fixed-variant": "#676028",
+                    "--md-sys-color-error": "#a73b21",
+                    "--md-sys-color-error-dim": "#791903",
+                    "--md-sys-color-on-error": "#fff7f6",
+                    "--md-sys-color-error-container": "#fd795a",
+                    "--md-sys-color-on-error-container": "#6e1400",
+                    "--md-sys-color-shadow": "#000000",
+                    "--md-sys-color-scrim": "#000000",
+                    "--md-sys-color-surface-variant": "#f4ded1",
+                    "--md-sys-color-surface-tint": "#875329"
+                },
+                "dark": {
+                    "--md-sys-color-background": "#130d09",
+                    "--md-sys-color-on-background": "#f7e1d4",
+                    "--md-sys-color-surface": "#130d09",
+                    "--md-sys-color-surface-dim": "#130d09",
+                    "--md-sys-color-surface-bright": "#362a21",
+                    "--md-sys-color-surface-container-lowest": "#000000",
+                    "--md-sys-color-surface-container-low": "#19120c",
+                    "--md-sys-color-surface-container": "#211811",
+                    "--md-sys-color-surface-container-high": "#281e16",
+                    "--md-sys-color-surface-container-highest": "#2f231b",
+                    "--md-sys-color-on-surface": "#f7e1d4",
+                    "--md-sys-color-on-surface-variant": "#bba79b",
+                    "--md-sys-color-outline": "#837267",
+                    "--md-sys-color-outline-variant": "#53453c",
+                    "--md-sys-color-inverse-surface": "#fff8f5",
+                    "--md-sys-color-inverse-on-surface": "#5d534d",
+                    "--md-sys-color-primary": "#f4bb92",
+                    "--md-sys-color-primary-dim": "#e5ad86",
+                    "--md-sys-color-on-primary": "#5d3719",
+                    "--md-sys-color-primary-container": "#724929",
+                    "--md-sys-color-on-primary-container": "#ffddc6",
+                    "--md-sys-color-primary-fixed": "#fdc39a",
+                    "--md-sys-color-primary-fixed-dim": "#eeb58d",
+                    "--md-sys-color-on-primary-fixed": "#4d2a0c",
+                    "--md-sys-color-on-primary-fixed-variant": "#6e4526",
+                    "--md-sys-color-inverse-primary": "#815534",
+                    "--md-sys-color-secondary": "#e4bfa7",
+                    "--md-sys-color-secondary-dim": "#d5b29a",
+                    "--md-sys-color-on-secondary": "#543b29",
+                    "--md-sys-color-secondary-container": "#4e3624",
+                    "--md-sys-color-on-secondary-container": "#dcb8a0",
+                    "--md-sys-color-secondary-fixed": "#ffdcc5",
+                    "--md-sys-color-secondary-fixed-dim": "#f3cdb4",
+                    "--md-sys-color-on-secondary-fixed": "#533a28",
+                    "--md-sys-color-on-secondary-fixed-variant": "#715642",
+                    "--md-sys-color-tertiary": "#fff7d2",
+                    "--md-sys-color-tertiary-dim": "#efe49f",
+                    "--md-sys-color-on-tertiary": "#665e27",
+                    "--md-sys-color-tertiary-container": "#f5eaa4",
+                    "--md-sys-color-on-tertiary-container": "#5d561f",
+                    "--md-sys-color-tertiary-fixed": "#f5eaa4",
+                    "--md-sys-color-tertiary-fixed-dim": "#e6db97",
+                    "--md-sys-color-on-tertiary-fixed": "#4a430e",
+                    "--md-sys-color-on-tertiary-fixed-variant": "#676028",
+                    "--md-sys-color-error": "#f97758",
+                    "--md-sys-color-error-dim": "#c44f34",
+                    "--md-sys-color-on-error": "#450900",
+                    "--md-sys-color-error-container": "#85230a",
+                    "--md-sys-color-on-error-container": "#ff9b82",
+                    "--md-sys-color-shadow": "#000000",
+                    "--md-sys-color-scrim": "#000000",
+                    "--md-sys-color-surface-variant": "#2f231b",
+                    "--md-sys-color-surface-tint": "#f4bb92"
+                },
+                "highContrastLight": {
+                    "--md-sys-color-background": "#fff8f5",
+                    "--md-sys-color-on-background": "#000000",
+                    "--md-sys-color-surface": "#fff8f5",
+                    "--md-sys-color-surface-dim": "#ebd6c9",
+                    "--md-sys-color-surface-bright": "#fff8f5",
+                    "--md-sys-color-surface-container-lowest": "#ffffff",
+                    "--md-sys-color-surface-container-low": "#fff1e9",
+                    "--md-sys-color-surface-container": "#fdeadf",
+                    "--md-sys-color-surface-container-high": "#f8e4d9",
+                    "--md-sys-color-surface-container-highest": "#f4ded1",
+                    "--md-sys-color-on-surface": "#000000",
+                    "--md-sys-color-on-surface-variant": "#2d2119",
+                    "--md-sys-color-outline": "#4e4037",
+                    "--md-sys-color-outline-variant": "#5e4f45",
+                    "--md-sys-color-inverse-surface": "#130d09",
+                    "--md-sys-color-inverse-on-surface": "#ffffff",
+                    "--md-sys-color-primary": "#3c1b00",
+                    "--md-sys-color-primary-dim": "#2d1300",
+                    "--md-sys-color-on-primary": "#ffd1b2",
+                    "--md-sys-color-primary-container": "#77461e",
+                    "--md-sys-color-on-primary-container": "#ffffff",
+                    "--md-sys-color-primary-fixed": "#77461e",
+                    "--md-sys-color-primary-fixed-dim": "#693b13",
+                    "--md-sys-color-on-primary-fixed": "#ffffff",
+                    "--md-sys-color-on-primary-fixed-variant": "#ffffff",
+                    "--md-sys-color-inverse-primary": "#fdb886",
+                    "--md-sys-color-secondary": "#341f0f",
+                    "--md-sys-color-secondary-dim": "#281506",
+                    "--md-sys-color-on-secondary": "#f9d3ba",
+                    "--md-sys-color-secondary-container": "#674d39",
+                    "--md-sys-color-on-secondary-container": "#ffffff",
+                    "--md-sys-color-secondary-fixed": "#674d39",
+                    "--md-sys-color-secondary-fixed-dim": "#5a412f",
+                    "--md-sys-color-on-secondary-fixed": "#ffffff",
+                    "--md-sys-color-on-secondary-fixed-variant": "#ffffff",
+                    "--md-sys-color-tertiary": "#292400",
+                    "--md-sys-color-tertiary-dim": "#1e1a00",
+                    "--md-sys-color-on-tertiary": "#e6db97",
+                    "--md-sys-color-tertiary-container": "#5a531d",
+                    "--md-sys-color-on-tertiary-container": "#ffffff",
+                    "--md-sys-color-tertiary-fixed": "#5a531d",
+                    "--md-sys-color-tertiary-fixed-dim": "#4e4712",
+                    "--md-sys-color-on-tertiary-fixed": "#ffffff",
+                    "--md-sys-color-on-tertiary-fixed-variant": "#ffffff",
+                    "--md-sys-color-error": "#4c0a00",
+                    "--md-sys-color-error-dim": "#390600",
+                    "--md-sys-color-on-error": "#ffcfc4",
+                    "--md-sys-color-error-container": "#952e15",
+                    "--md-sys-color-on-error-container": "#ffffff",
+                    "--md-sys-color-shadow": "#000000",
+                    "--md-sys-color-scrim": "#000000",
+                    "--md-sys-color-surface-variant": "#f4ded1",
+                    "--md-sys-color-surface-tint": "#3c1b00"
+                },
+                "highContrastDark": {
+                    "--md-sys-color-background": "#130d09",
+                    "--md-sys-color-on-background": "#ffffff",
+                    "--md-sys-color-surface": "#130d09",
+                    "--md-sys-color-surface-dim": "#130d09",
+                    "--md-sys-color-surface-bright": "#362a21",
+                    "--md-sys-color-surface-container-lowest": "#000000",
+                    "--md-sys-color-surface-container-low": "#19120c",
+                    "--md-sys-color-surface-container": "#211811",
+                    "--md-sys-color-surface-container-high": "#281e16",
+                    "--md-sys-color-surface-container-highest": "#2f231b",
+                    "--md-sys-color-on-surface": "#ffffff",
+                    "--md-sys-color-on-surface-variant": "#f7e1d4",
+                    "--md-sys-color-outline": "#c9b5a9",
+                    "--md-sys-color-outline-variant": "#b3a094",
+                    "--md-sys-color-inverse-surface": "#fff8f5",
+                    "--md-sys-color-inverse-on-surface": "#000000",
+                    "--md-sys-color-primary": "#ffdfcb",
+                    "--md-sys-color-primary-dim": "#ffcaa5",
+                    "--md-sys-color-on-primary": "#452406",
+                    "--md-sys-color-primary-container": "#cd9872",
+                    "--md-sys-color-on-primary-container": "#000000",
+                    "--md-sys-color-primary-fixed": "#fdc39a",
+                    "--md-sys-color-primary-fixed-dim": "#eeb58d",
+                    "--md-sys-color-on-primary-fixed": "#000000",
+                    "--md-sys-color-on-primary-fixed-variant": "#130500",
+                    "--md-sys-color-inverse-primary": "#532f11",
+                    "--md-sys-color-secondary": "#ffdfcb",
+                    "--md-sys-color-secondary-dim": "#f6d0b7",
+                    "--md-sys-color-on-secondary": "#3d2716",
+                    "--md-sys-color-secondary-container": "#bf9d86",
+                    "--md-sys-color-on-secondary-container": "#000000",
+                    "--md-sys-color-secondary-fixed": "#ffdcc5",
+                    "--md-sys-color-secondary-fixed-dim": "#f3cdb4",
+                    "--md-sys-color-on-secondary-fixed": "#000000",
+                    "--md-sys-color-on-secondary-fixed-variant": "#2f1b0b",
+                    "--md-sys-color-tertiary": "#fff7d2",
+                    "--md-sys-color-tertiary-dim": "#efe49f",
+                    "--md-sys-color-on-tertiary": "#3d3703",
+                    "--md-sys-color-tertiary-container": "#f5eaa4",
+                    "--md-sys-color-on-tertiary-container": "#342e00",
+                    "--md-sys-color-tertiary-fixed": "#f5eaa4",
+                    "--md-sys-color-tertiary-fixed-dim": "#e6db97",
+                    "--md-sys-color-on-tertiary-fixed": "#000000",
+                    "--md-sys-color-on-tertiary-fixed-variant": "#292400",
+                    "--md-sys-color-error": "#ffded7",
+                    "--md-sys-color-error-dim": "#ffc8bb",
+                    "--md-sys-color-on-error": "#5a0e00",
+                    "--md-sys-color-error-container": "#ff7e5e",
+                    "--md-sys-color-on-error-container": "#000000",
+                    "--md-sys-color-shadow": "#000000",
+                    "--md-sys-color-scrim": "#000000",
+                    "--md-sys-color-surface-variant": "#2f231b",
+                    "--md-sys-color-surface-tint": "#ffdfcb"
+                }
+            }
+        },
+        "basemap": {
+            "style": "mapbox://styles/mapbox/standard"
+        },
+        "mapbox": {
+            "publicToken": "pk.replace-with-your-token"
+        },
+        "analytics": {}
+    },
+    "layers": [],
+    "photos": [],
+    "poiCategories": [
+        {
+            "id": "locuri",
+            "label": {
+                "ro": "Locuri",
+                "en": "Places"
+            },
+            "icon": "flag",
+            "color": "#3D6B8C",
+            "defaultOpacity": 1
+        }
+    ],
+    "pois": [
+        {
+            "id": "un-loc",
+            "category": "locuri",
+            "geometry": {
+                "type": "Point",
+                "coordinates": [26.0853, 44.427]
+            },
+            "title": {
+                "ro": "Un loc",
+                "en": "A place"
+            },
+            "description": {
+                "ro": "Un punct de pe hartă: înlocuiește-l cu o clădire, un monument sau un loc dispărut al orașului tău.",
+                "en": "A point on the map: replace it with a building, a monument or a vanished place of your city."
+            },
+            "links": []
+        },
+        {
+            "id": "o-strada",
+            "category": "locuri",
+            "geometry": {
+                "type": "LineString",
+                "coordinates": [
+                    [26.08, 44.429],
+                    [26.09, 44.4285],
+                    [26.096, 44.43]
+                ]
+            },
+            "title": {
+                "ro": "O stradă",
+                "en": "A street"
+            },
+            "description": {
+                "ro": "O linie: o stradă de odinioară, un traseu de tramvai sau un zid.",
+                "en": "A line: a street of old, a tram route or a wall."
+            },
+            "links": []
+        },
+        {
+            "id": "o-zona",
+            "category": "locuri",
+            "geometry": {
+                "type": "Polygon",
+                "coordinates": [
+                    [
+                        [26.082, 44.424],
+                        [26.088, 44.424],
+                        [26.088, 44.426],
+                        [26.082, 44.426],
+                        [26.082, 44.424]
+                    ]
+                ]
+            },
+            "title": {
+                "ro": "O zonă",
+                "en": "An area"
+            },
+            "description": {
+                "ro": "O suprafață: un parc, un cartier sau o piață care nu mai există.",
+                "en": "An area: a park, a neighbourhood or a square that is gone."
+            },
+            "links": []
+        }
+    ]
+}

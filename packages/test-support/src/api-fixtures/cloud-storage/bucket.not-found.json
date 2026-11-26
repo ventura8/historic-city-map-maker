@@ -1,0 +1,17 @@
+{
+    "call": "GET https://storage.googleapis.com/storage/v1/b/<bucket>",
+    "status": 404,
+    "body": {
+        "error": {
+            "code": 404,
+            "message": "The specified bucket does not exist.",
+            "errors": [
+                {
+                    "message": "The specified bucket does not exist.",
+                    "domain": "global",
+                    "reason": "notFound"
+                }
+            ]
+        }
+    }
+}

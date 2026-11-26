@@ -1,0 +1,11 @@
+{
+    "call": "GET https://secretmanager.googleapis.com/v1/projects/<project>/secrets/<secret>/versions/latest:access",
+    "status": 404,
+    "body": {
+        "error": {
+            "code": 404,
+            "message": "Secret Version [projects/{{projectNumber}}/secrets/{{secretId}}/versions/latest] not found or has no versions.",
+            "status": "NOT_FOUND"
+        }
+    }
+}

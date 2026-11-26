@@ -1,0 +1,18 @@
+{
+    "call": "POST https://api.mapbox.com/styles/v1/<user>?access_token=<sk>",
+    "status": 200,
+    "body": {
+        "version": 8,
+        "name": "Historic City Map",
+        "id": "{{styleId}}",
+        "owner": "{{mapboxUser}}",
+        "visibility": "private",
+        "created": "2026-10-12T08:30:00.000Z",
+        "modified": "2026-10-12T08:30:00.000Z",
+        "protected": false,
+        "draft": false,
+        "sources": {},
+        "layers": [],
+        "glyphs": "mapbox://fonts/{{mapboxUser}}/{fontstack}/{range}.pbf"
+    }
+}

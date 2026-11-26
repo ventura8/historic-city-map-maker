@@ -1,0 +1,81 @@
+#!/usr/bin/env bash
+# ==============================================================================
+# git pre-push hook: a push to master or to a v* tag needs PIPELINE_STAGE=all green on exactly
+# the commit being pushed, on a clean tree (AGENTS.md -> Push discipline).
+#
+# scripts/ci/pipeline.py writes reports/pipeline/green-<stage>.json when a stage passes: the HEAD
+# commit and the SHA-256 of `git status --porcelain=v1 --untracked-files=all`. A protected push is
+# allowed when green-all.json names the commit being pushed, the run saw a clean tree, and the
+# tree is still clean now.
+#
+# Work branches are let through without a marker, so they can be pushed as backups after every
+# commit (user rule after the 2026-10-10 home wipe; quality-conventions.md Q4). Deleting a remote
+# ref needs no pipeline run; a tag is checked by the commit it points to (annotated or not).
+#
+# Install once per clone: git config core.hooksPath scripts/git-hooks (docs/SETUP.md).
+# ==============================================================================
+set -euo pipefail
+
+ROOT_DIR="$(git rev-parse --show-toplevel)"
+cd "$ROOT_DIR"
+MARKER="reports/pipeline/green-all.json"
+
+refuse() {
+	echo "[pre-push] refused: $1" >&2
+	echo "[pre-push] run: PIPELINE_STAGE=all bash scripts/ci/run-all-checks.sh (on a clean, committed tree), then push." >&2
+	exit 1
+}
+
+# Pushes that need the green marker: the default branch and release tags.
+is_protected() {
+	case "$1" in
+	refs/heads/master | refs/tags/v*) return 0 ;;
+	*) return 1 ;;
+	esac
+}
+
+# Only the value of one flat string field is needed: no jq dependency on the host.
+marker_field() {
+	sed -n "s/.*\"$1\": *\"\\([^\"]*\\)\".*/\\1/p" "$MARKER" | head -n 1
+	return 0
+}
+
+sha256_of() {
+	printf '%s' "$1" | sha256sum | cut -d' ' -f1
+	return 0
+}
+
+# git feeds one line per pushed ref: <local ref> <local sha> <remote ref> <remote sha>.
+main() {
+	local -a commits=()
+	local local_ref local_sha remote_ref _remote_sha commit
+	while read -r local_ref local_sha remote_ref _remote_sha; do
+		# A deletion (all-zero local SHA) or a work branch needs no marker.
+		if [[ -z "${local_sha:-}" || "$local_sha" =~ ^0+$ ]] || ! is_protected "$remote_ref"; then
+			continue
+		fi
+		commit="$(git rev-parse --verify --quiet "${local_sha}^{commit}")" ||
+			refuse "cannot resolve ${local_ref} (${local_sha:0:12}) to a commit"
+		commits+=("$commit")
+	done
+	if [[ "${#commits[@]}" -eq 0 ]]; then
+		return 0
+	fi
+	[[ -f "$MARKER" ]] || refuse "no ${MARKER}: PIPELINE_STAGE=all has not passed in this clone"
+
+	local porcelain green_head
+	porcelain="$(git status --porcelain=v1 --untracked-files=all)"
+	[[ -z "$porcelain" ]] || refuse "the working tree has uncommitted or untracked changes"
+	[[ "$(marker_field status_sha256)" == "$(sha256_of "$porcelain")" ]] ||
+		refuse "the green run validated a tree with uncommitted changes"
+
+	green_head="$(marker_field head)"
+	for commit in "${commits[@]}"; do
+		[[ "$commit" == "$green_head" ]] ||
+			refuse "commit ${commit:0:12} is not the one PIPELINE_STAGE=all passed on (${green_head:0:12})"
+	done
+	echo "[pre-push] PIPELINE_STAGE=all passed on ${green_head:0:12} with a clean tree"
+	return 0
+}
+
+main "$@"

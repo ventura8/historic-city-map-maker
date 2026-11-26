@@ -1,0 +1,14 @@
+{
+    "call": "GET https://recaptchaenterprise.googleapis.com/v1/projects/<project>/keys (each entry; the answer of POST and PATCH)",
+    "status": 200,
+    "body": {
+        "name": "projects/{{projectNumber}}/keys/{{siteKey}}",
+        "displayName": "{{displayName}}",
+        "webSettings": {
+            "allowedDomains": ["{{projectId}}.web.app", "{{projectId}}.firebaseapp.com"],
+            "integrationType": "SCORE",
+            "allowAmpTraffic": false
+        },
+        "createTime": "2026-10-12T09:00:00.000Z"
+    }
+}

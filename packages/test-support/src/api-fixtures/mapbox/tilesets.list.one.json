@@ -1,0 +1,18 @@
+{
+    "call": "GET https://api.mapbox.com/tilesets/v1/<user>?limit=1&access_token=<sk>",
+    "status": 200,
+    "body": [
+        {
+            "type": "raster",
+            "center": [26.1025, 44.4268, 12],
+            "created": "2026-10-12T08:30:00.000Z",
+            "description": "",
+            "filesize": 104857600,
+            "id": "{{tilesetId}}",
+            "modified": "2026-10-12T08:30:00.000Z",
+            "name": "e2e-1966",
+            "visibility": "private",
+            "status": "available"
+        }
+    ]
+}

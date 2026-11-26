@@ -1,0 +1,79 @@
+/*
+ * Engine host styles. Colours, shapes and typography come from the M3 tokens generated
+ * per city (packages/ui/src/theme); nothing here hard-codes a colour.
+ */
+.hcm-engine-root {
+    display: block;
+    position: relative;
+    inline-size: 100%;
+    block-size: 100%;
+    container-type: size;
+}
+
+/*
+ * Text for screen readers only: a city page's level-one heading over the full-window map (scripts/site/src/page.ts,
+ * the tour's axe check `page-has-heading-one`).
+ */
+.hcm-visually-hidden {
+    position: absolute;
+    inline-size: 1px;
+    block-size: 1px;
+    margin: -1px;
+    padding: 0;
+    overflow: hidden;
+    clip-path: inset(50%);
+    white-space: nowrap;
+    border: 0;
+}
+
+/*
+ * The starter kit's page frame (templates/starter-kit/index.html; docs/ENGINE_API.md → The starter kit), which the kit
+ * cannot carry in a fourth file: `<body class="hcm-fullpage">` fills the window with its viewer.
+ */
+.hcm-fullpage {
+    margin: 0;
+    background: Canvas;
+    color: CanvasText;
+}
+
+/* A flow root: the kit's note's margin stays inside the window-tall element, never below it (no blank to scroll into). */
+.hcm-fullpage hcm-map-viewer {
+    display: flow-root;
+    block-size: 100dvh;
+}
+
+/*
+ * An app shell (the tour's no-blank-scroll check): once the viewer is defined, the page never scrolls nor rubber-bands
+ * past the map; the kit's notes (an engine refused) still scroll.
+ */
+:root:has(> .hcm-fullpage hcm-map-viewer:defined) {
+    overflow: hidden;
+    overscroll-behavior: none;
+}
+
+/*
+ * The kit's notes: the bilingual "the map is loading" inside the viewer element (an element the engine has not defined
+ * yet shows its children; once defined, its shadow root has no slot, so they stay only while the engine cannot load)
+ * and the no-JavaScript note. A visitor first reads only that the map is loading; the owner's troubleshooting
+ * (`.hcm-note-late`: check the version and the integrity) shows only once the engine is clearly late (docs/LESSONS.md
+ * 248). The stylesheet comes with the engine's script, so a page whose engine is refused still has it; a page without
+ * it shows both sentences at once.
+ */
+.hcm-note-late {
+    animation: hcm-note-late 0s 4s both;
+}
+
+@keyframes hcm-note-late {
+    from {
+        visibility: hidden;
+    }
+}
+
+.hcm-note {
+    max-inline-size: 40rem;
+    margin: 1.5rem auto;
+    padding-inline: 1rem;
+    font:
+        1.125rem/1.5 system-ui,
+        sans-serif;
+}

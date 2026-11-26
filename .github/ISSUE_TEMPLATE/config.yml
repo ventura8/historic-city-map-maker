@@ -1,0 +1,4 @@
+# Issues start from a form; the weekly deps and contract workflows open theirs through the API.
+# A security contact link (a private advisory) joins once the user enables private vulnerability
+# reporting in the repository settings (a settings change: ask first).
+blank_issues_enabled: false

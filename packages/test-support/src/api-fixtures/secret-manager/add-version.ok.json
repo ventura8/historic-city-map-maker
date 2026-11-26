@@ -1,0 +1,14 @@
+{
+    "call": "POST https://secretmanager.googleapis.com/v1/projects/<project>/secrets/<secret>:addVersion",
+    "status": 200,
+    "body": {
+        "name": "projects/{{projectNumber}}/secrets/{{secretId}}/versions/{{version}}",
+        "createTime": "2026-10-12T08:30:00.000000Z",
+        "state": "ENABLED",
+        "replicationStatus": {
+            "automatic": {}
+        },
+        "etag": "\"1760257800000001\"",
+        "clientSpecifiedPayloadChecksum": false
+    }
+}

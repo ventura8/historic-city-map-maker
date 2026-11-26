@@ -1,0 +1,78 @@
+{
+    "name": "@hcm/shared",
+    "version": "1.0.0-beta.1",
+    "private": true,
+    "description": "Environment-neutral code shared by the engine, admin and functions: logging, i18n catalogues (RO default, EN, and the viewer's 14 more languages) and, from M1, zod schemas.",
+    "license": "UNLICENSED",
+    "type": "module",
+    "sideEffects": false,
+    "exports": {
+        ".": {
+            "types": "./src/index.ts",
+            "default": "./src/index.ts"
+        },
+        "./admin-worker": {
+            "types": "./src/i18n/admin-worker/index.ts",
+            "default": "./src/i18n/admin-worker/index.ts"
+        },
+        "./admin-archive": {
+            "types": "./src/i18n/admin-archive/index.ts",
+            "default": "./src/i18n/admin-archive/index.ts"
+        },
+        "./admin-tiles": {
+            "types": "./src/i18n/admin-tiles/index.ts",
+            "default": "./src/i18n/admin-tiles/index.ts"
+        },
+        "./admin-worker-local": {
+            "types": "./src/i18n/admin-worker-local/index.ts",
+            "default": "./src/i18n/admin-worker-local/index.ts"
+        },
+        "./admin-worker-household": {
+            "types": "./src/i18n/admin-worker-household/index.ts",
+            "default": "./src/i18n/admin-worker-household/index.ts"
+        },
+        "./admin-sources": {
+            "types": "./src/i18n/admin-sources/index.ts",
+            "default": "./src/i18n/admin-sources/index.ts"
+        },
+        "./country-seeds": {
+            "types": "./src/country-seeds.ts",
+            "default": "./src/country-seeds.ts"
+        },
+        "./sources": {
+            "types": "./src/sources.ts",
+            "default": "./src/sources.ts"
+        },
+        "./census": {
+            "types": "./src/census.ts",
+            "default": "./src/census.ts"
+        },
+        "./credits": {
+            "types": "./src/overlays/credits.ts",
+            "default": "./src/overlays/credits.ts"
+        },
+        "./app": {
+            "types": "./src/kit/app.ts",
+            "default": "./src/kit/app.ts"
+        },
+        "./tab-icon": {
+            "types": "./src/kit/tab-icon.ts",
+            "default": "./src/kit/tab-icon.ts"
+        },
+        "./map-labels": {
+            "types": "./src/i18n/map-labels/index.ts",
+            "default": "./src/i18n/map-labels/index.ts"
+        },
+        "./viewer-catalogues": {
+            "types": "./src/i18n/viewer-catalogues.ts",
+            "default": "./src/i18n/viewer-catalogues.ts"
+        },
+        "./funnels": {
+            "types": "./src/telemetry/funnels.ts",
+            "default": "./src/telemetry/funnels.ts"
+        }
+    },
+    "dependencies": {
+        "zod": "4.6.7"
+    }
+}

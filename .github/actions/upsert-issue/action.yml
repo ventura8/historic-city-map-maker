@@ -1,0 +1,49 @@
+name: Open or update a reminder issue
+description: >-
+    Opens the issue with this title, or replaces the body of the open one, with the verdict and
+    finding lines of a pipeline log, a link to the run and what to do next. Used by the weekly
+    deps and contract workflows; it never changes code.
+
+inputs:
+    title:
+        description: Issue title; one open issue per title.
+        required: true
+    log:
+        description: Pipeline log file to quote (its `[...]` verdict and `  - ` finding lines).
+        required: true
+    advice:
+        description: What the reader should do about it (Markdown).
+        required: true
+    token:
+        description: Token allowed to write issues (issues write permission).
+        required: true
+
+runs:
+    using: composite
+    steps:
+        - name: Open or update the issue
+          shell: bash
+          env:
+              GH_TOKEN: ${{ inputs.token }}
+              GH_REPO: ${{ github.repository }}
+              ISSUE_TITLE: ${{ inputs.title }}
+              LOG_FILE: ${{ inputs.log }}
+              ADVICE: ${{ inputs.advice }}
+              RUN_URL: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}
+          run: |
+              body="$(mktemp)"
+              {
+                  echo '```text'
+                  grep -E '^\[[a-zA-Z]+\]|^  - ' "$LOG_FILE" || tail -n 60 "$LOG_FILE"
+                  echo '```'
+                  echo
+                  echo "$ADVICE"
+                  echo
+                  echo "Run: ${RUN_URL}"
+              } >"$body"
+              number="$(gh issue list --state open --search "in:title \"${ISSUE_TITLE}\"" --json number --jq '.[0].number // empty')"
+              if [[ -n "$number" ]]; then
+                  gh issue edit "$number" --body-file "$body"
+              else
+                  gh issue create --title "$ISSUE_TITLE" --body-file "$body"
+              fi

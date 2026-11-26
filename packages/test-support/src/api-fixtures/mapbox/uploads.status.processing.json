@@ -1,0 +1,15 @@
+{
+    "call": "GET https://api.mapbox.com/uploads/v1/<user>/<upload>?access_token=<sk>",
+    "status": 200,
+    "body": {
+        "complete": false,
+        "tileset": "{{tilesetId}}",
+        "error": null,
+        "id": "{{uploadId}}",
+        "name": "{{sourceId}}",
+        "modified": "2026-10-12T08:31:00.000Z",
+        "created": "2026-10-12T08:30:00.000Z",
+        "owner": "{{mapboxUser}}",
+        "progress": 0.5
+    }
+}

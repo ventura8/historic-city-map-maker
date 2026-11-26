@@ -1,0 +1,10 @@
+{
+    "call": "GET https://identitytoolkit.googleapis.com/admin/v2/projects/<project>/defaultSupportedIdpConfigs/google.com",
+    "note": "The Google sign-in provider of the project's Firebase Auth. The real answer also carries clientSecret, which the adapter never reads (UNVERIFIED shape until the first real project).",
+    "status": 200,
+    "body": {
+        "name": "projects/{{projectId}}/defaultSupportedIdpConfigs/google.com",
+        "enabled": true,
+        "clientId": "{{oauthClientId}}"
+    }
+}

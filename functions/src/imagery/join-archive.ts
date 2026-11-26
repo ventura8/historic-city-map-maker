@@ -1,0 +1,359 @@
+/**
+ * `imagery.join` with `versionIds` (finding of 2026-11-14, the owner's harti.zip maps; `docs/research/M8-join-interfaces.md` §11):
+ * archive maps that are parts of one map (the n and S halves of 1978, 1974-01 and -02, a set's sheets) become one layer. Each part
+ * keeps its own fit: the `layer-join` job measures the seams on their overlap and moves nothing (`maxzoom` in its parameters, no
+ * camera); a part that meets none of the others keeps its own fit too, since 2026-11-23. Every check comes before anything
+ * is written: each part is an archive map with a scan and points of its own (`joinNeedsPoints`), usable (published, approved or
+ * awaiting approval), one per map (`joinSameLayer`), and held by no live join. The join is a new version of the first published
+ * part's layer, so its tileset and presentation stay; the other parts' layers retire when it publishes (`finalize-join.ts`).
+ * Approval works as for any version.
+ */
+import {
+    FIRESTORE_PATHS,
+    jobDocSchema,
+    layerDocSchema,
+    layerVersionDocSchema,
+    type CallableResponse,
+    type JoinPart,
+    type LayerDoc,
+    type LayerJoinParams,
+    type LayerVersionDoc,
+} from '@hcm/shared';
+
+import type { VerifiedCaller } from '../api/access.js';
+import { ApiError } from '../api/api-error.js';
+import type { DocumentTransaction } from '../ports/documents.js';
+import type { Ports } from '../ports/index.js';
+import { endWork } from './end.js';
+import { asJoinLayerBusy } from './join-busy.js';
+import { isRejoinable, isUsablePart, refuseHeldPart } from './join-parts.js';
+import { refuseBusyLayer, refuseRasterJobs, type Placement } from './limits.js';
+import { requireCity, requireVersion, stampOf } from './records.js';
+import { createWork, jobIdFor, reserveLayerIds, type NewWork } from './versions.js';
+
+/** The zoom an archive join renders to when no part says its own (the archive import's default). */
+const DEFAULT_MAXZOOM = 17;
+const MIN_ZOOM = 10;
+const MAX_ZOOM = 22;
+
+/** What the archive maps' join reads and writes. */
+export type ArchiveJoinDeps = Pick<Ports, 'documents' | 'clock' | 'log'>;
+
+/** An archive join's request. */
+export interface ArchiveJoinRequest {
+    readonly cityId: string;
+    readonly versionIds: readonly string[];
+    /** The layer the parts join onto as its next version, replacing its parts (2026-11-23). */
+    readonly targetLayerId?: string | undefined;
+}
+
+/** One part as read: its version id and document. */
+interface Part {
+    readonly id: string;
+    readonly version: LayerVersionDoc;
+}
+
+/** The name the owner knows a map by, for the refusals. */
+function nameOf(version: LayerVersionDoc): string {
+    return version.label.ro;
+}
+
+/** An archive map still usable (published, approved, awaiting approval). */
+function usableMap(version: LayerVersionDoc): boolean {
+    return version.source?.kind === 'archive' && isUsablePart(version);
+}
+
+/** A scan with points of its own (not a file's embedded georeference): what the join warps each part with. */
+function pointed(version: LayerVersionDoc): boolean {
+    const method = version.georef?.method;
+    return version.scan !== undefined && method !== undefined && method !== 'embedded';
+}
+
+/** A part the join can take: an archive map, usable, with a scan and its own points; else the plain refusal. */
+function requirePart(version: LayerVersionDoc): void {
+    if (!usableMap(version)) {
+        throw new ApiError('apiError.imagery.joinPartGone', { frame: nameOf(version) });
+    }
+    if (!pointed(version)) {
+        throw new ApiError('apiError.imagery.joinNeedsPoints', { map: nameOf(version) });
+    }
+}
+
+async function readParts(deps: ArchiveJoinDeps, request: ArchiveJoinRequest): Promise<Part[]> {
+    const ids = [...new Set(request.versionIds)];
+    if (ids.length < 2) {
+        throw new ApiError('apiError.invalidRequest', undefined, [{ path: 'versionIds', code: 'validation.value' }]);
+    }
+    const parts: Part[] = [];
+    for (const id of ids) {
+        const version = await requireVersion(deps.documents, request.cityId, id);
+        requirePart(version);
+        await refuseHeldPart(deps.documents, request.cityId, version);
+        parts.push({ id, version });
+    }
+    if (new Set(parts.map(({ version }) => version.layerId)).size < parts.length) {
+        throw new ApiError('apiError.imagery.joinSameLayer');
+    }
+    return parts;
+}
+
+/** The parts' own largest zoom, within what a join renders. */
+export function maxzoomOf(parts: readonly { readonly version: Pick<LayerVersionDoc, 'output'> }[]): number {
+    const zooms = parts.flatMap(({ version }) => (version.output === undefined ? [] : [version.output.maxzoom]));
+    const zoom = zooms.length === 0 ? DEFAULT_MAXZOOM : Math.max(...zooms);
+    return Math.min(MAX_ZOOM, Math.max(MIN_ZOOM, zoom));
+}
+
+/** A version label's longest text (`localizedPartial(200)`). */
+const MAX_LABEL = 200;
+
+/** How many leading characters every label shares with the first. */
+function sharedLength(labels: readonly string[]): number {
+    const first = labels[0] ?? '';
+    let end = 0;
+    while (end < first.length && labels.every((label) => label[end] === first[end])) {
+        end += 1;
+    }
+    return end;
+}
+
+/** `text` without its trailing spaces and separators. */
+function trimmedEnd(text: string): string {
+    let cut = text;
+    while (cut.length > 0 && ' ,;:–-'.includes(cut.at(-1) ?? '')) {
+        cut = cut.slice(0, -1);
+    }
+    return cut;
+}
+
+/** The labels' common start, cut back to a whole word and stripped of trailing separators. */
+function commonStart(labels: readonly string[]): string {
+    const first = labels[0] ?? '';
+    const end = sharedLength(labels);
+    return trimmedEnd(end === first.length ? first : first.slice(0, first.lastIndexOf(' ', end) + 1));
+}
+
+/**
+ * Two labels or more as one: "N + S". A long series (the owner's 48 sheets, 2026-11-22) would pass the label's 200 characters,
+ * so it becomes the sheets' common start and their count; a series sharing a title (the words every label starts with) takes
+ * that title alone (`titleOf`).
+ */
+function joinedText(labels: readonly string[], sheets: string): string {
+    const joined = labels.join(' + ');
+    if (joined.length <= MAX_LABEL) {
+        return joined;
+    }
+    const count = ` (${String(labels.length)} ${sheets})`;
+    return `${commonStart(labels).slice(0, MAX_LABEL - count.length)}${count}`.trim();
+}
+
+/** The words every label starts with, without a trailing separator: the series' own title ("Ortofotoplan 2017"), or "". */
+export function commonTitle(labels: readonly string[]): string {
+    const split = labels.map((label) => label.trim().split(/\s+/u));
+    const first = split[0] ?? [];
+    let shared = 0;
+    while (shared < first.length && split.every((words) => words[shared] === first[shared])) {
+        shared += 1;
+    }
+    return withoutTrailing(first.slice(0, shared).join(' '));
+}
+
+/** What separates a title from a part's own name. */
+const SEPARATORS: ReadonlySet<string> = new Set([' ', ',', ';', ':', '+', '(', '–', '-']);
+
+function withoutTrailing(text: string): string {
+    let end = text.length;
+    while (end > 0 && SEPARATORS.has(text.charAt(end - 1))) {
+        end -= 1;
+    }
+    return text.slice(0, end);
+}
+
+/** The parts' own title when they share one (a series' sheets), else "N + S" (or, past 200 characters, its start and count). */
+function titleOf(labels: readonly string[], sheets: string): string {
+    const shared = commonTitle(labels);
+    return shared === '' ? joinedText(labels, sheets) : shared.slice(0, MAX_LABEL);
+}
+
+/** Two labels or more as one: the series' shared title, else "N + S". */
+export function labelOf(parts: readonly Pick<Part, 'version'>[]): LayerVersionDoc['label'] {
+    const ro = titleOf(
+        parts.map(({ version }) => version.label.ro),
+        'foi',
+    );
+    const english = titleOf(
+        parts.map(({ version }) => version.label.en ?? version.label.ro),
+        'sheets',
+    );
+    return { ro, en: english };
+}
+
+/** The archive's credit the parts carry (the first part's rights): the joined layer credits it, never USGS. */
+export function rightsOf(parts: readonly Pick<Part, 'version'>[]): LayerVersionDoc['rights'] {
+    return parts.find(({ version }) => version.rights !== undefined)?.version.rights;
+}
+
+/**
+ * The part whose layer the join becomes a new version of: a part an earlier join was published into (a rebuilt join keeps its
+ * layer), else the first published, else none (a new layer).
+ */
+function publishedPart(parts: readonly Part[]): Part | undefined {
+    return parts.find(({ version }) => isRejoinable(version)) ?? parts.find(({ version }) => version.state === 'published');
+}
+
+function sourceOf(parts: readonly Part[]): NonNullable<LayerVersionDoc['source']> {
+    const joined: JoinPart[] = parts.map(({ id, version }) => ({ versionId: id, layerId: version.layerId, entityId: id }));
+    return { kind: 'join', parts: joined };
+}
+
+interface Plan {
+    readonly cityId: string;
+    readonly jobId: string;
+    readonly layerId: string;
+    readonly joinsLayer: boolean;
+    readonly parts: readonly Part[];
+    readonly by: string;
+    readonly now: Date;
+    readonly placement: Placement;
+}
+
+/** A run that ended (failed or cancelled) holds its layer no more, whatever stamp it left (lesson 739). */
+const ENDED_RUNS: ReadonlySet<string> = new Set(['failed', 'cancelled']);
+
+/** The layer's pending version is a run still on its way (a version with no job of its own counts as one). */
+async function stillPending(transaction: DocumentTransaction, cityId: string, pending: string): Promise<boolean> {
+    const job = await transaction.get(FIRESTORE_PATHS.job(cityId, pending), jobDocSchema);
+    return job === undefined || !ENDED_RUNS.has(job.status);
+}
+
+/** The join's layer when it joins a published one: no other version may be on its way to it. */
+async function readFreeLayer(transaction: DocumentTransaction, plan: Plan): Promise<LayerDoc | undefined> {
+    const layer = plan.joinsLayer ? await transaction.get(FIRESTORE_PATHS.layer(plan.cityId, plan.layerId), layerDocSchema) : undefined;
+    if (layer?.pendingVersion !== undefined && (await stillPending(transaction, plan.cityId, layer.pendingVersion))) {
+        throw new ApiError('apiError.imagery.joinLayerBusy');
+    }
+    return layer;
+}
+
+/** The join's own work: its `layer-join` job born waiting for its parts, and its version. */
+function workOf(plan: Plan): NewWork {
+    const { cityId, jobId, parts, by, now } = plan;
+    const params: LayerJoinParams = {
+        parts: parts.map(({ id, version }) => ({ versionId: id, layerId: version.layerId })),
+        maxzoom: maxzoomOf(parts),
+    };
+    return { cityId, jobId, type: 'layer-join', params, layerId: plan.layerId, createdBy: by, now, waitReason: 'parts', ...plan.placement };
+}
+
+/** The join's job and version, its parts stamped `partOf` and its layer's pending version, in one transaction. */
+async function writeIn(transaction: DocumentTransaction, plan: Plan): Promise<void> {
+    const { cityId, jobId, parts } = plan;
+    const layer = await readFreeLayer(transaction, plan);
+    const stamp = stampOf(plan.by, plan.now);
+    for (const { id, version } of parts) {
+        await transaction.set(FIRESTORE_PATHS.layerVersion(cityId, id), layerVersionDocSchema, { ...version, partOf: jobId, ...stamp });
+    }
+    const year = parts[0]?.version.year ?? plan.now.getUTCFullYear();
+    await createWork(transaction, workOf(plan), {
+        origin: 'join',
+        source: sourceOf(parts),
+        label: labelOf(parts),
+        year,
+        rights: rightsOf(parts),
+    });
+    if (layer !== undefined) {
+        await transaction.set(FIRESTORE_PATHS.layer(cityId, plan.layerId), layerDocSchema, { ...layer, pendingVersion: jobId, ...stamp });
+    }
+}
+
+/** A busy layer the join goes to refuses in the join's own words (`apiError.imagery.joinLayerBusy`). */
+async function requireFreeLayer(deps: ArchiveJoinDeps, cityId: string, layerId: string | undefined): Promise<void> {
+    if (layerId === undefined) {
+        return;
+    }
+    await refuseBusyLayer(deps.documents, cityId, layerId).catch(asJoinLayerBusy);
+}
+
+/**
+ * The layer of the published join the parts were joined by (live 2026-11-22: **Join again** of the 2017 orthophoto plan, whose join
+ * had a layer of its own): a join run again with the same parts, or more, stays on it.
+ */
+async function earlierLayer(deps: ArchiveJoinDeps, cityId: string, parts: readonly Part[]): Promise<string | undefined> {
+    const stamped = stampedBy(parts);
+    if (stamped === undefined) {
+        return undefined;
+    }
+    const join = await deps.documents.get(FIRESTORE_PATHS.layerVersion(cityId, stamped), layerVersionDocSchema);
+    return publishedJoin(join) ? join.layerId : undefined;
+}
+
+/** The join the first stamped part names. */
+function stampedBy(parts: readonly Part[]): string | undefined {
+    return parts.map(({ version }) => version.partOf).find((partOf) => partOf !== undefined);
+}
+
+function publishedJoin(join: LayerVersionDoc | undefined): join is LayerVersionDoc {
+    return join?.source?.kind === 'join' && join.state === 'published';
+}
+
+/** The layer the join becomes a version of: a published part's, else the earlier join's, else none (a new layer). */
+async function existingLayer(deps: ArchiveJoinDeps, cityId: string, parts: readonly Part[]): Promise<string | undefined> {
+    return publishedPart(parts)?.version.layerId ?? (await earlierLayer(deps, cityId, parts));
+}
+
+/** The states of a join that waits for a person: one a new join onto its layer replaces. */
+const SUPERSEDABLE: ReadonlySet<string> = new Set(['needs_gcps', 'awaiting_approval', 'approved']);
+
+function supersedable(job: { readonly status: string }, version: LayerVersionDoc | undefined): boolean {
+    return job.status !== 'mts_processing' && version?.source?.kind === 'join' && SUPERSEDABLE.has(version.state);
+}
+
+/**
+ * The target layer the parts join onto (it must exist); a join of it still waiting for approval is rejected first, so it
+ * does not hold the layer (live 2026-11-23: `jn-mwtfz6r6` on the 1911 plan's layer).
+ */
+async function targetLayer(deps: ArchiveJoinDeps, caller: VerifiedCaller, cityId: string, layerId: string): Promise<string> {
+    const layer = await deps.documents.get(FIRESTORE_PATHS.layer(cityId, layerId), layerDocSchema);
+    if (layer === undefined) {
+        throw new ApiError('apiError.notFound');
+    }
+    const pending = layer.pendingVersion;
+    if (pending !== undefined) {
+        const ending = { status: 'cancelled', versionState: 'rejected', by: caller.uid, accept: supersedable } as const;
+        const ended = await endWork(deps, cityId, pending, ending);
+        deps.log.info('a waiting join gives way to the new one', { cityId, layerId, pending, ended });
+    }
+    return layerId;
+}
+
+/** The archive maps' join: every check, then one transaction. */
+export async function joinArchive(
+    deps: ArchiveJoinDeps,
+    caller: VerifiedCaller,
+    request: ArchiveJoinRequest,
+): Promise<CallableResponse<'imagery.join'>> {
+    await requireCity(deps.documents, request.cityId);
+    const parts = await readParts(deps, request);
+    const now = deps.clock.now();
+    const placement = await refuseRasterJobs(deps.documents, now, request.cityId, 1);
+    const existing =
+        request.targetLayerId === undefined
+            ? await existingLayer(deps, request.cityId, parts)
+            : await targetLayer(deps, caller, request.cityId, request.targetLayerId);
+    await requireFreeLayer(deps, request.cityId, existing);
+    const layerId = existing ?? (await reserveLayerIds(deps.documents, request.cityId))(labelOf(parts).ro);
+    const jobId = jobIdFor('jn', now, parts[0]?.version.layerId ?? 'archive');
+    const plan: Plan = {
+        cityId: request.cityId,
+        jobId,
+        layerId,
+        joinsLayer: existing !== undefined,
+        parts,
+        by: caller.uid,
+        now,
+        placement,
+    };
+    await deps.documents.transaction((transaction) => writeIn(transaction, plan));
+    deps.log.info('archive maps joined', { uid: caller.uid, cityId: request.cityId, jobId, layerId, parts: parts.length });
+    return { jobId, versionId: jobId, layerId };
+}

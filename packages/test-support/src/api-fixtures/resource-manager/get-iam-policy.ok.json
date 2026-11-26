@@ -1,0 +1,21 @@
+{
+    "call": "POST https://cloudresourcemanager.googleapis.com/v3/projects/<project>:getIamPolicy",
+    "status": 200,
+    "body": {
+        "version": 1,
+        "etag": "BwXe2e0001A=",
+        "bindings": [
+            {
+                "role": "roles/owner",
+                "members": ["user:{{ownerEmail}}"]
+            },
+            {
+                "role": "roles/editor",
+                "members": [
+                    "serviceAccount:{{projectNumber}}-compute@developer.gserviceaccount.com",
+                    "serviceAccount:{{projectId}}@appspot.gserviceaccount.com"
+                ]
+            }
+        ]
+    }
+}

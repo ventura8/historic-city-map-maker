@@ -1,0 +1,14 @@
+{
+    "call": "GET https://cloudresourcemanager.googleapis.com/v3/projects/<project>",
+    "status": 200,
+    "body": {
+        "name": "projects/{{projectNumber}}",
+        "parent": "organizations/100000000001",
+        "projectId": "{{projectId}}",
+        "state": "ACTIVE",
+        "displayName": "Historic City Map e2e",
+        "createTime": "2026-10-11T08:00:00.000Z",
+        "updateTime": "2026-10-11T08:00:00.000Z",
+        "etag": "W/\"e2e-project-etag\""
+    }
+}

@@ -1,0 +1,17 @@
+{
+    "call": "GET https://api.mapbox.com/tilesets/v1/<tileset>/jobs?limit=10&access_token=<sk>",
+    "note": "The tileset's publish jobs, newest first: a publish whose answer was lost finds the job it started here (CR-M3-47).",
+    "status": 200,
+    "body": [
+        {
+            "id": "{{jobId}}",
+            "stage": "processing",
+            "created": 1791793800000,
+            "created_nice": "Mon Oct 12 2026 08:30:00 GMT+0000",
+            "published": 1791793800000,
+            "tilesetId": "{{tilesetId}}",
+            "errors": [],
+            "warnings": []
+        }
+    ]
+}

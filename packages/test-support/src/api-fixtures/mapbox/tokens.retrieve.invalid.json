@@ -1,0 +1,8 @@
+{
+    "call": "GET https://api.mapbox.com/tokens/v2?access_token=<token>",
+    "note": "Also the answer for a deleted or revoked token.",
+    "status": 401,
+    "body": {
+        "code": "TokenInvalid"
+    }
+}

@@ -1,0 +1,27 @@
+{
+    "call": "POST https://m2m.cr.usgs.gov/api/api/json/stable/download-options",
+    "note": "Not scanned yet: the scene must be ordered (bought) first.",
+    "status": 200,
+    "body": {
+        "requestId": 1000001,
+        "version": "stable",
+        "sessionId": 2000001,
+        "data": [
+            {
+                "id": "5e83a1e6b3d2e5f0",
+                "displayId": "DS1105-1071DF076",
+                "entityId": "DS1105-1071DF076",
+                "datasetId": "5e839febdccb64b3",
+                "available": false,
+                "filesize": 0,
+                "productName": "Declass 1 Product",
+                "productCode": "D1P",
+                "bulkAvailable": false,
+                "downloadSystem": "dds",
+                "secondaryDownloads": []
+            }
+        ],
+        "errorCode": null,
+        "errorMessage": null
+    }
+}

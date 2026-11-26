@@ -1,0 +1,48 @@
+{
+    "id": "bucuresti",
+    "name": { "ro": "București dispărut", "en": "Lost Bucharest" },
+    "center": [26.085298, 44.427037],
+    "zoom": 14.5,
+    "minZoom": 10,
+    "maxZoom": 20,
+    "bounds": [
+        [25.93, 44.33],
+        [26.25, 44.55]
+    ],
+    "about": {
+        "ro": "**București dispărut** arată orașul de altădată pe harta de azi: fotografii vechi așezate acolo unde au fost făcute, fiecare cu direcția în care privea aparatul.\n\nFotografiile vin din proiectul comunitar original (2015–2022) și sunt publicate cu permisiunea autorilor; drepturile lor sunt în curs de verificare. Dacă ești autorul unei fotografii și vrei să fie creditată altfel sau retrasă, [scrie-ne pe GitHub](https://github.com/ventura8/historic-city-map-maker/issues).\n\n**Straturile istorice** arată orașul în imagini satelitare declasificate ale USGS (anii 1960–1980), georeferențiate pentru București: le găsești în panoul Straturi.",
+        "en": "**Lost Bucharest** shows the city of the past on today's map: old photos placed where they were taken, each with the direction the camera faced.\n\nThe photos come from the original community project (2015–2022) and are published with their authors' permission; their rights are being reviewed. If you took one of these photos and want it credited differently or removed, [write to us on GitHub](https://github.com/ventura8/historic-city-map-maker/issues).\n\n**Historical layers** show the city in declassified USGS satellite imagery (1960s to 1980s), georeferenced for Bucharest: find them in the Layers panel."
+    },
+    "credits": [
+        {
+            "label": {
+                "ro": "Fotografii fără autor cunoscut: arhive și publicații de epocă (de exemplu Realitatea Ilustrată, 1934–1935)",
+                "en": "Photos without a known author: period archives and publications (for example Realitatea Ilustrată, 1934–1935)"
+            }
+        },
+        {
+            "label": { "ro": "Proiectul comunitar original București dispărut (2015–2022)", "en": "The original Lost Bucharest community project (2015–2022)" }
+        },
+        {
+            "label": { "ro": "Imagini satelitare istorice: USGS EROS", "en": "Historical satellite imagery: USGS EROS" },
+            "url": "https://www.usgs.gov/centers/eros"
+        },
+        {
+            "label": { "ro": "Hartă de bază © Mapbox", "en": "Basemap © Mapbox" },
+            "url": "https://www.mapbox.com/about/maps/"
+        },
+        {
+            "label": { "ro": "Date cartografice © colaboratorii OpenStreetMap", "en": "Map data © OpenStreetMap contributors" },
+            "url": "https://www.openstreetmap.org/copyright"
+        }
+    ],
+    "privacy": {
+        "ro": "Fără acordul tău, această hartă nu folosește cookie-uri și nu trimite statistici. **Statisticile anonime** (Google Analytics) se încarcă doar dacă le accepți; poți retrage acordul oricând din secțiunea Despre.\n\nHarta este afișată cu **Mapbox**: browserul tău trimite adresa IP către Mapbox la încărcarea hărții, iar Mapbox păstrează în browser un identificator anonim pentru telemetria proprie ([politica Mapbox](https://www.mapbox.com/legal/privacy)).\n\nPagina este găzduită de Firebase Hosting, iar fotografiile de Google Cloud Storage; ambele sunt servicii Google, iar Google vede adresa IP a vizitatorilor. Erorile tehnice sunt raportate fără date personale. Fotografiile publicate nu conțin date EXIF.",
+        "en": "Without your consent this map uses no cookies and sends no statistics. **Anonymous statistics** (Google Analytics) load only if you accept them; you can withdraw your consent at any time in About.\n\nThe map is shown with **Mapbox**: your browser sends your IP address to Mapbox when the map loads, and Mapbox keeps an anonymous identifier in your browser for its own telemetry ([Mapbox privacy policy](https://www.mapbox.com/legal/privacy)).\n\nThe page is hosted by Firebase Hosting and the photos by Google Cloud Storage; both are Google services, and Google sees visitors' IP addresses. Technical errors are reported without personal data. Published photos carry no EXIF data."
+    },
+    "theme": { "seedColor": "#8B5E3C" },
+    "basemap": { "style": "mapbox://styles/mapbox/standard-satellite" },
+    "imagery": { "targetYears": [1966, 1972, 1976, 1977, 1978, 1979, 1980, 1982, 1983, 1984] },
+    "mapbox": { "publicToken": "pk.REPLACE_AT_DEPLOY" },
+    "analytics": {}
+}

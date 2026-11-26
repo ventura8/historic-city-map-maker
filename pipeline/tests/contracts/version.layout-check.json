@@ -1,0 +1,69 @@
+{
+    "layerId": "atlas-1911",
+    "jobId": "ar-mw993zri-s-4054e55659a3",
+    "origin": "archive",
+    "state": "needs_gcps",
+    "source": {
+        "kind": "archive",
+        "archiveId": "ar-0123456789abcdef",
+        "seriesId": "s-4054e55659a3",
+        "sheetCount": 5
+    },
+    "label": {
+        "ro": "Atlasul 1911"
+    },
+    "year": 1911,
+    "createdBy": "uid-owner",
+    "createdAt": {
+        "seconds": 1792100000,
+        "nanoseconds": 0
+    },
+    "updatedBy": "system:pipeline",
+    "updatedAt": {
+        "seconds": 1792100600,
+        "nanoseconds": 0
+    },
+    "help": {
+        "reason": "layout-check",
+        "note": "The tiles need a look.",
+        "at": {
+            "seconds": 1792100600,
+            "nanoseconds": 0
+        },
+        "stitched": {
+            "previewPath": "rasters/bucharest/atlas-1911/ar-mw993zri-s-4054e55659a3/stitched.jpg",
+            "previewScale": 0.5,
+            "width": 5900,
+            "height": 3950,
+            "method": "names",
+            "parts": 5,
+            "joined": 4,
+            "leftOut": [
+                {
+                    "name": "atlas/blank.jpg",
+                    "reason": "blank"
+                }
+            ],
+            "leftOutCount": 1,
+            "layout": {
+                "rows": 2,
+                "cols": 2,
+                "revision": 2,
+                "quality": {
+                    "placedPct": 80,
+                    "seamMedian": 0.48,
+                    "seamRmsPx": 6.5,
+                    "verdict": "check"
+                },
+                "weakSeams": [
+                    {
+                        "a": 1,
+                        "b": 3,
+                        "side": "below",
+                        "score": 0.21
+                    }
+                ]
+            }
+        }
+    }
+}

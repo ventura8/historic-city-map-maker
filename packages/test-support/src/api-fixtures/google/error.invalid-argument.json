@@ -1,0 +1,11 @@
+{
+    "call": "any Google REST call with a malformed request",
+    "status": 400,
+    "body": {
+        "error": {
+            "code": 400,
+            "message": "Request contains an invalid argument.",
+            "status": "INVALID_ARGUMENT"
+        }
+    }
+}

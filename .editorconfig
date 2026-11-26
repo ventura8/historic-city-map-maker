@@ -1,0 +1,24 @@
+# Single source of whitespace rules for every editor and formatter (prettier and shfmt read it).
+root = true
+
+[*]
+charset = utf-8
+end_of_line = lf
+indent_style = space
+indent_size = 4
+insert_final_newline = true
+trim_trailing_whitespace = true
+max_line_length = 140
+
+# Markdown: hard line breaks are two trailing spaces, and prose is not wrapped at a column.
+[*.md]
+trim_trailing_whitespace = false
+max_line_length = off
+
+# Shell: tabs, the shfmt default (sibling Watch-GPS convention). Two sections, because shfmt's
+# EditorConfig reader does not match a brace list that mixes a pattern and a path.
+[*.sh]
+indent_style = tab
+
+[scripts/git-hooks/*]
+indent_style = tab

@@ -1,0 +1,8 @@
+{
+    "call": "PUT https://tilestream-tilesets-production.s3.amazonaws.com/_pending/<user>/<key> with expired or wrong credentials",
+    "status": 403,
+    "headers": {
+        "content-type": "application/xml"
+    },
+    "text": "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n<Error><Code>AccessDenied</Code><Message>Access Denied</Message></Error>"
+}

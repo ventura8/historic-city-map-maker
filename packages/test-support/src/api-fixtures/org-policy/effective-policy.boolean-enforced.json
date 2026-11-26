@@ -1,0 +1,14 @@
+{
+    "call": "GET https://orgpolicy.googleapis.com/v2/projects/<project>/policies/<boolean constraint>:getEffectivePolicy",
+    "status": 200,
+    "body": {
+        "name": "projects/{{projectNumber}}/policies/{{constraint}}",
+        "spec": {
+            "rules": [
+                {
+                    "enforce": true
+                }
+            ]
+        }
+    }
+}

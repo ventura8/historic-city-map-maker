@@ -1,0 +1,28 @@
+{
+    "call": "POST https://m2m.cr.usgs.gov/api/api/json/stable/download-request",
+    "note": "USGS is still staging the scene for download: no address yet; download-retrieve with the same label lists it as requested until it is available.",
+    "status": 200,
+    "body": {
+        "requestId": 1000001,
+        "version": "stable",
+        "sessionId": 2000001,
+        "data": {
+            "availableDownloads": [],
+            "duplicateProducts": [],
+            "preparingDownloads": [
+                {
+                    "downloadId": 300000001,
+                    "eulaCode": null,
+                    "url": null
+                }
+            ],
+            "failed": [],
+            "newRecords": {
+                "300000001": "DS1035-1057DA023"
+            },
+            "numInvalidScenes": 0
+        },
+        "errorCode": null,
+        "errorMessage": null
+    }
+}

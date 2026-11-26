@@ -1,0 +1,10 @@
+// Unit tests of @hcm/shared, type-checked apart from src/ so Node and Vitest types never leak into product code.
+{
+    "extends": "../../../tsconfig.base.json",
+    "compilerOptions": {
+        // Vitest's own declarations (including the browser-mode API) reference Node types such as BufferEncoding.
+        "types": ["node"]
+    },
+    "include": ["."],
+    "references": [{ "path": ".." }]
+}

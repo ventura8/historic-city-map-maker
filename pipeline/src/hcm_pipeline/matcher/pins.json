@@ -1,0 +1,42 @@
+{
+    "image": "pytorch/pytorch:2.15.0-cuda13.2-cudnn9-runtime@sha256:924707fa828f821c9a82d987b405675df6369eee5ce368aece6757b025ffcde5",
+    "commit": "5a650c444718caffc2669dc0094cde908f42dd73",
+    "files": [
+        {
+            "name": "aliked_lightglue.pth",
+            "kind": "weights",
+            "url": "https://github.com/cvg/LightGlue/releases/download/v0.1_arxiv/aliked_lightglue.pth",
+            "sha256": "d975e965b105311a6143194852297dff4f02aea5cc2e10cecfed966ca0e22503"
+        },
+        {
+            "name": "aliked-n16.pth",
+            "kind": "weights",
+            "url": "https://github.com/Shiaoming/ALIKED/raw/683d7c65197395c0b3f01ebe76e1084a27e73a65/models/aliked-n16.pth",
+            "sha256": "5be8704840ed662d9d8c561bf7279c222092674e7eb05fd0feab94899e9d82f2"
+        },
+        {
+            "name": "LightGlue-5a650c4.tar.gz",
+            "kind": "lightglue",
+            "url": "https://codeload.github.com/cvg/LightGlue/tar.gz/5a650c444718caffc2669dc0094cde908f42dd73",
+            "sha256": "d46a078201a3d285af4b72d898b6720a4984c56091c5d79b536c28e1407d6fe4"
+        },
+        {
+            "name": "kornia-0.9.0-py3-none-any.whl",
+            "kind": "wheel",
+            "url": "https://files.pythonhosted.org/packages/c5/ee/6bffb3fc85446de03fa7e397954ba4dd1bc5edab92b4b8be3ce09c9ccd1b/kornia-0.9.0-py3-none-any.whl",
+            "sha256": "7a1632fe004a305c94f2b979fc6ab4df26e01f925e74bdb9f8b8a03a1229caaf"
+        },
+        {
+            "name": "kornia_rs-0.2.0-cp312-cp312-manylinux_2_17_x86_64.manylinux2014_x86_64.whl",
+            "kind": "wheel",
+            "url": "https://files.pythonhosted.org/packages/1b/01/05a31ef5ed358f9a086626718fb7bafba4a5f60e408ec1bb2309ba307779/kornia_rs-0.2.0-cp312-cp312-manylinux_2_17_x86_64.manylinux2014_x86_64.whl",
+            "sha256": "a5ccc43e7b54a845c4250dee107b62d221b4a76f6812a8041196784f4add342a"
+        },
+        {
+            "name": "opencv_python_headless-5.0.0.93-cp37-abi3-manylinux_2_28_x86_64.whl",
+            "kind": "wheel",
+            "url": "https://files.pythonhosted.org/packages/9b/21/f6ef335f6e65724aa78b8d792b48d40a48c381715f1e62f5a5049e09d07e/opencv_python_headless-5.0.0.93-cp37-abi3-manylinux_2_28_x86_64.whl",
+            "sha256": "ed709fdf9aa0bd1f2ed8549e71d19449b03a675bb581eb292285f6861953be37"
+        }
+    ]
+}

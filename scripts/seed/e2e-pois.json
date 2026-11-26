@@ -1,0 +1,84 @@
+{
+    "photosOverlay": { "defaultOpacity": 1 },
+    "poiCategories": [
+        {
+            "id": "cladiri",
+            "label": { "ro": "Clădiri dispărute", "en": "Vanished buildings" },
+            "icon": "domain_disabled",
+            "color": "#8B5E3C",
+            "defaultOpacity": 1
+        },
+        {
+            "id": "strazi",
+            "label": { "ro": "Străzi dispărute", "en": "Vanished streets" },
+            "icon": "add_road",
+            "color": "#B3261E",
+            "defaultOpacity": 0.8
+        },
+        {
+            "id": "evenimente",
+            "label": { "ro": "Evenimente", "en": "Events" },
+            "icon": "celebration",
+            "color": "#386A20",
+            "defaultOpacity": 1
+        }
+    ],
+    "pois": [
+        {
+            "id": "fixture-cladire",
+            "category": "cladiri",
+            "geometry": { "type": "Point", "coordinates": [26.0872, 44.4285] },
+            "title": { "ro": "Clădire demolată (fixture)", "en": "Demolished building (fixture)" },
+            "description": {
+                "ro": "**Demolată** în 1984. [Fișa locului](https://example.org/poi/cladire)\n\n<b>Acesta nu este HTML</b>",
+                "en": "**Demolished** in 1984. [Place record](https://example.org/poi/cladire)\n\n<b>This is not HTML</b>"
+            },
+            "yearEnd": 1984,
+            "links": [{ "url": "https://example.org/poi/cladire", "label": "Fișa locului" }],
+            "photoIds": ["uranus-colt-mihai-voda", "mihai-voda-1978"]
+        },
+        {
+            "id": "fixture-strada",
+            "category": "strazi",
+            "geometry": {
+                "type": "LineString",
+                "coordinates": [
+                    [26.085, 44.4256],
+                    [26.087, 44.4258],
+                    [26.089, 44.4261]
+                ]
+            },
+            "title": { "ro": "Stradă dispărută (fixture)" },
+            "yearStart": 1850,
+            "yearEnd": 1985,
+            "links": []
+        },
+        {
+            "id": "fixture-cvartal",
+            "category": "cladiri",
+            "geometry": {
+                "type": "Polygon",
+                "coordinates": [
+                    [
+                        [26.086, 44.4268],
+                        [26.0878, 44.4268],
+                        [26.0878, 44.4278],
+                        [26.086, 44.4278],
+                        [26.086, 44.4268]
+                    ]
+                ]
+            },
+            "title": { "ro": "Cvartal demolat (fixture)", "en": "Demolished block (fixture)" },
+            "yearStart": 1900,
+            "yearEnd": 1986,
+            "links": []
+        },
+        {
+            "id": "fixture-eveniment",
+            "category": "evenimente",
+            "geometry": { "type": "Point", "coordinates": [26.0905, 44.43] },
+            "title": { "ro": "Eveniment (fixture)", "en": "Event (fixture)" },
+            "links": []
+        }
+    ]
+}

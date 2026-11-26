@@ -1,0 +1,1305 @@
+{
+    "version": 1,
+    "city": {
+        "id": "bucuresti",
+        "name": {
+            "ro": "București dispărut",
+            "en": "Lost Bucharest"
+        },
+        "center": [
+            26.085298,
+            44.427037
+        ],
+        "zoom": 14.5,
+        "minZoom": 10,
+        "maxZoom": 20,
+        "bounds": [
+            [
+                25.93,
+                44.33
+            ],
+            [
+                26.25,
+                44.55
+            ]
+        ],
+        "about": {
+            "ro": "**București dispărut** arată orașul de altădată pe harta de azi: fotografii vechi așezate acolo unde au fost făcute, fiecare cu direcția în care privea aparatul.\n\nFotografiile vin din proiectul comunitar original (2015–2022) și sunt publicate cu permisiunea autorilor; drepturile lor sunt în curs de verificare. Dacă ești autorul unei fotografii și vrei să fie creditată altfel sau retrasă, [scrie-ne pe GitHub](https://github.com/ventura8/bucurestiuldisparut.github.io/issues).\n\n_În curând:_ straturi istorice din imagini satelitare declasificate ale USGS (anii 1960–1980), georeferențiate pentru București.",
+            "en": "**Lost Bucharest** shows the city of the past on today's map: old photos placed where they were taken, each with the direction the camera faced.\n\nThe photos come from the original community project (2015–2022) and are published with their authors' permission; their rights are being reviewed. If you took one of these photos and want it credited differently or removed, [write to us on GitHub](https://github.com/ventura8/bucurestiuldisparut.github.io/issues).\n\n_Coming soon:_ historical layers from declassified USGS satellite imagery (1960s to 1980s), georeferenced for Bucharest."
+        },
+        "credits": [
+            {
+                "label": {
+                    "ro": "Fotografii: Dan Perry, Dan Vartanian, Florin Paraschiv, Gheorghe Leahu, Ion Mureșan, Mihai Isăcescu",
+                    "en": "Photos: Dan Perry, Dan Vartanian, Florin Paraschiv, Gheorghe Leahu, Ion Mureșan, Mihai Isăcescu"
+                }
+            },
+            {
+                "label": {
+                    "ro": "Fotografii fără autor cunoscut: arhive și publicații de epocă (de exemplu Realitatea Ilustrată, 1934–1935)",
+                    "en": "Photos without a known author: period archives and publications (for example Realitatea Ilustrată, 1934–1935)"
+                }
+            },
+            {
+                "label": {
+                    "ro": "Proiectul comunitar original București dispărut (2015–2022)",
+                    "en": "The original Lost Bucharest community project (2015–2022)"
+                }
+            },
+            {
+                "label": {
+                    "ro": "Imagini satelitare istorice: USGS EROS (în curând)",
+                    "en": "Historical satellite imagery: USGS EROS (coming soon)"
+                },
+                "url": "https://www.usgs.gov/centers/eros"
+            },
+            {
+                "label": {
+                    "ro": "Hartă de bază © Mapbox",
+                    "en": "Basemap © Mapbox"
+                },
+                "url": "https://www.mapbox.com/about/maps/"
+            },
+            {
+                "label": {
+                    "ro": "Date cartografice © colaboratorii OpenStreetMap",
+                    "en": "Map data © OpenStreetMap contributors"
+                },
+                "url": "https://www.openstreetmap.org/copyright"
+            }
+        ],
+        "privacy": {
+            "ro": "Fără acordul tău, această hartă nu folosește cookie-uri și nu trimite statistici. **Statisticile anonime** (Google Analytics) se încarcă doar dacă le accepți; poți retrage acordul oricând din secțiunea Despre.\n\nHarta este afișată cu **Mapbox**: browserul tău trimite adresa IP către Mapbox la încărcarea hărții, iar Mapbox păstrează în browser un identificator anonim pentru telemetria proprie ([politica Mapbox](https://www.mapbox.com/legal/privacy)).\n\nPagina este găzduită de GitHub Pages, iar fotografiile de Google Cloud Storage; acești furnizori văd adresa IP a vizitatorilor. Erorile tehnice sunt raportate fără date personale. Fotografiile publicate nu conțin date EXIF.",
+            "en": "Without your consent this map uses no cookies and sends no statistics. **Anonymous statistics** (Google Analytics) load only if you accept them; you can withdraw your consent at any time in About.\n\nThe map is shown with **Mapbox**: your browser sends your IP address to Mapbox when the map loads, and Mapbox keeps an anonymous identifier in your browser for its own telemetry ([Mapbox privacy policy](https://www.mapbox.com/legal/privacy)).\n\nThe page is hosted by GitHub Pages and the photos by Google Cloud Storage; these providers see visitors' IP addresses. Technical errors are reported without personal data. Published photos carry no EXIF data."
+        },
+        "theme": {
+            "seedColor": "#8B5E3C",
+            "tokens": {
+                "light": {
+                    "--md-sys-color-background": "#fff8f5",
+                    "--md-sys-color-on-background": "#3d3027",
+                    "--md-sys-color-surface": "#fff8f5",
+                    "--md-sys-color-surface-dim": "#ebd6c9",
+                    "--md-sys-color-surface-bright": "#fff8f5",
+                    "--md-sys-color-surface-container-lowest": "#ffffff",
+                    "--md-sys-color-surface-container-low": "#fff1e9",
+                    "--md-sys-color-surface-container": "#fdeadf",
+                    "--md-sys-color-surface-container-high": "#f8e4d9",
+                    "--md-sys-color-surface-container-highest": "#f4ded1",
+                    "--md-sys-color-on-surface": "#3d3027",
+                    "--md-sys-color-on-surface-variant": "#6c5c52",
+                    "--md-sys-color-outline": "#89776c",
+                    "--md-sys-color-outline-variant": "#c2aea2",
+                    "--md-sys-color-inverse-surface": "#130d09",
+                    "--md-sys-color-inverse-on-surface": "#a69b94",
+                    "--md-sys-color-primary": "#875329",
+                    "--md-sys-color-primary-dim": "#78471f",
+                    "--md-sys-color-on-primary": "#fff7f4",
+                    "--md-sys-color-primary-container": "#fdb886",
+                    "--md-sys-color-on-primary-container": "#62350d",
+                    "--md-sys-color-primary-fixed": "#fdb886",
+                    "--md-sys-color-primary-fixed-dim": "#edaa79",
+                    "--md-sys-color-on-primary-fixed": "#482200",
+                    "--md-sys-color-on-primary-fixed-variant": "#6d3d16",
+                    "--md-sys-color-inverse-primary": "#fdb886",
+                    "--md-sys-color-secondary": "#755945",
+                    "--md-sys-color-secondary-dim": "#684d3a",
+                    "--md-sys-color-on-secondary": "#fff7f4",
+                    "--md-sys-color-secondary-container": "#ffdcc5",
+                    "--md-sys-color-on-secondary-container": "#674c39",
+                    "--md-sys-color-secondary-fixed": "#ffdcc5",
+                    "--md-sys-color-secondary-fixed-dim": "#f3cdb4",
+                    "--md-sys-color-on-secondary-fixed": "#533a28",
+                    "--md-sys-color-on-secondary-fixed-variant": "#715642",
+                    "--md-sys-color-tertiary": "#676028",
+                    "--md-sys-color-tertiary-dim": "#5b541e",
+                    "--md-sys-color-on-tertiary": "#fff9e5",
+                    "--md-sys-color-tertiary-container": "#f5eaa4",
+                    "--md-sys-color-on-tertiary-container": "#5d561f",
+                    "--md-sys-color-tertiary-fixed": "#f5eaa4",
+                    "--md-sys-color-tertiary-fixed-dim": "#e6db97",
+                    "--md-sys-color-on-tertiary-fixed": "#4a430e",
+                    "--md-sys-color-on-tertiary-fixed-variant": "#676028",
+                    "--md-sys-color-error": "#a73b21",
+                    "--md-sys-color-error-dim": "#791903",
+                    "--md-sys-color-on-error": "#fff7f6",
+                    "--md-sys-color-error-container": "#fd795a",
+                    "--md-sys-color-on-error-container": "#6e1400",
+                    "--md-sys-color-shadow": "#000000",
+                    "--md-sys-color-scrim": "#000000",
+                    "--md-sys-color-surface-variant": "#f4ded1",
+                    "--md-sys-color-surface-tint": "#875329"
+                },
+                "dark": {
+                    "--md-sys-color-background": "#130d09",
+                    "--md-sys-color-on-background": "#f7e1d4",
+                    "--md-sys-color-surface": "#130d09",
+                    "--md-sys-color-surface-dim": "#130d09",
+                    "--md-sys-color-surface-bright": "#362a21",
+                    "--md-sys-color-surface-container-lowest": "#000000",
+                    "--md-sys-color-surface-container-low": "#19120c",
+                    "--md-sys-color-surface-container": "#211811",
+                    "--md-sys-color-surface-container-high": "#281e16",
+                    "--md-sys-color-surface-container-highest": "#2f231b",
+                    "--md-sys-color-on-surface": "#f7e1d4",
+                    "--md-sys-color-on-surface-variant": "#bba79b",
+                    "--md-sys-color-outline": "#837267",
+                    "--md-sys-color-outline-variant": "#53453c",
+                    "--md-sys-color-inverse-surface": "#fff8f5",
+                    "--md-sys-color-inverse-on-surface": "#5d534d",
+                    "--md-sys-color-primary": "#f4bb92",
+                    "--md-sys-color-primary-dim": "#e5ad86",
+                    "--md-sys-color-on-primary": "#5d3719",
+                    "--md-sys-color-primary-container": "#724929",
+                    "--md-sys-color-on-primary-container": "#ffddc6",
+                    "--md-sys-color-primary-fixed": "#fdc39a",
+                    "--md-sys-color-primary-fixed-dim": "#eeb58d",
+                    "--md-sys-color-on-primary-fixed": "#4d2a0c",
+                    "--md-sys-color-on-primary-fixed-variant": "#6e4526",
+                    "--md-sys-color-inverse-primary": "#815534",
+                    "--md-sys-color-secondary": "#e4bfa7",
+                    "--md-sys-color-secondary-dim": "#d5b29a",
+                    "--md-sys-color-on-secondary": "#543b29",
+                    "--md-sys-color-secondary-container": "#4e3624",
+                    "--md-sys-color-on-secondary-container": "#dcb8a0",
+                    "--md-sys-color-secondary-fixed": "#ffdcc5",
+                    "--md-sys-color-secondary-fixed-dim": "#f3cdb4",
+                    "--md-sys-color-on-secondary-fixed": "#533a28",
+                    "--md-sys-color-on-secondary-fixed-variant": "#715642",
+                    "--md-sys-color-tertiary": "#fff7d2",
+                    "--md-sys-color-tertiary-dim": "#efe49f",
+                    "--md-sys-color-on-tertiary": "#665e27",
+                    "--md-sys-color-tertiary-container": "#f5eaa4",
+                    "--md-sys-color-on-tertiary-container": "#5d561f",
+                    "--md-sys-color-tertiary-fixed": "#f5eaa4",
+                    "--md-sys-color-tertiary-fixed-dim": "#e6db97",
+                    "--md-sys-color-on-tertiary-fixed": "#4a430e",
+                    "--md-sys-color-on-tertiary-fixed-variant": "#676028",
+                    "--md-sys-color-error": "#f97758",
+                    "--md-sys-color-error-dim": "#c44f34",
+                    "--md-sys-color-on-error": "#450900",
+                    "--md-sys-color-error-container": "#85230a",
+                    "--md-sys-color-on-error-container": "#ff9b82",
+                    "--md-sys-color-shadow": "#000000",
+                    "--md-sys-color-scrim": "#000000",
+                    "--md-sys-color-surface-variant": "#2f231b",
+                    "--md-sys-color-surface-tint": "#f4bb92"
+                },
+                "highContrastLight": {
+                    "--md-sys-color-background": "#fff8f5",
+                    "--md-sys-color-on-background": "#000000",
+                    "--md-sys-color-surface": "#fff8f5",
+                    "--md-sys-color-surface-dim": "#ebd6c9",
+                    "--md-sys-color-surface-bright": "#fff8f5",
+                    "--md-sys-color-surface-container-lowest": "#ffffff",
+                    "--md-sys-color-surface-container-low": "#fff1e9",
+                    "--md-sys-color-surface-container": "#fdeadf",
+                    "--md-sys-color-surface-container-high": "#f8e4d9",
+                    "--md-sys-color-surface-container-highest": "#f4ded1",
+                    "--md-sys-color-on-surface": "#000000",
+                    "--md-sys-color-on-surface-variant": "#2d2119",
+                    "--md-sys-color-outline": "#4e4037",
+                    "--md-sys-color-outline-variant": "#5e4f45",
+                    "--md-sys-color-inverse-surface": "#130d09",
+                    "--md-sys-color-inverse-on-surface": "#ffffff",
+                    "--md-sys-color-primary": "#3c1b00",
+                    "--md-sys-color-primary-dim": "#2d1300",
+                    "--md-sys-color-on-primary": "#ffd1b2",
+                    "--md-sys-color-primary-container": "#77461e",
+                    "--md-sys-color-on-primary-container": "#ffffff",
+                    "--md-sys-color-primary-fixed": "#77461e",
+                    "--md-sys-color-primary-fixed-dim": "#693b13",
+                    "--md-sys-color-on-primary-fixed": "#ffffff",
+                    "--md-sys-color-on-primary-fixed-variant": "#ffffff",
+                    "--md-sys-color-inverse-primary": "#fdb886",
+                    "--md-sys-color-secondary": "#341f0f",
+                    "--md-sys-color-secondary-dim": "#281506",
+                    "--md-sys-color-on-secondary": "#f9d3ba",
+                    "--md-sys-color-secondary-container": "#674d39",
+                    "--md-sys-color-on-secondary-container": "#ffffff",
+                    "--md-sys-color-secondary-fixed": "#674d39",
+                    "--md-sys-color-secondary-fixed-dim": "#5a412f",
+                    "--md-sys-color-on-secondary-fixed": "#ffffff",
+                    "--md-sys-color-on-secondary-fixed-variant": "#ffffff",
+                    "--md-sys-color-tertiary": "#292400",
+                    "--md-sys-color-tertiary-dim": "#1e1a00",
+                    "--md-sys-color-on-tertiary": "#e6db97",
+                    "--md-sys-color-tertiary-container": "#5a531d",
+                    "--md-sys-color-on-tertiary-container": "#ffffff",
+                    "--md-sys-color-tertiary-fixed": "#5a531d",
+                    "--md-sys-color-tertiary-fixed-dim": "#4e4712",
+                    "--md-sys-color-on-tertiary-fixed": "#ffffff",
+                    "--md-sys-color-on-tertiary-fixed-variant": "#ffffff",
+                    "--md-sys-color-error": "#4c0a00",
+                    "--md-sys-color-error-dim": "#390600",
+                    "--md-sys-color-on-error": "#ffcfc4",
+                    "--md-sys-color-error-container": "#952e15",
+                    "--md-sys-color-on-error-container": "#ffffff",
+                    "--md-sys-color-shadow": "#000000",
+                    "--md-sys-color-scrim": "#000000",
+                    "--md-sys-color-surface-variant": "#f4ded1",
+                    "--md-sys-color-surface-tint": "#3c1b00"
+                },
+                "highContrastDark": {
+                    "--md-sys-color-background": "#130d09",
+                    "--md-sys-color-on-background": "#ffffff",
+                    "--md-sys-color-surface": "#130d09",
+                    "--md-sys-color-surface-dim": "#130d09",
+                    "--md-sys-color-surface-bright": "#362a21",
+                    "--md-sys-color-surface-container-lowest": "#000000",
+                    "--md-sys-color-surface-container-low": "#19120c",
+                    "--md-sys-color-surface-container": "#211811",
+                    "--md-sys-color-surface-container-high": "#281e16",
+                    "--md-sys-color-surface-container-highest": "#2f231b",
+                    "--md-sys-color-on-surface": "#ffffff",
+                    "--md-sys-color-on-surface-variant": "#f7e1d4",
+                    "--md-sys-color-outline": "#c9b5a9",
+                    "--md-sys-color-outline-variant": "#b3a094",
+                    "--md-sys-color-inverse-surface": "#fff8f5",
+                    "--md-sys-color-inverse-on-surface": "#000000",
+                    "--md-sys-color-primary": "#ffdfcb",
+                    "--md-sys-color-primary-dim": "#ffcaa5",
+                    "--md-sys-color-on-primary": "#452406",
+                    "--md-sys-color-primary-container": "#cd9872",
+                    "--md-sys-color-on-primary-container": "#000000",
+                    "--md-sys-color-primary-fixed": "#fdc39a",
+                    "--md-sys-color-primary-fixed-dim": "#eeb58d",
+                    "--md-sys-color-on-primary-fixed": "#000000",
+                    "--md-sys-color-on-primary-fixed-variant": "#130500",
+                    "--md-sys-color-inverse-primary": "#532f11",
+                    "--md-sys-color-secondary": "#ffdfcb",
+                    "--md-sys-color-secondary-dim": "#f6d0b7",
+                    "--md-sys-color-on-secondary": "#3d2716",
+                    "--md-sys-color-secondary-container": "#bf9d86",
+                    "--md-sys-color-on-secondary-container": "#000000",
+                    "--md-sys-color-secondary-fixed": "#ffdcc5",
+                    "--md-sys-color-secondary-fixed-dim": "#f3cdb4",
+                    "--md-sys-color-on-secondary-fixed": "#000000",
+                    "--md-sys-color-on-secondary-fixed-variant": "#2f1b0b",
+                    "--md-sys-color-tertiary": "#fff7d2",
+                    "--md-sys-color-tertiary-dim": "#efe49f",
+                    "--md-sys-color-on-tertiary": "#3d3703",
+                    "--md-sys-color-tertiary-container": "#f5eaa4",
+                    "--md-sys-color-on-tertiary-container": "#342e00",
+                    "--md-sys-color-tertiary-fixed": "#f5eaa4",
+                    "--md-sys-color-tertiary-fixed-dim": "#e6db97",
+                    "--md-sys-color-on-tertiary-fixed": "#000000",
+                    "--md-sys-color-on-tertiary-fixed-variant": "#292400",
+                    "--md-sys-color-error": "#ffded7",
+                    "--md-sys-color-error-dim": "#ffc8bb",
+                    "--md-sys-color-on-error": "#5a0e00",
+                    "--md-sys-color-error-container": "#ff7e5e",
+                    "--md-sys-color-on-error-container": "#000000",
+                    "--md-sys-color-shadow": "#000000",
+                    "--md-sys-color-scrim": "#000000",
+                    "--md-sys-color-surface-variant": "#2f231b",
+                    "--md-sys-color-surface-tint": "#ffdfcb"
+                }
+            }
+        },
+        "basemap": {
+            "style": "mapbox://styles/mapbox/standard-satellite"
+        },
+        "mapbox": {
+            "publicToken": "pk.REPLACE_AT_DEPLOY"
+        },
+        "analytics": {}
+    },
+    "layers": [],
+    "photos": [
+        {
+            "id": "coltul-strada-fonteriei-strada-putul-cu",
+            "title": {
+                "ro": "Intersectie Fonteriei cu Puțul cu apă rece"
+            },
+            "author": "Ion Mureșan",
+            "license": "permission-legacy",
+            "rightsReview": true,
+            "links": [],
+            "location": {
+                "lat": 44.430883,
+                "lng": 26.087969
+            },
+            "bearing": 201.2,
+            "fov": 43,
+            "image": {
+                "web": "derived/coltul-strada-fonteriei-strada-putul-cu/web.webp",
+                "thumb": "derived/coltul-strada-fonteriei-strada-putul-cu/thumb.webp",
+                "w": 1600,
+                "h": 1058
+            }
+        },
+        {
+            "id": "arionoaia-1980",
+            "title": {
+                "ro": "Arionoaiei"
+            },
+            "year": 1980,
+            "author": "Dan Perry",
+            "license": "permission-legacy",
+            "rightsReview": true,
+            "links": [],
+            "location": {
+                "lat": 44.422754,
+                "lng": 26.086703
+            },
+            "bearing": 295.3,
+            "fov": 43,
+            "image": {
+                "web": "derived/arionoaia-1980/web.webp",
+                "thumb": "derived/arionoaia-1980/thumb.webp",
+                "w": 1100,
+                "h": 787
+            }
+        },
+        {
+            "id": "ecoului-1978",
+            "title": {
+                "ro": "Ecoului"
+            },
+            "year": 1978,
+            "author": "Dan Vartanian",
+            "license": "permission-legacy",
+            "rightsReview": true,
+            "links": [],
+            "location": {
+                "lat": 44.423666,
+                "lng": 26.087041
+            },
+            "bearing": 72.2,
+            "fov": 42,
+            "image": {
+                "web": "derived/ecoului-1978/web.webp",
+                "thumb": "derived/ecoului-1978/thumb.webp",
+                "w": 1100,
+                "h": 663
+            }
+        },
+        {
+            "id": "pelerinilor-gheorghe-leahu",
+            "title": {
+                "ro": "Pelerinilor"
+            },
+            "author": "Gheorghe Leahu",
+            "license": "permission-legacy",
+            "rightsReview": true,
+            "links": [
+                {
+                    "url": "https://www.facebook.com/uranusdisparut/photos/a.915416871813343.1073741835.276423675712669/915711591783871/?type=3&theater",
+                    "label": "Cartierul Uranus"
+                }
+            ],
+            "location": {
+                "lat": 44.428313,
+                "lng": 26.085265
+            },
+            "bearing": 177.7,
+            "fov": 37,
+            "image": {
+                "web": "derived/pelerinilor-gheorghe-leahu/web.webp",
+                "thumb": "derived/pelerinilor-gheorghe-leahu/thumb.webp",
+                "w": 1048,
+                "h": 1485
+            }
+        },
+        {
+            "id": "mihai-voda-spre-dambovita",
+            "title": {
+                "ro": "Mihai Vodă spre Dâmbovița"
+            },
+            "year": 1978,
+            "author": "Dan Vartanian",
+            "license": "permission-legacy",
+            "rightsReview": true,
+            "links": [],
+            "location": {
+                "lat": 44.43183,
+                "lng": 26.092078
+            },
+            "bearing": 55.9,
+            "fov": 49,
+            "image": {
+                "web": "derived/mihai-voda-spre-dambovita/web.webp",
+                "thumb": "derived/mihai-voda-spre-dambovita/thumb.webp",
+                "w": 1100,
+                "h": 733
+            }
+        },
+        {
+            "id": "cazarmii-ctin-moroiu-la-stanga",
+            "title": {
+                "ro": "Cazărmii (Ctin.Moroiu în stânga)"
+            },
+            "author": "Dan Vartanian",
+            "license": "permission-legacy",
+            "rightsReview": true,
+            "links": [],
+            "location": {
+                "lat": 44.426179,
+                "lng": 26.08945
+            },
+            "bearing": 228.3,
+            "fov": 58,
+            "image": {
+                "web": "derived/cazarmii-ctin-moroiu-la-stanga/web.webp",
+                "thumb": "derived/cazarmii-ctin-moroiu-la-stanga/thumb.webp",
+                "w": 1280,
+                "h": 853
+            }
+        },
+        {
+            "id": "cazarmii-spre-uranus",
+            "title": {
+                "ro": "Cazărmii spre Uranus"
+            },
+            "author": "Dan Vartanian",
+            "license": "permission-legacy",
+            "rightsReview": true,
+            "links": [],
+            "location": {
+                "lat": 44.425562,
+                "lng": 26.088527
+            },
+            "bearing": 252.2,
+            "fov": 36,
+            "image": {
+                "web": "derived/cazarmii-spre-uranus/web.webp",
+                "thumb": "derived/cazarmii-spre-uranus/thumb.webp",
+                "w": 1100,
+                "h": 733
+            }
+        },
+        {
+            "id": "iontaranu-1980",
+            "title": {
+                "ro": "Ion Țăranu"
+            },
+            "year": 1980,
+            "author": "Dan Perry",
+            "license": "permission-legacy",
+            "rightsReview": true,
+            "links": [],
+            "location": {
+                "lat": 44.422099,
+                "lng": 26.086708
+            },
+            "bearing": 346.5,
+            "fov": 61,
+            "image": {
+                "web": "derived/iontaranu-1980/web.webp",
+                "thumb": "derived/iontaranu-1980/thumb.webp",
+                "w": 1100,
+                "h": 714
+            }
+        },
+        {
+            "id": "lazureanu",
+            "title": {
+                "ro": "Lăzureanu"
+            },
+            "author": "Florin Paraschiv",
+            "license": "permission-legacy",
+            "rightsReview": true,
+            "links": [],
+            "location": {
+                "lat": 44.424421,
+                "lng": 26.088774
+            },
+            "bearing": 286.8,
+            "fov": 52,
+            "image": {
+                "web": "derived/lazureanu/web.webp",
+                "thumb": "derived/lazureanu/thumb.webp",
+                "w": 2048,
+                "h": 1438
+            }
+        },
+        {
+            "id": "mihai-voda-vazuta-spre-intersectia-cu",
+            "title": {
+                "ro": "Mihai Vodă spre Izvor"
+            },
+            "author": "Ion Mureșan",
+            "license": "permission-legacy",
+            "rightsReview": true,
+            "links": [],
+            "location": {
+                "lat": 44.430945,
+                "lng": 26.087894
+            },
+            "bearing": 267.1,
+            "fov": 42,
+            "image": {
+                "web": "derived/mihai-voda-vazuta-spre-intersectia-cu/web.webp",
+                "thumb": "derived/mihai-voda-vazuta-spre-intersectia-cu/thumb.webp",
+                "w": 1600,
+                "h": 1126
+            }
+        },
+        {
+            "id": "fonteriei",
+            "title": {
+                "ro": "Strada Fonteriei"
+            },
+            "author": "Ion Mureșan",
+            "license": "permission-legacy",
+            "rightsReview": true,
+            "links": [],
+            "location": {
+                "lat": 44.430868,
+                "lng": 26.087964
+            },
+            "bearing": 164.3,
+            "fov": 45,
+            "image": {
+                "web": "derived/fonteriei/web.webp",
+                "thumb": "derived/fonteriei/thumb.webp",
+                "w": 1600,
+                "h": 1134
+            }
+        },
+        {
+            "id": "izvor-spre-mihai-voda",
+            "title": {
+                "ro": "Izvor spre Mihai Vodă"
+            },
+            "author": "Ion Mureșan",
+            "license": "permission-legacy",
+            "rightsReview": true,
+            "links": [],
+            "location": {
+                "lat": 44.430221,
+                "lng": 26.083892
+            },
+            "bearing": 75,
+            "fov": 49,
+            "image": {
+                "web": "derived/izvor-spre-mihai-voda/web.webp",
+                "thumb": "derived/izvor-spre-mihai-voda/thumb.webp",
+                "w": 1600,
+                "h": 1039
+            }
+        },
+        {
+            "id": "izvor-catre-mihai-voda",
+            "title": {
+                "ro": "Izvor către Mihai Vodă"
+            },
+            "author": "Ion Mureșan",
+            "license": "permission-legacy",
+            "rightsReview": true,
+            "links": [],
+            "location": {
+                "lat": 44.430738,
+                "lng": 26.085083
+            },
+            "bearing": 72.7,
+            "fov": 54,
+            "image": {
+                "web": "derived/izvor-catre-mihai-voda/web.webp",
+                "thumb": "derived/izvor-catre-mihai-voda/thumb.webp",
+                "w": 1600,
+                "h": 1120
+            }
+        },
+        {
+            "id": "biserica-izvorul-tamaduirii",
+            "title": {
+                "ro": "Biserica Izvorul Tămăduirii"
+            },
+            "author": "Ion Mureșan",
+            "license": "permission-legacy",
+            "rightsReview": true,
+            "links": [],
+            "location": {
+                "lat": 44.430052,
+                "lng": 26.083908
+            },
+            "bearing": 138.7,
+            "fov": 58,
+            "image": {
+                "web": "derived/biserica-izvorul-tamaduirii/web.webp",
+                "thumb": "derived/biserica-izvorul-tamaduirii/thumb.webp",
+                "w": 1600,
+                "h": 1058
+            }
+        },
+        {
+            "id": "izvor-in-fata-fabricii-luceafarul",
+            "title": {
+                "ro": "Izvor spre Hașdeu"
+            },
+            "author": "Ion Mureșan",
+            "license": "permission-legacy",
+            "rightsReview": true,
+            "links": [],
+            "location": {
+                "lat": 44.431048,
+                "lng": 26.085668
+            },
+            "bearing": 210.7,
+            "fov": 58,
+            "image": {
+                "web": "derived/izvor-in-fata-fabricii-luceafarul/web.webp",
+                "thumb": "derived/izvor-in-fata-fabricii-luceafarul/thumb.webp",
+                "w": 1600,
+                "h": 1159
+            }
+        },
+        {
+            "id": "intrarea-in-fabrica-luceafarul-nufarul",
+            "title": {
+                "ro": "Intrarea in fabrica Luceafărul"
+            },
+            "author": "Ion Mureșan",
+            "license": "permission-legacy",
+            "rightsReview": true,
+            "links": [],
+            "location": {
+                "lat": 44.430822,
+                "lng": 26.085775
+            },
+            "image": {
+                "web": "derived/intrarea-in-fabrica-luceafarul-nufarul/web.webp",
+                "thumb": "derived/intrarea-in-fabrica-luceafarul-nufarul/thumb.webp",
+                "w": 1600,
+                "h": 1049
+            }
+        },
+        {
+            "id": "izvor-intersectie-cu-mihai-voda",
+            "title": {
+                "ro": "Intersecție Izvor cu Mihai Vodă"
+            },
+            "author": "Ion Mureșan",
+            "license": "permission-legacy",
+            "rightsReview": true,
+            "links": [],
+            "location": {
+                "lat": 44.431198,
+                "lng": 26.085968
+            },
+            "bearing": 79,
+            "fov": 43,
+            "image": {
+                "web": "derived/izvor-intersectie-cu-mihai-voda/web.webp",
+                "thumb": "derived/izvor-intersectie-cu-mihai-voda/thumb.webp",
+                "w": 1600,
+                "h": 1043
+            }
+        },
+        {
+            "id": "mihai-voda",
+            "title": {
+                "ro": "Mihai Vodă"
+            },
+            "author": "Ion Mureșan",
+            "license": "permission-legacy",
+            "rightsReview": true,
+            "links": [],
+            "location": {
+                "lat": 44.431152,
+                "lng": 26.086462
+            },
+            "bearing": 77.3,
+            "fov": 49,
+            "image": {
+                "web": "derived/mihai-voda/web.webp",
+                "thumb": "derived/mihai-voda/thumb.webp",
+                "w": 1600,
+                "h": 1104
+            }
+        },
+        {
+            "id": "mihai-voda-nr-63-si-61-spre-strada-al",
+            "title": {
+                "ro": "Mihai Vodă cu Al. Orăscu"
+            },
+            "author": "Ion Mureșan",
+            "license": "permission-legacy",
+            "rightsReview": true,
+            "links": [],
+            "location": {
+                "lat": 44.431167,
+                "lng": 26.086859
+            },
+            "bearing": 133.2,
+            "fov": 44,
+            "image": {
+                "web": "derived/mihai-voda-nr-63-si-61-spre-strada-al/web.webp",
+                "thumb": "derived/mihai-voda-nr-63-si-61-spre-strada-al/thumb.webp",
+                "w": 1600,
+                "h": 1058
+            }
+        },
+        {
+            "id": "mihai-voda-la-intersectia-cu-al-orascu",
+            "title": {
+                "ro": "Mihai Vodă cu Al. Orăscu"
+            },
+            "author": "Ion Mureșan",
+            "license": "permission-legacy",
+            "rightsReview": true,
+            "links": [],
+            "location": {
+                "lat": 44.43106,
+                "lng": 26.087229
+            },
+            "bearing": 91.8,
+            "fov": 52,
+            "image": {
+                "web": "derived/mihai-voda-la-intersectia-cu-al-orascu/web.webp",
+                "thumb": "derived/mihai-voda-la-intersectia-cu-al-orascu/thumb.webp",
+                "w": 1600,
+                "h": 1048
+            }
+        },
+        {
+            "id": "al-orascu-vazuta-din-mihai-voda-partea",
+            "title": {
+                "ro": "Al. Orăscu"
+            },
+            "author": "Ion Mureșan",
+            "license": "permission-legacy",
+            "rightsReview": true,
+            "links": [],
+            "location": {
+                "lat": 44.430926,
+                "lng": 26.087207
+            },
+            "bearing": 194.4,
+            "fov": 60,
+            "image": {
+                "web": "derived/al-orascu-vazuta-din-mihai-voda-partea/web.webp",
+                "thumb": "derived/al-orascu-vazuta-din-mihai-voda-partea/thumb.webp",
+                "w": 1600,
+                "h": 1084
+            }
+        },
+        {
+            "id": "al-orascu-vazuta-din-mihai-voda-partea-2",
+            "title": {
+                "ro": "Al. Orăscu"
+            },
+            "author": "Ion Mureșan",
+            "license": "permission-legacy",
+            "rightsReview": true,
+            "links": [],
+            "location": {
+                "lat": 44.430958,
+                "lng": 26.087379
+            },
+            "bearing": 248.8,
+            "fov": 47,
+            "image": {
+                "web": "derived/al-orascu-vazuta-din-mihai-voda-partea-2/web.webp",
+                "thumb": "derived/al-orascu-vazuta-din-mihai-voda-partea-2/thumb.webp",
+                "w": 1600,
+                "h": 1084
+            }
+        },
+        {
+            "id": "mihai-voda-1978",
+            "title": {
+                "ro": "Mihai Vodă"
+            },
+            "year": 1978,
+            "author": "Dan Vartanian",
+            "license": "permission-legacy",
+            "rightsReview": true,
+            "links": [],
+            "location": {
+                "lat": 44.431722,
+                "lng": 26.091611
+            },
+            "bearing": 46.8,
+            "fov": 51,
+            "image": {
+                "web": "derived/mihai-voda-1978/web.webp",
+                "thumb": "derived/mihai-voda-1978/thumb.webp",
+                "w": 1100,
+                "h": 733
+            }
+        },
+        {
+            "id": "calea-rahovei-colt-sabinelor-1978",
+            "title": {
+                "ro": "Sabinelor spre Calea Rahovei"
+            },
+            "year": 1978,
+            "author": "Dan Vartanian",
+            "license": "permission-legacy",
+            "rightsReview": true,
+            "links": [
+                {
+                    "url": "https://www.costingheorghe.ro/thenow/intersectia-caii-rahovei-cu-strada-sabinelor-bucuresti/",
+                    "label": "thenow"
+                }
+            ],
+            "location": {
+                "lat": 44.421225,
+                "lng": 26.085582
+            },
+            "bearing": 84.2,
+            "fov": 49,
+            "image": {
+                "web": "derived/calea-rahovei-colt-sabinelor-1978/web.webp",
+                "thumb": "derived/calea-rahovei-colt-sabinelor-1978/thumb.webp",
+                "w": 1100,
+                "h": 565
+            }
+        },
+        {
+            "id": "intrarea-antim-1982",
+            "title": {
+                "ro": "Intrarea Antim"
+            },
+            "year": 1982,
+            "author": "Dan Vartanian",
+            "license": "permission-legacy",
+            "rightsReview": true,
+            "links": [],
+            "location": {
+                "lat": 44.425413,
+                "lng": 26.092132
+            },
+            "bearing": 345.6,
+            "fov": 51,
+            "image": {
+                "web": "derived/intrarea-antim-1982/web.webp",
+                "thumb": "derived/intrarea-antim-1982/thumb.webp",
+                "w": 852,
+                "h": 1280
+            }
+        },
+        {
+            "id": "bateriilor-spre-sfintii-apostoli",
+            "title": {
+                "ro": "Bateriilor"
+            },
+            "author": "Dan Vartanian",
+            "license": "permission-legacy",
+            "rightsReview": true,
+            "links": [],
+            "location": {
+                "lat": 44.429811,
+                "lng": 26.092132
+            },
+            "bearing": 21.8,
+            "fov": 40,
+            "image": {
+                "web": "derived/bateriilor-spre-sfintii-apostoli/web.webp",
+                "thumb": "derived/bateriilor-spre-sfintii-apostoli/thumb.webp",
+                "w": 1100,
+                "h": 734
+            }
+        },
+        {
+            "id": "gheorghe-panu-colt-cu-str-schitul",
+            "title": {
+                "ro": "Gh. Panu - Schitul Maicilor"
+            },
+            "author": "Mihai Isăcescu",
+            "license": "permission-legacy",
+            "rightsReview": true,
+            "links": [],
+            "location": {
+                "lat": 44.424727,
+                "lng": 26.088817
+            },
+            "bearing": 150.3,
+            "fov": 69,
+            "image": {
+                "web": "derived/gheorghe-panu-colt-cu-str-schitul/web.webp",
+                "thumb": "derived/gheorghe-panu-colt-cu-str-schitul/thumb.webp",
+                "w": 1100,
+                "h": 825
+            }
+        },
+        {
+            "id": "uranus-spre-izvor-colt-13-septembrie",
+            "title": {
+                "ro": "Uranus"
+            },
+            "year": 1982,
+            "author": "Dan Vartanian",
+            "license": "permission-legacy",
+            "rightsReview": true,
+            "links": [],
+            "location": {
+                "lat": 44.425647,
+                "lng": 26.085056
+            },
+            "bearing": 6,
+            "fov": 41,
+            "image": {
+                "web": "derived/uranus-spre-izvor-colt-13-septembrie/web.webp",
+                "thumb": "derived/uranus-spre-izvor-colt-13-septembrie/thumb.webp",
+                "w": 1280,
+                "h": 853
+            }
+        },
+        {
+            "id": "uranus-colt-mihai-voda",
+            "title": {
+                "ro": "Uranus - Mihai Vodă"
+            },
+            "license": "permission-legacy",
+            "rightsReview": true,
+            "links": [],
+            "location": {
+                "lat": 44.43106,
+                "lng": 26.089407
+            },
+            "bearing": 356.2,
+            "fov": 35,
+            "image": {
+                "web": "derived/uranus-colt-mihai-voda/web.webp",
+                "thumb": "derived/uranus-colt-mihai-voda/thumb.webp",
+                "w": 1100,
+                "h": 656
+            }
+        },
+        {
+            "id": "sfintii-apostoli-1978",
+            "title": {
+                "ro": "Sf. Apostoli"
+            },
+            "year": 1978,
+            "author": "Dan Vartanian",
+            "license": "permission-legacy",
+            "rightsReview": true,
+            "links": [],
+            "location": {
+                "lat": 44.4306,
+                "lng": 26.092132
+            },
+            "bearing": 358.3,
+            "fov": 40,
+            "image": {
+                "web": "derived/sfintii-apostoli-1978/web.webp",
+                "thumb": "derived/sfintii-apostoli-1978/thumb.webp",
+                "w": 1100,
+                "h": 733
+            }
+        },
+        {
+            "id": "strandul-opereta-1976",
+            "title": {
+                "ro": "Ștrandul Operetă"
+            },
+            "year": 1976,
+            "license": "permission-legacy",
+            "rightsReview": true,
+            "links": [],
+            "location": {
+                "lat": 44.429359,
+                "lng": 26.095447
+            },
+            "bearing": 35.6,
+            "fov": 43,
+            "image": {
+                "web": "derived/strandul-opereta-1976/web.webp",
+                "thumb": "derived/strandul-opereta-1976/thumb.webp",
+                "w": 740,
+                "h": 1100
+            }
+        },
+        {
+            "id": "intr-evolutiei",
+            "title": {
+                "ro": "Intr. Evoluției"
+            },
+            "author": "Dan Vartanian",
+            "license": "permission-legacy",
+            "rightsReview": true,
+            "links": [],
+            "location": {
+                "lat": 44.4286,
+                "lng": 26.091397
+            },
+            "bearing": 96.5,
+            "fov": 45,
+            "image": {
+                "web": "derived/intr-evolutiei/web.webp",
+                "thumb": "derived/intr-evolutiei/thumb.webp",
+                "w": 1909,
+                "h": 1273
+            }
+        },
+        {
+            "id": "sapientei",
+            "title": {
+                "ro": "Sapienței"
+            },
+            "author": "Dan Vartanian",
+            "license": "permission-legacy",
+            "rightsReview": true,
+            "links": [],
+            "location": {
+                "lat": 44.431389,
+                "lng": 26.0921
+            },
+            "bearing": 264.6,
+            "fov": 46,
+            "image": {
+                "web": "derived/sapientei/web.webp",
+                "thumb": "derived/sapientei/thumb.webp",
+                "w": 1100,
+                "h": 733
+            }
+        },
+        {
+            "id": "bateriilor-dinspre-vanatori",
+            "title": {
+                "ro": "Bateriilor"
+            },
+            "author": "Dan Vartanian",
+            "license": "permission-legacy",
+            "rightsReview": true,
+            "links": [
+                {
+                    "url": "https://www.flickr.com/photos/34835131@N00/263140407/",
+                    "label": "Flickr"
+                }
+            ],
+            "location": {
+                "lat": 44.427953,
+                "lng": 26.091617
+            },
+            "bearing": 7.7,
+            "fov": 46,
+            "image": {
+                "web": "derived/bateriilor-dinspre-vanatori/web.webp",
+                "thumb": "derived/bateriilor-dinspre-vanatori/thumb.webp",
+                "w": 1273,
+                "h": 1909
+            }
+        },
+        {
+            "id": "ferdinand",
+            "title": {
+                "ro": "Bulevardul Ferdinand"
+            },
+            "year": 1960,
+            "license": "permission-legacy",
+            "rightsReview": true,
+            "links": [],
+            "location": {
+                "lat": 44.447044,
+                "lng": 26.136897
+            },
+            "bearing": 278.8,
+            "fov": 51,
+            "image": {
+                "web": "derived/ferdinand/web.webp",
+                "thumb": "derived/ferdinand/thumb.webp",
+                "w": 2048,
+                "h": 1480
+            }
+        },
+        {
+            "id": "caminului-sistematizare-1960",
+            "title": {
+                "ro": "Bulevardul Ferdinand sistematizare"
+            },
+            "year": 1960,
+            "license": "permission-legacy",
+            "rightsReview": true,
+            "links": [],
+            "location": {
+                "lat": 44.4488064,
+                "lng": 26.1411275
+            },
+            "image": {
+                "web": "derived/caminului-sistematizare-1960/web.webp",
+                "thumb": "derived/caminului-sistematizare-1960/thumb.webp",
+                "w": 784,
+                "h": 529
+            }
+        },
+        {
+            "id": "parcul-ferdinand-1930",
+            "title": {
+                "ro": "Parc Ferdinand"
+            },
+            "year": 1930,
+            "license": "permission-legacy",
+            "rightsReview": true,
+            "links": [],
+            "location": {
+                "lat": 44.448214,
+                "lng": 26.139544
+            },
+            "image": {
+                "web": "derived/parcul-ferdinand-1930/web.webp",
+                "thumb": "derived/parcul-ferdinand-1930/thumb.webp",
+                "w": 1379,
+                "h": 854
+            }
+        },
+        {
+            "id": "ut3",
+            "title": {
+                "ro": "Unirea Tricolorul"
+            },
+            "year": 1930,
+            "license": "permission-legacy",
+            "rightsReview": true,
+            "links": [],
+            "location": {
+                "lat": 44.447297,
+                "lng": 26.141577
+            },
+            "image": {
+                "web": "derived/ut3/web.webp",
+                "thumb": "derived/ut3/thumb.webp",
+                "w": 778,
+                "h": 554
+            }
+        },
+        {
+            "id": "gara-obor",
+            "title": {
+                "ro": "Gara Obor"
+            },
+            "year": 1930,
+            "license": "permission-legacy",
+            "rightsReview": true,
+            "links": [],
+            "location": {
+                "lat": 44.448534,
+                "lng": 26.139583
+            },
+            "image": {
+                "web": "derived/gara-obor/web.webp",
+                "thumb": "derived/gara-obor/thumb.webp",
+                "w": 640,
+                "h": 403
+            }
+        },
+        {
+            "id": "realitatea-ilustrata-1935-11-2",
+            "title": {
+                "ro": "Unirea Tricolorul"
+            },
+            "year": 1935,
+            "license": "permission-legacy",
+            "rightsReview": true,
+            "links": [],
+            "location": {
+                "lat": 44.447275,
+                "lng": 26.141424
+            },
+            "image": {
+                "web": "derived/realitatea-ilustrata-1935-11-2/web.webp",
+                "thumb": "derived/realitatea-ilustrata-1935-11-2/thumb.webp",
+                "w": 1021,
+                "h": 690
+            }
+        },
+        {
+            "id": "realitatea-ilustrata-1934-6-1",
+            "title": {
+                "ro": "Unirea Tricolorul"
+            },
+            "year": 1934,
+            "license": "permission-legacy",
+            "rightsReview": true,
+            "links": [],
+            "location": {
+                "lat": 44.447725,
+                "lng": 26.14115
+            },
+            "image": {
+                "web": "derived/realitatea-ilustrata-1934-6-1/web.webp",
+                "thumb": "derived/realitatea-ilustrata-1934-6-1/thumb.webp",
+                "w": 1395,
+                "h": 1000
+            }
+        },
+        {
+            "id": "realitatea-ilustrata-1935-11-1",
+            "title": {
+                "ro": "Unirea Tricolorul"
+            },
+            "year": 1935,
+            "license": "permission-legacy",
+            "rightsReview": true,
+            "links": [],
+            "location": {
+                "lat": 44.447628,
+                "lng": 26.1414848
+            },
+            "image": {
+                "web": "derived/realitatea-ilustrata-1935-11-1/web.webp",
+                "thumb": "derived/realitatea-ilustrata-1935-11-1/thumb.webp",
+                "w": 970,
+                "h": 661
+            }
+        },
+        {
+            "id": "obor-29-iulie-1936-3",
+            "title": {
+                "ro": "Strand Obor"
+            },
+            "year": 1936,
+            "dateText": {
+                "ro": "Iulie 1936"
+            },
+            "license": "permission-legacy",
+            "rightsReview": true,
+            "links": [],
+            "location": {
+                "lat": 44.449036,
+                "lng": 26.138249
+            },
+            "image": {
+                "web": "derived/obor-29-iulie-1936-3/web.webp",
+                "thumb": "derived/obor-29-iulie-1936-3/thumb.webp",
+                "w": 1008,
+                "h": 477
+            }
+        },
+        {
+            "id": "obor-29-iulie-1936",
+            "title": {
+                "ro": "Strand Obor"
+            },
+            "year": 1936,
+            "license": "permission-legacy",
+            "rightsReview": true,
+            "links": [],
+            "location": {
+                "lat": 44.449139,
+                "lng": 26.138034
+            },
+            "image": {
+                "web": "derived/obor-29-iulie-1936/web.webp",
+                "thumb": "derived/obor-29-iulie-1936/thumb.webp",
+                "w": 636,
+                "h": 462
+            }
+        },
+        {
+            "id": "obor-29-iulie-1936-2",
+            "title": {
+                "ro": "Strand Obor"
+            },
+            "year": 1936,
+            "license": "permission-legacy",
+            "rightsReview": true,
+            "links": [],
+            "location": {
+                "lat": 44.448864,
+                "lng": 26.138335
+            },
+            "image": {
+                "web": "derived/obor-29-iulie-1936-2/web.webp",
+                "thumb": "derived/obor-29-iulie-1936-2/thumb.webp",
+                "w": 636,
+                "h": 463
+            }
+        }
+    ]
+}

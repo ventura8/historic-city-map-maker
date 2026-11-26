@@ -1,0 +1,32 @@
+{
+    "call": "POST https://m2m.cr.usgs.gov/api/api/json/stable/download-retrieve",
+    "note": "The label's download is still being staged (status P): retry later.",
+    "status": 200,
+    "body": {
+        "requestId": 1000001,
+        "version": "stable",
+        "sessionId": 2000001,
+        "data": {
+            "available": [],
+            "requested": [
+                {
+                    "downloadId": 300000001,
+                    "entityId": "DS1035-1057DA023",
+                    "eulaCode": null,
+                    "filesize": 734003200,
+                    "productId": "5e83a1e6b3d2e5f0",
+                    "statusCode": "P",
+                    "statusText": "Preparing",
+                    "url": null,
+                    "displayId": "DS1035-1057DA023",
+                    "datasetId": "5e839febdccb64b3",
+                    "collectionName": "Declass 1 (1996)"
+                }
+            ],
+            "queueSize": 1,
+            "eulas": []
+        },
+        "errorCode": null,
+        "errorMessage": null
+    }
+}

@@ -1,0 +1,12 @@
+{
+    "call": "POST https://m2m.cr.usgs.gov/api/api/json/stable/permissions",
+    "status": 200,
+    "body": {
+        "requestId": 1000001,
+        "version": "stable",
+        "sessionId": 2000001,
+        "data": ["user"],
+        "errorCode": null,
+        "errorMessage": null
+    }
+}

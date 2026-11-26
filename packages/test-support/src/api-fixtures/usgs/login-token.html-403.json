@@ -1,0 +1,9 @@
+{
+    "call": "POST https://m2m.cr.usgs.gov/api/api/json/stable/login-token",
+    "note": "An invalid or expired application token.",
+    "status": 403,
+    "headers": {
+        "content-type": "text/html; charset=iso-8859-1"
+    },
+    "text": "<!DOCTYPE HTML PUBLIC \"-//IETF//DTD HTML 2.0//EN\">\n<html><head>\n<title>403 Forbidden</title>\n</head><body>\n<h1>Forbidden</h1>\n<p>You don't have permission to access this resource.</p>\n</body></html>\n"
+}

@@ -1,0 +1,24 @@
+name: Quality image prerequisites
+description: >-
+    Prepares a hosted runner for scripts/ci/build-and-test.sh: frees disk space for the 5 GB quality
+    image, sets up Docker Buildx and exposes the Actions cache runtime, so the wrapper's
+    `docker buildx build` can read and write the type=gha layer cache (HCM_DOCKER_BUILD_FLAGS).
+
+runs:
+    using: composite
+    steps:
+        # The quality image (Node, JDK, GDAL, three Playwright browsers) is about 5.3 GB unpacked, and
+        # Buildx keeps a second copy in its cache: drop the preinstalled SDKs this repository never uses.
+        - name: Free disk space
+          shell: bash
+          run: sudo rm -rf /usr/share/dotnet /usr/local/lib/android /opt/ghc /usr/local/.ghcup /opt/hostedtoolcache/CodeQL
+
+        - name: Set up Docker Buildx
+          uses: docker/setup-buildx-action@f87e5991a6d7451dcb8d9637bfbc97413f497069 # v4.4.1
+
+        # type=gha needs ACTIONS_RUNTIME_TOKEN and the cache URLs in the environment of a `run` step
+        # (docs.docker.com: cache backends, GitHub Actions). They stay on the runner: run-all-checks.sh
+        # passes only PIPELINE_STAGE, CI, GITLEAKS_LOG_OPTS, COMMIT_RANGE, E2E_SHARD, E2E_TIER,
+        # MAPBOX_PUBLIC_TOKEN and SONAR_TOKEN into the container, by name.
+        - name: Expose the Actions cache runtime to docker buildx
+          uses: crazy-max/ghaction-github-runtime@04d248b84655b509d8c44dc1d6f990c879747487 # v4.0.0

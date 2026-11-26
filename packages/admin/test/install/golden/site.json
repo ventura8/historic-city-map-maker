@@ -1,0 +1,58 @@
+{
+    "serviceAccount": "projects/demo-hcm/serviceAccounts/hcm-installer@demo-hcm.iam.gserviceaccount.com",
+    "options": {
+        "logging": "CLOUD_LOGGING_ONLY"
+    },
+    "timeout": "1800s",
+    "queueTtl": "3600s",
+    "tags": ["hcm-install", "hcm-site", "hcm-r-1-0-0-abc1234"],
+    "substitutions": {
+        "_ORIGIN": "https://demo-hcm.web.app",
+        "_BASE": "/admin/",
+        "_SLUG": "1-0-0-abc1234",
+        "_RELEASE": "1.0.0+abc1234",
+        "_RELEASE_TIME": "1761955200",
+        "_MANIFEST_SHA256": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+        "_FILE_SHA256": "bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb"
+    },
+    "steps": [
+        {
+            "id": "fetch",
+            "name": "node:24-bookworm-slim@sha256:dddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddd",
+            "entrypoint": "node",
+            "args": ["--input-type=module", "--eval", "<FETCH_BUNDLE_SCRIPT>"],
+            "env": [
+                "HCM_BUNDLE_URL=${_ORIGIN}${_BASE}install/${_SLUG}/",
+                "HCM_MANIFEST_SHA256=${_MANIFEST_SHA256}",
+                "HCM_FILE_SHA256=${_FILE_SHA256}",
+                "HCM_RELEASE=${_RELEASE}",
+                "HCM_RELEASE_TIME=${_RELEASE_TIME}",
+                "HCM_FILES=site,server,pipeline",
+                "HCM_OUT=/workspace/site",
+                "HCM_REDIRECT_ORIGIN=https://demo-hcm-admin.web.app",
+                "HCM_KEEP_BUNDLE=public${_BASE}install/${_SLUG}"
+            ]
+        },
+        {
+            "id": "tools",
+            "name": "node:24-bookworm-slim@sha256:dddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddd",
+            "entrypoint": "npm",
+            "dir": "site/tools",
+            "args": ["ci", "--ignore-scripts", "--no-audit", "--no-fund"]
+        },
+        {
+            "id": "hosting",
+            "name": "node:24-bookworm-slim@sha256:dddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddd",
+            "entrypoint": "node",
+            "dir": "site",
+            "args": ["steps/deploy-hosting.mjs", "--project", "$PROJECT_ID", "--max-versions", "10"]
+        },
+        {
+            "id": "config",
+            "name": "node:24-bookworm-slim@sha256:dddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddd",
+            "entrypoint": "node",
+            "dir": "site",
+            "args": ["steps/hosting-config.mjs", "--project", "$PROJECT_ID", "--max-versions", "10"]
+        }
+    ]
+}

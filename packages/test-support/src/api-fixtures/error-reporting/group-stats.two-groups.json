@@ -1,0 +1,75 @@
+{
+    "call": "GET https://clouderrorreporting.googleapis.com/v1beta1/projects/<project>/groupStats?timeRange.period=PERIOD_1_DAY",
+    "status": 200,
+    "body": {
+        "errorGroupStats": [
+            {
+                "group": {
+                    "name": "projects/{{projectId}}/groups/CNe2e0group0001",
+                    "groupId": "CNe2e0group0001",
+                    "resolutionStatus": "OPEN"
+                },
+                "count": "12",
+                "affectedUsersCount": "0",
+                "timedCounts": [
+                    {
+                        "count": "12",
+                        "startTime": "2026-10-11T09:00:00Z",
+                        "endTime": "2026-10-12T08:00:00Z"
+                    }
+                ],
+                "firstSeenTime": "2026-10-11T09:00:00Z",
+                "lastSeenTime": "2026-10-12T08:00:00Z",
+                "affectedServices": [
+                    {
+                        "service": "viewer",
+                        "version": "1.0.0"
+                    }
+                ],
+                "numAffectedServices": 1,
+                "representative": {
+                    "eventTime": "2026-10-12T08:00:00Z",
+                    "serviceContext": {
+                        "service": "viewer",
+                        "version": "1.0.0"
+                    },
+                    "message": "TypeError: Cannot read properties of undefined (reading 'layers')\n    at applyManifest (engine.mjs:1:2345)"
+                }
+            },
+            {
+                "group": {
+                    "name": "projects/{{projectId}}/groups/CNe2e0group0002",
+                    "groupId": "CNe2e0group0002",
+                    "resolutionStatus": "ACKNOWLEDGED"
+                },
+                "count": "3",
+                "affectedUsersCount": "0",
+                "timedCounts": [
+                    {
+                        "count": "3",
+                        "startTime": "2026-10-12T07:00:00Z",
+                        "endTime": "2026-10-12T07:30:00Z"
+                    }
+                ],
+                "firstSeenTime": "2026-10-12T07:00:00Z",
+                "lastSeenTime": "2026-10-12T07:30:00Z",
+                "affectedServices": [
+                    {
+                        "service": "admin",
+                        "version": "1.0.0"
+                    }
+                ],
+                "numAffectedServices": 1,
+                "representative": {
+                    "eventTime": "2026-10-12T07:30:00Z",
+                    "serviceContext": {
+                        "service": "admin",
+                        "version": "1.0.0"
+                    },
+                    "message": "Error: e2e admin failure\n    at save (admin.mjs:1:99)"
+                }
+            }
+        ],
+        "timeRangeBegin": "2026-10-11T08:30:00Z"
+    }
+}

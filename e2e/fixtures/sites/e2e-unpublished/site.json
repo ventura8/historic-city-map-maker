@@ -1,0 +1,12 @@
+{
+    "lang": "ro",
+    "title": "Oraș nepublicat (e2e)",
+    "description": "Un oraș al lumii e2e adăugat înainte ca administratorul să-i fi publicat harta.",
+    "themeColor": "#5B7F3A",
+    "noscript": {
+        "ro": "Harta are nevoie de JavaScript. Activează JavaScript în browser ca să vezi fotografiile istorice ale orașului.",
+        "en": "The map needs JavaScript. Turn JavaScript on in your browser to see the historical photos of the city."
+    },
+    "publicManifest": true,
+    "pagesPath": "e2e-unpublished/"
+}
