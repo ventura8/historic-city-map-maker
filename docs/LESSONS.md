@@ -4742,3 +4742,7 @@ Append a numbered entry to *Lessons from this repository* in the task that finds
     - Cause: `<hcm-snackbar>` copies its message into a polite live region 150 ms after showing it (`ANNOUNCE_DELAY_MS`); a `getByText` read after that found the line and its announcement (strict mode).
     - Fix: the spec reads the snackbar's own line (`:not([aria-live])`), as the publish and smoke specs do.
     - **A toast's text is looked for outside its live region.**
+822. **A place's history entries arrived two minutes after its edits: the emulator held every trigger behind the worker cap's cold starts** (2026-11-26, the history tour at tour-x3840-light-en on the NUC, then S-A48 at admin-m768 in the same run).
+    - Cause: the Firestore emulator hands its trigger events to the Functions emulator one at a time, each after the last one's answer; the worker cap (§202a, 18 workers counted together) was below the triggers' working set, so it kept stopping and cold-starting them (73 cold starts in under three minutes, about 2 s each), and every test's events waited in that one line. Read in the emulators' `firebase-debug.log`: no other trigger arrived during a cold start.
+    - Fix: an event trigger's worker is never stopped and not counted; the cap holds the callable and HTTPS workers only (default 12; DECISIONS §253).
+    - **A cache in front of a queue that serves one at a time is sized for the queue's whole working set, or the misses add up for everyone.**

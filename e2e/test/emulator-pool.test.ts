@@ -10,6 +10,7 @@ import {
     FINISHED,
     FINISHING,
     IDLE,
+    isEventTrigger,
     leastRecentlyUsedIdle,
     maxWorkersOf,
     trim,
@@ -44,8 +45,10 @@ function standInPool() {
     class Pool implements PoolPrototype {
         readonly workers = new Map<string, PoolWorker[]>();
 
+        /** The emulator passes the trigger's definition; a name stands for a callable's here. */
         addWorker(...args: unknown[]): PoolWorker {
-            const trigger = String(args[0]);
+            const [definition] = args;
+            const trigger = isEventTrigger(definition) ? (definition as { readonly id: string }).id : String(definition);
             const worker = standInWorker(trigger);
             this.workers.set(trigger, [...(this.workers.get(trigger) ?? []), worker]);
             return worker;
@@ -131,5 +134,37 @@ describe("the Functions emulator's worker cap", () => {
         for (const text of [undefined, '', '0', '-3', '2.5', 'many']) {
             expect(maxWorkersOf({ HCM_EMULATOR_MAX_WORKERS: text })).toBe(DEFAULT_MAX_WORKERS);
         }
+    });
+
+    it('badPath_anEventTriggersWorkerIsNeverStoppedNorCountedSinceItsEventsWaitInOneLine', () => {
+        const { Pool } = standInPool();
+        capWorkerPool(Pool.prototype, 1);
+        const pool = new Pool();
+        // A Firestore trigger's worker, used long ago and idle: stopping it would cold-start the next event while the
+        // emulator holds every other event behind it (lesson 822).
+        const history = pool.addWorker({
+            id: 'history-onPoiWrite',
+            eventTrigger: { eventType: 'google.cloud.firestore.document.v1.written' },
+        });
+        pool.getIdleWorker('history-onPoiWrite', 'nodejs24');
+        const session = pool.addWorker('admin-session') as StandInWorker;
+        pool.getIdleWorker('admin-session', 'nodejs24');
+
+        expect(history.hcmEvent).toBe(true);
+        expect(session.hcmEvent).toBe(false);
+        expect(liveTriggers(pool)).toEqual(['history-onPoiWrite', 'admin-session']);
+        // A second callable past the cap of one stops the other callable, not the older event trigger's worker.
+        pool.addWorker('setup-status');
+        pool.getIdleWorker('setup-status', 'nodejs24');
+        expect(session.state).toBe(FINISHING);
+        expect(history.state).toBe(IDLE);
+        expect(leastRecentlyUsedIdle([history])).toBeUndefined();
+        expect(trim(pool, 0)).toBe(1);
+        expect(history.state).toBe(IDLE);
+        expect([isEventTrigger(null), isEventTrigger('history-onPoiWrite'), isEventTrigger({ httpsTrigger: {} })]).toEqual([
+            false,
+            false,
+            false,
+        ]);
     });
 });

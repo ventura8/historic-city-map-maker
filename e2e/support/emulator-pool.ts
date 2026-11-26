@@ -7,7 +7,11 @@
  * a code change (state FINISHING, then the process killed; its exit handler marks it FINISHED and the pool forgets it). A
  * trigger whose worker was stopped gets a new one on its next call, as after a reload: a cold start of the bundle, not a
  * failure. A BUSY worker is never stopped, nor a fresh one the emulator added for a call it has not handed it yet (lesson 813),
- * so the pool may stay above `max` while they serve or wait for their calls.
+ * so the pool may stay above `max` while they serve or wait for their calls. An event trigger's worker (a Firestore, Storage or
+ * Pub/Sub trigger: `eventTrigger` in its definition) is never stopped and not counted: the Firestore emulator delivers its
+ * events one at a time, each after the last one's answer, so one cold start (about 2 s on a loaded machine) held up every
+ * test's triggers; thrashing past the cap, 73 cold starts in under three minutes put a place's history entries two minutes
+ * behind its write (lesson 822). The cap is on the callable and HTTPS workers, which hold up only their own call.
  *
  * Only `firebase emulators:start` / `exec` in the e2e and dev-stack worlds load this (`e2e/stack/firebase.ts`); the
  * deployed functions never see it.
@@ -22,6 +26,8 @@ export const FINISHED = 'FINISHED';
 export interface PoolWorker {
     state: string;
     readonly runtime: { readonly process: { kill(signal?: string): boolean } };
+    /** It serves an event trigger (`eventTrigger` in its definition): never stopped, never counted. */
+    hcmEvent?: boolean;
     /** When the cap saw this worker last chosen for a call (a sequence number, never the wall clock). */
     hcmLastUsed?: number;
     /**
@@ -42,8 +48,11 @@ export interface PoolPrototype {
     getIdleWorker: (this: PoolFields, triggerId: unknown, runtime: unknown) => PoolWorker | undefined;
 }
 
-/** The default cap: about 3 GB of workers at 165 MB each, which keeps the e2e stage within 8 GB with the browsers and JVMs. */
-export const DEFAULT_MAX_WORKERS = 18;
+/**
+ * The default cap on callable and HTTPS workers: 12, beside the event triggers' (about 20 deployed, fewer called in one stage):
+ * about 5 GB of workers at 165 MB each at most, 2 GB more than the 18 counted together before, which thrashed (lesson 822).
+ */
+export const DEFAULT_MAX_WORKERS = 12;
 
 /** The cap from `HCM_EMULATOR_MAX_WORKERS` (a whole number of at least 1), else the default. */
 export function maxWorkersOf(env: Readonly<Record<string, string | undefined>>): number {
@@ -52,13 +61,16 @@ export function maxWorkersOf(env: Readonly<Record<string, string | undefined>>):
     return /^\d+$/.test(text) && value >= 1 ? value : DEFAULT_MAX_WORKERS;
 }
 
+/** The live workers the cap counts: an event trigger's are left out. */
 function live(pool: PoolFields): PoolWorker[] {
-    return [...pool.workers.values()].flat().filter((worker) => worker.state !== FINISHING && worker.state !== FINISHED);
+    return [...pool.workers.values()]
+        .flat()
+        .filter((worker) => worker.state !== FINISHING && worker.state !== FINISHED && worker.hcmEvent !== true);
 }
 
 /** The idle worker chosen longest ago, or undefined when none is idle; a fresh one, not handed its call yet, never counts. */
 export function leastRecentlyUsedIdle(workers: readonly PoolWorker[]): PoolWorker | undefined {
-    const idle = workers.filter((worker) => worker.state === IDLE && worker.hcmFresh !== true);
+    const idle = workers.filter((worker) => worker.state === IDLE && worker.hcmFresh !== true && worker.hcmEvent !== true);
     return idle.reduce<PoolWorker | undefined>(
         (oldest, worker) => (oldest === undefined || (worker.hcmLastUsed ?? 0) < (oldest.hcmLastUsed ?? 0) ? worker : oldest),
         undefined,
@@ -80,6 +92,11 @@ export function trim(pool: PoolFields, max: number): number {
         workers = live(pool);
     }
     return stopped;
+}
+
+/** An event trigger's definition (the emulator's `addWorker` gets the trigger first): one with `eventTrigger`. */
+export function isEventTrigger(trigger: unknown): boolean {
+    return typeof trigger === 'object' && trigger !== null && 'eventTrigger' in trigger;
 }
 
 /** Wraps the pool's prototype once: each worker chosen for a call is stamped, and each new worker trims the pool to `max`. */
@@ -107,6 +124,7 @@ export function capWorkerPool(prototype: PoolPrototype, max: number): void {
         sequence += 1;
         worker.hcmLastUsed = sequence;
         worker.hcmFresh = true;
+        worker.hcmEvent = isEventTrigger(args[0]);
         trim(this, cap.max);
         return worker;
     };
