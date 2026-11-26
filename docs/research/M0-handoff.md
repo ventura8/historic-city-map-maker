@@ -302,8 +302,9 @@ Added by the M0 CI agent on 2026-10-11. The stage table stays in
 - **Workflows** (`.github/workflows/`): `ci.yml`, `release.yml`, `deps.yml`, `contract.yml`,
   `codeql.yml`. Every job calls `scripts/ci/run-all-checks.sh` per stage (or
   `scripts/ci/build-and-test.sh` for the image); no tool is called directly. The image is shared
-  through the GitHub Actions layer cache: `build-image` writes it (`HCM_DOCKER_BUILD_FLAGS` with
-  `--cache-to type=gha,mode=max,scope=hcm-quality --output type=cacheonly`), every stage job
+  through the GitHub Actions layer cache: `build-image` writes it via `docker buildx build`
+  (`HCM_DOCKER_BUILD_FLAGS` with `--cache-to type=gha,mode=max,scope=hcm-quality --output type=cacheonly`;
+  plain `docker build` cannot export that cache, DECISIONS §255), every stage job
   rebuilds from it with `--load --cache-from type=gha,scope=hcm-quality`. The local composite
   action `.github/actions/quality-image` frees disk, sets up Buildx and exposes the cache runtime
   (`crazy-max/ghaction-github-runtime`, required for `type=gha` in a `run` step);

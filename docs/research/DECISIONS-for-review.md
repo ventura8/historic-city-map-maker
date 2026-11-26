@@ -7371,3 +7371,9 @@ The history tour failed at tour-x3840-light-en on the NUC (a30d35b5's split): a 
 ## 254. The e2e build's own cities do not search USGS by themselves (2026-11-26) — APPLIED (the coordinator's choice of two)
 
 Two content specs (tiles:96, tiles:247) failed on a 400 of `imagery-search`: the Imagery area's automatic search reads USGS's readiness from the singleton `setup/status`, which content specs do not own and the locked specs rewrite meanwhile (lesson 823). The `e2e` build's kit (`packages/admin/src/app/e2e-kit.ts`, moved out of the entry to keep it within 400 lines) gains `autoSearch`: false when the address names a test's own city (`?city=`), as `?mapToken=` spares those specs the map's token in `setup/status`. The areas get it as `ContentServices.autoSearch`; `HarvestSearch` then never searches on opening, while Search on request still works. Production has no kit (`E2E_KIT` is null outside the `e2e` mode), so `autoSearch` is never set there; `packages/admin/test/index.test.ts` proves it. The locked specs (no `?city=`) keep the automatic search and its scenarios. Rejected: seeding each content city with a scene harvested far ahead (it changes what those pages list, and every future content spec must remember it).
+
+## 255. Build the quality image with the configured Buildx builder (2026-11-26)
+
+PR #5's image job failed because the default Docker driver could not export its layers to the GitHub Actions cache.
+The build script now invokes Buildx with the runner's selected builder when CI supplies cache flags.
+Local builds select the default builder to keep the image available to the local Docker daemon.

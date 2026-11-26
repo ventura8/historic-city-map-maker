@@ -1,8 +1,8 @@
 name: Quality image prerequisites
 description: >-
     Prepares a hosted runner for scripts/ci/build-and-test.sh: frees disk space for the 5 GB quality
-    image, sets up Docker Buildx and exposes the Actions cache runtime, so the wrapper's own
-    `docker build` can read and write the type=gha layer cache (HCM_DOCKER_BUILD_FLAGS).
+    image, sets up Docker Buildx and exposes the Actions cache runtime, so the wrapper's
+    `docker buildx build` can read and write the type=gha layer cache (HCM_DOCKER_BUILD_FLAGS).
 
 runs:
     using: composite
@@ -20,5 +20,5 @@ runs:
         # (docs.docker.com: cache backends, GitHub Actions). They stay on the runner: run-all-checks.sh
         # passes only PIPELINE_STAGE, CI, GITLEAKS_LOG_OPTS, COMMIT_RANGE, E2E_SHARD, E2E_TIER,
         # MAPBOX_PUBLIC_TOKEN and SONAR_TOKEN into the container, by name.
-        - name: Expose the Actions cache runtime to docker build
+        - name: Expose the Actions cache runtime to docker buildx
           uses: crazy-max/ghaction-github-runtime@04d248b84655b509d8c44dc1d6f990c879747487 # v4.0.0
