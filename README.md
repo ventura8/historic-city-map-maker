@@ -56,6 +56,7 @@ PIPELINE_STAGE=build bash scripts/ci/run-all-checks.sh    # engine and admin bun
 
 ## Documentation
 
+- [Roadmap](ROADMAP.md)
 - [Architecture](docs/ARCHITECTURE.md)
 - [Engine API](docs/ENGINE_API.md) (config.js, the element, the JavaScript API, the URL hash, City Manifest v1)
 - [CI pipeline](docs/CI_PIPELINE.md)
