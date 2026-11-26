@@ -51,7 +51,7 @@ jobs:
         runs-on: ubuntu-24.04
         # The heaviest part is about 2,000 to 2,400 s of test time (the first tour-matrix shard): about 20 to 26 minutes
         # on a 4-vCPU runner with Playwright's 2 workers, plus about 3 for the image, the servers and the emulators.
-        timeout-minutes: 75
+        timeout-minutes: ${{ matrix.tier == 'admin,smoke,a11y,nogl' && 105 || 75 }}
         permissions:
             contents: read
             checks: write

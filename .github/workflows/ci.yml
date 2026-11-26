@@ -222,7 +222,7 @@ jobs:
         if: ${{ !cancelled() && needs.build-image.result == 'success' && needs.changes.outputs.docs-only != 'true' }}
         runs-on: ubuntu-24.04
         # Allow cold emulators and the slowest admin journeys to finish on a hosted runner.
-        timeout-minutes: 75
+        timeout-minutes: ${{ matrix.tier == 'admin,smoke,a11y,nogl' && 105 || 75 }}
         permissions:
             contents: read
             checks: write
