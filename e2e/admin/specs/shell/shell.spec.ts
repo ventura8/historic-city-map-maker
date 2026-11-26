@@ -11,6 +11,7 @@ import type { ContentWorld } from '../../support/content.js';
 import { seedPublicCity } from '../../support/flows.js';
 import { adminMapReady, photoMarker } from '../../support/map.js';
 import { photosText, seedPhoto, seedPhotosCity, servePhotoImages } from '../../support/photos.js';
+import { emulatorOrigin } from '../../world.js';
 import { poisText, seedCategories, seedPlace } from '../pois/places.js';
 
 /**
@@ -180,7 +181,7 @@ test(
         // An hour later Firebase Auth asks the Auth emulator for a new ID token, without a word to the admin.
         const refreshed = page.waitForRequest((request) => {
             const url = new URL(request.url());
-            return url.origin === 'https://securetoken.googleapis.com' && url.pathname === '/v1/token';
+            return url.origin === emulatorOrigin('auth') && url.pathname === '/securetoken.googleapis.com/v1/token';
         });
         await page.clock.fastForward('01:00:00');
         await refreshed;

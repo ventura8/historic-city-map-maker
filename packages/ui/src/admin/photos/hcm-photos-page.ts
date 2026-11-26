@@ -112,7 +112,9 @@ export class HcmPhotosPage extends AreaPage<PhotosViewState, PhotosIntentsPort> 
                         this.settingFields = { count: view.list.selection.length };
                     }}
                 ></hcm-admin-photo-list>
-                <div slot="detail" class="detail">${this.#map(locale, view)} ${this.#detail(locale, view, open)}</div>
+                <div slot="detail" class="detail">
+                    ${this.#map(locale, view)} ${this.#background(locale, view)} ${this.#detail(locale, view, open)}
+                </div>
             </hcm-list-detail>
             ${this.#dialogs(locale, view)}`;
     }
@@ -144,9 +146,7 @@ export class HcmPhotosPage extends AreaPage<PhotosViewState, PhotosIntentsPort> 
                 this.#attachMap();
             }}
             @hcm-zoom=${(event: CustomEvent<{ readonly delta: number }>) => this.intents?.zoomBy(event.detail.delta)}
-        >
-            ${this.#background(locale, view)}
-        </hcm-admin-map>`;
+        ></hcm-admin-map>`;
     }
 
     #detail(locale: UiLocale, view: PhotosViewState, open: string): TemplateResult {
