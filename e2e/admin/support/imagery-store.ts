@@ -143,6 +143,22 @@ export class DocumentGone extends Error {
     }
 }
 
+/** The emulator waits on its document lock before answering ABORTED. Retry only that refused field patch. */
+async function patchDocument(url: string, body: string): Promise<Response> {
+    const patch = (): Promise<Response> => fetch(url, { method: 'PATCH', headers: { ...OWNER, 'content-type': 'application/json' }, body });
+    for (let attempt = 1; attempt < 3; attempt += 1) {
+        const response = await patch();
+        if (response.status !== 409) {
+            return response;
+        }
+        const conflict = (await response.clone().json()) as { readonly error?: { readonly status?: string } };
+        if (conflict.error?.status !== 'ABORTED') {
+            return response;
+        }
+    }
+    return patch();
+}
+
 /**
  * Writes the fields of `mask` (dotted paths into `data`, `steps.fetch`): a path present in `data` is set, one absent is
  * deleted; every other field of the document stays as it is. `existing`: only into a document that exists, else
@@ -156,11 +172,7 @@ export async function updateDocument(
 ): Promise<void> {
     const fields = mask.map((field) => `updateMask.fieldPaths=${encodeURIComponent(maskPath(field))}`);
     const query = [...fields, ...(existing ? ['currentDocument.exists=true'] : [])].join('&');
-    const response = await fetch(`${DOCUMENTS}/${path}?${query}`, {
-        method: 'PATCH',
-        headers: { ...OWNER, 'content-type': 'application/json' },
-        body: JSON.stringify({ fields: encodeAll(data) }),
-    });
+    const response = await patchDocument(`${DOCUMENTS}/${path}?${query}`, JSON.stringify({ fields: encodeAll(data) }));
     if (existing && response.status === 404) {
         throw new DocumentGone(path);
     }
