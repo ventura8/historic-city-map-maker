@@ -219,8 +219,11 @@ describe('the photos area: the editor and its map', () => {
             features: [{ id: 'photo-location', geometry: { type: 'Point', coordinates: [26.12, 44.44] } }],
             final: true,
         });
-        store.intents.edit({ author: 'Ion', fov: 90 });
+        store.intents.edit({ fov: 90 });
         const direction = store.intents.setDirection();
+        await settle();
+        expect(store.state.editor?.picking).toBe(true);
+        store.intents.edit({ author: 'Ion' });
         await settle();
         expect(store.state.editor?.picking).toBe(true);
         world.maps.draw.resolvePick([26.13, 44.44]);

@@ -7383,3 +7383,7 @@ Local builds select the default builder to keep the image available to the local
 The owner selected the GitHub release package for the beta guides. The release build packs the CLI with its production self-host bundle. The publish job attaches that tarball to the GitHub pre-release after the release checks pass, so the documented download and the tagged source correspond. The npm name can be reserved separately.
 
 The end-to-end server now imports the committed emulator configuration as JSON, and its TypeScript project includes that file. The origin builder still checks for loopback and valid ports. The two installation failure scenarios match the HTTP status and the parsed origin in Chromium's message. The loopback HTTP fixture selects response data for each path and handles the two streaming scenarios explicitly.
+
+## 257. Give hosted CI enough time to finish release verification (2026-11-26)
+
+On both release PRs, GitHub cancelled the unit and coverage job at its 20-minute limit. In the first run the Python raster suite was at 25 percent. The two admin browser shards also reached their 40-minute deadlines with 531 and 740 cases started out of 1,156 apiece. CI now runs the same admin, smoke, accessibility and no-WebGL cases in four shards. The unit job has 60 minutes and browser jobs have 75 minutes. The pipeline gates, assertions and coverage thresholds are unchanged.

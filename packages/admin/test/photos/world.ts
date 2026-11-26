@@ -89,6 +89,7 @@ class FakeDraw implements PhotoDrawPort {
     }
 
     setMode(mode: 'static' | 'select'): void {
+        this.resolvePick(null);
         this.mode = mode;
     }
 

@@ -171,9 +171,8 @@ jobs:
         needs: [build-image, changes]
         if: ${{ !cancelled() && needs.build-image.result == 'success' && needs.changes.outputs.docs-only != 'true' }}
         runs-on: ubuntu-24.04
-        # Measured 65 to 77 s of gates on 16 hardware threads (docs/research/pipeline-baseline.md); a 4-vCPU
-        # runner takes about three times that, plus about two minutes for the image.
-        timeout-minutes: 20
+        # The November beta reached only the first quarter of the raster tests at the old 20-minute job deadline.
+        timeout-minutes: 60
         permissions:
             contents: read
             checks: write
@@ -222,10 +221,8 @@ jobs:
         needs: [build-image, changes]
         if: ${{ !cancelled() && needs.build-image.result == 'success' && needs.changes.outputs.docs-only != 'true' }}
         runs-on: ubuntu-24.04
-        # The heaviest part is about 1,400 to 1,600 s of test time (a tour third, an admin half, a functional third);
-        # a 4-vCPU runner with Playwright's 2 workers needs about 12 to 20 minutes for it, plus about 3 for the image
-        # and the servers.
-        timeout-minutes: 40
+        # Allow cold emulators and the slowest admin journeys to finish on a hosted runner.
+        timeout-minutes: 75
         permissions:
             contents: read
             checks: write
@@ -240,10 +237,8 @@ jobs:
                 # docs/research/pipeline-baseline.md). Measured on 2026-10-18 (the split quality run, test seconds of the
                 # NUC beside every other tier): the per-push tour takes about 4,150 s since the admin's editor journeys
                 # joined it (about 2,900 s of it, docs/research/DECISIONS-for-review.md §37b), so it has three count
-                # shards, the largest frames first; the admin tier (the locked chain and the content specs, about
-                # 3,100 s) has two, which share the smoke, a11y and no-WebGL tiers. Every tour and admin job starts the
-                # admin server and the Firebase emulators. Rebalance from the per-project times of reports/junit/e2e.xml
-                # whenever a tier grows.
+                # shards, the largest frames first. The admin, smoke, a11y and no-WebGL tiers share four shards:
+                # two shards timed out after 40 minutes while still processing the beta's admin journeys.
                 include:
                     - part: functional 1/3
                       tier: fn
@@ -263,12 +258,18 @@ jobs:
                     - part: tour 3/3
                       tier: tour
                       shard: 3/3
-                    - part: admin, smoke, a11y, no-WebGL 1/2
+                    - part: admin, smoke, a11y, no-WebGL 1/4
                       tier: admin,smoke,a11y,nogl
-                      shard: 1/2
-                    - part: admin, smoke, a11y, no-WebGL 2/2
+                      shard: 1/4
+                    - part: admin, smoke, a11y, no-WebGL 2/4
                       tier: admin,smoke,a11y,nogl
-                      shard: 2/2
+                      shard: 2/4
+                    - part: admin, smoke, a11y, no-WebGL 3/4
+                      tier: admin,smoke,a11y,nogl
+                      shard: 3/4
+                    - part: admin, smoke, a11y, no-WebGL 4/4
+                      tier: admin,smoke,a11y,nogl
+                      shard: 4/4
         steps:
             - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
               with:

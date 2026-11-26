@@ -51,14 +51,14 @@ jobs:
         runs-on: ubuntu-24.04
         # The heaviest part is about 2,000 to 2,400 s of test time (the first tour-matrix shard): about 20 to 26 minutes
         # on a 4-vCPU runner with Playwright's 2 workers, plus about 3 for the image, the servers and the emulators.
-        timeout-minutes: 45
+        timeout-minutes: 75
         permissions:
             contents: read
             checks: write
         strategy:
             fail-fast: false
             matrix:
-                # The eight `e2e` jobs of ci.yml (`tier` is E2E_TIER, `shard` E2E_SHARD within that tier), plus the
+                # The ten `e2e` jobs of ci.yml (`tier` is E2E_TIER, `shard` E2E_SHARD within that tier), plus the
                 # `tour-matrix` stage: 35 projects, the largest frames first, of the viewer's 11 journeys (about 8,000 s
                 # of laptop test time since every state runs the generic checkers, docs/research/DECISIONS-for-review.md
                 # §33e) and, since 2026-10-18, the admin's 14 editor journeys (about 200 to 480 s a project as measured
@@ -89,14 +89,22 @@ jobs:
                       stage: e2e
                       tier: tour
                       shard: 3/3
-                    - part: admin, smoke, a11y, no-WebGL 1/2
+                    - part: admin, smoke, a11y, no-WebGL 1/4
                       stage: e2e
                       tier: admin,smoke,a11y,nogl
-                      shard: 1/2
-                    - part: admin, smoke, a11y, no-WebGL 2/2
+                      shard: 1/4
+                    - part: admin, smoke, a11y, no-WebGL 2/4
                       stage: e2e
                       tier: admin,smoke,a11y,nogl
-                      shard: 2/2
+                      shard: 2/4
+                    - part: admin, smoke, a11y, no-WebGL 3/4
+                      stage: e2e
+                      tier: admin,smoke,a11y,nogl
+                      shard: 3/4
+                    - part: admin, smoke, a11y, no-WebGL 4/4
+                      stage: e2e
+                      tier: admin,smoke,a11y,nogl
+                      shard: 4/4
                     - part: tour matrix 1/10
                       stage: tour-matrix
                       tier: tour-matrix

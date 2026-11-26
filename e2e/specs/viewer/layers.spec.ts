@@ -293,7 +293,8 @@ test(
     { tag: '@S-V16-BAD-TILE-HOST-DOWN' },
     async ({ page, lang, consoleErrors }) => {
         await page.route('**/xyz/e2e-1980/**', (route) => route.abort('connectionrefused'));
-        await openViewer(page, { lang, hash: `${EMPTY_VIEW}&layers=e2e-1980` });
+        await page.goto(sitePath('bucharest', { lang, hash: `${EMPTY_VIEW}&layers=e2e-1980` }));
+        await waitForEngineEvent(page, 'hcm-ready');
 
         const toast = page.getByRole('status').filter({
             hasText: t(lang, 'error.layer', { name: lang === 'ro' ? 'Fotografie aeriană 1980 (e2e)' : 'Aerial photo 1980 (e2e)' }),

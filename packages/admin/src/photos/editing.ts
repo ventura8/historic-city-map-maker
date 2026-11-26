@@ -138,7 +138,8 @@ export class PhotoEditing {
 
     #syncPin(): void {
         const map = this.#context.map();
-        if (map === null) {
+        // Entering pin-edit mode cancels the direction picker in both drawing adapters.
+        if (map === null || this.#editor?.state.picking === true) {
             return;
         }
         this.#showPin(map);
