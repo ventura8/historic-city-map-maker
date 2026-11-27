@@ -1,5 +1,5 @@
 /** The visitor's language among sixteen, its texts fetched first (V11; `core/catalogues.ts`, DECISIONS-for-review.md §218). */
-import { hasCatalogue, type ViewerLocale } from '@hcm/shared';
+import { BUNDLED_LOCALES, type ViewerLocale } from '@hcm/shared';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 
 import type { CatalogueLoader } from '../../src/core/catalogues.js';
@@ -8,13 +8,13 @@ import { harness, loaded } from './harness.js';
 import { settle } from './support.js';
 
 /**
- * A loader whose every answer the test gives (`answer(locale, ok)` settles that language's request), but at once for a
- * language the page has, as the engine's own.
+ * A loader whose every answer the test gives (`answer(locale, ok)` settles that language's request), with immediate answers for
+ * Romanian and English. The fixture models a fresh page even if another test has registered additional catalogues.
  */
 function scriptedLoader(): { readonly load: CatalogueLoader & ReturnType<typeof vi.fn>; answer(locale: ViewerLocale, ok: boolean): void } {
     const pending = new Map<ViewerLocale, (ok: boolean) => void>();
     const load = vi.fn((locale: ViewerLocale) =>
-        hasCatalogue(locale)
+        BUNDLED_LOCALES.includes(locale)
             ? Promise.resolve(true)
             : new Promise<boolean>((resolve) => {
                   pending.set(locale, resolve);

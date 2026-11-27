@@ -4753,3 +4753,5 @@ Append a numbered entry to *Lessons from this repository* in the task that finds
 824. **The photo background selector covered the place where the editor tried to put the pin** (2026-11-26, S-A09-HAPPY). On phone and tablet, the pointer landed on the selector in the upper left of the map. The editor now places the selector below the canvas so the same point accepts a click.
 
 825. **A harvest could keep showing as running after the server stopped it.** The next search or monthly tick now records the timeout in a transaction and preserves the dataset checkpoints. A retry can resume immediately.
+
+826. **The destroyed-store test mounted a map when it followed the Italian-language mount test in one Vitest worker.** The mount test had registered Italian in the worker's shared catalogue. The scripted loader now starts with the bundled languages so the test controls when the Italian request resolves.
