@@ -21,7 +21,7 @@ import {
 
 import type { StoredDocument } from '../ports/documents.js';
 import type { Ports } from '../ports/index.js';
-import { dueByState, harvestStateOf } from './harvest-state.js';
+import { dueByState, failStaleHarvest, harvestStateOf } from './harvest-state.js';
 import { harvestCity, type HarvestDeps } from './harvest.js';
 import { runLayerDelete, type LayerDeleteDeps } from './layer-delete.js';
 import { enqueuePublish } from './publish-queue.js';
@@ -133,6 +133,7 @@ async function harvestDue(deps: TickMaintenanceDeps, cityId: string, now: Date):
 
 /** Step 7: the monthly harvest, while USGS can be searched (searching works before downloads are approved). */
 export async function monthlyHarvest(deps: TickMaintenanceDeps, cityId: string, now: Date): Promise<void> {
+    await failStaleHarvest(deps, cityId, now);
     if (!usgsSearchable(await usgsRecord(deps.setup)) || !(await harvestDue(deps, cityId, now))) {
         return;
     }

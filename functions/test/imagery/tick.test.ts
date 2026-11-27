@@ -8,6 +8,8 @@
 import {
     CLOUD_RUN_JOBS,
     FIRESTORE_PATHS,
+    HARVEST_TIMEOUT_REASON,
+    HARVEST_TIMEOUT_MS,
     JOB_MAX_ATTEMPTS,
     USGS_DATASETS,
     harvestStateDocSchema,
@@ -454,6 +456,34 @@ describe('maintenance: the monthly harvest', () => {
             state: 'invalid',
             role: 'download',
             detail: 'apiError.usgs.credentials',
+        });
+    });
+
+    it('badPath_aStaleRunningHarvestPast540sIsMarkedFailedOnTheTick @S-A11-BAD-HARVEST-KILLED', async () => {
+        const world = await readyWorld();
+        await seedSetup(world, { usgs: { state: 'missing' } });
+        const stopped = new Date(Date.parse(NOW) - HARVEST_TIMEOUT_MS - 1);
+        // nextAt still in the future: without failStaleHarvest the tick would skip this city.
+        await world.deps.documents.set(FIRESTORE_PATHS.harvestState(CITY), harvestStateDocSchema, {
+            attemptedAt: timestampFromDate(stopped),
+            outcome: 'running',
+            failures: 0,
+            nextAt: timestampFromDate(new Date(Date.parse(NOW) + 60_000)),
+            datasets: { corona2: { state: 'searching', found: 0 } },
+            updatedBy: 'system:imagery',
+            updatedAt: timestampFromDate(stopped),
+        });
+
+        // failStaleHarvest marks failed (nextAt due now) before dueByState, so the same tick resumes; [] = no part failed.
+        expect(await runImageryTick(world.deps)).toEqual([]);
+
+        const timedOut = world.deps.recording.records.find((record) => record.message === 'usgs harvest timed out past 540s limit');
+        expect(timedOut).toMatchObject({ level: 'error', data: { reasonCode: 'harvest.killed', cityId: CITY } });
+        expect(await harvestState(world)).toMatchObject({
+            outcome: 'failed',
+            reason: HARVEST_TIMEOUT_REASON,
+            failures: 1,
+            nextAt: at(NOW),
         });
     });
 

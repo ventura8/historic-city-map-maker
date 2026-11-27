@@ -7,16 +7,19 @@
  *
  * Lesson 676: the attempt is written `running` at its start and again as each dataset is stored (`HarvestProgress`), so a run the
  * server stops past its timeout still leaves what it stored and where each dataset resumes, and is due again
- * `HARVEST_RESUME_MINUTES` later. A run found still `running` after `HARVEST_KILLED_AFTER_MS` was stopped: the next one says so in the
- * log (`reasonCode` `harvest.killed`) and counts it as unfinished. A `partial` run (a dataset searched only in part) resumes after
- * `HARVEST_RESUME_MINUTES`, doubled after each further one.
+ * `HARVEST_RESUME_MINUTES` later. Lesson 825: a run still `running` after `HARVEST_TIMEOUT_MS` (540 s) is marked `failed` with
+ * `HARVEST_TIMEOUT_REASON` on the next search or tick (`failStaleHarvest`, `nextAt` due now), logged `harvest.killed`, and resumed;
+ * `wasKilled` stays true for that reason. A `partial` run (a dataset searched only in part) resumes after `HARVEST_RESUME_MINUTES`,
+ * doubled after each further one.
  */
 import {
     FIRESTORE_PATHS,
     HARVEST_EVERY_DAYS,
     HARVEST_RESUME_MINUTES,
     HARVEST_RETRY_HOURS,
+    HARVEST_TIMEOUT_REASON,
     harvestStateDocSchema,
+    isStaleHarvest,
     timestampFromDate,
     timestampToDate,
     type ApiErrorCode,
@@ -34,8 +37,6 @@ type HarvestStateDeps = Pick<Ports, 'documents' | 'clock'>;
 const MINUTE_MS = 60_000;
 const HOUR_MS = 60 * MINUTE_MS;
 const MONTH_MS = HARVEST_EVERY_DAYS * 24 * HOUR_MS;
-/** A run still `running` this long after it started was stopped by the server (the callable's 540 s, and a minute more). */
-export const HARVEST_KILLED_AFTER_MS = 600_000;
 
 /** How long after the `failures`-th unfinished run in a row the harvest is tried again. */
 function retryDelayMs(outcome: HarvestStateDoc['outcome'], failures: number): number {
@@ -51,9 +52,53 @@ export function harvestStateOf(deps: Pick<Ports, 'documents'>, cityId: string): 
     return deps.documents.get(FIRESTORE_PATHS.harvestState(cityId), harvestStateDocSchema);
 }
 
-/** True for an attempt the server stopped: still `running` long after it started. */
+/** True for an attempt the server stopped: still `running` older than 540s, or marked failed due to timeout. */
 export function wasKilled(state: HarvestStateDoc | undefined, now: Date): boolean {
-    return state?.outcome === 'running' && timestampToDate(state.attemptedAt).getTime() + HARVEST_KILLED_AFTER_MS <= now.getTime();
+    if (state === undefined) {
+        return false;
+    }
+    if (state.outcome === 'failed' && state.reason === HARVEST_TIMEOUT_REASON) {
+        return true;
+    }
+    return isStaleHarvest(state, now);
+}
+
+/** The `ops/harvest-{city}` write that marks a stale `running` attempt failed past the 540s limit. */
+function staleFailureDoc(state: HarvestStateDoc, now: Date): HarvestStateDoc {
+    return {
+        ...state,
+        outcome: 'failed',
+        reason: HARVEST_TIMEOUT_REASON,
+        failures: Math.min(1000, state.failures + 1),
+        // Due now so the same search or tick can resume (failure backoff would hide it for an hour).
+        nextAt: timestampFromDate(now),
+        finishedAt: timestampFromDate(now),
+        ...stampOf(IMAGERY_WRITER, now),
+    };
+}
+
+/**
+ * Transitions a stale `running` harvest older than 540s to `failed` with its reason, inside a transaction so concurrent
+ * ticks or searches never produce duplicate status updates. Returns true if transitioned.
+ */
+export async function failStaleHarvest(
+    deps: Pick<Ports, 'documents' | 'clock' | 'log'>,
+    cityId: string,
+    now: Date = deps.clock.now(),
+): Promise<boolean> {
+    const datasets = await deps.documents.transaction(async (transaction) => {
+        const state = await transaction.get(FIRESTORE_PATHS.harvestState(cityId), harvestStateDocSchema);
+        if (!state || !isStaleHarvest(state, now)) {
+            return undefined;
+        }
+        await transaction.set(FIRESTORE_PATHS.harvestState(cityId), harvestStateDocSchema, staleFailureDoc(state, now));
+        return { datasets: state.datasets };
+    });
+    if (datasets === undefined) {
+        return false;
+    }
+    deps.log.error('usgs harvest timed out past 540s limit', { cityId, reasonCode: 'harvest.killed', datasets: datasets.datasets });
+    return true;
 }
 
 /** Unfinished runs in a row after each outcome, from the count before it (a run still going keeps it). */

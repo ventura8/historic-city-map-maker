@@ -169,13 +169,9 @@ export {
     usageDocSchema,
     usgsSceneDocSchema,
 } from './schemas/firestore-ops.js';
-export {
-    HARVEST_DATASET_STATES,
-    HARVEST_OUTCOMES,
-    HARVEST_STOP_REASONS,
-    harvestDatasetSchema,
-    harvestStateDocSchema,
-} from './schemas/harvest-state.js';
+export { HARVEST_DATASET_STATES, HARVEST_OUTCOMES, HARVEST_STOP_REASONS } from './schemas/harvest-state.js';
+export { HARVEST_TIMEOUT_MS, HARVEST_TIMEOUT_REASON, isStaleHarvest } from './schemas/harvest-state.js';
+export { harvestDatasetSchema, harvestStateDocSchema } from './schemas/harvest-state.js';
 export type { HarvestDataset, HarvestDatasets, HarvestStateDoc } from './schemas/harvest-state.js';
 export type {
     AdminDoc,

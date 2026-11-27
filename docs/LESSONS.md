@@ -4751,3 +4751,5 @@ Append a numbered entry to *Lessons from this repository* in the task that finds
     - Fix: the `e2e` build's kit turns the automatic search off for a test's own city (`?city=`, `E2eKit.autoSearch`, `packages/admin/src/app/e2e-kit.ts`); production has no kit, so nothing changes there (a unit test proves it). Search on request still works. DECISIONS §254.
     - **A spec that does not own a singleton must not reach a code path that reads it, even one that runs by itself.**
 824. **The photo background selector covered the place where the editor tried to put the pin** (2026-11-26, S-A09-HAPPY). On phone and tablet, the pointer landed on the selector in the upper left of the map. The editor now places the selector below the canvas so the same point accepts a click.
+
+825. **A harvest could keep showing as running after the server stopped it.** The next search or monthly tick now records the timeout in a transaction and preserves the dataset checkpoints. A retry can resume immediately.

@@ -175,4 +175,37 @@ describe('each dataset’s part of the search (lesson 676)', () => {
         expect(partsOf(undefined)).toBeUndefined();
         expect(partsOf({})).toBeUndefined();
     });
+
+    it('badPath_aStaleRunningHarvestOlderThan540sAddsNoLiveParts', async () => {
+        const { harvest, callables, store, states } = search();
+        let release: () => void = () => undefined;
+        answer(
+            callables,
+            'imagery.search',
+            () =>
+                new Promise((resolve) => {
+                    release = () => {
+                        resolve(SEARCHED);
+                    };
+                }),
+        );
+
+        const running = harvest.search();
+        const staleAttemptedAt = { seconds: T0.seconds - 541, nanoseconds: 0 };
+        store.put(FIRESTORE_PATHS.harvestState('bucharest'), {
+            attemptedAt: staleAttemptedAt,
+            outcome: 'running',
+            failures: 0,
+            nextAt: T0,
+            datasets: { corona2: { state: 'searching', found: 0 } },
+            updatedBy: 'system:imagery',
+            updatedAt: staleAttemptedAt,
+        });
+        await settle();
+        const live = states.at(-1);
+        release();
+        await running;
+
+        expect(live?.datasets).toBeUndefined();
+    });
 });

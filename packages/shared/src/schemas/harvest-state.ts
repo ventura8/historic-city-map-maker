@@ -5,8 +5,13 @@
 import { z } from 'zod';
 
 import { apiErrorCodeSchema } from '../api/errors.js';
-import { stamp, timestampSchema } from './firestore-common.js';
+import { stamp, timestampSchema, timestampToDate } from './firestore-common.js';
 import { USGS_DATASETS } from './firestore.js';
+
+/** Callable timeout limit for a harvest run (540 s); a run still running after this is stale. */
+export const HARVEST_TIMEOUT_MS = 540_000;
+/** The specific reason recorded when a running harvest is marked failed past the 540s limit. */
+export const HARVEST_TIMEOUT_REASON = 'timeout exceeded 540s limit';
 
 /**
  * How a city's last USGS harvest went: found scenes, found none, USGS did not answer (every dataset failed), `partial` (a dataset
@@ -47,10 +52,21 @@ export const harvestStateDocSchema = z.strictObject({
     failures: z.number().int().min(0).max(1000),
     nextAt: timestampSchema,
     error: apiErrorCodeSchema.optional(),
+    reason: z.string().optional(),
     datasets: z.partialRecord(z.enum(USGS_DATASETS), harvestDatasetSchema).optional(),
     finishedAt: timestampSchema.optional(),
     ...stamp,
 });
+
+/** True when a harvest record in `running` status is older than the 540s timeout limit. */
+export function isStaleHarvest(state: HarvestStateDoc | undefined, now: Date | number): boolean {
+    if (state?.outcome !== 'running') {
+        return false;
+    }
+    const nowMs = typeof now === 'number' ? now : now.getTime();
+    const startTimeMs = timestampToDate(state.attemptedAt).getTime();
+    return nowMs - startTimeMs > HARVEST_TIMEOUT_MS;
+}
 
 export type HarvestStateDoc = z.infer<typeof harvestStateDocSchema>;
 export type HarvestDataset = z.infer<typeof harvestDatasetSchema>;

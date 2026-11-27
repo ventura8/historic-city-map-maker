@@ -34,7 +34,7 @@ import { ApiError } from '../api/api-error.js';
 import { compact } from '../api/objects.js';
 import type { Ports } from '../ports/index.js';
 import { searchDataset, type DatasetRun, type HarvestBudget } from './harvest-pages.js';
-import { HarvestProgress, harvestStateOf, wasKilled } from './harvest-state.js';
+import { HarvestProgress, failStaleHarvest, harvestStateOf, wasKilled } from './harvest-state.js';
 import { prefetchBrowse, rerankUnseen, StoreTally, storeDataset, type RankWorld } from './harvest-store.js';
 import { SEARCH_BUDGET_MS, inBatches } from './harvest-target.js';
 import { rewriteDatePlan } from './join-plan.js';
@@ -274,7 +274,8 @@ async function previousOf(deps: HarvestDeps, cityId: string, now: Date) {
         return { previous, killed };
     }
     deps.log.error('usgs harvest was stopped before it finished', { cityId, reasonCode: 'harvest.killed', datasets: previous.datasets });
-    return { previous: { ...previous, failures: previous.failures + 1 }, killed };
+    const failures = previous.outcome === 'failed' ? previous.failures : previous.failures + 1;
+    return { previous: { ...previous, failures }, killed };
 }
 
 /** Every planned dataset `queued` (from where it resumes), beside the parts an earlier run finished. */
@@ -285,9 +286,10 @@ function startingParts(plan: Plan): HarvestDatasets {
 
 /** Harvests the city (`imagery.search`, and `imagery.tick` once a month), the attempt recorded whatever happened. */
 export async function harvestCity(deps: HarvestDeps, request: ImagerySearchRequest): Promise<ImagerySearchResponse> {
+    const at = deps.clock.now();
+    await failStaleHarvest(deps, request.cityId, at);
     const city = await requireCity(deps.documents, request.cityId);
     await requireUsgs(deps.setup);
-    const at = deps.clock.now();
     const { previous, killed } = await previousOf(deps, request.cityId, at);
     const plan = planOf(request, previous, killed);
     const progress = new HarvestProgress(deps, request.cityId, { at, previous });

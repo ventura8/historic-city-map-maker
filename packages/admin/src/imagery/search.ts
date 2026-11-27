@@ -9,8 +9,10 @@ import {
     FIRESTORE_PATHS,
     HARVEST_EVERY_DAYS,
     harvestStateDocSchema,
+    isStaleHarvest,
     type HarvestDataset,
     type HarvestDatasets,
+    type HarvestStateDoc,
     type ServiceState,
     type UsgsDataset,
 } from '@hcm/shared';
@@ -88,6 +90,10 @@ const CAN_SEARCH: readonly ServiceState[] = ['ok', 'pending'];
 
 export function usgsCanSearch(usgs: ServiceState | null): boolean {
     return usgs !== null && CAN_SEARCH.includes(usgs);
+}
+
+function liveParts(state: HarvestStateDoc | undefined, now: number) {
+    return state?.outcome === 'running' && !isStaleHarvest(state, now) ? partsOf(state.datasets) : undefined;
 }
 
 export class HarvestSearch {
@@ -171,7 +177,7 @@ export class HarvestSearch {
             FIRESTORE_PATHS.harvestState(this.#services.cityId),
             harvestStateDocSchema,
             (stored) => {
-                const datasets = stored?.data.outcome === 'running' ? partsOf(stored.data.datasets) : undefined;
+                const datasets = liveParts(stored?.data, this.#services.clock.now());
                 if (this.#state.phase === 'searching' && datasets !== undefined) {
                     this.#set({ ...this.#state, datasets });
                 }
