@@ -34,8 +34,10 @@ type HarvestStateDeps = Pick<Ports, 'documents' | 'clock'>;
 const MINUTE_MS = 60_000;
 const HOUR_MS = 60 * MINUTE_MS;
 const MONTH_MS = HARVEST_EVERY_DAYS * 24 * HOUR_MS;
-/** A run still `running` this long after it started was stopped by the server (the callable's 540 s, and a minute more). */
-export const HARVEST_KILLED_AFTER_MS = 600_000;
+/** A run still `running` past the callable's 540 s timeout was stopped by the server. */
+export const HARVEST_KILLED_AFTER_MS = 540_000;
+/** The error code recorded when a stale `running` harvest is transitioned to `failed`. */
+export const HARVEST_TIMEOUT_ERROR: ApiErrorCode = 'apiError.imagery.stepTimeLimit';
 
 /** How long after the `failures`-th unfinished run in a row the harvest is tried again. */
 function retryDelayMs(outcome: HarvestStateDoc['outcome'], failures: number): number {
@@ -51,9 +53,57 @@ export function harvestStateOf(deps: Pick<Ports, 'documents'>, cityId: string): 
     return deps.documents.get(FIRESTORE_PATHS.harvestState(cityId), harvestStateDocSchema);
 }
 
-/** True for an attempt the server stopped: still `running` long after it started. */
-export function wasKilled(state: HarvestStateDoc | undefined, now: Date): boolean {
+/** True for a `running` attempt older than the callable's 540 s timeout. */
+export function isStaleRunning(state: HarvestStateDoc | undefined, now: Date): state is HarvestStateDoc {
     return state?.outcome === 'running' && timestampToDate(state.attemptedAt).getTime() + HARVEST_KILLED_AFTER_MS <= now.getTime();
+}
+
+/** True for an attempt the server stopped: still `running` past its limit, or already marked `failed` for that timeout. */
+export function wasKilled(state: HarvestStateDoc | undefined, now: Date): boolean {
+    return isStaleRunning(state, now) || (state?.outcome === 'failed' && state.error === HARVEST_TIMEOUT_ERROR);
+}
+
+function staleFailedDoc(current: HarvestStateDoc, now: Date): HarvestStateDoc {
+    const failures = current.failures + 1;
+    return {
+        attemptedAt: current.attemptedAt,
+        outcome: 'failed',
+        failures,
+        nextAt: timestampFromDate(new Date(now.getTime() + retryDelayMs('failed', failures))),
+        error: HARVEST_TIMEOUT_ERROR,
+        ...(current.datasets === undefined ? {} : { datasets: current.datasets }),
+        finishedAt: timestampFromDate(now),
+        ...stampOf(IMAGERY_WRITER, now),
+    };
+}
+
+/**
+ * Marks a stale `running` harvest (older than `HARVEST_KILLED_AFTER_MS`) as `failed` with `HARVEST_TIMEOUT_ERROR` inside a
+ * transaction so concurrent ticks or searches never write duplicate updates. Returns the current state after the check.
+ */
+export async function failStaleHarvest(
+    deps: Pick<Ports, 'documents' | 'log'>,
+    cityId: string,
+    now: Date,
+): Promise<HarvestStateDoc | undefined> {
+    const path = FIRESTORE_PATHS.harvestState(cityId);
+    const result = await deps.documents.transaction(async (transaction) => {
+        const current = await transaction.get(path, harvestStateDocSchema);
+        if (!isStaleRunning(current, now)) {
+            return { transitioned: false, state: current };
+        }
+        const failed = staleFailedDoc(current, now);
+        await transaction.set(path, harvestStateDocSchema, failed);
+        return { transitioned: true, state: failed };
+    });
+    if (result.transitioned) {
+        deps.log.error('usgs harvest was stopped before it finished', {
+            cityId,
+            reasonCode: 'harvest.killed',
+            datasets: result.state?.datasets,
+        });
+    }
+    return result.state;
 }
 
 /** Unfinished runs in a row after each outcome, from the count before it (a run still going keeps it). */

@@ -18,7 +18,7 @@ import { describe, expect, it } from 'vitest';
 
 import { TIMED_OUT_REASON } from '../../src/adapters/upstream-http.js';
 import { PAGE_TIMEOUT_MS } from '../../src/imagery/harvest-pages.js';
-import { HARVEST_KILLED_AFTER_MS } from '../../src/imagery/harvest-state.js';
+import { HARVEST_KILLED_AFTER_MS, HARVEST_TIMEOUT_ERROR, failStaleHarvest } from '../../src/imagery/harvest-state.js';
 import { SEARCH_BUDGET_MS } from '../../src/imagery/harvest-target.js';
 import { importLandsat } from '../../src/imagery/landsat-auto.js';
 import { searchFunction } from '../../src/imagery/search.js';
@@ -207,6 +207,32 @@ describe('imagery.search: a partial harvest', () => {
         expect(await harvestState(world)).toMatchObject({ outcome: 'ok', failures: 0, attemptedAt: at(NOW) });
         const stoppedLog = world.deps.recording.records.find((record) => record.message === 'usgs harvest was stopped before it finished');
         expect(stoppedLog).toMatchObject({ level: 'error', data: { reasonCode: 'harvest.killed' } });
+    });
+
+    it('badPath_aTimedOutHarvestMarkedFailedByTickStillResumesUnfinishedDatasets @S-A11-BAD-HARVEST-KILLED', async () => {
+        const world = await readyWorld(NOW, records());
+        const stopped = new Date(new Date(NOW).getTime() - HARVEST_KILLED_AFTER_MS);
+        await world.deps.documents.set(FIRESTORE_PATHS.harvestState(CITY), harvestStateDocSchema, {
+            attemptedAt: timestampFromDate(stopped),
+            outcome: 'running',
+            failures: 0,
+            nextAt: timestampFromDate(new Date(NOW)),
+            datasets: { corona2: { state: 'done', found: 250 }, declassii: { state: 'searching', found: 0 } },
+            updatedBy: 'system:imagery',
+            updatedAt: timestampFromDate(stopped),
+        });
+
+        await Promise.all([failStaleHarvest(world.deps, CITY, new Date(NOW)), failStaleHarvest(world.deps, CITY, new Date(NOW))]);
+        expect(await harvestState(world)).toMatchObject({ outcome: 'failed', failures: 1, error: HARVEST_TIMEOUT_ERROR });
+
+        const response = await search(world);
+
+        expect(world.scenes.recorder.argsOf('search').map(([, request]) => (request as { dataset: string }).dataset)).toEqual([
+            'declassii',
+        ]);
+        expect(response.datasets).toMatchObject({ corona2: { state: 'done', found: 250 }, declassii: { state: 'done', found: 1 } });
+        const killedLogs = world.deps.recording.records.filter((record) => record.message === 'usgs harvest was stopped before it finished');
+        expect(killedLogs).toHaveLength(1);
     });
 
     it('badPath_everyDatasetRefusedIsStillUsgsNotAnsweringAndRecordedFailed @S-A11-BAD-USGS-UNAVAILABLE', async () => {

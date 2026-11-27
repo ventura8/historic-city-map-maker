@@ -16,6 +16,7 @@ import {
 } from '@hcm/shared';
 import { describe, expect, it } from 'vitest';
 
+import { HARVEST_TIMEOUT_ERROR } from '../../src/imagery/harvest-state.js';
 import { lostAction } from '../../src/imagery/tick-jobs.js';
 import { runImageryTick, tickFunction } from '../../src/imagery/tick.js';
 import { UpstreamError } from '../../src/ports/errors.js';
@@ -475,6 +476,48 @@ describe('maintenance: the monthly harvest', () => {
         await runImageryTick(world.deps);
 
         expect(world.usgs.recorder.calls).toEqual([]);
+    });
+
+    it('badPath_aStaleRunningHarvestIsMarkedFailedOnTheNextTick @S-A11-BAD-HARVEST-KILLED', async () => {
+        const world = await readyWorld(NOW);
+        await world.deps.documents.set(FIRESTORE_PATHS.harvestState(CITY), harvestStateDocSchema, {
+            attemptedAt: minutesAgo(10),
+            outcome: 'running',
+            failures: 0,
+            nextAt: timestampFromDate(new Date(Date.parse(NOW) + 5 * MINUTE)),
+            datasets: { corona2: { state: 'done', found: 250 }, declassii: { state: 'searching', found: 0 } },
+            updatedBy: 'system:imagery',
+            updatedAt: minutesAgo(10),
+        });
+
+        await runImageryTick(world.deps);
+        await runImageryTick(world.deps);
+
+        expect(await harvestState(world)).toMatchObject({
+            outcome: 'failed',
+            failures: 1,
+            error: HARVEST_TIMEOUT_ERROR,
+            finishedAt: at(NOW),
+            datasets: { corona2: { state: 'done', found: 250 }, declassii: { state: 'searching', found: 0 } },
+        });
+        const killedLogs = world.deps.recording.records.filter((record) => record.message === 'usgs harvest was stopped before it finished');
+        expect(killedLogs).toHaveLength(1);
+    });
+
+    it('happyPath_aFreshRunningHarvestIsLeftRunningByTheTick', async () => {
+        const world = await readyWorld(NOW);
+        await world.deps.documents.set(FIRESTORE_PATHS.harvestState(CITY), harvestStateDocSchema, {
+            attemptedAt: minutesAgo(5),
+            outcome: 'running',
+            failures: 0,
+            nextAt: timestampFromDate(new Date(Date.parse(NOW) + 10 * MINUTE)),
+            updatedBy: 'system:imagery',
+            updatedAt: minutesAgo(5),
+        });
+
+        await runImageryTick(world.deps);
+
+        expect(await harvestState(world)).toMatchObject({ outcome: 'running', failures: 0 });
     });
 });
 

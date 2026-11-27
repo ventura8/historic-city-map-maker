@@ -34,7 +34,7 @@ import { ApiError } from '../api/api-error.js';
 import { compact } from '../api/objects.js';
 import type { Ports } from '../ports/index.js';
 import { searchDataset, type DatasetRun, type HarvestBudget } from './harvest-pages.js';
-import { HarvestProgress, harvestStateOf, wasKilled } from './harvest-state.js';
+import { HarvestProgress, failStaleHarvest, wasKilled } from './harvest-state.js';
 import { prefetchBrowse, rerankUnseen, StoreTally, storeDataset, type RankWorld } from './harvest-store.js';
 import { SEARCH_BUDGET_MS, inBatches } from './harvest-target.js';
 import { rewriteDatePlan } from './join-plan.js';
@@ -266,15 +266,10 @@ function outcomeOf(response: ImagerySearchResponse): HarvestStateDoc['outcome'] 
     return response.found > 0 ? 'ok' : 'empty';
 }
 
-/** The attempt before this run; one the server stopped is logged and counted as unfinished. */
+/** The attempt before this run; a stale `running` one is marked `failed` first, and a timed-out run's unfinished datasets resume. */
 async function previousOf(deps: HarvestDeps, cityId: string, now: Date) {
-    const previous = await harvestStateOf(deps, cityId);
-    const killed = wasKilled(previous, now);
-    if (previous === undefined || !killed) {
-        return { previous, killed };
-    }
-    deps.log.error('usgs harvest was stopped before it finished', { cityId, reasonCode: 'harvest.killed', datasets: previous.datasets });
-    return { previous: { ...previous, failures: previous.failures + 1 }, killed };
+    const previous = await failStaleHarvest(deps, cityId, now);
+    return { previous, killed: wasKilled(previous, now) };
 }
 
 /** Every planned dataset `queued` (from where it resumes), beside the parts an earlier run finished. */
