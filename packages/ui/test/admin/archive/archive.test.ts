@@ -486,6 +486,29 @@ describe('<hcm-archive-report>, the rest', () => {
         await updated(element);
         expect(deepAll(element, '[data-progress] a')).toHaveLength(0);
     });
+
+    it('badPath_noOpenArchiveATooSmallSeriesSwitchedOffAndAProgressWithoutState', async () => {
+        const small = series(3, { action: 'skip', reason: 'too-small', title: 'Small' });
+        const host = new FakeHost(view({ open: null }));
+        const element = await report(host);
+        expect(deepAll(element, 'hcm-loading-indicator')).toHaveLength(1);
+
+        const data = { name: 'harti.zip', files: 1, bytes: 1, series: [small], skipped: [], imported: false, importedSeries: [] };
+        host.feed.set({
+            open: { id: ARCHIVE, status: 'ready', report: data },
+            edits: { [small.seriesId]: { include: false, title: 'Small', year: '1911', confirmedBy: null } },
+        });
+        await updated(element);
+        expect(deepAll(element, 'hcm-switch')).toHaveLength(1);
+        expect(deepAll(element, `#${small.seriesId}-title`)).toHaveLength(0);
+
+        host.feed.set({
+            open: { id: ARCHIVE, status: 'ready', report: { ...data, imported: true, importedSeries: [small.seriesId] } },
+            progress: { [small.seriesId]: progress({ state: null }) },
+        });
+        await updated(element);
+        expect(deep(element, `[data-progress="${small.seriesId}"]`).getAttribute('data-state')).toBe('');
+    });
 });
 
 describe('stateText', () => {
