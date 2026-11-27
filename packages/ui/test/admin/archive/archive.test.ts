@@ -246,6 +246,7 @@ describe('<hcm-archive-panel>', () => {
     it('happyPath_aFolderPickedInThisTabGoesToTheWorkerWithItsProgressAndCancel @S-A121-HAPPY-LOCAL-TAB', async () => {
         const host = new FakeHost();
         const element = await panel(host);
+        deep(element, 'hcm-button[data-choose="folder"]').click();
         const input = deep(element, 'input[data-pick="folder"]') as HTMLInputElement;
         const picked = new DataTransfer();
         picked.items.add(new File(['a'], '1911.jpg'));
