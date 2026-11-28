@@ -14,6 +14,7 @@ import {
     PLATFORM_MONTHLY_USD,
     PLATFORM_SECTIONS,
     SOURCE_CATALOGUE,
+    naraDigitizedAerialSearchCall,
     sourceFacts,
     sourceOn,
     sourcesEstimate,
@@ -162,5 +163,41 @@ describe('sourcesEstimate', () => {
     it('badPath_aRequiredSourceIsOnWhateverTheChoice', () => {
         expect(sourceOn({ ...DEFAULT_SOURCES, usgs: false }, 'sentinel2')).toBe(true);
         expect(sourceOn({ ...DEFAULT_SOURCES, usgs: false }, 'usgs')).toBe(false);
+    });
+});
+
+describe('NARA guided source', () => {
+    it('happyPath_naraCardDeclaresTheKeySecretEmailAndSearchCallable', () => {
+        const nara = GUIDED_CATALOGUE.find((entry) => entry.id === 'nara');
+        expect(nara).toMatchObject({
+            id: 'nara',
+            key: {
+                secretId: 'nara-catalog-api-v2-key',
+                request: { kind: 'email', value: 'Catalog_API@nara.gov' },
+            },
+            callable: { name: 'nara.searchDigitizedAerial' },
+        });
+        const others = GUIDED_CATALOGUE.filter((entry) => entry.id !== 'nara');
+        expect(others.every((entry) => entry.key === null && entry.callable === null)).toBe(true);
+    });
+
+    it('happyPath_searchCallUsesTheStoredKeyAndDefaultOrCustomRows', () => {
+        expect(naraDigitizedAerialSearchCall('  test-nara-key  ', '  Bucharest 1944  ')).toEqual({
+            callable: 'nara.searchDigitizedAerial',
+            payload: { query: 'Bucharest 1944', rows: 20 },
+            auth: { 'x-api-key': 'test-nara-key' },
+        });
+        expect(naraDigitizedAerialSearchCall('test-nara-key', 'Ploiesti', 50)).toEqual({
+            callable: 'nara.searchDigitizedAerial',
+            payload: { query: 'Ploiesti', rows: 50 },
+            auth: { 'x-api-key': 'test-nara-key' },
+        });
+    });
+
+    it('badPath_searchCallRefusesBlankKeyBlankQueryOrInvalidRows', () => {
+        expect(() => naraDigitizedAerialSearchCall('   ', 'Bucharest')).toThrow('NARA Catalog API v2 key is required.');
+        expect(() => naraDigitizedAerialSearchCall('test-nara-key', '   ')).toThrow('Search query is required.');
+        expect(() => naraDigitizedAerialSearchCall('test-nara-key', 'Bucharest', 0)).toThrow('Rows must be a positive integer.');
+        expect(() => naraDigitizedAerialSearchCall('test-nara-key', 'Bucharest', 2.5)).toThrow('Rows must be a positive integer.');
     });
 });
