@@ -4354,3 +4354,9 @@ Append a numbered entry to *Lessons from this repository* in the task that finds
     - Cause: `document.fullscreenElement` is the outermost shadow host (the admin shell), never the page itself; Esc arrived while `requestFullscreen` was still pending, so leaving found nothing to exit; Chromium refuses `setWindowBounds` in full screen.
     - Fix and pin: "left" is `fullscreenElement === null`; a request that resolves after the page already left exits again; the layout checkers run on the in-page cover (the refused path).
     - **Compare against null, not the element, behind shadow roots, and undo a pending async entry when the user already left.**
+
+745. **Aerial photos (c58e34f) left four static gates red: stale scenario doc, CSS order, knip exports, radon.**
+    - Seen: 2026-11-17, work-queue `map-static` on c58e34f: `e2e-matrix`, `stylelint`, `knip`, `radon`.
+    - Cause: V76/A193 rows landed without `check_e2e_matrix.py write`; `[data-costs] a.action` after `.over a.action:focus-visible` (descending specificity); `aerialPhotoManifest` and `photosOfKind` exported only for same-file use; `mermaid_problems` hit radon B(9) with nested comprehensions and `or`.
+    - Fix and pin: regenerate `docs/E2E_SCENARIOS.md`; put the lower-specificity selector first; drop those two `export`s; split the diagram checks into `_diagram_lines`, `_type_problem`, `_unbalanced`, `_one_diagram`.
+    - **A feature commit that adds scenarios or CSS must refresh the generated scenario doc and leave helpers file-local until a second module imports them; split a radon B before it ships.**

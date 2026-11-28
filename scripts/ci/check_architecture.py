@@ -44,17 +44,41 @@ def broken_links(text: str, root: Path) -> list[str]:
     return sorted({link for link in LINK_RE.findall(text) if not (root / "docs" / link).exists()})
 
 
+def _diagram_lines(block: str) -> list[str]:
+    """Non-empty stripped lines of one Mermaid block."""
+    return [line.strip() for line in block.splitlines() if line.strip()]
+
+
+def _type_problem(index: int, lines: list[str]) -> str | None:
+    """Message when the block lacks a known type line and a body, else None."""
+    if len(lines) >= MIN_LINES and lines[0].startswith(KINDS):
+        return None
+    return f"diagram {index}: needs a known type ({', '.join(KINDS)}) and a body"
+
+
+def _unbalanced(index: int, block: str) -> list[str]:
+    """Messages for bracket pairs whose counts differ in `block`."""
+    return [f"diagram {index}: unbalanced {a}{b}" for a, b in PAIRS if block.count(a) != block.count(b)]
+
+
+def _one_diagram(index: int, block: str) -> list[str]:
+    """Problems of one Mermaid block."""
+    problems: list[str] = []
+    typed = _type_problem(index, _diagram_lines(block))
+    if typed is not None:
+        problems.append(typed)
+    problems.extend(_unbalanced(index, block))
+    return problems
+
+
 def mermaid_problems(text: str) -> list[str]:
     """Each malformed Mermaid block, or the absence of any."""
     blocks = MERMAID_RE.findall(text)
     if not blocks:
         return ["no ```mermaid diagram"]
-    problems = []
+    problems: list[str] = []
     for index, block in enumerate(blocks, 1):
-        lines = [line.strip() for line in block.splitlines() if line.strip()]
-        if len(lines) < MIN_LINES or not lines[0].startswith(KINDS):
-            problems.append(f"diagram {index}: needs a known type ({', '.join(KINDS)}) and a body")
-        problems.extend(f"diagram {index}: unbalanced {a}{b}" for a, b in PAIRS if block.count(a) != block.count(b))
+        problems.extend(_one_diagram(index, block))
     return problems
 
 
