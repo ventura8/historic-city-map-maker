@@ -120,9 +120,13 @@ def workers(name: str, environ: Mapping[str, str], machine: Machine) -> int:
     asked = _positive(environ.get(LINT_VARIABLE)) if name == "lint" else None
     if asked is not None:
         return asked
-    budget = _positive(environ.get(BUDGET_VARIABLES.get(name, "")))
-    count = budget or (kind.low if environ.get(LOW_VARIABLE, "").strip() == "1" else _by_machine(kind, machine))
+    count = _positive(environ.get(BUDGET_VARIABLES.get(name, ""))) or _default(kind, environ, machine)
     return max(1, min(count, _positive(environ.get(MAX_VARIABLE)) or count))
+
+
+def _default(kind: Kind, environ: Mapping[str, str], machine: Machine) -> int:
+    """The count without a budget variable: the low-memory count, or what the machine holds."""
+    return kind.low if environ.get(LOW_VARIABLE, "").strip() == "1" else _by_machine(kind, machine)
 
 
 def tool_variables(environ: Mapping[str, str], machine: Machine) -> dict[str, str]:

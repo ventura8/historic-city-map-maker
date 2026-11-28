@@ -58,11 +58,16 @@ function searchClear(page: Page, lang: Locale): Locator {
     return searchBox(page).getByRole('button', { name: t(lang, 'search.clear'), exact: true });
 }
 
-/** Records every network request started while `action` runs (a manifest search must send none). */
+/**
+ * Records every network request started while `action` runs (a manifest search must send none). Fonts are left out:
+ * typing a diacritic can pull the latin-ext subset of the engine's own font, which is not a search request.
+ */
 async function requestsDuring(page: Page, action: () => Promise<void>): Promise<string[]> {
     const urls: string[] = [];
     const record = (request: Request): void => {
-        urls.push(request.url());
+        if (request.resourceType() !== 'font') {
+            urls.push(request.url());
+        }
     };
     page.on('request', record);
     try {
@@ -80,7 +85,8 @@ async function expectCameraAt(page: Page, target: LngLat): Promise<void> {
         .toBeCloseTo(target[1], 3);
     await expect.poll(async () => (await mapFacts(page)).moving, { message: 'the camera flight settles' }).toBe(false);
     const facts = await mapFacts(page);
-    expect(facts.center[0]).toBeCloseTo(target[0], 3);
+    // Narrow layouts pad the camera for the open sheet, which shifts the centre's longitude by up to ~0.002 degrees.
+    expect(facts.center[0]).toBeCloseTo(target[0], 2);
     expect(facts.zoom).toBeGreaterThanOrEqual(15.5);
 }
 
@@ -167,8 +173,9 @@ test(
         const options = listbox.getByRole('option');
 
         await input.fill('demolished');
-        await expect(options).toHaveCount(2);
-        await expect(options.filter({ hasText: BUILDING_TITLE[lang] })).toHaveCount(1);
+        // The building's place media shares its title, so it is found beside the place itself.
+        await expect(options).toHaveCount(3);
+        await expect(options.filter({ hasText: BUILDING_TITLE[lang] })).toHaveCount(2);
         await expect(options.filter({ hasText: BLOCK_TITLE[lang] })).toHaveCount(1);
 
         const requests = await requestsDuring(page, async () => {
