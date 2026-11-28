@@ -25960,6 +25960,50 @@
             "notes": "The owner, 2026-11-23. Tests: e2e/admin/specs/layers/shot-direction.spec.ts, packages/admin/test/layers/shot-suggestion.test.ts."
         },
         {
+            "id": "S-A233-HAPPY-COMPASS",
+            "behaviour": "A233",
+            "area": "admin",
+            "path": "happy",
+            "title": "The preview compass follows the map",
+            "asserts": "The settled heading matches the preview. Reset returns north and keeps the saved shot direction.",
+            "tier": "e2e-admin",
+            "status": "exists",
+            "notes": "Test: e2e/admin/specs/layers/shot-direction.spec.ts."
+        },
+        {
+            "id": "S-A233-BAD-COMPASS",
+            "behaviour": "A233",
+            "area": "admin",
+            "path": "bad",
+            "title": "A drawn map has no shot-direction compass",
+            "asserts": "Switching to a drawn map removes the shot-direction controls and their compass.",
+            "tier": "e2e-admin",
+            "status": "exists",
+            "notes": "Test: e2e/admin/specs/layers/shot-direction.spec.ts."
+        },
+        {
+            "id": "S-A16-HAPPY-COMPASS",
+            "behaviour": "A16",
+            "area": "admin",
+            "path": "happy",
+            "title": "The reference compass turns with the map",
+            "asserts": "Turn the reference map and press the compass to restore north.",
+            "tier": "e2e-admin",
+            "status": "exists",
+            "notes": "Test: e2e/admin/specs/imagery/georef-linked.spec.ts."
+        },
+        {
+            "id": "S-A16-BAD-COMPASS",
+            "behaviour": "A16",
+            "area": "admin",
+            "path": "bad",
+            "title": "Reset north without a fit",
+            "asserts": "Resetting the reference map with too few pairs preserves the points and the disabled rotation link.",
+            "tier": "e2e-admin",
+            "status": "exists",
+            "notes": "Test: e2e/admin/specs/imagery/georef-linked.spec.ts."
+        },
+        {
             "id": "S-A233-HAPPY-SHOT-VIEW",
             "behaviour": "A233",
             "area": "admin",

@@ -4,6 +4,7 @@
  * `packages/admin/test/app/admin-port.test.ts` checks that the real store satisfies it. The draft and the preview sink
  * are shared with the settings page.
  */
+import type { MapPort } from '../../map/map-port.js';
 import type { ApiErrorCode, LayerAdjustmentName, LayerAdjustments, LayerDoc, LayerSource, UiLocale, ValidationIssue } from '@hcm/shared';
 
 import type { ListStatePort, LoadStatusPort, StoredPort, StoreFailurePort } from '../area-port.js';
@@ -160,6 +161,7 @@ export interface LayersIntentsPort extends AssistActionsPort {
     attachPreview(sink: PreviewSinkPort | null): void;
     attachMap(container: HTMLElement): void;
     zoomBy(delta: number): void;
+    compassMap?(): MapPort | null;
     mapBearing?(): number | null;
     // M3 (CR-M3-7): the layer editor's Crop.
     crop(): Promise<void>;

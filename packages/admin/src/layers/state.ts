@@ -2,6 +2,7 @@
  * The layers area's state and intents (`docs/research/M2c-interfaces.md` §8.1–§8.4): the list, the open layer's editor,
  * a reorder being written, a deletion, the Link dialog and the page's map; and the checks of a layer's draft.
  */
+import type { MapPort } from '@hcm/ui/map';
 import type { AdminContentKey, LayerAdjustmentName, LayerDoc } from '@hcm/shared';
 
 import { NO_ASSIST, type AssistState } from '../assist/assist.js';
@@ -128,6 +129,7 @@ export interface LayersIntents extends AssistIntents {
     attachMap(container: HTMLElement): void;
     /** The map's zoom buttons. */
     zoomBy(delta: number): void;
+    compassMap?(): MapPort | null;
     mapBearing(): number | null;
     /** M3 (CR-M3-7): Crop on the open layer (loads the `layer-geometry` chunk once). */
     crop(): Promise<void>;

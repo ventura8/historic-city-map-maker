@@ -19,6 +19,10 @@ export class FakeArea<State, Intents extends object> implements AreaPort<State, 
     }
 
     #intent(name: string, answers: Partial<Record<keyof Intents, unknown>>) {
+        // A page without a preview map omits this optional intent.
+        if (name === 'compassMap' && !Object.hasOwn(answers, name)) {
+            return undefined;
+        }
         return (...args: unknown[]): unknown => {
             this.calls.push([name, ...args.map((arg) => JSON.stringify(arg))].join(' '));
             return answers[name as keyof Intents];

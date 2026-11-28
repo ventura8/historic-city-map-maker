@@ -11,6 +11,7 @@
 import { createLogger } from '@hcm/shared';
 import { html, type PropertyValues, type TemplateResult } from 'lit';
 
+import { defineHcmCompass } from '../../viewer/hcm-compass.js';
 import { deepActiveElement } from '../../components/focus.js';
 import { MAPBOX_GL_CSS_URL } from '../../map/mapbox-loader.js';
 import type { AdminRouteIdPort } from '../admin-port.js';
@@ -338,6 +339,7 @@ class HcmGeorefPage extends AreaPage<GeorefViewState, GeorefIntentsPort> {
 }
 
 export function defineHcmGeorefPage(registry: CustomElementRegistry = customElements): void {
+    defineHcmCompass(registry);
     if (registry.get(HCM_GEOREF_PAGE_TAG) === undefined) {
         registry.define(HCM_GEOREF_PAGE_TAG, HcmGeorefPage);
     }

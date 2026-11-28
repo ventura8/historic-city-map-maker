@@ -7,6 +7,9 @@
 import type { LayerDoc, UiLocale } from '@hcm/shared';
 import { LitElement, html, type TemplateResult } from 'lit';
 
+import type { MapPort } from '../../map/map-port.js';
+import { defineHcmCompass } from '../../viewer/hcm-compass.js';
+import { adminCompass } from '../map/admin-compass.js';
 import { defineOnce } from '../../components/internal.js';
 
 import { contentText } from '../shell/text.js';
@@ -34,6 +37,7 @@ export interface ShotDirectionRowInput {
     readonly suggestion: number | undefined;
     readonly readOnly: boolean;
     readonly change: (shotDirection: number | undefined) => void;
+    readonly compassMap?: MapPort | null;
     readonly mapReady?: boolean;
     readonly bearing?: () => number | null;
     readonly announce?: (text: string) => void;
@@ -74,15 +78,19 @@ function mapHint(locale: ShotDirectionRowInput['locale'], ready: boolean): Templ
 function fromViewButton(input: ShotDirectionRowInput): TemplateResult {
     const { locale } = input;
     const ready = input.mapReady === true;
-    return html`<hcm-button
-            variant="outlined"
-            data-shot-from-view
-            ?disabled=${input.readOnly || !ready}
-            @click=${() => {
-                setFromView(input);
-            }}
-            >${contentText(locale, 'adminContent.layers.shot.fromView')}</hcm-button
-        >${mapHint(locale, ready)}`;
+    return html`<div class="actions">
+            <hcm-button
+                variant="outlined"
+                data-shot-from-view
+                ?disabled=${input.readOnly || !ready}
+                @click=${() => {
+                    setFromView(input);
+                }}
+                >${contentText(locale, 'adminContent.layers.shot.fromView')}</hcm-button
+            >
+            ${adminCompass(input.compassMap ?? null, locale)}
+        </div>
+        ${mapHint(locale, ready)}`;
 }
 
 function shotDirectionFields(input: ShotDirectionRowInput): TemplateResult {
@@ -148,6 +156,7 @@ class HcmShotDirection extends LitElement {
 }
 
 export function defineHcmShotDirection(registry: CustomElementRegistry = customElements): void {
+    defineHcmCompass(registry);
     defineHcmDirectionDial(registry);
     defineOnce(registry, 'hcm-shot-direction', HcmShotDirection);
 }

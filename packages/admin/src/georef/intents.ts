@@ -221,6 +221,7 @@ function pageIntents(actions: GeorefIntentActions): Pick<GeorefIntents, PageInte
                 actions.edit(previous, false);
             }
         },
+        compassMap: () => actions.map.port,
         attachMap: (container) => {
             actions.map.attach(container);
         },

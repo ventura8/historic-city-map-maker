@@ -31,7 +31,6 @@ import { EditDraft, EMPTY_DRAFT, type DraftState } from './draft.js';
 import { LayerDeletion } from './deletion.js';
 import { layerFieldPatch, type LayerTextField } from './fields.js';
 import { LayerLinker } from './linker.js';
-import type { LinkForm } from './link.js';
 import { AreaMap, frameOf, rasterOf } from './map-session.js';
 import { layerItemOf, moved, moveTarget, opacityFromPercent, orderChanges, topFirst, type LayerItem } from './model.js';
 import { PreviewLayer } from './preview.js';
@@ -173,62 +172,33 @@ class LayersStore implements AreaStore<LayersState, LayersIntents> {
 
     #intents(): Omit<LayersIntents, 'crop' | 'redrawCrop' | 'addCropCorner' | 'saveCrop' | 'closeCrop' | keyof EditorAssists['intents']> {
         return {
-            ...{
-                retry: () => {
-                    this.#retry();
-                },
-                edit: (patch: LayerPatch) => this.#draft?.edit(patch),
-            },
-            setField: (field, text) => {
-                this.#setField(field, text);
-            },
+            retry: this.#retry.bind(this),
+            edit: (patch: LayerPatch) => this.#draft?.edit(patch),
+            setField: this.#setField.bind(this),
             setOpacity: (percent) => this.#draft?.edit({ opacity: opacityFromPercent(percent) }),
-            setAdjustment: (name, percent) => {
-                this.#adjust(name, percent);
-            },
+            setAdjustment: this.#adjust.bind(this),
             resetAdjustments: () => this.#draft?.edit({ adjustments: undefined }),
             save: () => this.#save(),
-            ...{
-                discard: () => this.#draft?.discard(),
-                keepMine: () => this.#draft?.keepMine(),
-                takeTheirs: () => this.#draft?.takeTheirs(),
-            },
+            discard: () => this.#draft?.discard(),
+            keepMine: () => this.#draft?.keepMine(),
+            takeTheirs: () => this.#draft?.takeTheirs(),
             move: (id, direction) => this.#reorder(id, (items) => moveTarget(items, id, direction)),
             moveTo: (id, index) => this.#reorder(id, () => index),
-            ...{
-                askDelete: () => {
-                    this.#deletion.ask(this.#openLayer());
-                },
-                cancelDelete: () => {
-                    this.#deletion.cancel();
-                },
+            askDelete: () => {
+                this.#deletion.ask(this.#openLayer());
             },
+            cancelDelete: this.#deletion.cancel.bind(this.#deletion),
             confirmDelete: () => this.#deletion.confirm(),
-            ...{
-                openLink: () => {
-                    this.#linker.open();
-                },
-                editLink: (patch: Partial<LinkForm>) => {
-                    this.#linker.edit(patch);
-                },
-            },
-            ...{
-                closeLink: () => {
-                    this.#linker.close();
-                },
-                submitLink: () => this.#linker.submit(),
-                checkLink: () => this.#linker.check(),
-            },
-            attachPreview: (sink) => {
-                this.#preview.attach(sink);
-            },
-            attachMap: (container) => {
-                this.#map.attach(container);
-            },
+            openLink: this.#linker.open.bind(this.#linker),
+            editLink: this.#linker.edit.bind(this.#linker),
+            closeLink: this.#linker.close.bind(this.#linker),
+            submitLink: () => this.#linker.submit(),
+            checkLink: () => this.#linker.check(),
+            attachPreview: this.#preview.attach.bind(this.#preview),
+            attachMap: this.#map.attach.bind(this.#map),
+            compassMap: () => this.#map.port,
             mapBearing: () => this.#map.port?.getView().bearing ?? null,
-            zoomBy: (delta) => {
-                this.#map.zoomBy(delta);
-            },
+            zoomBy: this.#map.zoomBy.bind(this.#map),
         };
     }
 
@@ -240,16 +210,10 @@ class LayersStore implements AreaStore<LayersState, LayersIntents> {
                 const id = this.#editorId();
                 await (id === null ? Promise.resolve() : slot.open(id));
             },
-            redrawCrop: () => {
-                slot.redraw();
-            },
-            addCropCorner: () => {
-                slot.addCorner();
-            },
+            redrawCrop: slot.redraw.bind(slot),
+            addCropCorner: slot.addCorner.bind(slot),
             saveCrop: () => slot.save(),
-            closeCrop: () => {
-                slot.close();
-            },
+            closeCrop: slot.close.bind(slot),
         };
     }
 

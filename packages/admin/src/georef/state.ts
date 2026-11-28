@@ -3,6 +3,7 @@
  * reference, whether it takes points), the pairs being edited and the half pair, the transform and its fit, the city's
  * threshold, Save, the reference shown, the warped preview, the map and, on compact windows, which pane shows.
  */
+import type { MapPort } from '@hcm/ui/map';
 import {
     bboxFromRecord,
     imagerySettingsOf,
@@ -272,6 +273,7 @@ export interface GeorefIntents {
     scanMoved(camera: ScanCamera): void;
     /** The panes turn together, or each on its own. */
     setRotateLinked(linked: boolean): void;
+    compassMap?(): MapPort | null;
     /** Turns the map by `degrees` clockwise on the screen; null: north up. */
     rotateMap(degrees: number | null): void;
 }

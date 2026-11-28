@@ -118,7 +118,7 @@ function turnBetween(from: number, to: number): number {
 
 test(
     'Each pane turns on its own and, with a fit, the other turns with it',
-    { tag: '@S-A16-HAPPY-GEOREF-ROTATE' },
+    { tag: ['@S-A16-HAPPY-GEOREF-ROTATE', '@S-A16-HAPPY-COMPASS'] },
     async ({ page, lang, adminWorld, mockApiRequest, upstream }) => {
         const imagery = await readyImagery(
             { emulators: adminWorld.emulators, api: mockApiRequest, upstream },
@@ -163,12 +163,21 @@ test(
             .getByRole('button', { name: georefText(lang, 'adminContent.georef.turn.scanUp') })
             .click();
         await expect.poll(() => scanAngle(page)).toBeCloseTo(0, 3);
+
+        await showPane(page, lang, 'map');
+        const mapTurns = page.getByRole('group', { name: georefText(lang, 'adminContent.georef.turn.map') });
+        await mapTurns.getByRole('button', { name: georefText(lang, 'adminContent.georef.turn.right') }).click();
+        const compass = mapTurns.locator('hcm-compass');
+        await expect(compass).not.toHaveAttribute('north', '');
+        await compass.getByRole('button').click();
+        await expect(compass).toHaveAttribute('north', '');
+        await expect.poll(async () => (await mapFacts(page)).bearing).toBe(0);
     },
 );
 
 test(
     'Turned apart, or without a fit, a pane turns alone',
-    { tag: '@S-A16-BAD-GEOREF-ROTATE-APART' },
+    { tag: ['@S-A16-BAD-GEOREF-ROTATE-APART', '@S-A16-BAD-COMPASS'] },
     async ({ page, lang, adminWorld, mockApiRequest, upstream }) => {
         const imagery = await readyImagery(
             { emulators: adminWorld.emulators, api: mockApiRequest, upstream },
@@ -199,5 +208,9 @@ test(
         await scanPane(page, lang).focus();
         await page.keyboard.press('n');
         await expect.poll(() => scanAngle(page)).toBeCloseTo(0, 3);
+        await showPane(page, lang, 'map');
+        await page.locator('.map-pane hcm-compass').getByRole('button').click();
+        await expect(pairRows(page, lang)).toHaveCount(2);
+        await expect(together).toBeDisabled();
     },
 );

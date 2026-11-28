@@ -13,45 +13,28 @@ import {
     roundTo,
     type Gcp,
     type LngLat,
-    type UiLocale,
-    type Logger,
-    type MapView,
 } from '@hcm/shared';
 import { PAIR_HIT_RADIUS, type BadgeTone } from '@hcm/ui/admin/georef/marker-badge';
 import type { RasterLayerSpec, Unsubscribe } from '@hcm/ui/map';
 import type { DrawChange, MapDrawPort } from '@hcm/ui/map/draw';
 
 import { PictureOverlays } from '../imagery/overlay.js';
-import type { CityFrame, MapStatus } from '../layers/map-session.js';
+import type { CityFrame } from '../layers/map-session.js';
 import type { AdminMapFactory, AdminMapHandle, AdminMapResult } from '../map/factory.js';
 import type { ProjectableMapPort } from '../map/projection.js';
+import type { GeorefMapDeps } from './georef-map-deps.js';
 import { DRAW_HIT_COLOR, GeorefMarkerOverlay } from './marker-overlay.js';
 import { roundGeo, type GeoPosition } from './pairs.js';
 import type { MapCamera } from './linked-views.js';
 import type { GeorefVersion, MapTarget } from './state.js';
 import type { SuggestionRow } from './suggestions.js';
 
+export type { GeorefMapDeps } from './georef-map-deps.js';
+
 /** The reference's box as the map's frame. */
 export function referenceFrame(version: GeorefVersion | null): CityFrame | null {
     const bounds = version?.reference?.bounds ?? null;
     return bounds === null ? null : { bounds, view: { center: bboxCenter(bounds), zoom: 13, bearing: 0 } };
-}
-
-export interface GeorefMapDeps {
-    readonly maps: AdminMapFactory | null;
-    readonly locale: () => UiLocale;
-    readonly log: Logger;
-    readonly status: (status: MapStatus) => void;
-    /** A click on the map (the place of the next pair while adding). */
-    readonly clicked: (geo: GeoPosition) => void;
-    /** A pair's place was dragged (once the drag ends). */
-    readonly moved: (id: string, geo: GeoPosition) => void;
-    /** A pair's point was selected on the map (null: none). */
-    readonly selected: (id: string | null) => void;
-    /** The map's camera moved (the linked views). */
-    readonly viewed: (view: MapView) => void;
-    /** The map is made and shows `view` (the linked views' camera before the owner's first move). */
-    readonly shown: (view: MapView) => void;
 }
 
 export class GeorefMap {
@@ -99,6 +82,10 @@ export class GeorefMap {
         if (first) {
             void this.#create();
         }
+    }
+
+    get port(): ProjectableMapPort | null {
+        return this.#handle?.port ?? null;
     }
 
     /** The map's centre (the keyboard's crosshair), or null without a map. */

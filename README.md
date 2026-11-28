@@ -24,6 +24,8 @@ Open the link, sign in with Google and name your place: the wizard makes your ow
 
 A new city starts from the starter kit (from v1.0.0-beta.1, once it is published on npm under the dist-tag `beta`, `docs/research/M5-status.md` §3): `npx create-historic-city@1.0.0-beta.1 my-city` asks for the city's name and its rectangle on the map and writes the three files (the page, `city.json`, the README), ready for GitHub Pages. With a Firebase project of your own and the admin app, `npx create-historic-city@1.0.0-beta.1 self-host my-city --project <id>` walks you through the steps, with a yes/no for each; signing in to Google, the terms and billing happen in Google's own pages only, and the admin's Setup Assistant finishes the rest ([docs/SELF_HOST.md](docs/SELF_HOST.md)).
 
+The layer editor and georeferencer use the viewer’s compass. Press it to return the preview or reference map to north.
+
 ## Repository
 
 An npm-workspaces monorepo:

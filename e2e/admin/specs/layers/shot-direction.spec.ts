@@ -83,7 +83,7 @@ test(
 
 test(
     'Clear removes the shot direction, and a drawn map has none to set',
-    { tag: ['@S-A233-BAD-SHOT-DIAL', '@S-A233-BAD-SHOT-USGS'] },
+    { tag: ['@S-A233-BAD-SHOT-DIAL', '@S-A233-BAD-SHOT-USGS', '@S-A233-BAD-COMPASS'] },
     async ({ page, lang, content }) => {
         await openLayer(page, lang, content, { shotDirection: 90 });
         await expect(degrees(page, lang)).toHaveValue('90');
@@ -95,34 +95,45 @@ test(
 
         await page.getByRole('radio', { name: text(lang, 'adminContent.layers.kind.map'), exact: true }).click();
         await expect(page.locator('[data-shot-direction]')).toHaveCount(0);
+        await expect(page.locator('hcm-compass')).toHaveCount(0);
     },
 );
 
-test('The preview map direction is saved on the layer', { tag: '@S-A233-HAPPY-SHOT-VIEW' }, async ({ page, lang, content }) => {
-    await openLayer(page, lang, content);
-    const button = page.getByRole('button', { name: text(lang, 'adminContent.layers.shot.fromView'), exact: true });
-    await expect(button).toBeEnabled();
-    const box = await page.locator('hcm-admin-map canvas').boundingBox();
-    expect(box).not.toBeNull();
-    const x = (box?.x ?? 0) + (box?.width ?? 0) / 2;
-    const y = (box?.y ?? 0) + (box?.height ?? 0) / 2;
-    await page.mouse.move(x, y);
-    await page.mouse.down({ button: 'right' });
-    await page.mouse.move(x + 100, y, { steps: 8 });
-    await page.mouse.up({ button: 'right' });
-    await expect.poll(async () => Math.abs((await mapFacts(page)).bearing)).toBeGreaterThan(1);
-    // The rotation eases out after the mouse is released: read the bearing once two reads in a row agree.
-    let last = Number.NaN;
-    await expect
-        .poll(async () => {
-            const previous = last;
-            last = (await mapFacts(page)).bearing;
-            return last === previous;
-        })
-        .toBe(true);
-    const bearing = ((Math.round(last) % 360) + 360) % 360;
-    await button.click();
-    await expect(degrees(page, lang)).toHaveValue(String(bearing));
-    await save(page, lang);
-    await expect.poll(async () => (await content.document(`layers/${LAYER}`))?.['shotDirection']).toBe(bearing);
-});
+test(
+    'The preview map direction is saved on the layer',
+    { tag: ['@S-A233-HAPPY-SHOT-VIEW', '@S-A233-HAPPY-COMPASS'] },
+    async ({ page, lang, content }) => {
+        await openLayer(page, lang, content);
+        const button = page.getByRole('button', { name: text(lang, 'adminContent.layers.shot.fromView'), exact: true });
+        await expect(button).toBeEnabled();
+        const box = await page.locator('hcm-admin-map canvas').boundingBox();
+        expect(box).not.toBeNull();
+        const x = (box?.x ?? 0) + (box?.width ?? 0) / 2;
+        const y = (box?.y ?? 0) + (box?.height ?? 0) / 2;
+        await page.mouse.move(x, y);
+        await page.mouse.down({ button: 'right' });
+        await page.mouse.move(x + 100, y, { steps: 8 });
+        await page.mouse.up({ button: 'right' });
+        await expect.poll(async () => Math.abs((await mapFacts(page)).bearing)).toBeGreaterThan(1);
+        // The rotation eases out after the mouse is released: read the bearing once two reads in a row agree.
+        let last = Number.NaN;
+        await expect
+            .poll(async () => {
+                const previous = last;
+                last = (await mapFacts(page)).bearing;
+                return last === previous;
+            })
+            .toBe(true);
+        const bearing = ((Math.round(last) % 360) + 360) % 360;
+        const compass = page.locator('hcm-shot-direction hcm-compass');
+        await expect(compass.locator('#heading')).toContainText(String(bearing));
+        await button.click();
+        await expect(degrees(page, lang)).toHaveValue(String(bearing));
+        await save(page, lang);
+        await expect.poll(async () => (await content.document(`layers/${LAYER}`))?.['shotDirection']).toBe(bearing);
+        await compass.getByRole('button').click();
+        await expect(compass).toHaveAttribute('north', '');
+        await expect.poll(async () => (await mapFacts(page)).bearing).toBe(0);
+        await expect(degrees(page, lang)).toHaveValue(String(bearing));
+    },
+);

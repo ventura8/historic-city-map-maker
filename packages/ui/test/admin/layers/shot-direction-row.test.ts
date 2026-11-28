@@ -1,3 +1,4 @@
+import { FakeMap } from '@hcm/test-support/fake-map';
 import { render } from 'lit';
 import { afterEach, beforeAll, describe, expect, it } from 'vitest';
 
@@ -66,6 +67,21 @@ describe('shotDirectionOf and the dial geometry', () => {
 });
 
 describe('setting the direction from the map', () => {
+    it('follows a turning preview and resets the camera independently of the layer draft', async () => {
+        const map = new FakeMap();
+        const changes: unknown[] = [];
+        const host = await mounted({ compassMap: map, mapReady: true }, changes);
+        const compass = host.querySelector('hcm-compass');
+        map.flyTo({ bearing: -45 });
+        await compass?.updateComplete;
+        expect(compass?.camera.bearing).toBe(315);
+        compass?.shadowRoot?.querySelector('button')?.click();
+        await compass?.updateComplete;
+        expect(map.getView().bearing).toBe(0);
+        expect(compass?.north).toBe(true);
+        expect(changes).toEqual([]);
+    });
+
     it('sets a rounded, normalized bearing and announces it @S-A233-HAPPY-SHOT-VIEW', async () => {
         const changes: unknown[] = [];
         const messages: string[] = [];
@@ -78,6 +94,7 @@ describe('setting the direction from the map', () => {
     it('explains when the map is unavailable @S-A233-BAD-SHOT-VIEW', async () => {
         const host = await mounted({ mapReady: false }, []);
         expect(host.querySelector('[data-shot-from-view]')?.hasAttribute('disabled')).toBe(true);
+        expect(host.querySelector('hcm-compass')).toBeNull();
         expect(host.textContent).toContain('The preview map is not ready.');
     });
 

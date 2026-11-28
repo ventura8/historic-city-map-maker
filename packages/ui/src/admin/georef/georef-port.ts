@@ -3,6 +3,7 @@
  * `docs/research/M3-interfaces.md` §10.4), mirrored structurally because `@hcm/ui` sits below `@hcm/admin`;
  * `packages/admin/test/app/admin-port.test.ts` checks that the real store satisfies it.
  */
+import type { MapPort } from '../../map/map-port.js';
 import type { BBox, Gcp, GeorefTransform, LayerVersionState } from '@hcm/shared';
 
 import type { LoadStatusPort, StoreFailurePort } from '../area-port.js';
@@ -132,6 +133,7 @@ export interface GeorefIntentsPort {
     setBase(id: string | null): void;
     /** The panes turn together, or each on its own. */
     setRotateLinked(linked: boolean): void;
+    compassMap?(): MapPort | null;
     /** Turns the map by `degrees` clockwise on the screen; null: north up. */
     rotateMap(degrees: number | null): void;
     toggle(id: string): void;

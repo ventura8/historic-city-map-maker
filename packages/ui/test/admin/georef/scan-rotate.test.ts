@@ -1,3 +1,4 @@
+import { FakeMap } from '@hcm/test-support/fake-map';
 // Each pane of the georeferencer turns on its own (S-A16-HAPPY-GEOREF-ROTATE): the scan by its buttons, r / R / n and Ctrl with a drag,
 // the map by its buttons; the conversions between the pane and the scan hold under a turn; without a fit the panes cannot be turned
 // together (S-A16-BAD-GEOREF-ROTATE-APART).
@@ -201,7 +202,14 @@ describe('the turn buttons on the page', () => {
     afterEach(cleanup);
 
     it('happyPath_eachPaneHasItsTurnButtonsAndThePanesTurnTogetherByDefault @S-A16-HAPPY-GEOREF-ROTATE', async () => {
-        const { element, area } = await georefPage(georefState());
+        const map = new FakeMap();
+        const { element, area } = await georefPage(georefState({ map: 'ready' }), {}, { compassMap: map });
+        map.flyTo({ bearing: 40 });
+        const compass = deep(element, '.map-pane hcm-compass') as HTMLElementTagNameMap['hcm-compass'];
+        await compass.updateComplete;
+        expect(compass.camera.bearing).toBe(40);
+        deep(compass, 'button').click();
+        expect(map.getView().bearing).toBe(0);
         const scan = deep(element, '.scan-pane hcm-scan-viewer') as HcmScanViewer;
         const turnedBy = vi.spyOn(scan, 'rotateBy');
         const upright = vi.spyOn(scan, 'upright');

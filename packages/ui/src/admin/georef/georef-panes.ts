@@ -7,6 +7,7 @@
 import { contentLocale, type UiLocale } from '@hcm/shared';
 import { html, type TemplateResult } from 'lit';
 
+import { adminCompass } from '../map/admin-compass.js';
 import { when, withValue } from '../imagery/when.js';
 import { contentText } from '../shell/text.js';
 import type { GeorefContext } from './georef-parts.js';
@@ -85,6 +86,7 @@ function turnButtons(context: GeorefContext, pane: 'scan' | 'map'): TemplateResu
     const group = contentText(locale, `adminContent.georef.turn.${pane}`);
     return html`<div class="actions turn" role="group" aria-label=${group}>
         ${button(-1, 'left')} ${button(1, 'right')} ${button(0, pane === 'scan' ? 'scanUp' : 'mapUp')}
+        ${pane === 'map' ? adminCompass(context.intents?.compassMap?.(), locale) : ''}
     </div>`;
 }
 
