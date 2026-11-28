@@ -196,6 +196,7 @@ describe('<hcm-map-menu>', () => {
 
         const link = shadowQuery(element, '[data-item="street-view"]') as HTMLAnchorElement;
         expect(shadowQuery(element, '[role="menu"]').getAttribute('aria-label')).toBe('Map menu');
+        expect(shadowQuery(element, '#street-view-hint').id).toBe(link.getAttribute('aria-describedby'));
         expect(link.href).toContain('map_action=pano&viewpoint=44.43,26.1');
         expect([link.target, link.rel]).toEqual(['_blank', 'noopener noreferrer']);
         expect(element.shadowRoot?.activeElement).toBe(link);

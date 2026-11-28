@@ -217,6 +217,7 @@ export const en: Messages = {
     'photo.versions': 'Photo version',
     'mapMenu.label': 'Map menu',
     'mapMenu.streetView': 'Open in Google Street View',
+    'mapMenu.streetViewHint': 'For split view, open the link menu and choose split view if available. Select the link for a new tab.',
     'mapMenu.copy': 'Copy coordinates',
     'mapMenu.copied': 'Coordinates copied.',
     'mapMenu.copyFailed': 'The coordinates could not be copied.',

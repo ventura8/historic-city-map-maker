@@ -225,6 +225,7 @@ export const ru: Messages = {
     'photo.versions': 'Версия фотографии',
     'mapMenu.label': 'Меню карты',
     'mapMenu.streetView': 'Открыть в Google Street View',
+    'mapMenu.streetViewHint': 'Выберите разделённый экран в меню ссылки, если он доступен. Нажмите на ссылку для новой вкладки.',
     'mapMenu.copy': 'Копировать координаты',
     'mapMenu.copied': 'Координаты скопированы.',
     'mapMenu.copyFailed': 'Не удалось скопировать координаты.',

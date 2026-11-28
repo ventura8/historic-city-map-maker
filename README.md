@@ -26,6 +26,8 @@ A new city starts from the starter kit (from v1.0.0-beta.1, once it is published
 
 The layer editor and georeferencer use the viewer’s compass. Press it to return the preview or reference map to north.
 
+Street View opens from the map menu and photo details. Use the link’s context menu to choose split view where the browser offers it. Activating the link opens a new tab.
+
 ## Repository
 
 An npm-workspaces monorepo:

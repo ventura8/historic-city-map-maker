@@ -17,6 +17,7 @@ import { EMPTY } from './empty.js';
 import type { MenuPoint } from './map-menu-trigger.js';
 import { closeEvent } from './sheet-frame.js';
 import { baseStyles } from './shared-styles.js';
+import { openStreetView } from './street-view-opener.js';
 
 export const HCM_MAP_MENU_TAG = 'hcm-map-menu';
 
@@ -135,6 +136,11 @@ export class HcmMapMenu extends LitElement {
                 cursor: pointer;
             }
 
+            small {
+                max-inline-size: 28ch;
+                padding-inline: 16px;
+            }
+
             .item:hover,
             .item:focus-visible {
                 background: color-mix(in srgb, var(--md-sys-color-on-surface) 8%, transparent);
@@ -219,6 +225,9 @@ export class HcmMapMenu extends LitElement {
         const label = translate(this.locale, item.label);
         const content = html`<hcm-icon name=${item.icon}></hcm-icon><span>${label}</span>`;
         if (item.href !== undefined) {
+            if (item.id === 'street-view') {
+                return openStreetView(item.href(place), this.locale, this.#close);
+            }
             return html`<a
                 class="item"
                 role="menuitem"

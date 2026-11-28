@@ -221,6 +221,7 @@ export const tr: Messages = {
     'photo.versions': 'Fotoğraf sürümü',
     'mapMenu.label': 'Harita menüsü',
     'mapMenu.streetView': 'Google Street View’da aç',
+    'mapMenu.streetViewHint': 'Varsa bağlantı menüsünden bölünmüş görünümü seçin. Yeni sekme açmak için bağlantıya dokunun.',
     'mapMenu.copy': 'Koordinatları kopyala',
     'mapMenu.copied': 'Koordinatlar kopyalandı.',
     'mapMenu.copyFailed': 'Koordinatlar kopyalanamadı.',

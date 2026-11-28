@@ -37,3 +37,4 @@ export { externalLink, renderMarkdown } from './markdown.js';
 export { SHORTCUT_ROWS } from './viewer-keyboard.js';
 export { closeEvent } from './sheet-frame.js';
 export { licenseText, localizedText, photoCountText } from './text.js';
+export { openStreetView } from './street-view-opener.js';

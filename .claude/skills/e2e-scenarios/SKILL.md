@@ -24,6 +24,8 @@ npm run dev:stack                                      # the same world for a pe
 
 The local stack (`e2e/stack/`) reuses the mock APIs, the admin and site servers and the admin specs' seed helpers: a change there keeps `bash scripts/dev/dev-stack.sh check` passing (`.agent/skills/quality/testing_strategy_skill.md` → *The local stack*).
 
+Street View scenarios exercise the native link context menu and the new-tab fallback without contacting Google.
+
 ## Adding or changing a scenario
 
 1. Find the behaviour id (`V..`, `A..`, `P..`) in `behaviours`; a new behaviour gets the next id and a name.

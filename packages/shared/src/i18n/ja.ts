@@ -224,6 +224,7 @@ export const ja: Messages = {
     'photo.versions': '写真のバージョン',
     'mapMenu.label': '地図メニュー',
     'mapMenu.streetView': 'Google Street View で開く',
+    'mapMenu.streetViewHint': 'リンクのメニューに分割表示があれば選んでください。リンクを選ぶと新しいタブで開きます。',
     'mapMenu.copy': '座標をコピー',
     'mapMenu.copied': '座標をコピーしました。',
     'mapMenu.copyFailed': '座標をコピーできませんでした。',

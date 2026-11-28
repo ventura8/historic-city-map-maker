@@ -222,6 +222,7 @@ export const ro = {
     'photo.versions': 'Versiunea fotografiei',
     'mapMenu.label': 'Meniul hărții',
     'mapMenu.streetView': 'Deschide în Google Street View',
+    'mapMenu.streetViewHint': 'Alege vizualizarea alăturată din meniul linkului, dacă apare. Apasă linkul pentru o filă nouă.',
     'mapMenu.copy': 'Copiază coordonatele',
     'mapMenu.copied': 'Coordonatele au fost copiate.',
     'mapMenu.copyFailed': 'Coordonatele nu au putut fi copiate.',

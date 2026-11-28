@@ -219,6 +219,7 @@ export const ar: Messages = {
     'photo.versions': 'نسخة الصورة',
     'mapMenu.label': 'قائمة الخريطة',
     'mapMenu.streetView': 'فتح في Google Street View',
+    'mapMenu.streetViewHint': 'اختر العرض المقسّم من قائمة الرابط إن كان متاحًا. اضغط على الرابط لفتحه في علامة تبويب جديدة.',
     'mapMenu.copy': 'نسخ الإحداثيات',
     'mapMenu.copied': 'تم نسخ الإحداثيات.',
     'mapMenu.copyFailed': 'تعذّر نسخ الإحداثيات.',

@@ -221,6 +221,7 @@ export const zh: Messages = {
     'photo.versions': '照片版本',
     'mapMenu.label': '地图菜单',
     'mapMenu.streetView': '在 Google Street View 中打开',
+    'mapMenu.streetViewHint': '如果链接菜单中有分屏选项，可以选择它。直接点击链接会打开新标签页。',
     'mapMenu.copy': '复制坐标',
     'mapMenu.copied': '坐标已复制。',
     'mapMenu.copyFailed': '无法复制坐标。',

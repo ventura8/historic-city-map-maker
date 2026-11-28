@@ -223,6 +223,7 @@ export const pl: Messages = {
     'photo.versions': 'Wersja zdjęcia',
     'mapMenu.label': 'Menu mapy',
     'mapMenu.streetView': 'Otwórz w Google Street View',
+    'mapMenu.streetViewHint': 'W menu odnośnika wybierz widok podzielony, jeśli jest dostępny. Kliknij odnośnik, aby otworzyć nową kartę.',
     'mapMenu.copy': 'Kopiuj współrzędne',
     'mapMenu.copied': 'Współrzędne zostały skopiowane.',
     'mapMenu.copyFailed': 'Nie udało się skopiować współrzędnych.',

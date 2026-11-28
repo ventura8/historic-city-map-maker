@@ -223,6 +223,7 @@ export const ko: Messages = {
     'photo.versions': '사진 버전',
     'mapMenu.label': '지도 메뉴',
     'mapMenu.streetView': 'Google Street View에서 열기',
+    'mapMenu.streetViewHint': '링크 메뉴에 분할 보기 옵션이 있으면 선택하세요. 링크를 누르면 새 탭에서 열립니다.',
     'mapMenu.copy': '좌표 복사',
     'mapMenu.copied': '좌표가 복사되었습니다.',
     'mapMenu.copyFailed': '좌표를 복사할 수 없습니다.',

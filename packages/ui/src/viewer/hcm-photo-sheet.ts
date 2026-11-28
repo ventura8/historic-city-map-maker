@@ -32,6 +32,8 @@ import type { CameraOffset } from '../map/mapbox-types.js';
 import { EMPTY } from './empty.js';
 import type { SheetMode } from './layout.js';
 import { relatedStories } from './hcm-stories.js';
+import { photoSource } from './photo-source.js';
+import { openStreetView } from './street-view-opener.js';
 import { externalLink } from './markdown.js';
 import { resolveAssetUrl } from './services.js';
 import { closeEvent, renderSheetFrame } from './sheet-frame.js';
@@ -39,7 +41,7 @@ import { fallbackNote } from './fallback-note.js';
 import { baseStyles, detailStyles, sheetStyles } from './shared-styles.js';
 import { photoRights } from './photo-rights.js';
 import { hasVersions, shownView, versionSwitch, viewCredit, viewImage } from './photo-version.js';
-import { localizedText, photoDateText, photoSourceText } from './text.js';
+import { localizedText, photoDateText } from './text.js';
 import type { TimelineStop } from './timeline-model.js';
 
 export const HCM_PHOTO_SHEET_TAG = 'hcm-photo-sheet';
@@ -242,8 +244,8 @@ export class HcmPhotoSheet extends LitElement {
         return html`<div class="details">
             <hcm-favorite-star row kind="photo" item-id=${photo.id} .locale=${locale}></hcm-favorite-star>
             ${this.#back()} ${this.#image(photo)} ${this.#locate(photo)}
-            <p class="link">${externalLink(streetViewUrl(photo.location, photo.bearing), translate(locale, 'mapMenu.streetView'))}</p>
-            ${this.#date(photo)} ${photoRights(photo, locale)} ${this.#source(photo)}
+            <p class="link">${openStreetView(streetViewUrl(photo.location, photo.bearing), locale)}</p>
+            ${this.#date(photo)} ${photoRights(photo, locale)} ${photoSource(photo, locale)}
             ${
                 photo.description === undefined
                     ? nothing
@@ -369,13 +371,6 @@ export class HcmPhotoSheet extends LitElement {
     /** The thumbnail is on screen (decoded) or failed: the viewer times the photo's opening. */
     #shown(ok: boolean): void {
         this.dispatchEvent(new CustomEvent('hcm-photo-shown', { bubbles: true, detail: { ok } }));
-    }
-
-    /** Where the photo comes from: a plain link, opened in a new tab (`externalLink`). */
-    #source({ source }: Photo): TemplateResult {
-        return source === undefined
-            ? EMPTY
-            : html`<p class="source">${translate(this.locale, 'photo.source')} ${externalLink(source.url, photoSourceText(source))}</p>`;
     }
 
     #links(photo: Photo): TemplateResult {

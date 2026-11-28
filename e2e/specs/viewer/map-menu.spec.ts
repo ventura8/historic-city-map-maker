@@ -40,7 +40,7 @@ function viewpointOf(href: string | null): { lat: number; lng: number } {
 
 test(
     'A right click opens the menu at the place, whose Street View link names it',
-    { tag: '@S-V62-HAPPY-RIGHT-CLICK' },
+    { tag: ['@S-V62-HAPPY-RIGHT-CLICK', '@S-V62-HAPPY-SPLIT-MENU'] },
     async ({ page, lang }) => {
         await openViewer(page, { lang, hash: HASH });
         const box = await mapBox(page);
@@ -49,6 +49,11 @@ test(
 
         const link = menu(page, lang).getByRole('menuitem', { name: t(lang, 'mapMenu.streetView') });
         await expect(link).toBeFocused();
+        await expect(link).toHaveAccessibleDescription(t(lang, 'mapMenu.streetViewHint'));
+        const nativeMenu = await link.evaluate((node) =>
+            node.dispatchEvent(new MouseEvent('contextmenu', { bubbles: true, cancelable: true, composed: true })),
+        );
+        expect(nativeMenu).toBe(true);
         await expect(link).toHaveAttribute('target', '_blank');
         await expect(link).toHaveAttribute('rel', 'noopener noreferrer');
         const place = viewpointOf(await link.getAttribute('href'));
@@ -198,8 +203,8 @@ test(
 
 test(
     "A photo's sheet links to Street View at its place, looking along its bearing",
-    { tag: '@S-V62-HAPPY-PHOTO' },
-    async ({ page, lang }) => {
+    { tag: ['@S-V62-HAPPY-PHOTO', '@S-V62-BAD-SPLIT-UNAVAILABLE'] },
+    async ({ page, context, lang }) => {
         const photos = siteManifestData()['photos'] as { id: string; bearing?: number; location: { lat: number; lng: number } }[];
         const photo = photos.find((candidate) => candidate.bearing !== undefined);
         expect(photo, 'the fixture has a photo with a bearing').toBeDefined();
@@ -207,8 +212,16 @@ test(
 
         const link = page.getByRole('link', { name: t(lang, 'mapMenu.streetView') });
 
+        await expect(link).toHaveAccessibleDescription(t(lang, 'mapMenu.streetViewHint'));
+        await expect(link).toHaveAttribute('target', '_blank');
         await expect(link).toHaveAttribute('href', new RegExp(`&heading=${String(Math.round(photo?.bearing ?? 0) % 360)}$`));
         expect(viewpointOf(await link.getAttribute('href')).lat).toBeCloseTo(photo?.location.lat ?? 0, 5);
+        await context.route('https://www.google.com/maps/**', (route) =>
+            route.fulfill({ contentType: 'text/html', body: '<p>Panorama</p>' }),
+        );
+        const [panorama] = await Promise.all([context.waitForEvent('page'), link.click()]);
+        await expect(panorama.getByText('Panorama')).toBeVisible();
+        await expect(link).toBeVisible();
     },
 );
 

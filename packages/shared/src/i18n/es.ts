@@ -222,6 +222,7 @@ export const es: Messages = {
     'photo.versions': 'Versión de la fotografía',
     'mapMenu.label': 'Menú del mapa',
     'mapMenu.streetView': 'Abrir en Google Street View',
+    'mapMenu.streetViewHint': 'Elige la vista dividida en el menú del enlace si aparece. Pulsa el enlace para abrir otra pestaña.',
     'mapMenu.copy': 'Copiar las coordenadas',
     'mapMenu.copied': 'Se copiaron las coordenadas.',
     'mapMenu.copyFailed': 'No se pudieron copiar las coordenadas.',

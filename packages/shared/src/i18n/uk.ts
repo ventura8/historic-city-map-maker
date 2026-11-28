@@ -221,6 +221,7 @@ export const uk: Messages = {
     'photo.versions': 'Версія фотографії',
     'mapMenu.label': 'Меню мапи',
     'mapMenu.streetView': 'Відкрити в Google Street View',
+    'mapMenu.streetViewHint': 'Якщо в меню посилання є розділений перегляд, виберіть його. Натисніть посилання, щоб відкрити нову вкладку.',
     'mapMenu.copy': 'Копіювати координати',
     'mapMenu.copied': 'Координати скопійовано.',
     'mapMenu.copyFailed': 'Не вдалося скопіювати координати.',

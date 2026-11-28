@@ -230,6 +230,7 @@ export const fr: Messages = {
     'photo.versions': 'Version de la photo',
     'mapMenu.label': 'Menu de la carte',
     'mapMenu.streetView': 'Ouvrir dans Google Street View',
+    'mapMenu.streetViewHint': 'Menu du lien : choisissez la vue divisée si elle est proposée. Cliquez pour ouvrir un nouvel onglet.',
     'mapMenu.copy': 'Copier les coordonnées',
     'mapMenu.copied': 'Coordonnées copiées.',
     'mapMenu.copyFailed': 'Impossible de copier les coordonnées.',

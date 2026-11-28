@@ -217,6 +217,7 @@ export const hi: Messages = {
     'photo.versions': 'फ़ोटो का संस्करण',
     'mapMenu.label': 'मानचित्र मेनू',
     'mapMenu.streetView': 'Google Street View में खोलें',
+    'mapMenu.streetViewHint': 'यदि लिंक के मेन्यू में विभाजित दृश्य उपलब्ध है, तो उसे चुनें। नए टैब के लिए लिंक चुनें।',
     'mapMenu.copy': 'निर्देशांक कॉपी करें',
     'mapMenu.copied': 'निर्देशांक कॉपी हो गए।',
     'mapMenu.copyFailed': 'निर्देशांक कॉपी नहीं हो सके।',

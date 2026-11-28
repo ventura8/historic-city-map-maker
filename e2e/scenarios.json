@@ -22638,6 +22638,28 @@
             "notes": "The owner, 2026-11-09 (DECISIONS-for-review.md §167). Tests: e2e/admin/specs/photos/replace.spec.ts."
         },
         {
+            "id": "S-V62-BAD-SPLIT-UNAVAILABLE",
+            "behaviour": "V62",
+            "area": "viewer",
+            "path": "bad",
+            "title": "Street View remains available when split placement is unavailable",
+            "asserts": "The photo link describes ordinary activation and targets a new tab with the original viewpoint and bearing",
+            "tier": "e2e-viewer",
+            "status": "exists",
+            "notes": "Tests: e2e/specs/viewer/map-menu.spec.ts."
+        },
+        {
+            "id": "S-V62-HAPPY-SPLIT-MENU",
+            "behaviour": "V62",
+            "area": "viewer",
+            "path": "happy",
+            "title": "Street View offers the native link menu for split view",
+            "asserts": "The map link describes split view and allows its native context menu",
+            "tier": "e2e-viewer",
+            "status": "exists",
+            "notes": "Tests: e2e/specs/viewer/map-menu.spec.ts."
+        },
+        {
             "id": "S-V62-HAPPY-RIGHT-CLICK",
             "behaviour": "V62",
             "area": "viewer",
