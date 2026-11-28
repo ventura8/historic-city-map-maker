@@ -82,7 +82,7 @@ test(
         await openTimelineCard(page);
         await expect(slider(page, lang)).toHaveAttribute('aria-orientation', 'vertical');
 
-        await walk(page, lang, 'ArrowUp', 'ArrowDown');
+        await walk(page, lang, 'ArrowRight', 'ArrowLeft');
         const timeline = await boxOf(page, 'hcm-timeline');
         const chip = await boxOf(page, NEAR_YEAR);
         const fab = (await menuButton(page, lang).boundingBox()) ?? { x: 0, y: 0, width: 0, height: 0 };
@@ -208,7 +208,7 @@ test(
             for (const year of [...OWNERS_YEARS.map(String), t(lang, 'timeline.present')]) {
                 await expect(viewer(page).locator('hcm-timeline .thumb-label')).toHaveText(year);
                 expect(await coveredLabels(page), `${String(size.width)}x${String(size.height)} at ${year}`).toEqual([]);
-                await thumb.press('ArrowUp');
+                await thumb.press('ArrowRight');
             }
         }
     },

@@ -70,7 +70,7 @@ test.describe('Spatial navigation (V65)', () => {
             await expect(timeline(page, lang)).toHaveAttribute('aria-valuetext', year ?? '');
 
             await pressButton(page, DPAD.up);
-            await expect.poll(async () => (await focused(page))?.role).not.toBe('slider');
+            await expect(timeline(page, lang)).toBeFocused();
             await expect.poll(async () => (await focused(page))?.outlined).toBe(true);
         },
     );

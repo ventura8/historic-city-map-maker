@@ -79,6 +79,8 @@ export const hi: Messages = {
     'timeline.earlier': 'पहले के वर्ष, {year} तक',
     'timeline.later': 'बाद के वर्ष, {year} तक',
     'timeline.empty': 'इस मानचित्र में कोई ऐतिहासिक परत नहीं है',
+    'timeline.datesOpened': '{year} की तारीखें दिखाई जा रही हैं।',
+    'timeline.datesClosed': '{year} की तारीखों की सूची बंद हो गई है।',
     'timeline.dates': '{year} की तिथियाँ',
     'timeline.showOnMap': 'मानचित्र पर दिखाएँ: {name}',
     'timeline.opacityAll': '{year} की सभी परतें',

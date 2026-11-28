@@ -84,6 +84,8 @@ export const it: Messages = {
     'timeline.earlier': 'Anni precedenti, fino al {year}',
     'timeline.later': 'Anni successivi, fino al {year}',
     'timeline.empty': 'Nessun livello storico su questa mappa',
+    'timeline.datesOpened': 'Sono visualizzate le date del {year}.',
+    'timeline.datesClosed': 'La lista delle date del {year} è chiusa.',
     'timeline.dates': 'Date nel {year}',
     'timeline.showOnMap': 'Mostra sulla mappa: {name}',
     'timeline.opacityAll': 'Tutto il {year}',

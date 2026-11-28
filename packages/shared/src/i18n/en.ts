@@ -79,6 +79,8 @@ export const en: Messages = {
     'timeline.earlier': 'Earlier years, back to {year}',
     'timeline.later': 'Later years, up to {year}',
     'timeline.empty': 'No historical layers on this map',
+    'timeline.datesOpened': 'Showing dates for {year}.',
+    'timeline.datesClosed': 'Dates for {year} closed.',
     'timeline.dates': 'Dates in {year}',
     'timeline.showOnMap': 'Show on the map: {name}',
     'timeline.opacityAll': 'All of {year}',

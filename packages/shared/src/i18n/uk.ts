@@ -82,6 +82,8 @@ export const uk: Messages = {
     'timeline.earlier': 'Раніші роки, до {year}',
     'timeline.later': 'Пізніші роки, до {year}',
     'timeline.empty': 'На цій мапі немає історичних шарів',
+    'timeline.datesOpened': 'Відкрито список дат за {year} рік.',
+    'timeline.datesClosed': 'Список дат за {year} рік закрито.',
     'timeline.dates': 'Дати {year}',
     'timeline.showOnMap': 'Показати на мапі: {name}',
     'timeline.opacityAll': 'Весь {year}',

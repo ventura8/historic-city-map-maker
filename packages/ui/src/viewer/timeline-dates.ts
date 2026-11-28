@@ -28,6 +28,7 @@ export function countOf(counts: ReadonlyMap<number, number>, stop: TimelineStop)
 /** `hcm-dates-open`: the year whose dates to list, and the box (client px) the picker opens beside. */
 export interface DatesOpenDetail {
     readonly year: number;
+    readonly step?: number;
     readonly anchor: { readonly x: number; readonly y: number; readonly width: number; readonly height: number };
 }
 
@@ -36,7 +37,7 @@ export interface DatesOpenDetail {
  * 350 ms, so read at once it still lay on the year before (the owner, 2026-11-23: the menu of 2017 opened by "today", in
  * the corner by the map's buttons): the box is the thumb's size centred on the selected year's stop, where it comes to rest.
  */
-export function datesOpenEvent(year: number, from: Element): CustomEvent<DatesOpenDetail> {
+export function datesOpenEvent(year: number, from: Element, step?: number): CustomEvent<DatesOpenDetail> {
     const box = from.getBoundingClientRect();
     const stop = (from.getRootNode() as ParentNode).querySelector('.stop.selected')?.getBoundingClientRect() ?? box;
     const anchor = {
@@ -45,7 +46,11 @@ export function datesOpenEvent(year: number, from: Element): CustomEvent<DatesOp
         width: box.width,
         height: box.height,
     };
-    return new CustomEvent('hcm-dates-open', { bubbles: true, composed: true, detail: { year, anchor } });
+    return new CustomEvent('hcm-dates-open', {
+        bubbles: true,
+        composed: true,
+        detail: { year, anchor, ...(step === undefined ? {} : { step }) },
+    });
 }
 
 /**

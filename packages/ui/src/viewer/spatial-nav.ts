@@ -171,6 +171,9 @@ export function moveFocus(viewer: HTMLElement, direction: Direction): boolean {
 
 /** A horizontal slider (the timeline, an opacity) keeps left and right; up and down leave it. */
 function crossesSlider(element: HTMLElement, direction: Direction): boolean {
+    if (element.hasAttribute('data-year-pill')) {
+        return false;
+    }
     const vertical = element.getAttribute('aria-orientation') === 'vertical';
     return element.getAttribute('role') === 'slider' && vertical === (direction === 'left' || direction === 'right');
 }

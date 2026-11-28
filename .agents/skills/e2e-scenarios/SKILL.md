@@ -69,3 +69,5 @@ Specs import `test` and `expect` from `e2e/support/test.ts` (`../../support/test
 `e2e/support/pmtiles.ts` makes real PMTiles of real lossless WebP in one known colour, read by the real Mapbox GL JS from a page route that answers `Range`; `frameArchive` fills a rectangle without the middle square's cap, for a partial frame (`specs/viewer/partial-frame.spec.ts`: a hole goes wrong only after tiles have left Mapbox GL's cache, so walk first, lesson 496; a 256 px source draws tiles one zoom deeper than the camera, lesson 498). A world seeded by `ImageryWorld.ready` is on Mapbox's path unless a spec passes `publishThroughMapbox: false`; `e2e/admin/specs/imagery/own-tiles.spec.ts` shows how to answer `imagery.previewUrl`'s signed address from the object.
 
 After dragging a map to turn it, wait for two consecutive bearing readings to agree before comparing the compass or saving a shot direction.
+
+For the focused year pill, exercise wrapping from the active layer, retained slider focus, the live announcement and controller input after blur in `e2e/specs/viewer/year-pill-input.spec.ts`.

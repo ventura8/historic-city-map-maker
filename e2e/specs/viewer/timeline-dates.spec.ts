@@ -93,7 +93,7 @@ test(
         await slider(page, lang).focus();
         await page.keyboard.press('Enter');
         await expect(datesMenu(page, lang)).toBeVisible();
-        await expect(page.locator('hcm-date-menu [data-front]')).toBeFocused();
+        await expect(slider(page, lang)).toBeFocused();
         await page.keyboard.press('Escape');
 
         await expect(datesMenu(page, lang)).toBeHidden();

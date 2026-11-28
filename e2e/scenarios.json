@@ -2095,7 +2095,7 @@
             "area": "viewer",
             "path": "happy",
             "title": "On a phone held upright the timeline stands on the leading edge with the chip under it",
-            "asserts": "at 375x812 the slider is aria-orientation vertical, the card stands 16 px from the leading edge; Up selects the later year and Down the earlier; the chip docks 8 px under the card's foot on its leading edge, the menu button keeps the bottom trailing corner below it; the open menu covers neither the chip nor the timeline",
+            "asserts": "at 375x812 the slider is aria-orientation vertical, the card stands 16 px from the leading edge; Right selects the later year and Left the earlier; the chip docks 8 px under the card's foot on its leading edge, the menu button keeps the bottom trailing corner below it; the open menu covers neither the chip nor the timeline",
             "tier": "e2e-viewer",
             "status": "exists",
             "notes": "The owner, 2026-11-08: 'for phone or small width setup, maybe it would be wise to show the timeline vertically'. packages/ui/src/viewer/layout.ts, viewer-styles.ts, timeline-styles.ts; unit tests in packages/ui/test/viewer/kit-timeline-layout.test.ts."
@@ -18147,7 +18147,7 @@
             "asserts": "prefers-color-scheme dark -> lightPreset night as Mapbox GL reports it; light -> day; one map created",
             "tier": "e2e-viewer",
             "status": "exists",
-            "notes": "The owner's request of 2026-11-07. Test: e2e/specs/viewer/input.spec.ts."
+            "notes": "The owner's request of 2026-11-07. Test: e2e/specs/viewer/basemap-accessibility.spec.ts."
         },
         {
             "id": "S-V38-BAD-CITY-CONFIG",
@@ -18158,7 +18158,7 @@
             "asserts": "config lightPreset dusk -> dusk under both schemes",
             "tier": "e2e-viewer",
             "status": "exists",
-            "notes": "The owner's request of 2026-11-07. Test: e2e/specs/viewer/input.spec.ts."
+            "notes": "The owner's request of 2026-11-07. Test: e2e/specs/viewer/basemap-accessibility.spec.ts."
         },
         {
             "id": "S-V38-BAD-NO-PROPERTY",
@@ -18169,7 +18169,7 @@
             "asserts": "a custom style without the import -> nothing reported, the viewer works, one map created",
             "tier": "e2e-viewer",
             "status": "exists",
-            "notes": "The owner's request of 2026-11-07. Test: e2e/specs/viewer/input.spec.ts."
+            "notes": "The owner's request of 2026-11-07. Test: e2e/specs/viewer/basemap-accessibility.spec.ts."
         },
         {
             "id": "S-V39-HAPPY",
@@ -18180,7 +18180,7 @@
             "asserts": "the heading, what works, what is missing and the report link in the page's language",
             "tier": "e2e-viewer",
             "status": "exists",
-            "notes": "The owner's request of 2026-11-07. Test: e2e/specs/viewer/input.spec.ts."
+            "notes": "The owner's request of 2026-11-07. Test: e2e/specs/viewer/basemap-accessibility.spec.ts."
         },
         {
             "id": "S-V39-BAD-BARE-CITY",
@@ -18191,7 +18191,7 @@
             "asserts": "empty credits, no analytics -> the statement and the report link show",
             "tier": "e2e-viewer",
             "status": "exists",
-            "notes": "The owner's request of 2026-11-07. Test: e2e/specs/viewer/input.spec.ts."
+            "notes": "The owner's request of 2026-11-07. Test: e2e/specs/viewer/basemap-accessibility.spec.ts."
         },
         {
             "id": "S-V36-BAD-DOCKED-KEEPS-PHOTO",
@@ -22874,7 +22874,7 @@
             "area": "viewer",
             "path": "happy",
             "title": "The D-pad goes round the controls, reaches the timeline and steps its year at once",
-            "asserts": "a fake pad at 1920 x 1080: D-pad down from the map reaches the timeline, each control on the way outlined; right and left change its year and back at once; up leaves it to another outlined control",
+            "asserts": "a fake pad at 1920 x 1080: D-pad down from the map reaches the timeline, each control on the way outlined; right and left change its year and back at once; up keeps focus on the year pill",
             "tier": "e2e-viewer",
             "status": "exists",
             "notes": "The owner's request of 2026-11-13 (PS and Xbox). Test: e2e/specs/viewer/consoles.spec.ts."
@@ -22995,7 +22995,7 @@
             "area": "viewer",
             "path": "bad",
             "title": "Esc collapses the open card with the focus kept; a larger window never collapses it",
-            "asserts": "at 360x800 the skip link opens the card with the focus on the slider; Esc collapses it, the focus stays and ArrowUp still changes the year; at 1280x800 the card is open and a press on the map leaves it open",
+            "asserts": "at 360x800 the skip link opens the card with the focus on the slider; Esc collapses it, the focus stays and ArrowRight still changes the year; at 1280x800 the card is open and a press on the map leaves it open",
             "tier": "e2e-viewer",
             "status": "exists",
             "notes": "The owner, 2026-11-13 (DECISIONS-for-review.md §195). packages/ui/src/viewer/timeline-dock.ts, timeline-dock-styles.ts, timeline-styles.ts; unit tests in packages/ui/test/viewer/timeline-dock.test.ts and hcm-timeline-dates.test.ts. Test: e2e/specs/viewer/timeline-pill.spec.ts."
@@ -23023,12 +23023,56 @@
             "notes": "The owner, 2026-11-13 (DECISIONS-for-review.md §195). packages/ui/src/viewer/timeline-dates.ts, hcm-date-menu.ts, timeline-dock.ts; the store's pickLayer (packages/engine/src/core/state.ts withFrontLayer, V15's front); unit tests in packages/ui/test/viewer/timeline-dates.test.ts, hcm-date-menu.test.ts, hcm-timeline-dates.test.ts, timeline-dock.test.ts and packages/engine/test/core/store-pick-layer.test.ts. Test: e2e/specs/viewer/timeline-dates.spec.ts."
         },
         {
+            "id": "S-V68-HAPPY-PILL-CONTENT",
+            "behaviour": "V68",
+            "area": "viewer",
+            "path": "happy",
+            "title": "Cycle dates from the year pill",
+            "asserts": "Down and Up wrap the selected date, announce it and retain focus. Space closes and Enter opens the panel.",
+            "tier": "e2e-viewer",
+            "status": "exists",
+            "notes": "Test: e2e/specs/viewer/year-pill-input.spec.ts."
+        },
+        {
+            "id": "S-V68-BAD-PILL-NO-CONTENT",
+            "behaviour": "V68",
+            "area": "viewer",
+            "path": "bad",
+            "title": "Today has no dates to cycle",
+            "asserts": "End closes the previous panel. Down on today keeps the panel closed.",
+            "tier": "e2e-viewer",
+            "status": "exists",
+            "notes": "Test: e2e/specs/viewer/year-pill-input.spec.ts."
+        },
+        {
+            "id": "S-V68-HAPPY-PILL-GAMEPAD",
+            "behaviour": "V68",
+            "area": "viewer",
+            "path": "happy",
+            "title": "Drive the pill with a standard controller",
+            "asserts": "The D-pad changes years and A opens the date panel.",
+            "tier": "e2e-viewer",
+            "status": "exists",
+            "notes": "Test: e2e/specs/viewer/year-pill-input.spec.ts."
+        },
+        {
+            "id": "S-V68-BAD-PILL-GAMEPAD-BLUR",
+            "behaviour": "V68",
+            "area": "viewer",
+            "path": "bad",
+            "title": "Ignore controller steps after the pill loses focus",
+            "asserts": "A held direction after blur leaves the selected year unchanged.",
+            "tier": "e2e-viewer",
+            "status": "exists",
+            "notes": "Test: e2e/specs/viewer/year-pill-input.spec.ts."
+        },
+        {
             "id": "S-V68-BAD-ESC-CHANGES-NOTHING",
             "behaviour": "V68",
             "area": "viewer",
             "path": "bad",
             "title": "Enter on the slider opens the dates; Esc closes them and changes nothing",
-            "asserts": "Enter on the slider of 1980 opens the menu with the checked date focused; Esc closes it, the focus back on the slider, the August tiles still on top and the hash unchanged",
+            "asserts": "Enter on the slider of 1980 opens the menu with the year pill focused; Esc closes it, the focus back on the slider, the August tiles still on top and the hash unchanged",
             "tier": "e2e-viewer",
             "status": "exists",
             "notes": "The owner, 2026-11-13 (DECISIONS-for-review.md §195). packages/ui/src/viewer/timeline-dates.ts, hcm-date-menu.ts, timeline-dock.ts; the store's pickLayer (packages/engine/src/core/state.ts withFrontLayer, V15's front); unit tests in packages/ui/test/viewer/timeline-dates.test.ts, hcm-date-menu.test.ts, hcm-timeline-dates.test.ts, timeline-dock.test.ts and packages/engine/test/core/store-pick-layer.test.ts. Test: e2e/specs/viewer/timeline-dates.spec.ts."

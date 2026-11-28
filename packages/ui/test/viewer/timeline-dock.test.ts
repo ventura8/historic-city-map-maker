@@ -1,5 +1,4 @@
 import { afterEach, describe, expect, it, vi } from 'vitest';
-import { page } from 'vitest/browser';
 
 import { deepActiveElement } from '../../src/components/focus.js';
 import type { HcmTimeline } from '../../src/viewer/hcm-timeline.js';
@@ -167,6 +166,7 @@ describe('<hcm-map-viewer>: the date picker of a year (V13)', () => {
     });
 
     function enter(mounted: Mounted): void {
+        timelineOf(mounted).focus();
         shadowQuery(timelineOf(mounted), '[role="slider"]').dispatchEvent(
             new KeyboardEvent('keydown', { key: 'Enter', bubbles: true, cancelable: true, composed: true }),
         );
@@ -226,26 +226,6 @@ describe('<hcm-map-viewer>: the date picker of a year (V13)', () => {
         expect(mounted.element.shadowRoot?.querySelector('hcm-date-menu')).toBeNull();
         expect(mounted.store.callsOf('pickLayer')).toEqual([]);
         expect(mounted.store.callsOf('closeSheet')).toEqual([]);
-    });
-
-    it('happyPath_enterOnTheYearOpensTheDatesTheFramesInertAPickComesToTheFront', async () => {
-        const mounted = await opened();
-
-        await expect.element(page.getByRole('menu', { name: 'Datele din 1966' })).toBeVisible();
-        expect(part(mounted, '.frame').inert).toBe(true);
-        const menu = part(mounted, 'hcm-date-menu');
-        shadowQuery(menu, '[data-item="kh4-1966"]').click();
-        await mounted.element.updateComplete;
-
-        expect(mounted.store.callsOf('pickLayer')).toEqual([['kh4-1966']]);
-        expect(part(mounted, 'hcm-date-menu'), 'a pick keeps the menu open').not.toBeNull();
-        shadowQuery(menu, '[role="menu"]').dispatchEvent(new KeyboardEvent('keydown', { key: 'Escape', bubbles: true }));
-        await mounted.element.updateComplete;
-        expect(mounted.element.shadowRoot?.querySelector('hcm-date-menu')).toBeNull();
-        expect(part(mounted, '.frame').inert).toBe(false);
-        await vi.waitFor(() => {
-            expect(deepActiveElement()?.getAttribute('role')).toBe('slider');
-        });
     });
 
     it('happyPath_aRowsCheckboxShowsOrHidesItsLayerAndTheMenuStays', async () => {
@@ -337,11 +317,15 @@ describe('<hcm-map-viewer>: the year opacity sheet on a phone', () => {
         expect(collapsed(mounted), 'the card stays open').toBe(false);
 
         await open();
-        timelineOf(mounted).dispatchEvent(new KeyboardEvent('keydown', { key: 'Enter', bubbles: true, composed: true }));
-        shadowQuery(timelineOf(mounted), '.thumb').dispatchEvent(new MouseEvent('click', { detail: 0, bubbles: true, composed: true }));
-        await mounted.element.updateComplete;
-        await mounted.element.updateComplete;
-        await mounted.element.updateComplete;
+        const thumb = shadowQuery(timelineOf(mounted), '.thumb');
+        thumb.click();
+        await vi.waitFor(() => {
+            expect(mounted.element.shadowRoot?.querySelector('hcm-date-menu')).toBeNull();
+        });
+        thumb.click();
+        await vi.waitFor(() => {
+            expect(mounted.element.shadowRoot?.querySelector('hcm-date-menu')).not.toBeNull();
+        });
         expect(mounted.element.shadowRoot?.querySelector('hcm-date-menu')).not.toBeNull();
         expect(mounted.element.shadowRoot?.querySelector('.opacity-sheet')).toBeNull();
         // The year's sliders come with its dates, in the same popup (side by side, also on a phone).

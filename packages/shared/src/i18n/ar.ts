@@ -80,6 +80,8 @@ export const ar: Messages = {
     'timeline.earlier': 'سنوات سابقة، حتى {year}',
     'timeline.later': 'سنوات لاحقة، حتى {year}',
     'timeline.empty': 'لا توجد طبقات تاريخية في هذه الخريطة',
+    'timeline.datesOpened': 'تُعرض تواريخ سنة {year}.',
+    'timeline.datesClosed': 'أُغلقت قائمة تواريخ سنة {year}.',
     'timeline.dates': 'تواريخ في {year}',
     'timeline.showOnMap': 'إظهار على الخريطة: {name}',
     'timeline.opacityAll': 'كل {year}',

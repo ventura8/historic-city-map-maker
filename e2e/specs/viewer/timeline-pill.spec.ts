@@ -97,7 +97,7 @@ test(
         await page.keyboard.press('Escape');
         await expect(viewer(page).locator('hcm-timeline')).toHaveAttribute('collapsed');
         await expect(slider(page, lang)).toBeFocused();
-        await page.keyboard.press('ArrowUp');
+        await page.keyboard.press('ArrowRight');
         await expect(slider(page, lang)).toHaveAttribute('aria-valuetext', t(lang, 'timeline.year', { year: '1980' }));
 
         await page.setViewportSize({ width: 1280, height: 800 });

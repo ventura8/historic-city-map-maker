@@ -86,6 +86,8 @@ export const ru: Messages = {
     'timeline.earlier': 'Более ранние годы, до {year}',
     'timeline.later': 'Более поздние годы, до {year}',
     'timeline.empty': 'На этой карте нет исторических слоёв',
+    'timeline.datesOpened': 'Открыт список дат за {year} год.',
+    'timeline.datesClosed': 'Список дат за {year} год закрыт.',
     'timeline.dates': 'Даты за {year}',
     'timeline.showOnMap': 'Показать на карте: {name}',
     'timeline.opacityAll': 'Весь {year}',

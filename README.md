@@ -6,6 +6,8 @@
 
 **Historic City Map Maker** is a data-driven historical map engine and a "do-everything" admin for any city: old photographs placed on today's map with the direction the camera faced, vanished places, stories, and historical imagery (declassified USGS photographs from the 1960s–1980s, Landsat, scanned maps of your own) georeferenced and published as layers to compare with today's city. A city starts from a three-file starter kit, or from a browser with no install, and its admin does almost everything automatically — setting up the Google Cloud, Mapbox and USGS accounts, finding and importing imagery, georeferencing and publishing layers, managing photos and points of interest, with a live transparency slider for every layer, the photos and each category of places. The interface is in Romanian (default) and English, Material Design 3, adaptive to every screen.
 
+Focus the year pill to browse years with Left and Right or cycle through a year’s maps with Up and Down. The gamepad D-pad and left stick follow the same directions.
+
 The project's landing page: <https://ventura8.github.io/historic-city-map-maker/> (`sites/landing/`, built by `npm run build:landing`).
 
 **Example: [București dispărut](https://bucurestiul-disparut.web.app/)** ("Lost Bucharest"), the first map made with it: Bucharest's old photographs and historical imagery.

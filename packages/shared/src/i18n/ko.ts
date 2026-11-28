@@ -84,6 +84,8 @@ export const ko: Messages = {
     'timeline.earlier': '이전 연도, {year}까지',
     'timeline.later': '이후 연도, {year}까지',
     'timeline.empty': '이 지도에는 역사 레이어가 없습니다',
+    'timeline.datesOpened': '{year}년 날짜 목록을 열었습니다.',
+    'timeline.datesClosed': '{year}년 날짜 목록을 닫았습니다.',
     'timeline.dates': '{year}의 날짜',
     'timeline.showOnMap': '지도에 표시: {name}',
     'timeline.opacityAll': '{year} 전체',

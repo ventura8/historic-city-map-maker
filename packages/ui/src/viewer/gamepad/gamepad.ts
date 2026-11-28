@@ -54,6 +54,7 @@ const DPAD: readonly (readonly [number, Direction])[] = [
     [14, 'left'],
     [15, 'right'],
 ];
+const PILL_BUTTONS = new Set([0, ...DPAD.map(([index]) => index)]);
 const RIGHT_TRIGGER = 7;
 
 /** A stick's two axes, or nothing inside the radial dead zone. */
@@ -207,8 +208,9 @@ class Session implements GamepadSession {
             return;
         }
         if (this.#last !== null) {
-            this.#move(pad, Math.min(now - this.#last, MAX_FRAME_MS) / 1000);
-            this.#press(pad);
+            const pill = this.#active()?.hasAttribute('data-year-pill') === true;
+            this.#move(pad, Math.min(now - this.#last, MAX_FRAME_MS) / 1000, pill);
+            this.#press(pad, pill);
             this.#ringFocus();
         }
         this.#held = held(pad);
@@ -216,9 +218,9 @@ class Session implements GamepadSession {
         this.#schedule();
     }
 
-    #press(pad: Gamepad): void {
+    #press(pad: Gamepad, pill: boolean): void {
         const now = held(pad);
-        for (const [index, action] of this.#live()) {
+        for (const [index, action] of this.#live(pill)) {
             if (now.has(index) && !this.#held.has(index)) {
                 this.#pressed = true;
                 action();
@@ -227,9 +229,11 @@ class Session implements GamepadSession {
     }
 
     /** The buttons this loop acts on: under the Xbox's key emulation, not those that arrive as keys. */
-    #live(): Iterable<readonly [number, () => void]> {
+    #live(pill: boolean): Iterable<readonly [number, () => void]> {
         const nav = this.#deps.win.navigator as Partial<Record<'gamepadInputEmulation', string>>;
-        return nav.gamepadInputEmulation === 'keyboard' ? [...this.#buttons].filter(([index]) => !EMULATED.has(index)) : this.#buttons;
+        const actions =
+            nav.gamepadInputEmulation === 'keyboard' ? [...this.#buttons].filter(([index]) => !EMULATED.has(index)) : this.#buttons;
+        return pill ? [...actions].filter(([index]) => !PILL_BUTTONS.has(index)) : actions;
     }
 
     /**
@@ -244,9 +248,9 @@ class Session implements GamepadSession {
         }
     }
 
-    #move(pad: Gamepad, seconds: number): void {
+    #move(pad: Gamepad, seconds: number, pill: boolean): void {
         const { surface, map } = this.#deps;
-        const [panX, panY] = stick(axisValue(pad, 0), axisValue(pad, 1));
+        const [panX, panY] = pill ? ([0, 0] as const) : stick(axisValue(pad, 0), axisValue(pad, 1));
         const [turn, zoomY] = stick(axisValue(pad, 2), axisValue(pad, 3));
         const zoom = buttonValue(pad, RIGHT_TRIGGER) - buttonValue(pad, LEFT_TRIGGER) - zoomY;
         if (Math.hypot(panX, panY, zoom, turn) === 0 || surface.mapCovered()) {

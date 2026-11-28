@@ -85,6 +85,8 @@ export const ja: Messages = {
     'timeline.earlier': '以前の年（{year} まで）',
     'timeline.later': '以降の年（{year} まで）',
     'timeline.empty': 'この地図には歴史レイヤーがありません',
+    'timeline.datesOpened': '{year}年の日付一覧を開きました。',
+    'timeline.datesClosed': '{year}年の日付一覧を閉じました。',
     'timeline.dates': '{year}年の日付',
     'timeline.showOnMap': '地図に表示: {name}',
     'timeline.opacityAll': '{year} すべて',

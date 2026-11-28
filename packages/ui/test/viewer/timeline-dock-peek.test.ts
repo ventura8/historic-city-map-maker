@@ -149,8 +149,9 @@ describe('<hcm-map-viewer>: the peek of a year of several dates (V13)', () => {
         vi.advanceTimersByTime(PEEK_LEAVE_MS);
         await mounted.element.updateComplete;
 
-        expect(menuOf(mounted)?.shadowRoot?.querySelector('.scrim')).not.toBeNull();
-        expect(part(mounted, '.frame').inert).toBe(true);
+        expect(menuOf(mounted)?.shadowRoot?.querySelector('.menu')).not.toBeNull();
+        expect(mounted.element.shadowRoot?.querySelector('hcm-date-menu')).toBe(menu);
+        expect(part(mounted, '.frame').inert).toBe(false);
     });
 
     it('happyPath_selectingTheYearTurnsThePeekIntoTheModalMenu', async () => {

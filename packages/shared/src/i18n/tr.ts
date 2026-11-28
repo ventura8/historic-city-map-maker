@@ -82,6 +82,8 @@ export const tr: Messages = {
     'timeline.earlier': 'Önceki yıllar, {year} yılına kadar',
     'timeline.later': 'Sonraki yıllar, {year} yılına kadar',
     'timeline.empty': 'Bu haritada tarihî katman yok',
+    'timeline.datesOpened': '{year} yılına ait tarihler gösteriliyor.',
+    'timeline.datesClosed': '{year} yılına ait tarih listesi kapatıldı.',
     'timeline.dates': 'Tarihler ({year})',
     'timeline.showOnMap': 'Haritada göster: {name}',
     'timeline.opacityAll': '{year} tümü',

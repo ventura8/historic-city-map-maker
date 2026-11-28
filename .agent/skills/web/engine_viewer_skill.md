@@ -78,3 +78,7 @@ M27: the Layers panel keeps `renamed-streets` beside the city's existing disappe
 `strazi-disparute`, `lost-streets`, or a configured ID with the English label `Disappeared streets`.
 
 The display-only Mapbox forward geocoding adapter in `packages/engine/src/geocoding/geocoder.ts` accepts an abort signal and uses the manifest bounds and viewer locale. Its caller must debounce, discard stale results, show attribution, and never persist responses. This adapter is not yet connected to the viewer search.
+
+## Focused year pill
+
+When the year pill has focus, Left and Right move along the years and Home and End jump to either end. Up and Down bring the previous or next layer of the year to the front, wrapping in date order and keeping the panel open. Enter, Space or gamepad A toggles the dates. Tab enters the open panel. The D-pad and left stick use the same directions, with a delay before a held direction repeats. The timeline announces the year or layer in its polite live region.

@@ -252,3 +252,61 @@ describe('<hcm-timeline> collapsed (V12)', () => {
         expect(element.getBoundingClientRect().height).toBe(64);
     });
 });
+
+describe('focused year controls', () => {
+    afterEach(() => {
+        document.body.replaceChildren();
+        vi.restoreAllMocks();
+        vi.useRealTimers();
+    });
+
+    it('sends content steps and toggle separately from year changes', async () => {
+        const element = await timeline({ value: 1966 });
+        const seen = recordEvents(element, 'hcm-dates-open');
+        for (const key of ['ArrowUp', 'ArrowDown', ' ', 'Enter']) {
+            press(element, key);
+            await element.updateComplete;
+        }
+        expect(seen.map(({ detail }) => (detail as { step: number }).step)).toEqual([-1, 1, 0, 0]);
+        expect(element.value).toBe(1966);
+    });
+
+    it('reads D-pad directions and toggles once per A press', async () => {
+        const element = await timeline({ value: 1966 });
+        const seen = recordEvents(element, 'hcm-dates-open');
+        const buttons = Array.from({ length: 16 }, (_, index) => ({ index, pressed: false }));
+        const pad = { mapping: 'standard', buttons, axes: [] } as unknown as Gamepad;
+        vi.spyOn(navigator, 'getGamepads').mockReturnValue([pad]);
+        vi.useFakeTimers({ toFake: ['requestAnimationFrame', 'cancelAnimationFrame'] });
+        element.focus();
+        for (const index of [12, 13, 0]) {
+            for (const button of buttons) {
+                button.pressed = button.index === index;
+            }
+            vi.advanceTimersToNextFrame();
+            await element.updateComplete;
+        }
+        vi.advanceTimersByTime(600);
+        await element.updateComplete;
+        expect(seen.map(({ detail }) => (detail as { step: number }).step)).toEqual([-1, 1, 0]);
+    });
+
+    it('polls while focused, delays held steps and stops on blur', async () => {
+        const element = await timeline({ value: 1966 });
+        const pad = { mapping: 'standard', buttons: [], axes: [1, 0] } as unknown as Gamepad;
+        const poll = vi.spyOn(navigator, 'getGamepads').mockReturnValue([null, pad]);
+        vi.useFakeTimers({ toFake: ['requestAnimationFrame', 'cancelAnimationFrame'] });
+        expect(poll).not.toHaveBeenCalled();
+        element.focus();
+        vi.advanceTimersToNextFrame();
+        expect(element.value).toBe(1977);
+        vi.advanceTimersByTime(300);
+        expect(element.value).toBe(1977);
+        vi.advanceTimersByTime(150);
+        expect(element.value).toBe(1980);
+        shadowQuery(element, '.thumb').blur();
+        poll.mockClear();
+        vi.advanceTimersByTime(500);
+        expect(poll).not.toHaveBeenCalled();
+    });
+});

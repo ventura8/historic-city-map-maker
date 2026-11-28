@@ -90,6 +90,8 @@ export const fr: Messages = {
     'timeline.earlier': 'Années précédentes, jusqu’à {year}',
     'timeline.later': 'Années suivantes, jusqu’à {year}',
     'timeline.empty': 'Aucun calque historique sur cette carte',
+    'timeline.datesOpened': 'Les dates de {year} sont affichées.',
+    'timeline.datesClosed': 'La liste des dates de {year} est fermée.',
     'timeline.dates': 'Dates du {year}',
     'timeline.showOnMap': 'Afficher sur la carte : {name}',
     'timeline.opacityAll': 'Tout {year}',

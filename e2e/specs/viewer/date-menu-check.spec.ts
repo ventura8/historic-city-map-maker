@@ -99,6 +99,7 @@ test(
     async ({ page, lang }) => {
         await openOn1980(page, lang);
         await openDates(page, lang);
+        await page.keyboard.press('Tab');
         await expect(page.locator('hcm-date-menu [data-front]')).toBeFocused();
         await page.keyboard.press('ArrowUp');
         await page.keyboard.press('Shift+Tab');
