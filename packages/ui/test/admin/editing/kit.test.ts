@@ -249,6 +249,21 @@ describe('<hcm-confirm-dialog>', () => {
 
         expect(events).toEqual(['cancel', 'cancel']);
     });
+
+    it('happyPath_anExplicitCloseLabelNamesTheCloseButtonDistinctly', async () => {
+        const element = await inBox<HcmConfirmDialog>(
+            html`<hcm-confirm-dialog
+                headline="Delete item?"
+                body="This cannot be undone."
+                confirm-label="Delete"
+                cancel-label="Keep"
+                close-label="Close"
+            ></hcm-confirm-dialog>`,
+            800,
+        );
+
+        expect(element.shadowRoot?.querySelector('hcm-dialog')?.closeLabel).toBe('Close');
+    });
 });
 
 describe('<hcm-empty-state>', () => {

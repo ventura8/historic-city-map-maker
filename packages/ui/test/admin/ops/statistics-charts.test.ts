@@ -4,31 +4,36 @@ import { afterEach, beforeAll, describe, expect, it } from 'vitest';
 
 import type { CrashesIntentsPort, CrashesViewState, StatisticsNumbersPort } from '../../../src/admin/crashes/crashes-port.js';
 import { formatShare, pageName, screenName } from '../../../src/admin/crashes/statistics-bars.js';
-import { causeTitle } from '../../../src/admin/crashes/statistics-crashes.js';
+import { causeTitle, crashesSection } from '../../../src/admin/crashes/statistics-crashes.js';
+import { errorName, eventName } from '../../../src/admin/crashes/statistics-format.js';
 import { loadStatisticsLive, statisticsLiveSheet } from '../../../src/admin/crashes/statistics-view.js';
 import { FakeArea } from '../editing/fake-area.js';
-import { cleanup, deep, deepAll, deepText, defineAll, updated } from '../shell/fake-app.js';
-import { crashesState, page } from './fixtures.js';
+import { cleanup, deep, deepAll, deepText, defineAll, mount, updated } from '../shell/fake-app.js';
+import { crashesState, nth, page } from './fixtures.js';
 import { NUMBERS, statistics } from './statistics-fixtures.js';
+
+async function setupStatistics(): Promise<void> {
+    defineAll();
+    await loadStatisticsLive();
+}
+
+async function ready(numbers: StatisticsNumbersPort, locale: 'en' | 'ro' = 'en'): Promise<HTMLElement> {
+    const crashes = new FakeArea<CrashesViewState, CrashesIntentsPort>(
+        crashesState({ statistics: statistics({ status: 'ready', numbers }) }),
+    );
+    return (await page('crashes', crashes, { params: ['statistics'], locale })).element;
+}
 
 /** The owner's "prettify" of 2026-11-13: stat cards, bar lists, step bars, error cards, skeletons and the folded help. */
 describe('the Statistics view as cards and charts', () => {
-    beforeAll(async () => {
-        defineAll();
-        await loadStatisticsLive();
-    });
+    beforeAll(setupStatistics);
     afterEach(cleanup);
-
-    async function ready(numbers: StatisticsNumbersPort, locale: 'en' | 'ro' = 'en'): Promise<HTMLElement> {
-        const crashes = new FakeArea<CrashesViewState, CrashesIntentsPort>(
-            crashesState({ statistics: statistics({ status: 'ready', numbers }) }),
-        );
-        return (await page('crashes', crashes, { params: ['statistics'], locale })).element;
-    }
 
     it('happyPath_pathsAndScreensInWords_andSharesAsTheLanguageWritesThem', () => {
         expect(pageName('en', '/')).toBe('The public map');
+        expect(pageName('en', '/index.html')).toBe('The public map');
         expect(pageName('ro', '/admin/')).toBe('Administrarea');
+        expect(pageName('en', '/admin/index.html')).toBe('The admin');
         expect(pageName('en', '/start/')).toBe('/start/');
         expect(screenName('en', 'crashes')).toBe('Crashes');
         expect(screenName('en', '(not set)')).toBe('(not set)');
@@ -101,6 +106,11 @@ describe('the Statistics view as cards and charts', () => {
         expect(deepText(loading)).toBe('Loading…');
         expect(deepAll(loading, '.skeleton')).toHaveLength(7);
     });
+});
+
+describe('the Statistics view errors, formatting and help', () => {
+    beforeAll(setupStatistics);
+    afterEach(cleanup);
 
     it('happyPath_anErrorIsACardWithItsTitleItsCountAndTheFullTextFolded', async () => {
         const long = `Error: ${'a very long cause '.repeat(10)}\n    at stack (index.js:1:1)`;
@@ -148,5 +158,70 @@ describe('the Statistics view as cards and charts', () => {
         await updated(element);
         expect(help.open).toBe(true);
         expect(help.querySelectorAll('[data-wizard]')).toHaveLength(WIZARD_IDS.length);
+    });
+
+    it('badPath_unknownEventsAndCatalogueErrorCodesFormatSafely', async () => {
+        const steps = [
+            {
+                wizard: 'new_city',
+                step: 'names',
+                visitors: 5,
+                averageMs: 30_000,
+                errors: [
+                    { name: 'adminSetup.cloud.permission', count: 2 },
+                    { name: 'adminSetup.unknownCode', count: 1 },
+                ],
+            },
+        ];
+        const element = await ready({
+            ...NUMBERS,
+            events: [
+                { name: 'share', count: 2 },
+                { name: 'custom_event', count: 1 },
+            ],
+            steps,
+        });
+
+        const text = deepText(deep(element, '[data-statistics-numbers]'));
+        expect(text).toContain('custom_event');
+        expect(text).toContain('Your Google account lacks the role … needed here. (adminSetup.cloud.permission)');
+        expect(text).toContain('adminSetup.unknownCode');
+        expect(text).not.toContain(' (adminSetup.unknownCode)');
+        expect(eventName('en', 'custom_event')).toBe('custom_event');
+        expect(errorName('en', 'adminSetup.cloud.permission')).toBe(
+            'Your Google account lacks the role … needed here. (adminSetup.cloud.permission)',
+        );
+        expect(errorName('en', 'adminSetup.unknownCode')).toBe('adminSetup.unknownCode');
+    });
+
+    it('badPath_errorSectionWithoutApiDisabledHidesSetupLink_andWithoutIntentsStaysSafe', async () => {
+        const errorState = crashesState({
+            status: 'error',
+            apiDisabled: false,
+            failure: { key: 'apiError.errorReporting.unavailable' },
+            groups: [],
+        });
+        const crashes = new FakeArea<CrashesViewState, CrashesIntentsPort>(errorState);
+        const { element } = await page('crashes', crashes, { params: ['statistics'] });
+        const section = deep(element, '[data-statistics-crashes]');
+        expect(deep(section, '[role="alert"]').textContent).toContain('Crash reports cannot be read right now.');
+        expect(deepAll(section, 'a[href="#/setup/analytics"]')).toEqual([]);
+        deep(section, 'hcm-button').click();
+        expect(crashes.named('retry')).toHaveLength(1);
+        cleanup();
+
+        const orphan = await mount<HTMLElement>(crashesSection('en', errorState, null, (id) => id));
+        deep(orphan, 'hcm-button').click();
+        expect(deepAll(orphan, '[role="alert"]')).toHaveLength(1);
+        expect(deepAll(orphan, 'a')).toEqual([]);
+    });
+
+    it('happyPath_errorCardsCapAtTenGroups', async () => {
+        const base = nth(crashesState().groups, 0);
+        const groups = Array.from({ length: 12 }, (_, index) => ({ ...base, groupId: `g${String(index)}` }));
+        const crashes = new FakeArea<CrashesViewState, CrashesIntentsPort>(crashesState({ groups }));
+        const { element } = await page('crashes', crashes, { params: ['statistics'] });
+
+        expect(deepAll(element, '.error-item')).toHaveLength(10);
     });
 });

@@ -55,12 +55,8 @@ export function errorName(locale: UiLocale, code: string): string {
     if (!known) {
         return code;
     }
-    try {
-        const words = noticeText(locale, code as AdminNoticeKey).replace(/\{\w+\}/g, '…');
-        return `${words} (${code})`;
-    } catch {
-        return code;
-    }
+    const words = noticeText(locale, code as AdminNoticeKey).replace(/\{\w+\}/g, '…');
+    return words === '' ? code : `${words} (${code})`;
 }
 
 const WIDTH = 120;

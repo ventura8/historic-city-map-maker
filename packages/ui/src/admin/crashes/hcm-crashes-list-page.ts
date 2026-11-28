@@ -275,13 +275,11 @@ export class HcmCrashesListPage extends AreaPage<CrashesViewState, CrashesIntent
 
     #release(locale: UiLocale, version: string | undefined): TemplateResult {
         const url = releaseUrl(version);
-        return url === null
+        return version === undefined || url === null
             ? EMPTY
             : html`<p>
                   <a class="external" href=${url} target="_blank" rel="noopener noreferrer"
-                      >${contentText(locale, 'adminContent.crashes.release', { version: version ?? '' })}<hcm-icon
-                          name="open_in_new"
-                      ></hcm-icon
+                      >${contentText(locale, 'adminContent.crashes.release', { version })}<hcm-icon name="open_in_new"></hcm-icon
                   ></a>
               </p>`;
     }

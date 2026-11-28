@@ -4755,3 +4755,8 @@ Append a numbered entry to *Lessons from this repository* in the task that finds
 825. **A harvest could keep showing as running after the server stopped it.** The next search or monthly tick now records the timeout in a transaction and preserves the dataset checkpoints. A retry can resume immediately.
 
 826. **The destroyed-store test mounted a map when it followed the Italian-language mount test in one Vitest worker.** The mount test had registered Italian in the worker's shared catalogue. The scripted loader now starts with the bundled languages so the test controls when the Italian request resolves.
+
+827. **An unknown catalogue-prefixed `step_error` code formatted as `' (<code>)'` and left a dead `catch` branch** (2026-11-25).
+    - Cause: `errorName` in `packages/ui/src/admin/crashes/statistics-format.ts` wrapped `noticeText` in `try/catch` assuming an unknown `adminSetup.*`/`adminContent.*`/`adminShell.*` key throws, whereas `catalogueTranslator` returns `''` for missing keys.
+    - Fix: drop the unreachable `catch` block and return `code` whenever `words === ''`, pinned by `packages/ui/test/admin/ops/statistics-charts.test.ts`.
+    - **Check what a translator returns for missing keys instead of wrapping it in a `try/catch` that can never run.**

@@ -25,9 +25,25 @@ class ProbePage extends AreaPage<ProbeState, ProbeIntents> {
         return content.jobs as unknown as AreaPort<ProbeState, ProbeIntents> | null;
     }
 
-    /** What a subclass reads: the locale, the params, the intents, an item's address. */
-    probe(): { readonly locale: string; readonly params: readonly string[]; readonly intents: boolean; readonly href: string } {
-        return { locale: this.locale, params: this.params, intents: this.intents !== null, href: this.href(['a', 'b']) };
+    /** What a subclass reads: the locale, the params, the intents, an item's address, who is signed in, read-only. */
+    probe(): {
+        readonly locale: string;
+        readonly params: readonly string[];
+        readonly intents: boolean;
+        readonly href: string;
+        readonly readOnly: boolean;
+        readonly self: string | null;
+        readonly people: Readonly<Record<string, string>>;
+    } {
+        return {
+            locale: this.locale,
+            params: this.params,
+            intents: this.intents !== null,
+            href: this.href(['a', 'b']),
+            readOnly: this.readOnly,
+            self: this.self,
+            people: this.people,
+        };
     }
 
     back(): void {
@@ -59,7 +75,17 @@ describe('AreaPage', () => {
     it('badPath_withoutAnAppOrAStateItFollowsNothingAndReadsTheDefaults', async () => {
         const page = await connected(new ProbePage());
 
-        expect(page.probe()).toEqual({ locale: 'ro', params: [], intents: false, href: '#/jobs/a/b' });
+        expect(page.probe()).toEqual({
+            locale: 'ro',
+            params: [],
+            intents: false,
+            href: '#/jobs/a/b',
+            readOnly: false,
+            self: null,
+            people: {},
+        });
+        expect(page.hasAttribute('read-only')).toBe(false);
+        page.back();
         expect(page.shadowRoot?.textContent).toContain('none');
         expect((page.constructor as typeof AreaPage).fillsPage).toBe(true);
     });
@@ -78,7 +104,15 @@ describe('AreaPage', () => {
         await page.updateComplete;
 
         expect(page.shadowRoot?.textContent).toContain('second');
-        expect(page.probe()).toEqual({ locale: 'en', params: ['j1'], intents: true, href: '#/jobs/a/b' });
+        expect(page.probe()).toEqual({
+            locale: 'en',
+            params: ['j1'],
+            intents: true,
+            href: '#/jobs/a/b',
+            readOnly: false,
+            self: app.state.user?.uid ?? null,
+            people: {},
+        });
         expect(store.named('open')).toEqual(['open ["j1"]']);
         page.back();
         expect(app.named('navigate')).toEqual(['navigate {"id":"jobs","params":[]}']);
@@ -116,5 +150,40 @@ describe('AreaPage', () => {
 
         expect(page.shadowRoot?.textContent).toContain('arrived');
         expect(store.named('open')).toEqual(['open []']);
+    });
+
+    it('happyPath_reopensOnNewParamsReflectsRevokedAndPeopleAndClosesPreviousStoreOnSwitch', async () => {
+        const app1 = new FakeAdminApp(
+            adminState({
+                route: { id: 'jobs', params: ['j1'] },
+                user: { uid: 'u1', email: 'ana@example.com', displayName: 'Ana' },
+                people: { u1: 'Ana' },
+                revoked: true,
+            }),
+        );
+        const store1 = new FakeArea<ProbeState, ProbeIntents>({ name: 'first' });
+        app1.areas.jobs = store1;
+        const page = new ProbePage();
+        page.app = app1;
+        page.state = app1.state;
+        await connected(page);
+
+        expect(page.hasAttribute('read-only')).toBe(true);
+        expect(page.probe()).toMatchObject({ readOnly: true, self: 'u1', people: { u1: 'Ana' } });
+
+        page.state = { ...app1.state, route: { id: 'jobs', params: ['j2'] } };
+        await page.updateComplete;
+        expect(store1.named('open')).toEqual(['open ["j1"]', 'open ["j2"]']);
+
+        const app2 = new FakeAdminApp(adminState({ route: { id: 'jobs', params: ['j2'] } }));
+        const store2 = new FakeArea<ProbeState, ProbeIntents>({ name: 'second' });
+        app2.areas.jobs = store2;
+        page.app = app2;
+        page.state = app2.state;
+        await page.updateComplete;
+
+        expect(store1.named('close')).toEqual(['close']);
+        expect(store2.named('open')).toEqual(['open ["j2"]']);
+        expect(page.hasAttribute('read-only')).toBe(false);
     });
 });

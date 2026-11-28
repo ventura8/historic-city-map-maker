@@ -1,17 +1,41 @@
 import { axeViolations } from '@hcm/test-support/axe';
-import { afterEach, beforeAll, describe, expect, it } from 'vitest';
+import { html } from 'lit';
+import { afterEach, beforeAll, describe, expect, it, vi } from 'vitest';
 
 import type { CrashesIntentsPort, CrashesViewState } from '../../../src/admin/crashes/crashes-port.js';
-import { errorGroupUrl, releaseUrl } from '../../../src/admin/crashes/hcm-crashes-list-page.js';
+import {
+    defineHcmCrashesListPage,
+    errorGroupUrl,
+    HCM_CRASHES_LIST_PAGE_TAG,
+    releaseUrl,
+    type HcmCrashesListPage,
+} from '../../../src/admin/crashes/hcm-crashes-list-page.js';
+import { statisticsLiveSheet } from '../../../src/admin/crashes/statistics-view.js';
+import type { HcmListWindow } from '../../../src/admin/editing/hcm-list-window.js';
 import { publicMapText } from '../../../src/admin/home/hcm-home-page.js';
 import type { HomeIntentsPort, HomeViewState } from '../../../src/admin/home/home-port.js';
 import { FakeArea } from '../editing/fake-area.js';
-import { cleanup, deep, deepAll, deepText, defineAll, updated } from '../shell/fake-app.js';
-import { crashesState, homeState, page } from './fixtures.js';
+import { adminState, cleanup, deep, deepAll, deepText, defineAll, FakeAdminApp, mount, updated } from '../shell/fake-app.js';
+import { crashesState, homeState, nth, page } from './fixtures.js';
 
 describe('<hcm-crashes-list-page>', () => {
     beforeAll(defineAll);
     afterEach(cleanup);
+
+    it('happyPath_openingStatisticsLoadsTheLiveSectionsAndAdoptsTheirStylesOnce', async () => {
+        const crashes = new FakeArea<CrashesViewState, CrashesIntentsPort>(crashesState({}));
+        const { element } = await page('crashes', crashes, { params: ['statistics'] });
+
+        await vi.waitFor(() => {
+            expect(deepAll(element, '[data-statistics-numbers]')).toHaveLength(1);
+        });
+        expect(deepAll(element, '[data-statistics-crashes]')).toHaveLength(1);
+        crashes.set({ status: 'loading' });
+        await updated(element);
+        const sheet = statisticsLiveSheet();
+        expect(sheet).not.toBeNull();
+        expect(element.shadowRoot?.adoptedStyleSheets.filter((item) => item === sheet)).toHaveLength(1);
+    });
 
     it('badPath_withoutTheCrashesStoreThePageShowsNothing', async () => {
         const { element } = await page('crashes', null);
@@ -91,6 +115,53 @@ describe('<hcm-crashes-list-page>', () => {
         expect(releaseUrl('1.0.0-beta.1')).toBe('https://github.com/ventura8/historic-city-map-maker/releases/tag/v1.0.0-beta.1');
         expect([releaseUrl('abc123'), releaseUrl(undefined)]).toEqual([null, null]);
         expect(errorGroupUrl('a b', 'C/1')).toBe('https://console.cloud.google.com/errors/detail/C%2F1?project=a%20b');
+    });
+});
+
+describe('<hcm-crashes-list-page>: loading more and missing store', () => {
+    beforeAll(defineAll);
+    afterEach(cleanup);
+
+    it('badPath_loadingMoreSkipsDuplicateRequests_andMissingStateOrStoreStaysSafe', async () => {
+        const dev = { ...nth(crashesState().groups, 0), version: 'dev', frames: [] };
+        const crashes = new FakeArea<CrashesViewState, CrashesIntentsPort>(
+            crashesState({ selected: dev.groupId, groups: [dev], nextPageToken: 'next', loadingMore: true }),
+        );
+        const { element } = await page('crashes', crashes);
+        (deep(element, 'hcm-list-window') as HcmListWindow).advance();
+        expect(crashes.named('more')).toEqual([]);
+        expect(deepAll(element, 'a[href*="github.com"]')).toEqual([]);
+        expect(deepText(element)).toContain('The browser sent no stack for this error');
+        cleanup();
+
+        const app = new FakeAdminApp(adminState({ route: { id: 'crashes', params: [] } }));
+        app.areas.crashes = new FakeArea<CrashesViewState, CrashesIntentsPort>(crashesState({ selected: 'g1' }));
+        const noState = await mount<HcmCrashesListPage>(html`<hcm-crashes-list-page .app=${app}></hcm-crashes-list-page>`, 1300);
+        await updated(noState);
+        expect(deep(noState, 'a[href*="console.cloud.google.com"]').getAttribute('href')).toBe(
+            'https://console.cloud.google.com/errors/detail/g1?project=',
+        );
+        cleanup();
+
+        const state = adminState({ route: { id: 'crashes', params: [] } });
+        const view = crashesState({ selected: 'g1', nextPageToken: 'next' });
+        const orphan = await mount<HcmCrashesListPage>(
+            html`<hcm-crashes-list-page .state=${state} .view=${view}></hcm-crashes-list-page>`,
+            360,
+        );
+        orphan.style.blockSize = '800px';
+        await updated(orphan);
+        deepAll(orphan, 'button.row')[0]?.click();
+        deep(deep(orphan, 'hcm-list-detail'), '.back hcm-button').click();
+        deep(orphan, 'hcm-segmented-button').dispatchEvent(new CustomEvent('hcm-change', { detail: { value: '24' } }));
+        (deep(orphan, 'hcm-list-window') as HcmListWindow).advance();
+        orphan.view = crashesState({ status: 'error', groups: [], failure: { key: 'apiError.errorReporting.unavailable' } });
+        await updated(orphan);
+        deep(orphan, '.pane .actions hcm-button').click();
+        expect(deep(orphan, '[role="alert"]').textContent).toContain('Crash reports cannot be read right now.');
+
+        defineHcmCrashesListPage();
+        expect(customElements.get(HCM_CRASHES_LIST_PAGE_TAG)).toBeDefined();
     });
 });
 

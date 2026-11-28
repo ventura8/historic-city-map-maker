@@ -6,6 +6,7 @@ describe('dates in the admin language', () => {
     it('happyPath_anIsoDateReadsDayFirstInBothLanguages', () => {
         expect(formatDateInput('ro', '2026-10-18')).toBe('18.10.2026');
         expect(formatDateInput('en', '2026-10-18')).toBe('18/10/2026');
+        expect(formatDateInput('fr', '2026-10-18')).toBe('18/10/2026');
     });
 
     it('badPath_whatIsNotAnIsoDateIsShownAsTyped', () => {
