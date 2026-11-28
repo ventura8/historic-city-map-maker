@@ -7377,3 +7377,7 @@ Two content specs (tiles:96, tiles:247) failed on a 400 of `imagery-search`: the
 PR #5's image job failed because the default Docker driver could not export its layers to the GitHub Actions cache.
 The build script now invokes Buildx with the runner's selected builder when CI supplies cache flags.
 Local builds select the default builder to keep the image available to the local Docker daemon.
+
+## 256. Test runner machine budgets (2026-11-25) — APPLIED (pre-approved: keeps a tool working)
+
+A tool configuration change that keeps the runners working within a machine CPU budget: accept positive `PLAYWRIGHT_WORKERS` and `VITEST_MAX_THREADS` values for Playwright and Vitest, while preserving the existing runner-specific overrides and automatic defaults.

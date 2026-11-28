@@ -128,3 +128,19 @@ def test_happy_path_the_script_runs_as_a_program(monkeypatch: pytest.MonkeyPatch
         runpy.run_path(str(SCRIPT), run_name="__main__")
 
     assert ended.value.code == 0
+
+
+@pytest.mark.parametrize(("name", "variable"), [("playwright", "PLAYWRIGHT_WORKERS"), ("vitest", "VITEST_MAX_THREADS")])
+def test_budget_sets_worker_count_and_existing_output_wins(name: str, variable: str) -> None:
+    env = {variable: "3"}
+    assert parallel.workers(name, env, LAPTOP) == 3
+    assert parallel.tool_variables(env, LAPTOP)[parallel.VARIABLES[name]] == "3"
+    env[parallel.VARIABLES[name]] = "7"
+    assert parallel.VARIABLES[name] not in parallel.tool_variables(env, LAPTOP)
+    assert parallel.workers(name, {variable: "3", parallel.MAX_VARIABLE: "2"}, LAPTOP) == 2
+
+
+@pytest.mark.parametrize("value", ["", "0", "-1", "many", "1.5"])
+def test_invalid_budget_keeps_machine_default(value: str) -> None:
+    assert parallel.workers("vitest", {"VITEST_MAX_THREADS": value}, LAPTOP) == 4
+    assert parallel.workers("playwright", {"PLAYWRIGHT_WORKERS": value}, LAPTOP) == 4

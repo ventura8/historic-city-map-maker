@@ -1,5 +1,7 @@
 import { defineConfig, type PlaywrightTestConfig } from '@playwright/test';
 
+import { workerCount } from '../scripts/ci/worker-count.mjs';
+
 import { ADMIN_EMULATORS, ADMIN_ORIGIN, E2E_PROJECT_ID, EMULATOR_ENV, emulatorOrigin } from './admin/world.js';
 import { MOCK_API_ORIGIN, SITE_ORIGIN } from './fixtures/world.js';
 import { e2eProjects, needsAdmin, tiersFrom } from './projects.js';
@@ -42,7 +44,7 @@ function shardOf({ first, last, total }: ShardRange): Shard {
 }
 
 const CI = process.env['CI'] === 'true';
-const E2E_WORKERS = /^[1-9]\d*$/.test(process.env['HCM_E2E_WORKERS'] ?? '') ? Number(process.env['HCM_E2E_WORKERS']) : undefined;
+const E2E_WORKERS = workerCount(process.env['HCM_E2E_WORKERS']) ?? workerCount(process.env['PLAYWRIGHT_WORKERS']);
 /** The e2e servers run from the repository root, through Node's type stripping (scripts/site/register-ts.mjs). */
 const SERVER = 'node --import ./scripts/site/register-ts.mjs e2e/mock-apis/main.ts';
 const TIERS = tiersFrom(process.env['E2E_TIER']);

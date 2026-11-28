@@ -37,6 +37,7 @@ KIB_PER_GIB = 1024 * 1024
 MAX_VARIABLE = "HCM_MAX_PARALLEL"
 LOW_VARIABLE = "HCM_LOW_MEM"
 LINT_VARIABLE = "HCM_LINT_WORKERS"
+BUDGET_VARIABLES: Mapping[str, str] = {"vitest": "VITEST_MAX_THREADS", "playwright": "PLAYWRIGHT_WORKERS"}
 EXIT_USAGE = 2
 
 
@@ -119,7 +120,8 @@ def workers(name: str, environ: Mapping[str, str], machine: Machine) -> int:
     asked = _positive(environ.get(LINT_VARIABLE)) if name == "lint" else None
     if asked is not None:
         return asked
-    count = kind.low if environ.get(LOW_VARIABLE, "").strip() == "1" else _by_machine(kind, machine)
+    budget = _positive(environ.get(BUDGET_VARIABLES.get(name, "")))
+    count = budget or (kind.low if environ.get(LOW_VARIABLE, "").strip() == "1" else _by_machine(kind, machine))
     return max(1, min(count, _positive(environ.get(MAX_VARIABLE)) or count))
 
 

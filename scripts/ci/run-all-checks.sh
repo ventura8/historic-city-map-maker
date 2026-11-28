@@ -57,6 +57,8 @@ main() {
 		--env HCM_LOW_MEM \
 		--env HCM_LINT_WORKERS \
 		--env HCM_E2E_WORKERS \
+		--env PLAYWRIGHT_WORKERS \
+		--env VITEST_MAX_THREADS \
 		--env VITEST_MAX_WORKERS \
 		--oom-score-adj "${HCM_OOM_SCORE_ADJ:-500}" \
 		--volume "$root:$root" \

@@ -78,3 +78,5 @@ Never suppress: no inline directive of any tool, no `.skip`/`.only`/`xfail`, no 
 - The image has a real `sonar-scanner` on `PATH`: a test that hides its fake tool must also drop the image's directories from `PATH`.
 - e2e specs are linted with `eslint-plugin-playwright`: no conditional in a test body (window-class branches go into helpers such as `closeModalSheet` in `e2e/support/viewer.ts`), assertion helpers are named `expect…`, a test function stays within 120 lines (a journey becomes one function per step).
 - A change to `functions/package.json`'s dependencies or to the root `overrides` refreshes `functions/deploy-lock/` (`npm run deploy-lock --workspace @hcm/functions` in the pinned Node image, with the network); the `vite-build` gate fails on a stale lock and `deploy-lock-audit` audits it.
+
+- Machine worker budgets: `PLAYWRIGHT_WORKERS` and `VITEST_MAX_THREADS` set positive integer counts; invalid values fall back to the existing defaults. `HCM_E2E_WORKERS` and `VITEST_MAX_WORKERS` win when set, and `HCM_MAX_PARALLEL` caps counts chosen by the pipeline.

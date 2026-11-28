@@ -3,6 +3,8 @@ import { existsSync } from 'node:fs';
 import { playwright } from '@vitest/browser-playwright';
 import { defineConfig, type TestProjectInlineConfiguration } from 'vitest/config';
 
+import { workerCount } from './scripts/ci/worker-count.mjs';
+
 /**
  * One Vitest run for every TypeScript test project, so coverage is merged into a single
  * report (reports/coverage/ts/lcov.info) with repo-relative paths for Sonar and the per-file gate.
@@ -210,10 +212,12 @@ const SUITES: readonly Suite[] = [
 ];
 
 const present = SUITES.filter((suite) => existsSync(`${suite.dir}/package.json`));
+const threadBudget = workerCount(process.env['VITEST_MAX_THREADS']);
 
 export default defineConfig({
     test: {
         projects: present.map((suite) => suite.project),
+        ...(workerCount(process.env['VITEST_MAX_WORKERS']) === undefined && threadBudget !== undefined ? { maxWorkers: threadBudget } : {}),
         // The colour library's ES modules import without file extensions, which Node refuses, so Vite transforms it as it does
         // for the CLI's bundle, in every project (each extends this config). Set for `create-historic-city` alone, its six
         // files failed to import it whenever a worker had run `admin` files first (2026-11-13, DECISIONS-for-review.md §180h).

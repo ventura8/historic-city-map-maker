@@ -112,3 +112,5 @@ E2E does **not** count toward the per-file coverage gate; unit and browser tests
 - A fixture of an ended job carries every field the real ending writes: a stopped job has the `cancelRequested` the admin's Stop wrote, and the retry test that seeded one without it passed while every real Try again stayed stopped (`docs/LESSONS.md` 565). Drive the state through the owner's own clicks (save, Stop through `onJobWrite`, then Retry and the tick) rather than hand-writing the end state.
 
 Auth panel coverage should exercise rendered actions with and without an app port, including a busy invitation and empty or blocked states.
+
+Crashes and Statistics coverage should mount `<hcm-crashes-list-page>` at `#/crashes/statistics` before `loadStatisticsLive()` in a fresh module graph to cover lazy loading and stylesheet adoption, test `loadingMore`, missing shell state or store intents, non-`apiDisabled` crash failures, unknown event names, and unknown catalogue-prefixed error codes.

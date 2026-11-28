@@ -23,6 +23,7 @@
         { "path": "firebase/rules-tests" },
         { "path": "packages/ui/scripts/test" },
         { "path": "scripts/seed/test" },
+        { "path": "scripts/ci/test" },
         { "path": "scripts/site" },
         { "path": "scripts/site/test" },
         { "path": "scripts/release" },
