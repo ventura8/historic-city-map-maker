@@ -7381,3 +7381,7 @@ Local builds select the default builder to keep the image available to the local
 ## 256. Test runner machine budgets (2026-11-25) — APPLIED (pre-approved: keeps a tool working)
 
 A tool configuration change that keeps the runners working within a machine CPU budget: accept positive `PLAYWRIGHT_WORKERS` and `VITEST_MAX_THREADS` values for Playwright and Vitest, while preserving the existing runner-specific overrides and automatic defaults.
+
+## 257. Mapbox Satellite as a photo-placement background (2026-11-28) — APPLIED (the owner's decision)
+
+The admin's photo editor may show today's Mapbox Satellite (`mapbox.satellite`, `packages/admin/src/photos/backgrounds.ts`, added in t864) behind the map where an editor places a photo's viewpoint and view cone. The owner kept it after this question: the point is placed by eye, nothing is traced or extracted from the imagery, and the photo is shown again on a Mapbox map. The hard rule stays as written for imagery: Mapbox Satellite is never used to align imagery, so the georeferencer, the pipeline and every calibration step keep OSM and Sentinel-2 as their only references, and the georeferencer's firewall keeps blocking it. Rejected: replacing it with Sentinel-2 cloudless in the photo editor (10 m is coarse for a street-level viewpoint).
