@@ -22,7 +22,7 @@ import { isPopup, type DockView, type TimelineHandlers } from './dock-date-menu.
 import { countOf, dateCounts, datesOpenEvent, type DatesOpenDetail } from './timeline-dates.js';
 import { announceDate } from './pill-date.js';
 import { LongPress } from './long-press.js';
-export { dateMenu, shownLayers, type DateMenuHandlers, type DockView } from './dock-date-menu.js';
+export { dateMenu, shownLayers, type DockView } from './dock-date-menu.js';
 import { type opacitySheet, sliderPanel } from './opacity-sheet.js';
 import { PEEK_LEAVE_MS, type DatesPeekDetail } from './timeline-peek.js';
 

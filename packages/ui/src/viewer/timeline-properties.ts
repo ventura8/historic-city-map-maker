@@ -1,13 +1,14 @@
 import { DEFAULT_LOCALE, translate, type ViewerLocale } from '@hcm/shared';
 import { LitElement } from 'lit';
 
-import type { TimelineOrientation } from './hcm-timeline.js';
 import { countOf, datesValueText } from './timeline-dates.js';
 import type { Edges } from './timeline-edges.js';
 import { YEAR_GAP_PX, type TimelineDensity, type TimelineStop } from './timeline-model.js';
 import type { YearOpacity } from './timeline-opacity.js';
 import { placeTip, type TimelineTip } from './timeline-tip.js';
 import { timelineStyles } from './timeline-styles.js';
+
+export type TimelineOrientation = 'horizontal' | 'vertical';
 
 /** Standing, a label in the pill's lane needs this far from the selected stop: half the 40 px pill and half a 20 px label. */
 const PILL_REACH_PX = 30;

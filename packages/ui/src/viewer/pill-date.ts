@@ -1,7 +1,6 @@
 import { translate } from '@hcm/shared';
 
-import type { HcmTimeline } from './hcm-timeline.js';
-import type { DockView } from './timeline-dock.js';
+import type { DockView } from './dock-date-menu.js';
 import { dateItems, frontOfYear, type DateItem, type DatesOpenDetail } from './timeline-dates.js';
 
 function adjacentDate(view: DockView, year: number, step: number): DateItem | undefined {
@@ -21,7 +20,7 @@ export function announceDate(
     if (step === undefined) {
         return;
     }
-    const pill = event.currentTarget as HcmTimeline;
+    const pill = event.currentTarget as HTMLElement & { said: string };
     if (step === 0) {
         pill.said = translate(view.locale, open === null ? 'timeline.datesClosed' : 'timeline.datesOpened', { year: String(year) });
         return;

@@ -19,7 +19,7 @@ import { tipText, tipWanted, type TimelineTip } from './timeline-tip.js';
 
 export const HCM_TIMELINE_TAG = 'hcm-timeline';
 
-export type TimelineOrientation = 'horizontal' | 'vertical';
+export type { TimelineOrientation } from './timeline-properties.js';
 
 export { trackRatio } from './timeline-pointer.js';
 

@@ -4,12 +4,24 @@ import { html, type TemplateResult } from 'lit';
 import type { TimelineOrientation } from './hcm-timeline.js';
 import type { YearOpacity } from './timeline-opacity.js';
 import type { TimelineStop } from './timeline-model.js';
-import type { TimelineDock } from './timeline-dock.js';
+import type { DatesOpenDetail } from './timeline-dates.js';
 import { dateItems, frontOfYear } from './timeline-dates.js';
 import { opacitySheet } from './opacity-sheet.js';
 import { EMPTY } from './empty.js';
 
 /** What the dock's template needs from one render of the viewer. */
+/** What the date menu needs from the timeline's dock (`timeline-dock.ts`), named here so the two modules form no cycle. */
+export interface DateMenuDock {
+    readonly dates: DatesOpenDetail | null;
+    readonly peek: boolean;
+    sidePanel(year: number): TemplateResult | null;
+    sheetModel(): Parameters<typeof opacitySheet>[0];
+    readonly controls: () => DOMRect[];
+    readonly keepDates: () => void;
+    readonly onMenuPointer: (event: CustomEvent<{ readonly inside: boolean }>) => void;
+    readonly closeDates: () => void;
+}
+
 export interface DockView {
     readonly front?: string | null;
     readonly stops: readonly TimelineStop[];
@@ -38,7 +50,7 @@ export function shownLayers(overlays: readonly Overlay[]): ReadonlySet<string> {
 /** The date picker of the year the dock asked for, else the year's opacity sheet when it is open (`opacity-sheet.ts`). */
 export function dateMenu(
     view: Pick<DockView, 'locale' | 'layers' | 'orientation'> & { readonly front: string | null; readonly shown?: ReadonlySet<string> },
-    dock: TimelineDock,
+    dock: DateMenuDock,
     on: DateMenuHandlers,
 ): TemplateResult {
     const dates = dock.dates;
